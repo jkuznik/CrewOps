@@ -4,7 +4,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
 }
 
-allprojects {
+subprojects {
     group = "pl.kuznik"
     version = "0.0.1-SNAPSHOT"
 
