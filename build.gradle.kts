@@ -4,36 +4,40 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
 }
 
-group = "pl.kuznik"
-version = "0.0.1-SNAPSHOT"
+allprojects {
+    group = "pl.kuznik"
+    version = "0.0.1-SNAPSHOT"
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+    apply(plugin = "java")
+    apply(plugin = "io.spring.dependency-management")
+    apply(plugin = "org.springframework.boot")
+
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(21))
+        }
     }
-}
 
-configurations.named("compileOnly") {
-    extendsFrom(configurations.getByName("annotationProcessor"))
-}
+    repositories {
+        mavenCentral()
+    }
 
-repositories {
-    mavenCentral()
-}
+    configurations.named("compileOnly") {
+        extendsFrom(configurations.getByName("annotationProcessor"))
+    }
 
-dependencies {
-    implementation("org.springframework.boot:spring-boot-starter")
+    dependencies {
+        implementation("org.springframework.boot:spring-boot-starter")
+        developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-    compileOnly("org.projectlombok:lombok")
+        compileOnly("org.projectlombok:lombok")
+        annotationProcessor("org.projectlombok:lombok")
 
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
+        testImplementation("org.springframework.boot:spring-boot-starter-test")
+        testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    }
 
-    annotationProcessor("org.projectlombok:lombok")
-
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
-
-tasks.named<Test>("test") {
-    useJUnitPlatform()
+    tasks.named<Test>("test") {
+        useJUnitPlatform()
+    }
 }
