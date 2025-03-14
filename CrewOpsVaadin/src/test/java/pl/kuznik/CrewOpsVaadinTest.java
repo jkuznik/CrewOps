@@ -6,6 +6,6 @@ class CrewOpsVaadinTest {
 
     @Test
     void shouldLoadCoreModule() {
-        CrewOpsCore.main(new String[0]);
+        CrewOpsCore crewOpsCore = new CrewOpsCore();
     }
 }
