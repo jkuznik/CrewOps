@@ -2,8 +2,27 @@
     - changeSet:
         id: 001-initial-config
         author: jkuznik
-#        Below comments are added as template for future changeSet's include - uncomment after prepare those scripts correctly
-#    - include:
-#        file: db/changelog/create/002-create-table-employee.yaml
-#    - include:
-#        file: db/changelog/create/003-create-table-vehicle.yaml
+#            source: https://neon.tech/postgresql/postgresql-tutorial/postgresql-timestamp
+    - changeSet:
+        id: 002-create-update_updated_at-function
+        author: jkuznik
+        changes:
+            - sql:
+                dbms: postgresql
+#                source: https://docs.liquibase.com/change-types/sql.html#yaml_example
+                endDelimiter: \nGO
+                splitStatements: true
+                sql: |
+                    CREATE OR REPLACE FUNCTION update_updated_at() RETURNS TRIGGER AS $$
+                        BEGIN 
+                            NEW.updated_at = current_timestamp;
+                            RETURN NEW;
+                        END;
+                    $$ LANGUAGE plpgsql;
+
+    - include:
+        file: db/changelog/create/001-create-table-employee.yaml
+    - include:
+        file: db/changelog/create/002-create-table-vehicle.yaml
+    - include:
+        file: db/changelog/create/003-create-join-table-empoyee-vehicle.yaml
