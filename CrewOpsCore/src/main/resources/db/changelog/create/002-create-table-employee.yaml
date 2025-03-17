@@ -25,6 +25,11 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: phone_number
+                  type: varchar(15)
+                  constraints:
+                      nullable: true
+              - column:
                   name: department
                   type: varchar(50)
                   constraints:
@@ -35,3 +40,17 @@ databaseChangeLog:
                   defaultValueComputed: CURRENT_TIMESTAMP
                   constraints:
                     nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: |
+              ALTER TABLE employee
+              ALTER COLUMN updated_at
+              SET DEFAULT CURRENT_TIMESTAMP,
+              ALTER COLUMN updated_at
+              SET DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
