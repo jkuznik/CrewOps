@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 002-create-employee-table
+      id: 001-create-employee-table
       author: jkuznik
       changes:
         - createTable:
@@ -48,9 +48,19 @@ databaseChangeLog:
                     nullable: false
         - sql:
             dbms: postgresql
+#            source: https://neon.tech/postgresql/postgresql-tutorial/postgresql-timestamp
             sql: |
-              ALTER TABLE employee
-              ALTER COLUMN updated_at
-              SET DEFAULT CURRENT_TIMESTAMP,
-              ALTER COLUMN updated_at
-              SET DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+              CREATE OR REPLACE FUNCTION update_updated_at()
+              RETURNS TRIGGER AS $$
+              BEGIN
+              NEW.updated_at = current_timestamp;
+              RETURN NEW;
+              END;
+              $$ LANGUAGE plpgsql;
+              
+              DROP TRIGGER IF EXISTS employee_updated_at_trigger ON employee;
+  
+              CREATE TRIGGER employee_updated_at_trigger
+              BEFORE UPDATE ON employee
+              FOR EACH ROW
+              EXECUTE FUNCTION update_updated_at();
