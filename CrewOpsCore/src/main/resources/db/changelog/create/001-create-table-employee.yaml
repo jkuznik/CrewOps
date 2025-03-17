@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 001-create-employee-table
+      id: 001-create-table-employee
       author: jkuznik
       changes:
         - createTable:

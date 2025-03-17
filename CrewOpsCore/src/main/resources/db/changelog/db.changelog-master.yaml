@@ -2,8 +2,9 @@
     - changeSet:
         id: 001-initial-config
         author: jkuznik
-#        Below comments are added as template for future changeSet's include - uncomment after prepare those scripts correctly.
-#    - include:
-#        file: db/changelog/create/001-create-table-employee.yaml
-#    - include:
-#        file: db/changelog/create/002-create-table-vehicle.yaml
+    - include:
+        file: db/changelog/create/001-create-table-employee.yaml
+    - include:
+        file: db/changelog/create/002-create-table-vehicle.yaml
+    - include:
+        file: db/changelog/create/003-create-join-table-empoyee-vehicle.yaml

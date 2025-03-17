@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 001-create-vehicle-type-enum
+      id: 001-create-type-vehicle-type-enum
       author: jkuznik
       changes:
         - sql:
@@ -9,7 +9,7 @@ databaseChangeLog:
               CREATE TYPE vehicle_type_enum AS ENUM ('TECHNOLOGY_TRUCK', 'WHEEL_LOADER', 'BULLDOZER', 'EXCAVATOR', 'ROLLER', 'SWEEPER', 'SEMI_TRUCK', 'OTHER');
 
   - changeSet:
-      id: 002-create-vehicle-table
+      id: 002-create-table-vehicle
       author: jkuznik
       changes:
         - createTable:
