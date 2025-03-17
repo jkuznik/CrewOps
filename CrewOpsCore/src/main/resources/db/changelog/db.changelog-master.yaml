@@ -9,6 +9,7 @@
         changes:
             - sql:
                 dbms: postgresql
+#                source: https://docs.liquibase.com/change-types/sql.html#yaml_example
                 endDelimiter: \nGO
                 splitStatements: true
                 sql: |
