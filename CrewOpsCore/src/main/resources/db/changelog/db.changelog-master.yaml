@@ -2,6 +2,23 @@
     - changeSet:
         id: 001-initial-config
         author: jkuznik
+#            source: https://neon.tech/postgresql/postgresql-tutorial/postgresql-timestamp
+    - changeSet:
+        id: 002-create-update_updated_at-function
+        author: jkuznik
+        changes:
+            - sql:
+                dbms: postgresql
+                endDelimiter: \nGO
+                splitStatements: true
+                sql: |
+                    CREATE OR REPLACE FUNCTION update_updated_at() RETURNS TRIGGER AS $$
+                        BEGIN 
+                            NEW.updated_at = current_timestamp;
+                            RETURN NEW;
+                        END;
+                    $$ LANGUAGE plpgsql;
+
     - include:
         file: db/changelog/create/001-create-table-employee.yaml
     - include:

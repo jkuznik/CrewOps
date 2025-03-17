@@ -71,21 +71,16 @@ databaseChangeLog:
                   defaultValueComputed: CURRENT_TIMESTAMP
                   constraints:
                     nullable: false
+
+  - changeSet:
+      id: 003-create-vehicle-updated_at-trigger
+      author: jkuznik
+      changes:
         - sql:
             dbms: postgresql
-#            source: https://neon.tech/postgresql/postgresql-tutorial/postgresql-timestamp
             sql: |
-              CREATE OR REPLACE FUNCTION update_updated_at()
-              RETURNS TRIGGER AS $$
-              BEGIN
-              NEW.updated_at = current_timestamp;
-              RETURN NEW;
-              END;
-              $$ LANGUAGE plpgsql;
-              
-              DROP TRIGGER IF EXISTS vehicle_updated_at_trigger ON vehicle;
-              
-              CREATE TRIGGER vehicle_updated_at_trigger
-              BEFORE UPDATE ON vehicle
-              FOR EACH ROW
-              EXECUTE FUNCTION update_updated_at();
+                    DROP TRIGGER IF EXISTS vehicle_updated_at_trigger ON vehicle;
+                    CREATE TRIGGER vehicle_updated_at_trigger
+                    BEFORE UPDATE ON vehicle
+                    FOR EACH ROW
+                    EXECUTE FUNCTION update_updated_at();
