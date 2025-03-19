@@ -26,3 +26,7 @@
         file: db/changelog/create/002-create-table-vehicle.yaml
     - include:
         file: db/changelog/create/003-create-join-table-empoyee-vehicle.yaml
+    - include:
+          file: db/changelog/create/004-create-table-qualification.yaml
+    - include:
+          file: db/changelog/create/005-create-join-table-employee-qualification.yaml
