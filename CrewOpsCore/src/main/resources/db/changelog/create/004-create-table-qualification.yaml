@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: 001-create-table-employee
+      id: 001-create-table-qualification
       author: jkuznik
       changes:
         - createTable:
-            tableName: employee
+            tableName: qualification
             columns:
               - column:
                   name: id
@@ -15,25 +15,15 @@ databaseChangeLog:
                     unique: true
                   defaultValueComputed: gen_random_uuid()
               - column:
-                  name: first_name
-                  type: varchar(50)
+                  name: name
+                  type: varchar(100)
                   constraints:
                     nullable: false
               - column:
-                  name: last_name
-                  type: varchar(50)
+                  name: description
+                  type: text
                   constraints:
-                    nullable: false
-              - column:
-                  name: phone_number
-                  type: varchar(15)
-                  constraints:
-                      nullable: true
-              - column:
-                  name: department
-                  type: varchar(50)
-                  constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: created_at
                   type: timestamp
@@ -48,15 +38,15 @@ databaseChangeLog:
                     nullable: false
 
   - changeSet:
-      id: 002-create-employee-updated_at-trigger
+      id: 002-create-qualification-updated_at-trigger
       author: jkuznik
       changes:
         - sql:
             dbms: postgresql
             # source: https://neon.tech/postgresql/postgresql-tutorial/postgresql-timestamp
             sql: |
-              DROP TRIGGER IF EXISTS employee_updated_at_trigger ON employee;
-              CREATE TRIGGER employee_updated_at_trigger
-              BEFORE UPDATE ON employee
+              DROP TRIGGER IF EXISTS qualification_updated_at_trigger ON qualification;
+              CREATE TRIGGER qualification_updated_at_trigger
+              BEFORE UPDATE ON qualification
               FOR EACH ROW
               EXECUTE FUNCTION update_updated_at();

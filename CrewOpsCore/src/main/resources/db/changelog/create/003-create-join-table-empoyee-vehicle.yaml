@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 001-create-employee-vehicle-table
+      id: 001-create-table-employee-vehicle
       author: jkuznik
       changes:
         - createTable:
@@ -16,6 +16,7 @@ databaseChangeLog:
                   type: uuid
                   constraints:
                     nullable: false
+
         - addForeignKeyConstraint:
             baseTableName: employee_vehicle
             baseColumnNames: employee_id
@@ -23,6 +24,7 @@ databaseChangeLog:
             referencedTableName: employee
             referencedColumnNames: id
             onDelete: CASCADE
+
         - addForeignKeyConstraint:
             baseTableName: employee_vehicle
             baseColumnNames: vehicle_id

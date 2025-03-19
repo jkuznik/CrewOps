@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-table-employee-qualification
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: employee_qualification
+            columns:
+              - column:
+                  name: employee_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: qualification_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expired_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+        - addPrimaryKey:
+            tableName: employee_qualification
+            columnNames: employee_id, qualification_id
+            constraintName: pk_employee_qualification
+
+        - addForeignKeyConstraint:
+            baseTableName: employee_qualification
+            baseColumnNames: employee_id
+            constraintName: fk_employee_qualification_employee
+            referencedTableName: employee
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: employee_qualification
+            baseColumnNames: qualification_id
+            constraintName: fk_employee_qualification_vehicle
+            referencedTableName: qualification
+            referencedColumnNames: id
+            onDelete: CASCADE
