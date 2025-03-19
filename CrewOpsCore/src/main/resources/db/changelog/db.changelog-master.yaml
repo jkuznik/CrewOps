@@ -2,16 +2,16 @@
     - changeSet:
         id: 001-initial-config
         author: jkuznik
-#            source: https://neon.tech/postgresql/postgresql-tutorial/postgresql-timestamp
     - changeSet:
         id: 002-create-update_updated_at-function
         author: jkuznik
         changes:
             - sql:
                 dbms: postgresql
-#                source: https://docs.liquibase.com/change-types/sql.html#yaml_example
+                #   source: https://docs.liquibase.com/change-types/sql.html#yaml_example
                 endDelimiter: \nGO
                 splitStatements: true
+                #   source: https://neon.tech/postgresql/postgresql-tutorial/postgresql-timestamp
                 sql: |
                     CREATE OR REPLACE FUNCTION update_updated_at() RETURNS TRIGGER AS $$
                         BEGIN 
@@ -26,3 +26,7 @@
         file: db/changelog/create/002-create-table-vehicle.yaml
     - include:
         file: db/changelog/create/003-create-join-table-empoyee-vehicle.yaml
+    - include:
+          file: db/changelog/create/004-create-table-qualification.yaml
+    - include:
+          file: db/changelog/create/005-create-join-table-employee-qualification.yaml
