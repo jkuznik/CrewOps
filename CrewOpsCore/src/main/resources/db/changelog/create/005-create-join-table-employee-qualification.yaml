@@ -20,7 +20,7 @@ databaseChangeLog:
                   name: expired_at
                   type: timestamp
                   constraints:
-                    nullable: false
+                    nullable: true
 
         - addPrimaryKey:
             tableName: employee_qualification
