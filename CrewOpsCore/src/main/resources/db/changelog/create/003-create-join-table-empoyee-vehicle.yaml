@@ -17,6 +17,11 @@ databaseChangeLog:
                   constraints:
                     nullable: false
 
+        - addPrimaryKey:
+            tableName: employee_vehicle
+            columnNames: employee_id, vehicle_id
+            constraintName: pk_employee_vehicle
+
         - addForeignKeyConstraint:
             baseTableName: employee_vehicle
             baseColumnNames: employee_id
