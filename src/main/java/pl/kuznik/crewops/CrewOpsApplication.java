@@ -9,5 +9,4 @@ public class CrewOpsApplication {
     public static void main(String[] args) {
         SpringApplication.run(CrewOpsApplication.class, args);
     }
-
 }

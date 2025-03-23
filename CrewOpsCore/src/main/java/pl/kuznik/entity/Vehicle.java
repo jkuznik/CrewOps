@@ -3,13 +3,12 @@ package pl.kuznik.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -56,10 +55,10 @@ public class Vehicle {
     @ManyToMany(mappedBy = "vehicles")
     private Set<Employee> employees = new LinkedHashSet<>();
 
-/*
- TODO [Reverse Engineering] create field to map the 'vehicle_type' column
- Available actions: Define target Java type | Uncomment as is | Remove column mapping
-    @Column(name = "vehicle_type", columnDefinition = "vehicle_type_enum not null")
-    private Object vehicleType;
-*/
+    /*
+     TODO [Reverse Engineering] create field to map the 'vehicle_type' column
+     Available actions: Define target Java type | Uncomment as is | Remove column mapping
+        @Column(name = "vehicle_type", columnDefinition = "vehicle_type_enum not null")
+        private Object vehicleType;
+    */
 }

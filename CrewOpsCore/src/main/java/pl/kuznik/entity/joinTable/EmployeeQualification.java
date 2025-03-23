@@ -1,7 +1,7 @@
 package pl.kuznik.entity.joinTable;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
@@ -9,8 +9,6 @@ import org.hibernate.annotations.OnDeleteAction;
 import pl.kuznik.entity.Employee;
 import pl.kuznik.entity.Qualification;
 import pl.kuznik.entity.compositePK.EmployeeQualificationId;
-
-import java.time.Instant;
 
 @Getter
 @Setter
@@ -34,5 +32,4 @@ public class EmployeeQualification {
 
     @Column(name = "expired_at")
     private Instant expiredAt;
-
 }

@@ -3,15 +3,13 @@ package pl.kuznik.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-import pl.kuznik.entity.joinTable.EmployeeQualification;
-
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
+import pl.kuznik.entity.joinTable.EmployeeQualification;
 
 @Getter
 @Setter
@@ -39,5 +37,4 @@ public class Qualification {
 
     @OneToMany(mappedBy = "qualification")
     private Set<EmployeeQualification> employeeQualifications = new LinkedHashSet<>();
-
 }
