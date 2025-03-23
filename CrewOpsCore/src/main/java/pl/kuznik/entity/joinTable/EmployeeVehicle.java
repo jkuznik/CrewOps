@@ -28,5 +28,4 @@ public class EmployeeVehicle {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "vehicle_id", nullable = false)
     private Vehicle vehicle;
-
 }

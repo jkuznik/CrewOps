@@ -2,6 +2,7 @@ plugins {
     id("java")
     id("org.springframework.boot") version "3.4.3"
     id("io.spring.dependency-management") version "1.1.7"
+    id("com.diffplug.spotless") version "7.0.2"
 }
 
 allprojects {
@@ -11,6 +12,7 @@ allprojects {
     apply(plugin = "java")
     apply(plugin = "io.spring.dependency-management")
     apply(plugin = "org.springframework.boot")
+    apply(plugin = "com.diffplug.spotless")
 
     java {
         toolchain {
@@ -20,6 +22,15 @@ allprojects {
 
     repositories {
         mavenCentral()
+    }
+
+    spotless {
+        java {
+            palantirJavaFormat()
+            trimTrailingWhitespace()
+            endWithNewline()
+            removeUnusedImports()
+        }
     }
 
     configurations.named("compileOnly") {
