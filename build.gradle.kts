@@ -39,7 +39,6 @@ allprojects {
 
     dependencies {
         implementation("org.springframework.boot:spring-boot-starter")
-        implementation("org.springframework.boot:spring-boot-docker-compose:3.4.4")
         developmentOnly("org.springframework.boot:spring-boot-devtools")
 
         compileOnly("org.projectlombok:lombok")
@@ -52,4 +51,8 @@ allprojects {
     tasks.named<Test>("test") {
         useJUnitPlatform()
     }
+}
+
+dependencies {
+    implementation("org.springframework.boot:spring-boot-docker-compose:3.4.4")
 }
