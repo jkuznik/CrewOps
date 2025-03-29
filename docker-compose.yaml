@@ -1,0 +1,39 @@
+services:
+  db_postgres:
+    container_name: CrewOpsDb
+    build:
+      context: .
+      dockerfile: postgres.dockerfile
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    networks:
+      - crewOps
+    volumes:
+      - postgres_database:/var/lib/postgres/data
+
+  app:
+    container_name: CrewOpsCore
+    build:
+      context: .
+      dockerfile: core.dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db_postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db_postgres
+    restart: always
+    networks:
+      - crewOps
+
+networks:
+  crewOps:
+
+volumes:
+  postgres_database:

@@ -52,3 +52,7 @@ allprojects {
         useJUnitPlatform()
     }
 }
+
+dependencies {
+    implementation("org.springframework.boot:spring-boot-docker-compose:3.4.4")
+}
