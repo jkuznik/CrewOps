@@ -1,0 +1,8 @@
+spring:
+  application.name: CrewOps
+
+  docker:
+    compose:
+      enabled: true
+      file: docker-compose.yaml
+
