@@ -52,7 +52,7 @@ public class Vehicle {
     @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
     private Instant updatedAt;
 
-    @ManyToMany(mappedBy = "vehicles")
+    @ManyToMany(mappedBy = "vehicles", fetch = FetchType.LAZY)
     private Set<Employee> employees = new LinkedHashSet<>();
 
     /*
