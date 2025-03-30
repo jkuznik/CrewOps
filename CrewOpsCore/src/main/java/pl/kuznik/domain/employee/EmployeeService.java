@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.kuznik.domain.employee.dto.CreateEmployeeDTO;
 import pl.kuznik.domain.employee.dto.UpdateEmployeeDTO;
 import pl.kuznik.entity.Employee;
+import pl.kuznik.exception.EmployeeNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -28,8 +29,7 @@ class EmployeeService {
     public Employee updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) {
         Employee employee = employeeRepository
                 .findById(updateEmployeeDTO.employeeId())
-                // TODO: custom exception
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(() -> new EmployeeNotFoundException(updateEmployeeDTO.employeeId()));
 
         if (updateEmployeeDTO.phoneNumber() != null) {
             employee.setPhoneNumber(updateEmployeeDTO.phoneNumber());
