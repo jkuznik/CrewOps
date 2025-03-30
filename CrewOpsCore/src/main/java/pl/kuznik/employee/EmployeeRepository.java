@@ -2,6 +2,8 @@ package pl.kuznik.employee;
 
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 import pl.kuznik.entity.Employee;
 
-public interface EmployeeRepository extends JpaRepository<Employee, UUID> {}
+@Repository
+interface EmployeeRepository extends JpaRepository<Employee, UUID> {}

@@ -7,12 +7,13 @@ import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
-import lombok.Getter;
-import lombok.Setter;
-import pl.kuznik.entity.joinTable.EmployeeQualification;
+import lombok.*;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "qualification")
 public class Qualification {
@@ -35,6 +36,7 @@ public class Qualification {
     @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
     private Instant updatedAt;
 
-    @OneToMany(mappedBy = "qualification")
-    private Set<EmployeeQualification> employeeQualifications = new LinkedHashSet<>();
+    @Builder.Default
+    @ManyToMany(mappedBy = "qualifications")
+    private Set<Employee> employees = new LinkedHashSet<>();
 }
