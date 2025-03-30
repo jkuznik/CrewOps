@@ -31,12 +31,12 @@ databaseChangeLog:
                     nullable: true
               - column:
                   name: make
-                  type: varchar(15)
+                  type: varchar(31)
                   constraints:
                     nullable: false
               - column:
                   name: model
-                  type: varchar(15)
+                  type: varchar(31)
                   constraints:
                     nullable: false
               - column:

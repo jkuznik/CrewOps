@@ -24,14 +24,14 @@ public class Vehicle {
     @Column(name = "vin", length = 50)
     private String vin;
 
-    @Size(max = 15)
+    @Size(max = 31)
     @NotNull
-    @Column(name = "make", nullable = false, length = 15)
+    @Column(name = "make", nullable = false, length = 31)
     private String make;
 
-    @Size(max = 15)
+    @Size(max = 31)
     @NotNull
-    @Column(name = "model", nullable = false, length = 15)
+    @Column(name = "model", nullable = false, length = 31)
     private String model;
 
     @NotNull

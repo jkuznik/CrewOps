@@ -23,14 +23,14 @@ public class Employee {
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Size(max = 50)
+    @Size(max = 31)
     @NotNull
-    @Column(name = "first_name", nullable = false, length = 50, updatable = false)
+    @Column(name = "first_name", nullable = false, length = 31, updatable = false)
     private String firstName;
 
-    @Size(max = 50)
+    @Size(max = 31)
     @NotNull
-    @Column(name = "last_name", nullable = false, length = 50, updatable = false)
+    @Column(name = "last_name", nullable = false, length = 31, updatable = false)
     private String lastName;
 
     @NotNull
@@ -41,9 +41,9 @@ public class Employee {
     @Column(name = "phone_number", length = 15)
     private String phoneNumber;
 
-    @Size(max = 50)
+    @Size(max = 31)
     @NotNull
-    @Column(name = "department", nullable = false, length = 50)
+    @Column(name = "department", nullable = false, length = 31)
     private String department;
 
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
