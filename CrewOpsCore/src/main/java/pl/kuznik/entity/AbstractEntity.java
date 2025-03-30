@@ -1,0 +1,24 @@
+package pl.kuznik.entity;
+
+import jakarta.persistence.*;
+
+import java.time.Instant;
+import java.util.UUID;
+
+@MappedSuperclass
+class AbstractEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", nullable = false)
+    private UUID id;
+
+    @Version
+    private Integer version;
+
+    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
+    private Instant createdAt;
+
+    @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
+    private Instant updatedAt;
+}

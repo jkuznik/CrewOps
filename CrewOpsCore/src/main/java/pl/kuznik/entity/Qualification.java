@@ -16,11 +16,7 @@ import lombok.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "qualification")
-public class Qualification {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false)
-    private UUID id;
+public class Qualification extends AbstractEntity {
 
     @Size(max = 100)
     @NotNull
@@ -29,12 +25,6 @@ public class Qualification {
 
     @Column(name = "description", length = Integer.MAX_VALUE)
     private String description;
-
-    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
-    private Instant createdAt;
-
-    @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
-    private Instant updatedAt;
 
     @Builder.Default
     @ManyToMany(mappedBy = "qualifications", fetch = FetchType.LAZY)

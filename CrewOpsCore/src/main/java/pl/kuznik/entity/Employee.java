@@ -17,11 +17,7 @@ import lombok.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "employee")
-public class Employee {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false)
-    private UUID id;
+public class Employee extends AbstractEntity {
 
     @Size(max = 31)
     @NotNull
@@ -45,12 +41,6 @@ public class Employee {
     @NotNull
     @Column(name = "department", nullable = false, length = 31)
     private String department;
-
-    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
-    private Instant createdAt;
-
-    @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
-    private Instant updatedAt;
 
     @Builder.Default
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)

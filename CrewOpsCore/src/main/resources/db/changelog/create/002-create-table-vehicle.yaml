@@ -24,6 +24,12 @@ databaseChangeLog:
                     unique: true
                   defaultValueComputed: gen_random_uuid()
               - column:
+                  name: version
+                  type: integer
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+              - column:
                   name: vin
                   type: varchar(50)
                   constraints:

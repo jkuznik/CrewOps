@@ -14,11 +14,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "vehicle")
-public class Vehicle {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false)
-    private UUID id;
+public class Vehicle extends AbstractEntity {
 
     @Size(max = 50)
     @Column(name = "vin", length = 50)
@@ -45,12 +41,6 @@ public class Vehicle {
     @NotNull
     @Column(name = "broken", nullable = false)
     private Boolean broken = false;
-
-    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
-    private Instant createdAt;
-
-    @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
-    private Instant updatedAt;
 
     @ManyToMany(mappedBy = "vehicles", fetch = FetchType.LAZY)
     private Set<Employee> employees = new LinkedHashSet<>();

@@ -15,6 +15,12 @@ databaseChangeLog:
                     unique: true
                   defaultValueComputed: gen_random_uuid()
               - column:
+                  name: version
+                  type: integer
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+              - column:
                   name: first_name
                   type: varchar(31)
                   constraints:
