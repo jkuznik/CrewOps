@@ -4,16 +4,17 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.kuznik.employee.dto.CreateEmployeeDTO;
 import pl.kuznik.entity.Employee;
 
 @Service
 @RequiredArgsConstructor
-public class EmployeeService {
+class EmployeeService implements EmployeeAPI{
 
     private final EmployeeRepository employeeRepository;
 
-    public Employee createEmployee(Employee employee) {
-        return employeeRepository.save(employee);
+    public Employee createEmployee(CreateEmployeeDTO createEmployeeDTO) {
+        return employeeRepository.save(EmployeeMapper.map(createEmployeeDTO));
     }
 
     public List<Employee> getAllEmployees() {
