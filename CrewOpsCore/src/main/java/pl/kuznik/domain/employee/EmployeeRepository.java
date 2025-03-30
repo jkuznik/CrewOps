@@ -1,4 +1,4 @@
-package pl.kuznik.employee;
+package pl.kuznik.domain.employee;
 
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,12 +1,12 @@
-package pl.kuznik.employee;
+package pl.kuznik.domain.employee;
 
-import static pl.kuznik.employee.EmployeeMapper.mapToEntity;
+import static pl.kuznik.domain.employee.EmployeeMapper.mapToEntity;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.kuznik.employee.dto.CreateEmployeeDTO;
+import pl.kuznik.domain.employee.dto.CreateEmployeeDTO;
 import pl.kuznik.entity.Employee;
 
 @Service

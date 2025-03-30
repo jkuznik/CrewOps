@@ -1,5 +1,6 @@
 package pl.kuznik.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -21,29 +22,27 @@ public class Employee extends AbstractEntity {
 
     @Size(max = 31)
     @NotNull
-    @Column(name = "first_name", nullable = false, length = 31, updatable = false)
+    @Column(updatable = false)
     private String firstName;
 
     @Size(max = 31)
     @NotNull
-    @Column(name = "last_name", nullable = false, length = 31, updatable = false)
+    @Column(updatable = false)
     private String lastName;
 
     @NotNull
-    @Column(name = "birth_date", nullable = false, updatable = false)
+    @Column(updatable = false)
     private LocalDate birthDate;
 
     @Size(max = 15)
-    @Column(name = "phone_number", length = 15)
     private String phoneNumber;
 
     @Size(max = 31)
     @NotNull
-    @Column(name = "department", nullable = false, length = 31)
     private String department;
 
     @Builder.Default
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "employee_qualification",
             joinColumns = @JoinColumn(name = "employee_id"),
@@ -51,7 +50,7 @@ public class Employee extends AbstractEntity {
     private Set<Qualification> qualifications = new LinkedHashSet<>();
 
     @Builder.Default
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "employee_vehicle",
             joinColumns = @JoinColumn(name = "employee_id"),

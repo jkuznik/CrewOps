@@ -1,8 +1,8 @@
-package pl.kuznik.employee;
+package pl.kuznik.domain.employee;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import pl.kuznik.employee.dto.CreateEmployeeDTO;
+import pl.kuznik.domain.employee.dto.CreateEmployeeDTO;
 import pl.kuznik.entity.Employee;
 
 @Component
@@ -11,7 +11,7 @@ public class EmployeeAPI {
 
     private final EmployeeService employeeService;
 
-    Employee createEmployee(CreateEmployeeDTO createEmployeeDTO) {
+    public Employee createEmployee(CreateEmployeeDTO createEmployeeDTO) {
         return employeeService.createEmployee(createEmployeeDTO);
     }
 }

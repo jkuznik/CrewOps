@@ -1,5 +1,6 @@
 package pl.kuznik.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -20,13 +21,12 @@ public class Qualification extends AbstractEntity {
 
     @Size(max = 100)
     @NotNull
-    @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "description", length = Integer.MAX_VALUE)
     private String description;
 
     @Builder.Default
-    @ManyToMany(mappedBy = "qualifications", fetch = FetchType.LAZY)
+    @JsonIgnore
+    @ManyToMany(mappedBy = "qualifications")
     private Set<Employee> employees = new LinkedHashSet<>();
 }

@@ -1,6 +1,6 @@
-package pl.kuznik.employee;
+package pl.kuznik.domain.employee;
 
-import pl.kuznik.employee.dto.CreateEmployeeDTO;
+import pl.kuznik.domain.employee.dto.CreateEmployeeDTO;
 import pl.kuznik.entity.Employee;
 
 class EmployeeMapper {
