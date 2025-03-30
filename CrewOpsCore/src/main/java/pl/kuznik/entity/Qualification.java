@@ -37,6 +37,6 @@ public class Qualification {
     private Instant updatedAt;
 
     @Builder.Default
-    @ManyToMany(mappedBy = "qualifications")
+    @ManyToMany(mappedBy = "qualifications", fetch = FetchType.LAZY)
     private Set<Employee> employees = new LinkedHashSet<>();
 }
