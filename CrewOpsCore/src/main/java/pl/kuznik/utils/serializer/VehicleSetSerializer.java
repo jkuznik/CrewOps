@@ -11,8 +11,6 @@ import pl.kuznik.entity.Vehicle;
 public class VehicleSetSerializer extends JsonSerializer<Set<Vehicle>> {
     @Override
     public void serialize(Set<Vehicle> vehicles, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeObject(vehicles.stream()
-                .map(Vehicle::getId)
-                .collect(Collectors.toSet()));
+        gen.writeObject(vehicles.stream().map(Vehicle::getId).collect(Collectors.toSet()));
     }
 }
