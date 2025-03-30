@@ -1,5 +1,7 @@
 package pl.kuznik.employee;
 
+import static pl.kuznik.employee.EmployeeMapper.mapToEntity;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -9,12 +11,12 @@ import pl.kuznik.entity.Employee;
 
 @Service
 @RequiredArgsConstructor
-class EmployeeService implements EmployeeAPI{
+class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
 
     public Employee createEmployee(CreateEmployeeDTO createEmployeeDTO) {
-        return employeeRepository.save(EmployeeMapper.map(createEmployeeDTO));
+        return employeeRepository.save(mapToEntity(createEmployeeDTO));
     }
 
     public List<Employee> getAllEmployees() {

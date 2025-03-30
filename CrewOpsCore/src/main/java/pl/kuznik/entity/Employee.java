@@ -8,9 +8,7 @@ import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
-
 import lombok.*;
-import pl.kuznik.entity.joinTable.EmployeeQualification;
 
 @Getter
 @Setter
