@@ -1,10 +1,9 @@
 package pl.kuznik.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-
 import java.time.Instant;
 import java.util.UUID;
+import lombok.Getter;
 
 @MappedSuperclass
 @Getter

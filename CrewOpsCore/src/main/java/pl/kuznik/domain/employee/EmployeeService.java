@@ -20,9 +20,7 @@ class EmployeeService {
     private final EmployeeRepository employeeRepository;
 
     public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
-        return mapToDTO(
-                employeeRepository.save(
-                        mapToEntity(createEmployeeDTO)));
+        return mapToDTO(employeeRepository.save(mapToEntity(createEmployeeDTO)));
     }
 
     public List<Employee> getAllEmployees() {
@@ -44,6 +42,4 @@ class EmployeeService {
 
         return mapToDTO(employee);
     }
-
-
 }
