@@ -26,8 +26,7 @@ public abstract class IntegrationTest {
 
     @Container
     public static final PostgreSQLContainer<?> postgresSQLContainer = new PostgreSQLContainer<>(
-            DockerImageName.parse("postgis/postgis:16-3.4")
-                    .asCompatibleSubstituteFor("postgres"))
+                    DockerImageName.parse("postgis/postgis:16-3.4").asCompatibleSubstituteFor("postgres"))
             .withDatabaseName(TESTCONTAINER_DB_NAME)
             .withUsername(TESTCONTAINER_DB_USERNAME)
             .withPassword(TESTCONTAINER_DB_PASSWORD)
