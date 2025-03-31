@@ -1,6 +1,7 @@
 package pl.kuznik.domain.employee;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static pl.kuznik.domain.employee.EmployeeTestFactory.*;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -31,59 +32,28 @@ class EmployeeAPITest extends IntegrationTest {
 
     @BeforeEach
     void setUp() {
-        var qualification1 =
-                Qualification.builder().name("foo").description("foo").build();
-        var qualification2 = Qualification.builder().name("bar").build();
-        qualifications = Set.of(qualification1, qualification2);
-
-        var vehicle1 = Vehicle.builder()
-                .vehicleType(VehicleType.BULLDOZER)
-                .make("make")
-                .model("model")
-                .year(2020)
-                .broken(false)
-                .build();
-        var vehicle2 = Vehicle.builder()
-                .vehicleType(VehicleType.EXCAVATOR)
-                .make("make")
-                .model("model")
-                .year(2021)
-                .broken(false)
-                .build();
-        vehicles = Set.of(vehicle1, vehicle2);
+        qualifications = createQualifications();
+        vehicles = createVehicles();
     }
 
     @Test
     void shouldReturnEmployeeWithNoQualificationsAndNoVehicles() {
         // given
-        var employeeDTO = CreateEmployeeDTO.builder()
-                .firstName("foo")
-                .lastName("bar")
-                .birthDate(LocalDate.now())
-                .phoneNumber("123456789")
-                .department("baz")
-                .build();
+        var employeeDTO = createEmployeeDTOWithoutQualificationsAndVehicles();
 
         // when
         EmployeeDTO result = employeeAPI.createEmployee(employeeDTO);
         Employee employee = employeeRepository.findAll().getFirst();
 
         // then
-        assertThat(result.firstName()).isEqualTo("foo");
+        assertThat(result.firstName()).isEqualTo("firstName");
         assertThat(result.firstName()).isEqualTo(employee.getFirstName());
     }
 
     @Test
     void shouldReturnEmployeeWithQualificationsButNoVehicles() {
         // given
-        var employeeDTO = CreateEmployeeDTO.builder()
-                .firstName("foo")
-                .lastName("bar")
-                .birthDate(LocalDate.now())
-                .phoneNumber("123456789")
-                .department("baz")
-                .qualifications(qualifications)
-                .build();
+        var employeeDTO = createEmployeeDTOWithQualificationsAndVehicles();
 
         // when
         EmployeeDTO result = employeeAPI.createEmployee(employeeDTO);
@@ -91,7 +61,7 @@ class EmployeeAPITest extends IntegrationTest {
         Set<Qualification> employeeQualifications = employee.getQualifications();
 
         // then
-        assertThat(result.firstName()).isEqualTo("foo");
+        assertThat(result.firstName()).isEqualTo("firstName");
         assertThat(result.firstName()).isEqualTo(employee.getFirstName());
         assertThat(employeeQualifications.size()).isEqualTo(2); // check if qualifications are persist correct
     }
@@ -99,15 +69,7 @@ class EmployeeAPITest extends IntegrationTest {
     @Test
     void shouldReturnEmployeeWithQualificationsAndVehicles() {
         // given
-        var employeeDTO = CreateEmployeeDTO.builder()
-                .firstName("foo")
-                .lastName("bar")
-                .birthDate(LocalDate.now())
-                .phoneNumber("123456789")
-                .department("baz")
-                .qualifications(qualifications)
-                .vehicles(vehicles)
-                .build();
+        var employeeDTO = createEmployeeDTOWithQualificationsAndVehicles();
 
         // when
         EmployeeDTO result = employeeAPI.createEmployee(employeeDTO);
@@ -119,7 +81,7 @@ class EmployeeAPITest extends IntegrationTest {
                 .findFirst();
 
         // then
-        assertThat(result.firstName()).isEqualTo("foo");
+        assertThat(result.firstName()).isEqualTo("firstName");
         assertThat(result.firstName()).isEqualTo(employee.getFirstName());
         assertThat(employeeQualifications.size()).isEqualTo(2); // check if qualifications are persist correct
         assertThat(employeeVehicles.size()).isEqualTo(2); // check if vehicles are persist correct
