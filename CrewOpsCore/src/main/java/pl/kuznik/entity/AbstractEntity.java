@@ -1,14 +1,13 @@
 package pl.kuznik.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+
 import java.time.Instant;
 import java.util.UUID;
-import lombok.Getter;
-import lombok.Setter;
 
 @MappedSuperclass
 @Getter
-@Setter
 class AbstractEntity {
 
     @Id
@@ -19,9 +18,9 @@ class AbstractEntity {
     @Version
     private Integer version;
 
-    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     private Instant updatedAt;
 }
