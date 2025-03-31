@@ -4,9 +4,12 @@ import static pl.kuznik.domain.employee.EmployeeMapper.mapToDTO;
 import static pl.kuznik.domain.employee.EmployeeMapper.mapToEntity;
 
 import java.util.List;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import pl.kuznik.domain.employee.dto.CreateEmployeeDTO;
 import pl.kuznik.domain.employee.dto.EmployeeDTO;
 import pl.kuznik.domain.employee.dto.UpdateEmployeeDTO;
@@ -15,11 +18,12 @@ import pl.kuznik.exception.EmployeeNotFoundException;
 
 @Service
 @RequiredArgsConstructor
+@Validated
 class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
 
-    public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
+    public EmployeeDTO createEmployee(@Valid CreateEmployeeDTO createEmployeeDTO) {
         return mapToDTO(employeeRepository.save(mapToEntity(createEmployeeDTO)));
     }
 
@@ -28,7 +32,7 @@ class EmployeeService {
     }
 
     @Transactional
-    public EmployeeDTO updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) {
+    public EmployeeDTO updateEmployee(@Valid UpdateEmployeeDTO updateEmployeeDTO) {
         Employee employee = employeeRepository
                 .findById(updateEmployeeDTO.employeeId())
                 .orElseThrow(() -> new EmployeeNotFoundException(updateEmployeeDTO.employeeId()));
