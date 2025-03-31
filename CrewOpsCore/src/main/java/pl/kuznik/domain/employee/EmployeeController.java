@@ -1,6 +1,8 @@
 package pl.kuznik.domain.employee;
 
 import jakarta.validation.Valid;
+
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,11 @@ class EmployeeController {
     public ResponseEntity<EmployeeDTO> createEmployee(@Valid @RequestBody CreateEmployeeDTO createEmployeeDTO) {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.createEmployee(createEmployeeDTO));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<EmployeeDTO>> getEmployees() {
+        return ResponseEntity.status(HttpStatus.OK).body(employeeService.getAllEmployees());
     }
 
     @PatchMapping("update/{id}")

@@ -26,8 +26,10 @@ class EmployeeService {
         return mapToDTO(employeeRepository.save(mapToEntity(createEmployeeDTO)));
     }
 
-    public List<Employee> getAllEmployees() {
-        return employeeRepository.findAll();
+    public List<EmployeeDTO> getAllEmployees() {
+        return employeeRepository.findAll().stream()
+                .map(EmployeeMapper::mapToDTO)
+                .toList();
     }
 
     @Transactional
