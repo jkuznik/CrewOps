@@ -36,8 +36,20 @@ class EmployeeAPITest extends IntegrationTest {
         var qualification2 = Qualification.builder().name("bar").build();
         qualifications = Set.of(qualification1, qualification2);
 
-        var vehicle1 = Vehicle.builder().vehicleType(VehicleType.BULLDOZER).make("make").model("model").year(2020).broken(false).build();
-        var vehicle2 = Vehicle.builder().vehicleType(VehicleType.EXCAVATOR).make("make").model("model").year(2021).broken(false).build();
+        var vehicle1 = Vehicle.builder()
+                .vehicleType(VehicleType.BULLDOZER)
+                .make("make")
+                .model("model")
+                .year(2020)
+                .broken(false)
+                .build();
+        var vehicle2 = Vehicle.builder()
+                .vehicleType(VehicleType.EXCAVATOR)
+                .make("make")
+                .model("model")
+                .year(2021)
+                .broken(false)
+                .build();
         vehicles = Set.of(vehicle1, vehicle2);
     }
 

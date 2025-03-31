@@ -4,13 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import lombok.*;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import pl.kuznik.utils.enums.VehicleType;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -50,5 +49,4 @@ public class Vehicle extends AbstractEntity {
     @JsonIgnore
     @ManyToMany(mappedBy = "vehicles")
     private Set<Employee> employees = new LinkedHashSet<>();
-
 }

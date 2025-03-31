@@ -1,6 +1,9 @@
 package pl.kuznik.domain.employee;
 
-import org.assertj.core.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -14,11 +17,6 @@ import pl.kuznik.entity.Employee;
 import pl.kuznik.entity.Qualification;
 import pl.kuznik.entity.Vehicle;
 import pl.kuznik.utils.enums.VehicleType;
-
-import java.time.LocalDate;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringJUnitConfig(classes = {EmployeeService.class, MethodValidationPostProcessor.class})
 class EmployeeServiceTest {
@@ -43,8 +41,20 @@ class EmployeeServiceTest {
         var qualification2 = Qualification.builder().name("bar").build();
         qualifications = Set.of(qualification1, qualification2);
 
-        var vehicle1 = Vehicle.builder().vehicleType(VehicleType.BULLDOZER).make("make").model("model").year(2020).broken(false).build();
-        var vehicle2 = Vehicle.builder().vehicleType(VehicleType.EXCAVATOR).make("make").model("model").year(2021).broken(false).build();
+        var vehicle1 = Vehicle.builder()
+                .vehicleType(VehicleType.BULLDOZER)
+                .make("make")
+                .model("model")
+                .year(2020)
+                .broken(false)
+                .build();
+        var vehicle2 = Vehicle.builder()
+                .vehicleType(VehicleType.EXCAVATOR)
+                .make("make")
+                .model("model")
+                .year(2021)
+                .broken(false)
+                .build();
         vehicles = Set.of(vehicle1, vehicle2);
 
         createEmployeeWithQAndV = CreateEmployeeDTO.builder()
