@@ -4,6 +4,7 @@ import static pl.kuznik.domain.employee.EmployeeMapper.mapToDTO;
 import static pl.kuznik.domain.employee.EmployeeMapper.mapToEntity;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
 
-    public EmployeeDTO createEmployee(@Valid CreateEmployeeDTO createEmployeeDTO) {
+    public EmployeeDTO createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO) {
         return mapToDTO(employeeRepository.save(mapToEntity(createEmployeeDTO)));
     }
 
@@ -33,7 +34,7 @@ class EmployeeService {
     }
 
     @Transactional
-    public EmployeeDTO updateEmployee(@Valid UpdateEmployeeDTO updateEmployeeDTO) {
+    public EmployeeDTO updateEmployee(@Valid @NotNull UpdateEmployeeDTO updateEmployeeDTO) {
         Employee employee = employeeRepository
                 .findById(updateEmployeeDTO.employeeId())
                 .orElseThrow(() -> new EmployeeNotFoundException(updateEmployeeDTO.employeeId()));
