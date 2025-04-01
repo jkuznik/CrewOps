@@ -21,14 +21,6 @@ databaseChangeLog:
               $$ LANGUAGE plpgsql;
 
   - include:
-      file: db/changelog/create/001-create-table-employee.yaml
-  - include:
-      file: db/changelog/create/002-create-table-vehicle.yaml
-  - include:
-      file: db/changelog/create/003-create-join-table-employee-vehicle.yaml
-  - include:
-      file: db/changelog/create/004-create-table-qualification.yaml
-  - include:
-      file: db/changelog/create/005-create-join-table-employee-qualification.yaml
+      file: db/changelog/db.changelog-master.yaml
   - include:
       file: db/changelog/001-insert-test-values.yaml
