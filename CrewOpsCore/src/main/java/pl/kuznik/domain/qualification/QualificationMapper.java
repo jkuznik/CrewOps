@@ -5,7 +5,7 @@ import pl.kuznik.entity.Qualification;
 
 public class QualificationMapper {
 
-    static public Qualification mapToEntity(CreateQualificationDTO createQualificationDTO) {
+    public static Qualification mapToEntity(CreateQualificationDTO createQualificationDTO) {
         return Qualification.builder()
                 .name(createQualificationDTO.name())
                 .description(createQualificationDTO.description())

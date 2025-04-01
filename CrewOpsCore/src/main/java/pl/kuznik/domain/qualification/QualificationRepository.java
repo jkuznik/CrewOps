@@ -5,5 +5,4 @@ import org.springframework.stereotype.Repository;
 import pl.kuznik.entity.Qualification;
 
 @Repository
-interface QualificationRepository extends JpaRepository<Qualification, Long> {
-}
+interface QualificationRepository extends JpaRepository<Qualification, Long> {}
