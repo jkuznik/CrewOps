@@ -23,7 +23,9 @@ public class QualificationController {
     private final QualificationService qualificationService;
 
     @PostMapping("create")
-    public ResponseEntity<Qualification> create(@RequestBody @Valid @NotNull CreateQualificationDTO createQualificationDTO) {
-        return ResponseEntity.status(HttpStatus.OK).body(qualificationService.createQualification(createQualificationDTO));
+    public ResponseEntity<Qualification> create(
+            @RequestBody @Valid @NotNull CreateQualificationDTO createQualificationDTO) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(qualificationService.createQualification(createQualificationDTO));
     }
 }
