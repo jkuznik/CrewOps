@@ -6,6 +6,8 @@ import pl.kuznik.domain.employee.dto.CreateEmployeeDTO;
 import pl.kuznik.domain.employee.dto.EmployeeDTO;
 import pl.kuznik.domain.employee.dto.UpdateEmployeeDTO;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class EmployeeAPI {
@@ -14,6 +16,10 @@ public class EmployeeAPI {
 
     public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
         return employeeService.createEmployee(createEmployeeDTO);
+    }
+
+    public List<EmployeeDTO> getAllEmployees() {
+        return employeeService.getAllEmployees();
     }
 
     public EmployeeDTO updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) {

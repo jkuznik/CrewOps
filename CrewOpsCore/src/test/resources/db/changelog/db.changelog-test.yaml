@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-initial-config
+      author: jkuznik
+  - changeSet:
+      id: 002-create-update_updated_at-function
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            #   source: https://docs.liquibase.com/change-types/sql.html#yaml_example
+            endDelimiter: \nGO
+            splitStatements: true
+            #   source: https://neon.tech/postgresql/postgresql-tutorial/postgresql-timestamp
+            sql: |
+              CREATE OR REPLACE FUNCTION update_updated_at() RETURNS TRIGGER AS $$
+                  BEGIN 
+                      NEW.updated_at = current_timestamp;
+                      RETURN NEW;
+                  END;
+              $$ LANGUAGE plpgsql;
+
+  - include:
+      file: db/changelog/create/001-create-table-employee.yaml
+  - include:
+      file: db/changelog/create/002-create-table-vehicle.yaml
+  - include:
+      file: db/changelog/create/003-create-join-table-employee-vehicle.yaml
+  - include:
+      file: db/changelog/create/004-create-table-qualification.yaml
+  - include:
+      file: db/changelog/create/005-create-join-table-employee-qualification.yaml
+  - include:
+      file: db/changelog/001-insert-test-values.yaml

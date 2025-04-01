@@ -38,7 +38,7 @@ databaseChangeLog:
         - addForeignKeyConstraint:
             baseTableName: employee_qualification
             baseColumnNames: qualification_id
-            constraintName: fk_employee_qualification_vehicle
+            constraintName: fk_employee_qualification_qualification
             referencedTableName: qualification
             referencedColumnNames: id
             onDelete: CASCADE

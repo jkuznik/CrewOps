@@ -5,11 +5,14 @@ import static pl.kuznik.domain.employee.EmployeeTestFactory.*;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kuznik.IntegrationTest;
 import pl.kuznik.domain.employee.dto.EmployeeDTO;
+import pl.kuznik.domain.employee.dto.UpdateEmployeeDTO;
 import pl.kuznik.entity.Employee;
 import pl.kuznik.entity.Qualification;
 import pl.kuznik.entity.Vehicle;
@@ -78,20 +81,21 @@ class EmployeeAPITest extends IntegrationTest {
 
     @Test
     void shouldReturnEmployeeWhenUpdateObjectIsValid() {
-        // TODO: prepare permanent test values
-        // given
-        //        var updateEmployeeDTO = UpdateEmployeeDTO.builder()
-        //                .employeeId(UUID.fromString("818417e6-fd0c-42c4-bcc1-b0dd453b5960"))
-        //                .phoneNumber("987654321")
-        //                .department("foo")
-        //                .build();
-        //
-        //        // when
-        //        EmployeeDTO result = employeeAPI.updateEmployee(updateEmployeeDTO);
-        //
-        //        // then
-        //        assertThat(result.firstName()).isEqualTo("foo");
-        //        assertThat(result.lastName()).isEqualTo("bar");
-        //        assertThat(result.phoneNumber()).isEqualTo("987654321");
+
+         // given
+                var updateEmployeeDTO = UpdateEmployeeDTO.builder()
+                        .employeeId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
+                        .phoneNumber("987654321")
+                        .department("foo")
+                        .build();
+
+                // when
+                EmployeeDTO result = employeeAPI.updateEmployee(updateEmployeeDTO);
+
+                // then
+                assertThat(result.firstName()).isEqualTo("John");
+                assertThat(result.lastName()).isEqualTo("Doe");
+                assertThat(result.phoneNumber()).isEqualTo("987654321");
+                assertThat(result.department()).isEqualTo("foo");
     }
 }
