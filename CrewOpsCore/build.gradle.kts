@@ -1,11 +1,11 @@
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web:3.4.3")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("jakarta.validation:jakarta.validation-api:3.1.1")
+//    implementation("jakarta.validation:jakarta.validation-api:3.1.1")
+    implementation("org.springframework.boot:spring-boot-starter-validation:3.4.4")
 
     implementation("org.postgresql:postgresql:42.7.5")
     implementation("org.liquibase:liquibase-core:4.31.1")
-
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
 
     testImplementation("org.testcontainers:testcontainers:1.20.6")

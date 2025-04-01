@@ -4,3 +4,6 @@ spring:
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
 
+  liquibase:
+    enabled: true
+    change-log: db/changelog/db.changelog-master.yaml

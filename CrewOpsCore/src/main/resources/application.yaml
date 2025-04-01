@@ -21,7 +21,3 @@ spring:
         format_sql: true
     hibernate:
       ddl-auto: validate
-
-  liquibase:
-    enabled: true
-    change-log: db/changelog/db.changelog-master.yaml

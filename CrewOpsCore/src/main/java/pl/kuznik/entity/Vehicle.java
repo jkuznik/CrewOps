@@ -7,6 +7,9 @@ import jakarta.validation.constraints.Size;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.*;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
+import pl.kuznik.utils.enums.VehicleType;
 
 @Getter
 @Setter
@@ -19,6 +22,11 @@ public class Vehicle extends AbstractEntity {
 
     @Size(max = 50)
     private String vin;
+
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(nullable = false, columnDefinition = "vehicle_type_enum not null")
+    private VehicleType vehicleType;
 
     @Size(max = 31)
     @NotNull
@@ -35,17 +43,10 @@ public class Vehicle extends AbstractEntity {
     private String registerNumber;
 
     @NotNull
-    private Boolean broken = false;
+    private Boolean broken;
 
     @Builder.Default
     @JsonIgnore
     @ManyToMany(mappedBy = "vehicles")
     private Set<Employee> employees = new LinkedHashSet<>();
-
-    /*
-     TODO [Reverse Engineering] create field to map the 'vehicle_type' column
-     Available actions: Define target Java type | Uncomment as is | Remove column mapping
-        @Column(name = "vehicle_type", columnDefinition = "vehicle_type_enum not null")
-        private Object vehicleType;
-    */
 }

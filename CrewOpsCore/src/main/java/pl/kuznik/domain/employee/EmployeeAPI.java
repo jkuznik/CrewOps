@@ -1,5 +1,6 @@
 package pl.kuznik.domain.employee;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import pl.kuznik.domain.employee.dto.CreateEmployeeDTO;
@@ -14,6 +15,10 @@ public class EmployeeAPI {
 
     public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
         return employeeService.createEmployee(createEmployeeDTO);
+    }
+
+    public List<EmployeeDTO> getAllEmployees() {
+        return employeeService.getAllEmployees();
     }
 
     public EmployeeDTO updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) {
