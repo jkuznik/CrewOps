@@ -1,15 +1,14 @@
 package pl.kuznik.domain.employee;
 
+import java.time.LocalDate;
+import java.util.Set;
+import java.util.UUID;
 import pl.kuznik.domain.employee.dto.CreateEmployeeDTO;
 import pl.kuznik.domain.employee.dto.UpdateEmployeeDTO;
 import pl.kuznik.entity.Employee;
 import pl.kuznik.entity.Qualification;
 import pl.kuznik.entity.Vehicle;
 import pl.kuznik.utils.enums.VehicleType;
-
-import java.time.LocalDate;
-import java.util.Set;
-import java.util.UUID;
 
 class EmployeeTestFactory {
 
@@ -86,14 +85,24 @@ class EmployeeTestFactory {
     public static Set<Qualification> createQualifications() {
         return Set.of(
                 Qualification.builder().name("foo").description("foo").build(),
-                Qualification.builder().name("bar").build()
-        );
+                Qualification.builder().name("bar").build());
     }
 
     public static Set<Vehicle> createVehicles() {
         return Set.of(
-                Vehicle.builder().vehicleType(VehicleType.BULLDOZER).make("make").model("model").year(2020).broken(false).build(),
-                Vehicle.builder().vehicleType(VehicleType.EXCAVATOR).make("make").model("model").year(2021).broken(false).build()
-        );
+                Vehicle.builder()
+                        .vehicleType(VehicleType.BULLDOZER)
+                        .make("make")
+                        .model("model")
+                        .year(2020)
+                        .broken(false)
+                        .build(),
+                Vehicle.builder()
+                        .vehicleType(VehicleType.EXCAVATOR)
+                        .make("make")
+                        .model("model")
+                        .year(2021)
+                        .broken(false)
+                        .build());
     }
 }

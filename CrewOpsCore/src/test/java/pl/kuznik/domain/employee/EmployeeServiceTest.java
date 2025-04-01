@@ -1,6 +1,12 @@
 package pl.kuznik.domain.employee;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static pl.kuznik.domain.employee.EmployeeTestFactory.*;
+
 import jakarta.validation.ConstraintViolationException;
+import java.util.Optional;
+import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,13 +19,6 @@ import pl.kuznik.domain.employee.dto.CreateEmployeeDTO;
 import pl.kuznik.domain.employee.dto.EmployeeDTO;
 import pl.kuznik.domain.employee.dto.UpdateEmployeeDTO;
 import pl.kuznik.entity.Employee;
-
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static pl.kuznik.domain.employee.EmployeeTestFactory.*;
 
 @SpringJUnitConfig(classes = {EmployeeService.class, MethodValidationPostProcessor.class})
 class EmployeeServiceTest {
@@ -75,7 +74,8 @@ class EmployeeServiceTest {
     @Test
     void shouldThrowException_whenCreateEmployeeDTOIsNotValid() {
         // when
-        Exception result = Assertions.catchException(() -> employeeService.createEmployee(createEmployeeDTOWithNullFields));
+        Exception result =
+                Assertions.catchException(() -> employeeService.createEmployee(createEmployeeDTOWithNullFields));
 
         // then
         assertThat(result).isNotNull();

@@ -1,7 +1,6 @@
 package pl.kuznik.domain.employee;
 
 import jakarta.validation.Valid;
-
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +31,9 @@ class EmployeeController {
 
     @PatchMapping("update/{id}")
     public ResponseEntity<EmployeeDTO> updateEmployee(
-            @PathVariable("id") UUID id, @RequestParam String phoneNumber, @RequestParam String department) {
+            @PathVariable("id") UUID id,
+            @RequestParam(required = false) String phoneNumber,
+            @RequestParam(required = false) String department) {
         var updateEmployeeDTO = new UpdateEmployeeDTO(id, phoneNumber, department);
 
         return ResponseEntity.status(HttpStatus.OK).body(employeeService.updateEmployee(updateEmployeeDTO));

@@ -47,4 +47,6 @@ class EmployeeService {
 
         return mapToDTO(employee);
     }
+
+    // TODO: add qualifications, vehicles, delete phone number, find by qualifications, vehicles
 }

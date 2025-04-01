@@ -1,6 +1,10 @@
 package pl.kuznik.domain.employee;
 
-import org.junit.jupiter.api.BeforeEach;
+import static org.assertj.core.api.Assertions.assertThat;
+import static pl.kuznik.domain.employee.EmployeeTestFactory.*;
+
+import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,12 +14,6 @@ import pl.kuznik.entity.Employee;
 import pl.kuznik.entity.Qualification;
 import pl.kuznik.entity.Vehicle;
 import pl.kuznik.utils.enums.VehicleType;
-
-import java.util.Optional;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static pl.kuznik.domain.employee.EmployeeTestFactory.*;
 
 @Transactional
 class EmployeeAPITest extends IntegrationTest {
