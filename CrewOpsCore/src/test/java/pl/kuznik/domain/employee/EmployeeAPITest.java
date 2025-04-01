@@ -6,7 +6,6 @@ import static pl.kuznik.domain.employee.EmployeeTestFactory.*;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,20 +81,20 @@ class EmployeeAPITest extends IntegrationTest {
     @Test
     void shouldReturnEmployeeWhenUpdateObjectIsValid() {
 
-         // given
-                var updateEmployeeDTO = UpdateEmployeeDTO.builder()
-                        .employeeId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
-                        .phoneNumber("987654321")
-                        .department("foo")
-                        .build();
+        // given
+        var updateEmployeeDTO = UpdateEmployeeDTO.builder()
+                .employeeId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
+                .phoneNumber("987654321")
+                .department("foo")
+                .build();
 
-                // when
-                EmployeeDTO result = employeeAPI.updateEmployee(updateEmployeeDTO);
+        // when
+        EmployeeDTO result = employeeAPI.updateEmployee(updateEmployeeDTO);
 
-                // then
-                assertThat(result.firstName()).isEqualTo("John");
-                assertThat(result.lastName()).isEqualTo("Doe");
-                assertThat(result.phoneNumber()).isEqualTo("987654321");
-                assertThat(result.department()).isEqualTo("foo");
+        // then
+        assertThat(result.firstName()).isEqualTo("John");
+        assertThat(result.lastName()).isEqualTo("Doe");
+        assertThat(result.phoneNumber()).isEqualTo("987654321");
+        assertThat(result.department()).isEqualTo("foo");
     }
 }

@@ -1,12 +1,11 @@
 package pl.kuznik.domain.employee;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import pl.kuznik.domain.employee.dto.CreateEmployeeDTO;
 import pl.kuznik.domain.employee.dto.EmployeeDTO;
 import pl.kuznik.domain.employee.dto.UpdateEmployeeDTO;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
