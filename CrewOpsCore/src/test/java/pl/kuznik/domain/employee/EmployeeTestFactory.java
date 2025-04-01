@@ -1,6 +1,7 @@
 package pl.kuznik.domain.employee;
 
 import pl.kuznik.domain.employee.dto.CreateEmployeeDTO;
+import pl.kuznik.domain.employee.dto.UpdateEmployeeDTO;
 import pl.kuznik.entity.Employee;
 import pl.kuznik.entity.Qualification;
 import pl.kuznik.entity.Vehicle;
@@ -8,6 +9,7 @@ import pl.kuznik.utils.enums.VehicleType;
 
 import java.time.LocalDate;
 import java.util.Set;
+import java.util.UUID;
 
 class EmployeeTestFactory {
 
@@ -55,12 +57,28 @@ class EmployeeTestFactory {
                 .build();
     }
 
-    public static CreateEmployeeDTO createNotValidEmployeeDTO() {
+    public static CreateEmployeeDTO createEmployeeDTONotValid() {
         return CreateEmployeeDTO.builder()
                 .firstName(null)
                 .lastName("lastName")
                 .birthDate(LocalDate.parse("2000-01-01"))
                 .phoneNumber("123456789")
+                .department("department")
+                .build();
+    }
+
+    public static UpdateEmployeeDTO updateEmployeeDTO() {
+        return UpdateEmployeeDTO.builder()
+                .employeeId(UUID.randomUUID())
+                .phoneNumber("123456789")
+                .department("department")
+                .build();
+    }
+
+    public static UpdateEmployeeDTO updateEmployeeDTONotValid() {
+        return UpdateEmployeeDTO.builder()
+                .employeeId(UUID.randomUUID())
+                .phoneNumber("123456789andThenMoreChar")
                 .department("department")
                 .build();
     }

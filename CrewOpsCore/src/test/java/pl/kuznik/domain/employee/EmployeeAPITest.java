@@ -1,22 +1,21 @@
 package pl.kuznik.domain.employee;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static pl.kuznik.domain.employee.EmployeeTestFactory.*;
-
-import java.time.LocalDate;
-import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kuznik.IntegrationTest;
-import pl.kuznik.domain.employee.dto.CreateEmployeeDTO;
 import pl.kuznik.domain.employee.dto.EmployeeDTO;
 import pl.kuznik.entity.Employee;
 import pl.kuznik.entity.Qualification;
 import pl.kuznik.entity.Vehicle;
 import pl.kuznik.utils.enums.VehicleType;
+
+import java.util.Optional;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static pl.kuznik.domain.employee.EmployeeTestFactory.*;
 
 @Transactional
 class EmployeeAPITest extends IntegrationTest {
@@ -26,15 +25,6 @@ class EmployeeAPITest extends IntegrationTest {
 
     @Autowired
     private EmployeeRepository employeeRepository;
-
-    private Set<Qualification> qualifications;
-    private Set<Vehicle> vehicles;
-
-    @BeforeEach
-    void setUp() {
-        qualifications = createQualifications();
-        vehicles = createVehicles();
-    }
 
     @Test
     void shouldReturnEmployeeWithNoQualificationsAndNoVehicles() {

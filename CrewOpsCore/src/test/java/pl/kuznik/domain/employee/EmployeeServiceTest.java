@@ -11,9 +11,14 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import pl.kuznik.domain.employee.dto.CreateEmployeeDTO;
 import pl.kuznik.domain.employee.dto.EmployeeDTO;
+import pl.kuznik.domain.employee.dto.UpdateEmployeeDTO;
 import pl.kuznik.entity.Employee;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static pl.kuznik.domain.employee.EmployeeTestFactory.*;
 
 @SpringJUnitConfig(classes = {EmployeeService.class, MethodValidationPostProcessor.class})
@@ -28,6 +33,8 @@ class EmployeeServiceTest {
     private CreateEmployeeDTO createEmployeeWithQAndV;
     private CreateEmployeeDTO createEmployeeWithEmptyQAndEmptyV;
     private CreateEmployeeDTO createEmployeeDTOWithNullFields;
+    private UpdateEmployeeDTO updateEmployeeDTO;
+    private UpdateEmployeeDTO updateEmployeeDTONotValid;
     private Employee employeeWithQAndV;
     private Employee employeeWithEmptyQAndEmptyV;
 
@@ -35,7 +42,9 @@ class EmployeeServiceTest {
     void setUp() {
         createEmployeeWithQAndV = createEmployeeDTOWithQualificationsAndVehicles();
         createEmployeeWithEmptyQAndEmptyV = createEmployeeDTOWithoutQualificationsAndVehicles();
-        createEmployeeDTOWithNullFields = createNotValidEmployeeDTO();
+        createEmployeeDTOWithNullFields = createEmployeeDTONotValid();
+        updateEmployeeDTO = updateEmployeeDTO();
+        updateEmployeeDTONotValid = updateEmployeeDTONotValid();
         employeeWithQAndV = createEmployeeWithQualificationsAndVehicles();
         employeeWithEmptyQAndEmptyV = createEmployeeWithoutQualificationsAndVehicles();
     }
@@ -43,7 +52,7 @@ class EmployeeServiceTest {
     @Test
     void shouldReturnEmployeeDTO_whenCreateEmployeeDTOHaveNoQualificationsAndNoVehicles() {
         // when
-        Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(employeeWithEmptyQAndEmptyV);
+        Mockito.when(employeeRepository.save(any(Employee.class))).thenReturn(employeeWithEmptyQAndEmptyV);
         EmployeeDTO result = employeeService.createEmployee(createEmployeeWithEmptyQAndEmptyV);
 
         // then
@@ -54,7 +63,7 @@ class EmployeeServiceTest {
     @Test
     void shouldReturnEmployeeDTO_whenCreateEmployeeDTOHaveQualificationsAndNoVehicles() {
         // when
-        Mockito.when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(employeeWithQAndV);
+        Mockito.when(employeeRepository.save(any(Employee.class))).thenReturn(employeeWithQAndV);
         EmployeeDTO result = employeeService.createEmployee(createEmployeeWithQAndV);
 
         // then
@@ -74,5 +83,23 @@ class EmployeeServiceTest {
     }
 
     @Test
-    void updateEmployee() {}
+    void shouldReturnEmployeeDTO_whenUpdateEmployeeDTOHaveNoQualificationsAndNoVehicles() {
+        // when
+        Mockito.when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithEmptyQAndEmptyV));
+        EmployeeDTO result = employeeService.updateEmployee(updateEmployeeDTO);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.firstName()).isEqualTo("firstName");
+    }
+
+    @Test
+    void shouldThrowException_whenUpdateEmployeeDTOIsNotValid() {
+        // given
+        Exception result = Assertions.catchException(() -> employeeService.updateEmployee(updateEmployeeDTONotValid));
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result).isExactlyInstanceOf(ConstraintViolationException.class);
+    }
 }
