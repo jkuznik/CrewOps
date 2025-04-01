@@ -10,9 +10,10 @@ import org.springframework.web.bind.annotation.*;
 import pl.kuznik.domain.employee.dto.CreateEmployeeDTO;
 import pl.kuznik.domain.employee.dto.EmployeeDTO;
 import pl.kuznik.domain.employee.dto.UpdateEmployeeDTO;
+import pl.kuznik.utils.enums.ControllerURL;
 
 @RestController
-@RequestMapping("employees")
+@RequestMapping(ControllerURL.EMPLOYEES)
 @RequiredArgsConstructor
 class EmployeeController {
 

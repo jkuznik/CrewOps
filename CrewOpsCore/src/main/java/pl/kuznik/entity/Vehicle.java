@@ -1,6 +1,7 @@
 package pl.kuznik.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -10,6 +11,7 @@ import lombok.*;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import pl.kuznik.utils.enums.VehicleType;
+import pl.kuznik.utils.serializer.EmployeeSetSerializer;
 
 @Getter
 @Setter
@@ -46,7 +48,7 @@ public class Vehicle extends AbstractEntity {
     private Boolean broken;
 
     @Builder.Default
-    @JsonIgnore
+    @JsonSerialize(using = EmployeeSetSerializer.class)
     @ManyToMany(mappedBy = "vehicles")
     private Set<Employee> employees = new LinkedHashSet<>();
 }
