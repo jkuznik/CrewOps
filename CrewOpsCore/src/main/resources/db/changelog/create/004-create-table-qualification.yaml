@@ -21,15 +21,10 @@ databaseChangeLog:
                     nullable: false
                   defaultValue: 0
               - column:
-                  name: name
-                  type: varchar(100)
-                  constraints:
-                    nullable: false
-              - column:
                   name: description
                   type: text
                   constraints:
-                    nullable: true
+                    nullable: false
               - column:
                   name: created_at
                   type: timestamp
