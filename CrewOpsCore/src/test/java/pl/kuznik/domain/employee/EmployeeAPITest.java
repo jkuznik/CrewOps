@@ -33,7 +33,8 @@ class EmployeeAPITest extends IntegrationTest {
 
         // when
         EmployeeDTO result = employeeAPI.createEmployee(employeeDTO);
-        Employee employee = employeeRepository.findAll().getFirst();
+        Employee employee = employeeRepository.findByFirstNameAndLastName("firstName", "lastName")
+                .orElseThrow(RuntimeException::new);
 
         // then
         assertThat(result.firstName()).isEqualTo("firstName");
@@ -47,7 +48,8 @@ class EmployeeAPITest extends IntegrationTest {
 
         // when
         EmployeeDTO result = employeeAPI.createEmployee(employeeDTO);
-        Employee employee = employeeRepository.findAll().getFirst();
+        Employee employee = employeeRepository.findByFirstNameAndLastName("firstName", "lastName")
+                .orElseThrow(RuntimeException::new);
         Set<Qualification> employeeQualifications = employee.getQualifications();
 
         // then
@@ -63,7 +65,8 @@ class EmployeeAPITest extends IntegrationTest {
 
         // when
         EmployeeDTO result = employeeAPI.createEmployee(employeeDTO);
-        Employee employee = employeeRepository.findAll().getFirst();
+        Employee employee = employeeRepository.findByFirstNameAndLastName("firstName", "lastName")
+                .orElseThrow(RuntimeException::new);
         Set<Qualification> employeeQualifications = employee.getQualifications();
         Set<Vehicle> employeeVehicles = employee.getVehicles();
         Optional<Vehicle> first = employeeVehicles.stream()
