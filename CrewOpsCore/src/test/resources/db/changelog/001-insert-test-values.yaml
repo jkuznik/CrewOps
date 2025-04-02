@@ -75,7 +75,7 @@ databaseChangeLog:
             columns:
               - column: { name: id, value: "66666666-6666-6666-6666-666666666666" }
               - column: { name: version, value: 0 }
-              - column: { name: description, value: "CSafety Training" }
+              - column: { name: description, value: "Safety Training" }
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
 
