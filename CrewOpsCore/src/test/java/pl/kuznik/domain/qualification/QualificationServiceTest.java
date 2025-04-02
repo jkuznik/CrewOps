@@ -4,9 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static pl.kuznik.domain.qualification.QualificationTestFactory.createQualification;
+import static pl.kuznik.domain.qualification.QualificationTestFactory.*;
 
 import jakarta.validation.ConstraintViolationException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -25,11 +26,16 @@ class QualificationServiceTest {
     @Autowired
     private QualificationService qualificationService;
 
-    private Qualification qualification = createQualification();
-    private CreateQualificationDTO createQualificationDTO =
-            QualificationTestFactory.createCreateQualificationDTOWithDescription();
-    private CreateQualificationDTO createQualificationDTONotValid =
-            QualificationTestFactory.createCreateQualificationDTOWithoutDescription();
+    private Qualification qualification;
+    private CreateQualificationDTO createQualificationDTO;
+    private CreateQualificationDTO createQualificationDTONotValid;
+
+    @BeforeEach
+    void setUp() {
+        qualification = createQualification();
+        createQualificationDTO = createCreateQualificationDTOWithDescription();
+        createQualificationDTONotValid = createCreateQualificationDTOWithoutDescription();
+    }
 
     @Test
     void shouldReturnQualificationDTO_whenCreatedQualificationDTOIsValid() {

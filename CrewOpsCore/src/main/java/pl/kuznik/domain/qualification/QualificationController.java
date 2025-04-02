@@ -18,7 +18,7 @@ import pl.kuznik.utils.enums.ControllerURL;
 @RequestMapping(ControllerURL.QUALIFICATIONS)
 @RequiredArgsConstructor
 @Validated
-public class QualificationController {
+class QualificationController {
 
     private final QualificationService qualificationService;
 

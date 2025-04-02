@@ -15,7 +15,9 @@ import org.springframework.validation.annotation.Validated;
 import pl.kuznik.domain.employee.dto.CreateEmployeeDTO;
 import pl.kuznik.domain.employee.dto.EmployeeDTO;
 import pl.kuznik.domain.employee.dto.UpdateEmployeeDTO;
+import pl.kuznik.domain.qualification.QualificationAPI;
 import pl.kuznik.entity.Employee;
+import pl.kuznik.entity.Qualification;
 import pl.kuznik.entity.joinTable.EmployeeQualification;
 import pl.kuznik.exception.EmployeeNotFoundException;
 import pl.kuznik.exception.EmployeeQualificationNotFoundException;
@@ -28,6 +30,7 @@ class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final EmployeeQualificationRepository employeeQualificationRepository;
+    private final QualificationAPI qualificationAPI;
 
     public EmployeeDTO createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO) {
         return mapToDTO(employeeRepository.save(mapToEntity(createEmployeeDTO)));
@@ -56,7 +59,19 @@ class EmployeeService {
     }
 
     @Transactional
-    public EmployeeDTO setQualificationExpiredAt(
+    public EmployeeDTO addQualification(@NotNull UUID employeeId, @NotNull UUID qualificationId) {
+        Employee employee =
+                employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
+
+        Qualification qualification = qualificationAPI.getQualification(qualificationId);
+
+        employee.getQualifications().add(qualification);
+
+        return mapToDTO(employee);
+    }
+
+    @Transactional
+    public EmployeeDTO updateQualificationExpiredAt(
             @NotNull UUID employeeId, @NotNull UUID qualificationId, Instant expiredAt) {
         EmployeeQualification employeeQualification = employeeQualificationRepository
                 .findByEmployeeQualificationId(employeeId, qualificationId)
