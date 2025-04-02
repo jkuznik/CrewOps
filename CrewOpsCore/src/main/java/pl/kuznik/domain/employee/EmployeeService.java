@@ -9,6 +9,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -36,8 +38,11 @@ class EmployeeService {
         return mapToDTO(employeeRepository.save(mapToEntity(createEmployeeDTO)));
     }
 
-    public List<EmployeeDTO> getAllEmployees() {
-        return employeeRepository.findAll().stream()
+    public List<EmployeeDTO> getAllEmployees(int page, int size) {
+        PageRequest pageRequest =
+                PageRequest.of(page, size, Sort.by(Sort.Order.asc("lastName"), Sort.Order.asc("firstName")));
+
+        return employeeRepository.findAll(pageRequest).stream()
                 .map(EmployeeMapper::mapToDTO)
                 .toList();
     }
@@ -86,8 +91,11 @@ class EmployeeService {
     }
 
     private void expireDateValidator(Instant expiredAt) {
+        if (expiredAt == null) {
+            throw new ExpireAtException("Expire date is null");
+        }
         if (expiredAt.isBefore(Instant.now())) {
-            throw new ExpireAtException();
+            throw new ExpireAtException("Expire date can't be in the past");
         }
     }
 

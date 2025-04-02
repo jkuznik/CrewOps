@@ -27,8 +27,9 @@ class EmployeeController {
     }
 
     @GetMapping(EMPLOYEES)
-    public ResponseEntity<List<EmployeeDTO>> getEmployees() {
-        return ResponseEntity.status(HttpStatus.OK).body(employeeService.getAllEmployees());
+    public ResponseEntity<List<EmployeeDTO>> getEmployees(
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "15") int size) {
+        return ResponseEntity.status(HttpStatus.OK).body(employeeService.getAllEmployees(page, size));
     }
 
     @PatchMapping(EMPLOYEES_EID)
