@@ -42,6 +42,11 @@ class EmployeeController {
         return ResponseEntity.status(HttpStatus.OK).body(employeeService.updateEmployee(updateEmployeeDTO));
     }
 
+    @PatchMapping(EMPLOYEES_EID_PHONE)
+    public ResponseEntity<EmployeeDTO> removePhoneNumber(@PathVariable(EMPLOYEE_ID) UUID employeeId) {
+        return ResponseEntity.status(HttpStatus.OK).body(employeeService.removePhoneNumber(employeeId));
+    }
+
     @DeleteMapping(EMPLOYEES_EID)
     public ResponseEntity<Void> deleteEmployee(@PathVariable(EMPLOYEE_ID) UUID employeeId) {
         employeeService.deleteEmployee(employeeId);

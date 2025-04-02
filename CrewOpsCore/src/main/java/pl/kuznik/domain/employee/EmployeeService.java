@@ -65,6 +65,16 @@ class EmployeeService {
     }
 
     @Transactional
+    public EmployeeDTO removePhoneNumber(@NotNull UUID employeeId) {
+        Employee employee =
+                employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
+
+        employee.setPhoneNumber(null);
+
+        return mapToDTO(employee);
+    }
+
+    @Transactional
     public void deleteEmployee(@NotNull UUID employeeId) {
         employeeRepository.deleteById(employeeId);
     }
@@ -115,5 +125,5 @@ class EmployeeService {
         }
     }
 
-    // TODO: add vehicles, delete phone number, find by qualifications, vehicles
+    // TODO: add vehicles, find by qualifications, vehicles
 }
