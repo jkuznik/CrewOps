@@ -2,6 +2,7 @@ package pl.kuznik.domain.employee;
 
 import static pl.kuznik.domain.employee.EmployeeMapper.mapToDTO;
 import static pl.kuznik.domain.employee.EmployeeMapper.mapToEntity;
+import static pl.kuznik.utils.pagination.PageRequestFactory.createPageRequest;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -40,7 +41,7 @@ class EmployeeService {
 
     public List<EmployeeDTO> getAllEmployees(int page, int size) {
         PageRequest pageRequest =
-                PageRequest.of(page, size, Sort.by(Sort.Order.asc("lastName"), Sort.Order.asc("firstName")));
+                createPageRequest(page, size, Sort.by(Sort.Order.asc("lastName"), Sort.Order.asc("firstName")));
 
         return employeeRepository.findAll(pageRequest).stream()
                 .map(EmployeeMapper::mapToDTO)
@@ -61,6 +62,11 @@ class EmployeeService {
         }
 
         return mapToDTO(employee);
+    }
+
+    @Transactional
+    public void deleteEmployee(@NotNull UUID employeeId) {
+        employeeRepository.deleteById(employeeId);
     }
 
     @Transactional
