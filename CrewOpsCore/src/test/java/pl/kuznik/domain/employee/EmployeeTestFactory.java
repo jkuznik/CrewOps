@@ -82,13 +82,13 @@ class EmployeeTestFactory {
                 .build();
     }
 
-    public static Set<Qualification> createQualifications() {
+    private static Set<Qualification> createQualifications() {
         return Set.of(
                 Qualification.builder().description("foo").build(),
                 Qualification.builder().description("bar").build());
     }
 
-    public static Set<Vehicle> createVehicles() {
+    private static Set<Vehicle> createVehicles() {
         return Set.of(
                 Vehicle.builder()
                         .vehicleType(VehicleType.BULLDOZER)

@@ -18,6 +18,7 @@ import pl.kuznik.utils.serializer.EmployeeSetSerializer;
 public class Qualification extends AbstractEntity {
 
     @NotNull
+    @Column(unique = true)
     private String description;
 
     @Builder.Default

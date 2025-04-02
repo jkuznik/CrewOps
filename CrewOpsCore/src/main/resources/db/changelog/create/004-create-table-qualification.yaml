@@ -25,6 +25,7 @@ databaseChangeLog:
                   type: text
                   constraints:
                     nullable: false
+                    unique: true
               - column:
                   name: created_at
                   type: timestamp
