@@ -84,8 +84,8 @@ class EmployeeTestFactory {
 
     public static Set<Qualification> createQualifications() {
         return Set.of(
-                Qualification.builder().name("foo").description("foo").build(),
-                Qualification.builder().name("bar").build());
+                Qualification.builder().description("foo").build(),
+                Qualification.builder().description("bar").build());
     }
 
     public static Set<Vehicle> createVehicles() {

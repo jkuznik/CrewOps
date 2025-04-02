@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.kuznik.domain.qualification.dto.CreateQualificationDTO;
-import pl.kuznik.entity.Qualification;
+import pl.kuznik.domain.qualification.dto.QualificationDTO;
 import pl.kuznik.utils.enums.ControllerURL;
 
 @RestController
@@ -23,7 +23,7 @@ public class QualificationController {
     private final QualificationService qualificationService;
 
     @PostMapping("create")
-    public ResponseEntity<Qualification> create(
+    public ResponseEntity<QualificationDTO> create(
             @RequestBody @Valid @NotNull CreateQualificationDTO createQualificationDTO) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(qualificationService.createQualification(createQualificationDTO));

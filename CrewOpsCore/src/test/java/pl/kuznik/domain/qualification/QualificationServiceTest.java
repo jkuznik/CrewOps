@@ -18,5 +18,5 @@ class QualificationServiceTest {
     private QualificationService qualificationService;
 
     @Test
-    void createQualification() {}
+    void shouldReturnQualificationDTO_whenCreatedQualificationDTOHaveNoEmployees() {}
 }
