@@ -3,7 +3,6 @@ package pl.kuznik.entity;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.*;
@@ -18,10 +17,8 @@ import pl.kuznik.utils.serializer.EmployeeSetSerializer;
 @Table(name = "qualification")
 public class Qualification extends AbstractEntity {
 
-    @Size(max = 100)
     @NotNull
-    private String name;
-
+    @Column(unique = true)
     private String description;
 
     @Builder.Default

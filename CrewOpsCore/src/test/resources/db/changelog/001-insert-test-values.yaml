@@ -66,8 +66,7 @@ databaseChangeLog:
             columns:
               - column: { name: id, value: "55555555-5555-5555-5555-555555555555" }
               - column: { name: version, value: 0 }
-              - column: { name: name, value: "Heavy Machinery Operator" }
-              - column: { name: description, value: "Certified to operate heavy machines" }
+              - column: { name: description, value: "Heavy Machinery Operator" }
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
 
@@ -76,8 +75,7 @@ databaseChangeLog:
             columns:
               - column: { name: id, value: "66666666-6666-6666-6666-666666666666" }
               - column: { name: version, value: 0 }
-              - column: { name: name, value: "Safety Training" }
-              - column: { name: description, value: "Completed workplace safety training" }
+              - column: { name: description, value: "Safety Training" }
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
 

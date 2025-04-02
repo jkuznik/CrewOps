@@ -18,6 +18,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
 import pl.kuznik.domain.employee.dto.CreateEmployeeDTO;
 import pl.kuznik.domain.employee.dto.EmployeeDTO;
 import pl.kuznik.domain.employee.dto.UpdateEmployeeDTO;
+import pl.kuznik.domain.qualification.QualificationAPI;
 import pl.kuznik.entity.Employee;
 
 @SpringJUnitConfig(classes = {EmployeeService.class, MethodValidationPostProcessor.class})
@@ -25,6 +26,12 @@ class EmployeeServiceTest {
 
     @MockitoBean
     EmployeeRepository employeeRepository;
+
+    @MockitoBean
+    EmployeeQualificationRepository employeeQualificationRepository;
+
+    @MockitoBean
+    QualificationAPI qualificationAPI;
 
     @Autowired
     EmployeeService employeeService;
