@@ -3,6 +3,8 @@ package pl.kuznik.domain.employee;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.kuznik.entity.Employee;
 import pl.kuznik.entity.joinTable.EmployeeQualification;
@@ -15,5 +17,8 @@ interface EmployeeRepository extends JpaRepository<Employee, UUID> {
 
 @Repository
 interface EmployeeQualificationRepository extends JpaRepository<EmployeeQualification, UUID> {
-    Optional<EmployeeQualification> findByEmployeeId(UUID employeeId);
+    @Query("SELECT eq FROM EmployeeQualification eq " + "WHERE eq.id.employeeId = :employeeId "
+            + "AND eq.id.qualificationId = :qualificationId")
+    Optional<EmployeeQualification> findByEmployeeQualificationId(
+            @Param("employeeId") UUID employeeId, @Param("qualificationId") UUID qualificationId);
 }

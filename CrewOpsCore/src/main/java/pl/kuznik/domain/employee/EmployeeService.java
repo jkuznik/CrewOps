@@ -5,7 +5,9 @@ import static pl.kuznik.domain.employee.EmployeeMapper.mapToEntity;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +16,10 @@ import pl.kuznik.domain.employee.dto.CreateEmployeeDTO;
 import pl.kuznik.domain.employee.dto.EmployeeDTO;
 import pl.kuznik.domain.employee.dto.UpdateEmployeeDTO;
 import pl.kuznik.entity.Employee;
+import pl.kuznik.entity.joinTable.EmployeeQualification;
 import pl.kuznik.exception.EmployeeNotFoundException;
+import pl.kuznik.exception.EmployeeQualificationNotFoundException;
+import pl.kuznik.exception.ExpireAtException;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +27,7 @@ import pl.kuznik.exception.EmployeeNotFoundException;
 class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final EmployeeQualificationRepository employeeQualificationRepository;
 
     public EmployeeDTO createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO) {
         return mapToDTO(employeeRepository.save(mapToEntity(createEmployeeDTO)));
@@ -47,6 +53,27 @@ class EmployeeService {
         }
 
         return mapToDTO(employee);
+    }
+
+    @Transactional
+    public EmployeeDTO setQualificationExpiredAt(
+            @NotNull UUID employeeId, @NotNull UUID qualificationId, Instant expiredAt) {
+        EmployeeQualification employeeQualification = employeeQualificationRepository
+                .findByEmployeeQualificationId(employeeId, qualificationId)
+                .orElseThrow(() -> new EmployeeQualificationNotFoundException(employeeId, qualificationId));
+
+        expireDateValidator(expiredAt);
+
+        employeeQualification.setExpiredAt(expiredAt);
+
+        return mapToDTO(
+                employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId)));
+    }
+
+    private void expireDateValidator(Instant expiredAt) {
+        if (expiredAt.isBefore(Instant.now())) {
+            throw new ExpireAtException();
+        }
     }
 
     // TODO: add qualifications, vehicles, delete phone number, find by qualifications, vehicles
