@@ -42,4 +42,10 @@ class QualificationController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(qualificationService.updateQualification(updateQualificationDTO));
     }
+
+    @DeleteMapping(QUALIFICATIONS_QID)
+    public ResponseEntity<Void> deleteQualification(@PathVariable(QUALIFICATION_ID) UUID qualificationId) {
+        qualificationService.deleteQualification(qualificationId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

@@ -48,4 +48,9 @@ class QualificationService {
 
         return mapToDTO(qualification);
     }
+
+    @Transactional
+    public void deleteQualification(@NotNull UUID qualificationId) {
+        qualificationRepository.deleteById(qualificationId);
+    }
 }

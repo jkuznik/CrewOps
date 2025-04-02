@@ -12,7 +12,7 @@ public class PageRequestFactory {
         int finalPage;
         int finalSize;
 
-        finalPage = page > 0 ? page : DEFAULT_PAGE;
+        finalPage = page > 0 ? page - 1 : DEFAULT_PAGE;
 
         finalSize = size > 100 ? 100 : size;
 
