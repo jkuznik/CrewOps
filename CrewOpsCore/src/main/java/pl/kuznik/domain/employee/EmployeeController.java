@@ -48,6 +48,13 @@ class EmployeeController {
         return ResponseEntity.status(HttpStatus.OK).body(employeeService.addQualification(employeeId, qualificationId));
     }
 
+    @DeleteMapping(EMPLOYEES_EID_QUALIFICATIONS_QID)
+    public ResponseEntity<Void> removeEmployeeQualification(
+            @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(QUALIFICATION_ID) UUID qualificationId) {
+        employeeService.removeQualification(employeeId, qualificationId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
     @PatchMapping(EMPLOYEES_EID_QUALIFICATIONS_QID_EXPIRED)
     public ResponseEntity<EmployeeDTO> updateEmployeeQualification(
             @PathVariable(EMPLOYEE_ID) UUID employeeId,

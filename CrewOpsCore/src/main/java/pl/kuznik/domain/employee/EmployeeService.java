@@ -90,6 +90,16 @@ class EmployeeService {
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId)));
     }
 
+    @Transactional
+    public void removeQualification(@NotNull UUID employeeId, @NotNull UUID qualificationId) {
+        Employee employee =
+                employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
+
+        Qualification qualification = qualificationAPI.getQualification(qualificationId);
+
+        employee.getQualifications().remove(qualification);
+    }
+
     private void expireDateValidator(Instant expiredAt) {
         if (expiredAt == null) {
             throw new ExpireAtException("Expire date is null");
@@ -99,5 +109,5 @@ class EmployeeService {
         }
     }
 
-    // TODO: add qualifications, vehicles, delete phone number, find by qualifications, vehicles
+    // TODO: add vehicles, delete phone number, find by qualifications, vehicles
 }
