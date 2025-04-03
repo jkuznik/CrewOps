@@ -32,6 +32,15 @@ class EmployeeController {
         return ResponseEntity.status(HttpStatus.OK).body(employeeService.getAllEmployees(page, size));
     }
 
+    @GetMapping(EMPLOYEES_QID)
+    public ResponseEntity<List<EmployeeDTO>> getEmployeesByQualification(
+            @PathVariable(QUALIFICATION_ID) UUID qualificationId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(employeeService.getEmployeesByQualification(qualificationId, page, size));
+    }
+
     @PatchMapping(EMPLOYEES_EID)
     public ResponseEntity<EmployeeDTO> updateEmployee(
             @PathVariable(EMPLOYEE_ID) UUID employeeId,
@@ -40,6 +49,11 @@ class EmployeeController {
         var updateEmployeeDTO = new UpdateEmployeeDTO(employeeId, phoneNumber, department);
 
         return ResponseEntity.status(HttpStatus.OK).body(employeeService.updateEmployee(updateEmployeeDTO));
+    }
+
+    @PatchMapping(EMPLOYEES_EID_PHONE)
+    public ResponseEntity<EmployeeDTO> removePhoneNumber(@PathVariable(EMPLOYEE_ID) UUID employeeId) {
+        return ResponseEntity.status(HttpStatus.OK).body(employeeService.removePhoneNumber(employeeId));
     }
 
     @DeleteMapping(EMPLOYEES_EID)

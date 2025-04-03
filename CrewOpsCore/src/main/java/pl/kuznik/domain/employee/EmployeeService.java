@@ -48,6 +48,15 @@ class EmployeeService {
                 .toList();
     }
 
+    public List<EmployeeDTO> getEmployeesByQualification(@NotNull UUID qualificationId, int page, int size) {
+        PageRequest pageRequest =
+                createPageRequest(page, size, Sort.by(Sort.Order.asc("lastName"), Sort.Order.asc("firstName")));
+
+        return employeeRepository.findByQualificationId(qualificationId, pageRequest).stream()
+                .map(EmployeeMapper::mapToDTO)
+                .toList();
+    }
+
     @Transactional
     public EmployeeDTO updateEmployee(@Valid @NotNull UpdateEmployeeDTO updateEmployeeDTO) {
         Employee employee = employeeRepository
@@ -60,6 +69,16 @@ class EmployeeService {
         if (updateEmployeeDTO.department() != null) {
             employee.setDepartment(updateEmployeeDTO.department());
         }
+
+        return mapToDTO(employee);
+    }
+
+    @Transactional
+    public EmployeeDTO removePhoneNumber(@NotNull UUID employeeId) {
+        Employee employee =
+                employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
+
+        employee.setPhoneNumber(null);
 
         return mapToDTO(employee);
     }
@@ -115,5 +134,5 @@ class EmployeeService {
         }
     }
 
-    // TODO: add vehicles, delete phone number, find by qualifications, vehicles
+    // TODO: add vehicle, remove vehicle, find by vehicles
 }
