@@ -10,6 +10,8 @@ public class ControllerURL {
     public static final String QUALIFICATION_ID = "qualificationId";
     public static final String QUALIFICATIONS_QID = QUALIFICATIONS + "/{" + QUALIFICATION_ID + "}";
 
+    public static final String EMPLOYEES_QID = EMPLOYEES + "/{" + QUALIFICATION_ID + "}";
+
     public static final String EMPLOYEES_EID_QUALIFICATIONS_QID = EMPLOYEES_EID + QUALIFICATIONS_QID;
 
     public static final String EMPLOYEES_EID_QUALIFICATIONS_QID_EXPIRED = EMPLOYEES_EID_QUALIFICATIONS_QID + "/expired";

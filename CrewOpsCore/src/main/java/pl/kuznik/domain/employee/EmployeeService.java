@@ -48,6 +48,15 @@ class EmployeeService {
                 .toList();
     }
 
+    public List<EmployeeDTO> getEmployeesByQualification(@NotNull UUID qualificationId, int page, int size) {
+        PageRequest pageRequest =
+                createPageRequest(page, size, Sort.by(Sort.Order.asc("lastName"), Sort.Order.asc("firstName")));
+
+        return employeeRepository.findByQualificationId(qualificationId, pageRequest).stream()
+                .map(EmployeeMapper::mapToDTO)
+                .toList();
+    }
+
     @Transactional
     public EmployeeDTO updateEmployee(@Valid @NotNull UpdateEmployeeDTO updateEmployeeDTO) {
         Employee employee = employeeRepository
@@ -125,5 +134,5 @@ class EmployeeService {
         }
     }
 
-    // TODO: add vehicles, find by qualifications, vehicles
+    // TODO: add vehicle, remove vehicle, find by vehicles
 }
