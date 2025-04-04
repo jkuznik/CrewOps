@@ -30,8 +30,9 @@ class QualificationController {
     }
 
     @GetMapping(QUALIFICATIONS)
-    public ResponseEntity<List<QualificationDTO>> getQualifications() {
-        return ResponseEntity.status(HttpStatus.OK).body(qualificationService.getAllQualifications());
+    public ResponseEntity<List<QualificationDTO>> getQualifications(
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "15") int size) {
+        return ResponseEntity.status(HttpStatus.OK).body(qualificationService.getAllQualifications(page, size));
     }
 
     @PatchMapping(QUALIFICATIONS_QID)
