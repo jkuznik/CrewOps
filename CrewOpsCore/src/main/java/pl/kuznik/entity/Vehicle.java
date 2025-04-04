@@ -20,15 +20,6 @@ import pl.kuznik.utils.serializer.EmployeeSetSerializer;
 @Entity
 @Table(name = "vehicle")
 public class Vehicle extends AbstractEntity {
-
-    @Size(max = 50)
-    private String vin;
-
-    @Enumerated
-    @JdbcType(PostgreSQLEnumJdbcType.class)
-    @Column(nullable = false, columnDefinition = "vehicle_type_enum not null")
-    private VehicleType vehicleType;
-
     @Size(max = 31)
     @NotNull
     private String make;
@@ -38,7 +29,15 @@ public class Vehicle extends AbstractEntity {
     private String model;
 
     @NotNull
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    private VehicleType vehicleType;
+
+    @NotNull
     private Integer year;
+
+    @Size(max = 50)
+    private String vin;
 
     @Size(max = 15)
     private String registerNumber;
