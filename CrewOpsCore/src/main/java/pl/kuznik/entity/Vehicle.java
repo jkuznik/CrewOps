@@ -22,10 +22,12 @@ import pl.kuznik.utils.serializer.EmployeeSetSerializer;
 public class Vehicle extends AbstractEntity {
     @Size(max = 31)
     @NotNull
+    @Column(updatable = false)
     private String make;
 
     @Size(max = 31)
     @NotNull
+    @Column(updatable = false)
     private String model;
 
     @NotNull
@@ -34,9 +36,11 @@ public class Vehicle extends AbstractEntity {
     private VehicleType vehicleType;
 
     @NotNull
+    @Column(updatable = false)
     private Integer year;
 
     @Size(max = 50)
+    @Column(updatable = false)
     private String vin;
 
     @Size(max = 15)

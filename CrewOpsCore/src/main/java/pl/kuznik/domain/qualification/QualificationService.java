@@ -2,12 +2,15 @@ package pl.kuznik.domain.qualification;
 
 import static pl.kuznik.domain.qualification.QualificationMapper.mapToDTO;
 import static pl.kuznik.domain.qualification.QualificationMapper.mapToEntity;
+import static pl.kuznik.utils.pagination.PageRequestFactory.createPageRequest;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -34,8 +37,10 @@ class QualificationService {
                 .orElseThrow(() -> new QualificationNotFoundException(qualificationId));
     }
 
-    public List<QualificationDTO> getAllQualifications() {
-        return qualificationRepository.findAll().stream()
+    public List<QualificationDTO> getAllQualifications(int page, int size) {
+        PageRequest pageRequest = createPageRequest(page, size, Sort.by(Sort.Order.asc("description")));
+
+        return qualificationRepository.findAll(pageRequest).stream()
                 .map(QualificationMapper::mapToDTO)
                 .toList();
     }
