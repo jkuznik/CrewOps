@@ -6,7 +6,7 @@ plugins {
 }
 
 allprojects {
-    group = "pl.kuznik"
+    group = "pl.crewops"
     version = "0.0.1-SNAPSHOT"
 
     apply(plugin = "java")
