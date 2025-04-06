@@ -1,0 +1,6 @@
+  spring:
+    application:
+      name: CrewOps UI
+
+    profiles:
+      active: dev
