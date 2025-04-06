@@ -1,8 +1,13 @@
 package pl.crewops.domain.employee;
 
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.model.Employee;
+import pl.crewops.model.Qualification;
+import pl.crewops.model.Vehicle;
 
 class EmployeeMapper {
 
@@ -13,8 +18,6 @@ class EmployeeMapper {
                 .birthDate(createEmployeeDTO.birthDate())
                 .phoneNumber(createEmployeeDTO.phoneNumber())
                 .department(createEmployeeDTO.department())
-                .qualifications(createEmployeeDTO.qualifications())
-                .vehicles(createEmployeeDTO.vehicles())
                 .build();
     }
 
@@ -26,8 +29,16 @@ class EmployeeMapper {
                 .birthDate(employee.getBirthDate())
                 .phoneNumber(employee.getPhoneNumber())
                 .department(employee.getDepartment())
-                .qualifications(employee.getQualifications())
-                .vehicles(employee.getVehicles())
+                .qualifications(getQualifications(employee.getQualifications()))
+                .vehicles(getVehicles(employee.getVehicles()))
                 .build();
+    }
+
+    private static Set<UUID> getQualifications(Set<Qualification> qualifications) {
+        return qualifications.stream().map(Qualification::getId).collect(Collectors.toSet());
+    }
+
+    private static Set<UUID> getVehicles(Set<Vehicle> vehicles) {
+        return vehicles.stream().map(Vehicle::getId).collect(Collectors.toSet());
     }
 }

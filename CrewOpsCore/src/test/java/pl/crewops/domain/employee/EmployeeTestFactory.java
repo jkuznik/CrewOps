@@ -19,7 +19,7 @@ class EmployeeTestFactory {
                 .birthDate(LocalDate.parse("2000-01-01"))
                 .phoneNumber("123456789")
                 .department("department")
-                .qualifications(createQualifications())
+                .qualifications(getQualifications())
                 .vehicles(createVehicles())
                 .build();
     }
@@ -41,8 +41,8 @@ class EmployeeTestFactory {
                 .birthDate(LocalDate.parse("2000-01-01"))
                 .phoneNumber("123456789")
                 .department("department")
-                .qualifications(createQualifications())
-                .vehicles(createVehicles())
+                .qualifications(qualificationsAndVehiclesImitation())
+                .vehicles(qualificationsAndVehiclesImitation())
                 .build();
     }
 
@@ -82,7 +82,7 @@ class EmployeeTestFactory {
                 .build();
     }
 
-    private static Set<Qualification> createQualifications() {
+    private static Set<Qualification> getQualifications() {
         return Set.of(
                 Qualification.builder().description("foo").build(),
                 Qualification.builder().description("bar").build());
@@ -104,5 +104,9 @@ class EmployeeTestFactory {
                         .year(2021)
                         .broken(false)
                         .build());
+    }
+
+    private static Set<UUID> qualificationsAndVehiclesImitation() {
+        return Set.of(UUID.randomUUID(), UUID.randomUUID());
     }
 }

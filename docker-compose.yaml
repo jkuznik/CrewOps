@@ -15,7 +15,7 @@ services:
     volumes:
       - postgres_database:/var/lib/postgres/data
 
-  app:
+  core:
     container_name: CrewOpsCore
     build:
       context: .
@@ -25,7 +25,7 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "8081:8080"
+      - "8080:8080"
     depends_on:
       - db_postgres
     restart: always

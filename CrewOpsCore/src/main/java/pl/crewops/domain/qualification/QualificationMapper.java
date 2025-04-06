@@ -16,7 +16,6 @@ class QualificationMapper {
         return QualificationDTO.builder()
                 .id(qualification.getId())
                 .description(qualification.getDescription())
-                .employees(qualification.getEmployees())
                 .build();
     }
 }
