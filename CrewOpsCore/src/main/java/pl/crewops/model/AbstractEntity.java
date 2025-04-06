@@ -4,10 +4,12 @@ import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
+import lombok.Setter;
 
 @MappedSuperclass
 @Getter
-class AbstractEntity {
+@Setter
+public class AbstractEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
