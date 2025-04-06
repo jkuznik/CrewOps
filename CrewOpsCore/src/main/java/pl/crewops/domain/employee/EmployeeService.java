@@ -2,7 +2,6 @@ package pl.crewops.domain.employee;
 
 import static pl.crewops.domain.employee.EmployeeMapper.mapToDTO;
 import static pl.crewops.domain.employee.EmployeeMapper.mapToEntity;
-import static pl.crewops.utils.pagination.PageRequestFactory.createPageRequest;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -27,6 +26,7 @@ import pl.crewops.model.Employee;
 import pl.crewops.model.Qualification;
 import pl.crewops.model.Vehicle;
 import pl.crewops.model.joinTable.EmployeeQualification;
+import pl.crewops.utils.pagination.PageRequestFactory;
 
 @Service
 @RequiredArgsConstructor
@@ -160,6 +160,7 @@ class EmployeeService {
     }
 
     private static PageRequest getPageRequest(int page, int size) {
-        return createPageRequest(page, size, Sort.by(Sort.Order.asc("lastName"), Sort.Order.asc("firstName")));
+        return PageRequestFactory.createPageRequest(
+                page, size, Sort.by(Sort.Order.asc("lastName"), Sort.Order.asc("firstName")));
     }
 }
