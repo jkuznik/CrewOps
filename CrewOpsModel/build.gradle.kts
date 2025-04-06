@@ -10,8 +10,6 @@
 //}
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-
     implementation("jakarta.validation:jakarta.validation-api:3.1.1")
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.3")
