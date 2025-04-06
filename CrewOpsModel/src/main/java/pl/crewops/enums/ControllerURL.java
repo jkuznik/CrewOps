@@ -10,10 +10,15 @@ public class ControllerURL {
 
     public static final String EMPLOYEES_EID = EMPLOYEES + "/{" + EMPLOYEE_ID + "}";
     public static final String EMPLOYEES_QID = EMPLOYEES + "/{" + QUALIFICATION_ID + "}";
+    public static final String EMPLOYEES_VID = EMPLOYEES + "/{" + VEHICLE_ID + "}";
+
     public static final String QUALIFICATIONS_QID = QUALIFICATIONS + "/{" + QUALIFICATION_ID + "}";
+
     public static final String VEHICLES_VID = VEHICLES + "/{" + VEHICLE_ID + "}";
 
     public static final String EMPLOYEES_EID_PHONE = EMPLOYEES_EID + "/phone";
     public static final String EMPLOYEES_EID_QUALIFICATIONS_QID = EMPLOYEES_EID + QUALIFICATIONS_QID;
     public static final String EMPLOYEES_EID_QUALIFICATIONS_QID_EXPIRED = EMPLOYEES_EID_QUALIFICATIONS_QID + "/expired";
+
+    public static final String EMPLOYEES_EID_VEHICLES_VID = EMPLOYEES_EID + VEHICLES_VID;
 }

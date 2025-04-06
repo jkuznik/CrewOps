@@ -19,6 +19,9 @@ interface EmployeeRepository extends JpaRepository<Employee, UUID> {
     @Query("SELECT e FROM Employee e JOIN e.qualifications q WHERE q.id = :qualificationId")
     Page<Employee> findByQualificationId(@Param("qualificationId") UUID qualificationId, Pageable pageable);
 
+    @Query("SELECT e FROM Employee e JOIN e.vehicles v WHERE v.id = :vehiclesId")
+    Page<Employee> findByVehiclesId(@Param("vehiclesId") UUID vehicleId, Pageable pageable);
+
     // TODO: modify this method for cases where two employees has this same first name and last name
     Optional<Employee> findByFirstNameAndLastName(String firstName, String lastName);
 }
