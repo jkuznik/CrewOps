@@ -1,14 +1,3 @@
-//plugins {
-//    id("java")
-//}
-//
-//group = "pl.crewops"
-//version = "0.0.1-SNAPSHOT"
-//
-//repositories {
-//    mavenCentral()
-//}
-
 dependencies {
     implementation("jakarta.validation:jakarta.validation-api:3.1.1")
 

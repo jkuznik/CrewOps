@@ -8,6 +8,7 @@ COPY settings.gradle.kts build.gradle.kts ./
 COPY gradle gradle/
 
 # Copy only the submodule code and dependencies
+COPY CrewOpsModel CrewOpsModel/
 COPY CrewOpsCore CrewOpsCore/
 
 # Build the submodule JAR
