@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.domain.qualification.QualificationAPI;
+import pl.crewops.domain.vehicle.VehicleAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -24,6 +25,7 @@ import pl.crewops.exception.EmployeeQualificationNotFoundException;
 import pl.crewops.exception.ExpireAtException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Qualification;
+import pl.crewops.model.Vehicle;
 import pl.crewops.model.joinTable.EmployeeQualification;
 
 @Service
@@ -34,25 +36,26 @@ class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final EmployeeQualificationRepository employeeQualificationRepository;
     private final QualificationAPI qualificationAPI;
+    private final VehicleAPI vehicleAPI;
 
     public EmployeeDTO createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO) {
         return mapToDTO(employeeRepository.save(mapToEntity(createEmployeeDTO)));
     }
 
     public List<EmployeeDTO> getAllEmployees(int page, int size) {
-        PageRequest pageRequest =
-                createPageRequest(page, size, Sort.by(Sort.Order.asc("lastName"), Sort.Order.asc("firstName")));
-
-        return employeeRepository.findAll(pageRequest).stream()
+        return employeeRepository.findAll(getPageRequest(page, size)).stream()
                 .map(EmployeeMapper::mapToDTO)
                 .toList();
     }
 
     public List<EmployeeDTO> getEmployeesByQualification(@NotNull UUID qualificationId, int page, int size) {
-        PageRequest pageRequest =
-                createPageRequest(page, size, Sort.by(Sort.Order.asc("lastName"), Sort.Order.asc("firstName")));
+        return employeeRepository.findByQualificationId(qualificationId, getPageRequest(page, size)).stream()
+                .map(EmployeeMapper::mapToDTO)
+                .toList();
+    }
 
-        return employeeRepository.findByQualificationId(qualificationId, pageRequest).stream()
+    public List<EmployeeDTO> getEmployeesByVehicles(@NotNull UUID vehicleId, int page, int size) {
+        return employeeRepository.findByVehiclesId(vehicleId, getPageRequest(page, size)).stream()
                 .map(EmployeeMapper::mapToDTO)
                 .toList();
     }
@@ -125,6 +128,28 @@ class EmployeeService {
         employee.getQualifications().remove(qualification);
     }
 
+    @Transactional
+    public EmployeeDTO addVehicle(@NotNull UUID employeeId, @NotNull UUID vehicleId) {
+        Employee employee =
+                employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
+
+        Vehicle vehicle = vehicleAPI.getVehicle(vehicleId);
+
+        employee.getVehicles().add(vehicle);
+
+        return mapToDTO(employee);
+    }
+
+    @Transactional
+    public void removeVehicle(@NotNull UUID employeeId, @NotNull UUID vehicleId) {
+        Employee employee =
+                employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
+
+        Vehicle vehicle = vehicleAPI.getVehicle(vehicleId);
+
+        employee.getVehicles().remove(vehicle);
+    }
+
     private void expireDateValidator(Instant expiredAt) {
         if (expiredAt == null) {
             throw new ExpireAtException("Expire date is null");
@@ -134,5 +159,7 @@ class EmployeeService {
         }
     }
 
-    // TODO: add vehicle, remove vehicle, find by vehicles
+    private static PageRequest getPageRequest(int page, int size) {
+        return createPageRequest(page, size, Sort.by(Sort.Order.asc("lastName"), Sort.Order.asc("firstName")));
+    }
 }

@@ -38,4 +38,10 @@ class VehicleController {
 
         return ResponseEntity.status(HttpStatus.OK).body(vehicleService.updateVehicle(updateVehicleDTO));
     }
+
+    @DeleteMapping(VEHICLES_VID)
+    public ResponseEntity<VehicleDTO> deleteVehicle(@PathVariable(VEHICLE_ID) UUID vehicleId) {
+        vehicleService.deleteVehicle(vehicleId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }

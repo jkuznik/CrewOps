@@ -16,6 +16,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import pl.crewops.domain.qualification.QualificationAPI;
+import pl.crewops.domain.vehicle.VehicleAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -32,6 +33,9 @@ class EmployeeServiceTest {
 
     @MockitoBean
     QualificationAPI qualificationAPI;
+
+    @MockitoBean
+    VehicleAPI vehicleAPI;
 
     @Autowired
     EmployeeService employeeService;

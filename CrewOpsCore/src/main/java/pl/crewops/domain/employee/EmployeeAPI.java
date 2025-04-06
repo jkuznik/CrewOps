@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.exception.EmployeeNotFoundException;
 
 @Component
 @RequiredArgsConstructor
@@ -16,7 +17,7 @@ public class EmployeeAPI {
         return employeeService.createEmployee(createEmployeeDTO);
     }
 
-    public EmployeeDTO updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) {
+    public EmployeeDTO updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) throws EmployeeNotFoundException {
         return employeeService.updateEmployee(updateEmployeeDTO);
     }
 }

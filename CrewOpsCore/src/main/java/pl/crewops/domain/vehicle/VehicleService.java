@@ -7,6 +7,7 @@ import static pl.crewops.utils.pagination.PageRequestFactory.createPageRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -39,6 +40,10 @@ class VehicleService {
                 .toList();
     }
 
+    public Vehicle getVehicleById(@NotNull UUID id) throws VehicleNotFoundException {
+        return vehicleRepository.findById(id).orElseThrow(() -> new VehicleNotFoundException(id));
+    }
+
     @Transactional
     public VehicleDTO updateVehicle(@Valid @NotNull UpdateVehicleDTO updateVehicleDTO) {
         Vehicle vehicle = vehicleRepository
@@ -54,5 +59,10 @@ class VehicleService {
         }
 
         return mapToDTO(vehicleRepository.save(vehicle));
+    }
+
+    @Transactional
+    public void deleteVehicle(@NotNull UUID vehicleId) {
+        vehicleRepository.deleteById(vehicleId);
     }
 }
