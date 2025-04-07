@@ -10,7 +10,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
@@ -24,7 +23,6 @@ public abstract class IntegrationTest {
     public static final String TESTCONTAINER_DB_USERNAME = "testUsername";
     public static final String TESTCONTAINER_DB_PASSWORD = "testPassword";
 
-    @Container
     public static final PostgreSQLContainer<?> postgresSQLContainer = new PostgreSQLContainer<>(
                     DockerImageName.parse("postgis/postgis:16-3.4").asCompatibleSubstituteFor("postgres"))
             .withDatabaseName(TESTCONTAINER_DB_NAME)
