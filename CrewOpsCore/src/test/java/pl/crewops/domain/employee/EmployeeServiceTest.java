@@ -1,17 +1,20 @@
 package pl.crewops.domain.employee;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static pl.crewops.domain.employee.EmployeeTestFactory.*;
 
 import jakarta.validation.ConstraintViolationException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -24,7 +27,10 @@ import pl.crewops.domain.vehicle.VehicleAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.exception.ExpireAtException;
 import pl.crewops.model.Employee;
+import pl.crewops.model.Qualification;
+import pl.crewops.model.joinTable.EmployeeQualification;
 
 @SpringJUnitConfig(classes = {EmployeeService.class, MethodValidationPostProcessor.class})
 class EmployeeServiceTest {
@@ -51,7 +57,8 @@ class EmployeeServiceTest {
     private UpdateEmployeeDTO updateEmployeeDTONotValid;
     private Employee employeeWithQAndV;
     private Employee employeeWithEmptyQAndEmptyV;
-    private EmployeeDTO employeeDTO;
+    private UUID employeeId = UUID.randomUUID();
+    private UUID qualificationId = UUID.randomUUID();
 
     @BeforeEach
     void setUp() {
@@ -62,7 +69,6 @@ class EmployeeServiceTest {
         updateEmployeeDTONotValid = updateEmployeeDTONotValid();
         employeeWithQAndV = createEmployeeWithQualificationsAndVehicles();
         employeeWithEmptyQAndEmptyV = createEmployeeWithoutQualificationsAndVehicles();
-        employeeDTO = createEmployeeDTO();
     }
 
     @Test
@@ -139,7 +145,7 @@ class EmployeeServiceTest {
     void shouldReturnEmployeeDTOWithRequiredQualifications_whenEmployeesExist() {
         // given
         Page<Employee> employees = new PageImpl<>(List.of(employeeWithQAndV));
-        var qualificationId = UUID.randomUUID();
+
         // when
         when(employeeRepository.findByQualificationId(any(UUID.class), any(Pageable.class)))
                 .thenReturn(employees);
@@ -155,7 +161,7 @@ class EmployeeServiceTest {
     void shouldReturnEmployeeDTOWithRequiredVehicles_whenEmployeesExist() {
         // given
         Page<Employee> employees = new PageImpl<>(List.of(employeeWithQAndV));
-        var qualificationId = UUID.randomUUID();
+
         // when
         when(employeeRepository.findByVehiclesId(any(UUID.class), any(Pageable.class)))
                 .thenReturn(employees);
@@ -169,9 +175,6 @@ class EmployeeServiceTest {
 
     @Test
     void shouldRemovePhoneNumber_whenEmployeeHasPhoneNumber() {
-        // given
-        var qualificationId = UUID.randomUUID();
-
         // when
         when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithQAndV));
         EmployeeDTO result = employeeService.removePhoneNumber(qualificationId);
@@ -182,5 +185,85 @@ class EmployeeServiceTest {
     }
 
     @Test
-    void deleteEmployee() {}
+    void shouldTriggerDeleteEntityMethod() {
+        // when
+        Mockito.doNothing().when(employeeRepository).deleteById(any(UUID.class));
+        employeeService.deleteEmployee(employeeId);
+
+        // then
+        Mockito.verify(employeeRepository, Mockito.times(1)).deleteById(any(UUID.class));
+    }
+
+    @Test
+    void shouldReturnEmployeeDTO_afterSuccessfulAddQualification() {
+        // given
+        var qualification = Qualification.builder().description("foo").build();
+        qualification.setId(qualificationId);
+
+        // when
+        when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithEmptyQAndEmptyV));
+        when(qualificationAPI.getQualification(any(UUID.class))).thenReturn(qualification);
+        EmployeeDTO result = employeeService.addQualification(employeeId, qualificationId);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.qualifications().size()).isEqualTo(1);
+    }
+
+    @Test
+    void shouldReturnEmployeeDTO_whenUpdateQualificationExpiredAtIsValid() {
+        // given
+        var expireAt = Instant.now().plusSeconds(3600);
+        var eq = new EmployeeQualification();
+
+        // when
+        when(employeeQualificationRepository.findByEmployeeQualificationId(any(UUID.class), any(UUID.class)))
+                .thenReturn(Optional.of(eq));
+        when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithQAndV));
+        EmployeeDTO result = employeeService.updateQualificationExpiredAt(employeeId, qualificationId, expireAt);
+
+        // then
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    void shouldThrowException_whenUpdateQualificationExpiredAtIsInThePast() {
+        // given
+        var expireAt = Instant.now().minusSeconds(3600);
+        var eq = new EmployeeQualification();
+
+        // when
+        when(employeeQualificationRepository.findByEmployeeQualificationId(any(UUID.class), any(UUID.class)))
+                .thenReturn(Optional.of(eq));
+        Exception result = catchException(
+                () -> employeeService.updateQualificationExpiredAt(employeeId, qualificationId, expireAt));
+
+        // then
+        assertThat(result).isExactlyInstanceOf(ExpireAtException.class);
+    }
+
+    @Test
+    void shouldThrowException_whenUpdateQualificationExpiredAtIsNull() {
+        // given
+        var expireAt = Instant.now().minusSeconds(3600);
+        var eq = new EmployeeQualification();
+
+        // when
+        when(employeeQualificationRepository.findByEmployeeQualificationId(any(UUID.class), any(UUID.class)))
+                .thenReturn(Optional.of(eq));
+        Exception result =
+                catchException(() -> employeeService.updateQualificationExpiredAt(employeeId, qualificationId, null));
+
+        // then
+        assertThat(result).isExactlyInstanceOf(ExpireAtException.class);
+    }
+
+    @Test
+    void removeQualification() {}
+
+    @Test
+    void addVehicle() {}
+
+    @Test
+    void removeVehicle() {}
 }
