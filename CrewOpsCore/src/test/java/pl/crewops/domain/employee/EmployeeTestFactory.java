@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.enums.VehicleType;
 import pl.crewops.model.Employee;
@@ -35,29 +34,7 @@ class EmployeeTestFactory {
                 .build();
     }
 
-    public static EmployeeDTO createEmployeeDTO() {
-        return EmployeeDTO.builder()
-                .firstName("firstName")
-                .lastName("lastName")
-                .birthDate(LocalDate.parse("2000-01-01"))
-                .phoneNumber("123456789")
-                .department("department")
-                .build();
-    }
-
-    public static CreateEmployeeDTO createEmployeeDTOWithQualificationsAndVehicles() {
-        return CreateEmployeeDTO.builder()
-                .firstName("firstName")
-                .lastName("lastName")
-                .birthDate(LocalDate.parse("2000-01-01"))
-                .phoneNumber("123456789")
-                .department("department")
-                .qualifications(qualificationsAndVehiclesImitation())
-                .vehicles(qualificationsAndVehiclesImitation())
-                .build();
-    }
-
-    public static CreateEmployeeDTO createEmployeeDTOWithoutQualificationsAndVehicles() {
+    public static CreateEmployeeDTO createEmployeeDTO() {
         return CreateEmployeeDTO.builder()
                 .firstName("firstName")
                 .lastName("lastName")

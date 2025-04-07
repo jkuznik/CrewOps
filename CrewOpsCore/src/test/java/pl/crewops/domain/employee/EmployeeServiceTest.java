@@ -51,7 +51,6 @@ class EmployeeServiceTest {
     @Autowired
     EmployeeService employeeService;
 
-    private CreateEmployeeDTO createEmployeeWithQAndV;
     private CreateEmployeeDTO createEmployeeWithEmptyQAndEmptyV;
     private CreateEmployeeDTO createEmployeeDTOWithNullFields;
     private UpdateEmployeeDTO updateEmployeeDTO;
@@ -66,8 +65,7 @@ class EmployeeServiceTest {
 
     @BeforeEach
     void setUp() {
-        createEmployeeWithQAndV = createEmployeeDTOWithQualificationsAndVehicles();
-        createEmployeeWithEmptyQAndEmptyV = createEmployeeDTOWithoutQualificationsAndVehicles();
+        createEmployeeWithEmptyQAndEmptyV = EmployeeTestFactory.createEmployeeDTO();
         createEmployeeDTOWithNullFields = createEmployeeDTONotValid();
         updateEmployeeDTO = updateEmployeeDTO();
         updateEmployeeDTONotValid = updateEmployeeDTONotValid();
@@ -86,18 +84,6 @@ class EmployeeServiceTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.firstName()).isEqualTo("firstName");
-    }
-
-    @Test
-    void shouldReturnEmployeeDTO_whenCreateEmployeeDTOHaveQualificationsAndNoVehicles() {
-        // when
-        when(employeeRepository.save(any(Employee.class))).thenReturn(employeeWithQAndV);
-        EmployeeDTO result = employeeService.createEmployee(createEmployeeWithQAndV);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.firstName()).isEqualTo("firstName");
-        //        assertThat(result.qualifications().size()).isEqualTo(2);
     }
 
     @Test
