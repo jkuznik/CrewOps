@@ -30,6 +30,7 @@ import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.exception.ExpireAtException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Qualification;
+import pl.crewops.model.Vehicle;
 import pl.crewops.model.joinTable.EmployeeQualification;
 
 @SpringJUnitConfig(classes = {EmployeeService.class, MethodValidationPostProcessor.class})
@@ -57,8 +58,11 @@ class EmployeeServiceTest {
     private UpdateEmployeeDTO updateEmployeeDTONotValid;
     private Employee employeeWithQAndV;
     private Employee employeeWithEmptyQAndEmptyV;
+    private Qualification qualification;
+    private Vehicle vehicle;
     private UUID employeeId = UUID.randomUUID();
     private UUID qualificationId = UUID.randomUUID();
+    private UUID vehicleId = UUID.randomUUID();
 
     @BeforeEach
     void setUp() {
@@ -69,6 +73,8 @@ class EmployeeServiceTest {
         updateEmployeeDTONotValid = updateEmployeeDTONotValid();
         employeeWithQAndV = createEmployeeWithQualificationsAndVehicles();
         employeeWithEmptyQAndEmptyV = createEmployeeWithoutQualificationsAndVehicles();
+        qualification = qualification();
+        vehicle = vehicle();
     }
 
     @Test
@@ -197,7 +203,6 @@ class EmployeeServiceTest {
     @Test
     void shouldReturnEmployeeDTO_afterSuccessfulAddQualification() {
         // given
-        var qualification = Qualification.builder().description("foo").build();
         qualification.setId(qualificationId);
 
         // when
@@ -208,6 +213,7 @@ class EmployeeServiceTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.qualifications().size()).isEqualTo(1);
+        assertThat(result.qualifications().contains(qualificationId)).isTrue();
     }
 
     @Test
@@ -259,11 +265,53 @@ class EmployeeServiceTest {
     }
 
     @Test
-    void removeQualification() {}
+    void shouldRemoveQualificationFromEmployee_whenEmployeeAndQualificationExist() {
+        // given
+        employeeWithEmptyQAndEmptyV.getQualifications().add(qualification);
+        int before = employeeWithEmptyQAndEmptyV.getQualifications().size();
+
+        // when
+        when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithEmptyQAndEmptyV));
+        when(qualificationAPI.getQualification(any(UUID.class))).thenReturn(qualification);
+
+        // then
+        employeeService.removeQualification(employeeId, qualificationId);
+        int after = employeeWithEmptyQAndEmptyV.getQualifications().size();
+        assertThat(before).isEqualTo(1);
+        assertThat(after).isEqualTo(0);
+    }
 
     @Test
-    void addVehicle() {}
+    void shouldReturnEmployeeDTO_afterSuccessfulAddVehicle() {
+        // given
+        vehicle.setId(vehicleId);
+
+        // when
+        when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithEmptyQAndEmptyV));
+        when(vehicleAPI.getVehicle(any(UUID.class))).thenReturn(vehicle);
+        employeeService.addVehicle(employeeId, vehicleId);
+        EmployeeDTO result = employeeService.addVehicle(employeeId, vehicleId);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.vehicles().size()).isEqualTo(1);
+        assertThat(result.vehicles().contains(vehicle.getId())).isTrue();
+    }
 
     @Test
-    void removeVehicle() {}
+    void shouldRemoveVehicleFromEmployee_whenEmployeeAndVehicleExist() {
+        // given
+        employeeWithEmptyQAndEmptyV.getVehicles().add(vehicle);
+        int before = employeeWithEmptyQAndEmptyV.getVehicles().size();
+
+        // when
+        when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithEmptyQAndEmptyV));
+        when(vehicleAPI.getVehicle(vehicleId)).thenReturn(vehicle);
+
+        // then
+        employeeService.removeVehicle(employeeId, vehicleId);
+        int after = employeeWithEmptyQAndEmptyV.getVehicles().size();
+        assertThat(before).isEqualTo(1);
+        assertThat(after).isEqualTo(0);
+    }
 }

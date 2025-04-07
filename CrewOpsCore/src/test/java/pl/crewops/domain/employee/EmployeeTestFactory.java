@@ -21,7 +21,7 @@ class EmployeeTestFactory {
                 .phoneNumber("123456789")
                 .department("department")
                 .qualifications(getQualifications())
-                .vehicles(createVehicles())
+                .vehicles(getVehicles())
                 .build();
     }
 
@@ -93,26 +93,34 @@ class EmployeeTestFactory {
                 .build();
     }
 
+    public static Qualification qualification() {
+        return Qualification.builder().description("description").build();
+    }
+
+    public static Vehicle vehicle() {
+        return Vehicle.builder()
+                .vehicleType(VehicleType.EXCAVATOR)
+                .make("make")
+                .model("model")
+                .year(2020)
+                .broken(false)
+                .build();
+    }
+
     private static Set<Qualification> getQualifications() {
         return Set.of(
                 Qualification.builder().description("foo").build(),
                 Qualification.builder().description("bar").build());
     }
 
-    private static Set<Vehicle> createVehicles() {
+    private static Set<Vehicle> getVehicles() {
         return Set.of(
+                vehicle(),
                 Vehicle.builder()
                         .vehicleType(VehicleType.BULLDOZER)
                         .make("make")
                         .model("model")
                         .year(2020)
-                        .broken(false)
-                        .build(),
-                Vehicle.builder()
-                        .vehicleType(VehicleType.EXCAVATOR)
-                        .make("make")
-                        .model("model")
-                        .year(2021)
                         .broken(false)
                         .build());
     }
