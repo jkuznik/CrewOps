@@ -36,7 +36,7 @@ class QualificationServiceTest {
 
     private Qualification qualification;
     private CreateQualificationDTO createQualificationDTO;
-    private CreateQualificationDTO createQualificationDTONotValid;
+    private CreateQualificationDTO createQualificationDTOWithoutDescription;
     private UpdateQualificationDTO updateQualificationDTOWithDescription;
     private UpdateQualificationDTO updateQualificationDTOWithoutDescription;
     private final UUID qualificationId = UUID.randomUUID();
@@ -45,7 +45,7 @@ class QualificationServiceTest {
     void setUp() {
         qualification = createQualification();
         createQualificationDTO = createCreateQualificationDTOWithDescription();
-        createQualificationDTONotValid = createCreateQualificationDTOWithoutDescription();
+        createQualificationDTOWithoutDescription = createCreateQualificationDTOWithoutDescription();
         updateQualificationDTOWithDescription = createUpdateQualificationDTOWithDescription();
         updateQualificationDTOWithoutDescription = createUpdateQualificationDTOWithoutDescription();
     }
@@ -64,8 +64,8 @@ class QualificationServiceTest {
     @Test
     void shouldThrowException_whenCreatedQualificationDTOIsNotValid() {
         // when
-        Exception result =
-                catchException(() -> qualificationService.createQualification(createQualificationDTONotValid));
+        Exception result = catchException(
+                () -> qualificationService.createQualification(createQualificationDTOWithoutDescription));
 
         // then
         assertThat(result).isInstanceOf(ConstraintViolationException.class);
