@@ -56,7 +56,7 @@ class EmployeeTestFactory {
 
     public static UpdateEmployeeDTO updateEmployeeDTO() {
         return UpdateEmployeeDTO.builder()
-                .employeeId(UUID.randomUUID())
+                .employeeId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
                 .phoneNumber("123456789")
                 .department("department")
                 .build();
@@ -64,7 +64,7 @@ class EmployeeTestFactory {
 
     public static UpdateEmployeeDTO updateEmployeeDTONotValid() {
         return UpdateEmployeeDTO.builder()
-                .employeeId(UUID.randomUUID())
+                .employeeId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
                 .phoneNumber("123456789andThenMoreChar")
                 .department("department")
                 .build();
@@ -100,9 +100,5 @@ class EmployeeTestFactory {
                         .year(2020)
                         .broken(false)
                         .build());
-    }
-
-    private static Set<UUID> qualificationsAndVehiclesImitation() {
-        return Set.of(UUID.randomUUID(), UUID.randomUUID());
     }
 }

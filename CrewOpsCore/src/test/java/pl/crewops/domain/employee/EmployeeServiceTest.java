@@ -59,9 +59,9 @@ class EmployeeServiceTest {
     private Employee employeeWithEmptyQAndEmptyV;
     private Qualification qualification;
     private Vehicle vehicle;
-    private UUID employeeId = UUID.randomUUID();
-    private UUID qualificationId = UUID.randomUUID();
-    private UUID vehicleId = UUID.randomUUID();
+    private final UUID employeeId = UUID.randomUUID();
+    private final UUID qualificationId = UUID.randomUUID();
+    private final UUID vehicleId = UUID.randomUUID();
 
     @BeforeEach
     void setUp() {
@@ -119,7 +119,7 @@ class EmployeeServiceTest {
     }
 
     @Test
-    void shouldReturnEmployeeDTOList_whenEmployeesExist() {
+    void shouldReturnEmployeeDTOsList_whenEmployeesExist() {
         // given
         Page<Employee> employees = new PageImpl<>(List.of(employeeWithQAndV, employeeWithEmptyQAndEmptyV));
 

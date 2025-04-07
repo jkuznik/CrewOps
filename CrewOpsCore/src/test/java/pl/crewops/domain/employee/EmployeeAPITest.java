@@ -24,10 +24,10 @@ class EmployeeAPITest extends IntegrationTest {
     @Test
     void shouldReturnEmployeeWithNoQualificationsAndNoVehicles() {
         // given
-        var employeeDTO = EmployeeTestFactory.createEmployeeDTO();
+        var createEmployeeDTO = EmployeeTestFactory.createEmployeeDTO();
 
         // when
-        EmployeeDTO result = employeeAPI.createEmployee(employeeDTO);
+        EmployeeDTO result = employeeAPI.createEmployee(createEmployeeDTO);
         Employee employee = employeeRepository
                 .findByFirstNameAndLastName("firstName", "lastName")
                 .orElseThrow(RuntimeException::new);
