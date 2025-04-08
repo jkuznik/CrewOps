@@ -13,6 +13,7 @@ public class ControllerURL {
     public static final String EMPLOYEES_VID = EMPLOYEES + "/{" + VEHICLE_ID + "}";
 
     public static final String QUALIFICATIONS_QID = QUALIFICATIONS + "/{" + QUALIFICATION_ID + "}";
+    public static final String QUALIFICATIONS_QIDS = QUALIFICATIONS + "/collection";
 
     public static final String VEHICLES_VID = VEHICLES + "/{" + VEHICLE_ID + "}";
 

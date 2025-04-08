@@ -11,9 +11,11 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import jakarta.annotation.security.PermitAll;
+import java.util.List;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.infrastructure.core.CoreClient;
+import pl.crewops.view.component.QualificationAccordion;
 
 @SpringComponent
 @Scope("prototype")
@@ -24,6 +26,7 @@ public class StartView extends VerticalLayout {
     Grid<EmployeeDTO> grid = new Grid<>(EmployeeDTO.class);
     TextField filterText = new TextField();
     EmployeeForm form;
+    QualificationAccordion qualificationAccordion;
     CoreClient coreClient;
     //    CrmService service;
 
@@ -50,8 +53,9 @@ public class StartView extends VerticalLayout {
 
     private void configureForm() {
         EmployeeDTO first = coreClient.getEmployees().getFirst();
-        form = new EmployeeForm(first);
+        form = new EmployeeForm(coreClient, first);
         form.setWidth("25em");
+
         //        form.addSaveListener(this::saveContact); // <1>
         //        form.addDeleteListener(this::deleteContact); // <2>
         //        form.addCloseListener(e -> closeEditor()); // <3>
@@ -117,6 +121,7 @@ public class StartView extends VerticalLayout {
     //    }
     //
     private void updateList() {
-        grid.setItems(coreClient.getEmployees());
+        List<EmployeeDTO> employees = coreClient.getEmployees();
+        grid.setItems(employees);
     }
 }

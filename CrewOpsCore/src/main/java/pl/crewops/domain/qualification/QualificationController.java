@@ -5,6 +5,7 @@ import static pl.crewops.enums.ControllerURL.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,12 @@ class QualificationController {
     public ResponseEntity<List<QualificationDTO>> getQualifications(
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "15") int size) {
         return ResponseEntity.status(HttpStatus.OK).body(qualificationService.getAllQualifications(page, size));
+    }
+
+    @PostMapping(QUALIFICATIONS_QIDS)
+    public ResponseEntity<List<QualificationDTO>> getQualificationsByIds(
+            @RequestBody @Valid @NotNull Set<UUID> qualificationIds) {
+        return ResponseEntity.status(HttpStatus.OK).body(qualificationService.getQualificationsIn(qualificationIds));
     }
 
     @PatchMapping(QUALIFICATIONS_QID)

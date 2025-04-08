@@ -14,16 +14,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.infrastructure.core.CoreClient;
+import pl.crewops.view.component.QualificationAccordion;
 
 public class EmployeeForm extends FormLayout {
-    //    CoreClient coreClient;
+    private final CoreClient coreClient;
 
     TextField firstName = new TextField("First name");
     TextField lastName = new TextField("Last name");
     TextField birthDate = new TextField("Birth date");
     TextField phoneNumber = new TextField("Phone number");
     TextField department = new TextField("Department");
-    Accordion qualifications = new Accordion();
+    QualificationAccordion qualifications;
     Accordion vehicles = new Accordion();
     //    ComboBox<Status> status = new ComboBox<>("Status");
     //    ComboBox<Company> company = new ComboBox<>("Company");
@@ -34,7 +36,10 @@ public class EmployeeForm extends FormLayout {
     // Other fields omitted
     //    Binder<Contact> binder = new BeanValidationBinder<>(Contact.class);
 
-    public EmployeeForm(EmployeeDTO employeeDTO) {
+    public EmployeeForm(CoreClient coreClient, EmployeeDTO employeeDTO) {
+        this.coreClient = coreClient;
+        qualifications = new QualificationAccordion(coreClient);
+        qualifications.config(employeeDTO.qualifications());
         addClassName("contact-form");
         //        qualificationsAccordion(employeeDTO.qualifications());
         //        binder.bindInstanceFields(this);

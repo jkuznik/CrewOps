@@ -1,6 +1,8 @@
 package pl.crewops.infrastructure.core;
 
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -32,12 +34,13 @@ public class CoreClient {
         }
     }
 
-    public List<QualificationDTO> getQualifications() {
+    public List<QualificationDTO> getQualifications(Set<UUID> qualificationsIds) {
         try {
             return coreClient
-                    .get()
+                    .post()
                     .uri(uriBuilder ->
-                            uriBuilder.path(ControllerURL.QUALIFICATIONS).build())
+                            uriBuilder.path(ControllerURL.QUALIFICATIONS_QIDS).build())
+                    .body(qualificationsIds)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .body(new ParameterizedTypeReference<List<QualificationDTO>>() {});
@@ -47,7 +50,3 @@ public class CoreClient {
         }
     }
 }
-
-record EmployeesGenericResponse(List<EmployeeDTO> employees) {}
-
-record QualificationsGenericResponse(List<QualificationDTO> qualifications) {}
