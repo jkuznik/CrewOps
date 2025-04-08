@@ -23,7 +23,7 @@ import pl.crewops.infrastructure.core.CoreClient;
 public class StartView extends VerticalLayout {
     Grid<EmployeeDTO> grid = new Grid<>(EmployeeDTO.class);
     TextField filterText = new TextField();
-    ContactForm form;
+    EmployeeForm form;
     CoreClient coreClient;
     //    CrmService service;
 
@@ -49,7 +49,8 @@ public class StartView extends VerticalLayout {
     }
 
     private void configureForm() {
-        form = new ContactForm();
+        EmployeeDTO first = coreClient.getEmployees().getFirst();
+        form = new EmployeeForm(first);
         form.setWidth("25em");
         //        form.addSaveListener(this::saveContact); // <1>
         //        form.addDeleteListener(this::deleteContact); // <2>

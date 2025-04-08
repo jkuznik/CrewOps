@@ -2,17 +2,29 @@ package pl.crewops.view;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import pl.crewops.dto.employee.EmployeeDTO;
 
-public class ContactForm extends FormLayout {
+public class EmployeeForm extends FormLayout {
+    //    CoreClient coreClient;
+
     TextField firstName = new TextField("First name");
     TextField lastName = new TextField("Last name");
     TextField birthDate = new TextField("Birth date");
     TextField phoneNumber = new TextField("Phone number");
+    TextField department = new TextField("Department");
+    Accordion qualifications = new Accordion();
+    Accordion vehicles = new Accordion();
     //    ComboBox<Status> status = new ComboBox<>("Status");
     //    ComboBox<Company> company = new ComboBox<>("Company");
 
@@ -22,8 +34,9 @@ public class ContactForm extends FormLayout {
     // Other fields omitted
     //    Binder<Contact> binder = new BeanValidationBinder<>(Contact.class);
 
-    public ContactForm(/*List<Company> companies, List<Status> statuses*/ ) {
+    public EmployeeForm(EmployeeDTO employeeDTO) {
         addClassName("contact-form");
+        //        qualificationsAccordion(employeeDTO.qualifications());
         //        binder.bindInstanceFields(this);
         //
         //        company.setItems(companies);
@@ -31,7 +44,35 @@ public class ContactForm extends FormLayout {
         //        status.setItems(statuses);
         //        status.setItemLabelGenerator(Status::getName);
 
-        add(firstName, lastName, birthDate, phoneNumber, createButtonsLayout());
+        add(firstName, lastName, birthDate, phoneNumber, department, qualifications, vehicles, createButtonsLayout());
+    }
+
+    private void completeFormData(EmployeeDTO employeeDTO) {
+        firstName.setValue(employeeDTO.firstName());
+        lastName.setValue(employeeDTO.lastName());
+        birthDate.setValue(employeeDTO.birthDate().toString());
+        phoneNumber.setValue(employeeDTO.phoneNumber());
+        department.setValue(employeeDTO.department());
+    }
+
+    private void qualificationsAccordion(Set<UUID> employeeQualifications) {
+        //        Span name = new Span("Sophia Williams");
+        //        Span email = new Span("sophia.williams@company.com");
+        //        Span phone = new Span("(501) 555-9128");
+
+        List<Span> spans = new ArrayList<>();
+
+        //        employeeQualifications.forEach(employeeQualification -> {
+        //            spans.add(new Span(employeeQualification.toString()));
+        //        })
+        //
+        //        VerticalLayout personalInformationLayout = new VerticalLayout(name,
+        //                email, phone);
+        //        personalInformationLayout.setSpacing(false);
+        //        personalInformationLayout.setPadding(false);
+        //
+        //        qualifications.
+        //        qualifications.add("Qualifications", personalInformationLayout);
     }
 
     private Component createButtonsLayout() {
