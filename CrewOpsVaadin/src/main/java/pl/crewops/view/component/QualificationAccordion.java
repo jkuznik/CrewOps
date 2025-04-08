@@ -4,23 +4,23 @@ import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.spring.annotation.SpringComponent;
 import java.util.*;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.infrastructure.core.CoreClient;
 
+@SpringComponent
 public class QualificationAccordion extends FormLayout {
 
     private final CoreClient coreClient;
-    private Accordion accordion = new Accordion();
 
     public QualificationAccordion(CoreClient coreClient) {
         this.coreClient = coreClient;
-
-        accordion.setVisible(true);
-        add(accordion);
     }
 
     public void config(Set<UUID> qualificationsIds) {
+        removeAll();
+        Accordion accordion = new Accordion();
         List<Span> items = new ArrayList<>();
 
         List<QualificationDTO> qualifications = getQualifications(qualificationsIds);
@@ -32,6 +32,8 @@ public class QualificationAccordion extends FormLayout {
         qualificationDisplay.setSpacing(false);
         qualificationDisplay.setPadding(false);
 
+        accordion.setVisible(true);
+        add(accordion);
         accordion.add("Qualifications", qualificationDisplay);
     }
 
