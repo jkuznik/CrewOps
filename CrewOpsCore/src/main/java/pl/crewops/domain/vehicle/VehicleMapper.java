@@ -10,7 +10,7 @@ class VehicleMapper {
         return Vehicle.builder()
                 .make(createVehicleDTO.make())
                 .model(createVehicleDTO.model())
-                .vehicleType(createVehicleDTO.type())
+                .vehicleType(createVehicleDTO.vehicleType())
                 .year(createVehicleDTO.year())
                 .vin(createVehicleDTO.vin())
                 .registerNumber(createVehicleDTO.registerNumber())

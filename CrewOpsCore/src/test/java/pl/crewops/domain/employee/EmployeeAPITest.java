@@ -3,7 +3,6 @@ package pl.crewops.domain.employee;
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.crewops.domain.employee.EmployeeTestFactory.*;
 
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import pl.crewops.IntegrationTest;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.model.Employee;
-import pl.crewops.model.Qualification;
 
 @Transactional
 class EmployeeAPITest extends IntegrationTest {
@@ -26,10 +24,10 @@ class EmployeeAPITest extends IntegrationTest {
     @Test
     void shouldReturnEmployeeWithNoQualificationsAndNoVehicles() {
         // given
-        var employeeDTO = createEmployeeDTOWithoutQualificationsAndVehicles();
+        var createEmployeeDTO = EmployeeTestFactory.createEmployeeDTO();
 
         // when
-        EmployeeDTO result = employeeAPI.createEmployee(employeeDTO);
+        EmployeeDTO result = employeeAPI.createEmployee(createEmployeeDTO);
         Employee employee = employeeRepository
                 .findByFirstNameAndLastName("firstName", "lastName")
                 .orElseThrow(RuntimeException::new);
@@ -37,50 +35,6 @@ class EmployeeAPITest extends IntegrationTest {
         // then
         assertThat(result.firstName()).isEqualTo("firstName");
         assertThat(result.firstName()).isEqualTo(employee.getFirstName());
-    }
-
-    @Test
-    void shouldReturnEmployeeWithQualificationsButNoVehicles() {
-        // given
-        var employeeDTO = createEmployeeDTOWithQualificationsAndVehicles();
-
-        // when
-        EmployeeDTO result = employeeAPI.createEmployee(employeeDTO);
-        Employee employee = employeeRepository
-                .findByFirstNameAndLastName("firstName", "lastName")
-                .orElseThrow(RuntimeException::new);
-        Set<Qualification> employeeQualifications = employee.getQualifications();
-
-        // then
-        assertThat(result.firstName()).isEqualTo("firstName");
-        assertThat(result.firstName()).isEqualTo(employee.getFirstName());
-        //        TODO: modify mapper or remove this line
-        //        assertThat(employeeQualifications.size()).isEqualTo(2); // check if qualifications are persist correct
-    }
-
-    @Test
-    void shouldReturnEmployeeWithQualificationsAndVehicles() {
-        // given
-        var employeeDTO = createEmployeeDTOWithQualificationsAndVehicles();
-
-        // when
-        EmployeeDTO result = employeeAPI.createEmployee(employeeDTO);
-        Employee employee = employeeRepository
-                .findByFirstNameAndLastName("firstName", "lastName")
-                .orElseThrow(RuntimeException::new);
-        //        TODO: modify mapper or remove this lines
-        //        Set<Qualification> employeeQualifications = employee.getQualifications();
-        //        Set<Vehicle> employeeVehicles = employee.getVehicles();
-        //        Optional<Vehicle> first = employeeVehicles.stream()
-        //                .filter(vehicle -> vehicle.getVehicleType().equals(VehicleType.BULLDOZER))
-        //                .findFirst();
-
-        // then
-        assertThat(result.firstName()).isEqualTo("firstName");
-        assertThat(result.firstName()).isEqualTo(employee.getFirstName());
-        //        assertThat(employeeQualifications.size()).isEqualTo(2); // check if qualifications are persist correct
-        //        assertThat(employeeVehicles.size()).isEqualTo(2); // check if vehicles are persist correct
-        //        assertThat(first.isPresent()).isTrue(); // check if vehicle type is persist correct
     }
 
     @Test

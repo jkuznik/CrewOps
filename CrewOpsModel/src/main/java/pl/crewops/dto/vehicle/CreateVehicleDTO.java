@@ -9,7 +9,7 @@ import pl.crewops.enums.VehicleType;
 public record CreateVehicleDTO(
         @Size(max = 31) @NotNull String make,
         @Size(max = 31) @NotNull String model,
-        @NotNull VehicleType type,
+        @NotNull VehicleType vehicleType,
         @NotNull Integer year,
         @Size(max = 50) String vin,
         @Size(max = 15) String registerNumber,

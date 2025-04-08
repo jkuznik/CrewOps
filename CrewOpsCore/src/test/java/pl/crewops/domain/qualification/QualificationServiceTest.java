@@ -3,18 +3,26 @@ package pl.crewops.domain.qualification;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchException;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static pl.crewops.domain.qualification.QualificationTestFactory.*;
 
 import jakarta.validation.ConstraintViolationException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
+import pl.crewops.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.model.Qualification;
 
 @SpringJUnitConfig(classes = {QualificationService.class, MethodValidationPostProcessor.class})
@@ -28,13 +36,18 @@ class QualificationServiceTest {
 
     private Qualification qualification;
     private CreateQualificationDTO createQualificationDTO;
-    private CreateQualificationDTO createQualificationDTONotValid;
+    private CreateQualificationDTO createQualificationDTOWithoutDescription;
+    private UpdateQualificationDTO updateQualificationDTOWithDescription;
+    private UpdateQualificationDTO updateQualificationDTOWithoutDescription;
+    private final UUID qualificationId = UUID.randomUUID();
 
     @BeforeEach
     void setUp() {
         qualification = createQualification();
         createQualificationDTO = createCreateQualificationDTOWithDescription();
-        createQualificationDTONotValid = createCreateQualificationDTOWithoutDescription();
+        createQualificationDTOWithoutDescription = createCreateQualificationDTOWithoutDescription();
+        updateQualificationDTOWithDescription = createUpdateQualificationDTOWithDescription();
+        updateQualificationDTOWithoutDescription = createUpdateQualificationDTOWithoutDescription();
     }
 
     @Test
@@ -45,14 +58,14 @@ class QualificationServiceTest {
 
         // then
         assertThat(result).isNotNull();
-        assertThat(result.description()).isEqualTo("foo1");
+        assertThat(result.description()).isEqualTo("description");
     }
 
     @Test
     void shouldThrowException_whenCreatedQualificationDTOIsNotValid() {
         // when
-        Exception result =
-                catchException(() -> qualificationService.createQualification(createQualificationDTONotValid));
+        Exception result = catchException(
+                () -> qualificationService.createQualification(createQualificationDTOWithoutDescription));
 
         // then
         assertThat(result).isInstanceOf(ConstraintViolationException.class);
@@ -65,5 +78,51 @@ class QualificationServiceTest {
 
         // then
         assertThat(result).isInstanceOf(ConstraintViolationException.class);
+    }
+
+    @Test
+    void shouldReturnQualificationDTOsList_whenQualificationsExist() {
+        // given
+        Page<Qualification> qualifications = new PageImpl<>(Collections.singletonList(qualification));
+
+        // when
+        when(qualificationRepository.findAll(any(PageRequest.class))).thenReturn(qualifications);
+        List<QualificationDTO> result = qualificationService.getAllQualifications(0, 5);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.get(0).description()).isEqualTo("description");
+    }
+
+    @Test
+    void shouldReturnQualificationDTO_whenUpdatedQualificationDTOIsValid() {
+        // when
+        when(qualificationRepository.findById(any(UUID.class))).thenReturn(Optional.of(qualification));
+        QualificationDTO result = qualificationService.updateQualification(updateQualificationDTOWithDescription);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.description()).isEqualTo(qualification.getDescription());
+    }
+
+    @Test
+    void shouldThrowException_whenUpdatedQualificationDTOIsNotValid() {
+        // when
+        Exception result = catchException(
+                () -> qualificationService.updateQualification(updateQualificationDTOWithoutDescription));
+
+        // then
+        assertThat(result).isInstanceOf(ConstraintViolationException.class);
+    }
+
+    @Test
+    void shouldDeleteQualification() {
+        // when
+        doNothing().when(qualificationRepository).deleteById(any(UUID.class));
+        qualificationService.deleteQualification(qualificationId);
+
+        // then
+        verify(qualificationRepository, times(1)).deleteById(qualificationId);
     }
 }

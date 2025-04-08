@@ -20,7 +20,7 @@ class EmployeeTestFactory {
                 .phoneNumber("123456789")
                 .department("department")
                 .qualifications(getQualifications())
-                .vehicles(createVehicles())
+                .vehicles(getVehicles())
                 .build();
     }
 
@@ -34,19 +34,7 @@ class EmployeeTestFactory {
                 .build();
     }
 
-    public static CreateEmployeeDTO createEmployeeDTOWithQualificationsAndVehicles() {
-        return CreateEmployeeDTO.builder()
-                .firstName("firstName")
-                .lastName("lastName")
-                .birthDate(LocalDate.parse("2000-01-01"))
-                .phoneNumber("123456789")
-                .department("department")
-                .qualifications(qualificationsAndVehiclesImitation())
-                .vehicles(qualificationsAndVehiclesImitation())
-                .build();
-    }
-
-    public static CreateEmployeeDTO createEmployeeDTOWithoutQualificationsAndVehicles() {
+    public static CreateEmployeeDTO createEmployeeDTO() {
         return CreateEmployeeDTO.builder()
                 .firstName("firstName")
                 .lastName("lastName")
@@ -68,7 +56,7 @@ class EmployeeTestFactory {
 
     public static UpdateEmployeeDTO updateEmployeeDTO() {
         return UpdateEmployeeDTO.builder()
-                .employeeId(UUID.randomUUID())
+                .employeeId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
                 .phoneNumber("123456789")
                 .department("department")
                 .build();
@@ -76,9 +64,23 @@ class EmployeeTestFactory {
 
     public static UpdateEmployeeDTO updateEmployeeDTONotValid() {
         return UpdateEmployeeDTO.builder()
-                .employeeId(UUID.randomUUID())
+                .employeeId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
                 .phoneNumber("123456789andThenMoreChar")
                 .department("department")
+                .build();
+    }
+
+    public static Qualification qualification() {
+        return Qualification.builder().description("description").build();
+    }
+
+    public static Vehicle vehicle() {
+        return Vehicle.builder()
+                .vehicleType(VehicleType.EXCAVATOR)
+                .make("make")
+                .model("model")
+                .year(2020)
+                .broken(false)
                 .build();
     }
 
@@ -88,25 +90,15 @@ class EmployeeTestFactory {
                 Qualification.builder().description("bar").build());
     }
 
-    private static Set<Vehicle> createVehicles() {
+    private static Set<Vehicle> getVehicles() {
         return Set.of(
+                vehicle(),
                 Vehicle.builder()
                         .vehicleType(VehicleType.BULLDOZER)
                         .make("make")
                         .model("model")
                         .year(2020)
                         .broken(false)
-                        .build(),
-                Vehicle.builder()
-                        .vehicleType(VehicleType.EXCAVATOR)
-                        .make("make")
-                        .model("model")
-                        .year(2021)
-                        .broken(false)
                         .build());
-    }
-
-    private static Set<UUID> qualificationsAndVehiclesImitation() {
-        return Set.of(UUID.randomUUID(), UUID.randomUUID());
     }
 }
