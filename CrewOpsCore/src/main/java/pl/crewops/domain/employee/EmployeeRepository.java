@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,6 +15,7 @@ import pl.crewops.model.joinTable.EmployeeQualification;
 @Repository
 interface EmployeeRepository extends JpaRepository<Employee, UUID> {
 
+    @EntityGraph(attributePaths = {"qualifications", "vehicles"})
     Page<Employee> findAll(Pageable pageable);
 
     @Query("SELECT e FROM Employee e JOIN e.qualifications q WHERE q.id = :qualificationId")
