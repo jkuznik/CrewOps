@@ -15,24 +15,26 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.employee.EmployeeFormModel;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.view.component.EmployeeForm;
 
 @SpringComponent
 @Scope("prototype")
 @PermitAll
-@Route(value = "", layout = MainLayout.class)
+@Route(value = "employees", layout = MainLayout.class)
 @PageTitle("Home page")
-public class StartView extends VerticalLayout {
-    Grid<EmployeeDTO> grid = new Grid<>(EmployeeDTO.class);
+public class EmployeeView extends VerticalLayout {
+    Grid<EmployeeFormModel> grid = new Grid<>(EmployeeFormModel.class);
     TextField filterText = new TextField();
     EmployeeForm form;
     CoreAPI coreAPI;
     List<EmployeeDTO> employees = new ArrayList<>();
-    //    CrmService service;
 
-    public StartView(CoreAPI coreAPI) {
-        this.coreAPI = coreAPI;
+    public EmployeeView(CoreAPI coreAPI) {
         addClassName("list-view");
+
+        this.coreAPI = coreAPI;
         employees = coreAPI.getEmployees();
 
         setSizeFull();
@@ -54,19 +56,19 @@ public class StartView extends VerticalLayout {
     }
 
     private void configureForm() {
-        EmployeeDTO first = coreAPI.getEmployees().getFirst();
+        //        EmployeeDTO first = coreAPI.getEmployees().getFirst();
         form = new EmployeeForm(coreAPI);
-        form.completeFormData(first);
-        form.setEmployee(first);
+        //        form.completeFormData(first);
+        //        form.setEmployee(first);
         form.setWidth("25em");
 
-        form.addSaveListener(this::saveContact);
+        form.addSaveListener(this::saveEmployee);
         form.addDeleteListener(this::deleteContact);
         form.addCloseListener(e -> closeEditor());
     }
 
-    private void saveContact(EmployeeForm.SaveEvent event) {
-        //            service.saveContact(event.getContact());
+    private void saveEmployee(EmployeeForm.SaveEvent event) {
+        coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
         updateList();
         closeEditor();
     }
@@ -83,7 +85,7 @@ public class StartView extends VerticalLayout {
         grid.setColumns("firstName", "lastName", "birthDate", "phoneNumber", "department");
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
 
-        grid.asSingleSelect().addValueChangeListener(event -> employeeForm(event.getValue()));
+        grid.asSingleSelect().addValueChangeListener(event -> editEmployee(event.getValue()));
     }
 
     private Component getToolbar() {
@@ -100,11 +102,11 @@ public class StartView extends VerticalLayout {
         return toolbar;
     }
 
-    public void employeeForm(EmployeeDTO employeeDTO) {
-        if (employeeDTO == null) {
+    public void editEmployee(EmployeeFormModel employeeFormModel) {
+        if (employeeFormModel == null) {
             closeEditor();
         } else {
-            form.setEmployee(employeeDTO);
+            form.setEmployee(employeeFormModel);
             form.setVisible(true);
             addClassName("editing");
         }
@@ -116,17 +118,6 @@ public class StartView extends VerticalLayout {
         removeClassName("editing");
     }
 
-    public void editContact(EmployeeDTO employeeDTO) {
-        if (employeeDTO == null) {
-            closeEditor();
-        } else {
-            form.setEmployee(employeeDTO);
-            form.setVisible(true);
-            addClassName("editing");
-        }
-    }
-
-    // TODO: implement logic
     private void addEmployee() {
         grid.asSingleSelect().clear();
         form.setVisible(true);
@@ -134,15 +125,17 @@ public class StartView extends VerticalLayout {
 
     private void updateList() {
         if (filterText.getValue() == null) {
-            grid.setItems(employees);
+            grid.setItems(
+                    employees.stream().map(EmployeeDTO::toEmployeeFormModel).toList());
         } else {
             grid.setItems(employees.stream()
+                    .map(EmployeeDTO::toEmployeeFormModel)
                     .filter(employeeDTO -> employeeDTO
-                                    .firstName()
+                                    .getFirstName()
                                     .toLowerCase()
                                     .contains(filterText.getValue().toLowerCase())
                             || employeeDTO
-                                    .lastName()
+                                    .getLastName()
                                     .toLowerCase()
                                     .contains(filterText.getValue().toLowerCase()))
                     .toList());

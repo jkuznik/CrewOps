@@ -1,4 +1,4 @@
-package pl.crewops.view;
+package pl.crewops.view.component;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
@@ -16,33 +16,32 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.employee.EmployeeFormModel;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.view.component.QualificationAccordion;
 
 @SpringComponent
 public class EmployeeForm extends FormLayout {
-    private final CoreAPI coreAPI;
+    private final TextField firstName = new TextField("First name");
+    private final TextField lastName = new TextField("Last name");
+    private final DatePicker birthDate = new DatePicker("Birth date");
+    private final TextField phoneNumber = new TextField("Phone number");
+    private final TextField department = new TextField("Department");
 
-    TextField firstName = new TextField("First name");
-    TextField lastName = new TextField("Last name");
-    DatePicker birthDate = new DatePicker("Birth date");
-    TextField phoneNumber = new TextField("Phone number");
-    TextField department = new TextField("Department");
-    QualificationAccordion qualifications;
+    private final Button save = new Button("Save");
+    private final Button delete = new Button("Delete");
+    private final Button close = new Button("Cancel");
+
+    private final QualificationAccordion qualifications;
     Accordion vehicles = new Accordion();
 
-    Button save = new Button("Save");
-    Button delete = new Button("Delete");
-    Button close = new Button("Cancel");
-    Binder<EmployeeDTO> binder = new BeanValidationBinder<>(EmployeeDTO.class);
+    private final Binder<EmployeeFormModel> employeeDTOBinder = new BeanValidationBinder<>(EmployeeFormModel.class);
 
     public EmployeeForm(CoreAPI coreAPI) {
         addClassName("contact-form");
 
-        this.coreAPI = coreAPI;
         qualifications = new QualificationAccordion(coreAPI);
 
-        binder.bindInstanceFields(this);
+        employeeDTOBinder.bindInstanceFields(this);
 
         add(firstName, lastName, birthDate, phoneNumber, department, qualifications, vehicles, createButtonsLayout());
     }
@@ -64,50 +63,50 @@ public class EmployeeForm extends FormLayout {
         save.addClickShortcut(Key.ENTER);
         close.addClickShortcut(Key.ESCAPE);
 
-        save.addClickListener(event -> validateAndSave()); // <1>
-        delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean()))); // <2>
-        close.addClickListener(event -> fireEvent(new CloseEvent(this))); // <3>
+        save.addClickListener(event -> validateAndSave());
+        delete.addClickListener(event -> fireEvent(new DeleteEvent(this, employeeDTOBinder.getBean())));
+        close.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
-        binder.addStatusChangeListener(e -> save.setEnabled(binder.isValid())); // <4>
+        employeeDTOBinder.addStatusChangeListener(e -> save.setEnabled(employeeDTOBinder.isValid()));
         return new HorizontalLayout(save, delete, close);
     }
 
     private void validateAndSave() {
-        if (binder.isValid()) {
-            fireEvent(new SaveEvent(this, binder.getBean())); // <6>
+        if (employeeDTOBinder.writeBeanIfValid(employeeDTOBinder.getBean())) {
+            fireEvent(new SaveEvent(this, employeeDTOBinder.getBean()));
         }
     }
 
-    public void setEmployee(EmployeeDTO employeeDTO) {
-        binder.readBean(employeeDTO);
-        if (employeeDTO != null) {
-            qualifications.config(employeeDTO.qualifications());
+    public void setEmployee(EmployeeFormModel employee) {
+        employeeDTOBinder.setBean(employee);
+        if (employee != null) {
+            qualifications.config(employee.getQualifications());
         }
     }
 
     // Events
     public abstract static class EmployeeFormEvent extends ComponentEvent<EmployeeForm> {
-        private EmployeeDTO employeeDTO;
+        private EmployeeFormModel employee;
 
-        protected EmployeeFormEvent(EmployeeForm source, EmployeeDTO employeeDTO) {
+        protected EmployeeFormEvent(EmployeeForm source, EmployeeFormModel employee) {
             super(source, false);
-            this.employeeDTO = employeeDTO;
+            this.employee = employee;
         }
 
-        public EmployeeDTO getContact() {
-            return employeeDTO;
+        public EmployeeFormModel getEmployee() {
+            return employee;
         }
     }
 
     public static class SaveEvent extends EmployeeFormEvent {
-        SaveEvent(EmployeeForm source, EmployeeDTO employeeDTO) {
-            super(source, employeeDTO);
+        SaveEvent(EmployeeForm source, EmployeeFormModel employee) {
+            super(source, employee);
         }
     }
 
     public static class DeleteEvent extends EmployeeFormEvent {
-        DeleteEvent(EmployeeForm source, EmployeeDTO employeeDTO) {
-            super(source, employeeDTO);
+        DeleteEvent(EmployeeForm source, EmployeeFormModel employee) {
+            super(source, employee);
         }
     }
 

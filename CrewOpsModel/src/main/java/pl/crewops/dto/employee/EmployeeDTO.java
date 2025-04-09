@@ -15,4 +15,15 @@ public record EmployeeDTO(
         String phoneNumber,
         String department,
         Set<UUID> qualifications,
-        Set<UUID> vehicles) {}
+        Set<UUID> vehicles) {
+
+    public static EmployeeFormModel toEmployeeFormModel(EmployeeDTO employeeDTO) {
+        return EmployeeFormModel.builder()
+                .firstName(employeeDTO.firstName)
+                .lastName(employeeDTO.lastName)
+                .birthDate(employeeDTO.birthDate)
+                .phoneNumber(employeeDTO.phoneNumber)
+                .department(employeeDTO.department)
+                .build();
+    }
+}
