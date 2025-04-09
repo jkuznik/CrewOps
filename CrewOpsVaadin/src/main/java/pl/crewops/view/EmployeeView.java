@@ -11,29 +11,27 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import jakarta.annotation.security.PermitAll;
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.employee.EmployeeFormModel;
 import pl.crewops.infrastructure.core.CoreAPI;
 
 @SpringComponent
 @Scope("prototype")
 @PermitAll
-@Route(value = "", layout = MainLayout.class)
-@PageTitle("Home page")
-public class StartView extends VerticalLayout {
+@Route(value = "employees", layout = MainLayout.class)
+@PageTitle("Employee management")
+public class EmployeeView extends VerticalLayout {
     Grid<EmployeeDTO> grid = new Grid<>(EmployeeDTO.class);
     TextField filterText = new TextField();
     EmployeeForm form;
     CoreAPI coreAPI;
-    List<EmployeeDTO> employees = new ArrayList<>();
-    //    CrmService service;
 
-    public StartView(CoreAPI coreAPI) {
-        this.coreAPI = coreAPI;
+    public EmployeeView(CoreAPI coreAPI) {
         addClassName("list-view");
-        employees = coreAPI.getEmployees();
+
+        this.coreAPI = coreAPI;
 
         setSizeFull();
         configureGrid();
@@ -54,10 +52,7 @@ public class StartView extends VerticalLayout {
     }
 
     private void configureForm() {
-        EmployeeDTO first = coreAPI.getEmployees().getFirst();
         form = new EmployeeForm(coreAPI);
-        form.completeFormData(first);
-        form.setEmployee(first);
         form.setWidth("25em");
 
         form.addSaveListener(this::saveContact);
@@ -66,7 +61,7 @@ public class StartView extends VerticalLayout {
     }
 
     private void saveContact(EmployeeForm.SaveEvent event) {
-        //            service.saveContact(event.getContact());
+        coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
         updateList();
         closeEditor();
     }
@@ -83,7 +78,7 @@ public class StartView extends VerticalLayout {
         grid.setColumns("firstName", "lastName", "birthDate", "phoneNumber", "department");
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
 
-        grid.asSingleSelect().addValueChangeListener(event -> employeeForm(event.getValue()));
+        grid.asSingleSelect().addValueChangeListener(event -> editEmployee(event.getValue()));
     }
 
     private Component getToolbar() {
@@ -100,7 +95,7 @@ public class StartView extends VerticalLayout {
         return toolbar;
     }
 
-    public void employeeForm(EmployeeDTO employeeDTO) {
+    public void editEmployee(EmployeeDTO employeeDTO) {
         if (employeeDTO == null) {
             closeEditor();
         } else {
@@ -116,16 +111,6 @@ public class StartView extends VerticalLayout {
         removeClassName("editing");
     }
 
-    public void editContact(EmployeeDTO employeeDTO) {
-        if (employeeDTO == null) {
-            closeEditor();
-        } else {
-            form.setEmployee(employeeDTO);
-            form.setVisible(true);
-            addClassName("editing");
-        }
-    }
-
     // TODO: implement logic
     private void addEmployee() {
         grid.asSingleSelect().clear();
@@ -133,6 +118,8 @@ public class StartView extends VerticalLayout {
     }
 
     private void updateList() {
+        List<EmployeeDTO> employees = coreAPI.getEmployees();
+
         if (filterText.getValue() == null) {
             grid.setItems(employees);
         } else {

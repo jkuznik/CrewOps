@@ -1,6 +1,7 @@
 package pl.crewops.infrastructure.core;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.enums.ControllerURL;
@@ -18,6 +20,21 @@ import pl.crewops.enums.ControllerURL;
 class CoreClient implements CoreAPI {
 
     private final RestClient coreClient;
+
+    public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) {
+        try {
+            return Optional.ofNullable(coreClient
+                    .post()
+                    .uri(uriBuilder -> uriBuilder.path(ControllerURL.EMPLOYEES).build())
+                    .body(createEmployeeDTO)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<EmployeeDTO>() {}));
+        } catch (RestClientException e) {
+            log.error("Create new employee error", e);
+            return Optional.empty();
+        }
+    }
 
     public List<EmployeeDTO> getEmployees() {
         try {

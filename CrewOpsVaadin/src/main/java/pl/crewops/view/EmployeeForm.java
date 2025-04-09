@@ -16,13 +16,12 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.employee.EmployeeFormModel;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.view.component.QualificationAccordion;
 
 @SpringComponent
 public class EmployeeForm extends FormLayout {
-    private final CoreAPI coreAPI;
-
     TextField firstName = new TextField("First name");
     TextField lastName = new TextField("Last name");
     DatePicker birthDate = new DatePicker("Birth date");
@@ -36,24 +35,16 @@ public class EmployeeForm extends FormLayout {
     Button close = new Button("Cancel");
     Binder<EmployeeDTO> binder = new BeanValidationBinder<>(EmployeeDTO.class);
 
-    public EmployeeForm(CoreAPI coreAPI) {
-        addClassName("contact-form");
+    EmployeeFormModel model = new EmployeeFormModel();
 
-        this.coreAPI = coreAPI;
+    public EmployeeForm(CoreAPI coreAPI) {
+        addClassName("employee-form");
+
         qualifications = new QualificationAccordion(coreAPI);
 
         binder.bindInstanceFields(this);
 
         add(firstName, lastName, birthDate, phoneNumber, department, qualifications, vehicles, createButtonsLayout());
-    }
-
-    public void completeFormData(EmployeeDTO employeeDTO) {
-        firstName.setValue(employeeDTO.firstName());
-        lastName.setValue(employeeDTO.lastName());
-        birthDate.setValue(employeeDTO.birthDate());
-        phoneNumber.setValue(employeeDTO.phoneNumber());
-        department.setValue(employeeDTO.department());
-        qualifications.config(employeeDTO.qualifications());
     }
 
     private Component createButtonsLayout() {
@@ -65,49 +56,54 @@ public class EmployeeForm extends FormLayout {
         close.addClickShortcut(Key.ESCAPE);
 
         save.addClickListener(event -> validateAndSave()); // <1>
-        delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean()))); // <2>
+        delete.addClickListener(event -> fireEvent(new DeleteEvent(this, model))); // <2>
         close.addClickListener(event -> fireEvent(new CloseEvent(this))); // <3>
 
-        binder.addStatusChangeListener(e -> save.setEnabled(binder.isValid())); // <4>
+        binder.addStatusChangeListener(e -> save.setEnabled(modelValidation(model))); // <4>
         return new HorizontalLayout(save, delete, close);
     }
 
     private void validateAndSave() {
-        if (binder.isValid()) {
-            fireEvent(new SaveEvent(this, binder.getBean())); // <6>
+        if (modelValidation(model)) {
+            fireEvent(new SaveEvent(this, model)); // <6>
         }
     }
 
     public void setEmployee(EmployeeDTO employeeDTO) {
         binder.readBean(employeeDTO);
         if (employeeDTO != null) {
+            model.setFirstName(firstName.getValue());
+            model.setLastName(lastName.getValue());
+            model.setBirthDate(birthDate.getValue());
+            model.setPhoneNumber(phoneNumber.getValue());
+            model.setDepartment(department.getValue());
             qualifications.config(employeeDTO.qualifications());
         }
     }
 
     // Events
     public abstract static class EmployeeFormEvent extends ComponentEvent<EmployeeForm> {
-        private EmployeeDTO employeeDTO;
+        private EmployeeFormModel employeeFormModel;
 
-        protected EmployeeFormEvent(EmployeeForm source, EmployeeDTO employeeDTO) {
+        protected EmployeeFormEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
             super(source, false);
-            this.employeeDTO = employeeDTO;
+            this.employeeFormModel = employeeFormModel;
         }
 
-        public EmployeeDTO getContact() {
-            return employeeDTO;
+        public EmployeeFormModel getEmployee() {
+            return employeeFormModel;
         }
     }
 
     public static class SaveEvent extends EmployeeFormEvent {
-        SaveEvent(EmployeeForm source, EmployeeDTO employeeDTO) {
-            super(source, employeeDTO);
+        SaveEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
+            super(source, employeeFormModel);
         }
     }
 
     public static class DeleteEvent extends EmployeeFormEvent {
-        DeleteEvent(EmployeeForm source, EmployeeDTO employeeDTO) {
-            super(source, employeeDTO);
+        DeleteEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
+            super(source, employeeFormModel);
         }
     }
 
@@ -127,5 +123,31 @@ public class EmployeeForm extends FormLayout {
 
     public Registration addCloseListener(ComponentEventListener<CloseEvent> listener) {
         return addListener(CloseEvent.class, listener);
+    }
+
+    // TODO: add logic to inform user which text field are not valid in case of false return
+    private boolean modelValidation(EmployeeFormModel model) {
+        model.setFirstName(firstName.getValue());
+        model.setLastName(lastName.getValue());
+        model.setBirthDate(birthDate.getValue());
+        model.setPhoneNumber(phoneNumber.getValue());
+        model.setDepartment(department.getValue());
+
+        if (model.getFirstName().isEmpty()) {
+            return false;
+        }
+        if (model.getLastName().isEmpty()) {
+            return false;
+        }
+        if (model.getBirthDate() == null) {
+            return false;
+        }
+        if (model.getPhoneNumber().length() > 15) {
+            return false;
+        }
+        if (model.getDepartment().isEmpty()) {
+            return false;
+        }
+        return true;
     }
 }
