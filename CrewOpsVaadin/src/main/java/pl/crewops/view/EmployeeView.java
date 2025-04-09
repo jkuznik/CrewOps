@@ -30,7 +30,6 @@ public class EmployeeView extends VerticalLayout {
     CoreAPI coreAPI;
 
     public EmployeeView(CoreAPI coreAPI) {
-        this.coreAPI = coreAPI;
         addClassName("list-view");
 
         this.coreAPI = coreAPI;
