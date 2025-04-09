@@ -11,7 +11,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import jakarta.annotation.security.PermitAll;
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.employee.EmployeeDTO;
@@ -23,19 +22,18 @@ import pl.crewops.view.component.EmployeeForm;
 @Scope("prototype")
 @PermitAll
 @Route(value = "employees", layout = MainLayout.class)
-@PageTitle("Home page")
+@PageTitle("Employee management")
 public class EmployeeView extends VerticalLayout {
-    Grid<EmployeeFormModel> grid = new Grid<>(EmployeeFormModel.class);
+    Grid<EmployeeDTO> grid = new Grid<>(EmployeeDTO.class);
     TextField filterText = new TextField();
     EmployeeForm form;
     CoreAPI coreAPI;
-    List<EmployeeDTO> employees = new ArrayList<>();
 
     public EmployeeView(CoreAPI coreAPI) {
+        this.coreAPI = coreAPI;
         addClassName("list-view");
 
         this.coreAPI = coreAPI;
-        employees = coreAPI.getEmployees();
 
         setSizeFull();
         configureGrid();
@@ -56,18 +54,15 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private void configureForm() {
-        //        EmployeeDTO first = coreAPI.getEmployees().getFirst();
         form = new EmployeeForm(coreAPI);
-        //        form.completeFormData(first);
-        //        form.setEmployee(first);
         form.setWidth("25em");
 
-        form.addSaveListener(this::saveEmployee);
+        form.addSaveListener(this::saveContact);
         form.addDeleteListener(this::deleteContact);
         form.addCloseListener(e -> closeEditor());
     }
 
-    private void saveEmployee(EmployeeForm.SaveEvent event) {
+    private void saveContact(EmployeeForm.SaveEvent event) {
         coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
         updateList();
         closeEditor();
@@ -102,11 +97,11 @@ public class EmployeeView extends VerticalLayout {
         return toolbar;
     }
 
-    public void editEmployee(EmployeeFormModel employeeFormModel) {
-        if (employeeFormModel == null) {
+    public void editEmployee(EmployeeDTO employeeDTO) {
+        if (employeeDTO == null) {
             closeEditor();
         } else {
-            form.setEmployee(employeeFormModel);
+            form.setEmployee(employeeDTO);
             form.setVisible(true);
             addClassName("editing");
         }
@@ -118,24 +113,25 @@ public class EmployeeView extends VerticalLayout {
         removeClassName("editing");
     }
 
+    // TODO: implement logic
     private void addEmployee() {
         grid.asSingleSelect().clear();
         form.setVisible(true);
     }
 
     private void updateList() {
+        List<EmployeeDTO> employees = coreAPI.getEmployees();
+
         if (filterText.getValue() == null) {
-            grid.setItems(
-                    employees.stream().map(EmployeeDTO::toEmployeeFormModel).toList());
+            grid.setItems(employees);
         } else {
             grid.setItems(employees.stream()
-                    .map(EmployeeDTO::toEmployeeFormModel)
                     .filter(employeeDTO -> employeeDTO
-                                    .getFirstName()
+                                    .firstName()
                                     .toLowerCase()
                                     .contains(filterText.getValue().toLowerCase())
                             || employeeDTO
-                                    .getLastName()
+                                    .lastName()
                                     .toLowerCase()
                                     .contains(filterText.getValue().toLowerCase()))
                     .toList());

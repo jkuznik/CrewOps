@@ -17,13 +17,13 @@ public record EmployeeDTO(
         Set<UUID> qualifications,
         Set<UUID> vehicles) {
 
-    public static EmployeeFormModel toEmployeeFormModel(EmployeeDTO employeeDTO) {
-        return EmployeeFormModel.builder()
-                .firstName(employeeDTO.firstName)
-                .lastName(employeeDTO.lastName)
-                .birthDate(employeeDTO.birthDate)
-                .phoneNumber(employeeDTO.phoneNumber)
-                .department(employeeDTO.department)
+    public static CreateEmployeeDTO toCreateEmployeeDTO(EmployeeDTO thereIsAIssue) {
+        return CreateEmployeeDTO.builder()
+                .firstName(thereIsAIssue.firstName)
+                .lastName(thereIsAIssue.lastName)
+                .birthDate(thereIsAIssue.birthDate)
+                .phoneNumber(thereIsAIssue.phoneNumber)
+                .department(thereIsAIssue.department)
                 .build();
     }
 }

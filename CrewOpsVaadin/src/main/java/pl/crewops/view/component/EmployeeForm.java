@@ -21,38 +21,29 @@ import pl.crewops.infrastructure.core.CoreAPI;
 
 @SpringComponent
 public class EmployeeForm extends FormLayout {
-    private final TextField firstName = new TextField("First name");
-    private final TextField lastName = new TextField("Last name");
-    private final DatePicker birthDate = new DatePicker("Birth date");
-    private final TextField phoneNumber = new TextField("Phone number");
-    private final TextField department = new TextField("Department");
-
-    private final Button save = new Button("Save");
-    private final Button delete = new Button("Delete");
-    private final Button close = new Button("Cancel");
-
-    private final QualificationAccordion qualifications;
+    TextField firstName = new TextField("First name");
+    TextField lastName = new TextField("Last name");
+    DatePicker birthDate = new DatePicker("Birth date");
+    TextField phoneNumber = new TextField("Phone number");
+    TextField department = new TextField("Department");
+    QualificationAccordion qualifications;
     Accordion vehicles = new Accordion();
 
-    private final Binder<EmployeeFormModel> employeeDTOBinder = new BeanValidationBinder<>(EmployeeFormModel.class);
+    Button save = new Button("Save");
+    Button delete = new Button("Delete");
+    Button close = new Button("Cancel");
+    Binder<EmployeeDTO> binder = new BeanValidationBinder<>(EmployeeDTO.class);
+
+    EmployeeFormModel model = new EmployeeFormModel();
 
     public EmployeeForm(CoreAPI coreAPI) {
-        addClassName("contact-form");
+        addClassName("employee-form");
 
         qualifications = new QualificationAccordion(coreAPI);
 
-        employeeDTOBinder.bindInstanceFields(this);
+        binder.bindInstanceFields(this);
 
         add(firstName, lastName, birthDate, phoneNumber, department, qualifications, vehicles, createButtonsLayout());
-    }
-
-    public void completeFormData(EmployeeDTO employeeDTO) {
-        firstName.setValue(employeeDTO.firstName());
-        lastName.setValue(employeeDTO.lastName());
-        birthDate.setValue(employeeDTO.birthDate());
-        phoneNumber.setValue(employeeDTO.phoneNumber());
-        department.setValue(employeeDTO.department());
-        qualifications.config(employeeDTO.qualifications());
     }
 
     private Component createButtonsLayout() {
@@ -63,50 +54,55 @@ public class EmployeeForm extends FormLayout {
         save.addClickShortcut(Key.ENTER);
         close.addClickShortcut(Key.ESCAPE);
 
-        save.addClickListener(event -> validateAndSave());
-        delete.addClickListener(event -> fireEvent(new DeleteEvent(this, employeeDTOBinder.getBean())));
-        close.addClickListener(event -> fireEvent(new CloseEvent(this)));
+        save.addClickListener(event -> validateAndSave()); // <1>
+        delete.addClickListener(event -> fireEvent(new DeleteEvent(this, model))); // <2>
+        close.addClickListener(event -> fireEvent(new CloseEvent(this))); // <3>
 
-        employeeDTOBinder.addStatusChangeListener(e -> save.setEnabled(employeeDTOBinder.isValid()));
+        binder.addStatusChangeListener(e -> save.setEnabled(modelValidation(model))); // <4>
         return new HorizontalLayout(save, delete, close);
     }
 
     private void validateAndSave() {
-        if (employeeDTOBinder.writeBeanIfValid(employeeDTOBinder.getBean())) {
-            fireEvent(new SaveEvent(this, employeeDTOBinder.getBean()));
+        if (modelValidation(model)) {
+            fireEvent(new SaveEvent(this, model)); // <6>
         }
     }
 
-    public void setEmployee(EmployeeFormModel employee) {
-        employeeDTOBinder.setBean(employee);
-        if (employee != null) {
-            qualifications.config(employee.getQualifications());
+    public void setEmployee(EmployeeDTO employeeDTO) {
+        binder.readBean(employeeDTO);
+        if (employeeDTO != null) {
+            model.setFirstName(firstName.getValue());
+            model.setLastName(lastName.getValue());
+            model.setBirthDate(birthDate.getValue());
+            model.setPhoneNumber(phoneNumber.getValue());
+            model.setDepartment(department.getValue());
+            qualifications.config(employeeDTO.qualifications());
         }
     }
 
     // Events
     public abstract static class EmployeeFormEvent extends ComponentEvent<EmployeeForm> {
-        private EmployeeFormModel employee;
+        private EmployeeFormModel employeeFormModel;
 
-        protected EmployeeFormEvent(EmployeeForm source, EmployeeFormModel employee) {
+        protected EmployeeFormEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
             super(source, false);
-            this.employee = employee;
+            this.employeeFormModel = employeeFormModel;
         }
 
         public EmployeeFormModel getEmployee() {
-            return employee;
+            return employeeFormModel;
         }
     }
 
     public static class SaveEvent extends EmployeeFormEvent {
-        SaveEvent(EmployeeForm source, EmployeeFormModel employee) {
-            super(source, employee);
+        SaveEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
+            super(source, employeeFormModel);
         }
     }
 
     public static class DeleteEvent extends EmployeeFormEvent {
-        DeleteEvent(EmployeeForm source, EmployeeFormModel employee) {
-            super(source, employee);
+        DeleteEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
+            super(source, employeeFormModel);
         }
     }
 
@@ -126,5 +122,31 @@ public class EmployeeForm extends FormLayout {
 
     public Registration addCloseListener(ComponentEventListener<CloseEvent> listener) {
         return addListener(CloseEvent.class, listener);
+    }
+
+    // TODO: add logic to inform user which text field are not valid in case of false return
+    private boolean modelValidation(EmployeeFormModel model) {
+        model.setFirstName(firstName.getValue());
+        model.setLastName(lastName.getValue());
+        model.setBirthDate(birthDate.getValue());
+        model.setPhoneNumber(phoneNumber.getValue());
+        model.setDepartment(department.getValue());
+
+        if (model.getFirstName().isEmpty()) {
+            return false;
+        }
+        if (model.getLastName().isEmpty()) {
+            return false;
+        }
+        if (model.getBirthDate() == null) {
+            return false;
+        }
+        if (model.getPhoneNumber().length() > 15) {
+            return false;
+        }
+        if (model.getDepartment().isEmpty()) {
+            return false;
+        }
+        return true;
     }
 }
