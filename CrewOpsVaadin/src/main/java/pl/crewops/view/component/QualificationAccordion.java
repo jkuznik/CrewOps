@@ -5,17 +5,21 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import pl.crewops.dto.qualification.QualificationDTO;
-import pl.crewops.infrastructure.core.CoreClient;
+import pl.crewops.infrastructure.core.CoreAPI;
 
 @SpringComponent
 public class QualificationAccordion extends FormLayout {
 
-    private final CoreClient coreClient;
+    private final CoreAPI coreAPI;
 
-    public QualificationAccordion(CoreClient coreClient) {
-        this.coreClient = coreClient;
+    public QualificationAccordion(CoreAPI coreAPI) {
+        addClassName("qualification-accordion");
+        this.coreAPI = coreAPI;
     }
 
     public void config(Set<UUID> qualificationsIds) {
@@ -38,6 +42,6 @@ public class QualificationAccordion extends FormLayout {
     }
 
     private List<QualificationDTO> getQualifications(Set<UUID> qualificationsIds) {
-        return coreClient.getQualifications(qualificationsIds);
+        return coreAPI.getQualifications(qualificationsIds);
     }
 }

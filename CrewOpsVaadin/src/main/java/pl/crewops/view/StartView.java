@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.infrastructure.core.CoreClient;
+import pl.crewops.infrastructure.core.CoreAPI;
 
 @SpringComponent
 @Scope("prototype")
@@ -26,14 +26,14 @@ public class StartView extends VerticalLayout {
     Grid<EmployeeDTO> grid = new Grid<>(EmployeeDTO.class);
     TextField filterText = new TextField();
     EmployeeForm form;
-    CoreClient coreClient;
+    CoreAPI coreAPI;
     List<EmployeeDTO> employees = new ArrayList<>();
     //    CrmService service;
 
-    public StartView(CoreClient coreClient) {
-        this.coreClient = coreClient;
+    public StartView(CoreAPI coreAPI) {
+        this.coreAPI = coreAPI;
         addClassName("list-view");
-        employees = coreClient.getEmployees();
+        employees = coreAPI.getEmployees();
 
         setSizeFull();
         configureGrid();
@@ -54,15 +54,15 @@ public class StartView extends VerticalLayout {
     }
 
     private void configureForm() {
-        EmployeeDTO first = coreClient.getEmployees().getFirst();
-        form = new EmployeeForm(coreClient);
+        EmployeeDTO first = coreAPI.getEmployees().getFirst();
+        form = new EmployeeForm(coreAPI);
         form.completeFormData(first);
         form.setEmployee(first);
         form.setWidth("25em");
 
-        form.addSaveListener(this::saveContact); // <1>
-        form.addDeleteListener(this::deleteContact); // <2>
-        form.addCloseListener(e -> closeEditor()); // <3>
+        form.addSaveListener(this::saveContact);
+        form.addDeleteListener(this::deleteContact);
+        form.addCloseListener(e -> closeEditor());
     }
 
     private void saveContact(EmployeeForm.SaveEvent event) {

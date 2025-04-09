@@ -15,10 +15,9 @@ import pl.crewops.enums.ControllerURL;
 
 @Slf4j
 @RequiredArgsConstructor
-public class CoreClient {
+class CoreClient implements CoreAPI {
 
     private final RestClient coreClient;
-    private final CoreProperties coreProperties;
 
     public List<EmployeeDTO> getEmployees() {
         try {

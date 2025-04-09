@@ -16,12 +16,12 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.infrastructure.core.CoreClient;
+import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.view.component.QualificationAccordion;
 
 @SpringComponent
 public class EmployeeForm extends FormLayout {
-    private final CoreClient coreClient;
+    private final CoreAPI coreAPI;
 
     TextField firstName = new TextField("First name");
     TextField lastName = new TextField("Last name");
@@ -36,11 +36,11 @@ public class EmployeeForm extends FormLayout {
     Button close = new Button("Cancel");
     Binder<EmployeeDTO> binder = new BeanValidationBinder<>(EmployeeDTO.class);
 
-    public EmployeeForm(CoreClient coreClient) {
+    public EmployeeForm(CoreAPI coreAPI) {
         addClassName("contact-form");
 
-        this.coreClient = coreClient;
-        qualifications = new QualificationAccordion(coreClient);
+        this.coreAPI = coreAPI;
+        qualifications = new QualificationAccordion(coreAPI);
 
         binder.bindInstanceFields(this);
 
@@ -86,10 +86,10 @@ public class EmployeeForm extends FormLayout {
     }
 
     // Events
-    public abstract static class ContactFormEvent extends ComponentEvent<EmployeeForm> {
+    public abstract static class EmployeeFormEvent extends ComponentEvent<EmployeeForm> {
         private EmployeeDTO employeeDTO;
 
-        protected ContactFormEvent(EmployeeForm source, EmployeeDTO employeeDTO) {
+        protected EmployeeFormEvent(EmployeeForm source, EmployeeDTO employeeDTO) {
             super(source, false);
             this.employeeDTO = employeeDTO;
         }
@@ -99,19 +99,19 @@ public class EmployeeForm extends FormLayout {
         }
     }
 
-    public static class SaveEvent extends ContactFormEvent {
+    public static class SaveEvent extends EmployeeFormEvent {
         SaveEvent(EmployeeForm source, EmployeeDTO employeeDTO) {
             super(source, employeeDTO);
         }
     }
 
-    public static class DeleteEvent extends ContactFormEvent {
+    public static class DeleteEvent extends EmployeeFormEvent {
         DeleteEvent(EmployeeForm source, EmployeeDTO employeeDTO) {
             super(source, employeeDTO);
         }
     }
 
-    public static class CloseEvent extends ContactFormEvent {
+    public static class CloseEvent extends EmployeeFormEvent {
         CloseEvent(EmployeeForm source) {
             super(source, null);
         }
