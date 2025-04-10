@@ -72,11 +72,7 @@ public class EmployeeForm extends FormLayout {
     public void setEmployee(EmployeeDTO employeeDTO) {
         binder.readBean(employeeDTO);
         if (employeeDTO != null) {
-            model.setFirstName(firstName.getValue());
-            model.setLastName(lastName.getValue());
-            model.setBirthDate(birthDate.getValue());
-            model.setPhoneNumber(phoneNumber.getValue());
-            model.setDepartment(department.getValue());
+            setModelValues(employeeDTO);
             qualifications.setConfig(employeeDTO.qualifications());
             vehicles.setConfig(employeeDTO.vehicles());
         }
@@ -84,6 +80,7 @@ public class EmployeeForm extends FormLayout {
 
     // Events
     public abstract static class EmployeeFormEvent extends ComponentEvent<EmployeeForm> {
+
         private EmployeeFormModel employeeFormModel;
 
         protected EmployeeFormEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
@@ -97,18 +94,21 @@ public class EmployeeForm extends FormLayout {
     }
 
     public static class SaveEvent extends EmployeeFormEvent {
+
         SaveEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
             super(source, employeeFormModel);
         }
     }
 
     public static class DeleteEvent extends EmployeeFormEvent {
+
         DeleteEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
             super(source, employeeFormModel);
         }
     }
 
     public static class CloseEvent extends EmployeeFormEvent {
+
         CloseEvent(EmployeeForm source) {
             super(source, null);
         }
@@ -127,6 +127,16 @@ public class EmployeeForm extends FormLayout {
     }
 
     // TODO: add logic to inform user which text field are not valid in case of false return
+
+    private void setModelValues(EmployeeDTO employeeDTO) {
+        model.setId(employeeDTO.id());
+        model.setFirstName(firstName.getValue());
+        model.setLastName(lastName.getValue());
+        model.setBirthDate(birthDate.getValue());
+        model.setPhoneNumber(phoneNumber.getValue());
+        model.setDepartment(department.getValue());
+    }
+
     private boolean modelValidation(EmployeeFormModel model) {
         model.setFirstName(firstName.getValue());
         model.setLastName(lastName.getValue());

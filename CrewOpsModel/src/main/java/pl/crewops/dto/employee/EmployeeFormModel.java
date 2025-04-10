@@ -1,6 +1,7 @@
 package pl.crewops.dto.employee;
 
 import java.time.LocalDate;
+import java.util.UUID;
 import lombok.*;
 
 @Getter
@@ -9,6 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmployeeFormModel {
+    private UUID id;
     private String firstName;
     private String lastName;
     private LocalDate birthDate;

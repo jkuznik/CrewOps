@@ -29,4 +29,6 @@ public interface CoreAPI {
     List<QualificationDTO> getQualificationsByIds(Set<UUID> qualificationIds);
 
     List<VehicleDTO> getVehiclesByIds(Set<UUID> vehicleIds);
+
+    void deleteEmployee(@NotNull UUID employeeId);
 }

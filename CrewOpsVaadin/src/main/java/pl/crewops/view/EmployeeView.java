@@ -12,6 +12,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import jakarta.annotation.security.PermitAll;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.EmployeeFormModel;
@@ -19,6 +20,7 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.view.component.EmployeeForm;
 
 @SpringComponent
+@Slf4j
 @Scope("prototype")
 @PermitAll
 @Route(value = "employees", layout = MainLayout.class)
@@ -68,7 +70,8 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private void deleteContact(EmployeeForm.DeleteEvent event) {
-        //            service.deleteContact(event.getContact());
+        log.info("Deleting contact {}", event.getEmployee().getFirstName());
+        coreAPI.deleteEmployee(event.getEmployee().getId());
         updateList();
         closeEditor();
     }

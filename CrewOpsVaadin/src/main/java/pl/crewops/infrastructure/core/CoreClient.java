@@ -114,4 +114,19 @@ class CoreClient implements CoreAPI {
             return List.of();
         }
     }
+
+    public void deleteEmployee(UUID employeeId) {
+        try {
+            coreClient
+                    .delete()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(ControllerURL.EMPLOYEES_EID.replace(
+                                    "{" + ControllerURL.EMPLOYEE_ID + "}", employeeId.toString()))
+                            .build())
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientException e) {
+            log.error("Error deleting employee", e);
+        }
+    }
 }
