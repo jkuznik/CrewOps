@@ -13,11 +13,10 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import jakarta.annotation.security.PermitAll;
 import java.util.List;
 import org.springframework.context.annotation.Scope;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.employee.EmployeeFormModel;
 import pl.crewops.dto.qualification.QualificationDTO;
+import pl.crewops.dto.qualification.QualificationFormModel;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.view.component.EmployeeForm;
+import pl.crewops.view.component.QualificationForm;
 
 @SpringComponent
 @Scope("prototype")
@@ -27,7 +26,7 @@ import pl.crewops.view.component.EmployeeForm;
 public class QualificationView extends VerticalLayout {
     Grid<QualificationDTO> grid = new Grid<>(QualificationDTO.class);
     TextField filterText = new TextField();
-    EmployeeForm form;
+    QualificationForm form;
     CoreAPI coreAPI;
 
     public QualificationView(CoreAPI coreAPI) {
@@ -54,7 +53,7 @@ public class QualificationView extends VerticalLayout {
     }
 
     private void configureForm() {
-        form = new EmployeeForm(coreAPI);
+        form = new QualificationForm(coreAPI);
         form.setWidth("25em");
 
         form.addSaveListener(this::saveContact);
@@ -62,25 +61,26 @@ public class QualificationView extends VerticalLayout {
         form.addCloseListener(e -> closeEditor());
     }
 
-    private void saveContact(EmployeeForm.SaveEvent event) {
-        coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
+    private void saveContact(QualificationForm.SaveEvent event) {
+        coreAPI.createQualification(QualificationFormModel.toCreateQualificationDTO(event.getQualification()));
         updateList();
         closeEditor();
     }
 
-    private void deleteContact(EmployeeForm.DeleteEvent event) {
+    private void deleteContact(QualificationForm.DeleteEvent event) {
         //            service.deleteContact(event.getContact());
         updateList();
         closeEditor();
     }
 
+    // TODO: add column that contains employees amount with each qualification
     private void configureGrid() {
         grid.addClassNames("qualification-grid");
         grid.setSizeFull();
-        grid.setColumns("firstName", "lastName", "birthDate", "phoneNumber", "department");
+        grid.setColumns("description");
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
 
-        grid.asSingleSelect().addValueChangeListener(event -> editEmployee(event.getValue()));
+        grid.asSingleSelect().addValueChangeListener(event -> editQualification(event.getValue()));
     }
 
     private Component getToolbar() {
@@ -89,7 +89,7 @@ public class QualificationView extends VerticalLayout {
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
         filterText.addValueChangeListener(e -> updateList());
 
-        Button addContactButton = new Button("Add employee");
+        Button addContactButton = new Button("Add qualification");
         addContactButton.addClickListener(click -> addEmployee());
 
         var toolbar = new HorizontalLayout(filterText, addContactButton);
@@ -97,18 +97,18 @@ public class QualificationView extends VerticalLayout {
         return toolbar;
     }
 
-    public void editEmployee(EmployeeDTO employeeDTO) {
-        if (employeeDTO == null) {
+    public void editQualification(QualificationDTO qualificationDTO) {
+        if (qualificationDTO == null) {
             closeEditor();
         } else {
-            form.setEmployee(employeeDTO);
+            form.setQualification(qualificationDTO);
             form.setVisible(true);
             addClassName("editing");
         }
     }
 
     private void closeEditor() {
-        form.setEmployee(null);
+        form.setQualification(null);
         form.setVisible(false);
         removeClassName("editing");
     }
@@ -120,20 +120,16 @@ public class QualificationView extends VerticalLayout {
     }
 
     private void updateList() {
-        List<EmployeeDTO> employees = coreAPI.getEmployees();
+        List<QualificationDTO> employees = coreAPI.getAllQualifications();
 
         if (filterText.getValue() == null) {
             grid.setItems(employees);
         } else {
             grid.setItems(employees.stream()
-                    .filter(employeeDTO -> employeeDTO
-                                    .firstName()
-                                    .toLowerCase()
-                                    .contains(filterText.getValue().toLowerCase())
-                            || employeeDTO
-                                    .lastName()
-                                    .toLowerCase()
-                                    .contains(filterText.getValue().toLowerCase()))
+                    .filter(qualificationDTO -> qualificationDTO
+                            .description()
+                            .toLowerCase()
+                            .contains(filterText.getValue().toLowerCase()))
                     .toList());
         }
     }

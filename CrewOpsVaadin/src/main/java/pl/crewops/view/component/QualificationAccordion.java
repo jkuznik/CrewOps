@@ -42,6 +42,6 @@ public class QualificationAccordion extends FormLayout {
     }
 
     private List<QualificationDTO> getQualifications(Set<UUID> qualificationsIds) {
-        return coreAPI.getQualifications(qualificationsIds);
+        return coreAPI.getQualificationsByIds(qualificationsIds);
     }
 }

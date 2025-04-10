@@ -12,6 +12,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.enums.ControllerURL;
@@ -37,7 +38,23 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public List<EmployeeDTO> getEmployees() {
+    public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO) {
+        try {
+            return Optional.ofNullable(coreClient
+                    .post()
+                    .uri(uriBuilder ->
+                            uriBuilder.path(ControllerURL.QUALIFICATIONS).build())
+                    .body(createQualificationDTO)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<QualificationDTO>() {}));
+        } catch (RestClientException e) {
+            log.error("Create new employee error", e);
+            return Optional.empty();
+        }
+    }
+
+    public List<EmployeeDTO> getAllEmployees() {
         try {
             return coreClient
                     .get()
@@ -51,7 +68,22 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public List<QualificationDTO> getQualifications(Set<UUID> qualificationsIds) {
+    public List<QualificationDTO> getAllQualifications() {
+        try {
+            return coreClient
+                    .get()
+                    .uri(uriBuilder ->
+                            uriBuilder.path(ControllerURL.QUALIFICATIONS).build())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<List<QualificationDTO>>() {});
+        } catch (RestClientException e) {
+            log.error("Error getting employees", e);
+            return List.of();
+        }
+    }
+
+    public List<QualificationDTO> getQualificationsByIds(Set<UUID> qualificationsIds) {
         try {
             return coreClient
                     .post()
@@ -67,7 +99,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public List<VehicleDTO> getVehicles(Set<UUID> vehiclesIds) {
+    public List<VehicleDTO> getVehiclesByIds(Set<UUID> vehiclesIds) {
         try {
             return coreClient
                     .post()

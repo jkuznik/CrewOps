@@ -29,6 +29,7 @@ public class VehicleAccordion extends FormLayout {
 
         List<VehicleDTO> vehicles = getVehicles(vehicleIds);
         vehicles.forEach(vehicle -> {
+            // TODO: implement logic to display formatted registerNumber and vehicle type
             items.add(new Span(vehicle.registerNumber()));
         });
 
@@ -42,6 +43,6 @@ public class VehicleAccordion extends FormLayout {
     }
 
     private List<VehicleDTO> getVehicles(Set<UUID> vehicleIds) {
-        return coreAPI.getVehicles(vehicleIds);
+        return coreAPI.getVehiclesByIds(vehicleIds);
     }
 }

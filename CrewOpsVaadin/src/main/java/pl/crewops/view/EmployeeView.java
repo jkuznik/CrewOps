@@ -119,7 +119,7 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private void updateList() {
-        List<EmployeeDTO> employees = coreAPI.getEmployees();
+        List<EmployeeDTO> employees = coreAPI.getAllEmployees();
 
         if (filterText.getValue() == null) {
             grid.setItems(employees);

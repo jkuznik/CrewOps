@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 
@@ -19,9 +20,13 @@ public interface CoreAPI {
 
     Optional<EmployeeDTO> createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO);
 
-    List<EmployeeDTO> getEmployees();
+    Optional<QualificationDTO> createQualification(@Valid @NotNull CreateQualificationDTO createQualificationDTO);
 
-    List<QualificationDTO> getQualifications(Set<UUID> qualificationIds);
+    List<EmployeeDTO> getAllEmployees();
 
-    List<VehicleDTO> getVehicles(Set<UUID> vehicleIds);
+    List<QualificationDTO> getAllQualifications();
+
+    List<QualificationDTO> getQualificationsByIds(Set<UUID> qualificationIds);
+
+    List<VehicleDTO> getVehiclesByIds(Set<UUID> vehicleIds);
 }
