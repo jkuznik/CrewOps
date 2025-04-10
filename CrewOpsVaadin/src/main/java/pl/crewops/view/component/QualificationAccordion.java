@@ -22,7 +22,7 @@ public class QualificationAccordion extends FormLayout {
         this.coreAPI = coreAPI;
     }
 
-    public void config(Set<UUID> qualificationsIds) {
+    public void setConfig(Set<UUID> qualificationsIds) {
         removeAll();
         Accordion accordion = new Accordion();
         List<Span> items = new ArrayList<>();

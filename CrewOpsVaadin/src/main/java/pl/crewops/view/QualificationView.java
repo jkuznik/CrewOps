@@ -15,22 +15,23 @@ import java.util.List;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.EmployeeFormModel;
+import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.view.component.EmployeeForm;
 
 @SpringComponent
 @Scope("prototype")
 @PermitAll
-@Route(value = "employees", layout = MainLayout.class)
-@PageTitle("Employee management")
-public class EmployeeView extends VerticalLayout {
-    Grid<EmployeeDTO> grid = new Grid<>(EmployeeDTO.class);
+@Route(value = "qualifications", layout = MainLayout.class)
+@PageTitle("Qualification management")
+public class QualificationView extends VerticalLayout {
+    Grid<QualificationDTO> grid = new Grid<>(QualificationDTO.class);
     TextField filterText = new TextField();
     EmployeeForm form;
     CoreAPI coreAPI;
 
-    public EmployeeView(CoreAPI coreAPI) {
-        addClassName("employee-view");
+    public QualificationView(CoreAPI coreAPI) {
+        addClassName("qualification-view");
 
         this.coreAPI = coreAPI;
 
@@ -74,7 +75,7 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addClassNames("employee-grid");
+        grid.addClassNames("qualification-grid");
         grid.setSizeFull();
         grid.setColumns("firstName", "lastName", "birthDate", "phoneNumber", "department");
         grid.getColumns().forEach(col -> col.setAutoWidth(true));

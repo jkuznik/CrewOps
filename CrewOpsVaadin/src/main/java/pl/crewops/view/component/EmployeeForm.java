@@ -77,8 +77,8 @@ public class EmployeeForm extends FormLayout {
             model.setBirthDate(birthDate.getValue());
             model.setPhoneNumber(phoneNumber.getValue());
             model.setDepartment(department.getValue());
-            qualifications.config(employeeDTO.qualifications());
-            vehicles.config(employeeDTO.vehicles());
+            qualifications.setConfig(employeeDTO.qualifications());
+            vehicles.setConfig(employeeDTO.vehicles());
         }
     }
 

@@ -22,7 +22,7 @@ public class VehicleAccordion extends FormLayout {
         this.coreAPI = coreAPI;
     }
 
-    public void config(Set<UUID> vehicleIds) {
+    public void setConfig(Set<UUID> vehicleIds) {
         removeAll();
         Accordion accordion = new Accordion();
         List<Span> items = new ArrayList<>();
