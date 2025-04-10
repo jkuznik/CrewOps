@@ -7,6 +7,7 @@ import static pl.crewops.utils.pagination.PageRequestFactory.createPageRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -42,6 +43,12 @@ class VehicleService {
 
     public Vehicle getVehicleById(@NotNull UUID id) throws VehicleNotFoundException {
         return vehicleRepository.findById(id).orElseThrow(() -> new VehicleNotFoundException(id));
+    }
+
+    public List<VehicleDTO> getVehiclesIn(Set<UUID> ids) {
+        return vehicleRepository.findAllByIdIn(ids).stream()
+                .map(VehicleMapper::mapToDTO)
+                .toList();
     }
 
     @Transactional

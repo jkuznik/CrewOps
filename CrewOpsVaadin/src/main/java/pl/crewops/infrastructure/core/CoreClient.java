@@ -13,6 +13,7 @@ import org.springframework.web.client.RestClientException;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
+import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.enums.ControllerURL;
 
 @Slf4j
@@ -60,6 +61,22 @@ class CoreClient implements CoreAPI {
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .body(new ParameterizedTypeReference<List<QualificationDTO>>() {});
+        } catch (RestClientException e) {
+            log.error("Error getting qualifications", e);
+            return List.of();
+        }
+    }
+
+    public List<VehicleDTO> getVehicles(Set<UUID> vehiclesIds) {
+        try {
+            return coreClient
+                    .post()
+                    .uri(uriBuilder ->
+                            uriBuilder.path(ControllerURL.VEHICLES_VIDS).build())
+                    .body(vehiclesIds)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<List<VehicleDTO>>() {});
         } catch (RestClientException e) {
             log.error("Error getting qualifications", e);
             return List.of();

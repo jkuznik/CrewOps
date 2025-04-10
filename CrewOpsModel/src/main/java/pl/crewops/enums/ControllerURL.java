@@ -16,6 +16,7 @@ public class ControllerURL {
     public static final String QUALIFICATIONS_QIDS = QUALIFICATIONS + "/collection";
 
     public static final String VEHICLES_VID = VEHICLES + "/{" + VEHICLE_ID + "}";
+    public static final String VEHICLES_VIDS = VEHICLES + "/collection";
 
     public static final String EMPLOYEES_EID_PHONE = EMPLOYEES_EID + "/phone";
     public static final String EMPLOYEES_EID_QUALIFICATIONS_QID = EMPLOYEES_EID + QUALIFICATIONS_QID;

@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
+import pl.crewops.dto.vehicle.VehicleDTO;
 
 @Repository
 @Validated
@@ -21,4 +22,6 @@ public interface CoreAPI {
     List<EmployeeDTO> getEmployees();
 
     List<QualificationDTO> getQualifications(Set<UUID> qualificationIds);
+
+    List<VehicleDTO> getVehicles(Set<UUID> vehicleIds);
 }

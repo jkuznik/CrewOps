@@ -4,7 +4,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -27,19 +26,21 @@ public class EmployeeForm extends FormLayout {
     TextField phoneNumber = new TextField("Phone number");
     TextField department = new TextField("Department");
     QualificationAccordion qualifications;
-    Accordion vehicles = new Accordion();
+    VehicleAccordion vehicles;
 
     Button save = new Button("Save");
     Button delete = new Button("Delete");
     Button close = new Button("Cancel");
     Binder<EmployeeDTO> binder = new BeanValidationBinder<>(EmployeeDTO.class);
 
+    // TODO: temporary I left this solution. Improve binding values in the future
     EmployeeFormModel model = new EmployeeFormModel();
 
     public EmployeeForm(CoreAPI coreAPI) {
         addClassName("employee-form");
 
         qualifications = new QualificationAccordion(coreAPI);
+        vehicles = new VehicleAccordion(coreAPI);
 
         binder.bindInstanceFields(this);
 
@@ -77,6 +78,7 @@ public class EmployeeForm extends FormLayout {
             model.setPhoneNumber(phoneNumber.getValue());
             model.setDepartment(department.getValue());
             qualifications.config(employeeDTO.qualifications());
+            vehicles.config(employeeDTO.vehicles());
         }
     }
 
