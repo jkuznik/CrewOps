@@ -1,5 +1,6 @@
 package pl.crewops.dto.qualification;
 
+import java.util.UUID;
 import lombok.*;
 
 @Getter
@@ -8,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class QualificationFormModel {
+    private UUID id;
     private String description;
 
     // TODO: maybe this is proper place to store employee amount of each qualification for the purposes of the grid in

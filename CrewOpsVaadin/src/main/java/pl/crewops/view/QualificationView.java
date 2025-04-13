@@ -62,13 +62,14 @@ public class QualificationView extends VerticalLayout {
     }
 
     private void saveContact(QualificationForm.SaveEvent event) {
+        // TODO: add 'unique description' validation
         coreAPI.createQualification(QualificationFormModel.toCreateQualificationDTO(event.getQualification()));
         updateList();
         closeEditor();
     }
 
     private void deleteContact(QualificationForm.DeleteEvent event) {
-        //            service.deleteContact(event.getContact());
+        coreAPI.deleteQualification(event.getQualification().getId());
         updateList();
         closeEditor();
     }
@@ -113,7 +114,6 @@ public class QualificationView extends VerticalLayout {
         removeClassName("editing");
     }
 
-    // TODO: implement logic
     private void addEmployee() {
         grid.asSingleSelect().clear();
         form.setVisible(true);

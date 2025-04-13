@@ -126,7 +126,7 @@ public class EmployeeForm extends FormLayout {
         return addListener(CloseEvent.class, listener);
     }
 
-    // TODO: add logic to inform user which text field are not valid in case of false return
+    // TODO: add logic to inform user which text field are not valid in case of false return/ or improve binder feature
 
     private void setModelValues(EmployeeDTO employeeDTO) {
         model.setId(employeeDTO.id());

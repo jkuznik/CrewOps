@@ -129,4 +129,34 @@ class CoreClient implements CoreAPI {
             log.error("Error deleting employee", e);
         }
     }
+
+    public void deleteQualification(UUID qualificationId) {
+        try {
+            coreClient
+                    .delete()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(ControllerURL.QUALIFICATIONS_QID.replace(
+                                    "{" + ControllerURL.QUALIFICATION_ID + "}", qualificationId.toString()))
+                            .build())
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientException e) {
+            log.error("Error deleting qualification", e);
+        }
+    }
+
+    public void deleteVehicle(UUID vehicleId) {
+        try {
+            coreClient
+                    .delete()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(ControllerURL.VEHICLES_VID.replace(
+                                    "{" + ControllerURL.VEHICLE_ID + "}", vehicleId.toString()))
+                            .build())
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientException e) {
+            log.error("Error deleting vehicle", e);
+        }
+    }
 }

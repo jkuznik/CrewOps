@@ -62,12 +62,13 @@ public class QualificationForm extends FormLayout {
     public void setQualification(QualificationDTO qualificationDTO) {
         binder.readBean(qualificationDTO);
         if (qualificationDTO != null) {
-            model.setDescription(description.getValue());
+            setModelValues(qualificationDTO);
         }
     }
 
     // Events
     public abstract static class QualificationFormEvent extends ComponentEvent<QualificationForm> {
+
         private QualificationFormModel qualificationFormModel;
 
         protected QualificationFormEvent(QualificationForm source, QualificationFormModel qualificationFormModel) {
@@ -81,18 +82,21 @@ public class QualificationForm extends FormLayout {
     }
 
     public static class SaveEvent extends QualificationFormEvent {
+
         SaveEvent(QualificationForm source, QualificationFormModel qualificationFormModel) {
             super(source, qualificationFormModel);
         }
     }
 
     public static class DeleteEvent extends QualificationFormEvent {
+
         DeleteEvent(QualificationForm source, QualificationFormModel qualificationFormModel) {
             super(source, qualificationFormModel);
         }
     }
 
     public static class CloseEvent extends QualificationFormEvent {
+
         CloseEvent(QualificationForm source) {
             super(source, null);
         }
@@ -110,7 +114,13 @@ public class QualificationForm extends FormLayout {
         return addListener(CloseEvent.class, listener);
     }
 
-    // TODO: add logic to inform user which text field are not valid in case of false return
+    // TODO: add logic to inform user which text field are not valid in case of false return/ or improve binder feature
+
+    private void setModelValues(QualificationDTO qualificationDTO) {
+        model.setId(qualificationDTO.id());
+        model.setDescription(description.getValue());
+    }
+
     private boolean modelValidation(QualificationFormModel model) {
         model.setDescription(description.getValue());
 

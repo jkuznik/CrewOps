@@ -10,7 +10,6 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
-import jakarta.annotation.security.PermitAll;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
@@ -22,7 +21,6 @@ import pl.crewops.view.component.EmployeeForm;
 @SpringComponent
 @Slf4j
 @Scope("prototype")
-@PermitAll
 @Route(value = "employees", layout = MainLayout.class)
 @PageTitle("Employee management")
 public class EmployeeView extends VerticalLayout {
@@ -115,7 +113,6 @@ public class EmployeeView extends VerticalLayout {
         removeClassName("editing");
     }
 
-    // TODO: implement logic
     private void addEmployee() {
         grid.asSingleSelect().clear();
         form.setVisible(true);
