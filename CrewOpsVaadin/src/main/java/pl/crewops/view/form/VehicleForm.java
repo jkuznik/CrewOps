@@ -10,7 +10,6 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -19,9 +18,11 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.view.model.VehicleFormModel;
 
 @SpringComponent
+
+// TODO: config vehicle type binding or keep focus on binding VehicleFormModel instead of VehicleDTO
 public class VehicleForm extends FormLayout {
     TextField registrationNumber = new TextField("Registration Number");
-    TextField vehicleType = new TextField("Vehicle Type");
+    //    TextField vehicleType = new TextField("Vehicle Type");
     TextField make = new TextField("Make");
     TextField model = new TextField("Model");
     TextField year = new TextField("Year");
@@ -32,7 +33,7 @@ public class VehicleForm extends FormLayout {
     Button delete = new Button("Delete");
     Button close = new Button("Close");
 
-    Binder<VehicleDTO> binder = new BeanValidationBinder<>(VehicleDTO.class);
+    Binder<VehicleDTO> binder = new Binder<>(VehicleDTO.class);
 
     VehicleFormModel binderModel = new VehicleFormModel();
 
@@ -41,7 +42,7 @@ public class VehicleForm extends FormLayout {
 
         binder.bindInstanceFields(this);
 
-        add(registrationNumber, vehicleType, broken, make, model, year, vin);
+        add(registrationNumber, /*vehicleType,*/ broken, make, model, year, vin);
     }
 
     private Component createButtonsLayout() {
@@ -68,7 +69,7 @@ public class VehicleForm extends FormLayout {
     }
 
     public void setVehicle(VehicleDTO vehicleDTO) {
-        binder.readBean(vehicleDTO);
+        //        binder.readBean(vehicleDTO);
         if (vehicleDTO != null) {
             setModelValues(vehicleDTO);
         }
@@ -126,7 +127,7 @@ public class VehicleForm extends FormLayout {
         binderModel.setId(vehicleDTO.id());
         binderModel.setMake(vehicleDTO.make());
         binderModel.setModel(vehicleDTO.model());
-        binderModel.setVehicleType(vehicleDTO.vehicleTyp());
+        //        binderModel.setVehicleType(vehicleDTO.vehicleType().toString());
         binderModel.setYear(vehicleDTO.year());
         binderModel.setVin(vehicleDTO.vin());
         binderModel.setRegistrationNumber(vehicleDTO.registerNumber());

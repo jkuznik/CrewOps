@@ -14,6 +14,7 @@ import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
+import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.enums.ControllerURL;
 
@@ -48,6 +49,21 @@ class CoreClient implements CoreAPI {
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .body(new ParameterizedTypeReference<QualificationDTO>() {}));
+        } catch (RestClientException e) {
+            log.error("Create new employee error", e);
+            return Optional.empty();
+        }
+    }
+
+    public Optional<VehicleDTO> createVehicle(CreateVehicleDTO createVehicleDTO) {
+        try {
+            return Optional.ofNullable(coreClient
+                    .post()
+                    .uri(uriBuilder -> uriBuilder.path(ControllerURL.VEHICLES).build())
+                    .body(createVehicleDTO)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<VehicleDTO>() {}));
         } catch (RestClientException e) {
             log.error("Create new employee error", e);
             return Optional.empty();

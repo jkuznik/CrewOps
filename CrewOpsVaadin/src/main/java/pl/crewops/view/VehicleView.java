@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.view.form.VehicleForm;
-import pl.crewops.view.model.EmployeeFormModel;
+import pl.crewops.view.model.VehicleFormModel;
 
 @SpringComponent
 @Slf4j
@@ -53,7 +53,7 @@ public class VehicleView extends VerticalLayout {
     }
 
     private void configureForm() {
-        form = new VehicleView(coreAPI);
+        form = new VehicleForm(coreAPI);
         form.setWidth("25em");
     }
 
@@ -91,7 +91,7 @@ public class VehicleView extends VerticalLayout {
     }
 
     private void saveContact(VehicleForm.SaveEvent event) {
-        coreAPI.createVehicle(EmployeeFormModel.toCreateEmployeeDTO(event.getVehicle()));
+        coreAPI.createVehicle(VehicleFormModel.toCreateVehicleDTO(event.getVehicle()));
         updateList();
         closeEditor();
     }
@@ -122,8 +122,9 @@ public class VehicleView extends VerticalLayout {
         } else {
             grid.setItems(vehicles.stream()
                     .filter(vehicleDTO -> vehicleDTO
-                            .vehicleTyp()
-                            .name()
+                            //                            .vehicleType()
+                            //                            .name()
+                            .registerNumber()
                             .toLowerCase()
                             .contains(filterText.getValue().toLowerCase()))
                     .toList());

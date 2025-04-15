@@ -9,7 +9,7 @@ public record VehicleDTO(
         UUID id,
         String make,
         String model,
-        VehicleType vehicleTyp,
+        VehicleType vehicleType,
         Integer year,
         String vin,
         String registerNumber,

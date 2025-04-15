@@ -12,6 +12,7 @@ import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
+import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 
 @Repository
@@ -21,6 +22,8 @@ public interface CoreAPI {
     Optional<EmployeeDTO> createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO);
 
     Optional<QualificationDTO> createQualification(@Valid @NotNull CreateQualificationDTO createQualificationDTO);
+
+    Optional<VehicleDTO> createVehicle(@Valid @NotNull CreateVehicleDTO createVehicleDTO);
 
     List<EmployeeDTO> getAllEmployees();
 
