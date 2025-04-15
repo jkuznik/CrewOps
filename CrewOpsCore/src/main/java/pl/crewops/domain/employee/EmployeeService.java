@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ import pl.crewops.model.Vehicle;
 import pl.crewops.model.joinTable.EmployeeQualification;
 import pl.crewops.utils.pagination.PageRequestFactory;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Validated
@@ -39,22 +41,26 @@ class EmployeeService {
     private final VehicleAPI vehicleAPI;
 
     public EmployeeDTO createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO) {
+        log.info("Create employee {}", createEmployeeDTO);
         return mapToDTO(employeeRepository.save(mapToEntity(createEmployeeDTO)));
     }
 
     public List<EmployeeDTO> getAllEmployees(int page, int size) {
+        log.info("Get all employees with pagination. Page: {}, size: {}", page, size);
         return employeeRepository.findAll(getPageRequest(page, size)).stream()
                 .map(EmployeeMapper::mapToDTO)
                 .toList();
     }
 
     public List<EmployeeDTO> getEmployeesByQualification(@NotNull UUID qualificationId, int page, int size) {
+        log.info("Get employees by qualification");
         return employeeRepository.findByQualificationId(qualificationId, getPageRequest(page, size)).stream()
                 .map(EmployeeMapper::mapToDTO)
                 .toList();
     }
 
     public List<EmployeeDTO> getEmployeesByVehicles(@NotNull UUID vehicleId, int page, int size) {
+        log.info("Get employees by vehicles");
         return employeeRepository.findByVehiclesId(vehicleId, getPageRequest(page, size)).stream()
                 .map(EmployeeMapper::mapToDTO)
                 .toList();
@@ -73,6 +79,7 @@ class EmployeeService {
             employee.setDepartment(updateEmployeeDTO.department());
         }
 
+        log.info("Update employee {}", updateEmployeeDTO);
         return mapToDTO(employee);
     }
 
@@ -83,11 +90,13 @@ class EmployeeService {
 
         employee.setPhoneNumber(null);
 
+        log.info("Remove phone number from employee {}", employeeId);
         return mapToDTO(employee);
     }
 
     @Transactional
     public void deleteEmployee(@NotNull UUID employeeId) {
+        log.info("Delete employee {}", employeeId);
         employeeRepository.deleteById(employeeId);
     }
 
@@ -100,6 +109,7 @@ class EmployeeService {
 
         employee.getQualifications().add(qualification);
 
+        log.info("Add qualification {} to employee {}", qualificationId, employeeId);
         return mapToDTO(employee);
     }
 
@@ -114,6 +124,7 @@ class EmployeeService {
 
         employeeQualification.setExpiredAt(expiredAt);
 
+        log.info("Update qualification {} expired at {}", qualificationId, expiredAt);
         return mapToDTO(
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId)));
     }
@@ -125,6 +136,7 @@ class EmployeeService {
 
         Qualification qualification = qualificationAPI.getQualification(qualificationId);
 
+        log.info("Remove qualification {} from employee {}", qualificationId, employeeId);
         employee.getQualifications().remove(qualification);
     }
 
@@ -137,6 +149,7 @@ class EmployeeService {
 
         employee.getVehicles().add(vehicle);
 
+        log.info("Add vehicle {} to employee {}", vehicleId, employeeId);
         return mapToDTO(employee);
     }
 
@@ -147,6 +160,7 @@ class EmployeeService {
 
         Vehicle vehicle = vehicleAPI.getVehicle(vehicleId);
 
+        log.info("Remove vehicle {} from employee {}", vehicleId, employeeId);
         employee.getVehicles().remove(vehicle);
     }
 

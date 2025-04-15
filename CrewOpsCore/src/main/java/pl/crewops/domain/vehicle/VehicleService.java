@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.exception.VehicleNotFoundException;
 import pl.crewops.model.Vehicle;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Validated
@@ -29,12 +31,14 @@ class VehicleService {
     private final VehicleRepository vehicleRepository;
 
     public VehicleDTO createVehicle(@Valid @NotNull CreateVehicleDTO createVehicleDTO) {
+        log.info("Create vehicle: {}", createVehicleDTO);
         return mapToDTO(vehicleRepository.save(mapToEntity(createVehicleDTO)));
     }
 
     public List<VehicleDTO> getAllVehicles(int page, int size) {
         PageRequest pageRequest =
                 createPageRequest(page, size, Sort.by(Sort.Order.asc("make"), Sort.Order.asc("model")));
+        log.info("Get all vehicles with paginaition. Page: {}, size {} ", page, size);
 
         return vehicleRepository.findAll(pageRequest).stream()
                 .map(VehicleMapper::mapToDTO)
@@ -42,10 +46,12 @@ class VehicleService {
     }
 
     public Vehicle getVehicleById(@NotNull UUID id) throws VehicleNotFoundException {
+        log.info("Get vehicle by id {}", id);
         return vehicleRepository.findById(id).orElseThrow(() -> new VehicleNotFoundException(id));
     }
 
     public List<VehicleDTO> getVehiclesIn(Set<UUID> ids) {
+        log.info("Get vehicles in amount {}, each ids: {}", ids.size(), ids);
         return vehicleRepository.findAllByIdIn(ids).stream()
                 .map(VehicleMapper::mapToDTO)
                 .toList();
@@ -65,11 +71,13 @@ class VehicleService {
             vehicle.setBroken(updateVehicleDTO.broken());
         }
 
+        log.info("Update vehicle {}", vehicle);
         return mapToDTO(vehicleRepository.save(vehicle));
     }
 
     @Transactional
     public void deleteVehicle(@NotNull UUID vehicleId) {
+        log.info("Delete vehicle {}", vehicleId);
         vehicleRepository.deleteById(vehicleId);
     }
 }
