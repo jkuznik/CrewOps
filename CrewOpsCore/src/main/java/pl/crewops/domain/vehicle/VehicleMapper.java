@@ -23,7 +23,7 @@ class VehicleMapper {
                 .id(vehicle.getId())
                 .make(vehicle.getMake())
                 .model(vehicle.getModel())
-                .vehicleTyp(vehicle.getVehicleType())
+                .vehicleType(vehicle.getVehicleType())
                 .year(vehicle.getYear())
                 .vin(vehicle.getVin())
                 .registerNumber(vehicle.getRegisterNumber())
