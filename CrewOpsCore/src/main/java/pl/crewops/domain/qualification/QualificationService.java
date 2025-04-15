@@ -7,6 +7,7 @@ import static pl.crewops.utils.pagination.PageRequestFactory.createPageRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +36,12 @@ class QualificationService {
         return qualificationRepository
                 .findById(qualificationId)
                 .orElseThrow(() -> new QualificationNotFoundException(qualificationId));
+    }
+
+    public List<QualificationDTO> getQualificationsIn(Set<UUID> ids) {
+        return qualificationRepository.findAllByIdIn(ids).stream()
+                .map(QualificationMapper::mapToDTO)
+                .toList();
     }
 
     public List<QualificationDTO> getAllQualifications(int page, int size) {

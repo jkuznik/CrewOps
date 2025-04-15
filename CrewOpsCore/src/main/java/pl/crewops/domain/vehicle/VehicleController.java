@@ -2,7 +2,10 @@ package pl.crewops.domain.vehicle;
 
 import static pl.crewops.enums.ControllerURL.*;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +30,11 @@ class VehicleController {
     public ResponseEntity<List<VehicleDTO>> getAllVehicles(
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "15") int size) {
         return ResponseEntity.status(HttpStatus.OK).body(vehicleService.getAllVehicles(page, size));
+    }
+
+    @PostMapping(VEHICLES_VIDS)
+    public ResponseEntity<List<VehicleDTO>> getVehiclesByIds(@RequestBody @Valid @NotNull Set<UUID> vehicleIds) {
+        return ResponseEntity.status(HttpStatus.OK).body(vehicleService.getVehiclesIn(vehicleIds));
     }
 
     @PatchMapping(VEHICLES_VID)

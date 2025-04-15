@@ -30,10 +30,12 @@ public class MainLayout extends AppLayout {
     }
 
     private void createDrawer() {
-        //        RouterLink listLink = new RouterLink("List", ListView.class);
-        RouterLink listLink = new RouterLink();
-        listLink.setHighlightCondition(HighlightConditions.sameLocation());
+        RouterLink employeeLink = new RouterLink("Employee", EmployeeView.class);
+        RouterLink qualificationLink = new RouterLink("Qualification", QualificationView.class);
+        RouterLink vehicleLink = new RouterLink("Vehicle", VehicleView.class);
 
-        addToDrawer(new VerticalLayout(listLink));
+        employeeLink.setHighlightCondition(HighlightConditions.sameLocation());
+
+        addToDrawer(new VerticalLayout(employeeLink, qualificationLink, vehicleLink));
     }
 }

@@ -10,8 +10,20 @@ public record EmployeeDTO(
         UUID id,
         String firstName,
         String lastName,
+        // TODO: modify birth date type if needed
         LocalDate birthDate,
         String phoneNumber,
         String department,
         Set<UUID> qualifications,
-        Set<UUID> vehicles) {}
+        Set<UUID> vehicles) {
+
+    public static CreateEmployeeDTO toCreateEmployeeDTO(EmployeeDTO thereIsAIssue) {
+        return CreateEmployeeDTO.builder()
+                .firstName(thereIsAIssue.firstName)
+                .lastName(thereIsAIssue.lastName)
+                .birthDate(thereIsAIssue.birthDate)
+                .phoneNumber(thereIsAIssue.phoneNumber)
+                .department(thereIsAIssue.department)
+                .build();
+    }
+}

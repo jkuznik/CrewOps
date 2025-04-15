@@ -7,12 +7,12 @@ import org.springframework.web.client.RestClient;
 
 @Configuration
 @EnableConfigurationProperties(CoreProperties.class)
-public class CoreConfig {
+class CoreConfig {
 
     @Bean
     public CoreClient coreClient(CoreProperties coreProperties) {
         var restClient = RestClient.builder().baseUrl(coreProperties.baseUrl()).build();
 
-        return new CoreClient(restClient, coreProperties);
+        return new CoreClient(restClient);
     }
 }
