@@ -32,8 +32,10 @@ public class MainLayout extends AppLayout {
     private void createDrawer() {
         RouterLink employeeLink = new RouterLink("Employee", EmployeeView.class);
         RouterLink qualificationLink = new RouterLink("Qualification", QualificationView.class);
+        RouterLink vehicleLink = new RouterLink("Vehicle", VehicleView.class);
+
         employeeLink.setHighlightCondition(HighlightConditions.sameLocation());
 
-        addToDrawer(new VerticalLayout(employeeLink, qualificationLink));
+        addToDrawer(new VerticalLayout(employeeLink, qualificationLink, vehicleLink));
     }
 }

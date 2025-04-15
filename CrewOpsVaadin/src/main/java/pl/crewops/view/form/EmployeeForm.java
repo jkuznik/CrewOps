@@ -1,4 +1,4 @@
-package pl.crewops.view.component;
+package pl.crewops.view.form;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
@@ -15,8 +15,10 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.employee.EmployeeFormModel;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.view.component.QualificationAccordion;
+import pl.crewops.view.component.VehicleAccordion;
+import pl.crewops.view.model.EmployeeFormModel;
 
 @SpringComponent
 public class EmployeeForm extends FormLayout {
@@ -55,17 +57,17 @@ public class EmployeeForm extends FormLayout {
         save.addClickShortcut(Key.ENTER);
         close.addClickShortcut(Key.ESCAPE);
 
-        save.addClickListener(event -> validateAndSave()); // <1>
-        delete.addClickListener(event -> fireEvent(new DeleteEvent(this, model))); // <2>
-        close.addClickListener(event -> fireEvent(new CloseEvent(this))); // <3>
+        save.addClickListener(event -> validateAndSave());
+        delete.addClickListener(event -> fireEvent(new DeleteEvent(this, model)));
+        close.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
-        binder.addStatusChangeListener(e -> save.setEnabled(modelValidation(model))); // <4>
+        binder.addStatusChangeListener(e -> save.setEnabled(modelValidation(model)));
         return new HorizontalLayout(save, delete, close);
     }
 
     private void validateAndSave() {
         if (modelValidation(model)) {
-            fireEvent(new SaveEvent(this, model)); // <6>
+            fireEvent(new SaveEvent(this, model));
         }
     }
 
@@ -137,26 +139,26 @@ public class EmployeeForm extends FormLayout {
         model.setDepartment(department.getValue());
     }
 
-    private boolean modelValidation(EmployeeFormModel model) {
-        model.setFirstName(firstName.getValue());
-        model.setLastName(lastName.getValue());
-        model.setBirthDate(birthDate.getValue());
-        model.setPhoneNumber(phoneNumber.getValue());
-        model.setDepartment(department.getValue());
+    private boolean modelValidation(EmployeeFormModel employeeFormModel) {
+        employeeFormModel.setFirstName(firstName.getValue());
+        employeeFormModel.setLastName(lastName.getValue());
+        employeeFormModel.setBirthDate(birthDate.getValue());
+        employeeFormModel.setPhoneNumber(phoneNumber.getValue());
+        employeeFormModel.setDepartment(department.getValue());
 
-        if (model.getFirstName().isEmpty()) {
+        if (employeeFormModel.getFirstName().isEmpty()) {
             return false;
         }
-        if (model.getLastName().isEmpty()) {
+        if (employeeFormModel.getLastName().isEmpty()) {
             return false;
         }
-        if (model.getBirthDate() == null) {
+        if (employeeFormModel.getBirthDate() == null) {
             return false;
         }
-        if (model.getPhoneNumber().length() > 15) {
+        if (employeeFormModel.getPhoneNumber().length() > 15) {
             return false;
         }
-        if (model.getDepartment().isEmpty()) {
+        if (employeeFormModel.getDepartment().isEmpty()) {
             return false;
         }
         return true;

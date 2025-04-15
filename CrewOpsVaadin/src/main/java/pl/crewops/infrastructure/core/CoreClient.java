@@ -83,6 +83,20 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    public List<VehicleDTO> getAllVehicles() {
+        try {
+            return coreClient
+                    .get()
+                    .uri(uriBuilder -> uriBuilder.path(ControllerURL.VEHICLES).build())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<List<VehicleDTO>>() {});
+        } catch (RestClientException e) {
+            log.error("Error getting vehicles", e);
+            return List.of();
+        }
+    }
+
     public List<QualificationDTO> getQualificationsByIds(Set<UUID> qualificationsIds) {
         try {
             return coreClient

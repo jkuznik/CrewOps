@@ -14,9 +14,9 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.employee.EmployeeFormModel;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.view.component.EmployeeForm;
+import pl.crewops.view.form.EmployeeForm;
+import pl.crewops.view.model.EmployeeFormModel;
 
 @SpringComponent
 @Slf4j
@@ -45,9 +45,9 @@ public class EmployeeView extends VerticalLayout {
 
     private HorizontalLayout getContent() {
         HorizontalLayout content = new HorizontalLayout(grid, form);
+        content.addClassNames("employee-view-content");
         content.setFlexGrow(2, grid);
         content.setFlexGrow(1, form);
-        content.addClassNames("content");
         content.setSizeFull();
         return content;
     }
@@ -59,19 +59,6 @@ public class EmployeeView extends VerticalLayout {
         form.addSaveListener(this::saveContact);
         form.addDeleteListener(this::deleteContact);
         form.addCloseListener(e -> closeEditor());
-    }
-
-    private void saveContact(EmployeeForm.SaveEvent event) {
-        coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
-        updateList();
-        closeEditor();
-    }
-
-    private void deleteContact(EmployeeForm.DeleteEvent event) {
-        log.info("Deleting contact {}", event.getEmployee().getFirstName());
-        coreAPI.deleteEmployee(event.getEmployee().getId());
-        updateList();
-        closeEditor();
     }
 
     private void configureGrid() {
@@ -89,11 +76,11 @@ public class EmployeeView extends VerticalLayout {
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
         filterText.addValueChangeListener(e -> updateList());
 
-        Button addContactButton = new Button("Add employee");
-        addContactButton.addClickListener(click -> addEmployee());
+        Button addEmployeeButton = new Button("Add employee");
+        addEmployeeButton.addClickListener(click -> addEmployee());
 
-        var toolbar = new HorizontalLayout(filterText, addContactButton);
-        toolbar.addClassName("toolbar");
+        var toolbar = new HorizontalLayout(filterText, addEmployeeButton);
+        toolbar.addClassName("employee-toolbar");
         return toolbar;
     }
 
@@ -105,6 +92,19 @@ public class EmployeeView extends VerticalLayout {
             form.setVisible(true);
             addClassName("editing");
         }
+    }
+
+    private void saveContact(EmployeeForm.SaveEvent event) {
+        coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
+        updateList();
+        closeEditor();
+    }
+
+    private void deleteContact(EmployeeForm.DeleteEvent event) {
+        log.info("Deleting contact {}", event.getEmployee().getFirstName());
+        coreAPI.deleteEmployee(event.getEmployee().getId());
+        updateList();
+        closeEditor();
     }
 
     private void closeEditor() {

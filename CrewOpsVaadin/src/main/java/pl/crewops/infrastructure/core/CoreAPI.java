@@ -26,6 +26,8 @@ public interface CoreAPI {
 
     List<QualificationDTO> getAllQualifications();
 
+    List<VehicleDTO> getAllVehicles();
+
     List<QualificationDTO> getQualificationsByIds(Set<UUID> qualificationIds);
 
     List<VehicleDTO> getVehiclesByIds(Set<UUID> vehicleIds);

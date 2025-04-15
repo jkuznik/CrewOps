@@ -1,8 +1,10 @@
-package pl.crewops.dto.employee;
+package pl.crewops.view.model;
 
 import java.time.LocalDate;
 import java.util.UUID;
 import lombok.*;
+import pl.crewops.dto.employee.CreateEmployeeDTO;
+import pl.crewops.dto.employee.EmployeeDTO;
 
 @Getter
 @Setter

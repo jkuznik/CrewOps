@@ -1,7 +1,8 @@
-package pl.crewops.dto.qualification;
+package pl.crewops.view.model;
 
 import java.util.UUID;
 import lombok.*;
+import pl.crewops.dto.qualification.CreateQualificationDTO;
 
 @Getter
 @Setter
@@ -13,7 +14,7 @@ public class QualificationFormModel {
     private String description;
 
     // TODO: maybe this is proper place to store employee amount of each qualification for the purposes of the grid in
-    // QualificationView
+    //  QualificationView
 
     public static CreateQualificationDTO toCreateQualificationDTO(QualificationFormModel qualificationFormModel) {
         return CreateQualificationDTO.builder()

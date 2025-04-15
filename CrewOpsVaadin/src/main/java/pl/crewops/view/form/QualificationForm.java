@@ -1,4 +1,4 @@
-package pl.crewops.view.component;
+package pl.crewops.view.form;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
@@ -14,8 +14,8 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import pl.crewops.dto.qualification.QualificationDTO;
-import pl.crewops.dto.qualification.QualificationFormModel;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.view.model.QualificationFormModel;
 
 @SpringComponent
 public class QualificationForm extends FormLayout {

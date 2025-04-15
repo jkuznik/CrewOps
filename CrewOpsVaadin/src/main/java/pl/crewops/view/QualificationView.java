@@ -14,9 +14,9 @@ import jakarta.annotation.security.PermitAll;
 import java.util.List;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.qualification.QualificationDTO;
-import pl.crewops.dto.qualification.QualificationFormModel;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.view.component.QualificationForm;
+import pl.crewops.view.form.QualificationForm;
+import pl.crewops.view.model.QualificationFormModel;
 
 @SpringComponent
 @Scope("prototype")
@@ -45,9 +45,9 @@ public class QualificationView extends VerticalLayout {
 
     private HorizontalLayout getContent() {
         HorizontalLayout content = new HorizontalLayout(grid, form);
+        content.addClassNames("qualification-view-content");
         content.setFlexGrow(2, grid);
         content.setFlexGrow(1, form);
-        content.addClassNames("content");
         content.setSizeFull();
         return content;
     }
@@ -90,11 +90,11 @@ public class QualificationView extends VerticalLayout {
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
         filterText.addValueChangeListener(e -> updateList());
 
-        Button addContactButton = new Button("Add qualification");
-        addContactButton.addClickListener(click -> addEmployee());
+        Button addQualificationButton = new Button("Add qualification");
+        addQualificationButton.addClickListener(click -> addEmployee());
 
-        var toolbar = new HorizontalLayout(filterText, addContactButton);
-        toolbar.addClassName("toolbar");
+        var toolbar = new HorizontalLayout(filterText, addQualificationButton);
+        toolbar.addClassName("qualification-toolbar");
         return toolbar;
     }
 
