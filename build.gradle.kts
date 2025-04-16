@@ -1,8 +1,13 @@
 plugins {
     id("java")
-    id("org.springframework.boot") version "3.4.3"
+    id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
     id("com.diffplug.spotless") version "7.0.2"
+}
+
+ext {
+    set("springBootVersion", "3.4.4")
+    set("springSecurityVersion", "6.4.4")
 }
 
 allprojects {
