@@ -21,3 +21,9 @@ spring:
         format_sql: true
     hibernate:
       ddl-auto: validate
+
+properties:
+  security:
+    clientId: temporary-plain-text
+    jwtSecret: temporary-plain-token
+    jwtExpiration: 90000

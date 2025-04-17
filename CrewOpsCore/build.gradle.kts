@@ -1,8 +1,12 @@
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.security:spring-security-core:6.4.4")
+    implementation("org.springframework.security:spring-security-web:6.4.4")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+
+    implementation("io.jsonwebtoken:jjwt-api:0.12.6")
 
     implementation("org.postgresql:postgresql:42.7.5")
     implementation("org.liquibase:liquibase-core:4.31.1")
