@@ -179,7 +179,8 @@ class EmployeeService {
     }
 
     public EmployeeDTO getEmployeeByUsername(String username) {
-        return mapToDTO(
-                employeeRepository.findByUsername(username).orElseThrow(() -> new EmployeeNotFoundException(username)));
+        return mapToDTO(employeeRepository
+                .findByFirstName(username)
+                .orElseThrow(() -> new EmployeeNotFoundException(username)));
     }
 }
