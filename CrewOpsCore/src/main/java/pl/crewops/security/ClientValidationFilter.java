@@ -13,7 +13,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @AllArgsConstructor
 public class ClientValidationFilter extends OncePerRequestFilter {
 
-    private final SecurityProperties securityProperties;
+    private final SecurityConfigProperties securityConfigProperties;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -21,7 +21,7 @@ public class ClientValidationFilter extends OncePerRequestFilter {
 
         String clientId = request.getHeader("Client-Id");
 
-        if (!securityProperties.getClientId().equals(clientId)) {
+        if (!securityConfigProperties.getClientId().equals(clientId)) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Client ID");
             return;
         }

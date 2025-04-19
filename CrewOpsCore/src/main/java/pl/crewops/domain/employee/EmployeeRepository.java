@@ -26,6 +26,8 @@ interface EmployeeRepository extends JpaRepository<Employee, UUID> {
 
     // TODO: modify this method for cases where two employees has this same first name and last name
     Optional<Employee> findByFirstNameAndLastName(String firstName, String lastName);
+
+    Optional<Employee> findByUsername(String username);
 }
 
 @Repository
