@@ -1,4 +1,4 @@
-package pl.crewops.security;
+package pl.crewops.security.custom;
 
 import java.util.Collection;
 import java.util.List;
@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import pl.crewops.dto.employee.EmployeeDTO;
 
 @RequiredArgsConstructor
-public class UserSecurity implements UserDetails {
+public class UserPrincipal implements UserDetails {
 
     private final EmployeeDTO employeeDTO;
 

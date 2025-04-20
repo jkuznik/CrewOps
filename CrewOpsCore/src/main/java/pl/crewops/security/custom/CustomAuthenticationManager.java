@@ -1,4 +1,4 @@
-package pl.crewops.security;
+package pl.crewops.security.custom;
 
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +15,10 @@ public class CustomAuthenticationManager implements AuthenticationManager {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        return jwtAuthProvider.authenticate(authentication);
+        if (jwtAuthProvider.supports(authentication.getClass())) {
+            return jwtAuthProvider.authenticate(authentication);
+        }
+
+        return authentication;
     }
 }

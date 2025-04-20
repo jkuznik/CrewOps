@@ -1,26 +1,34 @@
-package pl.crewops.security.jwt;
+package pl.crewops.security.custom;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.List;
 import javax.security.auth.Subject;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Getter
 @Setter
-public class JwtAuthentication implements Authentication {
+public class CustomAuthentication implements Authentication {
+    private final UserPrincipal principal;
+    private final HttpServletRequest request;
+
+    boolean authenticated = false;
+    Object details;
 
     @Override
     public boolean isAuthenticated() {
-        return false;
+        return authenticated;
     }
 
     @Override
-    public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {}
+    public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
+        this.authenticated = isAuthenticated;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -29,17 +37,17 @@ public class JwtAuthentication implements Authentication {
 
     @Override
     public Object getCredentials() {
-        return null;
+        return principal.getPassword();
     }
 
     @Override
     public Object getDetails() {
-        return null;
+        return details;
     }
 
     @Override
     public Object getPrincipal() {
-        return null;
+        return principal;
     }
 
     @Override

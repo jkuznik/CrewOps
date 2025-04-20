@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import pl.crewops.security.SecurityConfigProperties;
+import pl.crewops.security.config.SecurityConfigProperties;
 
 @Slf4j
 @Service

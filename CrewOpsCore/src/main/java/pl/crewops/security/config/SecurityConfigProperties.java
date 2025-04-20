@@ -1,4 +1,4 @@
-package pl.crewops.security;
+package pl.crewops.security.config;
 
 import lombok.Getter;
 import lombok.Setter;

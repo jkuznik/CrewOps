@@ -1,4 +1,4 @@
-package pl.crewops.security;
+package pl.crewops.security.custom;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,6 +8,7 @@ import java.io.IOException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import pl.crewops.security.config.SecurityConfigProperties;
 
 @Component
 @AllArgsConstructor
