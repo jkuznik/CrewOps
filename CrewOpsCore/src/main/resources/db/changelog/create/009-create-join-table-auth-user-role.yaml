@@ -17,6 +17,11 @@ databaseChangeLog:
                   constraints:
                     nullable: false
 
+        - addPrimaryKey:
+            tableName: auth_user_role
+            columnNames: auth_user_id, role_id
+            constraintName: pk_auth_user_role
+
         - addForeignKeyConstraint:
             baseTableName: auth_user_role
             baseColumnNames: auth_user_id

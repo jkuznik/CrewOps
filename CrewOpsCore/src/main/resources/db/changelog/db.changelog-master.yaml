@@ -30,6 +30,15 @@
           file: db/changelog/create/004-create-table-qualification.yaml
     - include:
           file: db/changelog/create/005-create-join-table-employee-qualification.yaml
+    - include:
+          file: db/changelog/create/006-create-table-role.yaml
+    - include:
+          file: db/changelog/create/007-create-table-refresh-token.yaml
+    - include:
+          file: db/changelog/create/008-create-table-auth-user.yaml
+    - include:
+          file: db/changelog/create/009-create-join-table-auth-user-role.yaml
+
 #   # TODO: config multi profiles and remove this from prod
     - include:
           file: db/changelog/insert/001-insert-development-initial-values.yaml

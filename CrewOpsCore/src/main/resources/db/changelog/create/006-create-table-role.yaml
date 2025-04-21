@@ -13,18 +13,23 @@ databaseChangeLog:
                     nullable: false
                     primaryKey: true
               - column:
+                  name: version
+                  type: integer
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+              - column:
                   name: name
                   type: varchar(255)
                   constraints:
                     nullable: false
                     unique: true
-              - column:
-                  name: created_at
-                  type: timestamp
-                  constraints:
-                    nullable: false
-              - column:
-                  name: updated_at
-                  type: timestamp
-                  constraints:
-                    nullable: false
