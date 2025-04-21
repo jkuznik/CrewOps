@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-table-auth-user-role
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: auth_user_role
+            columns:
+              - column:
+                  name: auth_user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: auth_user_role
+            baseColumnNames: auth_user_id
+            constraintName: fk_auth_user_role_auth_user
+            referencedTableName: auth_user
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: auth_user_role
+            baseColumnNames: role_id
+            constraintName: fk_auth_user_role_role
+            referencedTableName: role
+            referencedColumnNames: id
+            onDelete: CASCADE

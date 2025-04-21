@@ -1,0 +1,51 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-table-auth-user
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: auth_user
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: username
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: employee_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: refresh_token_id
+                  type: uuid
+                  constraints:
+                    nullable: true
+
+        - addForeignKeyConstraint:
+            baseTableName: auth_user
+            baseColumnNames: employee_id
+            constraintName: fk_auth_user_employee
+            referencedTableName: employee
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: auth_user
+            baseColumnNames: refresh_token_id
+            constraintName: fk_auth_user_refresh_token
+            referencedTableName: refresh_token
+            referencedColumnNames: id
+            onDelete: SET NULL
