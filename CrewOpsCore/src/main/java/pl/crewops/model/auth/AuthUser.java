@@ -32,7 +32,7 @@ public class AuthUser extends AbstractEntity {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "refresh_token_id", referencedColumnName = "id", unique = true)
-    private RefreshToken refreshToken;
+    //    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    //    @JoinColumn(name = "refresh_token_id", referencedColumnName = "id", unique = true)
+    //    private RefreshToken refreshToken;
 }

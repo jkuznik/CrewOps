@@ -14,5 +14,5 @@ public class SecurityConfigProperties {
     private String clientId;
     private String jwtSecret;
     private long jwtExpiration;
-    private long jwtRefreshTokenExpiration;
+    //    private long jwtRefreshTokenExpiration;
 }

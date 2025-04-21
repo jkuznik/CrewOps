@@ -1,3 +1,4 @@
+# delete this if refresh token if it turns out to be unnecessary
 databaseChangeLog:
   - changeSet:
       id: 001-create-table-refresh-token
