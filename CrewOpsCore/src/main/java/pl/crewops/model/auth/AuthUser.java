@@ -21,7 +21,7 @@ public class AuthUser extends AbstractEntity {
     private String password;
 
     // TODO: add logic to delete authUser in case delete employee
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "employee_id", referencedColumnName = "id", nullable = false, unique = true)
     private Employee employee;
 
@@ -32,7 +32,7 @@ public class AuthUser extends AbstractEntity {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "refresh_token_id", referencedColumnName = "id", unique = true)
     private RefreshToken refreshToken;
 }

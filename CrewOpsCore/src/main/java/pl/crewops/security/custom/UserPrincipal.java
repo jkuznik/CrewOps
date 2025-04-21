@@ -5,12 +5,12 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.model.auth.AuthUser;
 
 @RequiredArgsConstructor
 public class UserPrincipal implements UserDetails {
 
-    private final EmployeeDTO employeeDTO;
+    private final AuthUser authUser;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -21,11 +21,11 @@ public class UserPrincipal implements UserDetails {
     // credentials
     @Override
     public String getUsername() {
-        return employeeDTO.firstName();
+        return authUser.getUsername();
     }
 
     @Override
     public String getPassword() {
-        return employeeDTO.lastName();
+        return authUser.getPassword();
     }
 }

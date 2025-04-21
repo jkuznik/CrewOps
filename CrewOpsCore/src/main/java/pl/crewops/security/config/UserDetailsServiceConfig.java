@@ -4,17 +4,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import pl.crewops.domain.employee.EmployeeAPI;
+import pl.crewops.domain.auth.AuthAPI;
 import pl.crewops.security.custom.UserPrincipal;
 
 @Configuration
 @RequiredArgsConstructor
 public class UserDetailsServiceConfig {
 
-    private final EmployeeAPI employeeAPI;
+    private final AuthAPI authAPI;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> new UserPrincipal(employeeAPI.getEmployeeByUsername(username));
+        return username -> new UserPrincipal(authAPI.getByUsername(username));
     }
 }
