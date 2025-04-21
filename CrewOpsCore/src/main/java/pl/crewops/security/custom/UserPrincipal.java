@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import pl.crewops.model.auth.AuthUser;
+import pl.crewops.model.auth.RoleGrantedAuthority;
 
 @RequiredArgsConstructor
 public class UserPrincipal implements UserDetails {
@@ -14,7 +15,10 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        if (authUser.getRoles() == null) {
+            return List.of();
+        }
+        return authUser.getRoles().stream().map(RoleGrantedAuthority::new).toList();
     }
 
     // TODO: change this implementation after this PoC. To do that Employee entity have to be updated to store some

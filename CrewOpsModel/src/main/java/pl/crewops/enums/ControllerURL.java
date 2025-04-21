@@ -1,6 +1,11 @@
 package pl.crewops.enums;
 
 public class ControllerURL {
+    public static final String LOGIN = "/login";
+    public static final String REGISTER = "/register";
+    public static final String LOGOUT = "/logout";
+    public static final String REFRESH_TOKEN = "/refresh_token";
+
     public static final String EMPLOYEES = "employees";
     public static final String EMPLOYEE_ID = "employeeId";
     public static final String QUALIFICATIONS = "qualifications";
