@@ -1,8 +1,6 @@
 package pl.crewops.security.config;
 
 import static pl.crewops.enums.ControllerURL.getPublicUrl;
-// import pl.crewops.security.custom.ClientValidationFilter;
-// import pl.crewops.security.jwt.JwtAuthFilter;
 
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
