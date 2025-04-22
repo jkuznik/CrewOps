@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import pl.crewops.auth.AuthRequest;
 import pl.crewops.auth.AuthResponse;
@@ -19,9 +19,7 @@ public class AuthController {
 
     @PostMapping(ControllerURL.LOGIN)
     public ResponseEntity<AuthResponse> login(
-            //            @Valid @RequestBody AuthRequest authRequest, HttpServletResponse response) {
-            @Valid @RequestParam String username, @Valid @RequestParam String password, HttpServletResponse response) {
-        var authRequest = new AuthRequest(username, password);
+            @Valid @RequestBody AuthRequest authRequest, HttpServletResponse response) {
         return ResponseEntity.status(HttpStatus.OK).body(authService.login(authRequest, response));
     }
 }

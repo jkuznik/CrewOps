@@ -28,4 +28,3 @@ security:
     clientId: temporary-plain-text
     jwtSecret: ${JWT_CREWOPS}
     jwtExpiration: 300
-#    jwtRefreshTokenExpiration: 7

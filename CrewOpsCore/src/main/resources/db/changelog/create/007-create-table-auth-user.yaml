@@ -1,11 +1,10 @@
-# delete this if refresh token if it turns out to be unnecessary
 databaseChangeLog:
   - changeSet:
-      id: 001-create-table-refresh-token
+      id: 001-create-table-auth-user
       author: jkuznik
       changes:
         - createTable:
-            tableName: refresh_token
+            tableName: auth_user
             columns:
               - column:
                   name: id
@@ -29,12 +28,26 @@ databaseChangeLog:
                   constraints:
                     nullable: true
               - column:
-                  name: refresh_token
+                  name: username
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password
                   type: varchar(255)
                   constraints:
                     nullable: false
               - column:
-                  name: expires_at
-                  type: timestamp
+                  name: employee_id
+                  type: uuid
                   constraints:
                     nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: auth_user
+            baseColumnNames: employee_id
+            constraintName: fk_auth_user_employee
+            referencedTableName: employee
+            referencedColumnNames: id
+            onDelete: CASCADE

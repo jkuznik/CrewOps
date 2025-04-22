@@ -16,11 +16,8 @@ import pl.crewops.security.jwt.JwtService;
 @RequiredArgsConstructor
 class AuthService implements AuthAPI {
 
-    //    private final SecurityConfigProperties securityConfigProperties;
     private final JwtService jwtService;
-
     private final AuthUserRepository authUserRepository;
-    //    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     public AuthUser getByUsername(String username) {
@@ -35,25 +32,9 @@ class AuthService implements AuthAPI {
             var userPrincipal = new UserPrincipal(byUsername);
             String token = jwtService.generateToken(userPrincipal);
             response.setHeader("Authorization", "Bearer " + token);
-            //            String refreshToken = generateRefreshToken(byUsername);
-            return new AuthResponse(token /*, refreshToken*/);
+            return new AuthResponse(token);
         } else {
             throw new IllegalArgumentException("Invalid username or password");
         }
     }
-
-    //    private String generateRefreshToken(AuthUser authUser) {
-    //        if (authUser.getRefreshToken() != null) {
-    //            refreshTokenRepository.delete(authUser.getRefreshToken());
-    //            authUser.setRefreshToken(null);
-    //        }
-    //        var refreshToken = new RefreshToken();
-    //        refreshToken.setRefreshToken(UUID.randomUUID().toString());
-    //        refreshToken.setExpiresAt(
-    //                Instant.now().plus(securityConfigProperties.getJwtRefreshTokenExpiration(), ChronoUnit.DAYS));
-    //
-    //        authUser.setRefreshToken(refreshToken);
-    //        authUserRepository.save(authUser);
-    //        return refreshToken.getRefreshToken();
-    //    }
 }

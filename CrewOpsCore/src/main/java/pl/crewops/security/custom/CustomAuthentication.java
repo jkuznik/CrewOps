@@ -1,8 +1,6 @@
 package pl.crewops.security.custom;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collection;
-import java.util.List;
 import javax.security.auth.Subject;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +13,6 @@ import org.springframework.security.core.GrantedAuthority;
 @Setter
 public class CustomAuthentication implements Authentication {
     private final UserPrincipal principal;
-    private final HttpServletRequest request;
 
     boolean authenticated = false;
     Object details;
@@ -32,7 +29,7 @@ public class CustomAuthentication implements Authentication {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return principal.getAuthorities();
     }
 
     @Override

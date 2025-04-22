@@ -28,4 +28,16 @@ public class ControllerURL {
     public static final String EMPLOYEES_EID_QUALIFICATIONS_QID_EXPIRED = EMPLOYEES_EID_QUALIFICATIONS_QID + "/expired";
 
     public static final String EMPLOYEES_EID_VEHICLES_VID = EMPLOYEES_EID + VEHICLES_VID;
+
+    public static String[] getPublicUrl() {
+        return new String[] {
+            "/login",
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/swagger-resources/**",
+            "/webjars/**",
+            "/v3/api-docs/**",
+            "/swagger.yaml",
+        };
+    }
 }

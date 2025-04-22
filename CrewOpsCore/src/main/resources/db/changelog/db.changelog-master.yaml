@@ -33,12 +33,12 @@
     - include:
           file: db/changelog/create/006-create-table-role.yaml
     - include:
-          file: db/changelog/create/007-create-table-refresh-token.yaml
+          file: db/changelog/create/007-create-table-auth-user.yaml
     - include:
-          file: db/changelog/create/008-create-table-auth-user.yaml
-    - include:
-          file: db/changelog/create/009-create-join-table-auth-user-role.yaml
+          file: db/changelog/create/008-create-join-table-auth-user-role.yaml
 
 #   # TODO: config multi profiles and remove this from prod
     - include:
           file: db/changelog/insert/001-insert-development-initial-values.yaml
+    - include:
+          file: db/changelog/insert/002-insert-auth-users.yaml

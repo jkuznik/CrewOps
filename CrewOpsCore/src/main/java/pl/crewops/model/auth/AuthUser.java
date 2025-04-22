@@ -1,7 +1,7 @@
 package pl.crewops.model.auth;
 
 import jakarta.persistence.*;
-import java.util.List;
+import java.util.Set;
 import lombok.*;
 import pl.crewops.model.AbstractEntity;
 import pl.crewops.model.Employee;
@@ -30,9 +30,5 @@ public class AuthUser extends AbstractEntity {
             name = "auth_user_role",
             joinColumns = @JoinColumn(name = "auth_user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private List<Role> roles;
-
-    //    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    //    @JoinColumn(name = "refresh_token_id", referencedColumnName = "id", unique = true)
-    //    private RefreshToken refreshToken;
+    private Set<Role> roles;
 }
