@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.auth.AuthRequest;
@@ -24,6 +25,7 @@ class AuthService implements AuthAPI {
     private final JwtService jwtService;
     private final AuthUserRepository authUserRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public AuthUser getByUsername(@NotNull String username) {
@@ -34,7 +36,7 @@ class AuthService implements AuthAPI {
     public AuthUser create(CreateAuthUserDTO createAuthUserDTO, Employee employee) {
         var authUser = new AuthUser();
         authUser.setUsername(createAuthUserDTO.username());
-        authUser.setPassword(createAuthUserDTO.password());
+        authUser.setPassword(passwordEncoder.encode(createAuthUserDTO.password()));
         Set<Role> roles = new HashSet<>();
         createAuthUserDTO
                 .roles()
@@ -48,7 +50,7 @@ class AuthService implements AuthAPI {
     public AuthResponse login(@NotNull AuthRequest authRequest, HttpServletResponse response) {
         AuthUser byUsername = getByUsername(authRequest.username());
 
-        if (byUsername.getPassword().equals(authRequest.password())) {
+        if (passwordEncoder.matches(authRequest.password(), byUsername.getPassword())) {
             var userPrincipal = new UserPrincipal(byUsername);
             String token = jwtService.generateToken(userPrincipal);
             response.setHeader("Authorization", "Bearer " + token);
