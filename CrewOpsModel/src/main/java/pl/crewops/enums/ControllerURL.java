@@ -1,6 +1,11 @@
 package pl.crewops.enums;
 
 public class ControllerURL {
+    public static final String LOGIN = "/login";
+    public static final String REGISTER = "/register";
+    public static final String LOGOUT = "/logout";
+    public static final String REFRESH_TOKEN = "/refresh_token";
+
     public static final String EMPLOYEES = "employees";
     public static final String EMPLOYEE_ID = "employeeId";
     public static final String QUALIFICATIONS = "qualifications";
@@ -23,4 +28,16 @@ public class ControllerURL {
     public static final String EMPLOYEES_EID_QUALIFICATIONS_QID_EXPIRED = EMPLOYEES_EID_QUALIFICATIONS_QID + "/expired";
 
     public static final String EMPLOYEES_EID_VEHICLES_VID = EMPLOYEES_EID + VEHICLES_VID;
+
+    public static String[] getPublicUrl() {
+        return new String[] {
+            "/login",
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/swagger-resources/**",
+            "/webjars/**",
+            "/v3/api-docs/**",
+            "/swagger.yaml",
+        };
+    }
 }

@@ -177,4 +177,10 @@ class EmployeeService {
         return PageRequestFactory.createPageRequest(
                 page, size, Sort.by(Sort.Order.asc("lastName"), Sort.Order.asc("firstName")));
     }
+
+    public EmployeeDTO getEmployeeByUsername(String username) {
+        return mapToDTO(employeeRepository
+                .findByFirstName(username)
+                .orElseThrow(() -> new EmployeeNotFoundException(username)));
+    }
 }

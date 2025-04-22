@@ -1,0 +1,66 @@
+package pl.crewops.security.jwt;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
+import pl.crewops.enums.ControllerURL;
+import pl.crewops.security.custom.CustomAuthentication;
+import pl.crewops.security.custom.CustomAuthenticationManager;
+import pl.crewops.security.custom.UserPrincipal;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class JwtAuthFilter extends OncePerRequestFilter {
+
+    private final JwtService jwtService;
+    private final JwtExceptionResolver jwtExceptionResolver;
+    private final UserDetailsService userDetailsService;
+    private final CustomAuthenticationManager authenticationManager;
+
+    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
+        String requestURI = request.getRequestURI();
+        if (isPublicUrl(requestURI)) {
+            log.debug("Skipping JWT authentication for: {}", requestURI);
+            filterChain.doFilter(request, response);
+            return;
+        }
+        try {
+            final String token = jwtService.extractTokenFromRequest(request);
+            final String username = jwtService.extractUserFirstName(token);
+
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserPrincipal userPrincipal = (UserPrincipal) userDetailsService.loadUserByUsername(username);
+                if (jwtService.validateToken(token, userPrincipal)) {
+                    CustomAuthentication customAuthentication = new CustomAuthentication(userPrincipal);
+                    Authentication authenticate = authenticationManager.authenticate(customAuthentication);
+
+                    SecurityContextHolder.getContext().setAuthentication(authenticate);
+                }
+            }
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            jwtExceptionResolver.resolveException(request, response, null, e);
+        }
+    }
+
+    private boolean isPublicUrl(String requestURI) {
+        return Arrays.stream(ControllerURL.getPublicUrl()).anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
+    }
+}
