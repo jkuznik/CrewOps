@@ -33,16 +33,14 @@ public class SecurityConfig {
                         .requestMatchers(publicUrl())
                         .permitAll()
                         // shift leader permission
-                        .requestMatchers(HttpMethod.PATCH, shiftLeaderUrl())
+                        .requestMatchers(HttpMethod.PATCH, shiftLeaderUrlPATCH())
                         .hasAnyRole(SHIFT_LEADER.name(), MANAGER.name(), ADMIN.name())
                         // manager permission
-                        .requestMatchers(HttpMethod.GET, managerUrl())
+                        .requestMatchers(HttpMethod.POST, managerUrlPOST())
                         .hasAnyRole(MANAGER.name(), ADMIN.name())
-                        .requestMatchers(HttpMethod.POST, managerUrl())
+                        .requestMatchers(HttpMethod.PATCH, managerUrlPATCH())
                         .hasAnyRole(MANAGER.name(), ADMIN.name())
-                        .requestMatchers(HttpMethod.PATCH, managerUrl())
-                        .hasAnyRole(MANAGER.name(), ADMIN.name())
-                        .requestMatchers(HttpMethod.DELETE, managerUrl())
+                        .requestMatchers(HttpMethod.DELETE, managerUrlDELETE())
                         .hasAnyRole(MANAGER.name(), ADMIN.name())
                         //
                         .anyRequest()

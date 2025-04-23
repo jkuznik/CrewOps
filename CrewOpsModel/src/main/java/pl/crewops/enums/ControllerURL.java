@@ -42,17 +42,18 @@ public class ControllerURL {
         };
     }
 
-    public static String[] shiftLeaderUrl() {
+    public static String[] shiftLeaderUrlPATCH() {
         return new String[] {
             "/" + VEHICLES_VID,
         };
     }
 
-    public static String[] managerUrl() {
+    public static String[] managerUrlPOST() {
+        return new String[] {"/" + EMPLOYEES, "/" + QUALIFICATIONS, "/" + VEHICLES};
+    }
+
+    public static String[] managerUrlPATCH() {
         return new String[] {
-            "/" + EMPLOYEES,
-            "/" + QUALIFICATIONS,
-            "/" + VEHICLES,
             "/" + EMPLOYEES_EID,
             "/" + EMPLOYEES_EID_PHONE,
             "/" + EMPLOYEES_EID_QUALIFICATIONS_QID,
@@ -60,6 +61,12 @@ public class ControllerURL {
             "/" + EMPLOYEES_EID_VEHICLES_VID,
             "/" + QUALIFICATIONS_QID,
             "/" + VEHICLES_VID
+        };
+    }
+
+    public static String[] managerUrlDELETE() {
+        return new String[] {
+            "/" + EMPLOYEES_EID, "/" + EMPLOYEES_EID_QUALIFICATIONS_QID, "/" + EMPLOYEES_EID_VEHICLES_VID
         };
     }
 }
