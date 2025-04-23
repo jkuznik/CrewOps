@@ -29,10 +29,13 @@ public class SecurityConfig {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                        // public access
                         .requestMatchers(publicUrl())
                         .permitAll()
+                        // shift leader permission
                         .requestMatchers(HttpMethod.PATCH, shiftLeaderUrl())
                         .hasAnyRole(SHIFT_LEADER.name(), MANAGER.name(), ADMIN.name())
+                        // manager permission
                         .requestMatchers(HttpMethod.GET, managerUrl())
                         .hasAnyRole(MANAGER.name(), ADMIN.name())
                         .requestMatchers(HttpMethod.POST, managerUrl())
@@ -41,6 +44,7 @@ public class SecurityConfig {
                         .hasAnyRole(MANAGER.name(), ADMIN.name())
                         .requestMatchers(HttpMethod.DELETE, managerUrl())
                         .hasAnyRole(MANAGER.name(), ADMIN.name())
+                        //
                         .anyRequest()
                         .authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
