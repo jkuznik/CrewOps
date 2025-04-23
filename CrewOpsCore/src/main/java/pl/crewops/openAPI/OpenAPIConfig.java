@@ -22,9 +22,16 @@ public class OpenAPIConfig {
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
-                                        .description("Enter JWT token")))
+                                        .description("Enter JWT token"))
+                        .addSecuritySchemes(
+                                "Client-Id",
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.APIKEY)
+                                        .in(SecurityScheme.In.HEADER)
+                                        .name("Client-Id")
+                                        .description("Secret client ID")))
                 .info(new Info().title("CrewOps API").version("1.0.0").description("API Documentation"))
-                .addSecurityItem(new SecurityRequirement().addList("bearer-jwt"))
+                .addSecurityItem(new SecurityRequirement().addList("bearer-jwt").addList("Client-Id"))
                 .servers(List.of(new io.swagger.v3.oas.models.servers.Server()
                         .url("http://localhost:8080")
                         .description("API Server (Dev)")));
