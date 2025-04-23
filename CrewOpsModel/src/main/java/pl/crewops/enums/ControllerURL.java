@@ -4,7 +4,6 @@ public class ControllerURL {
     public static final String LOGIN = "/login";
     public static final String REGISTER = "/register";
     public static final String LOGOUT = "/logout";
-    public static final String REFRESH_TOKEN = "/refresh_token";
 
     public static final String EMPLOYEES = "employees";
     public static final String EMPLOYEE_ID = "employeeId";
@@ -29,15 +28,45 @@ public class ControllerURL {
 
     public static final String EMPLOYEES_EID_VEHICLES_VID = EMPLOYEES_EID + VEHICLES_VID;
 
-    public static String[] getPublicUrl() {
+    public static String[] publicUrl() {
         return new String[] {
-            "/login",
+            LOGIN,
+            REGISTER,
+            LOGOUT,
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/swagger-resources/**",
             "/webjars/**",
             "/v3/api-docs/**",
-            "/swagger.yaml",
+            "/swagger.yaml"
+        };
+    }
+
+    public static String[] shiftLeaderUrlPATCH() {
+        return new String[] {
+            "/" + VEHICLES_VID,
+        };
+    }
+
+    public static String[] managerUrlPOST() {
+        return new String[] {"/" + EMPLOYEES, "/" + QUALIFICATIONS, "/" + VEHICLES};
+    }
+
+    public static String[] managerUrlPATCH() {
+        return new String[] {
+            "/" + EMPLOYEES_EID,
+            "/" + EMPLOYEES_EID_PHONE,
+            "/" + EMPLOYEES_EID_QUALIFICATIONS_QID,
+            "/" + EMPLOYEES_EID_QUALIFICATIONS_QID_EXPIRED,
+            "/" + EMPLOYEES_EID_VEHICLES_VID,
+            "/" + QUALIFICATIONS_QID,
+            "/" + VEHICLES_VID
+        };
+    }
+
+    public static String[] managerUrlDELETE() {
+        return new String[] {
+            "/" + EMPLOYEES_EID, "/" + EMPLOYEES_EID_QUALIFICATIONS_QID, "/" + EMPLOYEES_EID_VEHICLES_VID
         };
     }
 }

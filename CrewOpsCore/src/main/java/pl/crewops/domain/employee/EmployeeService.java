@@ -15,6 +15,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import pl.crewops.auth.CreateAuthUserDTO;
+import pl.crewops.domain.auth.AuthAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
 import pl.crewops.domain.vehicle.VehicleAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
@@ -39,10 +41,19 @@ class EmployeeService {
     private final EmployeeQualificationRepository employeeQualificationRepository;
     private final QualificationAPI qualificationAPI;
     private final VehicleAPI vehicleAPI;
+    private final AuthAPI authAPI;
 
+    @Transactional
     public EmployeeDTO createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO) {
+        Employee employee = employeeRepository.save(mapToEntity(createEmployeeDTO));
+        var createAuthUser = CreateAuthUserDTO.builder()
+                .username(createEmployeeDTO.username())
+                .password(createEmployeeDTO.password())
+                .roles(createEmployeeDTO.roles())
+                .build();
+        authAPI.createAuthUser(createAuthUser, employee);
         log.info("Create employee {}", createEmployeeDTO);
-        return mapToDTO(employeeRepository.save(mapToEntity(createEmployeeDTO)));
+        return mapToDTO(employee);
     }
 
     public List<EmployeeDTO> getAllEmployees(int page, int size) {

@@ -25,6 +25,6 @@ spring:
 
 security:
   properties:
-    clientId: temporary-plain-text
+    clientId: $2a$10$EBwUzL.tHIhaQMz63oJkm.ZjEVSsOhvIlAcKKoP/DpYvQYjhdl7mG
     jwtSecret: ${JWT_CREWOPS}
     jwtExpiration: 300

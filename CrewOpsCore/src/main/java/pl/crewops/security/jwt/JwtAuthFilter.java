@@ -36,6 +36,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String requestURI = request.getRequestURI();
+        log.info("Request URI: {} - jwt Auth Filter", requestURI);
         if (isPublicUrl(requestURI)) {
             log.debug("Skipping JWT authentication for: {}", requestURI);
             filterChain.doFilter(request, response);
@@ -61,6 +62,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private boolean isPublicUrl(String requestURI) {
-        return Arrays.stream(ControllerURL.getPublicUrl()).anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
+        return Arrays.stream(ControllerURL.publicUrl()).anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
     }
 }
