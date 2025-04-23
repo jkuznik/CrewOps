@@ -14,5 +14,5 @@ public interface AuthAPI {
 
     AuthUser getByUsername(@NotNull String username);
 
-    AuthUser create(@NotNull @Valid CreateAuthUserDTO createAuthUserDTO, @NotNull @Valid Employee employee);
+    AuthUser createAuthUser(@NotNull @Valid CreateAuthUserDTO createAuthUserDTO, @NotNull @Valid Employee employee);
 }

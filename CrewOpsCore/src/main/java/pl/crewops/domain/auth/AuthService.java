@@ -33,7 +33,7 @@ class AuthService implements AuthAPI {
     }
 
     @Transactional
-    public AuthUser create(CreateAuthUserDTO createAuthUserDTO, Employee employee) {
+    public AuthUser createAuthUser(CreateAuthUserDTO createAuthUserDTO, Employee employee) {
         var authUser = new AuthUser();
         authUser.setUsername(createAuthUserDTO.username());
         authUser.setPassword(passwordEncoder.encode(createAuthUserDTO.password()));

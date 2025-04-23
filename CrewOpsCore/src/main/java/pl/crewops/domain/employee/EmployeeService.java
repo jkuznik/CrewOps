@@ -51,7 +51,7 @@ class EmployeeService {
                 .password(createEmployeeDTO.password())
                 .roles(createEmployeeDTO.roles())
                 .build();
-        authAPI.create(createAuthUser, employee);
+        authAPI.createAuthUser(createAuthUser, employee);
         log.info("Create employee {}", createEmployeeDTO);
         return mapToDTO(employee);
     }

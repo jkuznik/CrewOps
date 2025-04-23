@@ -1,10 +1,12 @@
 package pl.crewops.security.config;
 
-import static pl.crewops.enums.ControllerURL.getPublicUrl;
+import static pl.crewops.auth.RoleType.*;
+import static pl.crewops.enums.ControllerURL.*;
 
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -27,14 +29,18 @@ public class SecurityConfig {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers(getPublicUrl())
+                        .requestMatchers(publicUrl())
                         .permitAll()
-                        .requestMatchers("/employees/**")
-                        .hasRole("ADMIN")
-                        .requestMatchers("/employees")
-                        .hasRole("ADMIN")
-                        .requestMatchers("/vehicles/**")
-                        .hasRole("USER")
+                        .requestMatchers(HttpMethod.PATCH, shiftLeaderUrl())
+                        .hasAnyRole(SHIFT_LEADER.name(), MANAGER.name(), ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, managerUrl())
+                        .hasAnyRole(MANAGER.name(), ADMIN.name())
+                        .requestMatchers(HttpMethod.POST, managerUrl())
+                        .hasAnyRole(MANAGER.name(), ADMIN.name())
+                        .requestMatchers(HttpMethod.PATCH, managerUrl())
+                        .hasAnyRole(MANAGER.name(), ADMIN.name())
+                        .requestMatchers(HttpMethod.DELETE, managerUrl())
+                        .hasAnyRole(MANAGER.name(), ADMIN.name())
                         .anyRequest()
                         .authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

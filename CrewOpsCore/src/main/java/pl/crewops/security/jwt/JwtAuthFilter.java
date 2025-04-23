@@ -62,6 +62,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private boolean isPublicUrl(String requestURI) {
-        return Arrays.stream(ControllerURL.getPublicUrl()).anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
+        return Arrays.stream(ControllerURL.publicUrl()).anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
     }
 }
