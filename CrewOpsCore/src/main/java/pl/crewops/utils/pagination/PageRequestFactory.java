@@ -14,7 +14,7 @@ public class PageRequestFactory {
 
         finalPage = page > 0 ? page - 1 : DEFAULT_PAGE;
 
-        finalSize = size > 100 ? 100 : size;
+        finalSize = Math.min(size, 100);
 
         return PageRequest.of(finalPage, finalSize, sort);
     }

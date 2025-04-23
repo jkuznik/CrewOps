@@ -20,8 +20,4 @@ public class EmployeeAPI {
     public EmployeeDTO updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) throws EmployeeNotFoundException {
         return employeeService.updateEmployee(updateEmployeeDTO);
     }
-
-    public EmployeeDTO getEmployeeByUsername(String username) {
-        return employeeService.getEmployeeByUsername(username);
-    }
 }
