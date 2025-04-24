@@ -26,5 +26,6 @@ spring:
 security:
   properties:
     clientId: $2a$10$EBwUzL.tHIhaQMz63oJkm.ZjEVSsOhvIlAcKKoP/DpYvQYjhdl7mG
+    clientIdInput: a
     jwtSecret: ${JWT_CREWOPS}
     jwtExpiration: 300

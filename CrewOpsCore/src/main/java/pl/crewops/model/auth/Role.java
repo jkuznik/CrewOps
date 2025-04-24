@@ -8,6 +8,9 @@ import pl.crewops.model.AbstractEntity;
 @Entity
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Role extends AbstractEntity {
 
     @Column(nullable = false, unique = true)
