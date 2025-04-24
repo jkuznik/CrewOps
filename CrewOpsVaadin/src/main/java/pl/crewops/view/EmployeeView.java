@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.view.component.MainLayout;
 import pl.crewops.view.form.EmployeeForm;
 import pl.crewops.view.model.EmployeeFormModel;
 
@@ -33,6 +34,7 @@ public class EmployeeView extends VerticalLayout {
         addClassName("employee-view");
 
         this.coreAPI = coreAPI;
+        log.info(coreAPI.toString());
 
         setSizeFull();
         configureGrid();

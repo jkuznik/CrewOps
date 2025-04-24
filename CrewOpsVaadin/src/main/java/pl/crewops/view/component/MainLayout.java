@@ -1,4 +1,4 @@
-package pl.crewops.view;
+package pl.crewops.view.component;
 
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -8,6 +8,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.RouterLink;
+import pl.crewops.view.EmployeeView;
+import pl.crewops.view.QualificationView;
+import pl.crewops.view.VehicleView;
 
 public class MainLayout extends AppLayout {
 

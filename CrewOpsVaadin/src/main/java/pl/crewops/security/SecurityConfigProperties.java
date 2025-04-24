@@ -1,4 +1,4 @@
-package pl.crewops.security.config;
+package pl.crewops.security;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +12,4 @@ import org.springframework.stereotype.Component;
 public class SecurityConfigProperties {
 
     private String clientId;
-    private String jwtSecret;
-    private long jwtExpiration;
 }

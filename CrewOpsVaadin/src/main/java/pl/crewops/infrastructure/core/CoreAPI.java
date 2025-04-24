@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
+import pl.crewops.auth.AuthRequest;
+import pl.crewops.auth.AuthResponse;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
@@ -18,6 +20,10 @@ import pl.crewops.dto.vehicle.VehicleDTO;
 @Repository
 @Validated
 public interface CoreAPI {
+
+    AuthResponse login(@Valid @NotNull AuthRequest request);
+
+    void setToken(@Valid @NotNull AuthResponse response);
 
     Optional<EmployeeDTO> createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO);
 

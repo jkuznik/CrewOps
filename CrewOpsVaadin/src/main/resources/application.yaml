@@ -4,3 +4,7 @@
 
     profiles:
       active: dev
+
+  security:
+    properties:
+      clientId: a
