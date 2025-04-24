@@ -10,6 +10,8 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import pl.crewops.auth.AuthRequest;
+import pl.crewops.auth.AuthResponse;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
@@ -23,10 +25,34 @@ import pl.crewops.enums.ControllerURL;
 class CoreClient implements CoreAPI {
 
     private final RestClient coreClient;
+    private RestClient authorizedClient;
+
+    @Override
+    public AuthResponse login(AuthRequest authRequest) {
+        try {
+            return coreClient
+                    .post()
+                    .uri(uriBuilder -> uriBuilder.path(ControllerURL.LOGIN).build())
+                    .body(authRequest)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<AuthResponse>() {});
+        } catch (RestClientException e) {
+            log.error("Login failed", e);
+            throw e;
+        }
+    }
+
+    @Override
+    public void setToken(AuthResponse response) {
+        this.authorizedClient = coreClient
+                .mutate()
+                .defaultHeader("Authorization", "Bearer " + response.token())
+                .build();
+    }
 
     public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) {
         try {
-            return Optional.ofNullable(coreClient
+            return Optional.ofNullable(authorizedClient
                     .post()
                     .uri(uriBuilder -> uriBuilder.path(ControllerURL.EMPLOYEES).build())
                     .body(createEmployeeDTO)
@@ -41,7 +67,7 @@ class CoreClient implements CoreAPI {
 
     public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO) {
         try {
-            return Optional.ofNullable(coreClient
+            return Optional.ofNullable(authorizedClient
                     .post()
                     .uri(uriBuilder ->
                             uriBuilder.path(ControllerURL.QUALIFICATIONS).build())
@@ -57,7 +83,7 @@ class CoreClient implements CoreAPI {
 
     public Optional<VehicleDTO> createVehicle(CreateVehicleDTO createVehicleDTO) {
         try {
-            return Optional.ofNullable(coreClient
+            return Optional.ofNullable(authorizedClient
                     .post()
                     .uri(uriBuilder -> uriBuilder.path(ControllerURL.VEHICLES).build())
                     .body(createVehicleDTO)
@@ -72,7 +98,7 @@ class CoreClient implements CoreAPI {
 
     public List<EmployeeDTO> getAllEmployees() {
         try {
-            return coreClient
+            return authorizedClient
                     .get()
                     .uri(uriBuilder -> uriBuilder.path(ControllerURL.EMPLOYEES).build())
                     .accept(MediaType.APPLICATION_JSON)
@@ -86,7 +112,7 @@ class CoreClient implements CoreAPI {
 
     public List<QualificationDTO> getAllQualifications() {
         try {
-            return coreClient
+            return authorizedClient
                     .get()
                     .uri(uriBuilder ->
                             uriBuilder.path(ControllerURL.QUALIFICATIONS).build())
@@ -101,7 +127,7 @@ class CoreClient implements CoreAPI {
 
     public List<VehicleDTO> getAllVehicles() {
         try {
-            return coreClient
+            return authorizedClient
                     .get()
                     .uri(uriBuilder -> uriBuilder.path(ControllerURL.VEHICLES).build())
                     .accept(MediaType.APPLICATION_JSON)
@@ -115,7 +141,7 @@ class CoreClient implements CoreAPI {
 
     public List<QualificationDTO> getQualificationsByIds(Set<UUID> qualificationsIds) {
         try {
-            return coreClient
+            return authorizedClient
                     .post()
                     .uri(uriBuilder ->
                             uriBuilder.path(ControllerURL.QUALIFICATIONS_QIDS).build())
@@ -131,7 +157,7 @@ class CoreClient implements CoreAPI {
 
     public List<VehicleDTO> getVehiclesByIds(Set<UUID> vehiclesIds) {
         try {
-            return coreClient
+            return authorizedClient
                     .post()
                     .uri(uriBuilder ->
                             uriBuilder.path(ControllerURL.VEHICLES_VIDS).build())
@@ -147,7 +173,7 @@ class CoreClient implements CoreAPI {
 
     public void deleteEmployee(UUID employeeId) {
         try {
-            coreClient
+            authorizedClient
                     .delete()
                     .uri(uriBuilder -> uriBuilder
                             .path(ControllerURL.EMPLOYEES_EID.replace(
@@ -162,7 +188,7 @@ class CoreClient implements CoreAPI {
 
     public void deleteQualification(UUID qualificationId) {
         try {
-            coreClient
+            authorizedClient
                     .delete()
                     .uri(uriBuilder -> uriBuilder
                             .path(ControllerURL.QUALIFICATIONS_QID.replace(
