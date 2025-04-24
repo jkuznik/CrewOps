@@ -1,18 +1,24 @@
 package pl.crewops.domain.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static pl.crewops.auth.RoleType.EMPLOYEE;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import pl.crewops.auth.AuthRequest;
+import pl.crewops.auth.AuthResponse;
 import pl.crewops.auth.CreateAuthUserDTO;
 import pl.crewops.model.Employee;
 import pl.crewops.model.auth.AuthUser;
@@ -44,6 +50,12 @@ class AuthServiceTest {
     @MockitoBean
     private PasswordEncoder passwordEncoder;
 
+    @MockitoBean
+    private HttpServletRequest request;
+
+    @MockitoBean
+    private HttpServletResponse response;
+
     @Test
     void shouldReturnAuthUser_whenUserExists() {
         // given
@@ -72,7 +84,7 @@ class AuthServiceTest {
                 .roles(new HashSet<>())
                 .build();
         var employee = Employee.builder().build();
-        var role = Role.builder().name("role").build();
+        var role = Role.builder().name(EMPLOYEE.name()).build();
         var authUser = AuthUser.builder()
                 .username("username")
                 .password("password")
@@ -94,5 +106,58 @@ class AuthServiceTest {
     }
 
     @Test
-    void login() {}
+    void shouldReturnAuthResponse_whenLoginSuccess() {
+        // given
+        String rawPassword = "plainPassword";
+        String encodedPassword = "encodedPassword";
+        String token = "jwt-token";
+
+        var role = Role.builder().name(EMPLOYEE.name()).build();
+        var authUser = AuthUser.builder()
+                .username("username")
+                .password(encodedPassword)
+                .roles(Set.of(role))
+                .build();
+
+        var authRequest =
+                AuthRequest.builder().username("username").password(rawPassword).build();
+
+        // when
+        when(authUserRepository.findByUsername("username")).thenReturn(Optional.of(authUser));
+        when(passwordEncoder.matches(rawPassword, encodedPassword)).thenReturn(true);
+        when(jwtService.generateToken(any())).thenReturn(token);
+
+        AuthResponse result = authService.login(authRequest, response);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.token()).isEqualTo(token);
+        verify(response).setHeader("Authorization", "Bearer " + token);
+    }
+
+    @Test
+    void shouldThrowException_whenLoginWithInvalidCredentials() {
+        // given
+        String rawPassword = "wrongPassword";
+        String encodedPassword = "correctEncodedPassword";
+
+        var authUser = AuthUser.builder()
+                .username("username")
+                .password(encodedPassword)
+                .roles(new HashSet<>())
+                .build();
+
+        var authRequest =
+                AuthRequest.builder().username("username").password(rawPassword).build();
+
+        // when
+        when(authUserRepository.findByUsername("username")).thenReturn(Optional.of(authUser));
+        when(passwordEncoder.matches(rawPassword, encodedPassword)).thenReturn(false);
+
+        // then
+        var result = Assertions.catchException(() -> authService.login(authRequest, response));
+
+        assertThat(result).isExactlyInstanceOf(IllegalArgumentException.class);
+        assertThat(result.getMessage()).isEqualTo("Invalid username or password");
+    }
 }
