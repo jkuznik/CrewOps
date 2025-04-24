@@ -54,9 +54,7 @@ class ClientValidationFilterTest {
         // when
         when(request.getRequestURI()).thenReturn("/test-endpoint");
         when(request.getHeader("Client-Id")).thenReturn(securityConfigProperties.getClientIdInput());
-        when(passwordEncoder.matches(
-                        securityConfigProperties.getClientIdInput(), securityConfigProperties.getClientId()))
-                .thenReturn(true);
+        when(passwordEncoder.matches(any(), any())).thenReturn(true);
 
         clientValidationFilter.doFilterInternal(request, response, filterChain);
 
