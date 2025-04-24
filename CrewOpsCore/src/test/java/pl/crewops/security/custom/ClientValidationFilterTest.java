@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import pl.crewops.enums.ControllerURL;
 import pl.crewops.security.config.PasswordEncoderConfig;
 import pl.crewops.security.config.SecurityConfigProperties;
 
@@ -62,5 +63,21 @@ class ClientValidationFilterTest {
         // then
         verify(filterChain, times(1)).doFilter(request, response);
         verify(response, never()).sendError(anyInt(), anyString());
+    }
+
+    @Test
+    void shouldSkipAuthenticationAndProceedWhenRequestIsPublicUrl() throws Exception {
+        // given
+        String[] strings = ControllerURL.publicUrl();
+        String randomPublicUrl = strings[(int) (Math.random() * strings.length)];
+
+        // when
+        when(request.getRequestURI()).thenReturn(randomPublicUrl);
+
+        clientValidationFilter.doFilterInternal(request, response, filterChain);
+
+        // then
+        verify(filterChain, times(1)).doFilter(request, response);
+        verify(passwordEncoder, never()).matches(any(), any());
     }
 }

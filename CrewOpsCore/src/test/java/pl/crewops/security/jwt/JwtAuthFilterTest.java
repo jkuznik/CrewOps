@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.util.AntPathMatcher;
+import pl.crewops.enums.ControllerURL;
 import pl.crewops.model.auth.AuthUser;
 import pl.crewops.security.custom.CustomAuthentication;
 import pl.crewops.security.custom.CustomAuthenticationManager;
@@ -49,7 +50,7 @@ class JwtAuthFilterTest {
     private HttpServletResponse response;
 
     @MockitoBean
-    private FilterChain chain;
+    private FilterChain filterChain;
 
     @MockitoBean
     private JwtService jwtService;
@@ -64,7 +65,7 @@ class JwtAuthFilterTest {
     private AntPathMatcher antPathMatcher;
 
     @Test
-    void doFilterInternal() throws ServletException, IOException {
+    void shouldDoFilterInternal() throws ServletException, IOException {
         // given
         String fakeToken = "Bearer testToken";
         String username = "TestUser";
@@ -84,14 +85,31 @@ class JwtAuthFilterTest {
         when(customAuthenticationManager.authenticate(any(CustomAuthentication.class)))
                 .thenReturn(auth);
 
-        jwtAuthFilter.doFilterInternal(request, response, chain);
+        jwtAuthFilter.doFilterInternal(request, response, filterChain);
 
         // then
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
         assertEquals(
                 userPrincipal,
                 SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        verify(chain).doFilter(request, response);
+        verify(filterChain).doFilter(request, response);
         verify(response, never()).sendError(anyInt(), anyString());
+    }
+
+    @Test
+    void shouldSkipAuthenticationAndProceedWhenRequestIsPublicUrl() throws Exception {
+        // given
+        String[] strings = ControllerURL.publicUrl();
+        String randomPublicUrl = strings[(int) (Math.random() * strings.length)];
+
+        // when
+        when(request.getRequestURI()).thenReturn(randomPublicUrl);
+
+        jwtAuthFilter.doFilterInternal(request, response, filterChain);
+
+        // then
+        verify(filterChain, times(1)).doFilter(request, response);
+        verify(jwtService, never()).extractTokenFromRequest(any());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 }
