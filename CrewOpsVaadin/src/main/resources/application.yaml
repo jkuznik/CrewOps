@@ -7,4 +7,4 @@
 
   security:
     properties:
-      clientId: a
+      clientIdInput: ${CREWOPS_CLIENT_ID_INPUT}

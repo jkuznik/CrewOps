@@ -53,8 +53,9 @@ class ClientValidationFilterTest {
     void doFilterInternal() throws ServletException, IOException {
         // when
         when(request.getRequestURI()).thenReturn("/test-endpoint");
-        when(request.getHeader("Client-Id")).thenReturn("a");
-        when(passwordEncoder.matches("a", securityConfigProperties.getClientId()))
+        when(request.getHeader("Client-Id")).thenReturn(securityConfigProperties.getClientIdInput());
+        when(passwordEncoder.matches(
+                        securityConfigProperties.getClientIdInput(), securityConfigProperties.getClientId()))
                 .thenReturn(true);
 
         clientValidationFilter.doFilterInternal(request, response, filterChain);

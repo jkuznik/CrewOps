@@ -25,6 +25,7 @@ spring:
 
 security:
   properties:
-    clientId: ${CREWOPS_CLIENT_ID}
+    clientId: ${CREWOPS_CLIENT_ID_HASH}
+    clientIdInput: ${CREWOPS_CLIENT_ID_INPUT}
     jwtSecret: ${JWT_CREWOPS}
     jwtExpiration: 300
