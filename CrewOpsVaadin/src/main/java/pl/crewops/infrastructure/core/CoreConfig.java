@@ -18,7 +18,7 @@ class CoreConfig {
     public CoreClient coreClient(CoreProperties coreProperties) {
         var restClient = RestClient.builder()
                 .baseUrl(coreProperties.baseUrl())
-                .defaultHeader("Client-Id", securityConfigProperties.getClientId())
+                .defaultHeader("Client-Id", securityConfigProperties.getClientIdInput())
                 .build();
 
         return new CoreClient(restClient);

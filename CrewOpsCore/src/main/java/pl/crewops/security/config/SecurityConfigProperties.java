@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 public class SecurityConfigProperties {
 
     private String clientId;
+    private String clientIdInput;
     private String jwtSecret;
     private long jwtExpiration;
 }

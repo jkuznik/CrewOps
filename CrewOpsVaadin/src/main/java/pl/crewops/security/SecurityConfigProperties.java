@@ -11,5 +11,5 @@ import org.springframework.stereotype.Component;
 @Setter
 public class SecurityConfigProperties {
 
-    private String clientId;
+    private String clientIdInput;
 }
