@@ -2,6 +2,7 @@ package pl.crewops.view;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -14,6 +15,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.view.component.LoggedUserInfo;
 import pl.crewops.view.form.LoginForm;
 
 @SpringComponent
@@ -34,27 +36,29 @@ public class HomeView extends AppLayout {
     }
 
     private Component createHeader() {
-        var toolbar = new HorizontalLayout();
-        var headerLayout = new HorizontalLayout();
+        var header = new HorizontalLayout();
+        var leftSide = new HorizontalLayout();
         H1 title = new H1("CrewOps");
-        headerLayout.setWidthFull();
-        headerLayout.add(title);
+        leftSide.setWidthFull();
+        leftSide.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        leftSide.add(new DrawerToggle(), title);
 
-        var loginLayout = new HorizontalLayout();
+        var rightSide = new HorizontalLayout();
+        LoggedUserInfo loggedUserInfo = new LoggedUserInfo(coreAPI);
         LoginForm loginForm = new LoginForm(coreAPI);
 
-        loginLayout.setWidthFull();
-        loginLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-        loginLayout.getStyle().set("padding-right", "20px");
+        rightSide.setWidthFull();
+        rightSide.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        rightSide.getStyle().set("padding-right", "20px");
 
-        loginLayout.add(loginForm);
+        rightSide.add(loggedUserInfo, loginForm);
 
-        toolbar.setWidthFull();
-        toolbar.add(headerLayout, loginLayout);
-        toolbar.setFlexGrow(1, headerLayout);
-        toolbar.setFlexGrow(1, loginLayout);
+        header.setWidthFull();
+        header.add(leftSide, rightSide);
+        header.setFlexGrow(1, leftSide);
+        header.setFlexGrow(1, rightSide);
 
-        return toolbar;
+        return header;
     }
 
     private Component createDrawer() {
