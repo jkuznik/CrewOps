@@ -38,11 +38,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
         log.info("Request URI: {} - jwt Auth Filter", requestURI);
         if (isPublicUrl(requestURI)) {
-            log.debug("Skipping JWT authentication for: {}", requestURI);
+            log.info("Skipping JWT authentication for: {}", requestURI);
             filterChain.doFilter(request, response);
             return;
         }
         try {
+            log.info("Jwt Auth Filter - starting authentication");
             final String token = jwtService.extractTokenFromRequest(request);
             final String username = jwtService.extractUserFirstName(token);
 
@@ -53,10 +54,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     Authentication authenticate = authenticationManager.authenticate(customAuthentication);
 
                     SecurityContextHolder.getContext().setAuthentication(authenticate);
+                    log.info("Jwt Auth Filter - authentication successful");
                 }
             }
             filterChain.doFilter(request, response);
         } catch (Exception e) {
+            log.error("Jwt Auth Filter - error", e);
             jwtExceptionResolver.resolveException(request, response, null, e);
         }
     }

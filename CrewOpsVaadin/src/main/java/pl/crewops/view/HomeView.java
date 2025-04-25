@@ -15,7 +15,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.view.component.LoggedUserInfo;
+import pl.crewops.view.component.LoggedUserInfoComponent;
 import pl.crewops.view.form.LoginForm;
 
 @SpringComponent
@@ -44,14 +44,14 @@ public class HomeView extends AppLayout {
         leftSide.add(new DrawerToggle(), title);
 
         var rightSide = new HorizontalLayout();
-        LoggedUserInfo loggedUserInfo = new LoggedUserInfo(coreAPI);
+        LoggedUserInfoComponent loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI);
         LoginForm loginForm = new LoginForm(coreAPI);
 
         rightSide.setWidthFull();
         rightSide.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         rightSide.getStyle().set("padding-right", "20px");
 
-        rightSide.add(loggedUserInfo, loginForm);
+        rightSide.add(loggedUserInfoComponent, loginForm);
 
         header.setWidthFull();
         header.add(leftSide, rightSide);

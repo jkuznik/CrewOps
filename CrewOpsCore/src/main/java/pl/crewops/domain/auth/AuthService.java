@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtService;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 class AuthService implements AuthAPI {
 
@@ -49,13 +51,21 @@ class AuthService implements AuthAPI {
     @Transactional
     public AuthResponse login(@NotNull AuthRequest authRequest, HttpServletResponse response) {
         AuthUser byUsername = getByUsername(authRequest.username());
+        log.info("Login action by username: {}", byUsername);
 
-        if (passwordEncoder.matches(authRequest.password(), byUsername.getPassword())) {
-            var userPrincipal = new UserPrincipal(byUsername);
-            String token = jwtService.generateToken(userPrincipal);
-            response.setHeader("Authorization", "Bearer " + token);
-            return new AuthResponse(token);
-        } else {
+        try {
+            if (passwordEncoder.matches(authRequest.password(), byUsername.getPassword())) {
+                var userPrincipal = new UserPrincipal(byUsername);
+                String token = jwtService.generateToken(userPrincipal);
+                response.setHeader("Authorization", "Bearer " + token);
+                log.info("Login successful, token: {}", token);
+                return new AuthResponse(token);
+            } else {
+                log.info("Login failed, wrong password");
+                throw new IllegalArgumentException("Invalid username or password");
+            }
+        } catch (Exception e) {
+            log.error("Login failed", e);
             throw new IllegalArgumentException("Invalid username or password");
         }
     }

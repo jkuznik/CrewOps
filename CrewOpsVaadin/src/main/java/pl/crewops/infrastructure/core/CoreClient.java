@@ -38,6 +38,7 @@ class CoreClient implements CoreAPI {
                     .body(new ParameterizedTypeReference<AuthResponse>() {});
         } catch (RestClientException e) {
             log.error("Login failed", e);
+            e.printStackTrace();
             throw e;
         }
     }

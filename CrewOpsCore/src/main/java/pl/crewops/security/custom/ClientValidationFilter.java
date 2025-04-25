@@ -32,16 +32,19 @@ public class ClientValidationFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
         log.info("Request URI: {} - client validation filter", requestURI);
         if (isPublicUrl(requestURI)) {
-            log.debug("Skipping client validation authentication for: {}", requestURI);
+            log.info("Skipping client validation authentication for: {}", requestURI);
             filterChain.doFilter(request, response);
             return;
         }
 
+        log.info("Client validation - starting validation");
         String clientId = request.getHeader("Client-Id");
 
         if (passwordEncoder.matches(clientId, securityConfigProperties.getClientId())) {
+            log.info("Client validation succesful");
             filterChain.doFilter(request, response);
         } else {
+            log.error("Client validation - not validating client {}", clientId);
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Client ID");
         }
     }

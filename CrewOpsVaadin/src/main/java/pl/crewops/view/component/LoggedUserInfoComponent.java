@@ -8,11 +8,11 @@ import java.time.Instant;
 import pl.crewops.infrastructure.core.CoreAPI;
 
 @SpringComponent
-public class LoggedUserInfo extends HorizontalLayout {
+public class LoggedUserInfoComponent extends HorizontalLayout {
 
     private final CoreAPI coreAPI;
 
-    public LoggedUserInfo(CoreAPI coreAPI) {
+    public LoggedUserInfoComponent(CoreAPI coreAPI) {
         addClassName("logged-user-info");
 
         this.coreAPI = coreAPI;
