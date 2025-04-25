@@ -12,6 +12,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import pl.crewops.auth.AuthRequest;
 import pl.crewops.auth.AuthResponse;
+import pl.crewops.auth.ValidTokenRequest;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
@@ -49,6 +50,22 @@ class CoreClient implements CoreAPI {
                 .mutate()
                 .defaultHeader("Authorization", "Bearer " + response.token())
                 .build();
+    }
+
+    @Override
+    public Boolean validateToken(ValidTokenRequest validTokenRequest) {
+        try {
+            return coreClient
+                    .post()
+                    .uri(uriBuilder -> uriBuilder.path(ControllerURL.VALIDATE).build())
+                    .body(validTokenRequest)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<Boolean>() {});
+        } catch (RestClientException e) {
+            log.error("Validation failed", e);
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) {

@@ -38,6 +38,7 @@ public class ClientValidationFilter extends OncePerRequestFilter {
         }
 
         log.info("Client validation - starting validation");
+        log.info("BCrypt {}", securityConfigProperties.getClientId());
         String clientId = request.getHeader("Client-Id");
 
         if (passwordEncoder.matches(clientId, securityConfigProperties.getClientId())) {

@@ -2,6 +2,7 @@ package pl.crewops.domain.auth;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.auth.AuthRequest;
 import pl.crewops.auth.AuthResponse;
 import pl.crewops.auth.CreateAuthUserDTO;
+import pl.crewops.auth.ValidTokenRequest;
+import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.model.Employee;
 import pl.crewops.model.auth.AuthUser;
 import pl.crewops.model.auth.Role;
@@ -57,9 +60,15 @@ class AuthService implements AuthAPI {
             if (passwordEncoder.matches(authRequest.password(), byUsername.getPassword())) {
                 var userPrincipal = new UserPrincipal(byUsername);
                 String token = jwtService.generateToken(userPrincipal);
+                Employee employee = userPrincipal.getAuthUser().getEmployee();
+                var employeeDTO = EmployeeDTO.builder()
+                        .firstName(employee.getFirstName())
+                        .lastName(employee.getLastName())
+                        .build();
+                Date date = jwtService.extractExpiresAt(token);
                 response.setHeader("Authorization", "Bearer " + token);
                 log.info("Login successful, token: {}", token);
-                return new AuthResponse(token);
+                return new AuthResponse(token, authRequest.username(), employeeDTO, date);
             } else {
                 log.info("Login failed, wrong password");
                 throw new IllegalArgumentException("Invalid username or password");
@@ -68,5 +77,12 @@ class AuthService implements AuthAPI {
             log.error("Login failed", e);
             throw new IllegalArgumentException("Invalid username or password");
         }
+    }
+
+    @Transactional
+    public boolean validateToken(@NotNull ValidTokenRequest validTokenRequest) {
+        var authUser = getByUsername(validTokenRequest.username());
+        var userDetails = new UserPrincipal(authUser);
+        return jwtService.validateToken(validTokenRequest.token(), userDetails);
     }
 }

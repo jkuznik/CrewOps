@@ -4,27 +4,33 @@ import com.vaadin.flow.component.messages.MessageList;
 import com.vaadin.flow.component.messages.MessageListItem;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
-import java.time.Instant;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.security.jwt.JwtInfoService;
 
 @SpringComponent
 public class LoggedUserInfoComponent extends HorizontalLayout {
 
     private final CoreAPI coreAPI;
+    private final JwtInfoService jwtInfoService;
 
-    public LoggedUserInfoComponent(CoreAPI coreAPI) {
+    public LoggedUserInfoComponent(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         addClassName("logged-user-info");
 
         this.coreAPI = coreAPI;
+        this.jwtInfoService = jwtInfoService;
 
         add(getLoggedUserInfo());
     }
 
     private MessageList getLoggedUserInfo() {
-        //        coreAPI.getTokenInfo();
         MessageList info = new MessageList();
-        MessageListItem item = new MessageListItem("Logged user info", Instant.now(), "Jan Kuz");
-        info.setItems(item);
+        if (jwtInfoService.getFirstName() != null) {
+            MessageListItem item = new MessageListItem(
+                    "Logged user info",
+                    jwtInfoService.getExpires().toInstant(),
+                    jwtInfoService.getFirstName() + " " + jwtInfoService.getLastName());
+            info.setItems(item);
+        }
         return info;
     }
 }

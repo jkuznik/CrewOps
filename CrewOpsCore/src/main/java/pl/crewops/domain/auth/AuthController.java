@@ -1,5 +1,7 @@
 package pl.crewops.domain.auth;
 
+import static pl.crewops.enums.ControllerURL.*;
+
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import pl.crewops.auth.AuthRequest;
 import pl.crewops.auth.AuthResponse;
-import pl.crewops.enums.ControllerURL;
+import pl.crewops.auth.ValidTokenRequest;
 
 @RestController
 @Slf4j
@@ -19,9 +21,14 @@ import pl.crewops.enums.ControllerURL;
 class AuthController {
     private final AuthService authService;
 
-    @PostMapping(ControllerURL.LOGIN)
+    @PostMapping(LOGIN)
     public ResponseEntity<AuthResponse> login(
             @Valid @RequestBody AuthRequest authRequest, HttpServletResponse response) {
         return ResponseEntity.status(HttpStatus.OK).body(authService.login(authRequest, response));
+    }
+
+    @PostMapping(VALIDATE)
+    public ResponseEntity<Boolean> validate(@Valid @RequestBody ValidTokenRequest validTokenRequest) {
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(authService.validateToken(validTokenRequest));
     }
 }

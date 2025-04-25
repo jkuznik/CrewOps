@@ -15,6 +15,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.security.jwt.JwtInfoService;
 import pl.crewops.view.component.LoggedUserInfoComponent;
 import pl.crewops.view.form.LoginForm;
 
@@ -26,11 +27,13 @@ import pl.crewops.view.form.LoginForm;
 public class HomeView extends AppLayout {
 
     private final CoreAPI coreAPI;
+    private final JwtInfoService jwtInfoService;
 
-    public HomeView(CoreAPI coreAPI) {
+    public HomeView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         addClassName("home-view");
 
         this.coreAPI = coreAPI;
+        this.jwtInfoService = jwtInfoService;
         addToNavbar(createHeader());
         addToDrawer(createDrawer());
     }
@@ -44,8 +47,8 @@ public class HomeView extends AppLayout {
         leftSide.add(new DrawerToggle(), title);
 
         var rightSide = new HorizontalLayout();
-        LoggedUserInfoComponent loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI);
-        LoginForm loginForm = new LoginForm(coreAPI);
+        LoggedUserInfoComponent loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI, jwtInfoService);
+        LoginForm loginForm = new LoginForm(coreAPI, jwtInfoService);
 
         rightSide.setWidthFull();
         rightSide.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
