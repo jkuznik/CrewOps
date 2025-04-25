@@ -15,15 +15,13 @@ public class JwtInfoService {
     private String token;
     private String firstName;
     private String lastName;
-
     private String username;
-
     private Date expires;
 
     public boolean validToken(CoreAPI coreApi) {
         if (token == null || username == null) {
             return false;
         }
-        return coreApi.validateToken(new ValidTokenRequest(token, username));
+        return coreApi.validateToken(new ValidTokenRequest(token, username)).valid();
     }
 }

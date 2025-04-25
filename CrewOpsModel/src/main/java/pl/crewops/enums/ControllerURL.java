@@ -34,6 +34,7 @@ public class ControllerURL {
             LOGIN,
             REGISTER,
             LOGOUT,
+            VALIDATE,
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/swagger-resources/**",

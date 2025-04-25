@@ -11,10 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.crewops.auth.AuthRequest;
-import pl.crewops.auth.AuthResponse;
-import pl.crewops.auth.CreateAuthUserDTO;
-import pl.crewops.auth.ValidTokenRequest;
+import pl.crewops.auth.*;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.model.Employee;
 import pl.crewops.model.auth.AuthUser;
@@ -79,10 +76,16 @@ class AuthService implements AuthAPI {
         }
     }
 
-    @Transactional
-    public boolean validateToken(@NotNull ValidTokenRequest validTokenRequest) {
+    public ValidTokenResponse validateToken(@NotNull ValidTokenRequest validTokenRequest) {
         var authUser = getByUsername(validTokenRequest.username());
         var userDetails = new UserPrincipal(authUser);
-        return jwtService.validateToken(validTokenRequest.token(), userDetails);
+        boolean result = false;
+        try {
+            log.info("Token validation started");
+            result = jwtService.validateToken(validTokenRequest.token(), userDetails);
+        } catch (IllegalArgumentException e) {
+            log.info("Token validation - token not exist");
+        }
+        return new ValidTokenResponse(result);
     }
 }

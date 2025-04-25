@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.crewops.auth.AuthRequest;
 import pl.crewops.auth.AuthResponse;
 import pl.crewops.auth.ValidTokenRequest;
+import pl.crewops.auth.ValidTokenResponse;
 
 @RestController
 @Slf4j
@@ -28,7 +29,7 @@ class AuthController {
     }
 
     @PostMapping(VALIDATE)
-    public ResponseEntity<Boolean> validate(@Valid @RequestBody ValidTokenRequest validTokenRequest) {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(authService.validateToken(validTokenRequest));
+    public ResponseEntity<ValidTokenResponse> validate(@Valid @RequestBody ValidTokenRequest validTokenRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(authService.validateToken(validTokenRequest));
     }
 }

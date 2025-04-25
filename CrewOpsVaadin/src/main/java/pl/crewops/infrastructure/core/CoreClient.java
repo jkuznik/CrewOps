@@ -13,6 +13,7 @@ import org.springframework.web.client.RestClientException;
 import pl.crewops.auth.AuthRequest;
 import pl.crewops.auth.AuthResponse;
 import pl.crewops.auth.ValidTokenRequest;
+import pl.crewops.auth.ValidTokenResponse;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
@@ -53,14 +54,16 @@ class CoreClient implements CoreAPI {
     }
 
     @Override
-    public Boolean validateToken(ValidTokenRequest validTokenRequest) {
+    public ValidTokenResponse validateToken(ValidTokenRequest validTokenRequest) {
         try {
-            return coreClient
+            ValidTokenResponse body = authorizedClient
                     .post()
                     .uri(uriBuilder -> uriBuilder.path(ControllerURL.VALIDATE).build())
                     .body(validTokenRequest)
                     .retrieve()
-                    .body(new ParameterizedTypeReference<Boolean>() {});
+                    .body(new ParameterizedTypeReference<ValidTokenResponse>() {});
+            log.info("validated token: {}", body);
+            return body;
         } catch (RestClientException e) {
             log.error("Validation failed", e);
             e.printStackTrace();

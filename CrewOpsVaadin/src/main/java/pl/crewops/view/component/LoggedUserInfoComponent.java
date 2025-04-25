@@ -19,18 +19,18 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         this.coreAPI = coreAPI;
         this.jwtInfoService = jwtInfoService;
 
-        add(getLoggedUserInfo());
+        if (jwtInfoService.validToken(coreAPI)) {
+            add(getLoggedUserInfo());
+        }
     }
 
     private MessageList getLoggedUserInfo() {
         MessageList info = new MessageList();
-        if (jwtInfoService.getFirstName() != null) {
-            MessageListItem item = new MessageListItem(
-                    "Logged user info",
-                    jwtInfoService.getExpires().toInstant(),
-                    jwtInfoService.getFirstName() + " " + jwtInfoService.getLastName());
-            info.setItems(item);
-        }
+        MessageListItem item = new MessageListItem(
+                "Logged user info",
+                jwtInfoService.getExpires().toInstant(),
+                jwtInfoService.getFirstName() + " " + jwtInfoService.getLastName());
+        info.setItems(item);
         return info;
     }
 }
