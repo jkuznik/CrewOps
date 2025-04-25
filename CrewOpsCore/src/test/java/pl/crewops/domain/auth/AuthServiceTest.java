@@ -117,6 +117,10 @@ class AuthServiceTest {
                 .username("username")
                 .password(encodedPassword)
                 .roles(Set.of(role))
+                .employee(Employee.builder()
+                        .firstName("firstName")
+                        .lastName("lastName")
+                        .build())
                 .build();
 
         var authRequest =

@@ -1,6 +1,7 @@
 package pl.crewops.view.form;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -61,5 +62,6 @@ public class LoginForm extends FormLayout {
         coreAPI.setToken(authResponse);
 
         log.info("Auth response: " + authResponse);
+        UI.getCurrent().getPage().reload();
     }
 }
