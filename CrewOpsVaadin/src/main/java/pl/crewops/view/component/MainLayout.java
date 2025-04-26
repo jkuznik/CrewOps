@@ -3,7 +3,9 @@ package pl.crewops.view.component;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -75,20 +77,48 @@ public class MainLayout extends AppLayout {
     }
 
     private Component createDrawer() {
-        var navbarLayout = new VerticalLayout();
+        var drawerLaoyout = new VerticalLayout();
+        drawerLaoyout.setHeightFull(); // <--- WAŻNE! Pełna wysokość żeby stopka była na dole
+
         RouterLink homeLink = new RouterLink("Home", HomeView.class);
         RouterLink employeeLink = new RouterLink("Employee", EmployeeView.class);
         RouterLink qualificationLink = new RouterLink("Qualification", QualificationView.class);
         RouterLink vehicleLink = new RouterLink("Vehicle", VehicleView.class);
 
-        if (jwtInfoService.validToken(coreAPI)) {
-            navbarLayout.add(homeLink, employeeLink, qualificationLink, vehicleLink);
-        } else {
-            navbarLayout.add(homeLink);
-        }
-        //        TODO: check what this method do
-        //        employeeLink.setHighlightCondition(HighlightConditions.sameLocation());
+        VerticalLayout linksLayout = new VerticalLayout();
+        linksLayout.setPadding(false);
+        linksLayout.setSpacing(false);
 
-        return navbarLayout;
+        if (jwtInfoService.validToken(coreAPI)) {
+            linksLayout.add(homeLink, employeeLink, qualificationLink, vehicleLink);
+        } else {
+            linksLayout.add(homeLink);
+        }
+
+        drawerLaoyout.add(linksLayout, createFooter());
+        drawerLaoyout.setFlexGrow(1, linksLayout); // <--- linki rosną, stopka na dole
+
+        return drawerLaoyout;
+    }
+
+    private Footer createFooter() {
+        Footer footer = new Footer();
+        footer.getStyle()
+                .set("width", "100%")
+                .set("text-align", "center")
+                .set("padding", "10px")
+                .set("background-color", "#f1f1f1");
+
+        Span footerText = new Span("© 2025 CrewOps - by Janusz Kuźnik.");
+        footerText
+                .getStyle()
+                .set("font-size", "12px")
+                .set("color", "#888")
+                .set("margin-top", "auto")
+                .set("text-align", "center");
+
+        footer.add(footerText);
+
+        return footer;
     }
 }
