@@ -17,7 +17,6 @@ import org.springframework.context.annotation.Scope;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
 import pl.crewops.view.component.LoggedUserInfoComponent;
-import pl.crewops.view.form.LoginForm;
 
 @SpringComponent
 @Slf4j
@@ -58,13 +57,9 @@ public class HomeView extends AppLayout {
         rightSide.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         rightSide.getStyle().set("padding-right", "20px");
 
-        if (jwtInfoService.validToken(coreAPI)) {
-            LoggedUserInfoComponent loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI, jwtInfoService);
-            rightSide.add(loggedUserInfoComponent);
-        } else {
-            LoginForm loginForm = new LoginForm(coreAPI, jwtInfoService);
-            rightSide.add(loginForm);
-        }
+        LoggedUserInfoComponent loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI, jwtInfoService);
+        rightSide.add(loggedUserInfoComponent);
+
         return rightSide;
     }
 

@@ -1,11 +1,14 @@
 package pl.crewops.view.component;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.messages.MessageList;
 import com.vaadin.flow.component.messages.MessageListItem;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
+import pl.crewops.view.form.LoginForm;
 
 @SpringComponent
 public class LoggedUserInfoComponent extends HorizontalLayout {
@@ -20,14 +23,28 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         this.jwtInfoService = jwtInfoService;
 
         if (jwtInfoService.validToken(coreAPI)) {
-            add(getLoggedUserInfo());
+            add(loggedUserInfo());
+        } else {
+            LoginForm loginForm = new LoginForm(coreAPI, jwtInfoService);
+            add(loginForm);
         }
     }
 
-    private MessageList getLoggedUserInfo() {
+    private Component loggedUserInfo() {
+        var infoLayout = new HorizontalLayout();
+        infoLayout.setWidthFull();
+        infoLayout.setSpacing(true);
+
+        H1 title = new H1("Jesteś zalogowany jako ");
+        infoLayout.add(title, getInfo());
+
+        return infoLayout;
+    }
+
+    private MessageList getInfo() {
         MessageList info = new MessageList();
         MessageListItem item = new MessageListItem(
-                "Logged user info",
+                "Sesja aktywna do czasu powyżej",
                 jwtInfoService.getExpires().toInstant(),
                 jwtInfoService.getFirstName() + " " + jwtInfoService.getLastName());
         info.setItems(item);
