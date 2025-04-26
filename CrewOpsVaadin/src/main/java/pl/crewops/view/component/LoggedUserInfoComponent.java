@@ -39,6 +39,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
 
         H1 title = new H1("Jesteś zalogowany jako ");
 
+        //        TODO: implement logoutButton logic
         Button logoutButton = new Button("Logout");
         logoutButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         infoLayout.add(title, getInfo(), logoutButton);

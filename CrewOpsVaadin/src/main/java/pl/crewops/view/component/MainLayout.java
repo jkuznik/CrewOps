@@ -7,7 +7,6 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import org.springframework.context.annotation.Scope;
@@ -76,13 +75,20 @@ public class MainLayout extends AppLayout {
     }
 
     private Component createDrawer() {
+        var navbarLayout = new VerticalLayout();
         RouterLink homeLink = new RouterLink("Home", HomeView.class);
         RouterLink employeeLink = new RouterLink("Employee", EmployeeView.class);
         RouterLink qualificationLink = new RouterLink("Qualification", QualificationView.class);
         RouterLink vehicleLink = new RouterLink("Vehicle", VehicleView.class);
 
-        employeeLink.setHighlightCondition(HighlightConditions.sameLocation());
+        if (jwtInfoService.validToken(coreAPI)) {
+            navbarLayout.add(homeLink, employeeLink, qualificationLink, vehicleLink);
+        } else {
+            navbarLayout.add(homeLink);
+        }
+        //        TODO: check what this method do
+        //        employeeLink.setHighlightCondition(HighlightConditions.sameLocation());
 
-        return new VerticalLayout(homeLink, employeeLink, qualificationLink, vehicleLink);
+        return navbarLayout;
     }
 }
