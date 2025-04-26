@@ -40,21 +40,9 @@ public class HomeView extends AppLayout {
 
     private Component createHeader() {
         var header = new HorizontalLayout();
-        var leftSide = new HorizontalLayout();
-        H1 title = new H1("CrewOps");
-        leftSide.setWidthFull();
-        leftSide.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        leftSide.add(new DrawerToggle(), title);
+        var leftSide = createHeaderLeftSide();
 
-        var rightSide = new HorizontalLayout();
-        LoggedUserInfoComponent loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI, jwtInfoService);
-        LoginForm loginForm = new LoginForm(coreAPI, jwtInfoService);
-
-        rightSide.setWidthFull();
-        rightSide.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-        rightSide.getStyle().set("padding-right", "20px");
-
-        rightSide.add(loggedUserInfoComponent, loginForm);
+        var rightSide = createHeaderRightSide();
 
         header.setWidthFull();
         header.add(leftSide, rightSide);
@@ -62,6 +50,31 @@ public class HomeView extends AppLayout {
         header.setFlexGrow(1, rightSide);
 
         return header;
+    }
+
+    private HorizontalLayout createHeaderRightSide() {
+        var rightSide = new HorizontalLayout();
+        rightSide.setWidthFull();
+        rightSide.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        rightSide.getStyle().set("padding-right", "20px");
+
+        if (jwtInfoService.validToken(coreAPI)) {
+            LoggedUserInfoComponent loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI, jwtInfoService);
+            rightSide.add(loggedUserInfoComponent);
+        } else {
+            LoginForm loginForm = new LoginForm(coreAPI, jwtInfoService);
+            rightSide.add(loginForm);
+        }
+        return rightSide;
+    }
+
+    private static HorizontalLayout createHeaderLeftSide() {
+        var leftSide = new HorizontalLayout();
+        H1 title = new H1("CrewOps");
+        leftSide.setWidthFull();
+        leftSide.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        leftSide.add(new DrawerToggle(), title);
+        return leftSide;
     }
 
     private Component createDrawer() {

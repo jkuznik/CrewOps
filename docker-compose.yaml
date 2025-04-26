@@ -20,7 +20,7 @@ services:
     build:
       context: .
       dockerfile: core.dockerfile
-    env_file: .env
+    env_file: .env-compose
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db_postgres:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
