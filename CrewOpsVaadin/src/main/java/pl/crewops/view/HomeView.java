@@ -9,19 +9,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
-import pl.crewops.view.component.MainLayout;
 
 @SpringComponent
 @Slf4j
 @Scope("prototype")
-@Route(value = "", layout = MainLayout.class)
+@Route(value = "")
 @PageTitle("Crew Ops")
 public class HomeView extends VerticalLayout {
 
     public HomeView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         addClassName("home-view");
 
-        H1 title = new H1("CrewOps");
+        H1 title = new H1("Tutaj treść strony startowej");
         add(title);
     }
 }

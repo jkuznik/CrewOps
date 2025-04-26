@@ -9,6 +9,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import org.springframework.context.annotation.Scope;
@@ -22,6 +23,7 @@ import pl.crewops.view.form.LoginForm;
 
 @SpringComponent
 @Scope("prototype")
+@Layout
 public class MainLayout extends AppLayout {
 
     private final CoreAPI coreAPI;
@@ -78,7 +80,7 @@ public class MainLayout extends AppLayout {
 
     private Component createDrawer() {
         var drawerLaoyout = new VerticalLayout();
-        drawerLaoyout.setHeightFull(); // <--- WAŻNE! Pełna wysokość żeby stopka była na dole
+        drawerLaoyout.setHeightFull();
 
         RouterLink homeLink = new RouterLink("Home", HomeView.class);
         RouterLink employeeLink = new RouterLink("Employee", EmployeeView.class);
@@ -96,7 +98,7 @@ public class MainLayout extends AppLayout {
         }
 
         drawerLaoyout.add(linksLayout, createFooter());
-        drawerLaoyout.setFlexGrow(1, linksLayout); // <--- linki rosną, stopka na dole
+        drawerLaoyout.setFlexGrow(1, linksLayout);
 
         return drawerLaoyout;
     }
