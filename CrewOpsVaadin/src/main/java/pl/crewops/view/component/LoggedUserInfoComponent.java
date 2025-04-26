@@ -1,6 +1,8 @@
 package pl.crewops.view.component;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.messages.MessageList;
 import com.vaadin.flow.component.messages.MessageListItem;
@@ -36,7 +38,10 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         infoLayout.setSpacing(true);
 
         H1 title = new H1("Jesteś zalogowany jako ");
-        infoLayout.add(title, getInfo());
+
+        Button logoutButton = new Button("Logout");
+        logoutButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        infoLayout.add(title, getInfo(), logoutButton);
 
         return infoLayout;
     }
