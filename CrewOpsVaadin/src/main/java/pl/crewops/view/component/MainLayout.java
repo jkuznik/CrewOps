@@ -29,11 +29,14 @@ public class MainLayout extends AppLayout {
     private final CoreAPI coreAPI;
     private final JwtInfoService jwtInfoService;
 
+    private final Footer footer;
+
     public MainLayout(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         addClassName("home-view");
 
         this.coreAPI = coreAPI;
         this.jwtInfoService = jwtInfoService;
+        this.footer = createFooter();
         addToNavbar(createHeader());
         addToDrawer(createDrawer());
     }
