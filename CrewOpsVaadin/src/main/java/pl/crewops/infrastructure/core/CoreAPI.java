@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.auth.AuthRequest;
 import pl.crewops.auth.AuthResponse;
+import pl.crewops.auth.ValidTokenRequest;
+import pl.crewops.auth.ValidTokenResponse;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
@@ -24,6 +26,8 @@ public interface CoreAPI {
     AuthResponse login(@Valid @NotNull AuthRequest request);
 
     void setToken(@Valid @NotNull AuthResponse response);
+
+    ValidTokenResponse validateToken(@Valid @NotNull ValidTokenRequest validTokenRequest);
 
     Optional<EmployeeDTO> createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO);
 

@@ -15,14 +15,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.view.component.MainLayout;
 import pl.crewops.view.form.EmployeeForm;
 import pl.crewops.view.model.EmployeeFormModel;
 
 @SpringComponent
 @Slf4j
 @Scope("prototype")
-@Route(value = "employees", layout = MainLayout.class)
+@Route(value = "employees")
 @PageTitle("Employee management")
 public class EmployeeView extends VerticalLayout {
     Grid<EmployeeDTO> grid = new Grid<>(EmployeeDTO.class);

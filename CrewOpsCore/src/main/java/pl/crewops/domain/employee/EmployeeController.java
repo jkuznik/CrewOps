@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 class EmployeeController {
 
@@ -29,6 +31,7 @@ class EmployeeController {
     @GetMapping(EMPLOYEES)
     public ResponseEntity<List<EmployeeDTO>> getEmployees(
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "15") int size) {
+        log.info("Get employees");
         return ResponseEntity.status(HttpStatus.OK).body(employeeService.getAllEmployees(page, size));
     }
 

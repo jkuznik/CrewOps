@@ -2,16 +2,17 @@ package pl.crewops.domain.auth;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.crewops.auth.AuthRequest;
-import pl.crewops.auth.AuthResponse;
-import pl.crewops.auth.CreateAuthUserDTO;
+import pl.crewops.auth.*;
+import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.model.Employee;
 import pl.crewops.model.auth.AuthUser;
 import pl.crewops.model.auth.Role;
@@ -19,6 +20,7 @@ import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtService;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 class AuthService implements AuthAPI {
 
@@ -49,14 +51,41 @@ class AuthService implements AuthAPI {
     @Transactional
     public AuthResponse login(@NotNull AuthRequest authRequest, HttpServletResponse response) {
         AuthUser byUsername = getByUsername(authRequest.username());
+        log.info("Login action by username: {}", byUsername);
 
-        if (passwordEncoder.matches(authRequest.password(), byUsername.getPassword())) {
-            var userPrincipal = new UserPrincipal(byUsername);
-            String token = jwtService.generateToken(userPrincipal);
-            response.setHeader("Authorization", "Bearer " + token);
-            return new AuthResponse(token);
-        } else {
+        try {
+            if (passwordEncoder.matches(authRequest.password(), byUsername.getPassword())) {
+                var userPrincipal = new UserPrincipal(byUsername);
+                String token = jwtService.generateToken(userPrincipal);
+                Employee employee = userPrincipal.getAuthUser().getEmployee();
+                var employeeDTO = EmployeeDTO.builder()
+                        .firstName(employee.getFirstName())
+                        .lastName(employee.getLastName())
+                        .build();
+                Date date = jwtService.extractExpiresAt(token);
+                response.setHeader("Authorization", "Bearer " + token);
+                log.info("Login successful, token: {}", token);
+                return new AuthResponse(token, authRequest.username(), employeeDTO, date);
+            } else {
+                log.info("Login failed, wrong password");
+                throw new IllegalArgumentException("Invalid username or password");
+            }
+        } catch (Exception e) {
+            log.error("Login failed", e);
             throw new IllegalArgumentException("Invalid username or password");
         }
+    }
+
+    public ValidTokenResponse validateToken(@NotNull ValidTokenRequest validTokenRequest) {
+        var authUser = getByUsername(validTokenRequest.username());
+        var userDetails = new UserPrincipal(authUser);
+        boolean result = false;
+        try {
+            log.info("Token validation started");
+            result = jwtService.validateToken(validTokenRequest.token(), userDetails);
+        } catch (IllegalArgumentException e) {
+            log.info("Token validation - token not exist");
+        }
+        return new ValidTokenResponse(result);
     }
 }

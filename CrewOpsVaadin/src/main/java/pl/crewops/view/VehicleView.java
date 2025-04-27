@@ -15,14 +15,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.view.component.MainLayout;
 import pl.crewops.view.form.VehicleForm;
 import pl.crewops.view.model.VehicleFormModel;
 
 @SpringComponent
 @Slf4j
 @Scope("prototype")
-@Route(value = "vehicles", layout = MainLayout.class)
+@Route(value = "vehicles")
 @PageTitle("Vehicle view")
 public class VehicleView extends VerticalLayout {
     Grid<VehicleDTO> grid = new Grid<>(VehicleDTO.class);
