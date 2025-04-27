@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
+import pl.crewops.view.component.HomeViewFooter;
 import pl.crewops.view.component.MainLayout;
 
 @SpringComponent
@@ -27,9 +28,8 @@ public class HomeView extends VerticalLayout {
 
     public HomeView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         addClassName("home-view");
-        setSizeFull(); // Zajmij całą wysokość
+        setSizeFull();
 
-        // Layout główny: treść + stopka
         VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.setSizeFull();
         mainLayout.setPadding(false);
@@ -50,34 +50,13 @@ public class HomeView extends VerticalLayout {
             content.add(new Span("Linijka tekstu numer " + i));
         }
 
-        this.footer = createFooter();
+        this.footer = new HomeViewFooter();
         this.footer.setVisible(false);
 
         mainLayout.add(content, footer);
         mainLayout.setFlexGrow(1, content);
 
         add(mainLayout);
-    }
-
-    private Footer createFooter() {
-        Footer footer = new Footer();
-        footer.getStyle()
-                .set("width", "100%")
-                .set("text-align", "center")
-                .set("padding", "10px")
-                .set("background-color", "#f1f1f1");
-
-        Span footerText = new Span("© 2025 CrewOps - by Janusz Kuźnik.");
-        footerText
-                .getStyle()
-                .set("font-size", "12px")
-                .set("color", "#888")
-                .set("margin-top", "auto")
-                .set("text-align", "center");
-
-        footer.add(footerText);
-
-        return footer;
     }
 
     @Override
@@ -89,8 +68,15 @@ public class HomeView extends VerticalLayout {
                 .executeJs(
                         """
                 const content = document.getElementById('content');
+                const footer = document.getElementById('footer');
                 content.addEventListener('scroll', function() {
-                    if (content.scrollTop + content.clientHeight >= content.scrollHeight) {
+                    // Obliczamy procent przewinięcia
+                    const scrollTop = content.scrollTop;
+                    const scrollHeight = content.scrollHeight;
+                    const clientHeight = content.clientHeight;
+                    const scrolledPercentage = (scrollTop + clientHeight) / scrollHeight;
+
+                    if (scrolledPercentage >= 0.95) {
                         $0.$server.showFooter(true);
                     } else {
                         $0.$server.showFooter(false);
@@ -102,6 +88,11 @@ public class HomeView extends VerticalLayout {
 
     @ClientCallable
     public void showFooter(boolean show) {
+        if (show) {
+            footer.getStyle().set("opacity", "1");
+        } else {
+            footer.getStyle().set("opacity", "0");
+        }
         footer.setVisible(show);
     }
 }
