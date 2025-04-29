@@ -25,6 +25,7 @@ import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.exception.EmployeeNotFoundException;
 import pl.crewops.exception.EmployeeQualificationNotFoundException;
 import pl.crewops.exception.ExpireAtException;
+import pl.crewops.exception.UsernameAlreadyExistException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Qualification;
 import pl.crewops.model.Vehicle;
@@ -45,6 +46,10 @@ class EmployeeService {
 
     @Transactional
     public EmployeeDTO createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO) {
+        if (authAPI.getByUsername(createEmployeeDTO.username()).isPresent()) {
+            throw new UsernameAlreadyExistException(createEmployeeDTO.username());
+        }
+
         Employee employee = employeeRepository.save(mapToEntity(createEmployeeDTO));
         var createAuthUser = CreateAuthUserDTO.builder()
                 .username(createEmployeeDTO.username())

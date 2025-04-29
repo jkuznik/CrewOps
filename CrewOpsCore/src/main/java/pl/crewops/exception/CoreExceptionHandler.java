@@ -18,32 +18,32 @@ class CoreExceptionHandler {
         return ResponseEntity.status(ex.getStatusCode()).body(ex.getResponseBodyAsString());
     }
 
-    @ExceptionHandler(RestClientException.class)
+    @ExceptionHandler(EmployeeNotFoundException.class)
     public ResponseEntity<String> handleEmployeeNotFound(EmployeeNotFoundException ex) {
         log.error("EmployeeNotFoundException: Message={}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Resource not found: " + ex.getMessage());
     }
 
-    @ExceptionHandler(RestClientException.class)
+    @ExceptionHandler(EmployeeQualificationNotFoundException.class)
     public ResponseEntity<String> handleEmployeeQualificationNotFoundException(
             EmployeeQualificationNotFoundException ex) {
         log.error("EmployeeQualificationNotFoundException: Message={}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Resource not found: " + ex.getMessage());
     }
 
-    @ExceptionHandler(RestClientException.class)
+    @ExceptionHandler(ExpireAtException.class)
     public ResponseEntity<String> handeExpireAtException(ExpireAtException ex) {
         log.error("ExpireAtException: Message={}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.CONFLICT).body("Token expired: " + ex.getMessage());
     }
 
-    @ExceptionHandler(RestClientException.class)
+    @ExceptionHandler(QualificationNotFoundException.class)
     public ResponseEntity<String> handleQualificationNotFoundException(QualificationNotFoundException ex) {
         log.error("QualificationNotFoundException: Message={}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Resource not found: " + ex.getMessage());
     }
 
-    @ExceptionHandler(RestClientException.class)
+    @ExceptionHandler(VehicleNotFoundException.class)
     public ResponseEntity<String> handleVehicleNotFoundException(VehicleNotFoundException ex) {
         log.error("VehicleNotFoundException: Message={}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Resource not found: " + ex.getMessage());

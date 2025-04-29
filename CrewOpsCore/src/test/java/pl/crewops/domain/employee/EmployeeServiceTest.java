@@ -29,9 +29,11 @@ import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.exception.ExpireAtException;
+import pl.crewops.exception.UsernameAlreadyExistException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Qualification;
 import pl.crewops.model.Vehicle;
+import pl.crewops.model.auth.AuthUser;
 import pl.crewops.model.joinTable.EmployeeQualification;
 
 @SpringJUnitConfig(classes = {EmployeeService.class, MethodValidationPostProcessor.class})
@@ -88,6 +90,20 @@ class EmployeeServiceTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.firstName()).isEqualTo("firstName");
+    }
+
+    @Test
+    void shouldThrowException_whenUsernameAlreadyExists() {
+        // given
+        var existedUsername = "existedUsername";
+        var authUser = AuthUser.builder().username(existedUsername).build();
+
+        // when
+        when(authAPI.getByUsername(any())).thenReturn(Optional.of(authUser));
+        var result = catchException(() -> employeeService.createEmployee(createEmployeeWithEmptyQAndEmptyV));
+
+        // then
+        assertThat(result).isExactlyInstanceOf(UsernameAlreadyExistException.class);
     }
 
     @Test

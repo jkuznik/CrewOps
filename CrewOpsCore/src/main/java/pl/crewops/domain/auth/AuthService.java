@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +31,8 @@ class AuthService implements AuthAPI {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public AuthUser getByUsername(@NotNull String username) {
-        return authUserRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+    public Optional<AuthUser> getByUsername(@NotNull String username) {
+        return authUserRepository.findByUsername(username);
     }
 
     @Transactional
@@ -50,7 +51,7 @@ class AuthService implements AuthAPI {
 
     @Transactional
     public AuthResponse login(@NotNull AuthRequest authRequest, HttpServletResponse response) {
-        AuthUser byUsername = getByUsername(authRequest.username());
+        AuthUser byUsername = byUsername(authRequest.username());
         log.info("Login action by username: {}", byUsername);
 
         try {
@@ -77,7 +78,7 @@ class AuthService implements AuthAPI {
     }
 
     public ValidTokenResponse validateToken(@NotNull ValidTokenRequest validTokenRequest) {
-        var authUser = getByUsername(validTokenRequest.username());
+        var authUser = byUsername(validTokenRequest.username());
         var userDetails = new UserPrincipal(authUser);
         boolean result = false;
         try {
@@ -87,5 +88,9 @@ class AuthService implements AuthAPI {
             log.info("Token validation - token not exist");
         }
         return new ValidTokenResponse(result);
+    }
+
+    private AuthUser byUsername(String username) {
+        return getByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
     }
 }

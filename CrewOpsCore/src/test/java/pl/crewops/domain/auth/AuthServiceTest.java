@@ -14,6 +14,7 @@ import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -68,7 +69,8 @@ class AuthServiceTest {
         // when
         when(authUserRepository.findByUsername("username")).thenReturn(Optional.of(authUser));
 
-        AuthUser result = authService.getByUsername("username");
+        AuthUser result =
+                authService.getByUsername("username").orElseThrow(() -> new UsernameNotFoundException("username"));
 
         // then
         assertThat(result).isEqualTo(authUser);
