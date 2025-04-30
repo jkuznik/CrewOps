@@ -15,24 +15,18 @@ import pl.crewops.view.form.LoginForm;
 @SpringComponent
 public class LoggedUserInfoComponent extends HorizontalLayout {
 
-    private final CoreAPI coreAPI;
-    private final JwtInfoService jwtInfoService;
-
     public LoggedUserInfoComponent(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         addClassName("logged-user-info");
 
-        this.coreAPI = coreAPI;
-        this.jwtInfoService = jwtInfoService;
-
         if (jwtInfoService.validToken()) {
-            add(loggedUserInfo());
+            add(loggedUserInfo(jwtInfoService));
         } else {
             LoginForm loginForm = new LoginForm(coreAPI, jwtInfoService);
             add(loginForm);
         }
     }
 
-    private Component loggedUserInfo() {
+    private Component loggedUserInfo(JwtInfoService jwtInfoService) {
         var infoLayout = new HorizontalLayout();
         infoLayout.setWidthFull();
         infoLayout.setSpacing(true);
@@ -42,12 +36,12 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         //        TODO: implement logoutButton logic
         Button logoutButton = new Button("Logout");
         logoutButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        infoLayout.add(title, getInfo(), logoutButton);
+        infoLayout.add(title, getInfo(jwtInfoService), logoutButton);
 
         return infoLayout;
     }
 
-    private MessageList getInfo() {
+    private MessageList getInfo(JwtInfoService jwtInfoService) {
         MessageList info = new MessageList();
         MessageListItem item = new MessageListItem(
                 "Sesja aktywna do czasu powyżej",

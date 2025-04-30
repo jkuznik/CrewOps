@@ -19,10 +19,6 @@ import pl.crewops.security.jwt.JwtInfoService;
 @SpringComponent
 @Slf4j
 public class LoginForm extends FormLayout {
-
-    private final CoreAPI coreAPI;
-    private final JwtInfoService jwtInfoService;
-
     TextField username = new TextField("Username");
     PasswordField password = new PasswordField("Password");
     Button login = new Button("Login");
@@ -30,28 +26,26 @@ public class LoginForm extends FormLayout {
     public LoginForm(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         addClassName("login-form");
 
-        this.coreAPI = coreAPI;
-        this.jwtInfoService = jwtInfoService;
-        add(createLoginForm());
+        add(createLoginForm(coreAPI, jwtInfoService));
     }
 
-    private Component createLoginForm() {
+    private Component createLoginForm(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         var horizontalLayout = new HorizontalLayout();
         horizontalLayout.setSpacing(true);
-        configureLoginButton();
+        configureLoginButton(coreAPI, jwtInfoService);
         horizontalLayout.add(username, password, login);
         horizontalLayout.setAlignSelf(FlexComponent.Alignment.END, login);
         return horizontalLayout;
     }
 
-    private void configureLoginButton() {
+    private void configureLoginButton(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         login.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         login.addClickListener(event -> {
-            loginAction();
+            loginAction(coreAPI, jwtInfoService);
         });
     }
 
-    private void loginAction() {
+    private void loginAction(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         var authRequest = new AuthRequest(username.getValue(), password.getValue());
         AuthResponse authResponse = coreAPI.login(authRequest);
         jwtInfoService.setToken(authResponse.token());
