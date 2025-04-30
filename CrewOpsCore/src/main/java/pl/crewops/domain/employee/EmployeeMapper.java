@@ -35,10 +35,14 @@ class EmployeeMapper {
     }
 
     private static Set<UUID> getQualifications(Set<Qualification> qualifications) {
-        return qualifications.stream().map(Qualification::getId).collect(Collectors.toSet());
+        return qualifications == null
+                ? Set.of()
+                : qualifications.stream().map(Qualification::getId).collect(Collectors.toSet());
     }
 
     private static Set<UUID> getVehicles(Set<Vehicle> vehicles) {
-        return vehicles.stream().map(Vehicle::getId).collect(Collectors.toSet());
+        return vehicles == null
+                ? Set.of()
+                : vehicles.stream().map(Vehicle::getId).collect(Collectors.toSet());
     }
 }

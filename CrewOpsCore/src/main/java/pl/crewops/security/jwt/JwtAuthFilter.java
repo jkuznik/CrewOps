@@ -45,7 +45,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             log.info("Jwt Auth Filter - starting authentication");
             final String token = jwtService.extractTokenFromRequest(request);
-            final String username = jwtService.extractUserFirstName(token);
+            final String username = jwtService.extractUsername(token);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserPrincipal userPrincipal = (UserPrincipal) userDetailsService.loadUserByUsername(username);
