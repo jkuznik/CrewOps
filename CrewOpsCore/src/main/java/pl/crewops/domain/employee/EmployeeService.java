@@ -50,15 +50,20 @@ class EmployeeService {
             throw new UsernameAlreadyExistException(createEmployeeDTO.username());
         }
 
-        Employee employee = employeeRepository.save(mapToEntity(createEmployeeDTO));
-        var createAuthUser = CreateAuthUserDTO.builder()
-                .username(createEmployeeDTO.username())
-                .password(createEmployeeDTO.password())
-                .roles(createEmployeeDTO.roles())
-                .build();
-        authAPI.createAuthUser(createAuthUser, employee);
-        log.info("Create employee {}", createEmployeeDTO);
-        return mapToDTO(employee);
+        try {
+            Employee employee = employeeRepository.save(mapToEntity(createEmployeeDTO));
+            var createAuthUser = CreateAuthUserDTO.builder()
+                    .username(createEmployeeDTO.username())
+                    .password(createEmployeeDTO.password())
+                    .roles(createEmployeeDTO.roles())
+                    .build();
+            authAPI.createAuthUser(createAuthUser, employee);
+            log.info("Create employee {}", createEmployeeDTO);
+            return mapToDTO(employee);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 
     public List<EmployeeDTO> getAllEmployees(int page, int size) {

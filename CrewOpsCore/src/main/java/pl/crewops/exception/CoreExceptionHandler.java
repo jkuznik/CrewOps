@@ -18,6 +18,12 @@ class CoreExceptionHandler {
         return ResponseEntity.status(ex.getStatusCode()).body(ex.getResponseBodyAsString());
     }
 
+    @ExceptionHandler(UsernameAlreadyExistException.class)
+    public ResponseEntity<String> handleEmployeeNotFound(UsernameAlreadyExistException ex) {
+        log.error("UsernameAlreadyExistException: Message={}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exist: " + ex.getMessage());
+    }
+
     @ExceptionHandler(EmployeeNotFoundException.class)
     public ResponseEntity<String> handleEmployeeNotFound(EmployeeNotFoundException ex) {
         log.error("EmployeeNotFoundException: Message={}", ex.getMessage(), ex);

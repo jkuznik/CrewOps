@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.auth.*;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.exception.UsernameAlreadyExistException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.auth.AuthUser;
 import pl.crewops.model.auth.Role;
@@ -37,16 +38,28 @@ class AuthService implements AuthAPI {
 
     @Transactional
     public AuthUser createAuthUser(CreateAuthUserDTO createAuthUserDTO, Employee employee) {
-        var authUser = new AuthUser();
-        authUser.setUsername(createAuthUserDTO.username());
-        authUser.setPassword(passwordEncoder.encode(createAuthUserDTO.password()));
-        Set<Role> roles = new HashSet<>();
-        createAuthUserDTO
-                .roles()
-                .forEach(role -> roles.add(roleRepository.findById(role.id()).orElseThrow()));
-        authUser.setRoles(roles);
-        authUser.setEmployee(employee);
-        return authUserRepository.save(authUser);
+        if (getByUsername(createAuthUserDTO.username()).isPresent()) {
+            log.error("Username " + createAuthUserDTO.username() + " already exists");
+            throw new UsernameAlreadyExistException("Username " + createAuthUserDTO.username() + " already exists");
+        }
+        try {
+            var authUser = new AuthUser();
+            authUser.setUsername(createAuthUserDTO.username());
+            authUser.setPassword(passwordEncoder.encode(createAuthUserDTO.password()));
+            Set<Role> roles = new HashSet<>();
+            createAuthUserDTO
+                    .roles()
+                    .forEach(role ->
+                            roles.add(roleRepository.findByName(role.name()).orElseThrow()));
+            log.info("Creating auth user " + createAuthUserDTO.username() + " with roles " + roles);
+            authUser.setRoles(roles);
+            authUser.setEmployee(employee);
+            log.info("Auth user instantiated successfully as " + authUser.toString());
+            return authUserRepository.save(authUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Transactional

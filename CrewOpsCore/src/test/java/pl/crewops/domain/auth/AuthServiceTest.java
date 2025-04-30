@@ -21,6 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.auth.AuthRequest;
 import pl.crewops.auth.AuthResponse;
 import pl.crewops.auth.CreateAuthUserDTO;
+import pl.crewops.exception.UsernameAlreadyExistException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.auth.AuthUser;
 import pl.crewops.model.auth.Role;
@@ -165,5 +166,26 @@ class AuthServiceTest {
 
         assertThat(result).isExactlyInstanceOf(IllegalArgumentException.class);
         assertThat(result.getMessage()).isEqualTo("Invalid username or password");
+    }
+
+    @Test
+    void shouldThrowException_whenUsernameAlreadyExists() {
+        // given
+        var authUser = AuthUser.builder()
+                .username("username")
+                .password("password")
+                .roles(new HashSet<>())
+                .build();
+
+        var createAuthUserDTO = AuthTestFactory.createAuthUserDTO();
+
+        var employee = AuthTestFactory.createEmployeeWithoutQualificationsAndVehicles();
+
+        // when
+        when(authUserRepository.findByUsername("username")).thenReturn(Optional.of(authUser));
+        Exception result = Assertions.catchException(() -> authService.createAuthUser(createAuthUserDTO, employee));
+
+        // then
+        assertThat(result).isExactlyInstanceOf(UsernameAlreadyExistException.class);
     }
 }

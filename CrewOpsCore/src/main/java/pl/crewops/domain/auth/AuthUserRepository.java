@@ -18,4 +18,6 @@ interface AuthUserRepository extends JpaRepository<AuthUser, UUID> {
 @Repository
 interface RoleRepository extends JpaRepository<Role, UUID> {
     Optional<Role> findById(UUID id);
+
+    Optional<Role> findByName(String name);
 }
