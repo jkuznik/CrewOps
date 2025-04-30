@@ -1,5 +1,7 @@
 package pl.crewops.infrastructure.core;
 
+import static pl.crewops.enums.ControllerURL.*;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -20,7 +22,6 @@ import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
-import pl.crewops.enums.ControllerURL;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -34,7 +35,7 @@ class CoreClient implements CoreAPI {
         try {
             return coreClient
                     .post()
-                    .uri(uriBuilder -> uriBuilder.path(ControllerURL.LOGIN).build())
+                    .uri(uriBuilder -> uriBuilder.path(LOGIN).build())
                     .body(authRequest)
                     .retrieve()
                     .body(new ParameterizedTypeReference<AuthResponse>() {});
@@ -56,13 +57,14 @@ class CoreClient implements CoreAPI {
     @Override
     public ValidTokenResponse validateToken(ValidTokenRequest validTokenRequest) {
         try {
+            log.debug("Validating token start");
             ValidTokenResponse body = authorizedClient
                     .post()
-                    .uri(uriBuilder -> uriBuilder.path(ControllerURL.VALIDATE).build())
+                    .uri(uriBuilder -> uriBuilder.path(VALIDATE).build())
                     .body(validTokenRequest)
                     .retrieve()
                     .body(new ParameterizedTypeReference<ValidTokenResponse>() {});
-            log.info("validated token: {}", body);
+            log.debug("Validated token: {}", body);
             return body;
         } catch (RestClientException e) {
             log.error("Validation failed", e);
@@ -75,7 +77,7 @@ class CoreClient implements CoreAPI {
         try {
             return Optional.ofNullable(authorizedClient
                     .post()
-                    .uri(uriBuilder -> uriBuilder.path(ControllerURL.EMPLOYEES).build())
+                    .uri(uriBuilder -> uriBuilder.path(EMPLOYEES).build())
                     .body(createEmployeeDTO)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
@@ -90,8 +92,7 @@ class CoreClient implements CoreAPI {
         try {
             return Optional.ofNullable(authorizedClient
                     .post()
-                    .uri(uriBuilder ->
-                            uriBuilder.path(ControllerURL.QUALIFICATIONS).build())
+                    .uri(uriBuilder -> uriBuilder.path(QUALIFICATIONS).build())
                     .body(createQualificationDTO)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
@@ -106,7 +107,7 @@ class CoreClient implements CoreAPI {
         try {
             return Optional.ofNullable(authorizedClient
                     .post()
-                    .uri(uriBuilder -> uriBuilder.path(ControllerURL.VEHICLES).build())
+                    .uri(uriBuilder -> uriBuilder.path(VEHICLES).build())
                     .body(createVehicleDTO)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
@@ -121,7 +122,7 @@ class CoreClient implements CoreAPI {
         try {
             return authorizedClient
                     .get()
-                    .uri(uriBuilder -> uriBuilder.path(ControllerURL.EMPLOYEES).build())
+                    .uri(uriBuilder -> uriBuilder.path(EMPLOYEES).build())
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .body(new ParameterizedTypeReference<List<EmployeeDTO>>() {});
@@ -135,8 +136,7 @@ class CoreClient implements CoreAPI {
         try {
             return authorizedClient
                     .get()
-                    .uri(uriBuilder ->
-                            uriBuilder.path(ControllerURL.QUALIFICATIONS).build())
+                    .uri(uriBuilder -> uriBuilder.path(QUALIFICATIONS).build())
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .body(new ParameterizedTypeReference<List<QualificationDTO>>() {});
@@ -150,7 +150,7 @@ class CoreClient implements CoreAPI {
         try {
             return authorizedClient
                     .get()
-                    .uri(uriBuilder -> uriBuilder.path(ControllerURL.VEHICLES).build())
+                    .uri(uriBuilder -> uriBuilder.path(VEHICLES).build())
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .body(new ParameterizedTypeReference<List<VehicleDTO>>() {});
@@ -164,8 +164,7 @@ class CoreClient implements CoreAPI {
         try {
             return authorizedClient
                     .post()
-                    .uri(uriBuilder ->
-                            uriBuilder.path(ControllerURL.QUALIFICATIONS_QIDS).build())
+                    .uri(uriBuilder -> uriBuilder.path(QUALIFICATIONS_QIDS).build())
                     .body(qualificationsIds)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
@@ -180,8 +179,7 @@ class CoreClient implements CoreAPI {
         try {
             return authorizedClient
                     .post()
-                    .uri(uriBuilder ->
-                            uriBuilder.path(ControllerURL.VEHICLES_VIDS).build())
+                    .uri(uriBuilder -> uriBuilder.path(VEHICLES_VIDS).build())
                     .body(vehiclesIds)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
@@ -197,8 +195,7 @@ class CoreClient implements CoreAPI {
             authorizedClient
                     .delete()
                     .uri(uriBuilder -> uriBuilder
-                            .path(ControllerURL.EMPLOYEES_EID.replace(
-                                    "{" + ControllerURL.EMPLOYEE_ID + "}", employeeId.toString()))
+                            .path(EMPLOYEES_EID.replace("{" + EMPLOYEE_ID + "}", employeeId.toString()))
                             .build())
                     .retrieve()
                     .toBodilessEntity();
@@ -212,8 +209,7 @@ class CoreClient implements CoreAPI {
             authorizedClient
                     .delete()
                     .uri(uriBuilder -> uriBuilder
-                            .path(ControllerURL.QUALIFICATIONS_QID.replace(
-                                    "{" + ControllerURL.QUALIFICATION_ID + "}", qualificationId.toString()))
+                            .path(QUALIFICATIONS_QID.replace("{" + QUALIFICATION_ID + "}", qualificationId.toString()))
                             .build())
                     .retrieve()
                     .toBodilessEntity();
@@ -227,8 +223,7 @@ class CoreClient implements CoreAPI {
             coreClient
                     .delete()
                     .uri(uriBuilder -> uriBuilder
-                            .path(ControllerURL.VEHICLES_VID.replace(
-                                    "{" + ControllerURL.VEHICLE_ID + "}", vehicleId.toString()))
+                            .path(VEHICLES_VID.replace("{" + VEHICLE_ID + "}", vehicleId.toString()))
                             .build())
                     .retrieve()
                     .toBodilessEntity();

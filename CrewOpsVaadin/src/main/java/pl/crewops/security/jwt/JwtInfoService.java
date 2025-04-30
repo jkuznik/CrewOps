@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 import pl.crewops.auth.ValidTokenRequest;
+import pl.crewops.auth.ValidTokenResponse;
 import pl.crewops.infrastructure.core.CoreAPI;
 
 @Component
@@ -12,16 +13,30 @@ import pl.crewops.infrastructure.core.CoreAPI;
 @Setter
 public class JwtInfoService {
 
+    private final CoreAPI coreAPI;
+
     private String token;
     private String firstName;
     private String lastName;
-    private String username;
     private Date expires;
 
-    public boolean validToken(CoreAPI coreApi) {
-        if (token == null || username == null) {
+    public JwtInfoService(CoreAPI coreAPI) {
+        this.coreAPI = coreAPI;
+    }
+
+    public boolean validToken() {
+        if (token == null) {
             return false;
         }
-        return coreApi.validateToken(new ValidTokenRequest(token, username)).valid();
+
+        ValidTokenResponse validTokenResponse = coreAPI.validateToken(new ValidTokenRequest(token));
+        if (validTokenResponse.valid()) {
+            firstName = validTokenResponse.employeeDTO().firstName();
+            lastName = validTokenResponse.employeeDTO().lastName();
+            expires = validTokenResponse.expiration();
+            return true;
+        } else {
+            return false;
+        }
     }
 }

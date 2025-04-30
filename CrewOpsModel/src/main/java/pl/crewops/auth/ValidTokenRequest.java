@@ -4,4 +4,4 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 @Builder
-public record ValidTokenRequest(@NotNull String token, @NotNull String username) {}
+public record ValidTokenRequest(@NotNull String token) {}

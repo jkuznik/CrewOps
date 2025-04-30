@@ -24,7 +24,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         this.coreAPI = coreAPI;
         this.jwtInfoService = jwtInfoService;
 
-        if (jwtInfoService.validToken(coreAPI)) {
+        if (jwtInfoService.validToken()) {
             add(loggedUserInfo());
         } else {
             LoginForm loginForm = new LoginForm(coreAPI, jwtInfoService);

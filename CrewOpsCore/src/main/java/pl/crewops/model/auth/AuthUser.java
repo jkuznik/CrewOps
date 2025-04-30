@@ -3,6 +3,7 @@ package pl.crewops.model.auth;
 import jakarta.persistence.*;
 import java.util.Set;
 import lombok.*;
+import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.model.AbstractEntity;
 import pl.crewops.model.Employee;
 
@@ -31,4 +32,16 @@ public class AuthUser extends AbstractEntity {
             joinColumns = @JoinColumn(name = "auth_user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
+
+    // TODO: qualifications and vehicles set are skipped, add logic if necessary
+    public EmployeeDTO exctractEmployeeDTO() {
+        return EmployeeDTO.builder()
+                .id(employee.getId())
+                .firstName(employee.getFirstName())
+                .lastName(employee.getLastName())
+                .birthDate(employee.getBirthDate())
+                .phoneNumber(employee.getPhoneNumber())
+                .department(employee.getDepartment())
+                .build();
+    }
 }

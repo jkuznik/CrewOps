@@ -61,7 +61,7 @@ public class MainLayout extends AppLayout {
         rightSide.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         rightSide.getStyle().set("padding-right", "20px");
 
-        if (jwtInfoService.validToken(coreAPI)) {
+        if (jwtInfoService.validToken()) {
             LoggedUserInfoComponent loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI, jwtInfoService);
             rightSide.add(loggedUserInfoComponent);
         } else {
@@ -94,7 +94,7 @@ public class MainLayout extends AppLayout {
         linksLayout.setPadding(false);
         linksLayout.setSpacing(false);
 
-        if (jwtInfoService.validToken(coreAPI)) {
+        if (jwtInfoService.validToken()) {
             linksLayout.add(homeLink, employeeLink, qualificationLink, vehicleLink);
         } else {
             linksLayout.add(homeLink);
