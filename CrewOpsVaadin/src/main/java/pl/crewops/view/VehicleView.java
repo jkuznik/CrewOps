@@ -16,9 +16,7 @@ import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
-import pl.crewops.view.component.mainLayout.MainFooter;
 import pl.crewops.view.component.mainLayout.MainLayout;
-import pl.crewops.view.component.mainLayout.MainView;
 import pl.crewops.view.form.VehicleForm;
 import pl.crewops.view.form.model.VehicleFormModel;
 
@@ -33,7 +31,7 @@ public class VehicleView extends MainLayout {
     VehicleForm form;
 
     public VehicleView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
-        super(coreAPI, jwtInfoService, new MainView(), new MainFooter());
+        super(coreAPI, jwtInfoService);
         addClassName("vehicle-view");
         VerticalLayout currentContent = new VerticalLayout();
         currentContent.setId("current-content");

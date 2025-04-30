@@ -17,12 +17,12 @@ public class MainLayout extends AppLayout {
     protected final CoreAPI coreAPI;
     protected final JwtInfoService jwtInfoService;
 
-    protected final VerticalLayout mainContent;
-    protected final Footer mainFooter;
+    protected final VerticalLayout mainContent = new VerticalLayout();
+    protected final Footer mainFooter = new MainFooter();
 
     private boolean tokenValid;
 
-    public MainLayout(CoreAPI coreAPI, JwtInfoService jwtInfoService, VerticalLayout mainView, Footer homeViewFooter) {
+    public MainLayout(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         addClassName("main-layout");
         tokenValid = jwtInfoService.validToken();
         if (!tokenValid) {
@@ -34,8 +34,6 @@ public class MainLayout extends AppLayout {
 
         this.coreAPI = coreAPI;
         this.jwtInfoService = jwtInfoService;
-        this.mainContent = mainView;
-        this.mainFooter = homeViewFooter;
 
         mainContent.setSizeFull();
         mainContent.setSpacing(true);
