@@ -40,7 +40,7 @@ class CoreClient implements CoreAPI {
                     .retrieve()
                     .body(new ParameterizedTypeReference<AuthResponse>() {});
         } catch (RestClientException e) {
-            log.error("Login failed", e);
+            log.error("Login failed");
             e.printStackTrace();
             throw e;
         }
@@ -67,8 +67,7 @@ class CoreClient implements CoreAPI {
             log.debug("Validated token: {}", body);
             return body;
         } catch (RestClientException e) {
-            log.error("Validation failed", e);
-            e.printStackTrace();
+            log.error("Validation failed");
             throw e;
         }
     }
@@ -83,7 +82,7 @@ class CoreClient implements CoreAPI {
                     .retrieve()
                     .body(new ParameterizedTypeReference<EmployeeDTO>() {}));
         } catch (RestClientException e) {
-            log.error("Create new employee error", e);
+            log.error("Create new employee error");
             return Optional.empty();
         }
     }
@@ -98,7 +97,7 @@ class CoreClient implements CoreAPI {
                     .retrieve()
                     .body(new ParameterizedTypeReference<QualificationDTO>() {}));
         } catch (RestClientException e) {
-            log.error("Create new employee error", e);
+            log.error("Create new qualification error");
             return Optional.empty();
         }
     }
@@ -127,7 +126,7 @@ class CoreClient implements CoreAPI {
                     .retrieve()
                     .body(new ParameterizedTypeReference<List<EmployeeDTO>>() {});
         } catch (RestClientException e) {
-            log.error("Error getting employees", e);
+            log.error("Error getting employees");
             return List.of();
         }
     }
@@ -141,7 +140,7 @@ class CoreClient implements CoreAPI {
                     .retrieve()
                     .body(new ParameterizedTypeReference<List<QualificationDTO>>() {});
         } catch (RestClientException e) {
-            log.error("Error getting employees", e);
+            log.error("Error getting qualifications");
             return List.of();
         }
     }
@@ -155,7 +154,7 @@ class CoreClient implements CoreAPI {
                     .retrieve()
                     .body(new ParameterizedTypeReference<List<VehicleDTO>>() {});
         } catch (RestClientException e) {
-            log.error("Error getting vehicles", e);
+            log.error("Error getting vehicles");
             return List.of();
         }
     }

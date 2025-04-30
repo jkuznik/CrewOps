@@ -15,6 +15,10 @@ import java.util.List;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.security.jwt.JwtInfoService;
+import pl.crewops.view.component.HomeViewFooter;
+import pl.crewops.view.component.MainLayout;
+import pl.crewops.view.component.MainView;
 import pl.crewops.view.form.QualificationForm;
 import pl.crewops.view.model.QualificationFormModel;
 
@@ -23,27 +27,36 @@ import pl.crewops.view.model.QualificationFormModel;
 @PermitAll
 @Route(value = "qualifications")
 @PageTitle("Qualification management")
-public class QualificationView extends VerticalLayout {
+public class QualificationView extends MainLayout {
     Grid<QualificationDTO> grid = new Grid<>(QualificationDTO.class);
     TextField filterText = new TextField();
     QualificationForm form;
-    CoreAPI coreAPI;
 
-    public QualificationView(CoreAPI coreAPI) {
+    public QualificationView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
+        super(coreAPI, jwtInfoService, new MainView(), new HomeViewFooter());
         addClassName("qualification-view");
+        VerticalLayout currentContent = new VerticalLayout();
+        currentContent.setId("current-content");
 
-        this.coreAPI = coreAPI;
+        mainContent.removeAll();
+        mainContent.add(currentContent, mainFooter);
+        mainContent.setFlexGrow(1, currentContent);
 
-        setSizeFull();
+        currentContent.setSizeFull();
+        currentContent.setPadding(true);
+        currentContent.setSpacing(true);
+        currentContent.getStyle().set("overflow", "auto");
+
         configureGrid();
         configureForm();
 
-        add(getToolbar(), getContent());
+        currentContent.add(getToolbar(), getContent());
+
         updateList();
         closeEditor();
     }
 
-    private HorizontalLayout getContent() {
+    public HorizontalLayout getContent() {
         HorizontalLayout content = new HorizontalLayout(grid, form);
         content.addClassNames("qualification-view-content");
         content.setFlexGrow(2, grid);

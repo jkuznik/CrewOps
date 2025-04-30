@@ -9,7 +9,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import org.springframework.context.annotation.Scope;
@@ -23,20 +22,31 @@ import pl.crewops.view.form.LoginForm;
 
 @SpringComponent
 @Scope("prototype")
-@Layout
 public class MainLayout extends AppLayout {
 
-    private final CoreAPI coreAPI;
-    private final JwtInfoService jwtInfoService;
+    protected final CoreAPI coreAPI;
+    protected final JwtInfoService jwtInfoService;
 
-    private final Footer footer;
+    protected final VerticalLayout mainContent;
+    protected final Footer mainFooter;
 
-    public MainLayout(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
-        addClassName("home-view");
+    private boolean tokenValid;
+
+    public MainLayout(CoreAPI coreAPI, JwtInfoService jwtInfoService, VerticalLayout mainView, Footer homeViewFooter) {
+        addClassName("main-layout");
+        tokenValid = jwtInfoService.validToken();
 
         this.coreAPI = coreAPI;
         this.jwtInfoService = jwtInfoService;
-        this.footer = createFooter();
+        this.mainContent = mainView;
+        this.mainFooter = homeViewFooter;
+
+        mainContent.setSizeFull();
+        mainContent.setSpacing(true);
+        mainContent.setPadding(true);
+        mainContent.setVisible(true);
+        setContent(mainContent);
+
         addToNavbar(createHeader());
         addToDrawer(createDrawer());
     }
@@ -61,7 +71,7 @@ public class MainLayout extends AppLayout {
         rightSide.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         rightSide.getStyle().set("padding-right", "20px");
 
-        if (jwtInfoService.validToken()) {
+        if (tokenValid) {
             LoggedUserInfoComponent loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI, jwtInfoService);
             rightSide.add(loggedUserInfoComponent);
         } else {
@@ -82,31 +92,29 @@ public class MainLayout extends AppLayout {
     }
 
     private Component createDrawer() {
-        var drawerLaoyout = new VerticalLayout();
-        drawerLaoyout.setHeightFull();
+        VerticalLayout drawerLayout = new VerticalLayout();
 
         RouterLink homeLink = new RouterLink("Home", HomeView.class);
         RouterLink employeeLink = new RouterLink("Employee", EmployeeView.class);
         RouterLink qualificationLink = new RouterLink("Qualification", QualificationView.class);
         RouterLink vehicleLink = new RouterLink("Vehicle", VehicleView.class);
 
+        drawerLayout.setHeightFull();
+
         VerticalLayout linksLayout = new VerticalLayout();
         linksLayout.setPadding(false);
         linksLayout.setSpacing(false);
+        linksLayout.add(homeLink, employeeLink, qualificationLink, vehicleLink);
 
-        if (jwtInfoService.validToken()) {
-            linksLayout.add(homeLink, employeeLink, qualificationLink, vehicleLink);
-        } else {
-            linksLayout.add(homeLink);
-        }
+        drawerLayout.add(linksLayout, createDrawerFooter());
+        drawerLayout.setFlexGrow(1, linksLayout);
 
-        drawerLaoyout.add(linksLayout, createFooter());
-        drawerLaoyout.setFlexGrow(1, linksLayout);
+        checkDrawer(employeeLink, qualificationLink, vehicleLink);
 
-        return drawerLaoyout;
+        return drawerLayout;
     }
 
-    private Footer createFooter() {
+    private Footer createDrawerFooter() {
         Footer footer = new Footer();
         footer.getStyle()
                 .set("width", "100%")
@@ -125,5 +133,17 @@ public class MainLayout extends AppLayout {
         footer.add(footerText);
 
         return footer;
+    }
+
+    private void checkDrawer(RouterLink employeeLink, RouterLink qualificationLink, RouterLink vehicleLink) {
+        if (tokenValid) {
+            employeeLink.setVisible(true);
+            qualificationLink.setVisible(true);
+            vehicleLink.setVisible(true);
+        } else {
+            employeeLink.setVisible(false);
+            qualificationLink.setVisible(false);
+            vehicleLink.setVisible(false);
+        }
     }
 }

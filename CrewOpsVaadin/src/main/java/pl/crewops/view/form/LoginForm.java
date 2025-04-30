@@ -58,7 +58,7 @@ public class LoginForm extends FormLayout {
         // todo: zmienic ta logike na taka aby coreAPI każdorazowo sprawdzała ważność tokena
         coreAPI.setToken(authResponse);
 
-        log.info("Auth response: " + authResponse);
+        log.debug("Auth response: " + authResponse);
         UI.getCurrent().getPage().reload();
     }
 }

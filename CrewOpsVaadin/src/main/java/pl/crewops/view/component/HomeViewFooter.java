@@ -4,7 +4,9 @@ import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.spring.annotation.SpringComponent;
 
+@SpringComponent
 public class HomeViewFooter extends Footer {
 
     public HomeViewFooter() {

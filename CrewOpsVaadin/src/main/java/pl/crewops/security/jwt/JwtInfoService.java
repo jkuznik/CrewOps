@@ -36,6 +36,11 @@ public class JwtInfoService {
             expires = validTokenResponse.expiration();
             return true;
         } else {
+            token = null;
+            firstName = null;
+            lastName = null;
+            expires = null;
+
             return false;
         }
     }

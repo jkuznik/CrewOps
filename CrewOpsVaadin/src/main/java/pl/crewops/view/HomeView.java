@@ -3,7 +3,6 @@ package pl.crewops.view;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -16,47 +15,36 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
 import pl.crewops.view.component.HomeViewFooter;
 import pl.crewops.view.component.MainLayout;
+import pl.crewops.view.component.MainView;
 
 @SpringComponent
 @Slf4j
 @Scope("prototype")
-@Route(value = "", layout = MainLayout.class)
+@Route(value = "")
 @PageTitle("Crew Ops")
-public class HomeView extends VerticalLayout {
-
-    private Footer footer;
+public class HomeView extends MainLayout {
 
     public HomeView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
+        super(coreAPI, jwtInfoService, new MainView(), new HomeViewFooter());
         addClassName("home-view");
-        setSizeFull();
+        VerticalLayout currentContent = new VerticalLayout();
+        currentContent.setId("current-content");
 
-        VerticalLayout mainLayout = new VerticalLayout();
-        mainLayout.setSizeFull();
-        mainLayout.setPadding(false);
-        mainLayout.setSpacing(false);
+        mainContent.removeAll();
+        mainContent.add(currentContent, mainFooter);
+        mainContent.setFlexGrow(1, currentContent);
 
-        VerticalLayout content = new VerticalLayout();
-        content.setId("content");
-        content.setPadding(true);
-        content.setSpacing(true);
-        content.setWidthFull();
-        content.getStyle().set("overflow", "auto");
-        content.setHeightFull();
+        currentContent.setSizeFull();
+        currentContent.setPadding(true);
+        currentContent.setSpacing(true);
+        currentContent.getStyle().set("overflow", "auto");
 
         H1 title = new H1("Tutaj treść strony startowej");
-        content.add(title);
+        currentContent.add(title);
 
         for (int i = 1; i <= 50; i++) {
-            content.add(new Span("Linijka tekstu numer " + i));
+            currentContent.add(new Span("Linijka tekstu numer " + i));
         }
-
-        this.footer = new HomeViewFooter();
-        this.footer.setVisible(false);
-
-        mainLayout.add(content, footer);
-        mainLayout.setFlexGrow(1, content);
-
-        add(mainLayout);
     }
 
     @Override
@@ -67,7 +55,7 @@ public class HomeView extends VerticalLayout {
                 .getPage()
                 .executeJs(
                         """
-                const content = document.getElementById('content');
+                const content = document.getElementById('current-content');
                 const footer = document.getElementById('footer');
                 content.addEventListener('scroll', function() {
                     // Obliczamy procent przewinięcia
@@ -89,10 +77,10 @@ public class HomeView extends VerticalLayout {
     @ClientCallable
     public void showFooter(boolean show) {
         if (show) {
-            footer.getStyle().set("opacity", "1");
+            mainFooter.getStyle().set("opacity", "1");
         } else {
-            footer.getStyle().set("opacity", "0");
+            mainFooter.getStyle().set("opacity", "0");
         }
-        footer.setVisible(show);
+        mainFooter.setVisible(show);
     }
 }

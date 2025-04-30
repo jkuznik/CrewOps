@@ -1,5 +1,6 @@
 package pl.crewops.exception;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,12 @@ class CoreExceptionHandler {
     public ResponseEntity<String> handleEmployeeNotFound(UsernameAlreadyExistException ex) {
         log.error("UsernameAlreadyExistException: Message={}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exist: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<String> handleEmployeeNotFound(ExpiredJwtException ex) {
+        log.error("ExpiredJwtException: Message={}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body("Jwt token expired: " + ex.getMessage());
     }
 
     @ExceptionHandler(EmployeeNotFoundException.class)

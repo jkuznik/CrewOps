@@ -15,6 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.security.jwt.JwtInfoService;
+import pl.crewops.view.component.HomeViewFooter;
+import pl.crewops.view.component.MainLayout;
+import pl.crewops.view.component.MainView;
 import pl.crewops.view.form.VehicleForm;
 import pl.crewops.view.model.VehicleFormModel;
 
@@ -23,27 +27,36 @@ import pl.crewops.view.model.VehicleFormModel;
 @Scope("prototype")
 @Route(value = "vehicles")
 @PageTitle("Vehicle view")
-public class VehicleView extends VerticalLayout {
+public class VehicleView extends MainLayout {
     Grid<VehicleDTO> grid = new Grid<>(VehicleDTO.class);
     TextField filterText = new TextField();
     VehicleForm form;
-    CoreAPI coreAPI;
 
-    public VehicleView(CoreAPI coreAPI) {
+    public VehicleView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
+        super(coreAPI, jwtInfoService, new MainView(), new HomeViewFooter());
         addClassName("vehicle-view");
+        VerticalLayout currentContent = new VerticalLayout();
+        currentContent.setId("current-content");
 
-        this.coreAPI = coreAPI;
+        mainContent.removeAll();
+        mainContent.add(currentContent, mainFooter);
+        mainContent.setFlexGrow(1, currentContent);
 
-        setSizeFull();
+        currentContent.setSizeFull();
+        currentContent.setPadding(true);
+        currentContent.setSpacing(true);
+        currentContent.getStyle().set("overflow", "auto");
+
         configureGrid();
         configureForm();
 
-        add(getContent());
+        currentContent.add(getContent());
+
         updateList();
         closeEditor();
     }
 
-    private HorizontalLayout getContent() {
+    public HorizontalLayout getContent() {
         HorizontalLayout content = new HorizontalLayout(grid, form);
         content.addClassName("vehicle-view-content");
         content.setFlexGrow(2, grid);

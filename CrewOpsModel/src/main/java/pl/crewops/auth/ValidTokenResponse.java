@@ -5,5 +5,5 @@ import lombok.Builder;
 import pl.crewops.dto.employee.EmployeeDTO;
 
 @Builder
-// TODO: implement hashing those response values
+// TODO: update application to https
 public record ValidTokenResponse(Boolean valid, Date expiration, EmployeeDTO employeeDTO) {}

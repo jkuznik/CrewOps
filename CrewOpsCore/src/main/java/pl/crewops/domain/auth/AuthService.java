@@ -1,5 +1,6 @@
 package pl.crewops.domain.auth;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import java.util.Date;
@@ -77,7 +78,7 @@ class AuthService implements AuthAPI {
                 throw new IllegalArgumentException("Invalid username or password");
             }
         } catch (Exception e) {
-            log.error("Login failed", e);
+            log.error("Login failed");
             throw new IllegalArgumentException("Invalid username or password");
         }
     }
@@ -85,10 +86,15 @@ class AuthService implements AuthAPI {
     public ValidTokenResponse validateToken(@NotNull ValidTokenRequest validTokenRequest) {
         try {
             log.debug("Token validation started");
-            AuthUser authUser = authUserRepository
-                    .findByUsername(jwtService.extractUsername(validTokenRequest.token()))
-                    .orElseThrow(() ->
-                            new UsernameNotFoundException("Username " + validTokenRequest.token() + " not found"));
+            AuthUser authUser;
+            try {
+                authUser = authUserRepository
+                        .findByUsername(jwtService.extractUsername(validTokenRequest.token()))
+                        .orElseThrow(() ->
+                                new UsernameNotFoundException("Username " + validTokenRequest.token() + " not found"));
+            } catch (ExpiredJwtException e) {
+                return new ValidTokenResponse(false, null, null);
+            }
             var userDetails = new UserPrincipal(authUser);
             boolean result = jwtService.validateToken(validTokenRequest.token(), userDetails);
             if (result) {
@@ -101,7 +107,7 @@ class AuthService implements AuthAPI {
                 return new ValidTokenResponse(false, null, null);
             }
         } catch (IllegalArgumentException e) {
-            log.error("Token validation failed with exception", e);
+            log.error("Token validation failed with exception");
             return new ValidTokenResponse(false, null, null);
         }
     }
