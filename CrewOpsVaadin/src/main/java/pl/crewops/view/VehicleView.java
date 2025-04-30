@@ -50,7 +50,7 @@ public class VehicleView extends MainLayout {
         configureGrid();
         configureForm();
 
-        currentContent.add(getContent());
+        currentContent.add(getToolbar(), getContent());
 
         updateList();
         closeEditor();

@@ -1,6 +1,7 @@
 package pl.crewops.view.component;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.Footer;
@@ -35,6 +36,12 @@ public class MainLayout extends AppLayout {
     public MainLayout(CoreAPI coreAPI, JwtInfoService jwtInfoService, VerticalLayout mainView, Footer homeViewFooter) {
         addClassName("main-layout");
         tokenValid = jwtInfoService.validToken();
+        if (!tokenValid) {
+            var currentView = UI.getCurrent().getInternals().getActiveViewLocation();
+            if (currentView != null && !currentView.getPath().equals("")) {
+                UI.getCurrent().access(() -> UI.getCurrent().navigate(HomeView.class));
+            }
+        }
 
         this.coreAPI = coreAPI;
         this.jwtInfoService = jwtInfoService;
