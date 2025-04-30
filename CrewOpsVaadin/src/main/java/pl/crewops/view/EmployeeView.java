@@ -48,36 +48,10 @@ public class EmployeeView extends MainLayout {
         configureGrid();
         configureForm();
 
-        currentContent.add(getToolbar(), getContent());
+        currentContent.add(getToolbar(), getCurrentContent());
+
         updateList();
         closeEditor();
-    }
-
-    public HorizontalLayout getContent() {
-        HorizontalLayout content = new HorizontalLayout(grid, form);
-        content.addClassNames("employee-view-content");
-        content.setFlexGrow(2, grid);
-        content.setFlexGrow(1, form);
-        content.setSizeFull();
-        return content;
-    }
-
-    private void configureForm() {
-        form = new EmployeeForm(coreAPI);
-        form.setWidth("25em");
-
-        form.addSaveListener(this::saveContact);
-        form.addDeleteListener(this::deleteContact);
-        form.addCloseListener(e -> closeEditor());
-    }
-
-    private void configureGrid() {
-        grid.addClassNames("employee-grid");
-        grid.setSizeFull();
-        grid.setColumns("firstName", "lastName", "birthDate", "phoneNumber", "department");
-        grid.getColumns().forEach(col -> col.setAutoWidth(true));
-
-        grid.asSingleSelect().addValueChangeListener(event -> editEmployee(event.getValue()));
     }
 
     private Component getToolbar() {
@@ -94,38 +68,31 @@ public class EmployeeView extends MainLayout {
         return toolbar;
     }
 
-    public void editEmployee(EmployeeDTO employeeDTO) {
-        if (employeeDTO == null) {
-            closeEditor();
-        } else {
-            form.setEmployee(employeeDTO);
-            form.setVisible(true);
-            addClassName("editing");
-        }
+    private HorizontalLayout getCurrentContent() {
+        HorizontalLayout content = new HorizontalLayout(grid, form);
+        content.addClassNames("employee-view-content");
+        content.setFlexGrow(2, grid);
+        content.setFlexGrow(1, form);
+        content.setSizeFull();
+        return content;
     }
 
-    private void saveContact(EmployeeForm.SaveEvent event) {
-        coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
-        updateList();
-        closeEditor();
+    private void configureGrid() {
+        grid.addClassNames("employee-grid");
+        grid.setSizeFull();
+        grid.setColumns("firstName", "lastName", "birthDate", "phoneNumber", "department");
+        grid.getColumns().forEach(col -> col.setAutoWidth(true));
+
+        grid.asSingleSelect().addValueChangeListener(event -> editEmployee(event.getValue()));
     }
 
-    private void deleteContact(EmployeeForm.DeleteEvent event) {
-        log.info("Deleting contact {}", event.getEmployee().getFirstName());
-        coreAPI.deleteEmployee(event.getEmployee().getId());
-        updateList();
-        closeEditor();
-    }
+    private void configureForm() {
+        form = new EmployeeForm(coreAPI);
+        form.setWidth("25em");
 
-    private void closeEditor() {
-        form.setEmployee(null);
-        form.setVisible(false);
-        removeClassName("editing");
-    }
-
-    private void addEmployee() {
-        grid.asSingleSelect().clear();
-        form.setVisible(true);
+        form.addSaveListener(this::saveContact);
+        form.addDeleteListener(this::deleteContact);
+        form.addCloseListener(e -> closeEditor());
     }
 
     private void updateList() {
@@ -145,5 +112,39 @@ public class EmployeeView extends MainLayout {
                                     .contains(filterText.getValue().toLowerCase()))
                     .toList());
         }
+    }
+
+    private void closeEditor() {
+        form.setEmployee(null);
+        form.setVisible(false);
+        removeClassName("editing");
+    }
+
+    private void saveContact(EmployeeForm.SaveEvent event) {
+        coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
+        updateList();
+        closeEditor();
+    }
+
+    public void editEmployee(EmployeeDTO employeeDTO) {
+        if (employeeDTO == null) {
+            closeEditor();
+        } else {
+            form.setEmployee(employeeDTO);
+            form.setVisible(true);
+            addClassName("editing");
+        }
+    }
+
+    private void deleteContact(EmployeeForm.DeleteEvent event) {
+        log.info("Deleting contact {}", event.getEmployee().getFirstName());
+        coreAPI.deleteEmployee(event.getEmployee().getId());
+        updateList();
+        closeEditor();
+    }
+
+    private void addEmployee() {
+        grid.asSingleSelect().clear();
+        form.setVisible(true);
     }
 }

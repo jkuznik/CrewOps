@@ -48,13 +48,27 @@ public class VehicleView extends MainLayout {
         configureGrid();
         configureForm();
 
-        currentContent.add(getToolbar(), getContent());
+        currentContent.add(getToolbar(), getCurrentContent());
 
         updateList();
         closeEditor();
     }
 
-    public HorizontalLayout getContent() {
+    private Component getToolbar() {
+        filterText.setPlaceholder("Filter by type");
+        filterText.setClearButtonVisible(true);
+        filterText.setValueChangeMode(ValueChangeMode.LAZY);
+        filterText.addValueChangeListener(event -> updateList());
+
+        Button addVehicleButton = new Button("Add vehicle");
+        addVehicleButton.addClickListener(e -> addVehicle());
+
+        var toolbar = new HorizontalLayout(filterText, addVehicleButton);
+        toolbar.addClassName("vehicle-toolbar");
+        return toolbar;
+    }
+
+    private HorizontalLayout getCurrentContent() {
         HorizontalLayout content = new HorizontalLayout(grid, form);
         content.addClassName("vehicle-view-content");
         content.setFlexGrow(2, grid);
@@ -77,54 +91,6 @@ public class VehicleView extends MainLayout {
         grid.asSingleSelect().addValueChangeListener(event -> editVehicle(event.getValue()));
     }
 
-    private Component getToolbar() {
-        filterText.setPlaceholder("Filter by type");
-        filterText.setClearButtonVisible(true);
-        filterText.setValueChangeMode(ValueChangeMode.LAZY);
-        filterText.addValueChangeListener(event -> updateList());
-
-        Button addVehicleButton = new Button("Add vehicle");
-        addVehicleButton.addClickListener(e -> addVehicle());
-
-        var toolbar = new HorizontalLayout(filterText, addVehicleButton);
-        toolbar.addClassName("vehicle-toolbar");
-        return toolbar;
-    }
-
-    public void editVehicle(VehicleDTO vehicleDTO) {
-        if (vehicleDTO == null) {
-            closeEditor();
-        } else {
-            form.setVehicle(vehicleDTO);
-            form.setVisible(true);
-            addClassName("editing");
-        }
-    }
-
-    private void saveContact(VehicleForm.SaveEvent event) {
-        coreAPI.createVehicle(VehicleFormModel.toCreateVehicleDTO(event.getVehicle()));
-        updateList();
-        closeEditor();
-    }
-
-    private void deleteContact(VehicleForm.DeleteEvent event) {
-        log.info("Deleting contact {}", event.getVehicle().getId());
-        coreAPI.deleteVehicle(event.getVehicle().getId());
-        updateList();
-        closeEditor();
-    }
-
-    private void closeEditor() {
-        form.setVehicle(null);
-        form.setVisible(false);
-        removeClassName("editing");
-    }
-
-    private void addVehicle() {
-        grid.asSingleSelect().clear();
-        form.setVisible(true);
-    }
-
     private void updateList() {
         List<VehicleDTO> vehicles = coreAPI.getAllVehicles();
 
@@ -140,5 +106,39 @@ public class VehicleView extends MainLayout {
                             .contains(filterText.getValue().toLowerCase()))
                     .toList());
         }
+    }
+
+    private void closeEditor() {
+        form.setVehicle(null);
+        form.setVisible(false);
+        removeClassName("editing");
+    }
+
+    private void saveContact(VehicleForm.SaveEvent event) {
+        coreAPI.createVehicle(VehicleFormModel.toCreateVehicleDTO(event.getVehicle()));
+        updateList();
+        closeEditor();
+    }
+
+    public void editVehicle(VehicleDTO vehicleDTO) {
+        if (vehicleDTO == null) {
+            closeEditor();
+        } else {
+            form.setVehicle(vehicleDTO);
+            form.setVisible(true);
+            addClassName("editing");
+        }
+    }
+
+    private void deleteContact(VehicleForm.DeleteEvent event) {
+        log.info("Deleting contact {}", event.getVehicle().getId());
+        coreAPI.deleteVehicle(event.getVehicle().getId());
+        updateList();
+        closeEditor();
+    }
+
+    private void addVehicle() {
+        grid.asSingleSelect().clear();
+        form.setVisible(true);
     }
 }

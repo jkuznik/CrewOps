@@ -48,51 +48,10 @@ public class QualificationView extends MainLayout {
         configureGrid();
         configureForm();
 
-        currentContent.add(getToolbar(), getContent());
+        currentContent.add(getToolbar(), getCurrentContent());
 
         updateList();
         closeEditor();
-    }
-
-    public HorizontalLayout getContent() {
-        HorizontalLayout content = new HorizontalLayout(grid, form);
-        content.addClassNames("qualification-view-content");
-        content.setFlexGrow(2, grid);
-        content.setFlexGrow(1, form);
-        content.setSizeFull();
-        return content;
-    }
-
-    private void configureForm() {
-        form = new QualificationForm(coreAPI);
-        form.setWidth("25em");
-
-        form.addSaveListener(this::saveContact);
-        form.addDeleteListener(this::deleteContact);
-        form.addCloseListener(e -> closeEditor());
-    }
-
-    private void saveContact(QualificationForm.SaveEvent event) {
-        // TODO: add 'unique description' validation
-        coreAPI.createQualification(QualificationFormModel.toCreateQualificationDTO(event.getQualification()));
-        updateList();
-        closeEditor();
-    }
-
-    private void deleteContact(QualificationForm.DeleteEvent event) {
-        coreAPI.deleteQualification(event.getQualification().getId());
-        updateList();
-        closeEditor();
-    }
-
-    // TODO: add column that contains employees amount with each qualification
-    private void configureGrid() {
-        grid.addClassNames("qualification-grid");
-        grid.setSizeFull();
-        grid.setColumns("description");
-        grid.getColumns().forEach(col -> col.setAutoWidth(true));
-
-        grid.asSingleSelect().addValueChangeListener(event -> editQualification(event.getValue()));
     }
 
     private Component getToolbar() {
@@ -109,25 +68,31 @@ public class QualificationView extends MainLayout {
         return toolbar;
     }
 
-    public void editQualification(QualificationDTO qualificationDTO) {
-        if (qualificationDTO == null) {
-            closeEditor();
-        } else {
-            form.setQualification(qualificationDTO);
-            form.setVisible(true);
-            addClassName("editing");
-        }
+    private HorizontalLayout getCurrentContent() {
+        HorizontalLayout content = new HorizontalLayout(grid, form);
+        content.addClassNames("qualification-view-content");
+        content.setFlexGrow(2, grid);
+        content.setFlexGrow(1, form);
+        content.setSizeFull();
+        return content;
     }
 
-    private void closeEditor() {
-        form.setQualification(null);
-        form.setVisible(false);
-        removeClassName("editing");
+    private void configureGrid() {
+        grid.addClassNames("qualification-grid");
+        grid.setSizeFull();
+        grid.setColumns("description");
+        grid.getColumns().forEach(col -> col.setAutoWidth(true));
+
+        grid.asSingleSelect().addValueChangeListener(event -> editQualification(event.getValue()));
     }
 
-    private void addEmployee() {
-        grid.asSingleSelect().clear();
-        form.setVisible(true);
+    private void configureForm() {
+        form = new QualificationForm(coreAPI);
+        form.setWidth("25em");
+
+        form.addSaveListener(this::saveContact);
+        form.addDeleteListener(this::deleteContact);
+        form.addCloseListener(e -> closeEditor());
     }
 
     private void updateList() {
@@ -143,5 +108,41 @@ public class QualificationView extends MainLayout {
                             .contains(filterText.getValue().toLowerCase()))
                     .toList());
         }
+    }
+
+    private void closeEditor() {
+        form.setQualification(null);
+        form.setVisible(false);
+        removeClassName("editing");
+    }
+
+    private void saveContact(QualificationForm.SaveEvent event) {
+        // TODO: add 'unique description' validation
+        coreAPI.createQualification(QualificationFormModel.toCreateQualificationDTO(event.getQualification()));
+        updateList();
+        closeEditor();
+    }
+
+    private void deleteContact(QualificationForm.DeleteEvent event) {
+        coreAPI.deleteQualification(event.getQualification().getId());
+        updateList();
+        closeEditor();
+    }
+
+    public void editQualification(QualificationDTO qualificationDTO) {
+        if (qualificationDTO == null) {
+            closeEditor();
+        } else {
+            form.setQualification(qualificationDTO);
+            form.setVisible(true);
+            addClassName("editing");
+        }
+    }
+
+    // TODO: add column that contains employees amount with each qualification
+
+    private void addEmployee() {
+        grid.asSingleSelect().clear();
+        form.setVisible(true);
     }
 }

@@ -25,12 +25,15 @@ public class HomeView extends MainLayout {
     public HomeView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         super(coreAPI, jwtInfoService);
         addClassName("home-view");
-        VerticalLayout currentContent = new VerticalLayout();
-        currentContent.setId("current-content");
 
         mainContent.removeAll();
-        mainContent.add(currentContent, mainFooter);
-        mainContent.setFlexGrow(1, currentContent);
+        mainContent.add(getCurrentContent(), mainFooter);
+        mainContent.setFlexGrow(1, getCurrentContent());
+    }
+
+    private VerticalLayout getCurrentContent() {
+        VerticalLayout currentContent = new VerticalLayout();
+        currentContent.setId("current-content");
 
         currentContent.setSizeFull();
         currentContent.setPadding(true);
@@ -43,6 +46,8 @@ public class HomeView extends MainLayout {
         for (int i = 1; i <= 50; i++) {
             currentContent.add(new Span("Linijka tekstu numer " + i));
         }
+
+        return currentContent;
     }
 
     @Override
