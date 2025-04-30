@@ -38,7 +38,7 @@ public class JwtService {
                 .compact();
     }
 
-    public String extractUserFirstName(String token) {
+    public String extractUsername(String token) {
         // using extractClaim we can extract the username, or any other claim (those defaults and each custom claim we
         // create), from jwt token
         return extractClaim(token, Claims::getSubject);
@@ -73,7 +73,7 @@ public class JwtService {
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
-        final String userName = extractUserFirstName(token);
+        final String userName = extractUsername(token);
         return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 

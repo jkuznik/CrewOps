@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.auth.*;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.exception.UsernameAlreadyExistException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.auth.AuthUser;
 import pl.crewops.model.auth.Role;
@@ -30,27 +32,39 @@ class AuthService implements AuthAPI {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public AuthUser getByUsername(@NotNull String username) {
-        return authUserRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+    public Optional<AuthUser> getByUsername(@NotNull String username) {
+        return authUserRepository.findByUsername(username);
     }
 
     @Transactional
     public AuthUser createAuthUser(CreateAuthUserDTO createAuthUserDTO, Employee employee) {
-        var authUser = new AuthUser();
-        authUser.setUsername(createAuthUserDTO.username());
-        authUser.setPassword(passwordEncoder.encode(createAuthUserDTO.password()));
-        Set<Role> roles = new HashSet<>();
-        createAuthUserDTO
-                .roles()
-                .forEach(role -> roles.add(roleRepository.findById(role.id()).orElseThrow()));
-        authUser.setRoles(roles);
-        authUser.setEmployee(employee);
-        return authUserRepository.save(authUser);
+        if (getByUsername(createAuthUserDTO.username()).isPresent()) {
+            log.error("Username " + createAuthUserDTO.username() + " already exists");
+            throw new UsernameAlreadyExistException("Username " + createAuthUserDTO.username() + " already exists");
+        }
+        try {
+            var authUser = new AuthUser();
+            authUser.setUsername(createAuthUserDTO.username());
+            authUser.setPassword(passwordEncoder.encode(createAuthUserDTO.password()));
+            Set<Role> roles = new HashSet<>();
+            createAuthUserDTO
+                    .roles()
+                    .forEach(role ->
+                            roles.add(roleRepository.findByName(role.name()).orElseThrow()));
+            log.info("Creating auth user " + createAuthUserDTO.username() + " with roles " + roles);
+            authUser.setRoles(roles);
+            authUser.setEmployee(employee);
+            log.info("Auth user instantiated successfully as " + authUser.toString());
+            return authUserRepository.save(authUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Transactional
     public AuthResponse login(@NotNull AuthRequest authRequest, HttpServletResponse response) {
-        AuthUser byUsername = getByUsername(authRequest.username());
+        AuthUser byUsername = byUsername(authRequest.username());
         log.info("Login action by username: {}", byUsername);
 
         try {
@@ -77,7 +91,7 @@ class AuthService implements AuthAPI {
     }
 
     public ValidTokenResponse validateToken(@NotNull ValidTokenRequest validTokenRequest) {
-        var authUser = getByUsername(validTokenRequest.username());
+        var authUser = byUsername(validTokenRequest.username());
         var userDetails = new UserPrincipal(authUser);
         boolean result = false;
         try {
@@ -87,5 +101,9 @@ class AuthService implements AuthAPI {
             log.info("Token validation - token not exist");
         }
         return new ValidTokenResponse(result);
+    }
+
+    private AuthUser byUsername(String username) {
+        return getByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
     }
 }

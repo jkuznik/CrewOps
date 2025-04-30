@@ -25,6 +25,7 @@ import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.exception.EmployeeNotFoundException;
 import pl.crewops.exception.EmployeeQualificationNotFoundException;
 import pl.crewops.exception.ExpireAtException;
+import pl.crewops.exception.UsernameAlreadyExistException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Qualification;
 import pl.crewops.model.Vehicle;
@@ -45,15 +46,24 @@ class EmployeeService {
 
     @Transactional
     public EmployeeDTO createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO) {
-        Employee employee = employeeRepository.save(mapToEntity(createEmployeeDTO));
-        var createAuthUser = CreateAuthUserDTO.builder()
-                .username(createEmployeeDTO.username())
-                .password(createEmployeeDTO.password())
-                .roles(createEmployeeDTO.roles())
-                .build();
-        authAPI.createAuthUser(createAuthUser, employee);
-        log.info("Create employee {}", createEmployeeDTO);
-        return mapToDTO(employee);
+        if (authAPI.getByUsername(createEmployeeDTO.username()).isPresent()) {
+            throw new UsernameAlreadyExistException(createEmployeeDTO.username());
+        }
+
+        try {
+            Employee employee = employeeRepository.save(mapToEntity(createEmployeeDTO));
+            var createAuthUser = CreateAuthUserDTO.builder()
+                    .username(createEmployeeDTO.username())
+                    .password(createEmployeeDTO.password())
+                    .roles(createEmployeeDTO.roles())
+                    .build();
+            authAPI.createAuthUser(createAuthUser, employee);
+            log.info("Create employee {}", createEmployeeDTO);
+            return mapToDTO(employee);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 
     public List<EmployeeDTO> getAllEmployees(int page, int size) {

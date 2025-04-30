@@ -1,17 +1,27 @@
-package pl.crewops.domain.employee;
+package pl.crewops.domain.auth;
 
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
+import pl.crewops.auth.CreateAuthUserDTO;
+import pl.crewops.auth.RoleDTO;
+import pl.crewops.auth.RoleType;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.enums.VehicleType;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Qualification;
 import pl.crewops.model.Vehicle;
 
-class EmployeeTestFactory {
+public class AuthTestFactory {
+
+    public static CreateAuthUserDTO createAuthUserDTO() {
+        return CreateAuthUserDTO.builder()
+                .username("username")
+                .password("password")
+                .roles(Set.of(RoleDTO.builder().name(RoleType.MANAGER.name()).build()))
+                .build();
+    }
 
     public static Employee createEmployeeWithQualificationsAndVehicles() {
         return Employee.builder()
@@ -27,17 +37,6 @@ class EmployeeTestFactory {
 
     public static Employee createEmployeeWithoutQualificationsAndVehicles() {
         return Employee.builder()
-                .firstName("firstName")
-                .lastName("lastName")
-                .birthDate(LocalDate.parse("2000-01-01"))
-                .phoneNumber("123456789")
-                .department("department")
-                .build();
-    }
-
-    public static EmployeeDTO employeeDTO() {
-        return EmployeeDTO.builder()
-                .id(UUID.fromString("11111111-1111-1111-1111-111111111111"))
                 .firstName("firstName")
                 .lastName("lastName")
                 .birthDate(LocalDate.parse("2000-01-01"))
