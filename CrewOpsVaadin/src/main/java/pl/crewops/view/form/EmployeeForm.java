@@ -18,7 +18,7 @@ import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.view.component.QualificationAccordion;
 import pl.crewops.view.component.VehicleAccordion;
-import pl.crewops.view.model.EmployeeFormModel;
+import pl.crewops.view.form.model.EmployeeFormModel;
 
 @SpringComponent
 public class EmployeeForm extends FormLayout {

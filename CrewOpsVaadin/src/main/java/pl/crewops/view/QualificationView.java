@@ -16,11 +16,11 @@ import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
-import pl.crewops.view.component.HomeViewFooter;
-import pl.crewops.view.component.MainLayout;
-import pl.crewops.view.component.MainView;
+import pl.crewops.view.component.mainLayout.MainFooter;
+import pl.crewops.view.component.mainLayout.MainLayout;
+import pl.crewops.view.component.mainLayout.MainView;
 import pl.crewops.view.form.QualificationForm;
-import pl.crewops.view.model.QualificationFormModel;
+import pl.crewops.view.form.model.QualificationFormModel;
 
 @SpringComponent
 @Scope("prototype")
@@ -33,7 +33,7 @@ public class QualificationView extends MainLayout {
     QualificationForm form;
 
     public QualificationView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
-        super(coreAPI, jwtInfoService, new MainView(), new HomeViewFooter());
+        super(coreAPI, jwtInfoService, new MainView(), new MainFooter());
         addClassName("qualification-view");
         VerticalLayout currentContent = new VerticalLayout();
         currentContent.setId("current-content");

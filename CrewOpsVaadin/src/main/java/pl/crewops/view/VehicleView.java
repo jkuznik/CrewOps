@@ -16,11 +16,11 @@ import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
-import pl.crewops.view.component.HomeViewFooter;
-import pl.crewops.view.component.MainLayout;
-import pl.crewops.view.component.MainView;
+import pl.crewops.view.component.mainLayout.MainFooter;
+import pl.crewops.view.component.mainLayout.MainLayout;
+import pl.crewops.view.component.mainLayout.MainView;
 import pl.crewops.view.form.VehicleForm;
-import pl.crewops.view.model.VehicleFormModel;
+import pl.crewops.view.form.model.VehicleFormModel;
 
 @SpringComponent
 @Slf4j
@@ -33,7 +33,7 @@ public class VehicleView extends MainLayout {
     VehicleForm form;
 
     public VehicleView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
-        super(coreAPI, jwtInfoService, new MainView(), new HomeViewFooter());
+        super(coreAPI, jwtInfoService, new MainView(), new MainFooter());
         addClassName("vehicle-view");
         VerticalLayout currentContent = new VerticalLayout();
         currentContent.setId("current-content");
@@ -80,7 +80,7 @@ public class VehicleView extends MainLayout {
     }
 
     private Component getToolbar() {
-        filterText.setPlaceholder("Filer by type");
+        filterText.setPlaceholder("Filter by type");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
         filterText.addValueChangeListener(event -> updateList());
@@ -88,7 +88,7 @@ public class VehicleView extends MainLayout {
         Button addVehicleButton = new Button("Add vehicle");
         addVehicleButton.addClickListener(e -> addVehicle());
 
-        var toolbar = new HorizontalLayout(addVehicleButton, filterText);
+        var toolbar = new HorizontalLayout(filterText, addVehicleButton);
         toolbar.addClassName("vehicle-toolbar");
         return toolbar;
     }

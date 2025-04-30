@@ -13,9 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
-import pl.crewops.view.component.HomeViewFooter;
-import pl.crewops.view.component.MainLayout;
-import pl.crewops.view.component.MainView;
+import pl.crewops.view.component.mainLayout.MainFooter;
+import pl.crewops.view.component.mainLayout.MainLayout;
+import pl.crewops.view.component.mainLayout.MainView;
 
 @SpringComponent
 @Slf4j
@@ -25,7 +25,7 @@ import pl.crewops.view.component.MainView;
 public class HomeView extends MainLayout {
 
     public HomeView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
-        super(coreAPI, jwtInfoService, new MainView(), new HomeViewFooter());
+        super(coreAPI, jwtInfoService, new MainView(), new MainFooter());
         addClassName("home-view");
         VerticalLayout currentContent = new VerticalLayout();
         currentContent.setId("current-content");

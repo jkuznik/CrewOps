@@ -16,11 +16,11 @@ import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
-import pl.crewops.view.component.HomeViewFooter;
-import pl.crewops.view.component.MainLayout;
-import pl.crewops.view.component.MainView;
+import pl.crewops.view.component.mainLayout.MainFooter;
+import pl.crewops.view.component.mainLayout.MainLayout;
+import pl.crewops.view.component.mainLayout.MainView;
 import pl.crewops.view.form.EmployeeForm;
-import pl.crewops.view.model.EmployeeFormModel;
+import pl.crewops.view.form.model.EmployeeFormModel;
 
 @SpringComponent
 @Slf4j
@@ -33,7 +33,7 @@ public class EmployeeView extends MainLayout {
     EmployeeForm form;
 
     public EmployeeView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
-        super(coreAPI, jwtInfoService, new MainView(), new HomeViewFooter());
+        super(coreAPI, jwtInfoService, new MainView(), new MainFooter());
         addClassName("employee-view");
         VerticalLayout currentContent = new VerticalLayout();
         currentContent.setId("current-content");
