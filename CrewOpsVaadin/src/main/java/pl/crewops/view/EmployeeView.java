@@ -13,7 +13,6 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
-import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
 import pl.crewops.view.component.mainLayout.MainLayout;
@@ -26,7 +25,7 @@ import pl.crewops.view.form.model.EmployeeFormModel;
 @Route(value = "employees")
 @PageTitle("Employee management")
 public class EmployeeView extends MainLayout {
-    Grid<EmployeeDTO> grid = new Grid<>(EmployeeDTO.class);
+    Grid<EmployeeFormModel> grid = new Grid<>(EmployeeFormModel.class);
     TextField filterText = new TextField();
     EmployeeForm form;
 
@@ -50,7 +49,7 @@ public class EmployeeView extends MainLayout {
 
         currentContent.add(getToolbar(), getCurrentContent());
 
-        updateList();
+        updateGrid();
         closeEditor();
     }
 
@@ -58,7 +57,7 @@ public class EmployeeView extends MainLayout {
         filterText.setPlaceholder("Filter by name...");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
-        filterText.addValueChangeListener(e -> updateList());
+        filterText.addValueChangeListener(e -> updateGrid());
 
         Button addEmployeeButton = new Button("Add employee");
         addEmployeeButton.addClickListener(click -> addEmployee());
@@ -95,19 +94,21 @@ public class EmployeeView extends MainLayout {
         form.addCloseListener(e -> closeEditor());
     }
 
-    private void updateList() {
-        List<EmployeeDTO> employees = coreAPI.getAllEmployees();
+    private void updateGrid() {
+        List<EmployeeFormModel> employees = coreAPI.getAllEmployees().stream()
+                .map(EmployeeFormModel::toEmployeeFormModel)
+                .toList();
 
         if (filterText.getValue() == null) {
             grid.setItems(employees);
         } else {
             grid.setItems(employees.stream()
                     .filter(employeeDTO -> employeeDTO
-                                    .firstName()
+                                    .getFirstName()
                                     .toLowerCase()
                                     .contains(filterText.getValue().toLowerCase())
                             || employeeDTO
-                                    .lastName()
+                                    .getLastName()
                                     .toLowerCase()
                                     .contains(filterText.getValue().toLowerCase()))
                     .toList());
@@ -122,15 +123,15 @@ public class EmployeeView extends MainLayout {
 
     private void saveContact(EmployeeForm.SaveEvent event) {
         coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
-        updateList();
+        updateGrid();
         closeEditor();
     }
 
-    public void editEmployee(EmployeeDTO employeeDTO) {
-        if (employeeDTO == null) {
+    public void editEmployee(EmployeeFormModel employeeFormModel) {
+        if (employeeFormModel == null) {
             closeEditor();
         } else {
-            form.setEmployee(employeeDTO);
+            form.setEmployee(employeeFormModel);
             form.setVisible(true);
             addClassName("editing");
         }
@@ -139,7 +140,7 @@ public class EmployeeView extends MainLayout {
     private void deleteContact(EmployeeForm.DeleteEvent event) {
         log.info("Deleting contact {}", event.getEmployee().getFirstName());
         coreAPI.deleteEmployee(event.getEmployee().getId());
-        updateList();
+        updateGrid();
         closeEditor();
     }
 

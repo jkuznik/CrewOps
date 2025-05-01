@@ -1,6 +1,7 @@
 package pl.crewops.view.form.model;
 
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.UUID;
 import lombok.*;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
@@ -18,6 +19,8 @@ public class EmployeeFormModel {
     private LocalDate birthDate;
     private String phoneNumber;
     private String department;
+    private Set<UUID> qualificationsSet;
+    private Set<UUID> vehiclesSet;
 
     public static EmployeeFormModel toEmployeeFormModel(EmployeeDTO employeeDTO) {
         return EmployeeFormModel.builder()
@@ -26,6 +29,8 @@ public class EmployeeFormModel {
                 .birthDate(employeeDTO.birthDate())
                 .phoneNumber(employeeDTO.phoneNumber())
                 .department(employeeDTO.department())
+                .qualificationsSet(employeeDTO.qualifications())
+                .vehiclesSet(employeeDTO.vehicles())
                 .build();
     }
 

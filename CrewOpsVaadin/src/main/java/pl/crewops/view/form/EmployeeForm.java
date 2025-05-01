@@ -14,7 +14,6 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
-import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.view.component.QualificationAccordion;
 import pl.crewops.view.component.VehicleAccordion;
@@ -33,10 +32,7 @@ public class EmployeeForm extends FormLayout {
     Button save = new Button("Save");
     Button delete = new Button("Delete");
     Button close = new Button("Cancel");
-    Binder<EmployeeDTO> binder = new BeanValidationBinder<>(EmployeeDTO.class);
-
-    // TODO: temporary I left this solution. Improve binding values in the future
-    EmployeeFormModel model = new EmployeeFormModel();
+    Binder<EmployeeFormModel> binder = new BeanValidationBinder<>(EmployeeFormModel.class);
 
     public EmployeeForm(CoreAPI coreAPI) {
         addClassName("employee-form");
@@ -58,25 +54,24 @@ public class EmployeeForm extends FormLayout {
         close.addClickShortcut(Key.ESCAPE);
 
         save.addClickListener(event -> validateAndSave());
-        delete.addClickListener(event -> fireEvent(new DeleteEvent(this, model)));
+        delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
         close.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
-        binder.addStatusChangeListener(e -> save.setEnabled(modelValidation(model)));
+        binder.addStatusChangeListener(e -> save.setEnabled(modelValidation(binder.getBean())));
         return new HorizontalLayout(save, delete, close);
     }
 
     private void validateAndSave() {
-        if (modelValidation(model)) {
-            fireEvent(new SaveEvent(this, model));
+        if (modelValidation(binder.getBean())) {
+            fireEvent(new SaveEvent(this, binder.getBean()));
         }
     }
 
-    public void setEmployee(EmployeeDTO employeeDTO) {
-        binder.readBean(employeeDTO);
-        if (employeeDTO != null) {
-            setModelValues(employeeDTO);
-            qualifications.setConfig(employeeDTO.qualifications());
-            vehicles.setConfig(employeeDTO.vehicles());
+    public void setEmployee(EmployeeFormModel employeeFormModel) {
+        binder.setBean(employeeFormModel);
+        if (employeeFormModel != null) {
+            qualifications.setConfig(employeeFormModel.getQualificationsSet());
+            vehicles.setConfig(employeeFormModel.getVehiclesSet());
         }
     }
 
@@ -126,17 +121,6 @@ public class EmployeeForm extends FormLayout {
 
     public Registration addCloseListener(ComponentEventListener<CloseEvent> listener) {
         return addListener(CloseEvent.class, listener);
-    }
-
-    // TODO: add logic to inform user which text field are not valid in case of false return/ or improve binder feature
-
-    private void setModelValues(EmployeeDTO employeeDTO) {
-        model.setId(employeeDTO.id());
-        model.setFirstName(firstName.getValue());
-        model.setLastName(lastName.getValue());
-        model.setBirthDate(birthDate.getValue());
-        model.setPhoneNumber(phoneNumber.getValue());
-        model.setDepartment(department.getValue());
     }
 
     private boolean modelValidation(EmployeeFormModel employeeFormModel) {
