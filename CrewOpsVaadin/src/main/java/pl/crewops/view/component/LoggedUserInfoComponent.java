@@ -31,7 +31,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         infoLayout.setWidthFull();
         infoLayout.setSpacing(true);
 
-        H1 title = new H1("Jesteś zalogowany jako ");
+        H1 title = new H1("You are logged as ");
 
         //        TODO: implement logoutButton logic
         Button logoutButton = new Button("Logout");
@@ -44,7 +44,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
     private MessageList getInfo(JwtInfoService jwtInfoService) {
         MessageList info = new MessageList();
         MessageListItem item = new MessageListItem(
-                "Sesja aktywna do czasu powyżej",
+                "Session validation time",
                 jwtInfoService.getExpires().toInstant(),
                 jwtInfoService.getFirstName() + " " + jwtInfoService.getLastName());
         info.setItems(item);

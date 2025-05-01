@@ -40,11 +40,11 @@ public class HomeView extends MainLayout {
         currentContent.setSpacing(true);
         currentContent.getStyle().set("overflow", "auto");
 
-        H1 title = new H1("Tutaj treść strony startowej");
+        H1 title = new H1("Home view content");
         currentContent.add(title);
 
         for (int i = 1; i <= 50; i++) {
-            currentContent.add(new Span("Linijka tekstu numer " + i));
+            currentContent.add(new Span("Text line " + i));
         }
 
         return currentContent;
@@ -61,7 +61,7 @@ public class HomeView extends MainLayout {
                 const content = document.getElementById('current-content');
                 const footer = document.getElementById('footer');
                 content.addEventListener('scroll', function() {
-                    // Obliczamy procent przewinięcia
+                    // Percentage of content scroll
                     const scrollTop = content.scrollTop;
                     const scrollHeight = content.scrollHeight;
                     const clientHeight = content.clientHeight;

@@ -28,7 +28,7 @@ public class MainFooter extends Footer {
         leftSide.setSpacing(true);
         leftSide.setWidth("100%");
 
-        Span contactSpan = new Span("Tutaj kontakt");
+        Span contactSpan = new Span("Contact");
         contactSpan
                 .getStyle()
                 .set("font-size", "12px")
@@ -43,7 +43,7 @@ public class MainFooter extends Footer {
         rightSide.setSpacing(true);
         rightSide.setWidth("100%");
 
-        Span infoSpan = new Span("Tutaj info");
+        Span infoSpan = new Span("Info");
         infoSpan.getStyle()
                 .set("font-size", "12px")
                 .set("color", "#888")

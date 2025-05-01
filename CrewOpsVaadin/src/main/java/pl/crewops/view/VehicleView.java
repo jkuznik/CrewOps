@@ -99,10 +99,11 @@ public class VehicleView extends MainLayout {
         } else {
             grid.setItems(vehicles.stream()
                     .filter(vehicleDTO -> vehicleDTO
-                            //                            .vehicleType()
-                            //                            .name()
-                            .registerNumber()
+                            .vehicleType()
+                            .name()
                             .toLowerCase()
+                            //                            .registerNumber()
+                            //                            .toLowerCase()
                             .contains(filterText.getValue().toLowerCase()))
                     .toList());
         }
