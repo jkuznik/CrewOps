@@ -31,8 +31,7 @@ public class JwtService {
                 .claims()
                 .subject(userDetails.getUsername())
                 .issuedAt(Date.from(Instant.now()))
-                .expiration(
-                        Date.from(Instant.now().plusSeconds(Long.getLong(securityConfigProperties.getJwtExpiration()))))
+                .expiration(Date.from(Instant.now().plusSeconds(securityConfigProperties.getJwtExpiration())))
                 .add(claims)
                 .and()
                 .signWith(getKey())
