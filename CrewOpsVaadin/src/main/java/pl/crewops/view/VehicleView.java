@@ -1,18 +1,19 @@
 package pl.crewops.view;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.spring.annotation.SpringComponent;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
@@ -21,12 +22,10 @@ import pl.crewops.view.component.mainLayout.MainLayout;
 import pl.crewops.view.form.VehicleForm;
 import pl.crewops.view.form.model.VehicleFormModel;
 
-@SpringComponent
 @Slf4j
-@Scope("prototype")
 @Route(value = "vehicles")
 @PageTitle("Vehicle view")
-public class VehicleView extends MainLayout {
+public class VehicleView extends MainLayout implements BeforeEnterObserver {
     Grid<VehicleDTO> grid = new Grid<>(VehicleDTO.class);
     TextField filterText = new TextField();
     VehicleForm form;
@@ -142,7 +141,6 @@ public class VehicleView extends MainLayout {
 
     private void deleteContact(VehicleForm.DeleteEvent event) {
         try {
-            log.info("Deleting contact {}", event.getVehicle().getId());
             coreAPI.deleteVehicle(event.getVehicle().getId());
             updateList();
             closeEditor();
@@ -154,5 +152,13 @@ public class VehicleView extends MainLayout {
     private void addVehicle() {
         grid.asSingleSelect().clear();
         form.setVisible(true);
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        if (!jwtInfoService.validToken()) {
+            event.forwardTo(HomeView.class);
+            UI.getCurrent().getPage().setLocation("/");
+        }
     }
 }

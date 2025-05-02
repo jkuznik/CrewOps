@@ -8,16 +8,10 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.spring.annotation.SpringComponent;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Scope;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
 import pl.crewops.view.component.mainLayout.MainLayout;
 
-@SpringComponent
-@Slf4j
-@Scope("prototype")
 @Route(value = "")
 @PageTitle("Crew Ops")
 public class HomeView extends MainLayout {
