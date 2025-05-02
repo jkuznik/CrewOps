@@ -57,12 +57,12 @@ public class EmployeeForm extends FormLayout {
         delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
         close.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
-        binder.addStatusChangeListener(e -> save.setEnabled(modelValidation(binder.getBean())));
+        binder.addStatusChangeListener(e -> save.setEnabled(binder.isValid()));
         return new HorizontalLayout(save, delete, close);
     }
 
     private void validateAndSave() {
-        if (modelValidation(binder.getBean())) {
+        if (binder.isValid()) {
             fireEvent(new SaveEvent(this, binder.getBean()));
         }
     }
@@ -121,30 +121,5 @@ public class EmployeeForm extends FormLayout {
 
     public Registration addCloseListener(ComponentEventListener<CloseEvent> listener) {
         return addListener(CloseEvent.class, listener);
-    }
-
-    private boolean modelValidation(EmployeeFormModel employeeFormModel) {
-        employeeFormModel.setFirstName(firstName.getValue());
-        employeeFormModel.setLastName(lastName.getValue());
-        employeeFormModel.setBirthDate(birthDate.getValue());
-        employeeFormModel.setPhoneNumber(phoneNumber.getValue());
-        employeeFormModel.setDepartment(department.getValue());
-
-        if (employeeFormModel.getFirstName().isEmpty()) {
-            return false;
-        }
-        if (employeeFormModel.getLastName().isEmpty()) {
-            return false;
-        }
-        if (employeeFormModel.getBirthDate() == null) {
-            return false;
-        }
-        if (employeeFormModel.getPhoneNumber().length() > 15) {
-            return false;
-        }
-        if (employeeFormModel.getDepartment().isEmpty()) {
-            return false;
-        }
-        return true;
     }
 }

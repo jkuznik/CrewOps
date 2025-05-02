@@ -159,6 +159,9 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if (!jwtInfoService.validToken()) {
+            // TODO: try to show notification in this case
+            // TODO: add some listener of any action (add, edit, delete employee, etc.), currently navigation work only
+            // in case entering into secured view
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");
         }
