@@ -13,6 +13,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
+import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
 import pl.crewops.view.component.mainLayout.MainLayout;
@@ -95,23 +96,27 @@ public class EmployeeView extends MainLayout {
     }
 
     private void updateGrid() {
-        List<EmployeeFormModel> employees = coreAPI.getAllEmployees().stream()
-                .map(EmployeeFormModel::toEmployeeFormModel)
-                .toList();
+        try {
+            List<EmployeeFormModel> employees = coreAPI.getAllEmployees().stream()
+                    .map(EmployeeFormModel::toEmployeeFormModel)
+                    .toList();
 
-        if (filterText.getValue() == null) {
-            grid.setItems(employees);
-        } else {
-            grid.setItems(employees.stream()
-                    .filter(employeeDTO -> employeeDTO
-                                    .getFirstName()
-                                    .toLowerCase()
-                                    .contains(filterText.getValue().toLowerCase())
-                            || employeeDTO
-                                    .getLastName()
-                                    .toLowerCase()
-                                    .contains(filterText.getValue().toLowerCase()))
-                    .toList());
+            if (filterText.getValue() == null) {
+                grid.setItems(employees);
+            } else {
+                grid.setItems(employees.stream()
+                        .filter(employeeDTO -> employeeDTO
+                                        .getFirstName()
+                                        .toLowerCase()
+                                        .contains(filterText.getValue().toLowerCase())
+                                || employeeDTO
+                                        .getLastName()
+                                        .toLowerCase()
+                                        .contains(filterText.getValue().toLowerCase()))
+                        .toList());
+            }
+        } catch (NotAuthenticatedException e) {
+            // TODO: implement logic
         }
     }
 
@@ -122,9 +127,13 @@ public class EmployeeView extends MainLayout {
     }
 
     private void saveContact(EmployeeForm.SaveEvent event) {
-        coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
-        updateGrid();
-        closeEditor();
+        try {
+            coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
+            updateGrid();
+            closeEditor();
+        } catch (NotAuthenticatedException e) {
+            // TODO: implement logic
+        }
     }
 
     public void editEmployee(EmployeeFormModel employeeFormModel) {
@@ -138,10 +147,14 @@ public class EmployeeView extends MainLayout {
     }
 
     private void deleteContact(EmployeeForm.DeleteEvent event) {
-        log.info("Deleting contact {}", event.getEmployee().getFirstName());
-        coreAPI.deleteEmployee(event.getEmployee().getId());
-        updateGrid();
-        closeEditor();
+        try {
+            log.info("Deleting contact {}", event.getEmployee().getFirstName());
+            coreAPI.deleteEmployee(event.getEmployee().getId());
+            updateGrid();
+            closeEditor();
+        } catch (NotAuthenticatedException e) {
+            // TODO: implement logic
+        }
     }
 
     private void addEmployee() {

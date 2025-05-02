@@ -14,6 +14,7 @@ import jakarta.annotation.security.PermitAll;
 import java.util.List;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.qualification.QualificationDTO;
+import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
 import pl.crewops.view.component.mainLayout.MainLayout;
@@ -96,17 +97,21 @@ public class QualificationView extends MainLayout {
     }
 
     private void updateList() {
-        List<QualificationDTO> employees = coreAPI.getAllQualifications();
+        try {
+            List<QualificationDTO> employees = coreAPI.getAllQualifications();
 
-        if (filterText.getValue() == null) {
-            grid.setItems(employees);
-        } else {
-            grid.setItems(employees.stream()
-                    .filter(qualificationDTO -> qualificationDTO
-                            .description()
-                            .toLowerCase()
-                            .contains(filterText.getValue().toLowerCase()))
-                    .toList());
+            if (filterText.getValue() == null) {
+                grid.setItems(employees);
+            } else {
+                grid.setItems(employees.stream()
+                        .filter(qualificationDTO -> qualificationDTO
+                                .description()
+                                .toLowerCase()
+                                .contains(filterText.getValue().toLowerCase()))
+                        .toList());
+            }
+        } catch (NotAuthenticatedException e) {
+            // TODO: implement logic
         }
     }
 
@@ -117,16 +122,24 @@ public class QualificationView extends MainLayout {
     }
 
     private void saveContact(QualificationForm.SaveEvent event) {
-        // TODO: add 'unique description' validation
-        coreAPI.createQualification(QualificationFormModel.toCreateQualificationDTO(event.getQualification()));
-        updateList();
-        closeEditor();
+        try {
+            // TODO: add 'unique description' validation
+            coreAPI.createQualification(QualificationFormModel.toCreateQualificationDTO(event.getQualification()));
+            updateList();
+            closeEditor();
+        } catch (NotAuthenticatedException e) {
+            // TODO: implement logic
+        }
     }
 
     private void deleteContact(QualificationForm.DeleteEvent event) {
-        coreAPI.deleteQualification(event.getQualification().getId());
-        updateList();
-        closeEditor();
+        try {
+            coreAPI.deleteQualification(event.getQualification().getId());
+            updateList();
+            closeEditor();
+        } catch (NotAuthenticatedException e) {
+            // TODO: implement logic
+        }
     }
 
     public void editQualification(QualificationDTO qualificationDTO) {

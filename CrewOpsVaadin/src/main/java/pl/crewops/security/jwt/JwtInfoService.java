@@ -41,6 +41,8 @@ public class JwtInfoService {
             lastName = null;
             expires = null;
 
+            coreAPI.resetToken();
+
             return false;
         }
     }

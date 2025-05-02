@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import pl.crewops.dto.vehicle.VehicleDTO;
+import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 
 @SpringComponent
@@ -43,6 +44,11 @@ public class VehicleAccordion extends FormLayout {
     }
 
     private List<VehicleDTO> getVehicles(Set<UUID> vehicleIds) {
-        return coreAPI.getVehiclesByIds(vehicleIds);
+        try {
+            return coreAPI.getVehiclesByIds(vehicleIds);
+        } catch (NotAuthenticatedException e) {
+            // TODO: implement logic
+            return new ArrayList<>();
+        }
     }
 }

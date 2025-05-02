@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import pl.crewops.dto.qualification.QualificationDTO;
+import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 
 @SpringComponent
@@ -42,6 +43,11 @@ public class QualificationAccordion extends FormLayout {
     }
 
     private List<QualificationDTO> getQualifications(Set<UUID> qualificationsIds) {
-        return coreAPI.getQualificationsByIds(qualificationsIds);
+        try {
+            return coreAPI.getQualificationsByIds(qualificationsIds);
+        } catch (NotAuthenticatedException e) {
+            // TODO: implement logic
+            return new ArrayList<>();
+        }
     }
 }

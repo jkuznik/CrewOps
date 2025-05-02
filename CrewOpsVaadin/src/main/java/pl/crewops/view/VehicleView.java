@@ -14,6 +14,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.dto.vehicle.VehicleDTO;
+import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
 import pl.crewops.view.component.mainLayout.MainLayout;
@@ -92,20 +93,24 @@ public class VehicleView extends MainLayout {
     }
 
     private void updateList() {
-        List<VehicleDTO> vehicles = coreAPI.getAllVehicles();
+        try {
+            List<VehicleDTO> vehicles = coreAPI.getAllVehicles();
 
-        if (filterText.getValue() == null) {
-            grid.setItems(vehicles);
-        } else {
-            grid.setItems(vehicles.stream()
-                    .filter(vehicleDTO -> vehicleDTO
-                            .vehicleType()
-                            .name()
-                            .toLowerCase()
-                            //                            .registerNumber()
-                            //                            .toLowerCase()
-                            .contains(filterText.getValue().toLowerCase()))
-                    .toList());
+            if (filterText.getValue() == null) {
+                grid.setItems(vehicles);
+            } else {
+                grid.setItems(vehicles.stream()
+                        .filter(vehicleDTO -> vehicleDTO
+                                .vehicleType()
+                                .name()
+                                .toLowerCase()
+                                //                            .registerNumber()
+                                //                            .toLowerCase()
+                                .contains(filterText.getValue().toLowerCase()))
+                        .toList());
+            }
+        } catch (NotAuthenticatedException e) {
+            // TODO: implement logic
         }
     }
 
@@ -116,9 +121,13 @@ public class VehicleView extends MainLayout {
     }
 
     private void saveContact(VehicleForm.SaveEvent event) {
-        coreAPI.createVehicle(VehicleFormModel.toCreateVehicleDTO(event.getVehicle()));
-        updateList();
-        closeEditor();
+        try {
+            coreAPI.createVehicle(VehicleFormModel.toCreateVehicleDTO(event.getVehicle()));
+            updateList();
+            closeEditor();
+        } catch (NotAuthenticatedException e) {
+            // TODO: implement logic
+        }
     }
 
     public void editVehicle(VehicleDTO vehicleDTO) {
@@ -132,10 +141,14 @@ public class VehicleView extends MainLayout {
     }
 
     private void deleteContact(VehicleForm.DeleteEvent event) {
-        log.info("Deleting contact {}", event.getVehicle().getId());
-        coreAPI.deleteVehicle(event.getVehicle().getId());
-        updateList();
-        closeEditor();
+        try {
+            log.info("Deleting contact {}", event.getVehicle().getId());
+            coreAPI.deleteVehicle(event.getVehicle().getId());
+            updateList();
+            closeEditor();
+        } catch (NotAuthenticatedException e) {
+            // TODO: implment logic
+        }
     }
 
     private void addVehicle() {

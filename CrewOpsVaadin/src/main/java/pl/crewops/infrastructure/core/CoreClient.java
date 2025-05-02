@@ -22,6 +22,7 @@ import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
+import pl.crewops.exceptions.NotAuthenticatedException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,7 +31,8 @@ class CoreClient implements CoreAPI {
     private final RestClient coreClient;
     private RestClient authorizedClient;
 
-    @Override
+    private boolean authenticated;
+
     public AuthResponse login(AuthRequest authRequest) {
         try {
             return coreClient
@@ -46,19 +48,10 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    @Override
-    public void setToken(AuthResponse response) {
-        this.authorizedClient = coreClient
-                .mutate()
-                .defaultHeader("Authorization", "Bearer " + response.token())
-                .build();
-    }
-
-    @Override
     public ValidTokenResponse validateToken(ValidTokenRequest validTokenRequest) {
         try {
             log.debug("Validating token start");
-            ValidTokenResponse body = authorizedClient
+            ValidTokenResponse body = coreClient
                     .post()
                     .uri(uriBuilder -> uriBuilder.path(VALIDATE).build())
                     .body(validTokenRequest)
@@ -72,7 +65,8 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) {
+    public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             return Optional.ofNullable(authorizedClient
                     .post()
@@ -87,7 +81,9 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO) {
+    public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO)
+            throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             return Optional.ofNullable(authorizedClient
                     .post()
@@ -102,7 +98,8 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public Optional<VehicleDTO> createVehicle(CreateVehicleDTO createVehicleDTO) {
+    public Optional<VehicleDTO> createVehicle(CreateVehicleDTO createVehicleDTO) throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             return Optional.ofNullable(authorizedClient
                     .post()
@@ -117,7 +114,8 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public List<EmployeeDTO> getAllEmployees() {
+    public List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             return authorizedClient
                     .get()
@@ -131,7 +129,8 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public List<QualificationDTO> getAllQualifications() {
+    public List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             return authorizedClient
                     .get()
@@ -145,7 +144,8 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public List<VehicleDTO> getAllVehicles() {
+    public List<VehicleDTO> getAllVehicles() throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             return authorizedClient
                     .get()
@@ -159,7 +159,8 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public List<QualificationDTO> getQualificationsByIds(Set<UUID> qualificationsIds) {
+    public List<QualificationDTO> getQualificationsByIds(Set<UUID> qualificationsIds) throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             return authorizedClient
                     .post()
@@ -174,7 +175,8 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public List<VehicleDTO> getVehiclesByIds(Set<UUID> vehiclesIds) {
+    public List<VehicleDTO> getVehiclesByIds(Set<UUID> vehiclesIds) throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             return authorizedClient
                     .post()
@@ -189,7 +191,8 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public void deleteEmployee(UUID employeeId) {
+    public void deleteEmployee(UUID employeeId) throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             authorizedClient
                     .delete()
@@ -203,7 +206,8 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public void deleteQualification(UUID qualificationId) {
+    public void deleteQualification(UUID qualificationId) throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             authorizedClient
                     .delete()
@@ -217,9 +221,10 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public void deleteVehicle(UUID vehicleId) {
+    public void deleteVehicle(UUID vehicleId) throws NotAuthenticatedException {
+        isAuthenticated();
         try {
-            coreClient
+            authorizedClient
                     .delete()
                     .uri(uriBuilder -> uriBuilder
                             .path(VEHICLES_VID.replace("{" + VEHICLE_ID + "}", vehicleId.toString()))
@@ -228,6 +233,24 @@ class CoreClient implements CoreAPI {
                     .toBodilessEntity();
         } catch (RestClientException e) {
             log.error("Error deleting vehicle", e);
+        }
+    }
+
+    public void setToken(AuthResponse response) {
+        authenticated = true;
+        authorizedClient = coreClient
+                .mutate()
+                .defaultHeader("Authorization", "Bearer " + response.token())
+                .build();
+    }
+
+    public void resetToken() {
+        authenticated = false;
+    }
+
+    private void isAuthenticated() throws NotAuthenticatedException {
+        if (!authenticated) {
+            throw new NotAuthenticatedException();
         }
     }
 }

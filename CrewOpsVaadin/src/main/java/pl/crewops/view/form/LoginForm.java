@@ -49,7 +49,6 @@ public class LoginForm extends FormLayout {
         var authRequest = new AuthRequest(username.getValue(), password.getValue());
         AuthResponse authResponse = coreAPI.login(authRequest);
         jwtInfoService.setToken(authResponse.token());
-        // todo: zmienic ta logike na taka aby coreAPI każdorazowo sprawdzała ważność tokena
         coreAPI.setToken(authResponse);
 
         log.debug("Auth response: " + authResponse);
