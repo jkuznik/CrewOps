@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -31,7 +32,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         super(coreAPI, jwtInfoService);
         addClassName("employee-view");
         VerticalLayout currentContent = new VerticalLayout();
-        currentContent.setId("current-content");
+        currentContent.setId("view-content");
 
         mainContent.removeAll();
         mainContent.add(currentContent, mainFooter);
@@ -52,16 +53,22 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
     }
 
     private Component getToolbar() {
-        filterText.setPlaceholder("Filter by name...");
+        filterText.setLabel("Filter by name...");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
         filterText.addValueChangeListener(e -> updateGrid());
+
+        // Ustawienie koloru tekstu w placeholder za pomocą JavaScriptu
+        filterText
+                .getElement()
+                .executeJs("this.shadowRoot.querySelector('input').setAttribute('style', 'color: #B0B0B0;')");
 
         Button addEmployeeButton = new Button("Add employee");
         addEmployeeButton.addClickListener(click -> addEmployee());
 
         var toolbar = new HorizontalLayout(filterText, addEmployeeButton);
         toolbar.addClassName("employee-toolbar");
+        toolbar.setAlignItems(FlexComponent.Alignment.END);
         return toolbar;
     }
 

@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -34,7 +35,7 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
         super(coreAPI, jwtInfoService);
         addClassName("vehicle-view");
         VerticalLayout currentContent = new VerticalLayout();
-        currentContent.setId("current-content");
+        currentContent.setId("view-content");
 
         mainContent.removeAll();
         mainContent.add(currentContent, mainFooter);
@@ -55,7 +56,7 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
     }
 
     private Component getToolbar() {
-        filterText.setPlaceholder("Filter by type");
+        filterText.setLabel("Filter by type...");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
         filterText.addValueChangeListener(event -> updateList());
@@ -65,6 +66,7 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
 
         var toolbar = new HorizontalLayout(filterText, addVehicleButton);
         toolbar.addClassName("vehicle-toolbar");
+        toolbar.setAlignItems(FlexComponent.Alignment.END);
         return toolbar;
     }
 

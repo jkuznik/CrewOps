@@ -27,7 +27,7 @@ public class HomeView extends MainLayout {
 
     private VerticalLayout getCurrentContent() {
         VerticalLayout currentContent = new VerticalLayout();
-        currentContent.setId("current-content");
+        currentContent.setId("view-content");
 
         currentContent.setSizeFull();
         currentContent.setPadding(true);
