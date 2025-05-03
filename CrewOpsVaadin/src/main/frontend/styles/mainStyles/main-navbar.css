@@ -1,29 +1,29 @@
-.main-navbar {
-    background-color: #0f0f0f;
-    color: #B0B0B0;
-    padding: 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #B0B0B0;
-    box-sizing: border-box;
-}
+/*.main-navbar {*/
+/*    background-color: #0f0f0f;*/
+/*    color: #B0B0B0;*/
+/*    padding: 1rem;*/
+/*    display: flex;*/
+/*    justify-content: space-between;*/
+/*    align-items: center;*/
+/*    border-bottom: 1px solid #B0B0B0;*/
+/*    box-sizing: border-box;*/
+/*}*/
 
-.main-navbar-title {
-    color: #B0B0B0;
-    font-size: 1.6rem;
-    margin: 0;
-}
+/*.main-navbar-title {*/
+/*    color: #B0B0B0;*/
+/*    font-size: 1.6rem;*/
+/*    margin: 0;*/
+/*}*/
 
-vaadin-drawer-toggle {
-    color: #00adb5;
-}
+/*vaadin-drawer-toggle {*/
+/*    color: #00adb5;*/
+/*}*/
 
-.main-navbar a {
-    color: #B0B0B0;
-    text-decoration: none;
-}
+/*.main-navbar a {*/
+/*    color: #B0B0B0;*/
+/*    text-decoration: none;*/
+/*}*/
 
-.main-navbar a:hover {
-    color: #00adb5;
-}
+/*.main-navbar a:hover {*/
+/*    color: #00adb5;*/
+/*}*/

@@ -1,33 +1,33 @@
-.login-form-layout {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
+/*.login-form-layout {*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    gap: 1rem;*/
+/*}*/
 
-/* Styl tylko dla inputa wewnątrz pola tekstowego */
-.login-input::part(input-field) {
-    background-color: #1e1e1e;
-    border: 1px solid #B0B0B0;
-    border-radius: 4px;
-    color: #ffffff;
-}
+/*!* Styl tylko dla inputa wewnątrz pola tekstowego *!*/
+/*.login-input::part(input-field) {*/
+/*    background-color: #1e1e1e;*/
+/*    border: 1px solid #B0B0B0;*/
+/*    border-radius: 4px;*/
+/*    color: #ffffff;*/
+/*}*/
 
-/* Styl tekstu wpisywanego */
-.login-input::part(input) {
-    color: #ffffff;
-}
+/*!* Styl tekstu wpisywanego *!*/
+/*.login-input::part(input) {*/
+/*    color: #ffffff;*/
+/*}*/
 
-/* Styl etykiety ("Username", "Password") */
-.login-input::part(label) {
-    color: #B0B0B0;
-}
+/*!* Styl etykiety ("Username", "Password") *!*/
+/*.login-input::part(label) {*/
+/*    color: #B0B0B0;*/
+/*}*/
 
-/* Styl przycisku pokaż/ukryj hasło w PasswordField */
-::part(reveal-button) {
-    color: #B0B0B0;
-}
+/*!* Styl przycisku pokaż/ukryj hasło w PasswordField *!*/
+/*::part(reveal-button) {*/
+/*    color: #B0B0B0;*/
+/*}*/
 
-/* Dla zgodności z różnymi wersjami Vaadin (opcjonalnie) */
-.login-input vaadin-password-field-button {
-    color: #B0B0B0;
-}
+/*!* Dla zgodności z różnymi wersjami Vaadin (opcjonalnie) *!*/
+/*.login-input vaadin-password-field-button {*/
+/*    color: #B0B0B0;*/
+/*}*/
