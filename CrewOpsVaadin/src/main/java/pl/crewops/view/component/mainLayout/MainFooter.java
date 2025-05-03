@@ -1,5 +1,6 @@
 package pl.crewops.view.component.mainLayout;
 
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -7,53 +8,30 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 
 @SpringComponent
+@CssImport("./styles/mainStyles/main-footer.css")
 public class MainFooter extends Footer {
 
     public MainFooter() {
-        setId("footer");
-        getStyle()
-                .set("width", "100%")
-                .set("text-align", "center")
-                .set("padding", "10px")
-                .set("background-color", "#f1f1f1");
+        addClassName("main-footer");
 
-        var horizontalLayout = new HorizontalLayout();
+        HorizontalLayout mainFooterLayout = new HorizontalLayout();
+        mainFooterLayout.addClassName("main-footer-layout");
 
-        horizontalLayout.setSpacing(true);
-        horizontalLayout.setWidthFull();
-        horizontalLayout.setHeight("100%");
-
-        var leftSide = new VerticalLayout();
-
-        leftSide.setSpacing(true);
-        leftSide.setWidth("100%");
+        VerticalLayout leftSide = new VerticalLayout();
+        leftSide.addClassName("main-footer-column");
 
         Span contactSpan = new Span("Contact");
-        contactSpan
-                .getStyle()
-                .set("font-size", "12px")
-                .set("color", "#888")
-                .set("margin-top", "auto")
-                .set("text-align", "center");
-
+        contactSpan.addClassName("main-footer-text");
         leftSide.add(contactSpan);
 
-        var rightSide = new VerticalLayout();
-
-        rightSide.setSpacing(true);
-        rightSide.setWidth("100%");
+        VerticalLayout rightSide = new VerticalLayout();
+        rightSide.addClassName("main-footer-column");
 
         Span infoSpan = new Span("Info");
-        infoSpan.getStyle()
-                .set("font-size", "12px")
-                .set("color", "#888")
-                .set("margin-top", "auto")
-                .set("text-align", "center");
-
+        infoSpan.addClassName("main-footer-text");
         rightSide.add(infoSpan);
 
-        horizontalLayout.add(leftSide, rightSide);
-
-        add(horizontalLayout);
+        mainFooterLayout.add(leftSide, rightSide);
+        add(mainFooterLayout);
     }
 }

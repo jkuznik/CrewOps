@@ -1,5 +1,6 @@
 package pl.crewops.view.component.mainLayout;
 
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -15,6 +16,7 @@ import pl.crewops.view.VehicleView;
 
 @SpringComponent
 @UIScope
+@CssImport("./styles/mainStyles/main-drawer.css")
 public class MainDrawer extends VerticalLayout {
 
     private final CoreAPI coreAPI;
@@ -53,19 +55,10 @@ public class MainDrawer extends VerticalLayout {
 
     private Footer createDrawerFooter() {
         Footer footer = new Footer();
-        footer.getStyle()
-                .set("width", "100%")
-                .set("text-align", "center")
-                .set("padding", "10px")
-                .set("background-color", "#f1f1f1");
+        footer.addClassName("drawer-footer");
 
-        Span footerText = new Span("© 2025 CrewOps - by Janusz Kuźnik.");
-        footerText
-                .getStyle()
-                .set("font-size", "12px")
-                .set("color", "#888")
-                .set("margin-top", "auto")
-                .set("text-align", "center");
+        Span footerText = new Span("© 2025 CrewOps");
+        footerText.addClassName("drawer-footer-text");
 
         footer.add(footerText);
 

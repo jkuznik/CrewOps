@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -17,6 +18,7 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
 
 @SpringComponent
+@CssImport("./styles/component/login-form.css")
 @Slf4j
 public class LoginForm extends FormLayout {
     TextField username = new TextField("Username");
@@ -26,12 +28,18 @@ public class LoginForm extends FormLayout {
     public LoginForm(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         addClassName("login-form");
 
+        username.addClassName("login-input");
+        password.addClassName("login-input");
+        login.addClassName("login-button");
+
         add(createLoginForm(coreAPI, jwtInfoService));
     }
 
     private Component createLoginForm(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         var horizontalLayout = new HorizontalLayout();
         horizontalLayout.setSpacing(true);
+        horizontalLayout.addClassName("login-form-layout");
+
         configureLoginButton(coreAPI, jwtInfoService);
         horizontalLayout.add(username, password, login);
         horizontalLayout.setAlignSelf(FlexComponent.Alignment.END, login);
@@ -40,9 +48,7 @@ public class LoginForm extends FormLayout {
 
     private void configureLoginButton(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         login.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        login.addClickListener(event -> {
-            loginAction(coreAPI, jwtInfoService);
-        });
+        login.addClickListener(event -> loginAction(coreAPI, jwtInfoService));
     }
 
     private void loginAction(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
@@ -50,7 +56,6 @@ public class LoginForm extends FormLayout {
         AuthResponse authResponse = coreAPI.login(authRequest);
         jwtInfoService.setToken(authResponse.token());
         coreAPI.setToken(authResponse);
-
         log.debug("Auth response: " + authResponse);
         UI.getCurrent().getPage().reload();
     }

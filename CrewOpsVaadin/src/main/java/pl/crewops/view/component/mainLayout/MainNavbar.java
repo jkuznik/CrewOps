@@ -1,6 +1,7 @@
 package pl.crewops.view.component.mainLayout;
 
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -11,15 +12,16 @@ import pl.crewops.view.component.LoggedUserInfoComponent;
 import pl.crewops.view.form.LoginForm;
 
 @SpringComponent
-public class MainHeader extends HorizontalLayout {
+@CssImport("./styles/mainStyles/main-navbar.css")
+public class MainNavbar extends HorizontalLayout {
 
     private final CoreAPI coreAPI;
     private final JwtInfoService jwtInfoService;
 
     private boolean tokenValid;
 
-    public MainHeader(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
-        addClassName("main-header");
+    public MainNavbar(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
+        addClassName("main-navbar");
 
         this.coreAPI = coreAPI;
         this.jwtInfoService = jwtInfoService;
@@ -28,12 +30,12 @@ public class MainHeader extends HorizontalLayout {
         setSizeFull();
         setSpacing(true);
         setPadding(true);
-        add(createHeaderLeftSide(), createHeaderRightSide());
-        setFlexGrow(1, createHeaderLeftSide());
-        setFlexGrow(1, createHeaderRightSide());
+        add(createNavbarLeftSide(), createNavbarRightSide());
+        setFlexGrow(1, createNavbarLeftSide());
+        setFlexGrow(1, createNavbarRightSide());
     }
 
-    private HorizontalLayout createHeaderRightSide() {
+    private HorizontalLayout createNavbarRightSide() {
         var rightSide = new HorizontalLayout();
         rightSide.setWidthFull();
         rightSide.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
@@ -50,9 +52,10 @@ public class MainHeader extends HorizontalLayout {
         return rightSide;
     }
 
-    private static HorizontalLayout createHeaderLeftSide() {
+    private static HorizontalLayout createNavbarLeftSide() {
         var leftSide = new HorizontalLayout();
         H1 title = new H1("CrewOps");
+        title.addClassName("main-navbar-title");
         leftSide.setWidthFull();
         leftSide.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         leftSide.add(new DrawerToggle(), title);

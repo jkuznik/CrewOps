@@ -1,0 +1,17 @@
+.main-layout {
+    background-color: #1e1e1e;
+    color: #B0B0B0;
+    font-family: 'Inter', 'Roboto', sans-serif;
+}
+
+/* Dzięki temu tekst w komponentach potomnych dziedziczy kolor */
+.main-layout * {
+    color: inherit;
+    background-color: transparent;
+}
+
+/* Możesz też ostylować mainContent konkretnie */
+.main-layout vaadin-vertical-layout {
+    background-color: #1e1e1e;
+    color: inherit;
+}
