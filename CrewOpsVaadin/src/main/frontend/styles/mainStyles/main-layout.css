@@ -106,6 +106,10 @@ vaadin-date-picker-overlay::part(content) {
     color: #B0B0B0;
 }
 
+vaadin-date-picker::part(toggle-button) {
+    color: #B0B0B0;
+}
+
 /* GRID - ciemne tło i jasny tekst */
 vaadin-grid {
     background-color: #1e1e1e;
