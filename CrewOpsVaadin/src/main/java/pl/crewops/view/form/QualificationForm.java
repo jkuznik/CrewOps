@@ -15,7 +15,7 @@ import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.view.model.QualificationFormModel;
+import pl.crewops.view.form.model.QualificationFormModel;
 
 @SpringComponent
 public class QualificationForm extends FormLayout {

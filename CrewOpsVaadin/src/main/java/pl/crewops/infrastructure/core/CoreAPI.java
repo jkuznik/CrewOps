@@ -18,6 +18,7 @@ import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
+import pl.crewops.exceptions.NotAuthenticatedException;
 
 @Repository
 @Validated
@@ -25,29 +26,34 @@ public interface CoreAPI {
 
     AuthResponse login(@Valid @NotNull AuthRequest request);
 
-    void setToken(@Valid @NotNull AuthResponse response);
-
     ValidTokenResponse validateToken(@Valid @NotNull ValidTokenRequest validTokenRequest);
 
-    Optional<EmployeeDTO> createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO);
+    Optional<EmployeeDTO> createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO)
+            throws NotAuthenticatedException;
 
-    Optional<QualificationDTO> createQualification(@Valid @NotNull CreateQualificationDTO createQualificationDTO);
+    Optional<QualificationDTO> createQualification(@Valid @NotNull CreateQualificationDTO createQualificationDTO)
+            throws NotAuthenticatedException;
 
-    Optional<VehicleDTO> createVehicle(@Valid @NotNull CreateVehicleDTO createVehicleDTO);
+    Optional<VehicleDTO> createVehicle(@Valid @NotNull CreateVehicleDTO createVehicleDTO)
+            throws NotAuthenticatedException;
 
-    List<EmployeeDTO> getAllEmployees();
+    List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException;
 
-    List<QualificationDTO> getAllQualifications();
+    List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException;
 
-    List<VehicleDTO> getAllVehicles();
+    List<VehicleDTO> getAllVehicles() throws NotAuthenticatedException;
 
-    List<QualificationDTO> getQualificationsByIds(Set<UUID> qualificationIds);
+    List<QualificationDTO> getQualificationsByIds(Set<UUID> qualificationIds) throws NotAuthenticatedException;
 
-    List<VehicleDTO> getVehiclesByIds(Set<UUID> vehicleIds);
+    List<VehicleDTO> getVehiclesByIds(Set<UUID> vehicleIds) throws NotAuthenticatedException;
 
-    void deleteEmployee(@NotNull UUID employeeId);
+    void deleteEmployee(@NotNull UUID employeeId) throws NotAuthenticatedException;
 
-    void deleteQualification(@NotNull UUID qualificationId);
+    void deleteQualification(@NotNull UUID qualificationId) throws NotAuthenticatedException;
 
-    void deleteVehicle(@NotNull UUID vehicleId);
+    void deleteVehicle(@NotNull UUID vehicleId) throws NotAuthenticatedException;
+
+    void setToken(@Valid @NotNull AuthResponse response);
+
+    void resetToken();
 }

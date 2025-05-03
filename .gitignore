@@ -8,6 +8,13 @@ build/
 !**/src/test/**/build/
 CrewOpsVaadin/src/main/frontend/generated
 CrewOpsVaadin/node_modules
+.vaadin-node-tasks.lock
+package-lock.json
+package.json
+target
+src/main/frontend
+tsconfig.json
+types.d.ts
 
 ### STS ###
 .apt_generated

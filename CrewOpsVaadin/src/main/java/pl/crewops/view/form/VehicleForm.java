@@ -15,7 +15,7 @@ import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.view.model.VehicleFormModel;
+import pl.crewops.view.form.model.VehicleFormModel;
 
 @SpringComponent
 

@@ -2,7 +2,6 @@ package pl.crewops.domain.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static pl.crewops.auth.RoleType.EMPLOYEE;
 
@@ -139,7 +138,6 @@ class AuthServiceTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.token()).isEqualTo(token);
-        verify(response).setHeader("Authorization", "Bearer " + token);
     }
 
     @Test

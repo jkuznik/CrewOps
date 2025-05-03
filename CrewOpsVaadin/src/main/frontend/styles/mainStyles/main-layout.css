@@ -1,0 +1,14 @@
+/*:root {*/
+/*    --main-background-color: #1e1e1e;*/
+/*    --main-text-color: #B0B0B0;*/
+/*}*/
+
+/*.main-layout {*/
+/*    background-color: var(--main-background-color);*/
+/*    color: var(--main-text-color);*/
+/*}*/
+
+/*.main-layout > * {*/
+/*    background-color: inherit;*/
+/*    color: inherit;*/
+/*}*/

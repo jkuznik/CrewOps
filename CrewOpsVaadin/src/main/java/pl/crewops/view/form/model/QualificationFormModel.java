@@ -1,4 +1,4 @@
-package pl.crewops.view.model;
+package pl.crewops.view.form.model;
 
 import java.util.UUID;
 import lombok.*;

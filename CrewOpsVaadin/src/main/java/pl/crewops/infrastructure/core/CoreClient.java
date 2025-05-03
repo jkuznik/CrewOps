@@ -1,5 +1,7 @@
 package pl.crewops.infrastructure.core;
 
+import static pl.crewops.enums.ControllerURL.*;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -20,7 +22,7 @@ import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
-import pl.crewops.enums.ControllerURL;
+import pl.crewops.exceptions.NotAuthenticatedException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,84 +31,79 @@ class CoreClient implements CoreAPI {
     private final RestClient coreClient;
     private RestClient authorizedClient;
 
-    @Override
+    private boolean authenticated;
+
     public AuthResponse login(AuthRequest authRequest) {
         try {
             return coreClient
                     .post()
-                    .uri(uriBuilder -> uriBuilder.path(ControllerURL.LOGIN).build())
+                    .uri(uriBuilder -> uriBuilder.path(LOGIN).build())
                     .body(authRequest)
                     .retrieve()
                     .body(new ParameterizedTypeReference<AuthResponse>() {});
         } catch (RestClientException e) {
-            log.error("Login failed", e);
+            log.error("Login failed");
             e.printStackTrace();
             throw e;
         }
     }
 
-    @Override
-    public void setToken(AuthResponse response) {
-        this.authorizedClient = coreClient
-                .mutate()
-                .defaultHeader("Authorization", "Bearer " + response.token())
-                .build();
-    }
-
-    @Override
     public ValidTokenResponse validateToken(ValidTokenRequest validTokenRequest) {
         try {
-            ValidTokenResponse body = authorizedClient
+            log.debug("Validating token start");
+            ValidTokenResponse body = coreClient
                     .post()
-                    .uri(uriBuilder -> uriBuilder.path(ControllerURL.VALIDATE).build())
+                    .uri(uriBuilder -> uriBuilder.path(VALIDATE).build())
                     .body(validTokenRequest)
                     .retrieve()
                     .body(new ParameterizedTypeReference<ValidTokenResponse>() {});
-            log.info("validated token: {}", body);
+            log.debug("Validated token: {}", body);
             return body;
         } catch (RestClientException e) {
-            log.error("Validation failed", e);
-            e.printStackTrace();
+            log.error("Validation failed");
             throw e;
         }
     }
 
-    public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) {
+    public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             return Optional.ofNullable(authorizedClient
                     .post()
-                    .uri(uriBuilder -> uriBuilder.path(ControllerURL.EMPLOYEES).build())
+                    .uri(uriBuilder -> uriBuilder.path(EMPLOYEES).build())
                     .body(createEmployeeDTO)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .body(new ParameterizedTypeReference<EmployeeDTO>() {}));
         } catch (RestClientException e) {
-            log.error("Create new employee error", e);
+            log.error("Create new employee error");
             return Optional.empty();
         }
     }
 
-    public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO) {
+    public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO)
+            throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             return Optional.ofNullable(authorizedClient
                     .post()
-                    .uri(uriBuilder ->
-                            uriBuilder.path(ControllerURL.QUALIFICATIONS).build())
+                    .uri(uriBuilder -> uriBuilder.path(QUALIFICATIONS).build())
                     .body(createQualificationDTO)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .body(new ParameterizedTypeReference<QualificationDTO>() {}));
         } catch (RestClientException e) {
-            log.error("Create new employee error", e);
+            log.error("Create new qualification error");
             return Optional.empty();
         }
     }
 
-    public Optional<VehicleDTO> createVehicle(CreateVehicleDTO createVehicleDTO) {
+    public Optional<VehicleDTO> createVehicle(CreateVehicleDTO createVehicleDTO) throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             return Optional.ofNullable(authorizedClient
                     .post()
-                    .uri(uriBuilder -> uriBuilder.path(ControllerURL.VEHICLES).build())
+                    .uri(uriBuilder -> uriBuilder.path(VEHICLES).build())
                     .body(createVehicleDTO)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
@@ -117,55 +114,57 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public List<EmployeeDTO> getAllEmployees() {
+    public List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             return authorizedClient
                     .get()
-                    .uri(uriBuilder -> uriBuilder.path(ControllerURL.EMPLOYEES).build())
+                    .uri(uriBuilder -> uriBuilder.path(EMPLOYEES).build())
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .body(new ParameterizedTypeReference<List<EmployeeDTO>>() {});
         } catch (RestClientException e) {
-            log.error("Error getting employees", e);
+            log.error("Error getting employees");
             return List.of();
         }
     }
 
-    public List<QualificationDTO> getAllQualifications() {
+    public List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             return authorizedClient
                     .get()
-                    .uri(uriBuilder ->
-                            uriBuilder.path(ControllerURL.QUALIFICATIONS).build())
+                    .uri(uriBuilder -> uriBuilder.path(QUALIFICATIONS).build())
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .body(new ParameterizedTypeReference<List<QualificationDTO>>() {});
         } catch (RestClientException e) {
-            log.error("Error getting employees", e);
+            log.error("Error getting qualifications");
             return List.of();
         }
     }
 
-    public List<VehicleDTO> getAllVehicles() {
+    public List<VehicleDTO> getAllVehicles() throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             return authorizedClient
                     .get()
-                    .uri(uriBuilder -> uriBuilder.path(ControllerURL.VEHICLES).build())
+                    .uri(uriBuilder -> uriBuilder.path(VEHICLES).build())
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .body(new ParameterizedTypeReference<List<VehicleDTO>>() {});
         } catch (RestClientException e) {
-            log.error("Error getting vehicles", e);
+            log.error("Error getting vehicles");
             return List.of();
         }
     }
 
-    public List<QualificationDTO> getQualificationsByIds(Set<UUID> qualificationsIds) {
+    public List<QualificationDTO> getQualificationsByIds(Set<UUID> qualificationsIds) throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             return authorizedClient
                     .post()
-                    .uri(uriBuilder ->
-                            uriBuilder.path(ControllerURL.QUALIFICATIONS_QIDS).build())
+                    .uri(uriBuilder -> uriBuilder.path(QUALIFICATIONS_QIDS).build())
                     .body(qualificationsIds)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
@@ -176,12 +175,12 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public List<VehicleDTO> getVehiclesByIds(Set<UUID> vehiclesIds) {
+    public List<VehicleDTO> getVehiclesByIds(Set<UUID> vehiclesIds) throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             return authorizedClient
                     .post()
-                    .uri(uriBuilder ->
-                            uriBuilder.path(ControllerURL.VEHICLES_VIDS).build())
+                    .uri(uriBuilder -> uriBuilder.path(VEHICLES_VIDS).build())
                     .body(vehiclesIds)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
@@ -192,13 +191,13 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public void deleteEmployee(UUID employeeId) {
+    public void deleteEmployee(UUID employeeId) throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             authorizedClient
                     .delete()
                     .uri(uriBuilder -> uriBuilder
-                            .path(ControllerURL.EMPLOYEES_EID.replace(
-                                    "{" + ControllerURL.EMPLOYEE_ID + "}", employeeId.toString()))
+                            .path(EMPLOYEES_EID.replace("{" + EMPLOYEE_ID + "}", employeeId.toString()))
                             .build())
                     .retrieve()
                     .toBodilessEntity();
@@ -207,13 +206,13 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public void deleteQualification(UUID qualificationId) {
+    public void deleteQualification(UUID qualificationId) throws NotAuthenticatedException {
+        isAuthenticated();
         try {
             authorizedClient
                     .delete()
                     .uri(uriBuilder -> uriBuilder
-                            .path(ControllerURL.QUALIFICATIONS_QID.replace(
-                                    "{" + ControllerURL.QUALIFICATION_ID + "}", qualificationId.toString()))
+                            .path(QUALIFICATIONS_QID.replace("{" + QUALIFICATION_ID + "}", qualificationId.toString()))
                             .build())
                     .retrieve()
                     .toBodilessEntity();
@@ -222,18 +221,36 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public void deleteVehicle(UUID vehicleId) {
+    public void deleteVehicle(UUID vehicleId) throws NotAuthenticatedException {
+        isAuthenticated();
         try {
-            coreClient
+            authorizedClient
                     .delete()
                     .uri(uriBuilder -> uriBuilder
-                            .path(ControllerURL.VEHICLES_VID.replace(
-                                    "{" + ControllerURL.VEHICLE_ID + "}", vehicleId.toString()))
+                            .path(VEHICLES_VID.replace("{" + VEHICLE_ID + "}", vehicleId.toString()))
                             .build())
                     .retrieve()
                     .toBodilessEntity();
         } catch (RestClientException e) {
             log.error("Error deleting vehicle", e);
+        }
+    }
+
+    public void setToken(AuthResponse response) {
+        authenticated = true;
+        authorizedClient = coreClient
+                .mutate()
+                .defaultHeader("Authorization", "Bearer " + response.token())
+                .build();
+    }
+
+    public void resetToken() {
+        authenticated = false;
+    }
+
+    private void isAuthenticated() throws NotAuthenticatedException {
+        if (!authenticated) {
+            throw new NotAuthenticatedException();
         }
     }
 }
