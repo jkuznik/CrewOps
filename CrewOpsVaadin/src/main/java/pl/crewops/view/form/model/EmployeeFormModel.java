@@ -24,6 +24,7 @@ public class EmployeeFormModel {
 
     public static EmployeeFormModel toEmployeeFormModel(EmployeeDTO employeeDTO) {
         return EmployeeFormModel.builder()
+                .id(employeeDTO.id())
                 .firstName(employeeDTO.firstName())
                 .lastName(employeeDTO.lastName())
                 .birthDate(employeeDTO.birthDate())

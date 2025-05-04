@@ -52,7 +52,7 @@ public class HomeView extends MainLayout {
                 .getPage()
                 .executeJs(
                         """
-                const content = document.getElementById('current-content');
+                const content = document.getElementById('view-content');
                 const footer = document.getElementById('footer');
                 content.addEventListener('scroll', function() {
                     // Percentage of content scroll
