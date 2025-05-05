@@ -1,4 +1,13 @@
 :root {
+    --lumo-body-text-color: #ffffff;             /* główny kolor tekstu */
+    --lumo-secondary-text-color: #cccccc;        /* np. placeholdery */
+    --lumo-primary-text-color: #ffffff;          /* tekst np. w buttonach primary */
+    --lumo-header-text-color: #ffffff;           /* np. nagłówki w accordionie */
+    --lumo-tertiary-text-color: #999999;         /* np. ikonki w disabled stanie */
+    --lumo-disabled-text-color: #777777;         /* np. nieaktywne elementy */
+    --lumo-contrast: #ffffff;
+    --lumo-icon-color: #ffffff;              /* ogólny kolor ikon, np. strzałki Accordiona */
+    --lumo-contrast-70pct: rgba(255, 255, 255, 0.7);
     --main-background-color: #1e1e1e;
     --main-text-color: #B0B0B0;
 }
