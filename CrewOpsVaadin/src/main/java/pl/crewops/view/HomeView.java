@@ -27,7 +27,7 @@ public class HomeView extends MainLayout {
 
     private VerticalLayout getCurrentContent() {
         VerticalLayout currentContent = new VerticalLayout();
-        currentContent.setId("current-content");
+        currentContent.setId("view-content");
 
         currentContent.setSizeFull();
         currentContent.setPadding(true);
@@ -52,7 +52,7 @@ public class HomeView extends MainLayout {
                 .getPage()
                 .executeJs(
                         """
-                const content = document.getElementById('current-content');
+                const content = document.getElementById('view-content');
                 const footer = document.getElementById('footer');
                 content.addEventListener('scroll', function() {
                     // Percentage of content scroll

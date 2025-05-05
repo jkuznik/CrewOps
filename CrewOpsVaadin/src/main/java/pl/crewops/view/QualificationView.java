@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -32,7 +33,7 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
         super(coreAPI, jwtInfoService);
         addClassName("qualification-view");
         VerticalLayout currentContent = new VerticalLayout();
-        currentContent.setId("current-content");
+        currentContent.setId("view-content");
 
         mainContent.removeAll();
         mainContent.add(currentContent, mainFooter);
@@ -53,7 +54,7 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
     }
 
     private Component getToolbar() {
-        filterText.setPlaceholder("Filter by name...");
+        filterText.setLabel("Filter by name...");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
         filterText.addValueChangeListener(e -> updateList());
@@ -63,6 +64,7 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
 
         var toolbar = new HorizontalLayout(filterText, addQualificationButton);
         toolbar.addClassName("qualification-toolbar");
+        toolbar.setAlignItems(FlexComponent.Alignment.END);
         return toolbar;
     }
 

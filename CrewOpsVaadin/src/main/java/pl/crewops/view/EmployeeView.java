@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -31,7 +32,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         super(coreAPI, jwtInfoService);
         addClassName("employee-view");
         VerticalLayout currentContent = new VerticalLayout();
-        currentContent.setId("current-content");
+        currentContent.setId("view-content");
 
         mainContent.removeAll();
         mainContent.add(currentContent, mainFooter);
@@ -52,7 +53,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
     }
 
     private Component getToolbar() {
-        filterText.setPlaceholder("Filter by name...");
+        filterText.setLabel("Filter by name...");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
         filterText.addValueChangeListener(e -> updateGrid());
@@ -62,6 +63,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
 
         var toolbar = new HorizontalLayout(filterText, addEmployeeButton);
         toolbar.addClassName("employee-toolbar");
+        toolbar.setAlignItems(FlexComponent.Alignment.END);
         return toolbar;
     }
 
@@ -88,6 +90,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         form.setWidth("25em");
 
         form.addSaveListener(this::saveContact);
+        form.addUpdateListener(this::updateContact);
         form.addDeleteListener(this::deleteContact);
         form.addCloseListener(e -> closeEditor());
     }
@@ -113,7 +116,18 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
                         .toList());
             }
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic
+            // TODO: implement logic, redirect to home view and display notification
+        }
+    }
+
+    private void editEmployee(EmployeeFormModel employeeFormModel) {
+        if (employeeFormModel == null) {
+            closeEditor();
+        } else {
+            form.setEmployee(employeeFormModel);
+            form.setFormModeEdit();
+            form.setVisible(true);
+            addClassName("editing");
         }
     }
 
@@ -128,18 +142,20 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
             coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
             updateGrid();
             closeEditor();
+            // TODO: implement notification
         } catch (NotAuthenticatedException e) {
             // TODO: implement logic
         }
     }
 
-    public void editEmployee(EmployeeFormModel employeeFormModel) {
-        if (employeeFormModel == null) {
+    private void updateContact(EmployeeForm.UpdateEvent event) {
+        try {
+            coreAPI.updateEmployee(EmployeeFormModel.toUpdateEmployeeDTO(event.getEmployee()));
+            updateGrid();
             closeEditor();
-        } else {
-            form.setEmployee(employeeFormModel);
-            form.setVisible(true);
-            addClassName("editing");
+            // TODO: implement notification
+        } catch (NotAuthenticatedException e) {
+            // TODO: implement logic
         }
     }
 
@@ -155,6 +171,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
 
     private void addEmployee() {
         grid.asSingleSelect().clear();
+        form.setFormModeSave();
         form.setVisible(true);
     }
 

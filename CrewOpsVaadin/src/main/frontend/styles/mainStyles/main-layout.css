@@ -1,14 +1,185 @@
-/*:root {*/
-/*    --main-background-color: #1e1e1e;*/
-/*    --main-text-color: #B0B0B0;*/
-/*}*/
+html, body {
+    background-color: var(--lumo-base-color);
+    color: var(--lumo-body-text-color);
+}
 
-/*.main-layout {*/
-/*    background-color: var(--main-background-color);*/
-/*    color: var(--main-text-color);*/
-/*}*/
+:root {
+    --lumo-body-text-color: #ffffff;             /* główny kolor tekstu */
+    --lumo-secondary-text-color: #cccccc;        /* np. placeholdery */
+    --lumo-primary-text-color: #ffffff;          /* tekst np. w buttonach primary */
+    --lumo-header-text-color: #ffffff;           /* np. nagłówki w accordionie */
+    --lumo-tertiary-text-color: #999999;         /* np. ikonki w disabled stanie */
+    --lumo-disabled-text-color: #777777;         /* np. nieaktywne elementy */
+    --lumo-contrast: #ffffff;
+    --lumo-icon-color: #ffffff;              /* ogólny kolor ikon, np. strzałki Accordiona */
+    --lumo-contrast-70pct: rgba(255, 255, 255, 0.7);
+    --main-background-color: #1e1e1e;
+    --main-text-color: #B0B0B0;
+}
 
-/*.main-layout > * {*/
-/*    background-color: inherit;*/
-/*    color: inherit;*/
-/*}*/
+::part(checkbox) {
+    border: 1px solid #B0B0B0;
+    background-color: #2a2a2a;
+    width: 1.2em;
+    height: 1.2em;
+}
+
+::part(checkbox)::after {
+    background-color: #B0B0B0;
+}
+
+.main-layout {
+    background-color: var(--main-background-color);
+    color: var(--main-text-color);
+}
+
+.main-layout > * {
+    background-color: inherit;
+    color: inherit;
+}
+
+/* Styl głównego kontenera widoku (wewnątrz mainContent) */
+.view-content {
+    background-color: var(--main-background-color);
+    color: var(--main-text-color);
+}
+
+/* GLOBALNE STYLE DLA FORMULARZY */
+
+vaadin-text-field::part(input-field),
+vaadin-date-picker::part(input-field),
+vaadin-combo-box::part(input-field),
+vaadin-password-field::part(input-field),
+vaadin-text-area::part(input-field) {
+    background-color: #1e1e1e;
+    border: 1px solid #B0B0B0;
+    border-radius: 4px;
+    color: #B0B0B0;
+    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+vaadin-text-field::part(input-field):focus-within,
+vaadin-date-picker::part(input-field):focus-within,
+vaadin-password-field::part(input-field):focus-within {
+    background-color: #1e1e1e;
+    border: 1px solid #00adb5; /* opcjonalnie: użyj #B0B0B0, jeśli nie chcesz akcentu */
+}
+
+vaadin-text-field::part(input),
+vaadin-password-field::part(input),
+vaadin-date-picker::part(input),
+vaadin-text-area::part(input) {
+    color: #B0B0B0;
+    caret-color: #B0B0B0;
+}
+
+vaadin-text-field::part(label),
+vaadin-password-field::part(label),
+vaadin-date-picker::part(label),
+vaadin-text-area::part(label) {
+    color: #B0B0B0;
+}
+
+/* Styl przycisku pokaż/ukryj hasło (shadow part) */
+vaadin-password-field::part(reveal-button) {
+    color: #B0B0B0;
+}
+
+/* Dla starszych wersji Vaadin (fallback) */
+vaadin-password-field vaadin-password-field-button {
+    color: #B0B0B0;
+}
+
+/* Styl dla pól autouzupełnianych przez przeglądarkę */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px #1e1e1e inset !important;
+    -webkit-text-fill-color: #B0B0B0 !important;
+    caret-color: #B0B0B0 !important;
+    transition: background-color 5000s ease-in-out 0s; /* ukrywa "flashnięcie" */
+}
+
+/* Checkbox */
+vaadin-checkbox::part(label) {
+    color: #B0B0B0;
+}
+
+/* Przyciski */
+vaadin-button {
+    font-weight: 500;
+}
+
+vaadin-button[theme~="primary"] {
+    background-color: #00adb5;
+    color: white;
+}
+
+vaadin-button[theme~="error"] {
+    background-color: #d9534f;
+    color: white;
+}
+
+vaadin-button[theme~="tertiary"] {
+    color: #B0B0B0;
+}
+
+/* Date picker popup background (opcjonalne) */
+vaadin-date-picker-overlay::part(content) {
+    background-color: #2a2a2a;
+    color: #B0B0B0;
+}
+
+vaadin-date-picker::part(toggle-button) {
+    color: #B0B0B0;
+}
+
+/* GRID - ciemne tło i jasny tekst */
+vaadin-grid {
+    background-color: #1e1e1e;
+    color: #B0B0B0;
+    border: 1px solid #2a2a2a;
+}
+
+/* Wiersze siatki - delikatnie jaśniejsze tło przy najechaniu */
+vaadin-grid::part(row) {
+    background-color: #1e1e1e;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+/* Nagłówki kolumn */
+vaadin-grid::part(header-cell) {
+    background-color: #2a2a2a;
+    color: #B0B0B0;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+vaadin-grid::part(body-cell) {
+    background-color: #1e1e1e !important;
+    color: #B0B0B0 !important;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+/* Wiersz po najechaniu */
+vaadin-grid::part(row):hover {
+    background-color: #2a2a2a;
+}
+
+/* Wybrany wiersz */
+vaadin-grid::part(selected-row) {
+    background-color: #333333;
+}
+
+/* Nagłówki */
+h1, h2, h3, h4, h5, h6 {
+    color: white;
+}
+
+/* Inne tekstowe komponenty */
+vaadin-vertical-layout,
+vaadin-horizontal-layout,
+span, p, label, div {
+    color: white;
+}
+

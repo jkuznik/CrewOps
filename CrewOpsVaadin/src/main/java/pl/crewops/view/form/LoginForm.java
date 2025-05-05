@@ -1,6 +1,7 @@
 package pl.crewops.view.form;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -31,6 +32,7 @@ public class LoginForm extends FormLayout {
         username.addClassName("login-input");
         password.addClassName("login-input");
         login.addClassName("login-button");
+        login.addClickShortcut(Key.ENTER);
 
         add(createLoginForm(coreAPI, jwtInfoService));
     }

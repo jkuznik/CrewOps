@@ -18,6 +18,7 @@ import pl.crewops.auth.ValidTokenRequest;
 import pl.crewops.auth.ValidTokenResponse;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
@@ -77,6 +78,24 @@ class CoreClient implements CoreAPI {
                     .body(new ParameterizedTypeReference<EmployeeDTO>() {}));
         } catch (RestClientException e) {
             log.error("Create new employee error");
+            return Optional.empty();
+        }
+    }
+
+    public Optional<EmployeeDTO> updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) throws NotAuthenticatedException {
+        isAuthenticated();
+        try {
+            return Optional.ofNullable(authorizedClient
+                    .patch()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(EMPLOYEES_EID)
+                            .queryParamIfPresent("phoneNumber", Optional.ofNullable(updateEmployeeDTO.phoneNumber()))
+                            .queryParamIfPresent("department", Optional.ofNullable(updateEmployeeDTO.department()))
+                            .build(updateEmployeeDTO.employeeId()))
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<EmployeeDTO>() {}));
+        } catch (RestClientException e) {
+            log.error("Update employee error");
             return Optional.empty();
         }
     }
