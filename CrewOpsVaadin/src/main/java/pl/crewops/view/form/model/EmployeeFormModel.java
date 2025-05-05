@@ -3,6 +3,7 @@ package pl.crewops.view.form.model;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.*;
 import pl.crewops.auth.RoleDTO;
 import pl.crewops.auth.RoleType;
@@ -22,6 +23,7 @@ public class EmployeeFormModel {
     private LocalDate birthDate;
     private String phoneNumber;
     private String department;
+    private Set<RoleType> roles;
     private Set<UUID> qualificationsSet;
     private Set<UUID> vehiclesSet;
 
@@ -39,6 +41,10 @@ public class EmployeeFormModel {
     }
 
     public static CreateEmployeeDTO toCreateEmployeeDTO(EmployeeFormModel employeeFormModel) {
+        Set<RoleDTO> createRoles = employeeFormModel.roles.stream()
+                .map(role -> RoleDTO.builder().name(role.name()).build())
+                .collect(Collectors.toSet());
+
         return CreateEmployeeDTO.builder()
                 .firstName(employeeFormModel.getFirstName())
                 .lastName(employeeFormModel.getLastName())
@@ -47,7 +53,7 @@ public class EmployeeFormModel {
                 .department(employeeFormModel.getDepartment())
                 .username(employeeFormModel.firstName.substring(0, 3) + employeeFormModel.lastName.substring(0, 3))
                 .password("pass")
-                .roles(Set.of(RoleDTO.builder().name(RoleType.EMPLOYEE.name()).build()))
+                .roles(createRoles)
                 .build();
     }
 

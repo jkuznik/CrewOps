@@ -6,14 +6,18 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
+import java.util.Arrays;
+import pl.crewops.auth.RoleType;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.view.component.QualificationAccordion;
 import pl.crewops.view.component.VehicleAccordion;
@@ -26,6 +30,7 @@ public class EmployeeForm extends FormLayout {
     DatePicker birthDate = new DatePicker("Birth date");
     TextField phoneNumber = new TextField("Phone number");
     TextField department = new TextField("Department");
+    CheckboxGroup<RoleType> roles = new CheckboxGroup<>("Roles");
     QualificationAccordion qualifications;
     VehicleAccordion vehicles;
 
@@ -38,12 +43,26 @@ public class EmployeeForm extends FormLayout {
     public EmployeeForm(CoreAPI coreAPI) {
         addClassName("employee-form");
 
+        roles.setItems(Arrays.stream(RoleType.values())
+                .filter(role -> role != RoleType.ADMIN)
+                .toList());
+        roles.setRenderer(
+                new TextRenderer<>(role -> role.name().replace("_", " ").toLowerCase()));
         qualifications = new QualificationAccordion(coreAPI);
         vehicles = new VehicleAccordion(coreAPI);
 
         binder.bindInstanceFields(this);
 
-        add(firstName, lastName, birthDate, phoneNumber, department, qualifications, vehicles, createButtonsLayout());
+        add(
+                firstName,
+                lastName,
+                birthDate,
+                phoneNumber,
+                department,
+                roles,
+                qualifications,
+                vehicles,
+                createButtonsLayout());
     }
 
     private Component createButtonsLayout() {
@@ -101,6 +120,7 @@ public class EmployeeForm extends FormLayout {
                 .birthDate(birthDate.getValue())
                 .phoneNumber(phoneNumber.getValue())
                 .department(department.getValue())
+                .roles(roles.getValue())
                 .build();
         binder.setBean(employeeFormModel);
         if (binder.isValid()) {
