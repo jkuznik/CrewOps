@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 import lombok.*;
+import pl.crewops.auth.RoleDTO;
+import pl.crewops.auth.RoleType;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 
@@ -42,6 +44,9 @@ public class EmployeeFormModel {
                 .birthDate(employeeFormModel.getBirthDate())
                 .phoneNumber(employeeFormModel.getPhoneNumber())
                 .department(employeeFormModel.getDepartment())
+                .username(employeeFormModel.firstName.substring(0, 3) + employeeFormModel.lastName.substring(0, 3))
+                .password("pass")
+                .roles(Set.of(RoleDTO.builder().name(RoleType.EMPLOYEE.name()).build()))
                 .build();
     }
 }

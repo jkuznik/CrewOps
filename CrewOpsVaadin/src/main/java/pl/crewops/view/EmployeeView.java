@@ -58,11 +58,6 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
         filterText.addValueChangeListener(e -> updateGrid());
 
-        // Ustawienie koloru tekstu w placeholder za pomocą JavaScriptu
-        filterText
-                .getElement()
-                .executeJs("this.shadowRoot.querySelector('input').setAttribute('style', 'color: #B0B0B0;')");
-
         Button addEmployeeButton = new Button("Add employee");
         addEmployeeButton.addClickListener(click -> addEmployee());
 
@@ -95,6 +90,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         form.setWidth("25em");
 
         form.addSaveListener(this::saveContact);
+        form.addUpdateListener(this::updateContact);
         form.addDeleteListener(this::deleteContact);
         form.addCloseListener(e -> closeEditor());
     }
@@ -120,7 +116,18 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
                         .toList());
             }
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic
+            // TODO: implement logic, redirect to home view and display notification
+        }
+    }
+
+    private void editEmployee(EmployeeFormModel employeeFormModel) {
+        if (employeeFormModel == null) {
+            closeEditor();
+        } else {
+            form.setEmployee(employeeFormModel);
+            form.setFormModeEdit();
+            form.setVisible(true);
+            addClassName("editing");
         }
     }
 
@@ -140,14 +147,8 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         }
     }
 
-    public void editEmployee(EmployeeFormModel employeeFormModel) {
-        if (employeeFormModel == null) {
-            closeEditor();
-        } else {
-            form.setEmployee(employeeFormModel);
-            form.setVisible(true);
-            addClassName("editing");
-        }
+    private void updateContact(EmployeeForm.UpdateEvent event) {
+        // TODO: implement
     }
 
     private void deleteContact(EmployeeForm.DeleteEvent event) {
@@ -162,6 +163,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
 
     private void addEmployee() {
         grid.asSingleSelect().clear();
+        form.setFormModeSave();
         form.setVisible(true);
     }
 

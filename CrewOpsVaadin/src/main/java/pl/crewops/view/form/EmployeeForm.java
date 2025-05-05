@@ -30,6 +30,7 @@ public class EmployeeForm extends FormLayout {
     VehicleAccordion vehicles;
 
     Button save = new Button("Save");
+    Button update = new Button("Update");
     Button delete = new Button("Delete");
     Button close = new Button("Cancel");
     Binder<EmployeeFormModel> binder = new BeanValidationBinder<>(EmployeeFormModel.class);
@@ -47,6 +48,7 @@ public class EmployeeForm extends FormLayout {
 
     private Component createButtonsLayout() {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        update.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
         close.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
@@ -54,16 +56,61 @@ public class EmployeeForm extends FormLayout {
         close.addClickShortcut(Key.ESCAPE);
 
         save.addClickListener(event -> validateAndSave());
+        update.addClickListener(event -> validateAndUpdate());
         delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
         close.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
         binder.addStatusChangeListener(e -> save.setEnabled(binder.isValid()));
-        return new HorizontalLayout(save, delete, close);
+        return new HorizontalLayout(save, update, delete, close);
+    }
+
+    public void setFormModeSave() {
+        save.setVisible(true);
+        update.setVisible(false);
+        delete.setVisible(false);
+        qualifications.setVisible(false);
+        vehicles.setVisible(false);
+
+        firstName.setReadOnly(false);
+        firstName.setEnabled(true);
+        lastName.setReadOnly(false);
+        lastName.setEnabled(true);
+        birthDate.setReadOnly(false);
+        birthDate.setEnabled(true);
+    }
+
+    public void setFormModeEdit() {
+        save.setVisible(false);
+        update.setVisible(true);
+        delete.setVisible(true);
+        qualifications.setVisible(true);
+        vehicles.setVisible(true);
+
+        firstName.setReadOnly(true);
+        firstName.setEnabled(false);
+        lastName.setReadOnly(true);
+        lastName.setEnabled(false);
+        birthDate.setReadOnly(true);
+        birthDate.setEnabled(false);
     }
 
     private void validateAndSave() {
+        var employeeFormModel = EmployeeFormModel.builder()
+                .firstName(firstName.getValue())
+                .lastName(lastName.getValue())
+                .birthDate(birthDate.getValue())
+                .phoneNumber(phoneNumber.getValue())
+                .department(department.getValue())
+                .build();
+        binder.setBean(employeeFormModel);
         if (binder.isValid()) {
             fireEvent(new SaveEvent(this, binder.getBean()));
+        }
+    }
+
+    private void validateAndUpdate() {
+        if (binder.isValid()) {
+            fireEvent(new UpdateEvent(this, binder.getBean()));
         }
     }
 
@@ -97,6 +144,13 @@ public class EmployeeForm extends FormLayout {
         }
     }
 
+    public static class UpdateEvent extends EmployeeFormEvent {
+
+        UpdateEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
+            super(source, employeeFormModel);
+        }
+    }
+
     public static class DeleteEvent extends EmployeeFormEvent {
 
         DeleteEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
@@ -111,12 +165,16 @@ public class EmployeeForm extends FormLayout {
         }
     }
 
-    public Registration addDeleteListener(ComponentEventListener<DeleteEvent> listener) {
-        return addListener(DeleteEvent.class, listener);
-    }
-
     public Registration addSaveListener(ComponentEventListener<SaveEvent> listener) {
         return addListener(SaveEvent.class, listener);
+    }
+
+    public Registration addUpdateListener(ComponentEventListener<UpdateEvent> listener) {
+        return addListener(UpdateEvent.class, listener);
+    }
+
+    public Registration addDeleteListener(ComponentEventListener<DeleteEvent> listener) {
+        return addListener(DeleteEvent.class, listener);
     }
 
     public Registration addCloseListener(ComponentEventListener<CloseEvent> listener) {
