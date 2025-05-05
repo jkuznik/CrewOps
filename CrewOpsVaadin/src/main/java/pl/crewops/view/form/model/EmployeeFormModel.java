@@ -8,6 +8,7 @@ import pl.crewops.auth.RoleDTO;
 import pl.crewops.auth.RoleType;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.employee.UpdateEmployeeDTO;
 
 @Getter
 @Setter
@@ -47,6 +48,14 @@ public class EmployeeFormModel {
                 .username(employeeFormModel.firstName.substring(0, 3) + employeeFormModel.lastName.substring(0, 3))
                 .password("pass")
                 .roles(Set.of(RoleDTO.builder().name(RoleType.EMPLOYEE.name()).build()))
+                .build();
+    }
+
+    public static UpdateEmployeeDTO toUpdateEmployeeDTO(EmployeeFormModel employeeFormModel) {
+        return UpdateEmployeeDTO.builder()
+                .employeeId(employeeFormModel.getId())
+                .phoneNumber(employeeFormModel.getPhoneNumber())
+                .department(employeeFormModel.getDepartment())
                 .build();
     }
 }

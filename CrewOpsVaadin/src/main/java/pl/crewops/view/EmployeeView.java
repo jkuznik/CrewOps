@@ -142,13 +142,21 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
             coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
             updateGrid();
             closeEditor();
+            // TODO: implement notification
         } catch (NotAuthenticatedException e) {
             // TODO: implement logic
         }
     }
 
     private void updateContact(EmployeeForm.UpdateEvent event) {
-        // TODO: implement
+        try {
+            coreAPI.updateEmployee(EmployeeFormModel.toUpdateEmployeeDTO(event.getEmployee()));
+            updateGrid();
+            closeEditor();
+            // TODO: implement notification
+        } catch (NotAuthenticatedException e) {
+            // TODO: implement logic
+        }
     }
 
     private void deleteContact(EmployeeForm.DeleteEvent event) {
