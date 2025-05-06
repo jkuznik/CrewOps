@@ -118,6 +118,9 @@ class EmployeeService {
     @Transactional
     public void deleteEmployee(@NotNull UUID employeeId) {
         log.info("Delete employee {}", employeeId);
+        Employee employee =
+                employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
+        authAPI.deleteByEmployee(employee);
         employeeRepository.deleteById(employeeId);
     }
 

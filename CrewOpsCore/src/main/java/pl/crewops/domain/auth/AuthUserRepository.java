@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import pl.crewops.model.Employee;
 import pl.crewops.model.auth.AuthUser;
 import pl.crewops.model.auth.Role;
 
@@ -13,6 +14,8 @@ interface AuthUserRepository extends JpaRepository<AuthUser, UUID> {
 
     @Query("SELECT u FROM AuthUser u JOIN FETCH u.roles WHERE u.username = :username")
     Optional<AuthUser> findByUsername(String username);
+
+    void deleteByEmployee(Employee employee);
 }
 
 @Repository

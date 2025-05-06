@@ -1,5 +1,6 @@
 package pl.crewops.view.form.model;
 
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
@@ -20,7 +21,8 @@ import pl.crewops.dto.vehicle.VehicleDTO;
 @AllArgsConstructor
 public class EmployeeFormModel {
     private UUID id;
-    private String firstName;
+    // TODO: add rest field constraints, this one is added as template
+    private @Size(min = 3, message = "Minimal name length is 3") String firstName;
     private String lastName;
     private LocalDate birthDate;
     private String phoneNumber;

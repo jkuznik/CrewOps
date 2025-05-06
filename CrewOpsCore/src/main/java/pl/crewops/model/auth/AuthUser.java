@@ -2,8 +2,11 @@ package pl.crewops.model.auth;
 
 import jakarta.persistence.*;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.*;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.qualification.QualificationDTO;
+import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.model.AbstractEntity;
 import pl.crewops.model.Employee;
 
@@ -21,7 +24,6 @@ public class AuthUser extends AbstractEntity {
     @Column(nullable = false)
     private String password;
 
-    // TODO: add logic to delete authUser in case delete employee
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "employee_id", referencedColumnName = "id", nullable = false, unique = true)
     private Employee employee;
@@ -33,7 +35,6 @@ public class AuthUser extends AbstractEntity {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
-    // TODO: qualifications and vehicles set are skipped, add logic if necessary
     public EmployeeDTO exctractEmployeeDTO() {
         return EmployeeDTO.builder()
                 .id(employee.getId())
@@ -42,6 +43,24 @@ public class AuthUser extends AbstractEntity {
                 .birthDate(employee.getBirthDate())
                 .phoneNumber(employee.getPhoneNumber())
                 .department(employee.getDepartment())
+                .qualifications(employee.getQualifications().stream()
+                        .map(qualification -> QualificationDTO.builder()
+                                .id(qualification.getId())
+                                .description(qualification.getDescription())
+                                .build())
+                        .collect(Collectors.toSet()))
+                .vehicles(employee.getVehicles().stream()
+                        .map(vehicle -> VehicleDTO.builder()
+                                .id(vehicle.getId())
+                                .make(vehicle.getMake())
+                                .model(vehicle.getModel())
+                                .year(vehicle.getYear())
+                                .vehicleType(vehicle.getVehicleType())
+                                .registerNumber(vehicle.getRegisterNumber())
+                                .vin(vehicle.getVin())
+                                .broken(vehicle.getBroken())
+                                .build())
+                        .collect(Collectors.toSet()))
                 .build();
     }
 }

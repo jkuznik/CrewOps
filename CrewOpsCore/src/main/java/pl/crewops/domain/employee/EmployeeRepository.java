@@ -18,6 +18,8 @@ interface EmployeeRepository extends JpaRepository<Employee, UUID> {
     @EntityGraph(attributePaths = {"qualifications", "vehicles"})
     Page<Employee> findAll(Pageable pageable);
 
+    Optional<Employee> findById(UUID id);
+
     @Query("SELECT e FROM Employee e JOIN e.qualifications q WHERE q.id = :qualificationId")
     Page<Employee> findByQualificationId(@Param("qualificationId") UUID qualificationId, Pageable pageable);
 

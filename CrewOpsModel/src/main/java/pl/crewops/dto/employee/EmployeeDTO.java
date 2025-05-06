@@ -13,7 +13,6 @@ public record EmployeeDTO(
         UUID id,
         String firstName,
         String lastName,
-        // TODO: modify birth date type if needed
         LocalDate birthDate,
         String phoneNumber,
         String department,
