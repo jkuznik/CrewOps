@@ -86,7 +86,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
     }
 
     private void configureForm() {
-        form = new EmployeeForm(coreAPI);
+        form = new EmployeeForm();
         form.setWidth("25em");
 
         form.addSaveListener(this::saveContact);

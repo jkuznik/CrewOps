@@ -15,15 +15,12 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.flow.spring.annotation.SpringComponent;
 import java.util.Arrays;
 import pl.crewops.auth.RoleType;
-import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.view.component.QualificationAccordion;
 import pl.crewops.view.component.VehicleAccordion;
 import pl.crewops.view.form.model.EmployeeFormModel;
 
-@SpringComponent
 public class EmployeeForm extends FormLayout {
     TextField firstName = new TextField("First name");
     TextField lastName = new TextField("Last name");
@@ -40,7 +37,7 @@ public class EmployeeForm extends FormLayout {
     Button close = new Button("Cancel");
     Binder<EmployeeFormModel> binder = new BeanValidationBinder<>(EmployeeFormModel.class);
 
-    public EmployeeForm(CoreAPI coreAPI) {
+    public EmployeeForm() {
         addClassName("employee-form");
 
         roles.setItems(Arrays.stream(RoleType.values())
@@ -48,8 +45,8 @@ public class EmployeeForm extends FormLayout {
                 .toList());
         roles.setRenderer(
                 new TextRenderer<>(role -> role.name().replace("_", " ").toLowerCase()));
-        qualifications = new QualificationAccordion(coreAPI);
-        vehicles = new VehicleAccordion(coreAPI);
+        qualifications = new QualificationAccordion();
+        vehicles = new VehicleAccordion();
 
         binder.bindInstanceFields(this);
 
@@ -137,8 +134,8 @@ public class EmployeeForm extends FormLayout {
     public void setEmployee(EmployeeFormModel employeeFormModel) {
         binder.setBean(employeeFormModel);
         if (employeeFormModel != null) {
-            qualifications.setConfig(employeeFormModel.getQualificationsSet());
-            vehicles.setConfig(employeeFormModel.getVehiclesSet());
+            qualifications.getValues(employeeFormModel.getQualificationsSet());
+            vehicles.getValues(employeeFormModel.getVehiclesSet());
         }
     }
 

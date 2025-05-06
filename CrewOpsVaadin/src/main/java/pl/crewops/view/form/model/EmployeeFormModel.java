@@ -10,6 +10,8 @@ import pl.crewops.auth.RoleType;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.dto.qualification.QualificationDTO;
+import pl.crewops.dto.vehicle.VehicleDTO;
 
 @Getter
 @Setter
@@ -24,8 +26,8 @@ public class EmployeeFormModel {
     private String phoneNumber;
     private String department;
     private Set<RoleType> roles;
-    private Set<UUID> qualificationsSet;
-    private Set<UUID> vehiclesSet;
+    private Set<QualificationDTO> qualificationsSet;
+    private Set<VehicleDTO> vehiclesSet;
 
     public static EmployeeFormModel toEmployeeFormModel(EmployeeDTO employeeDTO) {
         return EmployeeFormModel.builder()
