@@ -12,7 +12,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
-import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.view.form.model.QualificationFormModel;
 
 public class QualificationForm extends FormLayout {
@@ -20,11 +19,10 @@ public class QualificationForm extends FormLayout {
 
     Button save = new Button("Save");
     Button delete = new Button("Delete");
+    Button update = new Button("Update");
     Button close = new Button("Cancel");
-    Binder<QualificationDTO> binder = new BeanValidationBinder<>(QualificationDTO.class);
 
-    // TODO: temporary I left this solution. Improve binding values in the future
-    QualificationFormModel model = new QualificationFormModel();
+    Binder<QualificationFormModel> binder = new BeanValidationBinder<>(QualificationFormModel.class);
 
     public QualificationForm() {
         addClassName("qualification-form");
@@ -34,33 +32,60 @@ public class QualificationForm extends FormLayout {
         add(description, createButtonsLayout());
     }
 
+    public void setFormModeSave() {
+        save.setVisible(true);
+        update.setVisible(false);
+        delete.setVisible(false);
+    }
+
+    public void setFormModeUpdate() {
+        save.setVisible(false);
+        update.setVisible(true);
+        delete.setVisible(true);
+    }
+
     private Component createButtonsLayout() {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        update.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
         close.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
         save.addClickShortcut(Key.ENTER);
         close.addClickShortcut(Key.ESCAPE);
 
-        save.addClickListener(event -> validateAndSave()); // <1>
-        delete.addClickListener(event -> fireEvent(new DeleteEvent(this, model))); // <2>
-        close.addClickListener(event -> fireEvent(new CloseEvent(this))); // <3>
+        save.addClickListener(event -> validateAndSave());
+        update.addClickListener(event -> validateAndUpdate());
+        delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
+        close.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
-        binder.addStatusChangeListener(e -> save.setEnabled(modelValidation(model))); // <4>
-        return new HorizontalLayout(save, delete, close);
+        binder.addStatusChangeListener(e -> save.setEnabled(binder.isValid()));
+        return new HorizontalLayout(save, update, delete, close);
     }
 
     private void validateAndSave() {
-        if (modelValidation(model)) {
-            fireEvent(new SaveEvent(this, model)); // <6>
+        var qualificationFormModel = QualificationFormModel.builder()
+                .description(description.getValue())
+                .build();
+        binder.setBean(qualificationFormModel);
+        if (binder.isValid()) {
+            fireEvent(new SaveEvent(this, binder.getBean()));
         }
     }
 
-    public void setQualification(QualificationDTO qualificationDTO) {
-        binder.readBean(qualificationDTO);
-        if (qualificationDTO != null) {
-            setModelValues(qualificationDTO);
+    private void validateAndUpdate() {
+        //        var qualificationFormModel = QualificationFormModel.builder()
+        //                .id(binder.getBean().getId())
+        //                .description(description.getValue())
+        //                .build();
+        //        binder.setBean(qualificationFormModel);
+
+        if (binder.isValid()) {
+            fireEvent(new UpdateEvent(this, binder.getBean()));
         }
+    }
+
+    public void setQualification(QualificationFormModel qualificationFormModel) {
+        binder.setBean(qualificationFormModel);
     }
 
     // Events
@@ -85,6 +110,13 @@ public class QualificationForm extends FormLayout {
         }
     }
 
+    public static class UpdateEvent extends QualificationFormEvent {
+
+        public UpdateEvent(QualificationForm source, QualificationFormModel qualificationFormModel) {
+            super(source, qualificationFormModel);
+        }
+    }
+
     public static class DeleteEvent extends QualificationFormEvent {
 
         DeleteEvent(QualificationForm source, QualificationFormModel qualificationFormModel) {
@@ -99,31 +131,19 @@ public class QualificationForm extends FormLayout {
         }
     }
 
-    public Registration addDeleteListener(ComponentEventListener<DeleteEvent> listener) {
-        return addListener(DeleteEvent.class, listener);
+    public Registration addUpdateListener(ComponentEventListener<UpdateEvent> listener) {
+        return addListener(UpdateEvent.class, listener);
     }
 
     public Registration addSaveListener(ComponentEventListener<SaveEvent> listener) {
         return addListener(SaveEvent.class, listener);
     }
 
+    public Registration addDeleteListener(ComponentEventListener<DeleteEvent> listener) {
+        return addListener(DeleteEvent.class, listener);
+    }
+
     public Registration addCloseListener(ComponentEventListener<CloseEvent> listener) {
         return addListener(CloseEvent.class, listener);
-    }
-
-    // TODO: add logic to inform user which text field are not valid in case of false return/ or improve binder feature
-
-    private void setModelValues(QualificationDTO qualificationDTO) {
-        model.setId(qualificationDTO.id());
-        model.setDescription(description.getValue());
-    }
-
-    private boolean modelValidation(QualificationFormModel model) {
-        model.setDescription(description.getValue());
-
-        if (model.getDescription().isEmpty()) {
-            return false;
-        }
-        return true;
     }
 }

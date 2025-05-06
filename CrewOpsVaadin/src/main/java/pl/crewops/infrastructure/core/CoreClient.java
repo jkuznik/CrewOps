@@ -21,6 +21,7 @@ import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
+import pl.crewops.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
@@ -96,6 +97,25 @@ class CoreClient implements CoreAPI {
                     .body(new ParameterizedTypeReference<EmployeeDTO>() {}));
         } catch (RestClientException e) {
             log.error("Update employee error");
+            return Optional.empty();
+        }
+    }
+
+    public Optional<QualificationDTO> updateQualification(UpdateQualificationDTO updateQualificationDTO)
+            throws NotAuthenticatedException {
+        isAuthenticated();
+        try {
+            return Optional.ofNullable(authorizedClient
+                    .patch()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(QUALIFICATIONS_QID)
+                            .queryParamIfPresent(
+                                    "description", Optional.ofNullable(updateQualificationDTO.description()))
+                            .build(updateQualificationDTO.qualificationId()))
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<QualificationDTO>() {}));
+        } catch (RestClientException e) {
+            log.error("Update qualification error");
             return Optional.empty();
         }
     }

@@ -89,9 +89,9 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         form = new EmployeeForm();
         form.setWidth("25em");
 
-        form.addSaveListener(this::saveContact);
-        form.addUpdateListener(this::updateContact);
-        form.addDeleteListener(this::deleteContact);
+        form.addSaveListener(this::saveEmployee);
+        form.addUpdateListener(this::updateEmployee);
+        form.addDeleteListener(this::deleteEmployee);
         form.addCloseListener(e -> closeEditor());
     }
 
@@ -125,7 +125,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
             closeEditor();
         } else {
             form.setEmployee(employeeFormModel);
-            form.setFormModeEdit();
+            form.setFormModeUpdate();
             form.setVisible(true);
             addClassName("editing");
         }
@@ -137,7 +137,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         removeClassName("editing");
     }
 
-    private void saveContact(EmployeeForm.SaveEvent event) {
+    private void saveEmployee(EmployeeForm.SaveEvent event) {
         try {
             coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
             updateGrid();
@@ -148,7 +148,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         }
     }
 
-    private void updateContact(EmployeeForm.UpdateEvent event) {
+    private void updateEmployee(EmployeeForm.UpdateEvent event) {
         try {
             coreAPI.updateEmployee(EmployeeFormModel.toUpdateEmployeeDTO(event.getEmployee()));
             updateGrid();
@@ -159,7 +159,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         }
     }
 
-    private void deleteContact(EmployeeForm.DeleteEvent event) {
+    private void deleteEmployee(EmployeeForm.DeleteEvent event) {
         try {
             coreAPI.deleteEmployee(event.getEmployee().getId());
             updateGrid();

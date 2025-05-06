@@ -35,6 +35,7 @@ public class EmployeeForm extends FormLayout {
     Button update = new Button("Update");
     Button delete = new Button("Delete");
     Button close = new Button("Cancel");
+
     Binder<EmployeeFormModel> binder = new BeanValidationBinder<>(EmployeeFormModel.class);
 
     public EmployeeForm() {
@@ -95,7 +96,7 @@ public class EmployeeForm extends FormLayout {
         birthDate.setEnabled(true);
     }
 
-    public void setFormModeEdit() {
+    public void setFormModeUpdate() {
         save.setVisible(false);
         update.setVisible(true);
         delete.setVisible(true);
