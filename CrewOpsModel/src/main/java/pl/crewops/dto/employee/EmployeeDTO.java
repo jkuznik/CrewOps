@@ -4,6 +4,9 @@ import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 import lombok.Builder;
+import pl.crewops.auth.RoleDTO;
+import pl.crewops.dto.qualification.QualificationDTO;
+import pl.crewops.dto.vehicle.VehicleDTO;
 
 @Builder
 public record EmployeeDTO(
@@ -14,8 +17,9 @@ public record EmployeeDTO(
         LocalDate birthDate,
         String phoneNumber,
         String department,
-        Set<UUID> qualifications,
-        Set<UUID> vehicles) {
+        Set<RoleDTO> roles,
+        Set<QualificationDTO> qualifications,
+        Set<VehicleDTO> vehicles) {
 
     public static CreateEmployeeDTO toCreateEmployeeDTO(EmployeeDTO thereIsAIssue) {
         return CreateEmployeeDTO.builder()
