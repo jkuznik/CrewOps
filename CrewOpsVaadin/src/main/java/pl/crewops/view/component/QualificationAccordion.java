@@ -4,31 +4,22 @@ import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.spring.annotation.SpringComponent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import pl.crewops.dto.qualification.QualificationDTO;
-import pl.crewops.exceptions.NotAuthenticatedException;
-import pl.crewops.infrastructure.core.CoreAPI;
 
-@SpringComponent
 public class QualificationAccordion extends FormLayout {
 
-    private final CoreAPI coreAPI;
-
-    public QualificationAccordion(CoreAPI coreAPI) {
+    public QualificationAccordion() {
         addClassName("qualification-accordion");
-        this.coreAPI = coreAPI;
     }
 
-    public void setConfig(Set<UUID> qualificationsIds) {
+    public void getValues(Set<QualificationDTO> qualifications) {
         removeAll();
         Accordion accordion = new Accordion();
         List<Span> items = new ArrayList<>();
 
-        List<QualificationDTO> qualifications = getQualifications(qualificationsIds);
         qualifications.forEach(qualification -> {
             items.add(new Span(qualification.description()));
         });
@@ -40,14 +31,5 @@ public class QualificationAccordion extends FormLayout {
         accordion.setVisible(true);
         add(accordion);
         accordion.add("Qualifications", qualificationDisplay);
-    }
-
-    private List<QualificationDTO> getQualifications(Set<UUID> qualificationsIds) {
-        try {
-            return coreAPI.getQualificationsByIds(qualificationsIds);
-        } catch (NotAuthenticatedException e) {
-            // TODO: implement logic
-            return new ArrayList<>();
-        }
     }
 }

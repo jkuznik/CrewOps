@@ -80,7 +80,7 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
     }
 
     private void configureForm() {
-        form = new VehicleForm(coreAPI);
+        form = new VehicleForm();
         form.setWidth("25em");
     }
 

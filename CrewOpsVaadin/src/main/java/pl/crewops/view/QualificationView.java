@@ -87,7 +87,7 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
     }
 
     private void configureForm() {
-        form = new QualificationForm(coreAPI);
+        form = new QualificationForm();
         form.setWidth("25em");
 
         form.addSaveListener(this::saveContact);

@@ -219,7 +219,8 @@ class EmployeeServiceTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.qualifications().size()).isEqualTo(1);
-        assertThat(result.qualifications().contains(qualificationId)).isTrue();
+        assertThat(result.qualifications().stream().findFirst().get().description())
+                .isEqualTo(qualification.getDescription());
     }
 
     @Test
@@ -301,7 +302,7 @@ class EmployeeServiceTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.vehicles().size()).isEqualTo(1);
-        assertThat(result.vehicles().contains(vehicle.getId())).isTrue();
+        assertThat(result.vehicles().stream().findFirst().get().id()).isEqualTo(vehicleId);
     }
 
     @Test

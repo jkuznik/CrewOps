@@ -1,13 +1,12 @@
 package pl.crewops.domain.employee;
 
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.qualification.QualificationDTO;
+import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.model.Employee;
-import pl.crewops.model.Qualification;
-import pl.crewops.model.Vehicle;
 
 class EmployeeMapper {
 
@@ -29,20 +28,32 @@ class EmployeeMapper {
                 .birthDate(employee.getBirthDate())
                 .phoneNumber(employee.getPhoneNumber())
                 .department(employee.getDepartment())
-                .qualifications(getQualifications(employee.getQualifications()))
-                .vehicles(getVehicles(employee.getVehicles()))
+                .qualifications(getQualifications(employee))
+                .vehicles(getVehicles(employee))
                 .build();
     }
 
-    private static Set<UUID> getQualifications(Set<Qualification> qualifications) {
-        return qualifications == null
-                ? Set.of()
-                : qualifications.stream().map(Qualification::getId).collect(Collectors.toSet());
+    private static Set<VehicleDTO> getVehicles(Employee employee) {
+        return employee.getVehicles().stream()
+                .map(vehicle -> VehicleDTO.builder()
+                        .id(vehicle.getId())
+                        .make(vehicle.getMake())
+                        .model(vehicle.getModel())
+                        .vehicleType(vehicle.getVehicleType())
+                        .year(vehicle.getYear())
+                        .vin(vehicle.getVin())
+                        .registerNumber(vehicle.getRegisterNumber())
+                        .broken(vehicle.getBroken())
+                        .build())
+                .collect(Collectors.toSet());
     }
 
-    private static Set<UUID> getVehicles(Set<Vehicle> vehicles) {
-        return vehicles == null
-                ? Set.of()
-                : vehicles.stream().map(Vehicle::getId).collect(Collectors.toSet());
+    private static Set<QualificationDTO> getQualifications(Employee employee) {
+        return employee.getQualifications().stream()
+                .map(role -> QualificationDTO.builder()
+                        .id(role.getId())
+                        .description(role.getDescription())
+                        .build())
+                .collect(Collectors.toSet());
     }
 }

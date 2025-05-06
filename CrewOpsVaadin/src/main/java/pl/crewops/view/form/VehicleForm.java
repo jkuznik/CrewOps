@@ -14,7 +14,6 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import pl.crewops.dto.vehicle.VehicleDTO;
-import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.view.form.model.VehicleFormModel;
 
 @SpringComponent
@@ -37,7 +36,7 @@ public class VehicleForm extends FormLayout {
 
     VehicleFormModel binderModel = new VehicleFormModel();
 
-    public VehicleForm(CoreAPI coreAPI) {
+    public VehicleForm() {
         addClassName("vehicle-form");
 
         binder.bindInstanceFields(this);

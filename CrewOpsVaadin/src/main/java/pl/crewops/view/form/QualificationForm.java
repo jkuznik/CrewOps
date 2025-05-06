@@ -12,12 +12,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.flow.spring.annotation.SpringComponent;
 import pl.crewops.dto.qualification.QualificationDTO;
-import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.view.form.model.QualificationFormModel;
 
-@SpringComponent
 public class QualificationForm extends FormLayout {
     TextField description = new TextField("Description");
 
@@ -29,7 +26,7 @@ public class QualificationForm extends FormLayout {
     // TODO: temporary I left this solution. Improve binding values in the future
     QualificationFormModel model = new QualificationFormModel();
 
-    public QualificationForm(CoreAPI coreAPI) {
+    public QualificationForm() {
         addClassName("qualification-form");
 
         binder.bindInstanceFields(this);
