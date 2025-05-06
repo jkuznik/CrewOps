@@ -14,7 +14,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import lombok.extern.slf4j.Slf4j;
 import pl.crewops.auth.AuthRequest;
-import pl.crewops.auth.AuthResponse;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
 
@@ -55,10 +54,8 @@ public class LoginForm extends FormLayout {
 
     private void loginAction(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         var authRequest = new AuthRequest(username.getValue(), password.getValue());
-        AuthResponse authResponse = coreAPI.login(authRequest);
-        jwtInfoService.setToken(authResponse.token());
-        coreAPI.setToken(authResponse);
-        log.debug("Auth response: " + authResponse);
+        jwtInfoService.setAuthentication(coreAPI.login(authRequest));
+        log.debug("Login action success: ");
         UI.getCurrent().getPage().reload();
     }
 }
