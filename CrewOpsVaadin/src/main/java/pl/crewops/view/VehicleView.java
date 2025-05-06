@@ -15,7 +15,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
@@ -27,7 +26,7 @@ import pl.crewops.view.form.model.VehicleFormModel;
 @Route(value = "vehicles")
 @PageTitle("Vehicle view")
 public class VehicleView extends MainLayout implements BeforeEnterObserver {
-    Grid<VehicleDTO> grid = new Grid<>(VehicleDTO.class);
+    Grid<VehicleFormModel> grid = new Grid<>(VehicleFormModel.class);
     TextField filterText = new TextField();
     VehicleForm form;
 
@@ -51,7 +50,7 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
 
         currentContent.add(getToolbar(), getCurrentContent());
 
-        updateList();
+        updateGrid();
         closeEditor();
     }
 
@@ -59,7 +58,7 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
         filterText.setLabel("Filter by type...");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
-        filterText.addValueChangeListener(event -> updateList());
+        filterText.addValueChangeListener(event -> updateGrid());
 
         Button addVehicleButton = new Button("Add vehicle");
         addVehicleButton.addClickListener(e -> addVehicle());
@@ -82,6 +81,11 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
     private void configureForm() {
         form = new VehicleForm();
         form.setWidth("25em");
+
+        form.addSaveListener(this::saveVehicle);
+        form.addUpdateListener(this::updateVehicle);
+        form.addDeleteListener(this::deleteVehicle);
+        form.addCloseListener(event -> closeEditor());
     }
 
     private void configureGrid() {
@@ -93,17 +97,18 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
         grid.asSingleSelect().addValueChangeListener(event -> editVehicle(event.getValue()));
     }
 
-    private void updateList() {
+    private void updateGrid() {
         try {
-            List<VehicleDTO> vehicles = coreAPI.getAllVehicles();
+            List<VehicleFormModel> vehicles = coreAPI.getAllVehicles().stream()
+                    .map(VehicleFormModel::toVehicleFormModel)
+                    .toList();
 
             if (filterText.getValue() == null) {
                 grid.setItems(vehicles);
             } else {
                 grid.setItems(vehicles.stream()
                         .filter(vehicleDTO -> vehicleDTO
-                                .vehicleType()
-                                .name()
+                                .getVehicleType()
                                 .toLowerCase()
                                 //                            .registerNumber()
                                 //                            .toLowerCase()
@@ -121,30 +126,42 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
         removeClassName("editing");
     }
 
-    private void saveContact(VehicleForm.SaveEvent event) {
+    public void editVehicle(VehicleFormModel vehicleFormModel) {
+        if (vehicleFormModel == null) {
+            closeEditor();
+        } else {
+            form.setVehicle(vehicleFormModel);
+            form.setFormModeUpdate();
+            form.setVisible(true);
+            addClassName("editing");
+        }
+    }
+
+    private void saveVehicle(VehicleForm.SaveEvent event) {
         try {
             coreAPI.createVehicle(VehicleFormModel.toCreateVehicleDTO(event.getVehicle()));
-            updateList();
+            updateGrid();
             closeEditor();
         } catch (NotAuthenticatedException e) {
             // TODO: implement logic
         }
     }
 
-    public void editVehicle(VehicleDTO vehicleDTO) {
-        if (vehicleDTO == null) {
+    private void updateVehicle(VehicleForm.UpdateEvent event) {
+        try {
+            coreAPI.updateVehicle(VehicleFormModel.toUpdateVehicleDTO(event.getVehicle()));
+            updateGrid();
             closeEditor();
-        } else {
-            form.setVehicle(vehicleDTO);
-            form.setVisible(true);
-            addClassName("editing");
+            // TODO: implement notification
+        } catch (NotAuthenticatedException e) {
+            // TODO: implement logic
         }
     }
 
-    private void deleteContact(VehicleForm.DeleteEvent event) {
+    private void deleteVehicle(VehicleForm.DeleteEvent event) {
         try {
             coreAPI.deleteVehicle(event.getVehicle().getId());
-            updateList();
+            updateGrid();
             closeEditor();
         } catch (NotAuthenticatedException e) {
             // TODO: implment logic
@@ -153,6 +170,7 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
 
     private void addVehicle() {
         grid.asSingleSelect().clear();
+        form.setFormModeSave();
         form.setVisible(true);
     }
 

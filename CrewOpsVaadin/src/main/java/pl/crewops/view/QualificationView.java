@@ -14,7 +14,6 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import java.util.List;
-import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
@@ -25,7 +24,7 @@ import pl.crewops.view.form.model.QualificationFormModel;
 @Route(value = "qualifications")
 @PageTitle("Qualification management")
 public class QualificationView extends MainLayout implements BeforeEnterObserver {
-    Grid<QualificationDTO> grid = new Grid<>(QualificationDTO.class);
+    Grid<QualificationFormModel> grid = new Grid<>(QualificationFormModel.class);
     TextField filterText = new TextField();
     QualificationForm form;
 
@@ -49,7 +48,7 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
 
         currentContent.add(getToolbar(), getCurrentContent());
 
-        updateList();
+        updateGrid();
         closeEditor();
     }
 
@@ -57,10 +56,10 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
         filterText.setLabel("Filter by name...");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
-        filterText.addValueChangeListener(e -> updateList());
+        filterText.addValueChangeListener(e -> updateGrid());
 
         Button addQualificationButton = new Button("Add qualification");
-        addQualificationButton.addClickListener(click -> addEmployee());
+        addQualificationButton.addClickListener(click -> addQualification());
 
         var toolbar = new HorizontalLayout(filterText, addQualificationButton);
         toolbar.addClassName("qualification-toolbar");
@@ -90,21 +89,24 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
         form = new QualificationForm();
         form.setWidth("25em");
 
-        form.addSaveListener(this::saveContact);
-        form.addDeleteListener(this::deleteContact);
+        form.addSaveListener(this::saveQualification);
+        form.addUpdateListener(this::updateQualification);
+        form.addDeleteListener(this::deleteQualification);
         form.addCloseListener(e -> closeEditor());
     }
 
-    private void updateList() {
+    private void updateGrid() {
         try {
-            List<QualificationDTO> employees = coreAPI.getAllQualifications();
+            List<QualificationFormModel> employees = coreAPI.getAllQualifications().stream()
+                    .map(QualificationFormModel::toQualificationFormModel)
+                    .toList();
 
             if (filterText.getValue() == null) {
                 grid.setItems(employees);
             } else {
                 grid.setItems(employees.stream()
                         .filter(qualificationDTO -> qualificationDTO
-                                .description()
+                                .getDescription()
                                 .toLowerCase()
                                 .contains(filterText.getValue().toLowerCase()))
                         .toList());
@@ -120,32 +122,43 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
         removeClassName("editing");
     }
 
-    private void saveContact(QualificationForm.SaveEvent event) {
+    private void saveQualification(QualificationForm.SaveEvent event) {
         try {
             // TODO: add 'unique description' validation
             coreAPI.createQualification(QualificationFormModel.toCreateQualificationDTO(event.getQualification()));
-            updateList();
+            updateGrid();
             closeEditor();
         } catch (NotAuthenticatedException e) {
             // TODO: implement logic
         }
     }
 
-    private void deleteContact(QualificationForm.DeleteEvent event) {
+    private void updateQualification(QualificationForm.UpdateEvent event) {
+        try {
+            coreAPI.updateQualification(QualificationFormModel.toUpdateQualificationDTO(event.getQualification()));
+            updateGrid();
+            closeEditor();
+        } catch (NotAuthenticatedException e) {
+            // TODO: implement logic
+        }
+    }
+
+    private void deleteQualification(QualificationForm.DeleteEvent event) {
         try {
             coreAPI.deleteQualification(event.getQualification().getId());
-            updateList();
+            updateGrid();
             closeEditor();
         } catch (NotAuthenticatedException e) {
             // TODO: implement logic
         }
     }
 
-    public void editQualification(QualificationDTO qualificationDTO) {
-        if (qualificationDTO == null) {
+    public void editQualification(QualificationFormModel qualificationFormModel) {
+        if (qualificationFormModel == null) {
             closeEditor();
         } else {
-            form.setQualification(qualificationDTO);
+            form.setQualification(qualificationFormModel);
+            form.setFormModeUpdate();
             form.setVisible(true);
             addClassName("editing");
         }
@@ -153,8 +166,9 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
 
     // TODO: add column that contains employees amount with each qualification
 
-    private void addEmployee() {
+    private void addQualification() {
         grid.asSingleSelect().clear();
+        form.setFormModeSave();
         form.setVisible(true);
     }
 

@@ -17,7 +17,9 @@ import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
+import pl.crewops.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
+import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 
@@ -37,7 +39,13 @@ public interface CoreAPI {
     Optional<QualificationDTO> createQualification(@Valid @NotNull CreateQualificationDTO createQualificationDTO)
             throws NotAuthenticatedException;
 
+    Optional<QualificationDTO> updateQualification(@Valid @NotNull UpdateQualificationDTO updateQualificationDTO)
+            throws NotAuthenticatedException;
+
     Optional<VehicleDTO> createVehicle(@Valid @NotNull CreateVehicleDTO createVehicleDTO)
+            throws NotAuthenticatedException;
+
+    Optional<VehicleDTO> updateVehicle(@Valid @NotNull UpdateVehicleDTO updateVehicleDTO)
             throws NotAuthenticatedException;
 
     List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException;
