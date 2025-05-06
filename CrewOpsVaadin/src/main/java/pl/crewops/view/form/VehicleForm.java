@@ -62,7 +62,7 @@ public class VehicleForm extends FormLayout {
         close.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
         save.addClickShortcut(Key.ENTER);
-        delete.addClickShortcut(Key.ESCAPE);
+        close.addClickShortcut(Key.ESCAPE);
 
         save.addClickListener(event -> validateAndSave());
         update.addClickListener(event -> validateAndUpdate());
