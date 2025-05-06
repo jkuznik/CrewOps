@@ -30,6 +30,10 @@ public class JwtInfoService {
         coreAPI.setToken(authResponse.token());
     }
 
+    public void resetAuthentication() {
+        notAuthenticated();
+    }
+
     public boolean validToken() {
         if (token == null) {
             return false;
