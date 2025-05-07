@@ -115,7 +115,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
                         .toList());
             }
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic, redirect to home view and display notification
+            UI.getCurrent().navigate(HomeView.class);
         }
     }
 
@@ -143,7 +143,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
             closeEditor();
             // TODO: implement notification
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic
+            UI.getCurrent().navigate(HomeView.class);
         }
     }
 
@@ -154,7 +154,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
             closeEditor();
             // TODO: implement notification
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic
+            UI.getCurrent().navigate(HomeView.class);
         }
     }
 
@@ -164,7 +164,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
             updateGrid();
             closeEditor();
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic
+            UI.getCurrent().navigate(HomeView.class);
         }
     }
 

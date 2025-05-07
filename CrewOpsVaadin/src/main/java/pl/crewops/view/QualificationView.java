@@ -112,7 +112,7 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
                         .toList());
             }
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic
+            UI.getCurrent().navigate(HomeView.class);
         }
     }
 
@@ -129,7 +129,7 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
             updateGrid();
             closeEditor();
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic
+            UI.getCurrent().navigate(HomeView.class);
         }
     }
 
@@ -139,7 +139,7 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
             updateGrid();
             closeEditor();
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic
+            UI.getCurrent().navigate(HomeView.class);
         }
     }
 
@@ -149,7 +149,7 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
             updateGrid();
             closeEditor();
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic
+            UI.getCurrent().navigate(HomeView.class);
         }
     }
 
