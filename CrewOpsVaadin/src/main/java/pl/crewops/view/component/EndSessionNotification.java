@@ -5,6 +5,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -15,6 +16,7 @@ public class EndSessionNotification {
     public EndSessionNotification(UI ui, Runnable onSessionEnd) {
         notification = new Notification();
         notification.setDuration(0);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
         notification.setPosition(Notification.Position.MIDDLE);
         notification.addClassName("custom-notification");
 
@@ -26,7 +28,7 @@ public class EndSessionNotification {
                 .set("text-align", "center");
 
         accept.setText("Accept");
-        accept.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        accept.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         accept.addClickListener(e -> {
             notification.close();
             onSessionEnd.run();

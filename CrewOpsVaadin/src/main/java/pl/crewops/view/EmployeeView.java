@@ -14,9 +14,12 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import java.util.List;
+import java.util.Optional;
+import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
+import pl.crewops.view.component.SaveEmployeeNotification;
 import pl.crewops.view.component.mainLayout.MainLayout;
 import pl.crewops.view.form.EmployeeForm;
 import pl.crewops.view.form.model.EmployeeFormModel;
@@ -138,10 +141,11 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
 
     private void saveEmployee(EmployeeForm.SaveEvent event) {
         try {
-            coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
+            Optional<EmployeeDTO> employee =
+                    coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
             updateGrid();
             closeEditor();
-            // TODO: implement notification
+            employee.ifPresent(SaveEmployeeNotification::new);
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
