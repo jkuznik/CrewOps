@@ -24,9 +24,9 @@ import pl.crewops.view.form.model.EmployeeFormModel;
 @Route(value = "employees")
 @PageTitle("Employee management")
 public class EmployeeView extends MainLayout implements BeforeEnterObserver {
-    Grid<EmployeeFormModel> grid = new Grid<>(EmployeeFormModel.class);
-    TextField filterText = new TextField();
-    EmployeeForm form;
+    private final Grid<EmployeeFormModel> grid = new Grid<>(EmployeeFormModel.class);
+    private final TextField filterText = new TextField();
+    private final EmployeeForm form = new EmployeeForm();
 
     public EmployeeView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         super(coreAPI, jwtInfoService);
@@ -86,7 +86,6 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
     }
 
     private void configureForm() {
-        form = new EmployeeForm();
         form.setWidth("25em");
 
         form.addSaveListener(this::saveEmployee);

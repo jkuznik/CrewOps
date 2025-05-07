@@ -183,3 +183,25 @@ span, p, label, div {
     color: white;
 }
 
+.custom-notification {
+    background-color: transparent !important;  /* zostawiamy tło layoutu */
+    box-shadow: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+}
+
+vaadin-notification-card::part(notification-card) {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.notification-layout {
+    background-color: #333333 !important;
+    color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
