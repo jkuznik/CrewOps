@@ -1,4 +1,4 @@
-package pl.crewops.view.component;
+package pl.crewops.view.component.notification;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;

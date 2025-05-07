@@ -19,8 +19,9 @@ import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
-import pl.crewops.view.component.SaveEmployeeNotification;
 import pl.crewops.view.component.mainLayout.MainLayout;
+import pl.crewops.view.component.notification.SaveEmployeeNotification;
+import pl.crewops.view.component.notification.UpdateEmployeeNotification;
 import pl.crewops.view.form.EmployeeForm;
 import pl.crewops.view.form.model.EmployeeFormModel;
 
@@ -141,11 +142,11 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
 
     private void saveEmployee(EmployeeForm.SaveEvent event) {
         try {
-            Optional<EmployeeDTO> employee =
+            Optional<EmployeeDTO> employeeDTO =
                     coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
             updateGrid();
             closeEditor();
-            employee.ifPresent(SaveEmployeeNotification::new);
+            employeeDTO.ifPresent(SaveEmployeeNotification::new);
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
@@ -153,10 +154,11 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
 
     private void updateEmployee(EmployeeForm.UpdateEvent event) {
         try {
-            coreAPI.updateEmployee(EmployeeFormModel.toUpdateEmployeeDTO(event.getEmployee()));
+            Optional<EmployeeDTO> employeeDTO =
+                    coreAPI.updateEmployee(EmployeeFormModel.toUpdateEmployeeDTO(event.getEmployee()));
             updateGrid();
             closeEditor();
-            // TODO: implement notification
+            employeeDTO.ifPresent(UpdateEmployeeNotification::new);
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
