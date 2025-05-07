@@ -14,11 +14,14 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
 import pl.crewops.view.component.mainLayout.MainLayout;
+import pl.crewops.view.component.notification.UpdateVehicleNotification;
 import pl.crewops.view.form.VehicleForm;
 import pl.crewops.view.form.model.VehicleFormModel;
 
@@ -149,10 +152,11 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
 
     private void updateVehicle(VehicleForm.UpdateEvent event) {
         try {
-            coreAPI.updateVehicle(VehicleFormModel.toUpdateVehicleDTO(event.getVehicle()));
+            Optional<VehicleDTO> vehicleDTO =
+                    coreAPI.updateVehicle(VehicleFormModel.toUpdateVehicleDTO(event.getVehicle()));
             updateGrid();
             closeEditor();
-            // TODO: implement notification
+            vehicleDTO.ifPresent(UpdateVehicleNotification::new);
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
