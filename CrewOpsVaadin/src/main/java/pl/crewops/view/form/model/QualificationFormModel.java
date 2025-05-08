@@ -1,5 +1,7 @@
 package pl.crewops.view.form.model;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.UUID;
 import lombok.*;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
@@ -13,7 +15,7 @@ import pl.crewops.dto.qualification.UpdateQualificationDTO;
 @AllArgsConstructor
 public class QualificationFormModel {
     private UUID id;
-    private String description;
+    private @NotNull @Size(min = 2, message = "Minimal length 2") String description;
     private Integer employeesAmount;
 
     public static QualificationFormModel toQualificationFormModel(QualificationDTO qualificationDTO) {

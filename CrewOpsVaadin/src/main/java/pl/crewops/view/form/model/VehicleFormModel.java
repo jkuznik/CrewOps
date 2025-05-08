@@ -1,5 +1,7 @@
 package pl.crewops.view.form.model;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.UUID;
 import lombok.*;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
@@ -14,13 +16,13 @@ import pl.crewops.enums.VehicleType;
 @AllArgsConstructor
 public class VehicleFormModel {
     private UUID id;
-    private String make;
-    private String model;
-    private String vehicleType;
-    private Integer year;
-    private String vin;
-    private String registerNumber;
-    private Boolean broken;
+    private @NotNull @Size(min = 2, max = 31, message = "Length required between 2-31") String make;
+    private @NotNull @Size(min = 2, max = 31, message = "Length required between 2-31") String model;
+    private @NotNull String vehicleType;
+    private @NotNull Integer year;
+    private @Size(min = 2, max = 50, message = "Length required between 2-50") String vin;
+    private @Size(min = 2, max = 15, message = "Length required between 2-15") String registerNumber;
+    private @NotNull Boolean broken;
 
     public static CreateVehicleDTO toCreateVehicleDTO(VehicleFormModel vehicleFormModel) {
         return CreateVehicleDTO.builder()
