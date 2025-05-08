@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -55,6 +56,10 @@ class EmployeeController {
     @PatchMapping(EMPLOYEES_EID)
     public ResponseEntity<EmployeeDTO> updateEmployee(
             @PathVariable(EMPLOYEE_ID) UUID employeeId, @RequestBody @Valid @NotNull UpdateEmployeeDTO updateRequest) {
+
+        if (!updateRequest.employeeId().equals(employeeId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Path ID and body ID must match");
+        }
 
         var updateEmployeeDTO = UpdateEmployeeDTO.builder()
                 .employeeId(employeeId)

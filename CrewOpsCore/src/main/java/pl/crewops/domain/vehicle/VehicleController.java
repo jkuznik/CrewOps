@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
@@ -40,6 +41,11 @@ class VehicleController {
     @PatchMapping(VEHICLES_VID)
     public ResponseEntity<VehicleDTO> updateVehicle(
             @PathVariable(VEHICLE_ID) UUID vehicleId, @RequestBody @Valid @NotNull UpdateVehicleDTO updateRequest) {
+
+        if (!updateRequest.vehicleId().equals(vehicleId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Path ID and body ID must match");
+        }
+
         var updateVehicleDTO = UpdateVehicleDTO.builder()
                 .vehicleId(vehicleId)
                 .registerNumber(updateRequest.registerNumber())
