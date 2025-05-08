@@ -7,24 +7,25 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.stream.IntStream;
 import pl.crewops.view.form.model.VehicleFormModel;
 
 @SpringComponent
-
-// TODO: config vehicle type binding or keep focus on binding VehicleFormModel instead of VehicleDTO
 public class VehicleForm extends FormLayout {
     TextField registerNumber = new TextField("Registration Number");
     //    TextField vehicleType = new TextField("Vehicle Type");
     TextField make = new TextField("Make");
     TextField model = new TextField("Model");
-    // TODO: change textfield to some dedicated for year's, or implement select component
-    TextField year = new TextField("Year");
+    ComboBox<Integer> year = new ComboBox<>("Year");
     TextField vin = new TextField("Vin");
     Checkbox broken = new Checkbox("Broken");
 
@@ -39,6 +40,13 @@ public class VehicleForm extends FormLayout {
         addClassName("vehicle-form");
 
         binder.bindInstanceFields(this);
+
+        year.addClassName("vehicle-form-year-combobox");
+        // TODO: find way to change item background color
+        year.setItems(IntStream.rangeClosed(1980, LocalDate.now().getYear())
+                .boxed()
+                .sorted(Comparator.reverseOrder())
+                .toList());
 
         add(registerNumber, /*vehicleType,*/ broken, make, model, year, vin, createButtonsLayout());
     }
@@ -78,7 +86,7 @@ public class VehicleForm extends FormLayout {
         var vehicleFormModel = VehicleFormModel.builder()
                 .make(make.getValue())
                 .model(model.getValue())
-                .year(Integer.parseInt(year.getValue()))
+                .year(year.getValue())
                 .vin(vin.getValue())
                 .broken(broken.getValue())
                 .registerNumber(registerNumber.getValue())

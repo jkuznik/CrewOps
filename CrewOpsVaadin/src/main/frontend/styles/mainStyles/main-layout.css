@@ -13,6 +13,8 @@ html, body {
     --lumo-contrast: #ffffff;
     --lumo-icon-color: #ffffff;              /* ogólny kolor ikon, np. strzałki Accordiona */
     --lumo-contrast-70pct: rgba(255, 255, 255, 0.7);
+    --combo-bg-color: var(--lumo-base-color, #2b2b2b); /* lub inny ciemny kolor */
+    --combo-text-color: var(--lumo-body-text-color, #ffffff);
     --main-background-color: #1e1e1e;
     --main-text-color: #B0B0B0;
 }
@@ -181,5 +183,16 @@ vaadin-vertical-layout,
 vaadin-horizontal-layout,
 span, p, label, div {
     color: white;
+}
+
+.notification-layout {
+    background-color: #333333 !important;
+    color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-sizing: border-box;
+    width: 300px;
+    height: auto;
+    margin: 0;
 }
 

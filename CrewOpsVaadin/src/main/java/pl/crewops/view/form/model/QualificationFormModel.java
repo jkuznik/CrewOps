@@ -1,5 +1,7 @@
 package pl.crewops.view.form.model;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.UUID;
 import lombok.*;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
@@ -13,15 +15,14 @@ import pl.crewops.dto.qualification.UpdateQualificationDTO;
 @AllArgsConstructor
 public class QualificationFormModel {
     private UUID id;
-    private String description;
-
-    // TODO: maybe this is proper place to store employee amount of each qualification for the purposes of the grid in
-    //  QualificationView
+    private @NotNull @Size(min = 2, message = "Minimal length 2") String description;
+    private Integer employeesAmount;
 
     public static QualificationFormModel toQualificationFormModel(QualificationDTO qualificationDTO) {
         return QualificationFormModel.builder()
                 .id(qualificationDTO.id())
                 .description(qualificationDTO.description())
+                .employeesAmount(qualificationDTO.employeesAmount())
                 .build();
     }
 

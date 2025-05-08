@@ -295,11 +295,11 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public void setToken(AuthResponse response) {
+    public void setToken(String token) {
         authenticated = true;
         authorizedClient = coreClient
                 .mutate()
-                .defaultHeader("Authorization", "Bearer " + response.token())
+                .defaultHeader("Authorization", "Bearer " + token)
                 .build();
     }
 

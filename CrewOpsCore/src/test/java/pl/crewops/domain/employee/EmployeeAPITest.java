@@ -30,7 +30,7 @@ class EmployeeAPITest extends IntegrationTest {
         EmployeeDTO result = employeeAPI.createEmployee(createEmployeeDTO);
         Employee employee = employeeRepository
                 .findByFirstNameAndLastName("firstName", "lastName")
-                .orElseThrow(RuntimeException::new);
+                .getFirst();
 
         // then
         assertThat(result.firstName()).isEqualTo("firstName");

@@ -14,19 +14,23 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import java.util.List;
+import java.util.Optional;
+import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
 import pl.crewops.view.component.mainLayout.MainLayout;
+import pl.crewops.view.component.notification.SaveEmployeeNotification;
+import pl.crewops.view.component.notification.UpdateEmployeeNotification;
 import pl.crewops.view.form.EmployeeForm;
 import pl.crewops.view.form.model.EmployeeFormModel;
 
 @Route(value = "employees")
 @PageTitle("Employee management")
 public class EmployeeView extends MainLayout implements BeforeEnterObserver {
-    Grid<EmployeeFormModel> grid = new Grid<>(EmployeeFormModel.class);
-    TextField filterText = new TextField();
-    EmployeeForm form;
+    private final Grid<EmployeeFormModel> grid = new Grid<>(EmployeeFormModel.class);
+    private final TextField filterText = new TextField();
+    private final EmployeeForm form = new EmployeeForm();
 
     public EmployeeView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         super(coreAPI, jwtInfoService);
@@ -86,7 +90,6 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
     }
 
     private void configureForm() {
-        form = new EmployeeForm();
         form.setWidth("25em");
 
         form.addSaveListener(this::saveEmployee);
@@ -116,7 +119,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
                         .toList());
             }
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic, redirect to home view and display notification
+            UI.getCurrent().navigate(HomeView.class);
         }
     }
 
@@ -139,23 +142,25 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
 
     private void saveEmployee(EmployeeForm.SaveEvent event) {
         try {
-            coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
+            Optional<EmployeeDTO> employeeDTO =
+                    coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
             updateGrid();
             closeEditor();
-            // TODO: implement notification
+            employeeDTO.ifPresent(SaveEmployeeNotification::new);
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic
+            UI.getCurrent().navigate(HomeView.class);
         }
     }
 
     private void updateEmployee(EmployeeForm.UpdateEvent event) {
         try {
-            coreAPI.updateEmployee(EmployeeFormModel.toUpdateEmployeeDTO(event.getEmployee()));
+            Optional<EmployeeDTO> employeeDTO =
+                    coreAPI.updateEmployee(EmployeeFormModel.toUpdateEmployeeDTO(event.getEmployee()));
             updateGrid();
             closeEditor();
-            // TODO: implement notification
+            employeeDTO.ifPresent(UpdateEmployeeNotification::new);
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic
+            UI.getCurrent().navigate(HomeView.class);
         }
     }
 
@@ -165,7 +170,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
             updateGrid();
             closeEditor();
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic
+            UI.getCurrent().navigate(HomeView.class);
         }
     }
 

@@ -1,5 +1,7 @@
 package pl.crewops.view.form.model;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
@@ -20,11 +22,11 @@ import pl.crewops.dto.vehicle.VehicleDTO;
 @AllArgsConstructor
 public class EmployeeFormModel {
     private UUID id;
-    private String firstName;
-    private String lastName;
-    private LocalDate birthDate;
-    private String phoneNumber;
-    private String department;
+    private @NotNull @Size(min = 2, max = 50, message = "Minimal length is 2") String firstName;
+    private @NotNull @Size(min = 2, max = 50, message = "Minimal length is 2") String lastName;
+    private @NotNull LocalDate birthDate;
+    private @Size(max = 15, message = "Max length is 15") String phoneNumber;
+    private @NotNull @Size(min = 2, max = 50, message = "Minimal length is 2") String department;
     private Set<RoleType> roles;
     private Set<QualificationDTO> qualificationsSet;
     private Set<VehicleDTO> vehiclesSet;

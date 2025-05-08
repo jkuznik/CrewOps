@@ -4,4 +4,4 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record QualificationDTO(UUID id, String description) {}
+public record QualificationDTO(UUID id, String description, Integer employeesAmount) {}

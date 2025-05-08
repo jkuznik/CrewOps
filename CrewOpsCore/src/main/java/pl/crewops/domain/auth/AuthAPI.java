@@ -16,4 +16,6 @@ public interface AuthAPI {
     Optional<AuthUser> getByUsername(@NotNull String username);
 
     AuthUser createAuthUser(@NotNull @Valid CreateAuthUserDTO createAuthUserDTO, @NotNull @Valid Employee employee);
+
+    void deleteByEmployee(@NotNull @Valid Employee employee);
 }

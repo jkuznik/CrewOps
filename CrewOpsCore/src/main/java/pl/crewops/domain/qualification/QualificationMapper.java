@@ -16,6 +16,7 @@ class QualificationMapper {
         return QualificationDTO.builder()
                 .id(qualification.getId())
                 .description(qualification.getDescription())
+                .employeesAmount(qualification.getEmployees().size())
                 .build();
     }
 }

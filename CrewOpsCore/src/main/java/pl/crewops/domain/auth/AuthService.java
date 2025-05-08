@@ -64,6 +64,11 @@ class AuthService implements AuthAPI {
     }
 
     @Transactional
+    public void deleteByEmployee(Employee employee) {
+        authUserRepository.deleteByEmployee(employee);
+    }
+
+    @Transactional
     public AuthResponse login(@NotNull AuthRequest authRequest, HttpServletResponse response) {
         try {
             AuthUser byUsername = byUsername(authRequest.username());

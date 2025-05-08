@@ -200,6 +200,7 @@ class EmployeeServiceTest {
     void shouldTriggerDeleteEntityMethod() {
         // when
         Mockito.doNothing().when(employeeRepository).deleteById(any(UUID.class));
+        when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithQAndV));
         employeeService.deleteEmployee(employeeId);
 
         // then

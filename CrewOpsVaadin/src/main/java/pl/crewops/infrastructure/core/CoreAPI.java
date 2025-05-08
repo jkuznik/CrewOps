@@ -64,7 +64,7 @@ public interface CoreAPI {
 
     void deleteVehicle(@NotNull UUID vehicleId) throws NotAuthenticatedException;
 
-    void setToken(@Valid @NotNull AuthResponse response);
+    void setToken(@NotNull String token);
 
     void resetToken();
 }

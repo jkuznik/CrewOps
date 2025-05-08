@@ -21,8 +21,11 @@ public class VehicleAccordion extends FormLayout {
         List<Span> items = new ArrayList<>();
 
         vehicles.forEach(vehicle -> {
-            // TODO: implement logic to display formatted registerNumber and vehicle type
-            items.add(new Span(vehicle.registerNumber()));
+            String formatted = String.format("%-15s%s", vehicle.vehicleType().name(), vehicle.registerNumber());
+            Span span = new Span(formatted);
+            span.getStyle().set("font-family", "monospace");
+            span.getStyle().set("white-space", "pre");
+            items.add(span);
         });
 
         VerticalLayout vehiclesDisplay = new VerticalLayout(items.toArray(new Span[items.size()]));

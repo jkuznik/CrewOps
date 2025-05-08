@@ -118,6 +118,9 @@ class EmployeeService {
     @Transactional
     public void deleteEmployee(@NotNull UUID employeeId) {
         log.info("Delete employee {}", employeeId);
+        Employee employee =
+                employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
+        authAPI.deleteByEmployee(employee);
         employeeRepository.deleteById(employeeId);
     }
 
@@ -199,9 +202,9 @@ class EmployeeService {
                 page, size, Sort.by(Sort.Order.asc("lastName"), Sort.Order.asc("firstName")));
     }
 
-    public EmployeeDTO getEmployeeByUsername(String username) {
-        return mapToDTO(employeeRepository
-                .findByFirstName(username)
-                .orElseThrow(() -> new EmployeeNotFoundException(username)));
+    public List<EmployeeDTO> getEmployeesByFirstName(String firstName) {
+        return employeeRepository.findByFirstName(firstName).stream()
+                .map(EmployeeMapper::mapToDTO)
+                .toList();
     }
 }

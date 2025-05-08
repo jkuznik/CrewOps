@@ -13,11 +13,13 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import java.util.ArrayList;
 import java.util.List;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
 import pl.crewops.view.component.mainLayout.MainLayout;
+import pl.crewops.view.component.notification.QualificationAlreadyExistNotification;
 import pl.crewops.view.form.QualificationForm;
 import pl.crewops.view.form.model.QualificationFormModel;
 
@@ -27,6 +29,8 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
     Grid<QualificationFormModel> grid = new Grid<>(QualificationFormModel.class);
     TextField filterText = new TextField();
     QualificationForm form;
+
+    List<QualificationFormModel> employees = new ArrayList<>();
 
     public QualificationView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         super(coreAPI, jwtInfoService);
@@ -79,7 +83,7 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
     private void configureGrid() {
         grid.addClassNames("qualification-grid");
         grid.setSizeFull();
-        grid.setColumns("description");
+        grid.setColumns("description", "employeesAmount");
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
 
         grid.asSingleSelect().addValueChangeListener(event -> editQualification(event.getValue()));
@@ -97,7 +101,7 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
 
     private void updateGrid() {
         try {
-            List<QualificationFormModel> employees = coreAPI.getAllQualifications().stream()
+            employees = coreAPI.getAllQualifications().stream()
                     .map(QualificationFormModel::toQualificationFormModel)
                     .toList();
 
@@ -112,7 +116,7 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
                         .toList());
             }
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic
+            UI.getCurrent().navigate(HomeView.class);
         }
     }
 
@@ -123,13 +127,20 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
     }
 
     private void saveQualification(QualificationForm.SaveEvent event) {
+        if (employees.stream().anyMatch(qualification -> qualification
+                .getDescription()
+                .equals(event.getQualification().getDescription()))) {
+            new QualificationAlreadyExistNotification(event.getQualification().getDescription());
+            closeEditor();
+            return;
+        }
+
         try {
-            // TODO: add 'unique description' validation
             coreAPI.createQualification(QualificationFormModel.toCreateQualificationDTO(event.getQualification()));
             updateGrid();
             closeEditor();
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic
+            UI.getCurrent().navigate(HomeView.class);
         }
     }
 
@@ -139,7 +150,7 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
             updateGrid();
             closeEditor();
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic
+            UI.getCurrent().navigate(HomeView.class);
         }
     }
 
@@ -149,7 +160,7 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
             updateGrid();
             closeEditor();
         } catch (NotAuthenticatedException e) {
-            // TODO: implement logic
+            UI.getCurrent().navigate(HomeView.class);
         }
     }
 
@@ -164,8 +175,6 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
         }
     }
 
-    // TODO: add column that contains employees amount with each qualification
-
     private void addQualification() {
         grid.asSingleSelect().clear();
         form.setFormModeSave();
@@ -175,9 +184,6 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if (!jwtInfoService.validToken()) {
-            // TODO: try to show notification in this case
-            // TODO: add some listener of any action (add, edit, delete employee, etc.), currently navigation work only
-            // in case entering into secured view
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");
         }
