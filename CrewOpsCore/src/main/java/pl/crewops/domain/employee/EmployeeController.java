@@ -3,6 +3,7 @@ package pl.crewops.domain.employee;
 import static pl.crewops.enums.ControllerURL.*;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -53,10 +54,13 @@ class EmployeeController {
 
     @PatchMapping(EMPLOYEES_EID)
     public ResponseEntity<EmployeeDTO> updateEmployee(
-            @PathVariable(EMPLOYEE_ID) UUID employeeId,
-            @RequestParam(required = false) String phoneNumber,
-            @RequestParam(required = false) String department) {
-        var updateEmployeeDTO = new UpdateEmployeeDTO(employeeId, phoneNumber, department);
+            @PathVariable(EMPLOYEE_ID) UUID employeeId, @RequestBody @Valid @NotNull UpdateEmployeeDTO updateRequest) {
+
+        var updateEmployeeDTO = UpdateEmployeeDTO.builder()
+                .employeeId(employeeId)
+                .phoneNumber(updateRequest.phoneNumber())
+                .department(updateRequest.department())
+                .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(employeeService.updateEmployee(updateEmployeeDTO));
     }
