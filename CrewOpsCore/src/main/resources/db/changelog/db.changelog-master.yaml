@@ -36,6 +36,8 @@
           file: db/changelog/create/007-create-table-auth-user.yaml
     - include:
           file: db/changelog/create/008-create-join-table-auth-user-role.yaml
+    - include:
+          file: db/changelog/create/009-create-table-breakdown.yaml
 
 #   # TODO: config multi profiles and remove this from prod
     - include:

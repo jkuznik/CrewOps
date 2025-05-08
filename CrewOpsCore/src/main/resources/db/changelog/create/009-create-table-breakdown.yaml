@@ -1,0 +1,113 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-table-breakdown
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: breakdown
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+                  defaultValueComputed: gen_random_uuid()
+              - column:
+                  name: version
+                  type: integer
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+              - column:
+                  name: description
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: vehicle_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reported_by_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: repaired_by_id
+                  type: uuid
+                  constraints:
+                    nullable: true
+              - column:
+                  name: solved
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: solved_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 002-create-breakdown-vehicle-foreign-key
+      author: jkuznik
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: breakdown
+            baseColumnNames: vehicle_id
+            referencedTableName: vehicle
+            referencedColumnNames: id
+            constraintName: fk_breakdown_vehicle
+            onDelete: CASCADE
+
+  - changeSet:
+      id: 003-create-breakdown-reported-by-foreign-key
+      author: jkuznik
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: breakdown
+            baseColumnNames: reported_by_id
+            referencedTableName: employee
+            referencedColumnNames: id
+            constraintName: fk_breakdown_reported_by
+            onDelete: SET NULL
+
+  - changeSet:
+      id: 004-create-breakdown-repaired-by-foreign-key
+      author: jkuznik
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: breakdown
+            baseColumnNames: repaired_by_id
+            referencedTableName: employee
+            referencedColumnNames: id
+            constraintName: fk_breakdown_repaired_by
+            onDelete: SET NULL
+
+  - changeSet:
+      id: 005-create-breakdown-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS breakdown_updated_at_trigger ON breakdown;
+              CREATE TRIGGER breakdown_updated_at_trigger
+              BEFORE UPDATE ON breakdown
+              FOR EACH ROW
+              EXECUTE FUNCTION update_updated_at();
