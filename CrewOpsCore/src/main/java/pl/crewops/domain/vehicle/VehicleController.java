@@ -39,10 +39,12 @@ class VehicleController {
 
     @PatchMapping(VEHICLES_VID)
     public ResponseEntity<VehicleDTO> updateVehicle(
-            @PathVariable(VEHICLE_ID) UUID vehicleId,
-            @RequestParam(required = false) String registerNumber,
-            @RequestParam(required = false) Boolean broken) {
-        var updateVehicleDTO = new UpdateVehicleDTO(vehicleId, registerNumber, broken);
+            @PathVariable(VEHICLE_ID) UUID vehicleId, @RequestBody @Valid @NotNull UpdateVehicleDTO updateRequest) {
+        var updateVehicleDTO = UpdateVehicleDTO.builder()
+                .vehicleId(vehicleId)
+                .registerNumber(updateRequest.registerNumber())
+                .broken(updateRequest.broken())
+                .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(vehicleService.updateVehicle(updateVehicleDTO));
     }

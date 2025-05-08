@@ -21,7 +21,10 @@ import pl.crewops.view.form.model.VehicleFormModel;
 
 @SpringComponent
 public class VehicleForm extends FormLayout {
+    // TODO: implement text field setEnable(false) for update action
     TextField registerNumber = new TextField("Registration Number");
+    // TODO: implement this
+
     //    TextField vehicleType = new TextField("Vehicle Type");
     TextField make = new TextField("Make");
     TextField model = new TextField("Model");

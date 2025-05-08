@@ -154,12 +154,8 @@ class CoreClient implements CoreAPI {
         try {
             return Optional.ofNullable(authorizedClient
                     .patch()
-                    .uri(uriBuilder -> uriBuilder
-                            .path(VEHICLES_VID)
-                            .queryParamIfPresent(
-                                    "registerNumber", Optional.ofNullable(updateVehicleDTO.registerNumber()))
-                            .queryParamIfPresent("broken", Optional.ofNullable(updateVehicleDTO.broken()))
-                            .build(updateVehicleDTO.vehicleId()))
+                    .uri(uriBuilder -> uriBuilder.path(VEHICLES_VID).build(updateVehicleDTO.vehicleId()))
+                    .body(updateVehicleDTO)
                     .retrieve()
                     .body(new ParameterizedTypeReference<VehicleDTO>() {}));
         } catch (RestClientException e) {
