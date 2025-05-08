@@ -15,11 +15,14 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
 import pl.crewops.view.component.mainLayout.MainLayout;
 import pl.crewops.view.component.notification.QualificationAlreadyExistNotification;
+import pl.crewops.view.component.notification.UpdateQualificationNotification;
 import pl.crewops.view.form.QualificationForm;
 import pl.crewops.view.form.model.QualificationFormModel;
 
@@ -146,9 +149,11 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
 
     private void updateQualification(QualificationForm.UpdateEvent event) {
         try {
-            coreAPI.updateQualification(QualificationFormModel.toUpdateQualificationDTO(event.getQualification()));
+            Optional<QualificationDTO> qualificationDTO = coreAPI.updateQualification(
+                    QualificationFormModel.toUpdateQualificationDTO(event.getQualification()));
             updateGrid();
             closeEditor();
+            qualificationDTO.ifPresent(UpdateQualificationNotification::new);
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }

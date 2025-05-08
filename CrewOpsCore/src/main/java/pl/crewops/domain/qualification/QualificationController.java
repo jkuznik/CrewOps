@@ -44,8 +44,12 @@ class QualificationController {
 
     @PatchMapping(QUALIFICATIONS_QID)
     public ResponseEntity<QualificationDTO> updateQualification(
-            @PathVariable(QUALIFICATION_ID) UUID qualificationId, @RequestParam String description) {
-        var updateQualificationDTO = new UpdateQualificationDTO(qualificationId, description);
+            @PathVariable(QUALIFICATION_ID) UUID qualificationId,
+            @RequestBody @Valid @NotNull UpdateQualificationDTO updateRequest) {
+        var updateQualificationDTO = UpdateQualificationDTO.builder()
+                .qualificationId(qualificationId)
+                .description(updateRequest.description())
+                .build();
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(qualificationService.updateQualification(updateQualificationDTO));

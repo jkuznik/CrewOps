@@ -105,11 +105,9 @@ class CoreClient implements CoreAPI {
         try {
             return Optional.ofNullable(authorizedClient
                     .patch()
-                    .uri(uriBuilder -> uriBuilder
-                            .path(QUALIFICATIONS_QID)
-                            .queryParamIfPresent(
-                                    "description", Optional.ofNullable(updateQualificationDTO.description()))
-                            .build(updateQualificationDTO.qualificationId()))
+                    .uri(uriBuilder ->
+                            uriBuilder.path(QUALIFICATIONS_QID).build(updateQualificationDTO.qualificationId()))
+                    .body(updateQualificationDTO)
                     .retrieve()
                     .body(new ParameterizedTypeReference<QualificationDTO>() {}));
         } catch (RestClientException e) {
