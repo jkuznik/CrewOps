@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
@@ -44,8 +45,17 @@ class QualificationController {
 
     @PatchMapping(QUALIFICATIONS_QID)
     public ResponseEntity<QualificationDTO> updateQualification(
-            @PathVariable(QUALIFICATION_ID) UUID qualificationId, @RequestParam String description) {
-        var updateQualificationDTO = new UpdateQualificationDTO(qualificationId, description);
+            @PathVariable(QUALIFICATION_ID) UUID qualificationId,
+            @RequestBody @Valid @NotNull UpdateQualificationDTO updateRequest) {
+
+        if (!updateRequest.qualificationId().equals(qualificationId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Path ID and body ID must match");
+        }
+
+        var updateQualificationDTO = UpdateQualificationDTO.builder()
+                .qualificationId(qualificationId)
+                .description(updateRequest.description())
+                .build();
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(qualificationService.updateQualification(updateQualificationDTO));

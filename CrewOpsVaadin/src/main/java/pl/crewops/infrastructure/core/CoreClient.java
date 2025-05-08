@@ -89,11 +89,8 @@ class CoreClient implements CoreAPI {
         try {
             return Optional.ofNullable(authorizedClient
                     .patch()
-                    .uri(uriBuilder -> uriBuilder
-                            .path(EMPLOYEES_EID)
-                            .queryParamIfPresent("phoneNumber", Optional.ofNullable(updateEmployeeDTO.phoneNumber()))
-                            .queryParamIfPresent("department", Optional.ofNullable(updateEmployeeDTO.department()))
-                            .build(updateEmployeeDTO.employeeId()))
+                    .uri(uriBuilder -> uriBuilder.path(EMPLOYEES_EID).build(updateEmployeeDTO.employeeId()))
+                    .body(updateEmployeeDTO)
                     .retrieve()
                     .body(new ParameterizedTypeReference<EmployeeDTO>() {}));
         } catch (RestClientException e) {
@@ -108,11 +105,9 @@ class CoreClient implements CoreAPI {
         try {
             return Optional.ofNullable(authorizedClient
                     .patch()
-                    .uri(uriBuilder -> uriBuilder
-                            .path(QUALIFICATIONS_QID)
-                            .queryParamIfPresent(
-                                    "description", Optional.ofNullable(updateQualificationDTO.description()))
-                            .build(updateQualificationDTO.qualificationId()))
+                    .uri(uriBuilder ->
+                            uriBuilder.path(QUALIFICATIONS_QID).build(updateQualificationDTO.qualificationId()))
+                    .body(updateQualificationDTO)
                     .retrieve()
                     .body(new ParameterizedTypeReference<QualificationDTO>() {}));
         } catch (RestClientException e) {
@@ -159,12 +154,8 @@ class CoreClient implements CoreAPI {
         try {
             return Optional.ofNullable(authorizedClient
                     .patch()
-                    .uri(uriBuilder -> uriBuilder
-                            .path(VEHICLES_VID)
-                            .queryParamIfPresent(
-                                    "registerNumber", Optional.ofNullable(updateVehicleDTO.registerNumber()))
-                            .queryParamIfPresent("broken", Optional.ofNullable(updateVehicleDTO.broken()))
-                            .build(updateVehicleDTO.vehicleId()))
+                    .uri(uriBuilder -> uriBuilder.path(VEHICLES_VID).build(updateVehicleDTO.vehicleId()))
+                    .body(updateVehicleDTO)
                     .retrieve()
                     .body(new ParameterizedTypeReference<VehicleDTO>() {}));
         } catch (RestClientException e) {
