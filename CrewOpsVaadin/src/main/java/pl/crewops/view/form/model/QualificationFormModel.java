@@ -14,14 +14,13 @@ import pl.crewops.dto.qualification.UpdateQualificationDTO;
 public class QualificationFormModel {
     private UUID id;
     private String description;
-
-    // TODO: maybe this is proper place to store employee amount of each qualification for the purposes of the grid in
-    //  QualificationView
+    private Integer employeesAmount;
 
     public static QualificationFormModel toQualificationFormModel(QualificationDTO qualificationDTO) {
         return QualificationFormModel.builder()
                 .id(qualificationDTO.id())
                 .description(qualificationDTO.description())
+                .employeesAmount(qualificationDTO.employeesAmount())
                 .build();
     }
 

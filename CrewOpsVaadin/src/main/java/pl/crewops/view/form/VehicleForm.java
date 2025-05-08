@@ -16,8 +16,6 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import pl.crewops.view.form.model.VehicleFormModel;
 
 @SpringComponent
-
-// TODO: config vehicle type binding or keep focus on binding VehicleFormModel instead of VehicleDTO
 public class VehicleForm extends FormLayout {
     TextField registerNumber = new TextField("Registration Number");
     //    TextField vehicleType = new TextField("Vehicle Type");

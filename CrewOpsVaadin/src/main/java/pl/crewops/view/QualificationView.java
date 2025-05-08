@@ -83,7 +83,7 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
     private void configureGrid() {
         grid.addClassNames("qualification-grid");
         grid.setSizeFull();
-        grid.setColumns("description");
+        grid.setColumns("description", "employeesAmount");
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
 
         grid.asSingleSelect().addValueChangeListener(event -> editQualification(event.getValue()));
@@ -174,8 +174,6 @@ public class QualificationView extends MainLayout implements BeforeEnterObserver
             addClassName("editing");
         }
     }
-
-    // TODO: add column that contains employees amount with each qualification
 
     private void addQualification() {
         grid.asSingleSelect().clear();
