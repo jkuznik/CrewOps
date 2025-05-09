@@ -4,4 +4,4 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record CreateBreakdownDTO(UUID vehicleId, UUID employeeId, String description) {}
+public record CreateBreakdownDTO(UUID vehicleId, UUID reportedByEmployeeId, String description) {}

@@ -1,5 +1,8 @@
 package pl.crewops.domain.breakdown;
 
+import static pl.crewops.domain.breakdown.BreakdownMapper.toDTO;
+
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -8,6 +11,7 @@ import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.vehicle.VehicleAPI;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
+import pl.crewops.exception.BreakdownNotFoundException;
 import pl.crewops.exception.EmployeeNotFoundException;
 import pl.crewops.exception.VehicleNotFoundException;
 import pl.crewops.model.Breakdown;
@@ -35,7 +39,7 @@ class BreakdownService implements BreakdownAPI {
         }
         Employee employee;
         try {
-            employee = employeeAPI.getEmployee(createBreakdownDTO.employeeId());
+            employee = employeeAPI.getEmployee(createBreakdownDTO.reportedByEmployeeId());
         } catch (EmployeeNotFoundException e) {
             log.error("Not found employee during create breakdown: {}", e.getMessage());
             // TODO: eventually add custom exception
@@ -49,6 +53,10 @@ class BreakdownService implements BreakdownAPI {
                 .build();
 
         log.info("Created breakdown: {}", breakdown);
-        return BreakdownMapper.toDTO(breakdownRepository.save(breakdown));
+        return toDTO(breakdownRepository.save(breakdown));
+    }
+
+    public Breakdown getBreakdown(UUID id) {
+        return breakdownRepository.findById(id).orElseThrow(() -> new BreakdownNotFoundException(id));
     }
 }

@@ -13,7 +13,9 @@ import pl.crewops.model.Vehicle;
 
 class EmployeeTestFactory {
 
-    public static Employee createEmployeeWithQualificationsAndVehicles() {
+    static final UUID employeeId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+
+    static Employee employeeWithQualificationsAndVehicles() {
         return Employee.builder()
                 .firstName("firstName")
                 .lastName("lastName")
@@ -25,7 +27,7 @@ class EmployeeTestFactory {
                 .build();
     }
 
-    public static Employee createEmployeeWithoutQualificationsAndVehicles() {
+    static Employee employeeWithoutQualificationsAndVehicles() {
         return Employee.builder()
                 .firstName("firstName")
                 .lastName("lastName")
@@ -35,9 +37,9 @@ class EmployeeTestFactory {
                 .build();
     }
 
-    public static EmployeeDTO employeeDTO() {
+    static EmployeeDTO employeeDTO() {
         return EmployeeDTO.builder()
-                .id(UUID.fromString("11111111-1111-1111-1111-111111111111"))
+                .id(employeeId)
                 .firstName("firstName")
                 .lastName("lastName")
                 .birthDate(LocalDate.parse("2000-01-01"))
@@ -46,7 +48,7 @@ class EmployeeTestFactory {
                 .build();
     }
 
-    public static CreateEmployeeDTO createEmployeeDTO() {
+    static CreateEmployeeDTO createEmployeeDTO() {
         return CreateEmployeeDTO.builder()
                 .firstName("firstName")
                 .lastName("lastName")
@@ -59,7 +61,7 @@ class EmployeeTestFactory {
                 .build();
     }
 
-    public static CreateEmployeeDTO createEmployeeDTONotValid() {
+    static CreateEmployeeDTO createEmployeeDTONotValid() {
         return CreateEmployeeDTO.builder()
                 .firstName(null)
                 .lastName("lastName")
@@ -69,27 +71,27 @@ class EmployeeTestFactory {
                 .build();
     }
 
-    public static UpdateEmployeeDTO updateEmployeeDTO() {
+    static UpdateEmployeeDTO updateEmployeeDTO() {
         return UpdateEmployeeDTO.builder()
-                .employeeId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
+                .employeeId(employeeId)
                 .phoneNumber("123456789")
                 .department("department")
                 .build();
     }
 
-    public static UpdateEmployeeDTO updateEmployeeDTONotValid() {
+    static UpdateEmployeeDTO updateEmployeeDTONotValid() {
         return UpdateEmployeeDTO.builder()
-                .employeeId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
+                .employeeId(employeeId)
                 .phoneNumber("123456789andThenMoreChar")
                 .department("department")
                 .build();
     }
 
-    public static Qualification qualification() {
+    static Qualification qualification() {
         return Qualification.builder().description("description").build();
     }
 
-    public static Vehicle vehicle() {
+    static Vehicle vehicle() {
         return Vehicle.builder()
                 .vehicleType(VehicleType.EXCAVATOR)
                 .make("make")
