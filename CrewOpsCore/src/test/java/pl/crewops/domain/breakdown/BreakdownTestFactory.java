@@ -5,6 +5,7 @@ import java.util.UUID;
 import pl.crewops.auth.RoleDTO;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
+import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.enums.VehicleType;
@@ -30,12 +31,12 @@ class BreakdownTestFactory {
                 .reportedBy(getEmployee())
                 .repairedBy(getEmployee())
                 .description("description")
-                .solved(false)
+                .solved(true)
                 .solvedAt(null)
                 .build();
     }
 
-    static BreakdownDTO breakdownDTO() {
+    static BreakdownDTO getBreakdownDTO() {
         return BreakdownDTO.builder()
                 .id(breakdownId)
                 .vehicle(vehicleDTO)
@@ -51,6 +52,14 @@ class BreakdownTestFactory {
                 .vehicleId(vehicleId)
                 .reportedByEmployeeId(repairedByEmployeeId)
                 .description("description")
+                .build();
+    }
+
+    static UpdateBreakdownDTO getUpdateBreakdownDTO() {
+        return UpdateBreakdownDTO.builder()
+                .breakdownId(breakdownId)
+                .repairedByEmployeeId(repairedByEmployeeId)
+                .solved(true)
                 .build();
     }
 

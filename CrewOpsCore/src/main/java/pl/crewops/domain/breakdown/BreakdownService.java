@@ -2,7 +2,10 @@ package pl.crewops.domain.breakdown;
 
 import static pl.crewops.domain.breakdown.BreakdownMapper.toDTO;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,6 +14,7 @@ import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.vehicle.VehicleAPI;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
+import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.exception.BreakdownNotFoundException;
 import pl.crewops.exception.EmployeeNotFoundException;
 import pl.crewops.exception.VehicleNotFoundException;
@@ -58,5 +62,35 @@ class BreakdownService implements BreakdownAPI {
 
     public Breakdown getBreakdown(UUID id) {
         return breakdownRepository.findById(id).orElseThrow(() -> new BreakdownNotFoundException(id));
+    }
+
+    public List<BreakdownDTO> getAllBreakdowns() {
+        return breakdownRepository.findAll().stream()
+                .map(BreakdownMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public BreakdownDTO updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO) {
+        Breakdown breakdown = breakdownRepository
+                .findById(updateBreakdownDTO.breakdownId())
+                .orElseThrow(() -> new BreakdownNotFoundException(updateBreakdownDTO.breakdownId()));
+
+        if (updateBreakdownDTO.solved()) {
+            Employee employee = employeeAPI.getEmployee(updateBreakdownDTO.repairedByEmployeeId());
+            breakdown.setSolved(true);
+            breakdown.setRepairedBy(employee);
+            breakdown.setSolvedAt(Instant.now());
+        } else {
+            // TODO: consider create custom exception
+            throw new IllegalArgumentException("Can't update breakdown if not solved");
+        }
+
+        return toDTO(breakdownRepository.save(breakdown));
+    }
+
+    @Transactional
+    public void deleteBreakdown(UUID id) {
+        breakdownRepository.deleteById(id);
     }
 }

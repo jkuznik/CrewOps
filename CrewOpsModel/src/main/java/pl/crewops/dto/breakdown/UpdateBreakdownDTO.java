@@ -5,5 +5,4 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record CreateBreakdownDTO(
-        @NotNull UUID vehicleId, @NotNull UUID reportedByEmployeeId, @NotNull String description) {}
+public record UpdateBreakdownDTO(@NotNull UUID breakdownId, UUID repairedByEmployeeId, boolean solved) {}
