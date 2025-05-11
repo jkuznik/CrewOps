@@ -36,12 +36,10 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
 
         Button list = new Button("Vehicles list");
         Button breakdown = new Button("Breakdown");
-        Button addVehicleButton = new Button("Add vehicle");
         list.addClickListener(event -> listEvent());
         breakdown.addClickListener(event -> breakdownEvent());
-        addVehicleButton.addClickListener(event -> addVehicleEvent());
 
-        toolbar.add(list, breakdown, addVehicleButton);
+        toolbar.add(list, breakdown);
 
         return toolbar;
     }
@@ -53,11 +51,6 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
 
     private void breakdownEvent() {
         vehicleGrid.setVisible(false);
-    }
-
-    private void addVehicleEvent() {
-        vehicleGrid.setVisible(true);
-        vehicleGrid.addVehicleEvent();
     }
 
     @Override

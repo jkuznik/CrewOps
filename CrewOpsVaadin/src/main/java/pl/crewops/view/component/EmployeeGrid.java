@@ -1,6 +1,7 @@
 package pl.crewops.view.component;
 
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -62,7 +63,10 @@ public class EmployeeGrid extends VerticalLayout {
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         filter.addValueChangeListener(event -> updateGrid());
 
-        toolbar.add(filter);
+        Button addEmployee = new Button("Add Employee");
+        addEmployee.addClickListener(event -> addEmployee());
+
+        toolbar.add(filter, addEmployee);
 
         return toolbar;
     }

@@ -7,24 +7,28 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import pl.crewops.dto.vehicle.VehicleDTO;
+import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.view.HomeView;
-import pl.crewops.view.component.notification.UpdateVehicleNotification;
-import pl.crewops.view.form.VehicleForm;
-import pl.crewops.view.form.model.VehicleFormModel;
+import pl.crewops.view.component.notification.QualificationAlreadyExistNotification;
+import pl.crewops.view.component.notification.UpdateQualificationNotification;
+import pl.crewops.view.form.QualificationForm;
+import pl.crewops.view.form.model.QualificationFormModel;
 
-public class VehicleGrid extends VerticalLayout {
+public class QualificationGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
 
-    private final Grid<VehicleFormModel> grid = new Grid<>(VehicleFormModel.class);
+    private final Grid<QualificationFormModel> grid = new Grid<>(QualificationFormModel.class);
     private final TextField filter = new TextField();
-    private final VehicleForm form = new VehicleForm();
+    private final QualificationForm form = new QualificationForm();
 
-    public VehicleGrid(CoreAPI coreAPI) {
+    private List<QualificationFormModel> employees = new ArrayList<>();
+
+    public QualificationGrid(CoreAPI coreAPI) {
         this.coreAPI = coreAPI;
 
         configureGrid();
@@ -38,7 +42,7 @@ public class VehicleGrid extends VerticalLayout {
     }
 
     public void closeEditor() {
-        form.setVehicle(null);
+        form.setQualification(null);
         form.setVisible(false);
     }
 
@@ -53,35 +57,35 @@ public class VehicleGrid extends VerticalLayout {
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        filter.setPlaceholder("Filter by type");
+        filter.setPlaceholder("Filter by name");
         filter.setClearButtonVisible(true);
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         filter.addValueChangeListener(event -> updateGrid());
 
-        Button addVehicle = new Button("Add vehicle");
-        addVehicle.addClickListener(event -> addVehicle());
+        Button addQualification = new Button("Add qualification");
+        addQualification.addClickListener(event -> addQualification());
 
-        toolbar.add(filter, addVehicle);
+        toolbar.add(filter, addQualification);
 
         return toolbar;
     }
 
     private void configureGrid() {
         grid.setSizeFull();
-        grid.setColumns("vehicleType", "registerNumber", "broken", "make", "model", "year", "vin");
+        grid.setColumns("description", "employeesAmount");
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 
         grid.asSingleSelect().addValueChangeListener(event -> {
-            editVehicle(event.getValue());
+            editQualification(event.getValue());
         });
     }
 
     private void configureForm() {
         form.setWidth("25em");
 
-        form.addSaveListener(this::saveVehicle);
-        form.addUpdateListener(this::updateVehicle);
-        form.addDeleteListener(this::deleteVehicle);
+        form.addSaveListener(this::saveQualification);
+        form.addUpdateListener(this::updateQualification);
+        form.addDeleteListener(this::deleteQualification);
         form.addCloseListener(event -> {
             closeEditor();
         });
@@ -89,19 +93,17 @@ public class VehicleGrid extends VerticalLayout {
 
     private void updateGrid() {
         try {
-            List<VehicleFormModel> vehicles = coreAPI.getAllVehicles().stream()
-                    .map(VehicleFormModel::toVehicleFormModel)
+            employees = coreAPI.getAllQualifications().stream()
+                    .map(QualificationFormModel::toQualificationFormModel)
                     .toList();
 
             if (filter.getValue() == null) {
-                grid.setItems(vehicles);
+                grid.setItems(employees);
             } else {
-                grid.setItems(vehicles.stream()
-                        .filter(vehicleDTO -> vehicleDTO
-                                .getVehicleType()
+                grid.setItems(employees.stream()
+                        .filter(qualificationDTO -> qualificationDTO
+                                .getDescription()
                                 .toLowerCase()
-                                //                            .registerNumber()
-                                //                            .toLowerCase()
                                 .contains(filter.getValue().toLowerCase()))
                         .toList());
             }
@@ -110,49 +112,56 @@ public class VehicleGrid extends VerticalLayout {
         }
     }
 
-    private void editVehicle(VehicleFormModel vehicleFormModel) {
-        if (vehicleFormModel == null) {
+    private void editQualification(QualificationFormModel qualificationFormModel) {
+        if (qualificationFormModel == null) {
             closeEditor();
         } else {
-            form.setVehicle(vehicleFormModel);
+            form.setQualification(qualificationFormModel);
             form.setFormModeUpdate();
             form.setVisible(true);
+            addClassName("editing");
         }
     }
 
-    private void addVehicle() {
+    private void addQualification() {
         grid.asSingleSelect().clear();
         form.setFormModeSave();
         form.setVisible(true);
     }
 
-    private void saveVehicle(VehicleForm.SaveEvent event) {
+    private void saveQualification(QualificationForm.SaveEvent event) {
+        if (employees.stream().anyMatch(qualification -> qualification
+                .getDescription()
+                .equals(event.getQualification().getDescription()))) {
+            new QualificationAlreadyExistNotification(event.getQualification().getDescription());
+            closeEditor();
+            return;
+        }
+
         try {
-            Optional<VehicleDTO> vehicleDTO =
-                    coreAPI.createVehicle(VehicleFormModel.toCreateVehicleDTO(event.getVehicle()));
+            coreAPI.createQualification(QualificationFormModel.toCreateQualificationDTO(event.getQualification()));
             updateGrid();
             closeEditor();
-            vehicleDTO.ifPresent(UpdateVehicleNotification::new);
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
     }
 
-    private void updateVehicle(VehicleForm.UpdateEvent event) {
+    private void updateQualification(QualificationForm.UpdateEvent event) {
         try {
-            Optional<VehicleDTO> vehicleDTO =
-                    coreAPI.updateVehicle(VehicleFormModel.toUpdateVehicleDTO(event.getVehicle()));
+            Optional<QualificationDTO> qualificationDTO = coreAPI.updateQualification(
+                    QualificationFormModel.toUpdateQualificationDTO(event.getQualification()));
             updateGrid();
             closeEditor();
-            vehicleDTO.ifPresent(UpdateVehicleNotification::new);
+            qualificationDTO.ifPresent(UpdateQualificationNotification::new);
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
     }
 
-    private void deleteVehicle(VehicleForm.DeleteEvent event) {
+    private void deleteQualification(QualificationForm.DeleteEvent event) {
         try {
-            coreAPI.deleteVehicle(event.getVehicle().getId());
+            coreAPI.deleteQualification(event.getQualification().getId());
             updateGrid();
             closeEditor();
         } catch (NotAuthenticatedException e) {

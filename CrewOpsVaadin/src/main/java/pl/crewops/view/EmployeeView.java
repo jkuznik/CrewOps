@@ -10,50 +10,53 @@ import com.vaadin.flow.router.Route;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
 import pl.crewops.view.component.EmployeeGrid;
+import pl.crewops.view.component.QualificationGrid;
 import pl.crewops.view.component.mainLayout.MainLayout;
 
 @Route(value = "employees")
 @PageTitle("Employee management")
 public class EmployeeView extends MainLayout implements BeforeEnterObserver {
     private final EmployeeGrid employeeGrid;
+    private final QualificationGrid qualificationGrid;
 
     public EmployeeView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         super(coreAPI, jwtInfoService);
         employeeGrid = new EmployeeGrid(coreAPI);
+        qualificationGrid = new QualificationGrid(coreAPI);
+        qualificationGrid.setVisible(false);
         addClassName("employee-view");
 
         mainContent.removeAll();
-        mainContent.add(getToolbar(), employeeGrid, mainFooter);
+        mainContent.add(getToolbar(), employeeGrid, qualificationGrid, mainFooter);
         mainContent.setFlexGrow(1, employeeGrid);
+        mainContent.setFlexGrow(1, qualificationGrid);
     }
 
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        Button list = new Button("Employee list");
-        Button breakdown = new Button("Breakdown");
-        Button addVehicleButton = new Button("Add vehicle");
-        list.addClickListener(event -> listEvent());
-        breakdown.addClickListener(event -> breakdownEvent());
-        addVehicleButton.addClickListener(event -> addVehicleEvent());
+        Button employeeList = new Button("Employee list");
+        Button qualifications = new Button("Qualifications");
+        employeeList.addClickListener(event -> displayEmployeeGrid());
+        qualifications.addClickListener(event -> displayQualificationGrid());
 
-        toolbar.add(list, breakdown, addVehicleButton);
+        toolbar.add(employeeList, qualifications);
 
         return toolbar;
     }
 
-    private void listEvent() {
+    private void displayEmployeeGrid() {
+        qualificationGrid.setVisible(false);
+
         employeeGrid.closeEditor();
         employeeGrid.setVisible(true);
     }
 
-    private void breakdownEvent() {
+    private void displayQualificationGrid() {
         employeeGrid.setVisible(false);
-    }
 
-    private void addVehicleEvent() {
-        employeeGrid.setVisible(true);
-        employeeGrid.addEmployeeEvent();
+        qualificationGrid.closeEditor();
+        qualificationGrid.setVisible(true);
     }
 
     @Override
