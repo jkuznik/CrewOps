@@ -11,7 +11,7 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
 import pl.crewops.view.EmployeeView;
 import pl.crewops.view.HomeView;
-import pl.crewops.view.QualificationView;
+// import pl.crewops.view.QualificationView;
 import pl.crewops.view.VehicleView;
 
 @SpringComponent
@@ -38,19 +38,22 @@ public class MainDrawer extends VerticalLayout {
 
         RouterLink homeLink = new RouterLink("Home", HomeView.class);
         RouterLink employeeLink = new RouterLink("Employee", EmployeeView.class);
-        RouterLink qualificationLink = new RouterLink("Qualification", QualificationView.class);
+        // TODO: delete this if new solution works well
+        //        RouterLink qualificationLink = new RouterLink("Qualification", QualificationView.class);
         RouterLink vehicleLink = new RouterLink("Vehicle", VehicleView.class);
 
         VerticalLayout linksLayout = new VerticalLayout();
         linksLayout.setSizeFull();
         linksLayout.setPadding(true);
         linksLayout.setSpacing(true);
-        linksLayout.add(homeLink, employeeLink, qualificationLink, vehicleLink);
+        //        linksLayout.add(homeLink, employeeLink, qualificationLink, vehicleLink);
+        linksLayout.add(homeLink, employeeLink, vehicleLink);
 
         add(linksLayout, createDrawerFooter());
         setFlexGrow(1, linksLayout);
 
-        checkDrawer(employeeLink, qualificationLink, vehicleLink);
+        //        checkDrawer(employeeLink, qualificationLink, vehicleLink);
+        checkDrawer(employeeLink, vehicleLink);
     }
 
     private Footer createDrawerFooter() {
@@ -65,14 +68,15 @@ public class MainDrawer extends VerticalLayout {
         return footer;
     }
 
-    private void checkDrawer(RouterLink employeeLink, RouterLink qualificationLink, RouterLink vehicleLink) {
+    //    private void checkDrawer(RouterLink employeeLink, RouterLink qualificationLink, RouterLink vehicleLink) {
+    private void checkDrawer(RouterLink employeeLink, RouterLink vehicleLink) {
         if (tokenValid) {
             employeeLink.setVisible(true);
-            qualificationLink.setVisible(true);
+            //            qualificationLink.setVisible(true);
             vehicleLink.setVisible(true);
         } else {
             employeeLink.setVisible(false);
-            qualificationLink.setVisible(false);
+            //            qualificationLink.setVisible(false);
             vehicleLink.setVisible(false);
         }
     }
