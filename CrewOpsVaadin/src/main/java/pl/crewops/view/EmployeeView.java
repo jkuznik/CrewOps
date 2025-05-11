@@ -1,183 +1,59 @@
 package pl.crewops.view;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import java.util.List;
-import java.util.Optional;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
+import pl.crewops.view.component.EmployeeGrid;
 import pl.crewops.view.component.mainLayout.MainLayout;
-import pl.crewops.view.component.notification.SaveEmployeeNotification;
-import pl.crewops.view.component.notification.UpdateEmployeeNotification;
-import pl.crewops.view.form.EmployeeForm;
-import pl.crewops.view.form.model.EmployeeFormModel;
 
 @Route(value = "employees")
 @PageTitle("Employee management")
 public class EmployeeView extends MainLayout implements BeforeEnterObserver {
-    private final Grid<EmployeeFormModel> grid = new Grid<>(EmployeeFormModel.class);
-    private final TextField filterText = new TextField();
-    private final EmployeeForm form = new EmployeeForm();
+    private final EmployeeGrid employeeGrid;
 
     public EmployeeView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         super(coreAPI, jwtInfoService);
+        employeeGrid = new EmployeeGrid(coreAPI);
         addClassName("employee-view");
-        VerticalLayout currentContent = new VerticalLayout();
-        currentContent.setId("view-content");
 
         mainContent.removeAll();
-        mainContent.add(currentContent, mainFooter);
-        mainContent.setFlexGrow(1, currentContent);
-
-        currentContent.setSizeFull();
-        currentContent.setPadding(true);
-        currentContent.setSpacing(true);
-        currentContent.getStyle().set("overflow", "auto");
-
-        configureGrid();
-        configureForm();
-
-        currentContent.add(getToolbar(), getCurrentContent());
-
-        updateGrid();
-        closeEditor();
+        mainContent.add(getToolbar(), employeeGrid, mainFooter);
+        mainContent.setFlexGrow(1, employeeGrid);
     }
 
-    private Component getToolbar() {
-        filterText.setLabel("Filter by name...");
-        filterText.setClearButtonVisible(true);
-        filterText.setValueChangeMode(ValueChangeMode.LAZY);
-        filterText.addValueChangeListener(e -> updateGrid());
+    private HorizontalLayout getToolbar() {
+        var toolbar = new HorizontalLayout();
 
-        Button addEmployeeButton = new Button("Add employee");
-        addEmployeeButton.addClickListener(click -> addEmployee());
+        Button list = new Button("Employee list");
+        Button breakdown = new Button("Breakdown");
+        Button addVehicleButton = new Button("Add vehicle");
+        list.addClickListener(event -> listEvent());
+        breakdown.addClickListener(event -> breakdownEvent());
+        addVehicleButton.addClickListener(event -> addVehicleEvent());
 
-        var toolbar = new HorizontalLayout(filterText, addEmployeeButton);
-        toolbar.addClassName("employee-toolbar");
-        toolbar.setAlignItems(FlexComponent.Alignment.END);
+        toolbar.add(list, breakdown, addVehicleButton);
+
         return toolbar;
     }
 
-    private HorizontalLayout getCurrentContent() {
-        HorizontalLayout content = new HorizontalLayout(grid, form);
-        content.addClassNames("employee-view-content");
-        content.setFlexGrow(2, grid);
-        content.setFlexGrow(1, form);
-        content.setSizeFull();
-        return content;
+    private void listEvent() {
+        employeeGrid.closeEditor();
+        employeeGrid.setVisible(true);
     }
 
-    private void configureGrid() {
-        grid.addClassNames("employee-grid");
-        grid.setSizeFull();
-        grid.setColumns("firstName", "lastName", "birthDate", "phoneNumber", "department");
-        grid.getColumns().forEach(col -> col.setAutoWidth(true));
-
-        grid.asSingleSelect().addValueChangeListener(event -> editEmployee(event.getValue()));
+    private void breakdownEvent() {
+        employeeGrid.setVisible(false);
     }
 
-    private void configureForm() {
-        form.setWidth("25em");
-
-        form.addSaveListener(this::saveEmployee);
-        form.addUpdateListener(this::updateEmployee);
-        form.addDeleteListener(this::deleteEmployee);
-        form.addCloseListener(e -> closeEditor());
-    }
-
-    private void updateGrid() {
-        try {
-            List<EmployeeFormModel> employees = coreAPI.getAllEmployees().stream()
-                    .map(EmployeeFormModel::toEmployeeFormModel)
-                    .toList();
-
-            if (filterText.getValue() == null) {
-                grid.setItems(employees);
-            } else {
-                grid.setItems(employees.stream()
-                        .filter(employeeDTO -> employeeDTO
-                                        .getFirstName()
-                                        .toLowerCase()
-                                        .contains(filterText.getValue().toLowerCase())
-                                || employeeDTO
-                                        .getLastName()
-                                        .toLowerCase()
-                                        .contains(filterText.getValue().toLowerCase()))
-                        .toList());
-            }
-        } catch (NotAuthenticatedException e) {
-            UI.getCurrent().navigate(HomeView.class);
-        }
-    }
-
-    private void editEmployee(EmployeeFormModel employeeFormModel) {
-        if (employeeFormModel == null) {
-            closeEditor();
-        } else {
-            form.setEmployee(employeeFormModel);
-            form.setFormModeUpdate();
-            form.setVisible(true);
-            addClassName("editing");
-        }
-    }
-
-    private void closeEditor() {
-        form.setEmployee(null);
-        form.setVisible(false);
-        removeClassName("editing");
-    }
-
-    private void saveEmployee(EmployeeForm.SaveEvent event) {
-        try {
-            Optional<EmployeeDTO> employeeDTO =
-                    coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
-            updateGrid();
-            closeEditor();
-            employeeDTO.ifPresent(SaveEmployeeNotification::new);
-        } catch (NotAuthenticatedException e) {
-            UI.getCurrent().navigate(HomeView.class);
-        }
-    }
-
-    private void updateEmployee(EmployeeForm.UpdateEvent event) {
-        try {
-            Optional<EmployeeDTO> employeeDTO =
-                    coreAPI.updateEmployee(EmployeeFormModel.toUpdateEmployeeDTO(event.getEmployee()));
-            updateGrid();
-            closeEditor();
-            employeeDTO.ifPresent(UpdateEmployeeNotification::new);
-        } catch (NotAuthenticatedException e) {
-            UI.getCurrent().navigate(HomeView.class);
-        }
-    }
-
-    private void deleteEmployee(EmployeeForm.DeleteEvent event) {
-        try {
-            coreAPI.deleteEmployee(event.getEmployee().getId());
-            updateGrid();
-            closeEditor();
-        } catch (NotAuthenticatedException e) {
-            UI.getCurrent().navigate(HomeView.class);
-        }
-    }
-
-    private void addEmployee() {
-        grid.asSingleSelect().clear();
-        form.setFormModeSave();
-        form.setVisible(true);
+    private void addVehicleEvent() {
+        employeeGrid.setVisible(true);
+        employeeGrid.addEmployeeEvent();
     }
 
     @Override
