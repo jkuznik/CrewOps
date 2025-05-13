@@ -46,6 +46,11 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: critical
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
                   name: solved_at
                   type: timestamp
                   constraints:

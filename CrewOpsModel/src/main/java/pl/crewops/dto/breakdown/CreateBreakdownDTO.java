@@ -6,4 +6,7 @@ import lombok.Builder;
 
 @Builder
 public record CreateBreakdownDTO(
-        @NotNull UUID vehicleId, @NotNull UUID reportedByEmployeeId, @NotNull String description) {}
+        @NotNull UUID vehicleId,
+        @NotNull UUID reportedByEmployeeId,
+        @NotNull String description,
+        @NotNull boolean critical) {}

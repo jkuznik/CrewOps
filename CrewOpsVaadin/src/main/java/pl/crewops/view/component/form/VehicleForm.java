@@ -1,4 +1,4 @@
-package pl.crewops.view.form;
+package pl.crewops.view.component.form;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
@@ -10,6 +10,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
@@ -17,12 +18,12 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.stream.IntStream;
-import pl.crewops.view.form.model.VehicleFormModel;
+import pl.crewops.model.VehicleFormModel;
 
 @SpringComponent
 public class VehicleForm extends FormLayout {
     // TODO: implement text field setEnable(false) for update action
-    TextField registerNumber = new TextField("Registration Number");
+    TextField registrationNumber = new TextField("Registration Number");
     // TODO: implement this
 
     //    TextField vehicleType = new TextField("Vehicle Type");
@@ -36,6 +37,8 @@ public class VehicleForm extends FormLayout {
     Button update = new Button("Update");
     Button delete = new Button("Delete");
     Button close = new Button("Close");
+
+    Button reportBreakdown = new Button("Report Breakdown");
 
     Binder<VehicleFormModel> binder = new Binder<>(VehicleFormModel.class);
 
@@ -51,7 +54,7 @@ public class VehicleForm extends FormLayout {
                 .sorted(Comparator.reverseOrder())
                 .toList());
 
-        add(registerNumber, /*vehicleType,*/ broken, make, model, year, vin, createButtonsLayout());
+        add(registrationNumber, /*vehicleType,*/ broken, make, model, year, vin, createButtonsLayout());
     }
 
     public void setFormModeSave() {
@@ -71,6 +74,7 @@ public class VehicleForm extends FormLayout {
         update.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
         close.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        reportBreakdown.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
         save.addClickShortcut(Key.ENTER);
         close.addClickShortcut(Key.ESCAPE);
@@ -79,10 +83,12 @@ public class VehicleForm extends FormLayout {
         update.addClickListener(event -> validateAndUpdate());
         delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
         close.addClickListener(event -> fireEvent(new CloseEvent(this)));
+        reportBreakdown.addClickListener(event -> fireEvent(new ReportBreakdown(this, binder.getBean())));
 
         binder.addStatusChangeListener(event -> save.setEnabled(binder.isValid()));
 
-        return new HorizontalLayout(save, update, delete, close);
+        var buttonsLayout = new HorizontalLayout(save, update, delete, close);
+        return new VerticalLayout(buttonsLayout, reportBreakdown);
     }
 
     private void validateAndSave() {
@@ -92,7 +98,7 @@ public class VehicleForm extends FormLayout {
                 .year(year.getValue())
                 .vin(vin.getValue())
                 .broken(broken.getValue())
-                .registerNumber(registerNumber.getValue())
+                .registrationNumber(registrationNumber.getValue())
                 .build();
         binder.setBean(vehicleFormModel);
         if (binder.isValid()) {
@@ -152,6 +158,13 @@ public class VehicleForm extends FormLayout {
         }
     }
 
+    public static class ReportBreakdown extends VehicleFormEvent {
+
+        ReportBreakdown(VehicleForm source, VehicleFormModel vehicleFormModel) {
+            super(source, vehicleFormModel);
+        }
+    }
+
     public Registration addSaveListener(ComponentEventListener<SaveEvent> listener) {
         return addListener(SaveEvent.class, listener);
     }
@@ -166,5 +179,9 @@ public class VehicleForm extends FormLayout {
 
     public Registration addCloseListener(ComponentEventListener<CloseEvent> listener) {
         return addListener(CloseEvent.class, listener);
+    }
+
+    public Registration addReportBreakdownListener(ComponentEventListener<ReportBreakdown> listener) {
+        return addListener(ReportBreakdown.class, listener);
     }
 }

@@ -9,8 +9,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
-import pl.crewops.view.component.EmployeeGrid;
-import pl.crewops.view.component.QualificationGrid;
+import pl.crewops.view.component.grid.EmployeeGrid;
+import pl.crewops.view.component.grid.QualificationGrid;
 import pl.crewops.view.component.mainLayout.MainLayout;
 
 @Route(value = "employees")

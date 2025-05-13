@@ -1,4 +1,4 @@
-package pl.crewops.view.form;
+package pl.crewops.view.component.form;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;

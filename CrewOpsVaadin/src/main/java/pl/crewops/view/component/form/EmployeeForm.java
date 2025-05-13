@@ -1,4 +1,4 @@
-package pl.crewops.view.form;
+package pl.crewops.view.component.form;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
@@ -17,26 +17,26 @@ import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.shared.Registration;
 import java.util.Arrays;
 import pl.crewops.auth.RoleType;
-import pl.crewops.view.component.QualificationAccordion;
-import pl.crewops.view.component.VehicleAccordion;
-import pl.crewops.view.form.model.EmployeeFormModel;
+import pl.crewops.model.EmployeeFormModel;
+import pl.crewops.view.component.accordion.QualificationAccordion;
+import pl.crewops.view.component.accordion.VehicleAccordion;
 
 public class EmployeeForm extends FormLayout {
-    TextField firstName = new TextField("First name");
-    TextField lastName = new TextField("Last name");
-    DatePicker birthDate = new DatePicker("Birth date");
-    TextField phoneNumber = new TextField("Phone number");
-    TextField department = new TextField("Department");
-    CheckboxGroup<RoleType> roles = new CheckboxGroup<>("Roles");
-    QualificationAccordion qualifications;
-    VehicleAccordion vehicles;
+    private final TextField firstName = new TextField("First name");
+    private final TextField lastName = new TextField("Last name");
+    private final DatePicker birthDate = new DatePicker("Birth date");
+    private final TextField phoneNumber = new TextField("Phone number");
+    private final TextField department = new TextField("Department");
+    private final CheckboxGroup<RoleType> roles = new CheckboxGroup<>("Roles");
+    private final QualificationAccordion qualifications;
+    private final VehicleAccordion vehicles;
 
-    Button save = new Button("Save");
-    Button update = new Button("Update");
-    Button delete = new Button("Delete");
-    Button close = new Button("Cancel");
+    private final Button save = new Button("Save");
+    private final Button update = new Button("Update");
+    private final Button delete = new Button("Delete");
+    private final Button close = new Button("Cancel");
 
-    Binder<EmployeeFormModel> binder = new BeanValidationBinder<>(EmployeeFormModel.class);
+    private final Binder<EmployeeFormModel> binder = new BeanValidationBinder<>(EmployeeFormModel.class);
 
     public EmployeeForm() {
         addClassName("employee-form");

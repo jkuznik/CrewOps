@@ -13,5 +13,6 @@ public record BreakdownDTO(
         VehicleDTO vehicle,
         EmployeeDTO reportedBy,
         EmployeeDTO repairedBy,
+        boolean critical,
         boolean solved,
         Instant solvedAt) {}

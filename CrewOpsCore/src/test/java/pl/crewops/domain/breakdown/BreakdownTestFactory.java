@@ -31,6 +31,7 @@ class BreakdownTestFactory {
                 .reportedBy(getEmployee())
                 .repairedBy(getEmployee())
                 .description("description")
+                .isCritical(true)
                 .solved(true)
                 .solvedAt(null)
                 .build();
@@ -42,6 +43,7 @@ class BreakdownTestFactory {
                 .vehicle(vehicleDTO)
                 .reportedBy(reportedByEmployee)
                 .repairedBy(repairedByEmployee)
+                .isCritical(true)
                 .solved(false)
                 .solvedAt(null)
                 .build();
@@ -51,6 +53,7 @@ class BreakdownTestFactory {
         return CreateBreakdownDTO.builder()
                 .vehicleId(vehicleId)
                 .reportedByEmployeeId(repairedByEmployeeId)
+                .isCritical(true)
                 .description("description")
                 .build();
     }

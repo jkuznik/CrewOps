@@ -12,6 +12,8 @@ import pl.crewops.auth.AuthRequest;
 import pl.crewops.auth.AuthResponse;
 import pl.crewops.auth.ValidTokenRequest;
 import pl.crewops.auth.ValidTokenResponse;
+import pl.crewops.dto.breakdown.BreakdownDTO;
+import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -48,11 +50,19 @@ public interface CoreAPI {
     Optional<VehicleDTO> updateVehicle(@Valid @NotNull UpdateVehicleDTO updateVehicleDTO)
             throws NotAuthenticatedException;
 
+    Optional<BreakdownDTO> createBreakdown(@Valid @NotNull CreateBreakdownDTO createBreakdownDTO)
+            throws NotAuthenticatedException;
+
     List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException;
 
     List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException;
 
     List<VehicleDTO> getAllVehicles() throws NotAuthenticatedException;
+
+    Optional<VehicleDTO> getVehicleByRegisterNumber(@Valid @NotNull String registerNumber)
+            throws NotAuthenticatedException;
+
+    List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException;
 
     List<QualificationDTO> getQualificationsByIds(Set<UUID> qualificationIds) throws NotAuthenticatedException;
 

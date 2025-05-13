@@ -10,7 +10,8 @@ import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
-import pl.crewops.view.component.VehicleGrid;
+import pl.crewops.view.component.grid.BreakdownGrid;
+import pl.crewops.view.component.grid.VehicleGrid;
 import pl.crewops.view.component.mainLayout.MainLayout;
 
 @Slf4j
@@ -18,16 +19,21 @@ import pl.crewops.view.component.mainLayout.MainLayout;
 @PageTitle("Vehicle view")
 public class VehicleView extends MainLayout implements BeforeEnterObserver {
     private final VehicleGrid vehicleGrid;
+    private final BreakdownGrid breakdownGrid;
 
     public VehicleView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
         super(coreAPI, jwtInfoService);
         vehicleGrid = new VehicleGrid(coreAPI);
         vehicleGrid.setSizeFull();
 
+        breakdownGrid = new BreakdownGrid(coreAPI);
+        breakdownGrid.setSizeFull();
+        breakdownGrid.setVisible(false);
+
         addClassName("vehicle-view");
 
         mainContent.removeAll();
-        mainContent.add(getToolbar(), vehicleGrid, mainFooter);
+        mainContent.add(getToolbar(), vehicleGrid, breakdownGrid, mainFooter);
         mainContent.setFlexGrow(1, vehicleGrid);
     }
 
@@ -35,22 +41,29 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
         var toolbar = new HorizontalLayout();
 
         Button list = new Button("Vehicles list");
-        Button breakdown = new Button("Breakdown");
-        list.addClickListener(event -> listEvent());
-        breakdown.addClickListener(event -> breakdownEvent());
+        Button breakdown = new Button("Breakdowns");
+        list.addClickListener(event -> displayVehicleGrid());
+        breakdown.addClickListener(event -> displayBreakdownGrid());
 
         toolbar.add(list, breakdown);
 
         return toolbar;
     }
 
-    private void listEvent() {
+    private void displayVehicleGrid() {
+        breakdownGrid.setVisible(false);
+
         vehicleGrid.closeEditor();
+        vehicleGrid.updateVehicleGrid();
         vehicleGrid.setVisible(true);
     }
 
-    private void breakdownEvent() {
+    private void displayBreakdownGrid() {
         vehicleGrid.setVisible(false);
+
+        breakdownGrid.closeEditor();
+        breakdownGrid.updateBreakdownGrid();
+        breakdownGrid.setVisible(true);
     }
 
     @Override

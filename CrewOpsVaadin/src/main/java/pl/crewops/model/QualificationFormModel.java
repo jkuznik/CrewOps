@@ -1,4 +1,4 @@
-package pl.crewops.view.form.model;
+package pl.crewops.model;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

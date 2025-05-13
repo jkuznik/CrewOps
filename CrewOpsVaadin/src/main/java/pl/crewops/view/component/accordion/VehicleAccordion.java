@@ -1,4 +1,4 @@
-package pl.crewops.view.component;
+package pl.crewops.view.component.accordion;
 
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.formlayout.FormLayout;

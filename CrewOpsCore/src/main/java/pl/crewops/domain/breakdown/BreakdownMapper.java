@@ -13,6 +13,7 @@ class BreakdownMapper {
                 //                .vehicle(breakdown.getVehicle())
                 //                .reportedBy(breakdown.getReportedBy())
                 //                .repairedBy(breakdown.getRepairedBy())
+                .critical(breakdown.isCritical())
                 .solved(breakdown.isSolved())
                 .solvedAt(breakdown.getSolvedAt())
                 .build();

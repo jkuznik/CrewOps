@@ -29,6 +29,10 @@ public class Breakdown extends AbstractEntity {
     @JoinColumn(name = "repaired_by_id")
     private Employee repairedBy;
 
+    @Column(updatable = false, nullable = false)
+    private boolean critical;
+
+    @Column(nullable = false)
     private boolean solved;
 
     private Instant solvedAt;

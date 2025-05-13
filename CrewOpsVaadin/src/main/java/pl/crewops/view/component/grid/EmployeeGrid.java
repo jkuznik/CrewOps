@@ -1,4 +1,4 @@
-package pl.crewops.view.component;
+package pl.crewops.view.component.grid;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -12,11 +12,11 @@ import java.util.Optional;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.view.HomeView;
+import pl.crewops.view.component.form.EmployeeForm;
 import pl.crewops.view.component.notification.SaveEmployeeNotification;
 import pl.crewops.view.component.notification.UpdateEmployeeNotification;
-import pl.crewops.view.form.EmployeeForm;
-import pl.crewops.view.form.model.EmployeeFormModel;
 
 public class EmployeeGrid extends VerticalLayout {
     private final CoreAPI coreAPI;

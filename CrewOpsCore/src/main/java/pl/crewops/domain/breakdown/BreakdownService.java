@@ -15,6 +15,7 @@ import pl.crewops.domain.vehicle.VehicleAPI;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
+import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.exception.BreakdownNotFoundException;
 import pl.crewops.exception.EmployeeNotFoundException;
 import pl.crewops.exception.VehicleNotFoundException;
@@ -54,9 +55,20 @@ class BreakdownService implements BreakdownAPI {
                 .description(createBreakdownDTO.description())
                 .vehicle(vehicle)
                 .reportedBy(employee)
+                .critical(createBreakdownDTO.critical())
                 .build();
 
         log.info("Created breakdown: {}", breakdown);
+
+        if (createBreakdownDTO.critical()) {
+            var updateVehicle = UpdateVehicleDTO.builder()
+                    .vehicleId(vehicle.getId())
+                    .broken(true)
+                    .build();
+
+            vehicleAPI.updateVehicle(updateVehicle);
+        }
+
         return toDTO(breakdownRepository.save(breakdown));
     }
 

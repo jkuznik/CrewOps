@@ -12,6 +12,7 @@ public class ControllerURL {
     public static final String QUALIFICATION_ID = "qualificationId";
     public static final String VEHICLES = "/vehicles";
     public static final String VEHICLE_ID = "vehicleId";
+    public static final String BREAKDOWNS = "/breakdowns";
 
     public static final String EMPLOYEES_EID = EMPLOYEES + "/{" + EMPLOYEE_ID + "}";
     public static final String EMPLOYEES_QID = EMPLOYEES + "/{" + QUALIFICATION_ID + "}";
@@ -21,6 +22,7 @@ public class ControllerURL {
     public static final String QUALIFICATIONS_QIDS = QUALIFICATIONS + "/collection";
 
     public static final String VEHICLES_VID = VEHICLES + "/{" + VEHICLE_ID + "}";
+    public static final String VEHICLES_RN = VEHICLES + "/{registrationNumber}";
     public static final String VEHICLES_VIDS = VEHICLES + "/collection";
 
     public static final String EMPLOYEES_EID_PHONE = EMPLOYEES_EID + "/phone";

@@ -1,4 +1,4 @@
-package pl.crewops.view.component;
+package pl.crewops.view.component.grid;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -13,11 +13,11 @@ import java.util.Optional;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.model.QualificationFormModel;
 import pl.crewops.view.HomeView;
+import pl.crewops.view.component.form.QualificationForm;
 import pl.crewops.view.component.notification.QualificationAlreadyExistNotification;
 import pl.crewops.view.component.notification.UpdateQualificationNotification;
-import pl.crewops.view.form.QualificationForm;
-import pl.crewops.view.form.model.QualificationFormModel;
 
 public class QualificationGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
