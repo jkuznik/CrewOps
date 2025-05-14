@@ -52,7 +52,7 @@ public class BreakdownGrid extends VerticalLayout {
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        filter.setPlaceholder("Filter by description");
+        filter.setPlaceholder("Filter by registration number");
         filter.setClearButtonVisible(true);
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         filter.addValueChangeListener(event -> updateBreakdownGrid());
@@ -131,7 +131,8 @@ public class BreakdownGrid extends VerticalLayout {
             } else {
                 grid.setItems(breakdowns.stream()
                         .filter(breakdownDTO -> breakdownDTO
-                                .getDescription()
+                                .getVehicle()
+                                .registerNumber()
                                 .toLowerCase()
                                 .contains(filter.getValue().toLowerCase()))
                         .toList());
