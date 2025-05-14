@@ -7,6 +7,7 @@ import static pl.crewops.utils.pagination.PageRequestFactory.createPageRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,12 @@ class VehicleService {
     public Vehicle getVehicleById(@NotNull UUID id) throws VehicleNotFoundException {
         log.info("Get vehicle by id {}", id);
         return vehicleRepository.findById(id).orElseThrow(() -> new VehicleNotFoundException(id));
+    }
+
+    public VehicleDTO getVehicleByRegistrationNumber(@NotNull String registerNumber) {
+        log.info("Get vehicle by registration number {}", registerNumber);
+        return mapToDTO(
+                vehicleRepository.findByRegisterNumber(registerNumber).orElseThrow(NoSuchElementException::new));
     }
 
     public List<VehicleDTO> getVehiclesIn(Set<UUID> ids) {

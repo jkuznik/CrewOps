@@ -1,4 +1,4 @@
-package pl.crewops.view.form;
+package pl.crewops.view.component.form;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
@@ -12,7 +12,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
-import pl.crewops.view.form.model.QualificationFormModel;
+import pl.crewops.model.QualificationFormModel;
 
 public class QualificationForm extends FormLayout {
     TextField description = new TextField("Description");

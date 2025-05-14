@@ -1,7 +1,6 @@
 package pl.crewops.domain.employee;
 
 import static pl.crewops.domain.employee.EmployeeTestFactory.*;
-import static pl.crewops.enums.ControllerURL.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.UUID;
@@ -85,8 +84,8 @@ class EmployeeControllerTest {
         createEmployeeDTOWithNullFields = createEmployeeDTONotValid();
         updateEmployeeDTO = updateEmployeeDTO();
         updateEmployeeDTONotValid = updateEmployeeDTONotValid();
-        employeeWithQAndV = createEmployeeWithQualificationsAndVehicles();
-        employeeWithEmptyQAndEmptyV = createEmployeeWithoutQualificationsAndVehicles();
+        employeeWithQAndV = employeeWithQualificationsAndVehicles();
+        employeeWithEmptyQAndEmptyV = employeeWithoutQualificationsAndVehicles();
         employeeDTO = employeeDTO();
         qualification = qualification();
         vehicle = vehicle();

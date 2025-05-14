@@ -33,6 +33,12 @@ class VehicleController {
         return ResponseEntity.status(HttpStatus.OK).body(vehicleService.getAllVehicles(page, size));
     }
 
+    @GetMapping(VEHICLES_RN)
+    public ResponseEntity<VehicleDTO> getVehicleByRegistrationNumber(@PathVariable String registrationNumber) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(vehicleService.getVehicleByRegistrationNumber(registrationNumber));
+    }
+
     @PostMapping(VEHICLES_VIDS)
     public ResponseEntity<List<VehicleDTO>> getVehiclesByIds(@RequestBody @Valid @NotNull Set<UUID> vehicleIds) {
         return ResponseEntity.status(HttpStatus.OK).body(vehicleService.getVehiclesIn(vehicleIds));

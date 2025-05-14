@@ -16,6 +16,9 @@ import pl.crewops.auth.AuthRequest;
 import pl.crewops.auth.AuthResponse;
 import pl.crewops.auth.ValidTokenRequest;
 import pl.crewops.auth.ValidTokenResponse;
+import pl.crewops.dto.breakdown.BreakdownDTO;
+import pl.crewops.dto.breakdown.CreateBreakdownDTO;
+import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -164,6 +167,40 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    @Override
+    public Optional<BreakdownDTO> createBreakdown(CreateBreakdownDTO createBreakdownDTO)
+            throws NotAuthenticatedException {
+        isAuthenticated();
+        try {
+            return Optional.ofNullable(authorizedClient
+                    .post()
+                    .uri(uriBuilder -> uriBuilder.path(BREAKDOWNS).build())
+                    .body(createBreakdownDTO)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<BreakdownDTO>() {}));
+        } catch (RestClientException e) {
+            log.error("Create new breakdown error");
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<BreakdownDTO> updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO)
+            throws NotAuthenticatedException {
+        isAuthenticated();
+        try {
+            return Optional.ofNullable(authorizedClient
+                    .patch()
+                    .uri(uriBuilder -> uriBuilder.path(BREAKDOWNS_BID).build((updateBreakdownDTO.breakdownId())))
+                    .body(updateBreakdownDTO)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<BreakdownDTO>() {}));
+        } catch (RestClientException e) {
+            log.error("Update breakdown error", e);
+            return Optional.empty();
+        }
+    }
+
     public List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -205,6 +242,36 @@ class CoreClient implements CoreAPI {
                     .body(new ParameterizedTypeReference<List<VehicleDTO>>() {});
         } catch (RestClientException e) {
             log.error("Error getting vehicles");
+            return List.of();
+        }
+    }
+
+    @Override
+    public Optional<VehicleDTO> getVehicleByRegisterNumber(String registerNumber) throws NotAuthenticatedException {
+        isAuthenticated();
+        try {
+            return authorizedClient
+                    .get()
+                    .uri(uriBuilder -> uriBuilder.path(VEHICLES_RN).build(registerNumber))
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<Optional<VehicleDTO>>() {});
+        } catch (RestClientException e) {
+            log.error("Error getting vehicle");
+            return Optional.empty();
+        }
+    }
+
+    public List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException {
+        isAuthenticated();
+        try {
+            return authorizedClient
+                    .get()
+                    .uri(uriBuilder -> uriBuilder.path(BREAKDOWNS).build())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<List<BreakdownDTO>>() {});
+        } catch (RestClientException e) {
+            log.error("Error getting breakdowns");
             return List.of();
         }
     }

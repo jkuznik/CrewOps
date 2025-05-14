@@ -1,4 +1,4 @@
-package pl.crewops.view.form.model;
+package pl.crewops.model;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -21,7 +21,7 @@ public class VehicleFormModel {
     private @NotNull String vehicleType;
     private @NotNull Integer year;
     private @Size(min = 2, max = 50, message = "Length required between 2-50") String vin;
-    private @Size(min = 2, max = 15, message = "Length required between 2-15") String registerNumber;
+    private @Size(min = 2, max = 15, message = "Length required between 2-15") String registrationNumber;
     private @NotNull Boolean broken;
 
     public static CreateVehicleDTO toCreateVehicleDTO(VehicleFormModel vehicleFormModel) {
@@ -32,7 +32,7 @@ public class VehicleFormModel {
                 .vehicleType(VehicleType.SEMI_TRUCK)
                 .year(vehicleFormModel.getYear())
                 .vin(vehicleFormModel.getVin())
-                .registerNumber(vehicleFormModel.getRegisterNumber())
+                .registerNumber(vehicleFormModel.getRegistrationNumber())
                 .broken(vehicleFormModel.getBroken())
                 .build();
     }
@@ -45,7 +45,7 @@ public class VehicleFormModel {
                 .vehicleType(vehicleDTO.vehicleType().name())
                 .year(vehicleDTO.year())
                 .vin(vehicleDTO.vin())
-                .registerNumber(vehicleDTO.registerNumber())
+                .registrationNumber(vehicleDTO.registerNumber())
                 .broken(vehicleDTO.broken())
                 .build();
     }
@@ -53,7 +53,7 @@ public class VehicleFormModel {
     public static UpdateVehicleDTO toUpdateVehicleDTO(VehicleFormModel vehicleFormModel) {
         return UpdateVehicleDTO.builder()
                 .vehicleId(vehicleFormModel.getId())
-                .registerNumber(vehicleFormModel.getRegisterNumber())
+                .registerNumber(vehicleFormModel.getRegistrationNumber())
                 .broken(vehicleFormModel.getBroken())
                 .build();
     }

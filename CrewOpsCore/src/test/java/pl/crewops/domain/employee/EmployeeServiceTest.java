@@ -75,8 +75,8 @@ class EmployeeServiceTest {
         createEmployeeDTOWithNullFields = createEmployeeDTONotValid();
         updateEmployeeDTO = updateEmployeeDTO();
         updateEmployeeDTONotValid = updateEmployeeDTONotValid();
-        employeeWithQAndV = createEmployeeWithQualificationsAndVehicles();
-        employeeWithEmptyQAndEmptyV = createEmployeeWithoutQualificationsAndVehicles();
+        employeeWithQAndV = employeeWithQualificationsAndVehicles();
+        employeeWithEmptyQAndEmptyV = employeeWithoutQualificationsAndVehicles();
         qualification = qualification();
         vehicle = vehicle();
     }

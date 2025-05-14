@@ -73,6 +73,10 @@ class EmployeeService {
                 .toList();
     }
 
+    public Employee getEmployeeById(UUID id) {
+        return employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
+    }
+
     public List<EmployeeDTO> getEmployeesByQualification(@NotNull UUID qualificationId, int page, int size) {
         log.info("Get employees by qualification");
         return employeeRepository.findByQualificationId(qualificationId, getPageRequest(page, size)).stream()

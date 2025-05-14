@@ -3,6 +3,8 @@ package pl.crewops.domain.vehicle;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import pl.crewops.dto.vehicle.UpdateVehicleDTO;
+import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.exception.VehicleNotFoundException;
 import pl.crewops.model.Vehicle;
 
@@ -14,5 +16,9 @@ public class VehicleAPI {
 
     public Vehicle getVehicle(UUID vehicleId) throws VehicleNotFoundException {
         return vehicleService.getVehicleById(vehicleId);
+    }
+
+    public VehicleDTO updateVehicle(UpdateVehicleDTO updateVehicleDTO) throws VehicleNotFoundException {
+        return vehicleService.updateVehicle(updateVehicleDTO);
     }
 }

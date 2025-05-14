@@ -9,7 +9,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
 import pl.crewops.view.component.LoggedUserInfoComponent;
-import pl.crewops.view.form.LoginForm;
+import pl.crewops.view.component.form.LoginForm;
 
 @SpringComponent
 @CssImport("./styles/mainStyles/main-navbar.css")

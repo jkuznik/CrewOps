@@ -17,8 +17,8 @@ import java.util.concurrent.TimeUnit;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtInfoService;
 import pl.crewops.view.HomeView;
+import pl.crewops.view.component.form.LoginForm;
 import pl.crewops.view.component.notification.EndSessionNotification;
-import pl.crewops.view.form.LoginForm;
 
 @SpringComponent
 public class LoggedUserInfoComponent extends HorizontalLayout {
