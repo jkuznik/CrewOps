@@ -9,6 +9,8 @@ import java.util.Set;
 import lombok.*;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
+import pl.crewops.dto.vehicle.CreateVehicleDTO;
+import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.enums.VehicleType;
 import pl.crewops.utils.serializer.EmployeeSetSerializer;
 
@@ -53,4 +55,29 @@ public class Vehicle extends AbstractEntity {
     @JsonSerialize(using = EmployeeSetSerializer.class)
     @ManyToMany(mappedBy = "vehicles")
     private Set<Employee> employees = new LinkedHashSet<>();
+
+    public Vehicle mapToEntity(CreateVehicleDTO createVehicleDTO) {
+        return Vehicle.builder()
+                .make(createVehicleDTO.make())
+                .model(createVehicleDTO.model())
+                .vehicleType(createVehicleDTO.vehicleType())
+                .year(createVehicleDTO.year())
+                .vin(createVehicleDTO.vin())
+                .registerNumber(createVehicleDTO.registerNumber())
+                .broken(createVehicleDTO.broken())
+                .build();
+    }
+
+    public VehicleDTO mapToDTO() {
+        return VehicleDTO.builder()
+                .id(this.getId())
+                .make(this.getMake())
+                .model(this.getModel())
+                .vehicleType(this.getVehicleType())
+                .year(this.getYear())
+                .vin(this.getVin())
+                .registerNumber(this.getRegisterNumber())
+                .broken(this.getBroken())
+                .build();
+    }
 }

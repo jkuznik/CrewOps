@@ -18,7 +18,7 @@ import pl.crewops.view.component.form.BreakdownForm;
 public class BreakdownGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
 
-    private final Grid<BreakdownFormModel> grid = new Grid<>(BreakdownFormModel.class);
+    private final Grid<BreakdownFormModel> grid = new Grid<>();
     private final TextField filter = new TextField();
     private final BreakdownForm form;
 
@@ -70,27 +70,40 @@ public class BreakdownGrid extends VerticalLayout {
 
     private void configureGrid() {
         grid.setSizeFull();
-        grid.setColumns("vehicle", "description", "critical", "reportedBy", "solved", "repairedBy", "solvedAt");
-        //        grid.addColumn(model -> model.getVehicle().registerNumber())
-        //                        .setHeader("Registration Number");
-        //
-        //        grid.addColumn(BreakdownFormModel::getDescription)
-        //                        .setHeader("Description");
-        //
-        //        grid.addColumn(BreakdownFormModel::isCritical)
-        //                        .setHeader("Critical");
-        //
-        //        grid.addColumn(BreakdownFormModel::getReportedBy)
-        //                .setHeader("Reported By");
-        //
-        //        grid.addColumn(BreakdownFormModel::isSolved)
-        //                .setHeader("Solved");
-        //
-        //        grid.addColumn(BreakdownFormModel::getRepairedBy)
-        //                .setHeader("Repaired By");
-        //
-        //        grid.addColumn(BreakdownFormModel::getSolvedAt)
-        //                .setHeader("Solved At");
+
+        grid.addColumn(model -> {
+                    if (model.getVehicle() != null) {
+                        return model.getVehicle().registerNumber();
+                    }
+                    return "-";
+                })
+                .setHeader("Registration Number");
+
+        grid.addColumn(BreakdownFormModel::getDescription).setHeader("Description");
+
+        grid.addColumn(BreakdownFormModel::isCritical).setHeader("Critical");
+
+        grid.addColumn(BreakdownFormModel::isSolved).setHeader("Solved");
+
+        grid.addColumn(model -> {
+                    if (model.getReportedBy() != null) {
+                        return model.getReportedBy().firstName() + " "
+                                + model.getReportedBy().lastName();
+                    }
+                    return "-";
+                })
+                .setHeader("Reported By");
+
+        grid.addColumn(model -> {
+                    if (model.getRepairedBy() != null) {
+                        return model.getRepairedBy().firstName() + " "
+                                + model.getRepairedBy().lastName();
+                    }
+                    return "-";
+                })
+                .setHeader("Repaired By");
+
+        grid.addColumn(BreakdownFormModel::getSolvedAt).setHeader("Solved At");
 
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 
