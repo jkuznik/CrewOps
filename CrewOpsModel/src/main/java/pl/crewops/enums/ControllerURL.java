@@ -13,10 +13,12 @@ public class ControllerURL {
     public static final String VEHICLES = "/vehicles";
     public static final String VEHICLE_ID = "vehicleId";
     public static final String BREAKDOWNS = "/breakdowns";
+    public static final String BREAKDOWN_ID = "breakdownId";
 
     public static final String EMPLOYEES_EID = EMPLOYEES + "/{" + EMPLOYEE_ID + "}";
     public static final String EMPLOYEES_QID = EMPLOYEES + "/{" + QUALIFICATION_ID + "}";
     public static final String EMPLOYEES_VID = EMPLOYEES + "/{" + VEHICLE_ID + "}";
+    public static final String BREAKDOWNS_BID = BREAKDOWNS + "/{" + BREAKDOWN_ID + "}";
 
     public static final String QUALIFICATIONS_QID = QUALIFICATIONS + "/{" + QUALIFICATION_ID + "}";
     public static final String QUALIFICATIONS_QIDS = QUALIFICATIONS + "/collection";

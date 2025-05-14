@@ -17,6 +17,7 @@ import pl.crewops.model.BreakdownFormModel;
 public class BreakdownForm extends FormLayout {
     private final TextField vehicle = new TextField("Vehicle");
     private final TextField description = new TextField("Description");
+    private final Checkbox solved = new Checkbox("Solved");
     private final Checkbox critical = new Checkbox("Critical");
 
     private final Button save = new Button("Save");
@@ -30,13 +31,16 @@ public class BreakdownForm extends FormLayout {
 
         configureBinder();
 
-        add(vehicle, description, critical, createButtonsLayout());
+        add(vehicle, description, solved, critical, createButtonsLayout());
     }
 
     private void configureBinder() {
         binder.forField(vehicle).bindReadOnly(model -> model.getVehicle().registerNumber());
 
         binder.forField(description).bind(BreakdownFormModel::getDescription, BreakdownFormModel::setDescription);
+
+        // TODO: implement logic for setSolved only by mechanics, shift leader or manage
+        binder.forField(solved).bind(BreakdownFormModel::isSolved, BreakdownFormModel::setSolved);
 
         binder.forField(critical).bind(BreakdownFormModel::isCritical, BreakdownFormModel::setCritical);
     }
@@ -59,11 +63,17 @@ public class BreakdownForm extends FormLayout {
 
     public void setFormModeSave() {
         save.setVisible(true);
+        solved.setVisible(false);
+        description.setReadOnly(false);
+        critical.setVisible(true);
         update.setVisible(false);
     }
 
     public void setFormModeUpdate() {
         save.setVisible(false);
+        solved.setVisible(true);
+        description.setReadOnly(true);
+        critical.setVisible(false);
         update.setVisible(true);
     }
 

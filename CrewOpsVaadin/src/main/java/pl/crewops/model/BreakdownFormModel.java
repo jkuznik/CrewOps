@@ -5,6 +5,7 @@ import java.util.UUID;
 import lombok.*;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
+import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 
@@ -42,6 +43,14 @@ public class BreakdownFormModel {
                 .vehicleId(breakdownFormModel.getVehicle().id())
                 .reportedByEmployeeId(breakdownFormModel.getReportedBy().id())
                 .critical(breakdownFormModel.isCritical())
+                .build();
+    }
+
+    public static UpdateBreakdownDTO toUpdateBreakdownDTO(BreakdownFormModel breakdownFormModel) {
+        return UpdateBreakdownDTO.builder()
+                .breakdownId(breakdownFormModel.getId())
+                .repairedByEmployeeId(breakdownFormModel.getReportedBy().id())
+                .solved(breakdownFormModel.isSolved())
                 .build();
     }
 }

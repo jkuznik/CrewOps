@@ -18,6 +18,7 @@ import pl.crewops.auth.ValidTokenRequest;
 import pl.crewops.auth.ValidTokenResponse;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
+import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -179,6 +180,23 @@ class CoreClient implements CoreAPI {
                     .body(new ParameterizedTypeReference<BreakdownDTO>() {}));
         } catch (RestClientException e) {
             log.error("Create new breakdown error");
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<BreakdownDTO> updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO)
+            throws NotAuthenticatedException {
+        isAuthenticated();
+        try {
+            return Optional.ofNullable(authorizedClient
+                    .patch()
+                    .uri(uriBuilder -> uriBuilder.path(BREAKDOWNS_BID).build((updateBreakdownDTO.breakdownId())))
+                    .body(updateBreakdownDTO)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<BreakdownDTO>() {}));
+        } catch (RestClientException e) {
+            log.error("Update breakdown error", e);
             return Optional.empty();
         }
     }

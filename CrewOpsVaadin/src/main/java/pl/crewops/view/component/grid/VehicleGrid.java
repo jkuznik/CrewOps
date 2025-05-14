@@ -157,6 +157,18 @@ public class VehicleGrid extends VerticalLayout {
         }
     }
 
+    private void updateVehicle(VehicleForm.UpdateEvent event) {
+        try {
+            Optional<VehicleDTO> vehicleDTO =
+                    coreAPI.updateVehicle(VehicleFormModel.toUpdateVehicleDTO(event.getVehicle()));
+            updateVehicleGrid();
+            closeEditor();
+            vehicleDTO.ifPresent(UpdateVehicleNotification::new);
+        } catch (NotAuthenticatedException e) {
+            UI.getCurrent().navigate(HomeView.class);
+        }
+    }
+
     private void saveBreakdown(BreakdownForm.SaveEvent event) {
         try {
             log.info("Saving breakdown");
@@ -166,18 +178,6 @@ public class VehicleGrid extends VerticalLayout {
             closeEditor();
             // TODO: notification for add breakdown action
             //            breakdownDTO.ifPresent()
-        } catch (NotAuthenticatedException e) {
-            UI.getCurrent().navigate(HomeView.class);
-        }
-    }
-
-    private void updateVehicle(VehicleForm.UpdateEvent event) {
-        try {
-            Optional<VehicleDTO> vehicleDTO =
-                    coreAPI.updateVehicle(VehicleFormModel.toUpdateVehicleDTO(event.getVehicle()));
-            updateVehicleGrid();
-            closeEditor();
-            vehicleDTO.ifPresent(UpdateVehicleNotification::new);
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }

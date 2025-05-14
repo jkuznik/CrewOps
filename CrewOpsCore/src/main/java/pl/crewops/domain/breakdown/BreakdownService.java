@@ -84,6 +84,7 @@ class BreakdownService implements BreakdownAPI {
 
     @Transactional
     public BreakdownDTO updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO) {
+        log.info("Updating breakdown: {}", updateBreakdownDTO);
         Breakdown breakdown = breakdownRepository
                 .findById(updateBreakdownDTO.breakdownId())
                 .orElseThrow(() -> new BreakdownNotFoundException(updateBreakdownDTO.breakdownId()));
@@ -98,6 +99,7 @@ class BreakdownService implements BreakdownAPI {
             throw new IllegalArgumentException("Can't update breakdown if not solved");
         }
 
+        log.info("Updated breakdown: {}", breakdown);
         return toDTO(breakdownRepository.save(breakdown));
     }
 

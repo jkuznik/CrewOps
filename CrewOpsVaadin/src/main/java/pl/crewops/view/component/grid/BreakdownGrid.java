@@ -58,10 +58,7 @@ public class BreakdownGrid extends VerticalLayout {
         filter.addValueChangeListener(event -> updateBreakdownGrid());
 
         // TODO: consider possible action for breakdown, maybe 'update' or 'solve'?
-        //        Button addVehicle = new Button("Add vehicle");
         //        addVehicle.addClickListener(event -> addBreakdown());
-
-        //        toolbar.add(filter, addVehicle);
 
         toolbar.add(filter);
 
@@ -70,6 +67,7 @@ public class BreakdownGrid extends VerticalLayout {
 
     private void configureGrid() {
         grid.setSizeFull();
+        // TODO: add column createdAt to display date of reported breakdown
 
         grid.addColumn(model -> {
                     if (model.getVehicle() != null) {
@@ -115,8 +113,8 @@ public class BreakdownGrid extends VerticalLayout {
     private void configureForm() {
         form.setWidth("25em");
 
-        form.addSaveListener(this::saveBreakdown);
-        //        form.addUpdateListener(this::updateVehicle);
+        //        form.addSaveListener(this::saveBreakdown);
+        form.addUpdateListener(this::updateBreakdown);
         form.addCloseListener(event -> {
             closeEditor();
         });
@@ -153,33 +151,36 @@ public class BreakdownGrid extends VerticalLayout {
         }
     }
 
+    // TODO: this is logic of add breakdown button, delete if app works fine
     private void addBreakdown() {
         grid.asSingleSelect().clear();
         form.setFormModeSave();
         form.setVisible(true);
     }
 
-    private void saveBreakdown(BreakdownForm.SaveEvent event) {
-        try {
-            Optional<BreakdownDTO> breakdownDTO =
-                    coreAPI.createBreakdown(BreakdownFormModel.toCreateBreakdownDTO(event.getBreakdown()));
-            updateBreakdownGrid();
-            closeEditor();
-            //            breakdownDTO.ifPresent(UpdateVehicleNotification::new);
-        } catch (NotAuthenticatedException e) {
-            UI.getCurrent().navigate(HomeView.class);
-        }
-    }
-
-    //    private void updateVehicle(BreakdownForm.UpdateEvent event) {
+    // TODO: delete this if app works fine. Save option is achieved from vehicles grid
+    //    private void saveBreakdown(BreakdownForm.SaveEvent event) {
     //        try {
     //            Optional<BreakdownDTO> breakdownDTO =
-    //                    coreAPI.updateBreakdown(BreakdownFormModel.toUpdateBreakdownDTO(event.getBreakdown()));
-    //            updateGrid();
+    //                    coreAPI.createBreakdown(BreakdownFormModel.toCreateBreakdownDTO(event.getBreakdown()));
+    //            updateBreakdownGrid();
     //            closeEditor();
-    ////            breakdownDTO.ifPresent(UpdateVehicleNotification::new);
+    //            //            breakdownDTO.ifPresent(UpdateVehicleNotification::new);
     //        } catch (NotAuthenticatedException e) {
     //            UI.getCurrent().navigate(HomeView.class);
     //        }
     //    }
+
+    private void updateBreakdown(BreakdownForm.UpdateEvent event) {
+        try {
+            Optional<BreakdownDTO> breakdownDTO =
+                    coreAPI.updateBreakdown(BreakdownFormModel.toUpdateBreakdownDTO(event.getBreakdown()));
+            updateBreakdownGrid();
+            closeEditor();
+            // TODO: implement if present()
+            //            breakdownDTO.ifPresent();
+        } catch (NotAuthenticatedException e) {
+            UI.getCurrent().navigate(HomeView.class);
+        }
+    }
 }
