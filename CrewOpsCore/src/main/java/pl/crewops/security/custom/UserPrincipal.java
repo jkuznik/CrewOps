@@ -5,11 +5,10 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import pl.crewops.model.auth.AuthUser;
 import pl.crewops.model.auth.RoleGrantedAuthority;
 
-public class UserPrincipal implements UserDetails {
+public class UserPrincipal implements CustomUserPrincipal {
 
     @Getter
     private final AuthUser authUser;
@@ -22,6 +21,16 @@ public class UserPrincipal implements UserDetails {
         authUser.getRoles()
                 .forEach(role -> grantedAuthoritiesSet.add(new RoleGrantedAuthority("ROLE_" + role.getName())));
         this.grantedAuthorities = grantedAuthoritiesSet;
+    }
+
+    @Override
+    public String getFirstName() {
+        return authUser.getEmployee().getFirstName();
+    }
+
+    @Override
+    public String getLastName() {
+        return authUser.getEmployee().getLastName();
     }
 
     @Override

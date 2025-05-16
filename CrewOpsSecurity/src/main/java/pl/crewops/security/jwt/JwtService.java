@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import pl.crewops.security.config.SecurityConfigProperties;
+import pl.crewops.security.custom.CustomUserPrincipal;
 
 @Slf4j
 @Service
@@ -25,8 +26,12 @@ public class JwtService {
     private final SecurityConfigProperties securityConfigProperties;
 
     public String generateToken(UserDetails userDetails) {
+        var userPrincipal = (CustomUserPrincipal) userDetails;
+
         Map<String, Object> claims = new HashMap<>();
-        claims.put("authorities", userDetails.getAuthorities());
+        claims.put("firstName", userPrincipal.getFirstName());
+        claims.put("lastName", userPrincipal.getLastName());
+        claims.put("authorities", userPrincipal.getAuthorities());
         return Jwts.builder()
                 .claims()
                 .subject(userDetails.getUsername())
@@ -42,6 +47,14 @@ public class JwtService {
         // using extractClaim we can extract the username, or any other claim (those defaults and each custom claim we
         // create), from jwt token
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractFirstName(String token) {
+        return extractClaim(token, claims -> claims.get("firstName", String.class));
+    }
+
+    public String extractLastName(String token) {
+        return extractClaim(token, claims -> claims.get("lastName", String.class));
     }
 
     public Date extractExpiresAt(String token) {
