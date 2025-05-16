@@ -6,15 +6,16 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import pl.crewops.model.auth.RoleGrantedAuthority;
 import pl.crewops.security.config.SecurityConfigProperties;
 import pl.crewops.security.custom.CustomUserPrincipal;
 
@@ -55,6 +56,19 @@ public class JwtService {
 
     public String extractLastName(String token) {
         return extractClaim(token, claims -> claims.get("lastName", String.class));
+    }
+
+    public Collection<? extends GrantedAuthority> extractAuthorities(String token) {
+        Set<?> rawAuthorities = extractClaim(token, claims -> claims.get("authorities", Set.class));
+
+        if (rawAuthorities == null) {
+            return Collections.emptySet();
+        }
+
+        return rawAuthorities.stream()
+                .map(String::valueOf)
+                .map(RoleGrantedAuthority::new)
+                .collect(Collectors.toSet());
     }
 
     public Date extractExpiresAt(String token) {
