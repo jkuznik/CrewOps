@@ -16,8 +16,8 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.shared.Registration;
 import java.util.Arrays;
-import pl.crewops.auth.RoleType;
 import pl.crewops.model.EmployeeFormModel;
+import pl.crewops.model.auth.RoleType;
 import pl.crewops.view.component.accordion.QualificationAccordion;
 import pl.crewops.view.component.accordion.VehicleAccordion;
 

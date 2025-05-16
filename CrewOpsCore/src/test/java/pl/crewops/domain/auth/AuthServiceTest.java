@@ -3,7 +3,7 @@ package pl.crewops.domain.auth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static pl.crewops.auth.RoleType.EMPLOYEE;
+import static pl.crewops.model.auth.RoleType.EMPLOYEE;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

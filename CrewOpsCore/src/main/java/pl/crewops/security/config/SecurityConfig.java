@@ -1,7 +1,7 @@
 package pl.crewops.security.config;
 
-import static pl.crewops.auth.RoleType.*;
 import static pl.crewops.enums.ControllerURL.*;
+import static pl.crewops.model.auth.RoleType.*;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -16,7 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import pl.crewops.security.custom.ClientValidationFilter;
+import pl.crewops.security.cvf.ClientValidationFilter;
 import pl.crewops.security.jwt.JwtAuthFilter;
 
 @Configuration

@@ -1,4 +1,4 @@
-package pl.crewops.security.custom;
+package pl.crewops.security.cvf;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
