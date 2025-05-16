@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
-import pl.crewops.security.SecurityConfigProperties;
+import pl.crewops.security.config.SecurityConfigProperties;
 
 @Configuration
 @EnableConfigurationProperties(CoreProperties.class)
