@@ -8,8 +8,11 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.security.jwt.JwtInfoService;
+import pl.crewops.security.custom.UserPrincipal;
+import pl.crewops.security.jwt.JwtService;
 import pl.crewops.view.component.grid.BreakdownGrid;
 import pl.crewops.view.component.grid.VehicleGrid;
 import pl.crewops.view.component.mainLayout.MainLayout;
@@ -21,8 +24,21 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
     private final VehicleGrid vehicleGrid;
     private final BreakdownGrid breakdownGrid;
 
-    public VehicleView(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
-        super(coreAPI, jwtInfoService);
+    private UserPrincipal principal;
+
+    public VehicleView(CoreAPI coreAPI, JwtService jwtService) {
+        super(coreAPI, jwtService);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null
+                && authentication.isAuthenticated()
+                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal
+                && jwtService.validToken(userPrincipal.getToken())) {
+
+            this.principal = userPrincipal;
+        }
+
         vehicleGrid = new VehicleGrid(coreAPI);
         vehicleGrid.setSizeFull();
 
@@ -68,7 +84,7 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (!jwtInfoService.validToken()) {
+        if (principal == null || !jwtService.validToken(principal.getToken())) {
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");
         }

@@ -5,13 +5,13 @@ import java.util.Set;
 import java.util.UUID;
 import pl.crewops.auth.CreateAuthUserDTO;
 import pl.crewops.auth.RoleDTO;
-import pl.crewops.auth.RoleType;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.enums.VehicleType;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Qualification;
 import pl.crewops.model.Vehicle;
+import pl.crewops.model.auth.RoleType;
 
 public class AuthTestFactory {
 

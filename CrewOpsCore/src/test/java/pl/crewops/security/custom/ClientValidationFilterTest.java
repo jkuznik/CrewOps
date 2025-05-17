@@ -17,6 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.enums.ControllerURL;
 import pl.crewops.security.config.PasswordEncoderConfig;
 import pl.crewops.security.config.SecurityConfigProperties;
+import pl.crewops.security.cvf.ClientValidationFilter;
 
 @SpringJUnitConfig(
         classes = {

@@ -1,4 +1,4 @@
-package pl.crewops.auth;
+package pl.crewops.model.auth;
 
 public enum RoleType {
     EMPLOYEE,

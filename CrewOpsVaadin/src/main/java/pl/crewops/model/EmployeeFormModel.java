@@ -8,12 +8,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.*;
 import pl.crewops.auth.RoleDTO;
-import pl.crewops.auth.RoleType;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
+import pl.crewops.model.auth.RoleType;
 
 @Getter
 @Setter

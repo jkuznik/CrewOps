@@ -6,16 +6,18 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import pl.crewops.model.auth.RoleGrantedAuthority;
 import pl.crewops.security.config.SecurityConfigProperties;
+import pl.crewops.security.custom.CustomUserPrincipal;
 
 @Slf4j
 @Service
@@ -25,8 +27,16 @@ public class JwtService {
     private final SecurityConfigProperties securityConfigProperties;
 
     public String generateToken(UserDetails userDetails) {
+        var userPrincipal = (CustomUserPrincipal) userDetails;
+
         Map<String, Object> claims = new HashMap<>();
-        claims.put("authorities", userDetails.getAuthorities());
+        claims.put("firstName", userPrincipal.getFirstName());
+        claims.put("lastName", userPrincipal.getLastName());
+        claims.put(
+                "authorities",
+                userPrincipal.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.toList()));
         return Jwts.builder()
                 .claims()
                 .subject(userDetails.getUsername())
@@ -42,6 +52,27 @@ public class JwtService {
         // using extractClaim we can extract the username, or any other claim (those defaults and each custom claim we
         // create), from jwt token
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractFirstName(String token) {
+        return extractClaim(token, claims -> claims.get("firstName", String.class));
+    }
+
+    public String extractLastName(String token) {
+        return extractClaim(token, claims -> claims.get("lastName", String.class));
+    }
+
+    public Collection<? extends GrantedAuthority> extractAuthorities(String token) {
+        Set<?> rawAuthorities = extractClaim(token, claims -> claims.get("authorities", Set.class));
+
+        if (rawAuthorities == null) {
+            return Collections.emptySet();
+        }
+
+        return rawAuthorities.stream()
+                .map(String::valueOf)
+                .map(RoleGrantedAuthority::new)
+                .collect(Collectors.toSet());
     }
 
     public Date extractExpiresAt(String token) {
