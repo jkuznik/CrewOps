@@ -4,13 +4,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import pl.crewops.auth.ValidTokenRequest;
+import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.auth.RoleGrantedAuthority;
 
-public class JwtReader {
+@Slf4j
+@Service
+public class JwtService {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final CoreAPI coreAPI;
 
-    public static Map<String, Object> extractClaims(String token) {
+    public JwtService(CoreAPI coreAPI) {
+        this.coreAPI = coreAPI;
+    }
+
+    public Map<String, Object> extractClaims(String token) {
         try {
             String[] parts = token.split("\\.");
             if (parts.length != 3) {
@@ -25,19 +36,19 @@ public class JwtReader {
         }
     }
 
-    public static String getUsername(String token) {
+    public String getUsername(String token) {
         return (String) extractClaims(token).get("sub");
     }
 
-    public static String getFirstName(String token) {
+    public String getFirstName(String token) {
         return (String) extractClaims(token).get("firstName");
     }
 
-    public static String getLastName(String token) {
+    public String getLastName(String token) {
         return (String) extractClaims(token).get("lastName");
     }
 
-    public static Date getExpiration(String token) {
+    public Date getExpiration(String token) {
         Object exp = extractClaims(token).get("exp");
         if (exp instanceof Number) {
             return new Date(((Number) exp).longValue() * 1000);
@@ -45,7 +56,7 @@ public class JwtReader {
         return null;
     }
 
-    public static Set<RoleGrantedAuthority> getAuthorities(String token) {
+    public Set<RoleGrantedAuthority> getAuthorities(String token) {
         Object authoritiesClaim = extractClaims(token).get("authorities");
         if (authoritiesClaim instanceof List<?>) {
             return ((List<?>) authoritiesClaim)
@@ -57,16 +68,25 @@ public class JwtReader {
         return Collections.emptySet();
     }
 
-    public static boolean isExpired(String token) {
+    public boolean isExpired(String token) {
         Date expiration = getExpiration(token);
         return expiration != null && expiration.before(new Date());
     }
 
-    public static String extractTokenFromRequest(HttpServletRequest request) {
+    public String extractTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
         return null;
+    }
+
+    public boolean validToken(String token) {
+        if (token == null) {
+            return false;
+        }
+        var validTokenResponse = coreAPI.validateToken(new ValidTokenRequest(token));
+
+        return validTokenResponse.valid();
     }
 }

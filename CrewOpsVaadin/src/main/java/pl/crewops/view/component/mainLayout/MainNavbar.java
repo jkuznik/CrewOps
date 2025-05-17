@@ -6,8 +6,11 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.security.jwt.JwtInfoService;
+import pl.crewops.security.custom.UserPrincipal;
+import pl.crewops.security.jwt.JwtService;
 import pl.crewops.view.component.LoggedUserInfoComponent;
 import pl.crewops.view.component.form.LoginForm;
 
@@ -16,16 +19,24 @@ import pl.crewops.view.component.form.LoginForm;
 public class MainNavbar extends HorizontalLayout {
 
     private final CoreAPI coreAPI;
-    private final JwtInfoService jwtInfoService;
+    private final JwtService jwtService;
+    private UserPrincipal principal;
 
-    private boolean tokenValid;
-
-    public MainNavbar(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
+    public MainNavbar(CoreAPI coreAPI, JwtService jwtService) {
         addClassName("main-navbar");
 
         this.coreAPI = coreAPI;
-        this.jwtInfoService = jwtInfoService;
-        tokenValid = jwtInfoService.validToken();
+        this.jwtService = jwtService;
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null
+                && authentication.isAuthenticated()
+                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal
+                && jwtService.validToken(userPrincipal.getToken())) {
+
+            this.principal = userPrincipal;
+        }
 
         setSizeFull();
         setSpacing(true);
@@ -41,11 +52,11 @@ public class MainNavbar extends HorizontalLayout {
         rightSide.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         rightSide.getStyle().set("padding-right", "20px");
 
-        if (tokenValid) {
-            LoggedUserInfoComponent loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI, jwtInfoService);
+        if (principal == null || jwtService.validToken(principal.getToken())) {
+            LoggedUserInfoComponent loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI, jwtService);
             rightSide.add(loggedUserInfoComponent);
         } else {
-            LoginForm loginForm = new LoginForm(coreAPI, jwtInfoService);
+            LoginForm loginForm = new LoginForm(coreAPI, jwtService);
             rightSide.add(loginForm);
         }
 

@@ -8,14 +8,18 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.security.jwt.JwtInfoService;
+import pl.crewops.security.custom.UserPrincipal;
+import pl.crewops.security.jwt.JwtService;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.LoginForm;
 import pl.crewops.view.component.notification.EndSessionNotification;
@@ -24,19 +28,28 @@ import pl.crewops.view.component.notification.EndSessionNotification;
 public class LoggedUserInfoComponent extends HorizontalLayout {
     private static final Map<UI, Boolean> startedMap = new WeakHashMap<>();
     private boolean sessionEnded = false;
+    private UserPrincipal principal;
+    private Authentication authentication;
 
-    public LoggedUserInfoComponent(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
+    public LoggedUserInfoComponent(CoreAPI coreAPI, JwtService jwtService) {
         addClassName("logged-user-info");
 
-        if (jwtInfoService.validToken()) {
-            add(loggedUserInfo(jwtInfoService));
+        this.authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null
+                && authentication.isAuthenticated()
+                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal
+                && jwtService.validToken(userPrincipal.getToken())) {
+
+            this.principal = userPrincipal;
+            add(loggedUserInfo(coreAPI, jwtService));
+
         } else {
-            LoginForm loginForm = new LoginForm(coreAPI, jwtInfoService);
-            add(loginForm);
+            add(new LoginForm(coreAPI, jwtService));
         }
     }
 
-    private Component loggedUserInfo(JwtInfoService jwtInfoService) {
+    private Component loggedUserInfo(CoreAPI coreAPI, JwtService jwtService) {
         var infoLayout = new HorizontalLayout();
         infoLayout.setWidthFull();
         infoLayout.setSpacing(true);
@@ -44,15 +57,16 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         H1 title = new H1("You are logged as ");
 
         Button logoutButton = new Button("Logout");
-        logoutButton.addClickListener(event -> logout(jwtInfoService));
+        logoutButton.addClickListener(event -> logout(coreAPI));
         logoutButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
-        infoLayout.add(title, getInfo(jwtInfoService), logoutButton);
+        infoLayout.add(title, getInfo(jwtService), logoutButton);
         return infoLayout;
     }
 
-    private Component getInfo(JwtInfoService jwtInfoService) {
-        Span userInfo = new Span(jwtInfoService.getFirstName() + " " + jwtInfoService.getLastName());
+    private Component getInfo(JwtService jwtService) {
+        Span userInfo = new Span(
+                jwtService.getFirstName(principal.getToken()) + " " + jwtService.getLastName(principal.getToken()));
         Span countdown = new Span();
         countdown.getStyle().set("font-weight", "bold");
         countdown.getStyle().set("margin-left", "1rem");
@@ -62,7 +76,8 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         container.getStyle().set("align-items", "center");
         container.getStyle().set("gap", "1rem");
 
-        long expiryEpoch = jwtInfoService.getExpires().toInstant().getEpochSecond();
+        long expiryEpoch =
+                jwtService.getExpiration(principal.getToken()).toInstant().getEpochSecond();
         UI ui = UI.getCurrent();
 
         // 🔒 Zapobiegaj wielokrotnemu uruchamianiu timera dla jednej sesji
@@ -83,7 +98,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                         ui.access(() -> {
                             countdown.setText("Token expired");
                             new EndSessionNotification(ui, () -> {
-                                        jwtInfoService.resetAuthentication();
+                                        authentication.setAuthenticated(false);
                                         String currentLocation = ui.getInternals()
                                                 .getActiveViewLocation()
                                                 .getPath();
@@ -114,8 +129,14 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         return String.format("%02d:%02d", mins, secs);
     }
 
-    private void logout(JwtInfoService jwtInfoService) {
-        jwtInfoService.resetAuthentication();
-        UI.getCurrent().navigate(HomeView.class);
+    private void logout(CoreAPI coreAPI) {
+        authentication.setAuthenticated(false);
+        coreAPI.setAuthentication(false);
+        UI ui = UI.getCurrent();
+        ui.access(() -> {
+            SecurityContextHolder.clearContext();
+            VaadinSession.getCurrent().close();
+            ui.getPage().reload();
+        });
     }
 }

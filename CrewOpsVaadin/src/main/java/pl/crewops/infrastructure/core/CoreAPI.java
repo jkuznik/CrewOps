@@ -80,5 +80,5 @@ public interface CoreAPI {
 
     void setToken(@NotNull String token);
 
-    void resetToken();
+    void setAuthentication(boolean authenticated);
 }

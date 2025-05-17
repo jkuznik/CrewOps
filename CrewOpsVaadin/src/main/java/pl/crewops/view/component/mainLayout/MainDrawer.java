@@ -7,11 +7,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.security.jwt.JwtInfoService;
+import pl.crewops.security.custom.UserPrincipal;
+import pl.crewops.security.jwt.JwtService;
 import pl.crewops.view.EmployeeView;
 import pl.crewops.view.HomeView;
-// import pl.crewops.view.QualificationView;
 import pl.crewops.view.VehicleView;
 
 @SpringComponent
@@ -20,17 +22,24 @@ import pl.crewops.view.VehicleView;
 public class MainDrawer extends VerticalLayout {
 
     private final CoreAPI coreAPI;
-    private final JwtInfoService jwtInfoService;
+    private final JwtService jwtService;
+    private UserPrincipal principal;
 
-    private boolean tokenValid;
-
-    public MainDrawer(CoreAPI coreAPI, JwtInfoService jwtInfoService) {
+    public MainDrawer(CoreAPI coreAPI, JwtService jwtService) {
         addClassName("main-drawer");
 
         this.coreAPI = coreAPI;
-        this.jwtInfoService = jwtInfoService;
+        this.jwtService = jwtService;
 
-        tokenValid = jwtInfoService.validToken();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null
+                && authentication.isAuthenticated()
+                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal
+                && jwtService.validToken(userPrincipal.getToken())) {
+
+            this.principal = userPrincipal;
+        }
 
         setSizeFull();
         setSpacing(true);
@@ -70,14 +79,14 @@ public class MainDrawer extends VerticalLayout {
 
     //    private void checkDrawer(RouterLink employeeLink, RouterLink qualificationLink, RouterLink vehicleLink) {
     private void checkDrawer(RouterLink employeeLink, RouterLink vehicleLink) {
-        if (tokenValid) {
-            employeeLink.setVisible(true);
-            //            qualificationLink.setVisible(true);
-            vehicleLink.setVisible(true);
-        } else {
+        if (principal == null || !jwtService.validToken(principal.getToken())) {
             employeeLink.setVisible(false);
-            //            qualificationLink.setVisible(false);
+            //            qualificationLink.setVisible(true);
             vehicleLink.setVisible(false);
+        } else {
+            employeeLink.setVisible(true);
+            //            qualificationLink.setVisible(false);
+            vehicleLink.setVisible(true);
         }
     }
 }

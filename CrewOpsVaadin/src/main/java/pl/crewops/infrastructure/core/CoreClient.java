@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
@@ -37,6 +39,8 @@ class CoreClient implements CoreAPI {
     private final RestClient coreClient;
     private RestClient authorizedClient;
 
+    @Getter
+    @Setter
     private boolean authenticated;
 
     public AuthResponse login(AuthRequest authRequest) {
@@ -354,15 +358,15 @@ class CoreClient implements CoreAPI {
     }
 
     public void setToken(String token) {
-        authenticated = true;
         authorizedClient = coreClient
                 .mutate()
                 .defaultHeader("Authorization", "Bearer " + token)
                 .build();
     }
 
-    public void resetToken() {
-        authenticated = false;
+    @Override
+    public void setAuthentication(boolean authenticated) {
+        this.authenticated = authenticated;
     }
 
     private void isAuthenticated() throws NotAuthenticatedException {
