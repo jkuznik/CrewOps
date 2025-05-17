@@ -32,7 +32,11 @@ public class JwtService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("firstName", userPrincipal.getFirstName());
         claims.put("lastName", userPrincipal.getLastName());
-        claims.put("authorities", userPrincipal.getAuthorities());
+        claims.put(
+                "authorities",
+                userPrincipal.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.toList()));
         return Jwts.builder()
                 .claims()
                 .subject(userDetails.getUsername())

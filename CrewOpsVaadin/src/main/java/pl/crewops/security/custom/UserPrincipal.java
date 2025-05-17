@@ -3,41 +3,34 @@ package pl.crewops.security.custom;
 import java.util.Collection;
 import java.util.Set;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import pl.crewops.security.jwt.JwtService;
+import pl.crewops.model.auth.RoleGrantedAuthority;
 
 @AllArgsConstructor
 public class UserPrincipal implements CustomUserPrincipal {
 
-    private final String token;
-    private final JwtService jwtService;
-
-    private final Set<GrantedAuthority> grantedAuthorities;
-
-    public UserPrincipal(JwtService jwtService, String token, Set<GrantedAuthority> grantedAuthorities) {
-        this.jwtService = jwtService;
-        this.token = token;
-        this.grantedAuthorities = grantedAuthorities;
-    }
+    private final String username;
+    private final String firstName;
+    private final String lastName;
+    private final Set<RoleGrantedAuthority> grantedAuthorities;
 
     @Override
     public String getFirstName() {
-        return jwtService.extractFirstName(token);
+        return firstName;
     }
 
     @Override
     public String getLastName() {
-        return jwtService.extractLastName(token);
+        return lastName;
     }
 
     @Override
     public String getUsername() {
-        return jwtService.extractUsername(token);
+        return username;
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return jwtService.extractAuthorities(token);
+    public Collection<RoleGrantedAuthority> getAuthorities() {
+        return grantedAuthorities;
     }
 
     @Override
