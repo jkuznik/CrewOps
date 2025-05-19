@@ -91,6 +91,8 @@ class BreakdownService implements BreakdownAPI {
 
         if (updateBreakdownDTO.solved()) {
             Employee employee = employeeAPI.getEmployee(updateBreakdownDTO.repairedByEmployeeId());
+            Vehicle vehicle = vehicleAPI.getVehicle(breakdown.getVehicle().getId());
+            vehicle.setBroken(false);
             breakdown.setSolved(true);
             breakdown.setRepairedBy(employee);
             breakdown.setSolvedAt(Instant.now());
