@@ -81,6 +81,7 @@ class BreakdownServiceTest {
         // when
         when(breakdownRepository.findById(any())).thenReturn(Optional.of(getBreakdown()));
         when(employeeAPI.getEmployee(any(UUID.class))).thenReturn(getEmployee());
+        when(vehicleAPI.getVehicle(any())).thenReturn(getVehicle());
         when(breakdownRepository.save(any(Breakdown.class))).thenReturn(getBreakdown());
 
         // then

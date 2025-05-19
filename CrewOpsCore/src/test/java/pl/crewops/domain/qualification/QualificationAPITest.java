@@ -26,6 +26,6 @@ class QualificationAPITest extends IntegrationTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(qualificationId);
-        assertThat(result.getDescription()).isEqualTo("Heavy Machinery Operator");
+        assertThat(result.getDescription()).isEqualTo("Operator maszyn ciężkich – uprawnienia kat. I");
     }
 }

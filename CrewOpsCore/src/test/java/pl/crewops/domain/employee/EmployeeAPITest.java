@@ -52,7 +52,7 @@ class EmployeeAPITest extends IntegrationTest {
 
         // then
         assertThat(result.firstName()).isEqualTo("Jan");
-        assertThat(result.lastName()).isEqualTo("Doe");
+        assertThat(result.lastName()).isEqualTo("Kowalski");
         assertThat(result.phoneNumber()).isEqualTo("987654321");
         assertThat(result.department()).isEqualTo("foo");
     }
