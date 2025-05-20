@@ -39,6 +39,7 @@ public class VehicleForm extends FormLayout {
     Button close = new Button("Close");
 
     Button reportBreakdown = new Button("Report Breakdown");
+    Button breakdownsList = new Button("Breakdowns List");
 
     Binder<VehicleFormModel> binder = new Binder<>(VehicleFormModel.class);
 
@@ -60,12 +61,16 @@ public class VehicleForm extends FormLayout {
     public void setFormModeSave() {
         save.setVisible(true);
         update.setVisible(false);
+        reportBreakdown.setVisible(false);
+        breakdownsList.setVisible(false);
         delete.setVisible(false);
     }
 
     public void setFormModeUpdate() {
         save.setVisible(false);
         update.setVisible(true);
+        reportBreakdown.setVisible(true);
+        breakdownsList.setVisible(true);
         delete.setVisible(true);
     }
 
@@ -73,8 +78,11 @@ public class VehicleForm extends FormLayout {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         update.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        close.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        close.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         reportBreakdown.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        reportBreakdown.setSizeFull();
+        breakdownsList.addThemeVariants(ButtonVariant.LUMO_WARNING);
+        breakdownsList.setSizeFull();
 
         save.addClickShortcut(Key.ENTER);
         close.addClickShortcut(Key.ESCAPE);
@@ -88,7 +96,7 @@ public class VehicleForm extends FormLayout {
         binder.addStatusChangeListener(event -> save.setEnabled(binder.isValid()));
 
         var buttonsLayout = new HorizontalLayout(save, update, delete, close);
-        return new VerticalLayout(buttonsLayout, reportBreakdown);
+        return new VerticalLayout(buttonsLayout, reportBreakdown, breakdownsList);
     }
 
     private void validateAndSave() {

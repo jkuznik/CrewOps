@@ -31,11 +31,10 @@ public class VehicleGrid extends VerticalLayout {
     private final Grid<VehicleFormModel> grid = new Grid<>(VehicleFormModel.class);
     private final TextField filter = new TextField();
     private final VehicleForm vehicleForm = new VehicleForm();
-    private final BreakdownForm breakdownForm;
+    private final BreakdownForm breakdownForm = new BreakdownForm();
 
     public VehicleGrid(CoreAPI coreAPI) {
         this.coreAPI = coreAPI;
-        breakdownForm = new BreakdownForm();
 
         configureGrid();
         configureForm();
