@@ -14,14 +14,17 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.flow.spring.annotation.SpringComponent;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.stream.IntStream;
 import pl.crewops.model.VehicleFormModel;
+import pl.crewops.view.component.grid.BreakdownGrid;
+import pl.crewops.view.component.grid.VehicleGrid;
 
-@SpringComponent
 public class VehicleForm extends FormLayout {
+    private final VehicleGrid vehicleGrid;
+    private final BreakdownGrid breakdownGrid;
+
     // TODO: implement text field setEnable(false) for update action
     TextField registrationNumber = new TextField("Registration Number");
     // TODO: implement this
@@ -39,11 +42,15 @@ public class VehicleForm extends FormLayout {
     Button close = new Button("Close");
 
     Button reportBreakdown = new Button("Report Breakdown");
+    Button breakdownsList = new Button("Breakdowns List");
 
     Binder<VehicleFormModel> binder = new Binder<>(VehicleFormModel.class);
 
-    public VehicleForm() {
+    public VehicleForm(VehicleGrid vehicleGrid, BreakdownGrid breakdownGrid) {
         addClassName("vehicle-form");
+
+        this.vehicleGrid = vehicleGrid;
+        this.breakdownGrid = breakdownGrid;
 
         binder.bindInstanceFields(this);
 
@@ -60,12 +67,16 @@ public class VehicleForm extends FormLayout {
     public void setFormModeSave() {
         save.setVisible(true);
         update.setVisible(false);
+        reportBreakdown.setVisible(false);
+        breakdownsList.setVisible(false);
         delete.setVisible(false);
     }
 
     public void setFormModeUpdate() {
         save.setVisible(false);
         update.setVisible(true);
+        reportBreakdown.setVisible(true);
+        breakdownsList.setVisible(true);
         delete.setVisible(true);
     }
 
@@ -73,8 +84,11 @@ public class VehicleForm extends FormLayout {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         update.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        close.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        close.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         reportBreakdown.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        reportBreakdown.setSizeFull();
+        breakdownsList.addThemeVariants(ButtonVariant.LUMO_WARNING);
+        breakdownsList.setSizeFull();
 
         save.addClickShortcut(Key.ENTER);
         close.addClickShortcut(Key.ESCAPE);
@@ -84,11 +98,12 @@ public class VehicleForm extends FormLayout {
         delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
         close.addClickListener(event -> fireEvent(new CloseEvent(this)));
         reportBreakdown.addClickListener(event -> fireEvent(new ReportBreakdown(this, binder.getBean())));
+        breakdownsList.addClickListener(event -> displayBreakdowns(vehicleGrid, breakdownGrid));
 
         binder.addStatusChangeListener(event -> save.setEnabled(binder.isValid()));
 
         var buttonsLayout = new HorizontalLayout(save, update, delete, close);
-        return new VerticalLayout(buttonsLayout, reportBreakdown);
+        return new VerticalLayout(buttonsLayout, reportBreakdown, breakdownsList);
     }
 
     private void validateAndSave() {
@@ -110,6 +125,10 @@ public class VehicleForm extends FormLayout {
         if (binder.isValid()) {
             fireEvent(new UpdateEvent(this, binder.getBean()));
         }
+    }
+
+    public void displayBreakdowns(VehicleGrid vehicleGrid, BreakdownGrid breakdownGrid) {
+        fireEvent(new DisplayBreakdownsEvent(vehicleGrid, breakdownGrid));
     }
 
     public void setVehicle(VehicleFormModel vehicleFormModel) {
@@ -162,6 +181,13 @@ public class VehicleForm extends FormLayout {
 
         ReportBreakdown(VehicleForm source, VehicleFormModel vehicleFormModel) {
             super(source, vehicleFormModel);
+        }
+    }
+
+    public static class DisplayBreakdownsEvent extends VehicleGrid.VehicleGridEvent {
+
+        DisplayBreakdownsEvent(VehicleGrid source, BreakdownGrid breakdownGrid) {
+            super(source, breakdownGrid);
         }
     }
 

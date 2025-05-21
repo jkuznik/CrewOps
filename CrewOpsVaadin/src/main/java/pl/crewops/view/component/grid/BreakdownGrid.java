@@ -41,6 +41,11 @@ public class BreakdownGrid extends VerticalLayout {
         form.setVisible(false);
     }
 
+    public void setFilter(String value) {
+        filter.setValue(value);
+        updateBreakdownGrid();
+    }
+
     private HorizontalLayout getContent() {
         var content = new HorizontalLayout(grid, form);
         content.setSizeFull();

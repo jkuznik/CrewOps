@@ -38,13 +38,12 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
 
             this.principal = userPrincipal;
         }
-
-        vehicleGrid = new VehicleGrid(coreAPI);
-        vehicleGrid.setSizeFull();
-
         breakdownGrid = new BreakdownGrid(coreAPI);
         breakdownGrid.setSizeFull();
         breakdownGrid.setVisible(false);
+
+        vehicleGrid = new VehicleGrid(coreAPI, breakdownGrid);
+        vehicleGrid.setSizeFull();
 
         addClassName("vehicle-view");
 
@@ -78,6 +77,7 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
         vehicleGrid.setVisible(false);
 
         breakdownGrid.closeEditor();
+        breakdownGrid.setFilter("");
         breakdownGrid.updateBreakdownGrid();
         breakdownGrid.setVisible(true);
     }
