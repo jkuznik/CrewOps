@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.infrastructure.localization.CustomI18NProvider;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtService;
 import pl.crewops.view.component.grid.BreakdownGrid;
@@ -26,8 +27,8 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
 
     private UserPrincipal principal;
 
-    public VehicleView(CoreAPI coreAPI, JwtService jwtService) {
-        super(coreAPI, jwtService);
+    public VehicleView(CoreAPI coreAPI, JwtService jwtService, CustomI18NProvider customI18NProvider) {
+        super(coreAPI, jwtService, customI18NProvider);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

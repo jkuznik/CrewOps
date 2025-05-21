@@ -8,7 +8,9 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import java.util.Locale;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.infrastructure.localization.CustomI18NProvider;
 import pl.crewops.security.jwt.JwtService;
 import pl.crewops.view.component.mainLayout.MainLayout;
 
@@ -16,8 +18,13 @@ import pl.crewops.view.component.mainLayout.MainLayout;
 @PageTitle("Crew Ops")
 public class HomeView extends MainLayout {
 
-    public HomeView(CoreAPI coreAPI, JwtService jwtService) {
-        super(coreAPI, jwtService);
+    private final CustomI18NProvider customI18NProvider;
+    private final Locale currentLocale = new Locale("pl", "PL"); // wymuszony język polski
+
+    public HomeView(CoreAPI coreAPI, JwtService jwtService, CustomI18NProvider customI18NProvider) {
+        super(coreAPI, jwtService, customI18NProvider);
+        this.customI18NProvider = customI18NProvider;
+
         addClassName("home-view");
 
         mainContent.removeAll();
@@ -34,11 +41,13 @@ public class HomeView extends MainLayout {
         currentContent.setSpacing(true);
         currentContent.getStyle().set("overflow", "auto");
 
-        H1 title = new H1("Home view content");
+        String titleText = customI18NProvider.getTranslation("homeView.title", currentLocale);
+        H1 title = new H1(titleText);
         currentContent.add(title);
 
         for (int i = 1; i <= 50; i++) {
-            currentContent.add(new Span("Text line " + i));
+            String lineText = customI18NProvider.getTranslation("homeView.line", currentLocale, i);
+            currentContent.add(new Span(lineText));
         }
 
         return currentContent;
@@ -52,22 +61,22 @@ public class HomeView extends MainLayout {
                 .getPage()
                 .executeJs(
                         """
-                const content = document.getElementById('view-content');
-                const footer = document.getElementById('footer');
-                content.addEventListener('scroll', function() {
-                    // Percentage of content scroll
-                    const scrollTop = content.scrollTop;
-                    const scrollHeight = content.scrollHeight;
-                    const clientHeight = content.clientHeight;
-                    const scrolledPercentage = (scrollTop + clientHeight) / scrollHeight;
+                        const content = document.getElementById('view-content');
+                        const footer = document.getElementById('footer');
+                        content.addEventListener('scroll', function() {
+                            // Percentage of content scroll
+                            const scrollTop = content.scrollTop;
+                            const scrollHeight = content.scrollHeight;
+                            const clientHeight = content.clientHeight;
+                            const scrolledPercentage = (scrollTop + clientHeight) / scrollHeight;
 
-                    if (scrolledPercentage >= 0.95) {
-                        $0.$server.showFooter(true);
-                    } else {
-                        $0.$server.showFooter(false);
-                    }
-                });
-                """,
+                            if (scrolledPercentage >= 0.95) {
+                                $0.$server.showFooter(true);
+                            } else {
+                                $0.$server.showFooter(false);
+                            }
+                        });
+                        """,
                         getElement());
     }
 
