@@ -1,5 +1,7 @@
 package pl.crewops.view.component.grid;
 
+import com.vaadin.flow.component.ComponentEvent;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -7,6 +9,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.shared.Registration;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -30,14 +33,19 @@ public class VehicleGrid extends VerticalLayout {
 
     private final Grid<VehicleFormModel> grid = new Grid<>(VehicleFormModel.class);
     private final TextField filter = new TextField();
-    private final VehicleForm vehicleForm = new VehicleForm();
+    private final VehicleForm vehicleForm;
     private final BreakdownForm breakdownForm = new BreakdownForm();
+    private VehicleFormModel selectedModel;
 
-    public VehicleGrid(CoreAPI coreAPI) {
+    public VehicleGrid(CoreAPI coreAPI, BreakdownGrid breakdownGrid) {
         this.coreAPI = coreAPI;
+        this.vehicleForm = new VehicleForm(this, breakdownGrid);
 
         configureGrid();
         configureForm();
+        this.addDisplayBreakdownsListener(event -> {
+            displayBreakdowns(this, breakdownGrid);
+        });
 
         updateVehicleGrid();
         closeEditor();
@@ -50,6 +58,10 @@ public class VehicleGrid extends VerticalLayout {
         vehicleForm.setVehicle(null);
         vehicleForm.setVisible(false);
         breakdownForm.setVisible(false);
+    }
+
+    public VehicleFormModel getSelectedVehicle() {
+        return selectedModel;
     }
 
     private HorizontalLayout getContent() {
@@ -83,6 +95,7 @@ public class VehicleGrid extends VerticalLayout {
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 
         grid.asSingleSelect().addValueChangeListener(event -> {
+            selectedModel = event.getValue();
             editVehicle(event.getValue());
         });
     }
@@ -217,5 +230,31 @@ public class VehicleGrid extends VerticalLayout {
         breakdownForm.setBreakdown(breakdownFormModel);
         breakdownForm.setFormModeSave();
         breakdownForm.setVisible(true);
+    }
+
+    public void displayBreakdowns(VehicleGrid vehicleGrid, BreakdownGrid breakdownGrid) {
+        fireEvent(new DisplayBreakdownsEvent(vehicleGrid, breakdownGrid));
+    }
+
+    public abstract static class VehicleGridEvent extends ComponentEvent<VehicleGrid> {
+
+        protected VehicleGridEvent(VehicleGrid source, BreakdownGrid breakdownGrid) {
+            super(source, false);
+
+            source.setVisible(false);
+            breakdownGrid.setFilter(source.getSelectedVehicle().getRegistrationNumber());
+            breakdownGrid.setVisible(true);
+        }
+    }
+
+    public static class DisplayBreakdownsEvent extends VehicleGridEvent {
+
+        DisplayBreakdownsEvent(VehicleGrid source, BreakdownGrid breakdownGrid) {
+            super(source, breakdownGrid);
+        }
+    }
+
+    public Registration addDisplayBreakdownsListener(ComponentEventListener<DisplayBreakdownsEvent> listener) {
+        return addListener(DisplayBreakdownsEvent.class, listener);
     }
 }

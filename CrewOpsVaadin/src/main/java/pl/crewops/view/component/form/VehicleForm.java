@@ -14,14 +14,17 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.flow.spring.annotation.SpringComponent;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.stream.IntStream;
 import pl.crewops.model.VehicleFormModel;
+import pl.crewops.view.component.grid.BreakdownGrid;
+import pl.crewops.view.component.grid.VehicleGrid;
 
-@SpringComponent
 public class VehicleForm extends FormLayout {
+    private final VehicleGrid vehicleGrid;
+    private final BreakdownGrid breakdownGrid;
+
     // TODO: implement text field setEnable(false) for update action
     TextField registrationNumber = new TextField("Registration Number");
     // TODO: implement this
@@ -43,8 +46,11 @@ public class VehicleForm extends FormLayout {
 
     Binder<VehicleFormModel> binder = new Binder<>(VehicleFormModel.class);
 
-    public VehicleForm() {
+    public VehicleForm(VehicleGrid vehicleGrid, BreakdownGrid breakdownGrid) {
         addClassName("vehicle-form");
+
+        this.vehicleGrid = vehicleGrid;
+        this.breakdownGrid = breakdownGrid;
 
         binder.bindInstanceFields(this);
 
@@ -92,6 +98,7 @@ public class VehicleForm extends FormLayout {
         delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
         close.addClickListener(event -> fireEvent(new CloseEvent(this)));
         reportBreakdown.addClickListener(event -> fireEvent(new ReportBreakdown(this, binder.getBean())));
+        breakdownsList.addClickListener(event -> displayBreakdowns(vehicleGrid, breakdownGrid));
 
         binder.addStatusChangeListener(event -> save.setEnabled(binder.isValid()));
 
@@ -118,6 +125,10 @@ public class VehicleForm extends FormLayout {
         if (binder.isValid()) {
             fireEvent(new UpdateEvent(this, binder.getBean()));
         }
+    }
+
+    public void displayBreakdowns(VehicleGrid vehicleGrid, BreakdownGrid breakdownGrid) {
+        fireEvent(new DisplayBreakdownsEvent(vehicleGrid, breakdownGrid));
     }
 
     public void setVehicle(VehicleFormModel vehicleFormModel) {
@@ -170,6 +181,13 @@ public class VehicleForm extends FormLayout {
 
         ReportBreakdown(VehicleForm source, VehicleFormModel vehicleFormModel) {
             super(source, vehicleFormModel);
+        }
+    }
+
+    public static class DisplayBreakdownsEvent extends VehicleGrid.VehicleGridEvent {
+
+        DisplayBreakdownsEvent(VehicleGrid source, BreakdownGrid breakdownGrid) {
+            super(source, breakdownGrid);
         }
     }
 
