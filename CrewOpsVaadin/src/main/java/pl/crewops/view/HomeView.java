@@ -19,7 +19,7 @@ import pl.crewops.view.component.mainLayout.MainLayout;
 public class HomeView extends MainLayout {
 
     private final CustomI18NProvider customI18NProvider;
-    private final Locale currentLocale = new Locale("pl", "PL"); // wymuszony język polski
+    private final Locale currentLocale = new Locale("pl", "PL");
 
     public HomeView(CoreAPI coreAPI, JwtService jwtService, CustomI18NProvider customI18NProvider) {
         super(coreAPI, jwtService, customI18NProvider);

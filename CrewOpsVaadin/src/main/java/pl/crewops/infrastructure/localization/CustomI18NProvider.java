@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class CustomI18NProvider implements I18NProvider {
 
     private static final String BUNDLE_PREFIX = "i18n/messages";
-    private final List<Locale> supportedLocales = List.of(Locale.ENGLISH, new Locale("pl", "PL"));
+    private final List<Locale> supportedLocales = List.of(new Locale("en", "US"), new Locale("pl", "PL"));
 
     @Override
     public List<Locale> getProvidedLocales() {
