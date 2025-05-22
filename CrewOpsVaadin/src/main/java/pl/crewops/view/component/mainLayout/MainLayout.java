@@ -1,11 +1,11 @@
 package pl.crewops.view.component.mainLayout;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
-import java.util.Locale;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.infrastructure.localization.CustomI18NProvider;
@@ -30,8 +30,7 @@ public class MainLayout extends AppLayout {
         this.jwtService = jwtService;
         this.customI18NProvider = customI18NProvider;
 
-        //        customI18NProvider.setCurrentLocale(UI.getCurrent().getLocale());
-        customI18NProvider.setCurrentLocale(new Locale("de", "DE"));
+        customI18NProvider.setCurrentLocale(UI.getCurrent().getLocale());
 
         mainContent.setSizeFull();
         mainContent.setSpacing(true);
@@ -40,6 +39,6 @@ public class MainLayout extends AppLayout {
         setContent(mainContent);
 
         addToNavbar(new MainNavbar(coreAPI, jwtService));
-        addToDrawer(new MainDrawer(coreAPI, jwtService, customI18NProvider));
+        addToDrawer(new MainDrawer(jwtService, customI18NProvider));
     }
 }

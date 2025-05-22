@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
@@ -41,11 +42,14 @@ public class EmployeeForm extends FormLayout {
     public EmployeeForm() {
         addClassName("employee-form");
 
+        localize();
+
         roles.setItems(Arrays.stream(RoleType.values())
                 .filter(role -> role != RoleType.ADMIN)
                 .toList());
         roles.setRenderer(
                 new TextRenderer<>(role -> role.name().replace("_", " ").toLowerCase()));
+
         qualifications = new QualificationAccordion();
         vehicles = new VehicleAccordion();
 
@@ -61,6 +65,24 @@ public class EmployeeForm extends FormLayout {
                 qualifications,
                 vehicles,
                 createButtonsLayout());
+    }
+
+    private void localize() {
+        firstName.setLabel(t("employeeForm.firstName"));
+        lastName.setLabel(t("employeeForm.lastName"));
+        birthDate.setLabel(t("employeeForm.birthDate"));
+        phoneNumber.setLabel(t("employeeForm.phoneNumber"));
+        department.setLabel(t("employeeForm.department"));
+        roles.setLabel(t("employeeForm.roles"));
+
+        save.setText(t("employeeForm.save"));
+        update.setText(t("employeeForm.update"));
+        delete.setText(t("employeeForm.delete"));
+        close.setText(t("employeeForm.cancel"));
+    }
+
+    private String t(String key, Object... params) {
+        return UI.getCurrent().getTranslation(key, params);
     }
 
     private Component createButtonsLayout() {
@@ -143,7 +165,7 @@ public class EmployeeForm extends FormLayout {
     // Events
     public abstract static class EmployeeFormEvent extends ComponentEvent<EmployeeForm> {
 
-        private EmployeeFormModel employeeFormModel;
+        private final EmployeeFormModel employeeFormModel;
 
         protected EmployeeFormEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
             super(source, false);
@@ -156,28 +178,24 @@ public class EmployeeForm extends FormLayout {
     }
 
     public static class SaveEvent extends EmployeeFormEvent {
-
         SaveEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
             super(source, employeeFormModel);
         }
     }
 
     public static class UpdateEvent extends EmployeeFormEvent {
-
         UpdateEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
             super(source, employeeFormModel);
         }
     }
 
     public static class DeleteEvent extends EmployeeFormEvent {
-
         DeleteEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
             super(source, employeeFormModel);
         }
     }
 
     public static class CloseEvent extends EmployeeFormEvent {
-
         CloseEvent(EmployeeForm source) {
             super(source, null);
         }

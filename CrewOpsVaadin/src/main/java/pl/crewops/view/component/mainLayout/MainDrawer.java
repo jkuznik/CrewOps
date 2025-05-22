@@ -9,7 +9,6 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.infrastructure.localization.CustomI18NProvider;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtService;
@@ -22,15 +21,13 @@ import pl.crewops.view.VehicleView;
 @CssImport("./styles/mainStyles/main-drawer.css")
 public class MainDrawer extends VerticalLayout {
 
-    private final CoreAPI coreAPI;
     private final JwtService jwtService;
     private final CustomI18NProvider i18nProvider;
     private UserPrincipal principal;
 
-    public MainDrawer(CoreAPI coreAPI, JwtService jwtService, CustomI18NProvider customI18NProvider) {
+    public MainDrawer(JwtService jwtService, CustomI18NProvider customI18NProvider) {
         addClassName("main-drawer");
 
-        this.coreAPI = coreAPI;
         this.jwtService = jwtService;
         this.i18nProvider = customI18NProvider;
 
