@@ -68,20 +68,20 @@ public class EmployeeForm extends FormLayout {
     }
 
     private void localize() {
-        firstName.setLabel(t("employeeForm.firstName"));
-        lastName.setLabel(t("employeeForm.lastName"));
-        birthDate.setLabel(t("employeeForm.birthDate"));
-        phoneNumber.setLabel(t("employeeForm.phoneNumber"));
-        department.setLabel(t("employeeForm.department"));
-        roles.setLabel(t("employeeForm.roles"));
+        firstName.setLabel(getMessage("employeeForm.firstName"));
+        lastName.setLabel(getMessage("employeeForm.lastName"));
+        birthDate.setLabel(getMessage("employeeForm.birthDate"));
+        phoneNumber.setLabel(getMessage("employeeForm.phoneNumber"));
+        department.setLabel(getMessage("employeeForm.department"));
+        roles.setLabel(getMessage("employeeForm.roles"));
 
-        save.setText(t("employeeForm.save"));
-        update.setText(t("employeeForm.update"));
-        delete.setText(t("employeeForm.delete"));
-        close.setText(t("employeeForm.cancel"));
+        save.setText(getMessage("employeeForm.save"));
+        update.setText(getMessage("employeeForm.update"));
+        delete.setText(getMessage("employeeForm.delete"));
+        close.setText(getMessage("employeeForm.close"));
     }
 
-    private String t(String key, Object... params) {
+    private String getMessage(String key, Object... params) {
         return UI.getCurrent().getTranslation(key, params);
     }
 

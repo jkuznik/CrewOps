@@ -32,6 +32,7 @@ public class BreakdownForm extends FormLayout {
         addClassName("breakdown-form");
 
         localize();
+
         configureBinder();
 
         add(vehicle, description, solved, critical, createButtonsLayout());
