@@ -5,17 +5,21 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 @Component
+@Getter
+@Setter
 public class CustomI18NProvider implements I18NProvider {
 
     private static final String BUNDLE_PREFIX = "i18n/messages";
-    private final List<Locale> supportedLocales = List.of(new Locale("en", "US"), new Locale("pl", "PL"));
+    private Locale currentLocale = new Locale("de", "DE");
 
     @Override
     public List<Locale> getProvidedLocales() {
-        return supportedLocales;
+        return List.of(new Locale("en", "US"), new Locale("pl", "PL"), new Locale("de", "DE"));
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
+import java.util.Locale;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.infrastructure.localization.CustomI18NProvider;
@@ -28,6 +29,9 @@ public class MainLayout extends AppLayout {
         this.coreAPI = coreAPI;
         this.jwtService = jwtService;
         this.customI18NProvider = customI18NProvider;
+
+        //        customI18NProvider.setCurrentLocale(UI.getCurrent().getLocale());
+        customI18NProvider.setCurrentLocale(new Locale("de", "DE"));
 
         mainContent.setSizeFull();
         mainContent.setSpacing(true);

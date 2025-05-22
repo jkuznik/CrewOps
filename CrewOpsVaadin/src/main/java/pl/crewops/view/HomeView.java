@@ -8,7 +8,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import java.util.Locale;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.infrastructure.localization.CustomI18NProvider;
 import pl.crewops.security.jwt.JwtService;
@@ -19,7 +18,6 @@ import pl.crewops.view.component.mainLayout.MainLayout;
 public class HomeView extends MainLayout {
 
     private final CustomI18NProvider customI18NProvider;
-    private final Locale currentLocale = new Locale("pl", "PL");
 
     public HomeView(CoreAPI coreAPI, JwtService jwtService, CustomI18NProvider customI18NProvider) {
         super(coreAPI, jwtService, customI18NProvider);
@@ -41,12 +39,13 @@ public class HomeView extends MainLayout {
         currentContent.setSpacing(true);
         currentContent.getStyle().set("overflow", "auto");
 
-        String titleText = customI18NProvider.getTranslation("homeView.title", currentLocale);
+        String titleText = customI18NProvider.getTranslation("homeView.title", customI18NProvider.getCurrentLocale());
         H1 title = new H1(titleText);
         currentContent.add(title);
 
         for (int i = 1; i <= 50; i++) {
-            String lineText = customI18NProvider.getTranslation("homeView.line", currentLocale, i);
+            String lineText =
+                    customI18NProvider.getTranslation("homeView.line", customI18NProvider.getCurrentLocale(), i);
             currentContent.add(new Span(lineText));
         }
 
