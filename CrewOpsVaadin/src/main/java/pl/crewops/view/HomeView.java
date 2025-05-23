@@ -20,10 +20,11 @@ public class HomeView extends MainLayout {
     private final CustomI18NProvider customI18NProvider;
 
     public HomeView(CoreAPI coreAPI, JwtService jwtService, CustomI18NProvider customI18NProvider) {
-        super(coreAPI, jwtService, customI18NProvider);
-        this.customI18NProvider = customI18NProvider;
-
+        super(coreAPI, jwtService);
         addClassName("home-view");
+
+        this.customI18NProvider = customI18NProvider;
+        customI18NProvider.setCurrentLocale(UI.getCurrent().getLocale());
 
         mainContent.removeAll();
         mainContent.add(getCurrentContent(), mainFooter);

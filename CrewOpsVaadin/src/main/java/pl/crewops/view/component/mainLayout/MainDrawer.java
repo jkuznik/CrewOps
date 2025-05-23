@@ -9,7 +9,6 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import pl.crewops.infrastructure.localization.CustomI18NProvider;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtService;
 import pl.crewops.view.EmployeeView;
@@ -22,16 +21,22 @@ import pl.crewops.view.VehicleView;
 public class MainDrawer extends VerticalLayout {
 
     private final JwtService jwtService;
-    private final CustomI18NProvider i18nProvider;
     private UserPrincipal principal;
 
-    public MainDrawer(JwtService jwtService, CustomI18NProvider customI18NProvider) {
+    private final RouterLink homeLink = new RouterLink(HomeView.class);
+    private final RouterLink employeeLink = new RouterLink(EmployeeView.class);
+    private final RouterLink vehicleLink = new RouterLink(VehicleView.class);
+
+    private final Span footerText = new Span();
+
+    public MainDrawer(JwtService jwtService) {
         addClassName("main-drawer");
 
         this.jwtService = jwtService;
-        this.i18nProvider = customI18NProvider;
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        localize();
 
         if (authentication != null
                 && authentication.isAuthenticated()
@@ -45,16 +50,6 @@ public class MainDrawer extends VerticalLayout {
         setSpacing(true);
         setPadding(true);
 
-        RouterLink homeLink = new RouterLink(
-                customI18NProvider.getTranslation("mainDrawer.link.home", customI18NProvider.getCurrentLocale()),
-                HomeView.class);
-        RouterLink employeeLink = new RouterLink(
-                customI18NProvider.getTranslation("mainDrawer.link.employee", customI18NProvider.getCurrentLocale()),
-                EmployeeView.class);
-        RouterLink vehicleLink = new RouterLink(
-                customI18NProvider.getTranslation("mainDrawer.link.vehicle", customI18NProvider.getCurrentLocale()),
-                VehicleView.class);
-
         VerticalLayout linksLayout = new VerticalLayout();
         linksLayout.setSizeFull();
         linksLayout.setPadding(true);
@@ -67,12 +62,18 @@ public class MainDrawer extends VerticalLayout {
         checkDrawer(employeeLink, vehicleLink);
     }
 
+    private void localize() {
+        homeLink.setText(getTranslation("mainDrawer.link.home"));
+        employeeLink.setText(getTranslation("mainDrawer.link.employee"));
+        vehicleLink.setText(getTranslation("mainDrawer.link.vehicle"));
+
+        footerText.setText(getTranslation("mainDrawer.footer.text"));
+    }
+
     private Footer createDrawerFooter() {
         Footer footer = new Footer();
         footer.addClassName("drawer-footer");
 
-        String footerTextStr = i18nProvider.getTranslation("mainDrawer.footer.text", i18nProvider.getCurrentLocale());
-        Span footerText = new Span(footerTextStr);
         footerText.addClassName("drawer-footer-text");
 
         footer.add(footerText);

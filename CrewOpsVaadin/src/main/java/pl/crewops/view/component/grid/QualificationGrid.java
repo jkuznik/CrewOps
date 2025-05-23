@@ -25,6 +25,7 @@ public class QualificationGrid extends VerticalLayout {
     private final Grid<QualificationFormModel> grid = new Grid<>();
     private final TextField filter = new TextField();
     private final QualificationForm form = new QualificationForm();
+    private final Button addQualification = new Button();
 
     private List<QualificationFormModel> qualifications = new ArrayList<>();
 
@@ -34,11 +35,22 @@ public class QualificationGrid extends VerticalLayout {
         configureGrid();
         configureForm();
 
+        localize();
+
         updateGrid();
         closeEditor();
 
         setSizeFull();
         add(getToolbar(), getContent());
+    }
+
+    private void localize() {
+        filter.setPlaceholder(getTranslation("qualificationGrid.filter.placeholder"));
+
+        addQualification.setText(getTranslation("qualificationGrid.button.addQualification"));
+
+        grid.getColumnByKey("description").setHeader(getTranslation("qualificationGrid.column.description"));
+        grid.getColumnByKey("employeesAmount").setHeader(getTranslation("qualificationGrid.column.employeesAmount"));
     }
 
     public void closeEditor() {
@@ -57,26 +69,21 @@ public class QualificationGrid extends VerticalLayout {
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        filter.setPlaceholder(getTranslation("qualificationGrid.filter.placeholder"));
         filter.setClearButtonVisible(true);
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         filter.addValueChangeListener(event -> updateGrid());
 
-        Button addQualification = new Button(getTranslation("qualificationGrid.button.addQualification"));
         addQualification.addClickListener(event -> addQualification());
 
         toolbar.add(filter, addQualification);
-
         return toolbar;
     }
 
     private void configureGrid() {
         grid.setSizeFull();
 
-        grid.addColumn(QualificationFormModel::getDescription)
-                .setHeader(getTranslation("qualificationGrid.column.description"));
-        grid.addColumn(QualificationFormModel::getEmployeesAmount)
-                .setHeader(getTranslation("qualificationGrid.column.employeesAmount"));
+        grid.addColumn(QualificationFormModel::getDescription).setKey("description");
+        grid.addColumn(QualificationFormModel::getEmployeesAmount).setKey("employeesAmount");
 
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 

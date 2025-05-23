@@ -1,6 +1,5 @@
 package pl.crewops.view.component.mainLayout;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Footer;
@@ -8,7 +7,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import org.springframework.context.annotation.Scope;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.infrastructure.localization.CustomI18NProvider;
 import pl.crewops.security.jwt.JwtService;
 
 @SpringComponent
@@ -18,19 +16,15 @@ public class MainLayout extends AppLayout {
 
     protected final CoreAPI coreAPI;
     protected final JwtService jwtService;
-    protected final CustomI18NProvider customI18NProvider;
 
     protected final VerticalLayout mainContent = new VerticalLayout();
     protected final Footer mainFooter = new MainFooter();
 
-    public MainLayout(CoreAPI coreAPI, JwtService jwtService, CustomI18NProvider customI18NProvider) {
+    public MainLayout(CoreAPI coreAPI, JwtService jwtService) {
         addClassName("main-layout");
 
         this.coreAPI = coreAPI;
         this.jwtService = jwtService;
-        this.customI18NProvider = customI18NProvider;
-
-        customI18NProvider.setCurrentLocale(UI.getCurrent().getLocale());
 
         mainContent.setSizeFull();
         mainContent.setSpacing(true);
@@ -39,6 +33,6 @@ public class MainLayout extends AppLayout {
         setContent(mainContent);
 
         addToNavbar(new MainNavbar(coreAPI, jwtService));
-        addToDrawer(new MainDrawer(jwtService, customI18NProvider));
+        addToDrawer(new MainDrawer(jwtService));
     }
 }

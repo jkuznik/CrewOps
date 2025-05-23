@@ -24,6 +24,7 @@ public class EmployeeGrid extends VerticalLayout {
     private final Grid<EmployeeFormModel> grid = new Grid<>();
     private final TextField filter = new TextField();
     private final EmployeeForm form = new EmployeeForm();
+    private final Button addEmployee = new Button();
 
     public EmployeeGrid(CoreAPI coreAPI) {
         this.coreAPI = coreAPI;
@@ -31,11 +32,25 @@ public class EmployeeGrid extends VerticalLayout {
         configureGrid();
         configureForm();
 
+        localize();
+
         updateGrid();
         closeEditor();
 
         setSizeFull();
         add(getToolbar(), getContent());
+    }
+
+    private void localize() {
+        filter.setPlaceholder(getTranslation("employeeGrid.filter.placeholder"));
+
+        addEmployee.setText(getTranslation("employeeGrid.button.addEmployee"));
+
+        grid.getColumnByKey("firstName").setHeader(getTranslation("employeeGrid.column.firstName"));
+        grid.getColumnByKey("lastName").setHeader(getTranslation("employeeGrid.column.lastName"));
+        grid.getColumnByKey("birthDate").setHeader(getTranslation("employeeGrid.column.birthDate"));
+        grid.getColumnByKey("phoneNumber").setHeader(getTranslation("employeeGrid.column.phoneNumber"));
+        grid.getColumnByKey("department").setHeader(getTranslation("employeeGrid.column.department"));
     }
 
     public void closeEditor() {
@@ -54,27 +69,24 @@ public class EmployeeGrid extends VerticalLayout {
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        filter.setPlaceholder(getTranslation("employeeGrid.filter.placeholder"));
         filter.setClearButtonVisible(true);
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         filter.addValueChangeListener(event -> updateGrid());
 
-        Button addEmployee = new Button(getTranslation("employeeGrid.button.addEmployee"));
         addEmployee.addClickListener(event -> addEmployee());
 
         toolbar.add(filter, addEmployee);
-
         return toolbar;
     }
 
     private void configureGrid() {
         grid.setSizeFull();
 
-        grid.addColumn(EmployeeFormModel::getFirstName).setHeader(getTranslation("employeeGrid.column.firstName"));
-        grid.addColumn(EmployeeFormModel::getLastName).setHeader(getTranslation("employeeGrid.column.lastName"));
-        grid.addColumn(EmployeeFormModel::getBirthDate).setHeader(getTranslation("employeeGrid.column.birthDate"));
-        grid.addColumn(EmployeeFormModel::getPhoneNumber).setHeader(getTranslation("employeeGrid.column.phoneNumber"));
-        grid.addColumn(EmployeeFormModel::getDepartment).setHeader(getTranslation("employeeGrid.column.department"));
+        grid.addColumn(EmployeeFormModel::getFirstName).setKey("firstName");
+        grid.addColumn(EmployeeFormModel::getLastName).setKey("lastName");
+        grid.addColumn(EmployeeFormModel::getBirthDate).setKey("birthDate");
+        grid.addColumn(EmployeeFormModel::getPhoneNumber).setKey("phoneNumber");
+        grid.addColumn(EmployeeFormModel::getDepartment).setKey("department");
 
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 

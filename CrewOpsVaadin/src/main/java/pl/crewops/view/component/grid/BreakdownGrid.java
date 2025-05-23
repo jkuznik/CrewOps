@@ -29,6 +29,8 @@ public class BreakdownGrid extends VerticalLayout {
         configureGrid();
         configureForm();
 
+        localize();
+
         updateBreakdownGrid();
         closeEditor();
 
@@ -57,7 +59,6 @@ public class BreakdownGrid extends VerticalLayout {
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        filter.setPlaceholder(getTranslation("breakdownGrid.filter.placeholder"));
         filter.setClearButtonVisible(true);
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         filter.addValueChangeListener(event -> updateBreakdownGrid());
@@ -67,32 +68,43 @@ public class BreakdownGrid extends VerticalLayout {
         return toolbar;
     }
 
+    private void localize() {
+        filter.setPlaceholder(getTranslation("breakdownGrid.filter.placeholder"));
+
+        grid.getColumnByKey("registrationNumber").setHeader(getTranslation("breakdownGrid.column.registrationNumber"));
+        grid.getColumnByKey("description").setHeader(getTranslation("breakdownGrid.column.description"));
+        grid.getColumnByKey("critical").setHeader(getTranslation("breakdownGrid.column.critical"));
+        grid.getColumnByKey("solved").setHeader(getTranslation("breakdownGrid.column.solved"));
+        grid.getColumnByKey("reportedBy").setHeader(getTranslation("breakdownGrid.column.reportedBy"));
+        grid.getColumnByKey("repairedBy").setHeader(getTranslation("breakdownGrid.column.repairedBy"));
+        grid.getColumnByKey("solvedAt").setHeader(getTranslation("breakdownGrid.column.solvedAt"));
+    }
+
     private void configureGrid() {
         grid.setSizeFull();
 
         grid.addColumn(model -> model.getVehicle() != null ? model.getVehicle().registerNumber() : "-")
-                .setHeader(getTranslation("breakdownGrid.column.registrationNumber"));
+                .setKey("registrationNumber");
 
-        grid.addColumn(BreakdownFormModel::getDescription)
-                .setHeader(getTranslation("breakdownGrid.column.description"));
+        grid.addColumn(BreakdownFormModel::getDescription).setKey("description");
 
-        grid.addColumn(BreakdownFormModel::isCritical).setHeader(getTranslation("breakdownGrid.column.critical"));
+        grid.addColumn(BreakdownFormModel::isCritical).setKey("critical");
 
-        grid.addColumn(BreakdownFormModel::isSolved).setHeader(getTranslation("breakdownGrid.column.solved"));
+        grid.addColumn(BreakdownFormModel::isSolved).setKey("solved");
 
         grid.addColumn(model -> model.getReportedBy() != null
                         ? model.getReportedBy().firstName() + " "
                                 + model.getReportedBy().lastName()
                         : "-")
-                .setHeader(getTranslation("breakdownGrid.column.reportedBy"));
+                .setKey("reportedBy");
 
         grid.addColumn(model -> model.getRepairedBy() != null
                         ? model.getRepairedBy().firstName() + " "
                                 + model.getRepairedBy().lastName()
                         : "-")
-                .setHeader(getTranslation("breakdownGrid.column.repairedBy"));
+                .setKey("repairedBy");
 
-        grid.addColumn(BreakdownFormModel::getSolvedAt).setHeader(getTranslation("breakdownGrid.column.solvedAt"));
+        grid.addColumn(BreakdownFormModel::getSolvedAt).setKey("solvedAt");
 
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 
