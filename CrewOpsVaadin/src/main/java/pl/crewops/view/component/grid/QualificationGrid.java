@@ -22,11 +22,11 @@ import pl.crewops.view.component.notification.UpdateQualificationNotification;
 public class QualificationGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
 
-    private final Grid<QualificationFormModel> grid = new Grid<>(QualificationFormModel.class);
+    private final Grid<QualificationFormModel> grid = new Grid<>();
     private final TextField filter = new TextField();
     private final QualificationForm form = new QualificationForm();
 
-    private List<QualificationFormModel> employees = new ArrayList<>();
+    private List<QualificationFormModel> qualifications = new ArrayList<>();
 
     public QualificationGrid(CoreAPI coreAPI) {
         this.coreAPI = coreAPI;
@@ -57,12 +57,12 @@ public class QualificationGrid extends VerticalLayout {
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        filter.setPlaceholder("Filter by name");
+        filter.setPlaceholder(getTranslation("qualificationGrid.filter.placeholder"));
         filter.setClearButtonVisible(true);
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         filter.addValueChangeListener(event -> updateGrid());
 
-        Button addQualification = new Button("Add qualification");
+        Button addQualification = new Button(getTranslation("qualificationGrid.button.addQualification"));
         addQualification.addClickListener(event -> addQualification());
 
         toolbar.add(filter, addQualification);
@@ -72,12 +72,15 @@ public class QualificationGrid extends VerticalLayout {
 
     private void configureGrid() {
         grid.setSizeFull();
-        grid.setColumns("description", "employeesAmount");
+
+        grid.addColumn(QualificationFormModel::getDescription)
+                .setHeader(getTranslation("qualificationGrid.column.description"));
+        grid.addColumn(QualificationFormModel::getEmployeesAmount)
+                .setHeader(getTranslation("qualificationGrid.column.employeesAmount"));
+
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 
-        grid.asSingleSelect().addValueChangeListener(event -> {
-            editQualification(event.getValue());
-        });
+        grid.asSingleSelect().addValueChangeListener(event -> editQualification(event.getValue()));
     }
 
     private void configureForm() {
@@ -86,23 +89,20 @@ public class QualificationGrid extends VerticalLayout {
         form.addSaveListener(this::saveQualification);
         form.addUpdateListener(this::updateQualification);
         form.addDeleteListener(this::deleteQualification);
-        form.addCloseListener(event -> {
-            closeEditor();
-        });
+        form.addCloseListener(event -> closeEditor());
     }
 
     private void updateGrid() {
         try {
-            employees = coreAPI.getAllQualifications().stream()
+            qualifications = coreAPI.getAllQualifications().stream()
                     .map(QualificationFormModel::toQualificationFormModel)
                     .toList();
 
-            if (filter.getValue() == null) {
-                grid.setItems(employees);
+            if (filter.getValue() == null || filter.getValue().isBlank()) {
+                grid.setItems(qualifications);
             } else {
-                grid.setItems(employees.stream()
-                        .filter(qualificationDTO -> qualificationDTO
-                                .getDescription()
+                grid.setItems(qualifications.stream()
+                        .filter(q -> q.getDescription()
                                 .toLowerCase()
                                 .contains(filter.getValue().toLowerCase()))
                         .toList());
@@ -119,7 +119,6 @@ public class QualificationGrid extends VerticalLayout {
             form.setQualification(qualificationFormModel);
             form.setFormModeUpdate();
             form.setVisible(true);
-            addClassName("editing");
         }
     }
 
@@ -130,9 +129,8 @@ public class QualificationGrid extends VerticalLayout {
     }
 
     private void saveQualification(QualificationForm.SaveEvent event) {
-        if (employees.stream().anyMatch(qualification -> qualification
-                .getDescription()
-                .equals(event.getQualification().getDescription()))) {
+        if (qualifications.stream().anyMatch(q -> q.getDescription()
+                .equalsIgnoreCase(event.getQualification().getDescription()))) {
             new QualificationAlreadyExistNotification(event.getQualification().getDescription());
             closeEditor();
             return;

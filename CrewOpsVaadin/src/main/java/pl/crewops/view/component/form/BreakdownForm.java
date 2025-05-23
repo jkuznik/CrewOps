@@ -3,7 +3,6 @@ package pl.crewops.view.component.form;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -39,18 +38,14 @@ public class BreakdownForm extends FormLayout {
     }
 
     private void localize() {
-        vehicle.setLabel(getMessage("breakdownForm.vehicle"));
-        description.setLabel(getMessage("breakdownForm.description"));
-        solved.setLabel(getMessage("breakdownForm.solved"));
-        critical.setLabel(getMessage("breakdownForm.critical"));
+        vehicle.setLabel(getTranslation("breakdownForm.vehicle"));
+        description.setLabel(getTranslation("breakdownForm.description"));
+        solved.setLabel(getTranslation("breakdownForm.solved"));
+        critical.setLabel(getTranslation("breakdownForm.critical"));
 
-        save.setText(getMessage("breakdownForm.save"));
-        update.setText(getMessage("breakdownForm.update"));
-        close.setText(getMessage("breakdownForm.close"));
-    }
-
-    private String getMessage(String key, Object... params) {
-        return UI.getCurrent().getTranslation(key, params);
+        save.setText(getTranslation("breakdownForm.save"));
+        update.setText(getTranslation("breakdownForm.update"));
+        close.setText(getTranslation("breakdownForm.close"));
     }
 
     private void configureBinder() {

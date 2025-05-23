@@ -76,12 +76,12 @@ public class VehicleGrid extends VerticalLayout {
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        filter.setPlaceholder("Filter by type");
+        filter.setPlaceholder(getTranslation("vehicleGrid.filter.placeholder"));
         filter.setClearButtonVisible(true);
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         filter.addValueChangeListener(event -> updateVehicleGrid());
 
-        Button addVehicle = new Button("Add vehicle");
+        Button addVehicle = new Button(getTranslation("vehicleGrid.button.addVehicle"));
         addVehicle.addClickListener(event -> addVehicle());
 
         toolbar.add(filter, addVehicle);
@@ -91,7 +91,17 @@ public class VehicleGrid extends VerticalLayout {
 
     private void configureGrid() {
         grid.setSizeFull();
-        grid.setColumns("vehicleType", "registrationNumber", "broken", "make", "model", "year", "vin");
+        grid.removeAllColumns();
+
+        grid.addColumn(VehicleFormModel::getVehicleType).setHeader(getTranslation("vehicleGrid.column.vehicleType"));
+        grid.addColumn(VehicleFormModel::getRegistrationNumber)
+                .setHeader(getTranslation("vehicleGrid.column.registrationNumber"));
+        grid.addColumn(VehicleFormModel::getBroken).setHeader(getTranslation("vehicleGrid.column.broken"));
+        grid.addColumn(VehicleFormModel::getMake).setHeader(getTranslation("vehicleGrid.column.make"));
+        grid.addColumn(VehicleFormModel::getModel).setHeader(getTranslation("vehicleGrid.column.model"));
+        grid.addColumn(VehicleFormModel::getYear).setHeader(getTranslation("vehicleGrid.column.year"));
+        grid.addColumn(VehicleFormModel::getVin).setHeader(getTranslation("vehicleGrid.column.vin"));
+
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 
         grid.asSingleSelect().addValueChangeListener(event -> {
