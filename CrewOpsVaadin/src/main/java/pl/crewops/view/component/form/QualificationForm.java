@@ -32,16 +32,12 @@ public class QualificationForm extends FormLayout {
     }
 
     private void localize() {
-        description.setLabel(getMessage("qualificationForm.description"));
+        description.setLabel(getTranslation("qualificationForm.description"));
 
-        save.setText(getMessage("qualificationForm.save"));
-        update.setText(getMessage("qualificationForm.update"));
-        delete.setText(getMessage("qualificationForm.delete"));
-        close.setText(getMessage("qualificationForm.close"));
-    }
-
-    private String getMessage(String key, Object... params) {
-        return UI.getCurrent().getTranslation(key, params);
+        save.setText(getTranslation("qualificationForm.save"));
+        update.setText(getTranslation("qualificationForm.update"));
+        delete.setText(getTranslation("qualificationForm.delete"));
+        close.setText(getTranslation("qualificationForm.close"));
     }
 
     public void setFormModeSave() {

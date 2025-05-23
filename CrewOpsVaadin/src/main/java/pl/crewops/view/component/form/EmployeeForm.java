@@ -4,7 +4,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
@@ -68,21 +67,17 @@ public class EmployeeForm extends FormLayout {
     }
 
     private void localize() {
-        firstName.setLabel(getMessage("employeeForm.firstName"));
-        lastName.setLabel(getMessage("employeeForm.lastName"));
-        birthDate.setLabel(getMessage("employeeForm.birthDate"));
-        phoneNumber.setLabel(getMessage("employeeForm.phoneNumber"));
-        department.setLabel(getMessage("employeeForm.department"));
-        roles.setLabel(getMessage("employeeForm.roles"));
+        firstName.setLabel(getTranslation("employeeForm.firstName"));
+        lastName.setLabel(getTranslation("employeeForm.lastName"));
+        birthDate.setLabel(getTranslation("employeeForm.birthDate"));
+        phoneNumber.setLabel(getTranslation("employeeForm.phoneNumber"));
+        department.setLabel(getTranslation("employeeForm.department"));
+        roles.setLabel(getTranslation("employeeForm.roles"));
 
-        save.setText(getMessage("employeeForm.save"));
-        update.setText(getMessage("employeeForm.update"));
-        delete.setText(getMessage("employeeForm.delete"));
-        close.setText(getMessage("employeeForm.close"));
-    }
-
-    private String getMessage(String key, Object... params) {
-        return UI.getCurrent().getTranslation(key, params);
+        save.setText(getTranslation("employeeForm.save"));
+        update.setText(getTranslation("employeeForm.update"));
+        delete.setText(getTranslation("employeeForm.delete"));
+        close.setText(getTranslation("employeeForm.close"));
     }
 
     private Component createButtonsLayout() {

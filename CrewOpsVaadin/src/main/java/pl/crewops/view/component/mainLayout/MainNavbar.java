@@ -65,7 +65,8 @@ public class MainNavbar extends HorizontalLayout {
 
     private static HorizontalLayout createNavbarLeftSide() {
         var leftSide = new HorizontalLayout();
-        H1 title = new H1("CrewOps");
+        H1 title = new H1();
+        title.setText(title.getTranslation("mainNavbar.title"));
         title.addClassName("main-navbar-title");
         leftSide.setWidthFull();
         leftSide.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);

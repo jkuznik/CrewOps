@@ -80,23 +80,19 @@ public class VehicleForm extends FormLayout {
     }
 
     private void localize() {
-        registrationNumber.setLabel(getMessage("vehicleForm.registrationNumber"));
-        make.setLabel(getMessage("vehicleForm.make"));
-        model.setLabel(getMessage("vehicleForm.model"));
-        year.setLabel(getMessage("vehicleForm.year"));
-        vin.setLabel(getMessage("vehicleForm.vin"));
-        broken.setLabel(getMessage("vehicleForm.broken"));
+        registrationNumber.setLabel(getTranslation("vehicleForm.registrationNumber"));
+        make.setLabel(getTranslation("vehicleForm.make"));
+        model.setLabel(getTranslation("vehicleForm.model"));
+        year.setLabel(getTranslation("vehicleForm.year"));
+        vin.setLabel(getTranslation("vehicleForm.vin"));
+        broken.setLabel(getTranslation("vehicleForm.broken"));
 
-        save.setText(getMessage("vehicleForm.save"));
-        update.setText(getMessage("vehicleForm.update"));
-        delete.setText(getMessage("vehicleForm.delete"));
-        close.setText(getMessage("vehicleForm.close"));
-        reportBreakdown.setText(getMessage("vehicleForm.reportBreakdown"));
-        breakdownsList.setText(getMessage("vehicleForm.breakdownsList"));
-    }
-
-    private String getMessage(String key, Object... params) {
-        return UI.getCurrent().getTranslation(key, params);
+        save.setText(getTranslation("vehicleForm.save"));
+        update.setText(getTranslation("vehicleForm.update"));
+        delete.setText(getTranslation("vehicleForm.delete"));
+        close.setText(getTranslation("vehicleForm.close"));
+        reportBreakdown.setText(getTranslation("vehicleForm.reportBreakdown"));
+        breakdownsList.setText(getTranslation("vehicleForm.breakdownsList"));
     }
 
     private Component createButtonsLayout() {

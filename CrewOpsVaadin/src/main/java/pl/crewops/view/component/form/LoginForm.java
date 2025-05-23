@@ -51,9 +51,9 @@ public class LoginForm extends FormLayout {
     }
 
     private void localize() {
-        username.setLabel(getMessage("loginForm.username"));
-        password.setLabel(getMessage("loginForm.password"));
-        login.setText(getMessage("loginForm.login"));
+        username.setLabel(getTranslation("loginForm.username"));
+        password.setLabel(getTranslation("loginForm.password"));
+        login.setText(getTranslation("loginForm.login"));
     }
 
     private Component createLoginForm(CoreAPI coreAPI, JwtService jwtService) {
@@ -111,10 +111,6 @@ public class LoginForm extends FormLayout {
             log.info("Login failed: {}", e.getMessage());
             // TODO: implement UI error feedback
         }
-    }
-
-    private String getMessage(String key, Object... params) {
-        return UI.getCurrent().getTranslation(key, params);
     }
 
     @Override
