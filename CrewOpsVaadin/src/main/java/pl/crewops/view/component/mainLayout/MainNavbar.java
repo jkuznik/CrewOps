@@ -6,6 +6,7 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.infrastructure.core.CoreAPI;
@@ -15,6 +16,7 @@ import pl.crewops.view.component.LoggedUserInfoComponent;
 import pl.crewops.view.component.form.LoginForm;
 
 @SpringComponent
+@UIScope
 @CssImport("./styles/mainStyles/main-navbar.css")
 public class MainNavbar extends HorizontalLayout {
 

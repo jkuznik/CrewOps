@@ -9,7 +9,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.infrastructure.localization.CustomI18NProvider;
 import pl.crewops.security.jwt.JwtService;
 import pl.crewops.view.component.mainLayout.MainLayout;
 
@@ -17,14 +16,9 @@ import pl.crewops.view.component.mainLayout.MainLayout;
 @PageTitle("Crew Ops")
 public class HomeView extends MainLayout {
 
-    private final CustomI18NProvider customI18NProvider;
-
-    public HomeView(CoreAPI coreAPI, JwtService jwtService, CustomI18NProvider customI18NProvider) {
+    public HomeView(CoreAPI coreAPI, JwtService jwtService) {
         super(coreAPI, jwtService);
         addClassName("home-view");
-
-        this.customI18NProvider = customI18NProvider;
-        customI18NProvider.setCurrentLocale(UI.getCurrent().getLocale());
 
         mainContent.removeAll();
         mainContent.add(getCurrentContent(), mainFooter);
@@ -40,13 +34,12 @@ public class HomeView extends MainLayout {
         currentContent.setSpacing(true);
         currentContent.getStyle().set("overflow", "auto");
 
-        String titleText = customI18NProvider.getTranslation("homeView.title", customI18NProvider.getCurrentLocale());
+        String titleText = getTranslation("homeView.title");
         H1 title = new H1(titleText);
         currentContent.add(title);
 
         for (int i = 1; i <= 50; i++) {
-            String lineText =
-                    customI18NProvider.getTranslation("homeView.line", customI18NProvider.getCurrentLocale(), i);
+            String lineText = getTranslation("homeView.line", i);
             currentContent.add(new Span(lineText));
         }
 

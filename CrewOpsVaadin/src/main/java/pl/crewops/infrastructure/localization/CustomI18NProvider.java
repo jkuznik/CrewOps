@@ -15,8 +15,6 @@ import org.springframework.stereotype.Component;
 public class CustomI18NProvider implements I18NProvider {
 
     private static final String BUNDLE_PREFIX = "i18n/messages";
-    //    private Locale currentLocale = new Locale("de", "DE");
-    private Locale currentLocale;
 
     @Override
     public List<Locale> getProvidedLocales() {

@@ -1,0 +1,21 @@
+.flag-combo {
+    width: auto;
+    min-width: 4em;
+    max-width: 4em;
+    text-align: center;
+}
+
+.flag-combo::part(text-field) {
+    border-radius: 999px;
+    padding: 0.2em 0.2em;
+    text-align: center;
+    justify-content: center;
+    min-width: 3em;
+    max-width: 3em;
+}
+
+.flag-combo::part(input-field) {
+    border-radius: 999px;
+}
+
+

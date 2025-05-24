@@ -42,10 +42,10 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                 && jwtService.validToken(userPrincipal.getToken())) {
 
             this.principal = userPrincipal;
-            add(loggedUserInfo(coreAPI, jwtService));
+            add(loggedUserInfo(coreAPI, jwtService), new LanguageSelectorComponent());
 
         } else {
-            add(new LoginForm(coreAPI, jwtService));
+            add(new LoginForm(coreAPI, jwtService), new LanguageSelectorComponent());
         }
     }
 
