@@ -4,13 +4,14 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.i18n.LocaleChangeEvent;
+import com.vaadin.flow.i18n.LocaleChangeObserver;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
 @CssImport("./styles/component/language-selector.css")
-public class LanguageSelectorComponent extends HorizontalLayout {
+public class LanguageSelectorComponent extends HorizontalLayout implements LocaleChangeObserver {
 
     private final Map<String, Locale> options = new LinkedHashMap<>();
     private final ComboBox<String> select = new ComboBox<>();
@@ -48,7 +49,6 @@ public class LanguageSelectorComponent extends HorizontalLayout {
             Locale currentLocale = UI.getCurrent().getLocale();
 
             if (selectedLocale != null && !selectedLocale.equals(currentLocale)) {
-                VaadinSession.getCurrent().setAttribute(Locale.class, selectedLocale);
                 UI.getCurrent().setLocale(selectedLocale);
                 UI.getCurrent().getSession().setLocale(selectedLocale);
                 UI.getCurrent().getPage().reload();
@@ -62,25 +62,6 @@ public class LanguageSelectorComponent extends HorizontalLayout {
         options.put("🇩🇪", new Locale("de", "DE")); // Niemcy
     }
 
-    //    @Override
-    //    protected void onAttach(AttachEvent attachEvent) {
-    //        super.onAttach(attachEvent);
-    //
-    //        Locale currentLocale = VaadinSession.getCurrent().getAttribute(Locale.class);
-    //        if (currentLocale == null) {
-    //            currentLocale = UI.getCurrent().getLocale();
-    //        }
-    //
-    //        Locale finalCurrentLocale = currentLocale;
-    //        String currentLabel = options.entrySet().stream()
-    //                .filter(entry -> entry.getValue().getLanguage().equals(finalCurrentLocale.getLanguage()))
-    //                .map(Map.Entry::getKey)
-    //                .findFirst()
-    //                .orElse("English");
-    //
-    //        // ✅ Ustaw tylko wtedy, gdy to naprawdę konieczne
-    //        if (!currentLabel.equals(select.getValue())) {
-    //            select.setValue(currentLabel);
-    //        }
-    //    }
+    @Override
+    public void localeChange(LocaleChangeEvent event) {}
 }
