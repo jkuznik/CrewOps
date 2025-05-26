@@ -9,10 +9,12 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-public class EndSessionNotification {
+public class EndSessionNotification extends VerticalLayout {
     private final Notification notification;
 
     public EndSessionNotification(UI ui, Runnable onSessionEnd) {
+        addClassName("notification-layout");
+
         notification = new Notification();
         notification.setDuration(0);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -35,11 +37,10 @@ public class EndSessionNotification {
             enableUI(ui);
         });
 
-        VerticalLayout content = new VerticalLayout(message, accept);
-        content.setAlignItems(FlexComponent.Alignment.CENTER);
-        content.addClassName("notification-layout");
+        add(message, accept);
+        setAlignItems(FlexComponent.Alignment.CENTER);
 
-        notification.add(content);
+        notification.add(this);
         disableUI(ui);
     }
 

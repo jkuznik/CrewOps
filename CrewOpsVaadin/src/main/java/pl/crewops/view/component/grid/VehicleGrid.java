@@ -25,6 +25,7 @@ import pl.crewops.model.VehicleFormModel;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.BreakdownForm;
 import pl.crewops.view.component.form.VehicleForm;
+import pl.crewops.view.component.notification.AddVehicleNotification;
 import pl.crewops.view.component.notification.UpdateVehicleNotification;
 
 @Slf4j
@@ -184,7 +185,7 @@ public class VehicleGrid extends VerticalLayout {
                     coreAPI.createVehicle(VehicleFormModel.toCreateVehicleDTO(event.getVehicle()));
             updateVehicleGrid();
             closeEditor();
-            vehicleDTO.ifPresent(UpdateVehicleNotification::new);
+            vehicleDTO.ifPresent(AddVehicleNotification::new);
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }

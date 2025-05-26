@@ -16,6 +16,7 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.QualificationFormModel;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.QualificationForm;
+import pl.crewops.view.component.notification.AddQualificationNotification;
 import pl.crewops.view.component.notification.QualificationAlreadyExistNotification;
 import pl.crewops.view.component.notification.UpdateQualificationNotification;
 
@@ -144,9 +145,11 @@ public class QualificationGrid extends VerticalLayout {
         }
 
         try {
-            coreAPI.createQualification(QualificationFormModel.toCreateQualificationDTO(event.getQualification()));
+            Optional<QualificationDTO> qualificationDTO = coreAPI.createQualification(
+                    QualificationFormModel.toCreateQualificationDTO(event.getQualification()));
             updateGrid();
             closeEditor();
+            qualificationDTO.ifPresent(AddQualificationNotification::new);
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
