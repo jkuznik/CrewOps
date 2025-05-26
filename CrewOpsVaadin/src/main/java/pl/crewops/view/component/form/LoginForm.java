@@ -1,5 +1,6 @@
 package pl.crewops.view.component.form;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
@@ -33,9 +34,10 @@ import pl.crewops.security.jwt.JwtService;
 @CssImport("./styles/component/login-form.css")
 @Slf4j
 public class LoginForm extends FormLayout {
-    TextField username = new TextField("Username");
-    PasswordField password = new PasswordField("Password");
-    Button login = new Button("Login");
+
+    private final TextField username = new TextField();
+    private final PasswordField password = new PasswordField();
+    private final Button login = new Button();
 
     public LoginForm(CoreAPI coreAPI, JwtService jwtService) {
         addClassName("login-form");
@@ -48,15 +50,21 @@ public class LoginForm extends FormLayout {
         add(createLoginForm(coreAPI, jwtService));
     }
 
+    private void localize() {
+        username.setLabel(getTranslation("loginForm.username"));
+        password.setLabel(getTranslation("loginForm.password"));
+        login.setText(getTranslation("loginForm.login"));
+    }
+
     private Component createLoginForm(CoreAPI coreAPI, JwtService jwtService) {
-        var horizontalLayout = new HorizontalLayout();
-        horizontalLayout.setSpacing(true);
-        horizontalLayout.addClassName("login-form-layout");
+        var layout = new HorizontalLayout();
+        layout.setSpacing(true);
+        layout.addClassName("login-form-layout");
 
         configureLoginButton(coreAPI, jwtService);
-        horizontalLayout.add(username, password, login);
-        horizontalLayout.setAlignSelf(FlexComponent.Alignment.END, login);
-        return horizontalLayout;
+        layout.add(username, password, login);
+        layout.setAlignSelf(FlexComponent.Alignment.END, login);
+        return layout;
     }
 
     private void configureLoginButton(CoreAPI coreAPI, JwtService jwtService) {
@@ -67,29 +75,21 @@ public class LoginForm extends FormLayout {
     private void loginAction(CoreAPI coreAPI, JwtService jwtService) {
         var authRequest = new AuthRequest(username.getValue(), password.getValue());
 
-        String token = null;
         try {
             log.info("Try login");
-            token = coreAPI.login(authRequest).token();
+            String token = coreAPI.login(authRequest).token();
             log.info("Successfully logged in, token: {}", token);
-        } catch (Exception e) {
-            log.info("Login failed, {}", e.getMessage());
-            // TODO: implement logic in case of auth fail
-        }
 
-        if (token != null) {
             var username = jwtService.getUsername(token);
             var firstName = jwtService.getFirstName(token);
             var lastName = jwtService.getLastName(token);
-            var grantedAuthorities = jwtService.getAuthorities(token);
+            var authorities = jwtService.getAuthorities(token);
 
-            UserPrincipal userPrincipal = new UserPrincipal(username, firstName, lastName, grantedAuthorities);
+            var userPrincipal = new UserPrincipal(username, firstName, lastName, authorities);
             userPrincipal.setToken(token);
 
-            Authentication auth =
-                    new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
+            Authentication auth = new UsernamePasswordAuthenticationToken(userPrincipal, null, authorities);
 
-            // Utwórz SecurityContext
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(auth);
             SecurityContextHolder.setContext(context);
@@ -97,7 +97,6 @@ public class LoginForm extends FormLayout {
             coreAPI.setAuthentication(true);
             coreAPI.setToken(token);
 
-            // Trwale zapisz SecurityContext do sesji HTTP
             HttpServletRequest request =
                     ((VaadinServletRequest) VaadinService.getCurrentRequest()).getHttpServletRequest();
             HttpServletResponse response =
@@ -105,9 +104,18 @@ public class LoginForm extends FormLayout {
 
             SecurityContextRepository repo = new HttpSessionSecurityContextRepository();
             repo.saveContext(context, request, response);
-        }
 
-        log.info("Login action success");
-        UI.getCurrent().getPage().reload();
+            UI.getCurrent().getPage().reload();
+
+        } catch (Exception e) {
+            log.info("Login failed: {}", e.getMessage());
+            // TODO: implement UI error feedback
+        }
+    }
+
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        localize();
     }
 }

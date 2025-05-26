@@ -4,19 +4,21 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 
-public class QualificationAlreadyExistNotification {
-    private final Notification notification = new Notification();
+public class QualificationAlreadyExistNotification extends Notification {
 
     public QualificationAlreadyExistNotification(String description) {
-        notification.addClassName("update-vehicle-notification");
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.setPosition(Notification.Position.TOP_END);
-        notification.setDuration(5000);
+        addClassName("update-vehicle-notification");
+        addThemeVariants(NotificationVariant.LUMO_ERROR);
+        setPosition(Notification.Position.TOP_END);
+        setDuration(5000);
 
-        Div div = new Div();
+        var div = new Div();
         div.addClassName("update-vehicle-notification-div");
-        div.setText("Qualification '" + description + "' already exist");
-        notification.add(div);
-        notification.open();
+        div.setText(getTranslation("qualificationAlreadyExistNotification.messagePrefix")
+                + description
+                + getTranslation("qualificationAlreadyExistNotification.messageSuffix"));
+
+        add(div);
+        open();
     }
 }

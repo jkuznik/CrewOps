@@ -34,6 +34,6 @@ public class VehicleAccordion extends FormLayout {
 
         accordion.setVisible(true);
         add(accordion);
-        accordion.add("Vehicles", vehiclesDisplay);
+        accordion.add(getTranslation("vehicleAccordion.title"), vehiclesDisplay);
     }
 }

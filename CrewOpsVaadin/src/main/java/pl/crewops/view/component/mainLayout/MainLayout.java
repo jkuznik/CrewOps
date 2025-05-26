@@ -5,12 +5,13 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
-import org.springframework.context.annotation.Scope;
+import com.vaadin.flow.spring.annotation.UIScope;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtService;
 
 @SpringComponent
-@Scope("prototype")
+// @Scope("prototype")
+@UIScope
 @CssImport("./styles/mainStyles/main-layout.css")
 public class MainLayout extends AppLayout {
 
@@ -33,6 +34,6 @@ public class MainLayout extends AppLayout {
         setContent(mainContent);
 
         addToNavbar(new MainNavbar(coreAPI, jwtService));
-        addToDrawer(new MainDrawer(coreAPI, jwtService));
+        addToDrawer(new MainDrawer(jwtService));
     }
 }

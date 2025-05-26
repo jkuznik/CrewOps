@@ -6,8 +6,10 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 
 @SpringComponent
+@UIScope
 @CssImport("./styles/mainStyles/main-footer.css")
 public class MainFooter extends Footer {
 
@@ -20,6 +22,7 @@ public class MainFooter extends Footer {
         VerticalLayout leftSide = new VerticalLayout();
         leftSide.addClassName("main-footer-column");
 
+        // TODO: implement i18n contact and info values
         Span contactSpan = new Span("Contact");
         contactSpan.addClassName("main-footer-text");
         leftSide.add(contactSpan);

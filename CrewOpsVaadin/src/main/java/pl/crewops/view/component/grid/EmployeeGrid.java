@@ -15,21 +15,24 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.EmployeeForm;
-import pl.crewops.view.component.notification.SaveEmployeeNotification;
+import pl.crewops.view.component.notification.AddEmployeeNotification;
 import pl.crewops.view.component.notification.UpdateEmployeeNotification;
 
 public class EmployeeGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
 
-    private final Grid<EmployeeFormModel> grid = new Grid<>(EmployeeFormModel.class);
+    private final Grid<EmployeeFormModel> grid = new Grid<>();
     private final TextField filter = new TextField();
     private final EmployeeForm form = new EmployeeForm();
+    private final Button addEmployee = new Button();
 
     public EmployeeGrid(CoreAPI coreAPI) {
         this.coreAPI = coreAPI;
 
         configureGrid();
         configureForm();
+
+        localize();
 
         updateGrid();
         closeEditor();
@@ -38,8 +41,16 @@ public class EmployeeGrid extends VerticalLayout {
         add(getToolbar(), getContent());
     }
 
-    public void addEmployeeEvent() {
-        addEmployee();
+    private void localize() {
+        filter.setPlaceholder(getTranslation("employeeGrid.filter.placeholder"));
+
+        addEmployee.setText(getTranslation("employeeGrid.button.addEmployee"));
+
+        grid.getColumnByKey("firstName").setHeader(getTranslation("employeeGrid.column.firstName"));
+        grid.getColumnByKey("lastName").setHeader(getTranslation("employeeGrid.column.lastName"));
+        grid.getColumnByKey("birthDate").setHeader(getTranslation("employeeGrid.column.birthDate"));
+        grid.getColumnByKey("phoneNumber").setHeader(getTranslation("employeeGrid.column.phoneNumber"));
+        grid.getColumnByKey("department").setHeader(getTranslation("employeeGrid.column.department"));
     }
 
     public void closeEditor() {
@@ -58,27 +69,28 @@ public class EmployeeGrid extends VerticalLayout {
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        filter.setPlaceholder("Filter by name");
         filter.setClearButtonVisible(true);
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         filter.addValueChangeListener(event -> updateGrid());
 
-        Button addEmployee = new Button("Add Employee");
         addEmployee.addClickListener(event -> addEmployee());
 
         toolbar.add(filter, addEmployee);
-
         return toolbar;
     }
 
     private void configureGrid() {
         grid.setSizeFull();
-        grid.setColumns("firstName", "lastName", "birthDate", "phoneNumber", "department");
+
+        grid.addColumn(EmployeeFormModel::getFirstName).setKey("firstName");
+        grid.addColumn(EmployeeFormModel::getLastName).setKey("lastName");
+        grid.addColumn(EmployeeFormModel::getBirthDate).setKey("birthDate");
+        grid.addColumn(EmployeeFormModel::getPhoneNumber).setKey("phoneNumber");
+        grid.addColumn(EmployeeFormModel::getDepartment).setKey("department");
+
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 
-        grid.asSingleSelect().addValueChangeListener(event -> {
-            editEmployee(event.getValue());
-        });
+        grid.asSingleSelect().addValueChangeListener(event -> editEmployee(event.getValue()));
     }
 
     private void configureForm() {
@@ -87,9 +99,7 @@ public class EmployeeGrid extends VerticalLayout {
         form.addSaveListener(this::saveEmployee);
         form.addUpdateListener(this::updateEmployee);
         form.addDeleteListener(this::deleteEmployee);
-        form.addCloseListener(event -> {
-            closeEditor();
-        });
+        form.addCloseListener(event -> closeEditor());
     }
 
     private void updateGrid() {
@@ -98,16 +108,14 @@ public class EmployeeGrid extends VerticalLayout {
                     .map(EmployeeFormModel::toEmployeeFormModel)
                     .toList();
 
-            if (filter.getValue() == null) {
+            if (filter.getValue() == null || filter.getValue().isBlank()) {
                 grid.setItems(employees);
             } else {
                 grid.setItems(employees.stream()
-                        .filter(employeeDTO -> employeeDTO
-                                        .getFirstName()
+                        .filter(employee -> employee.getFirstName()
                                         .toLowerCase()
                                         .contains(filter.getValue().toLowerCase())
-                                || employeeDTO
-                                        .getLastName()
+                                || employee.getLastName()
                                         .toLowerCase()
                                         .contains(filter.getValue().toLowerCase()))
                         .toList());
@@ -139,7 +147,7 @@ public class EmployeeGrid extends VerticalLayout {
                     coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
             updateGrid();
             closeEditor();
-            employeeDTO.ifPresent(SaveEmployeeNotification::new);
+            employeeDTO.ifPresent(AddEmployeeNotification::new);
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }

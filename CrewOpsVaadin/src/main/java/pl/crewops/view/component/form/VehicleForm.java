@@ -1,9 +1,6 @@
 package pl.crewops.view.component.form;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -49,6 +46,8 @@ public class VehicleForm extends FormLayout {
     public VehicleForm(VehicleGrid vehicleGrid, BreakdownGrid breakdownGrid) {
         addClassName("vehicle-form");
 
+        localize();
+
         this.vehicleGrid = vehicleGrid;
         this.breakdownGrid = breakdownGrid;
 
@@ -78,6 +77,22 @@ public class VehicleForm extends FormLayout {
         reportBreakdown.setVisible(true);
         breakdownsList.setVisible(true);
         delete.setVisible(true);
+    }
+
+    private void localize() {
+        registrationNumber.setLabel(getTranslation("vehicleForm.registrationNumber"));
+        make.setLabel(getTranslation("vehicleForm.make"));
+        model.setLabel(getTranslation("vehicleForm.model"));
+        year.setLabel(getTranslation("vehicleForm.year"));
+        vin.setLabel(getTranslation("vehicleForm.vin"));
+        broken.setLabel(getTranslation("vehicleForm.broken"));
+
+        save.setText(getTranslation("vehicleForm.save"));
+        update.setText(getTranslation("vehicleForm.update"));
+        delete.setText(getTranslation("vehicleForm.delete"));
+        close.setText(getTranslation("vehicleForm.close"));
+        reportBreakdown.setText(getTranslation("vehicleForm.reportBreakdown"));
+        breakdownsList.setText(getTranslation("vehicleForm.breakdownsList"));
     }
 
     private Component createButtonsLayout() {

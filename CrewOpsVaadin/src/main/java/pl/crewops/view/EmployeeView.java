@@ -50,8 +50,8 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        Button employeeList = new Button("Employee list");
-        Button qualifications = new Button("Qualifications");
+        Button employeeList = new Button(getTranslation("employeeView.employeeList"));
+        Button qualifications = new Button(getTranslation("employeeView.qualifications"));
         employeeList.addClickListener(event -> displayEmployeeGrid());
         qualifications.addClickListener(event -> displayQualificationGrid());
 

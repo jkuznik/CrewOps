@@ -34,11 +34,13 @@ public class HomeView extends MainLayout {
         currentContent.setSpacing(true);
         currentContent.getStyle().set("overflow", "auto");
 
-        H1 title = new H1("Home view content");
+        String titleText = getTranslation("homeView.title");
+        H1 title = new H1(titleText);
         currentContent.add(title);
 
         for (int i = 1; i <= 50; i++) {
-            currentContent.add(new Span("Text line " + i));
+            String lineText = getTranslation("homeView.line", i);
+            currentContent.add(new Span(lineText));
         }
 
         return currentContent;
@@ -52,22 +54,22 @@ public class HomeView extends MainLayout {
                 .getPage()
                 .executeJs(
                         """
-                const content = document.getElementById('view-content');
-                const footer = document.getElementById('footer');
-                content.addEventListener('scroll', function() {
-                    // Percentage of content scroll
-                    const scrollTop = content.scrollTop;
-                    const scrollHeight = content.scrollHeight;
-                    const clientHeight = content.clientHeight;
-                    const scrolledPercentage = (scrollTop + clientHeight) / scrollHeight;
+                        const content = document.getElementById('view-content');
+                        const footer = document.getElementById('footer');
+                        content.addEventListener('scroll', function() {
+                            // Percentage of content scroll
+                            const scrollTop = content.scrollTop;
+                            const scrollHeight = content.scrollHeight;
+                            const clientHeight = content.clientHeight;
+                            const scrolledPercentage = (scrollTop + clientHeight) / scrollHeight;
 
-                    if (scrolledPercentage >= 0.95) {
-                        $0.$server.showFooter(true);
-                    } else {
-                        $0.$server.showFooter(false);
-                    }
-                });
-                """,
+                            if (scrolledPercentage >= 0.95) {
+                                $0.$server.showFooter(true);
+                            } else {
+                                $0.$server.showFooter(false);
+                            }
+                        });
+                        """,
                         getElement());
     }
 

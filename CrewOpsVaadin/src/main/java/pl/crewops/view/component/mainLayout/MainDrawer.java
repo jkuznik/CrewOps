@@ -9,7 +9,6 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtService;
 import pl.crewops.view.EmployeeView;
@@ -21,17 +20,23 @@ import pl.crewops.view.VehicleView;
 @CssImport("./styles/mainStyles/main-drawer.css")
 public class MainDrawer extends VerticalLayout {
 
-    private final CoreAPI coreAPI;
     private final JwtService jwtService;
     private UserPrincipal principal;
 
-    public MainDrawer(CoreAPI coreAPI, JwtService jwtService) {
+    private final RouterLink homeLink = new RouterLink(HomeView.class);
+    private final RouterLink employeeLink = new RouterLink(EmployeeView.class);
+    private final RouterLink vehicleLink = new RouterLink(VehicleView.class);
+
+    private final Span footerText = new Span();
+
+    public MainDrawer(JwtService jwtService) {
         addClassName("main-drawer");
 
-        this.coreAPI = coreAPI;
         this.jwtService = jwtService;
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        localize();
 
         if (authentication != null
                 && authentication.isAuthenticated()
@@ -45,31 +50,30 @@ public class MainDrawer extends VerticalLayout {
         setSpacing(true);
         setPadding(true);
 
-        RouterLink homeLink = new RouterLink("Home", HomeView.class);
-        RouterLink employeeLink = new RouterLink("Employee", EmployeeView.class);
-        // TODO: delete this if new solution works well
-        //        RouterLink qualificationLink = new RouterLink("Qualification", QualificationView.class);
-        RouterLink vehicleLink = new RouterLink("Vehicle", VehicleView.class);
-
         VerticalLayout linksLayout = new VerticalLayout();
         linksLayout.setSizeFull();
         linksLayout.setPadding(true);
         linksLayout.setSpacing(true);
-        //        linksLayout.add(homeLink, employeeLink, qualificationLink, vehicleLink);
         linksLayout.add(homeLink, employeeLink, vehicleLink);
 
         add(linksLayout, createDrawerFooter());
         setFlexGrow(1, linksLayout);
 
-        //        checkDrawer(employeeLink, qualificationLink, vehicleLink);
         checkDrawer(employeeLink, vehicleLink);
+    }
+
+    private void localize() {
+        homeLink.setText(getTranslation("mainDrawer.link.home"));
+        employeeLink.setText(getTranslation("mainDrawer.link.employee"));
+        vehicleLink.setText(getTranslation("mainDrawer.link.vehicle"));
+
+        footerText.setText(getTranslation("mainDrawer.footer.text"));
     }
 
     private Footer createDrawerFooter() {
         Footer footer = new Footer();
         footer.addClassName("drawer-footer");
 
-        Span footerText = new Span("© 2025 CrewOps");
         footerText.addClassName("drawer-footer-text");
 
         footer.add(footerText);
@@ -77,15 +81,12 @@ public class MainDrawer extends VerticalLayout {
         return footer;
     }
 
-    //    private void checkDrawer(RouterLink employeeLink, RouterLink qualificationLink, RouterLink vehicleLink) {
     private void checkDrawer(RouterLink employeeLink, RouterLink vehicleLink) {
         if (principal == null || !jwtService.validToken(principal.getToken())) {
             employeeLink.setVisible(false);
-            //            qualificationLink.setVisible(true);
             vehicleLink.setVisible(false);
         } else {
             employeeLink.setVisible(true);
-            //            qualificationLink.setVisible(false);
             vehicleLink.setVisible(true);
         }
     }

@@ -24,10 +24,12 @@ public class BreakdownGrid extends VerticalLayout {
 
     public BreakdownGrid(CoreAPI coreAPI) {
         this.coreAPI = coreAPI;
-        form = new BreakdownForm();
+        this.form = new BreakdownForm();
 
         configureGrid();
         configureForm();
+
+        localize();
 
         updateBreakdownGrid();
         closeEditor();
@@ -57,72 +59,63 @@ public class BreakdownGrid extends VerticalLayout {
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        filter.setPlaceholder("Filter by registration number");
         filter.setClearButtonVisible(true);
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         filter.addValueChangeListener(event -> updateBreakdownGrid());
-
-        // TODO: consider possible action for breakdown, maybe 'update' or 'solve'?
-        //        addVehicle.addClickListener(event -> addBreakdown());
 
         toolbar.add(filter);
 
         return toolbar;
     }
 
+    private void localize() {
+        filter.setPlaceholder(getTranslation("breakdownGrid.filter.placeholder"));
+
+        grid.getColumnByKey("registrationNumber").setHeader(getTranslation("breakdownGrid.column.registrationNumber"));
+        grid.getColumnByKey("description").setHeader(getTranslation("breakdownGrid.column.description"));
+        grid.getColumnByKey("critical").setHeader(getTranslation("breakdownGrid.column.critical"));
+        grid.getColumnByKey("solved").setHeader(getTranslation("breakdownGrid.column.solved"));
+        grid.getColumnByKey("reportedBy").setHeader(getTranslation("breakdownGrid.column.reportedBy"));
+        grid.getColumnByKey("repairedBy").setHeader(getTranslation("breakdownGrid.column.repairedBy"));
+        grid.getColumnByKey("solvedAt").setHeader(getTranslation("breakdownGrid.column.solvedAt"));
+    }
+
     private void configureGrid() {
         grid.setSizeFull();
-        // TODO: add column createdAt to display date of reported breakdown
 
-        grid.addColumn(model -> {
-                    if (model.getVehicle() != null) {
-                        return model.getVehicle().registerNumber();
-                    }
-                    return "-";
-                })
-                .setHeader("Registration Number");
+        grid.addColumn(model -> model.getVehicle() != null ? model.getVehicle().registerNumber() : "-")
+                .setKey("registrationNumber");
 
-        grid.addColumn(BreakdownFormModel::getDescription).setHeader("Description");
+        grid.addColumn(BreakdownFormModel::getDescription).setKey("description");
 
-        grid.addColumn(BreakdownFormModel::isCritical).setHeader("Critical");
+        grid.addColumn(BreakdownFormModel::isCritical).setKey("critical");
 
-        grid.addColumn(BreakdownFormModel::isSolved).setHeader("Solved");
+        grid.addColumn(BreakdownFormModel::isSolved).setKey("solved");
 
-        grid.addColumn(model -> {
-                    if (model.getReportedBy() != null) {
-                        return model.getReportedBy().firstName() + " "
-                                + model.getReportedBy().lastName();
-                    }
-                    return "-";
-                })
-                .setHeader("Reported By");
+        grid.addColumn(model -> model.getReportedBy() != null
+                        ? model.getReportedBy().firstName() + " "
+                                + model.getReportedBy().lastName()
+                        : "-")
+                .setKey("reportedBy");
 
-        grid.addColumn(model -> {
-                    if (model.getRepairedBy() != null) {
-                        return model.getRepairedBy().firstName() + " "
-                                + model.getRepairedBy().lastName();
-                    }
-                    return "-";
-                })
-                .setHeader("Repaired By");
+        grid.addColumn(model -> model.getRepairedBy() != null
+                        ? model.getRepairedBy().firstName() + " "
+                                + model.getRepairedBy().lastName()
+                        : "-")
+                .setKey("repairedBy");
 
-        grid.addColumn(BreakdownFormModel::getSolvedAt).setHeader("Solved At");
+        grid.addColumn(BreakdownFormModel::getSolvedAt).setKey("solvedAt");
 
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 
-        grid.asSingleSelect().addValueChangeListener(event -> {
-            editBreakdown(event.getValue());
-        });
+        grid.asSingleSelect().addValueChangeListener(event -> editBreakdown(event.getValue()));
     }
 
     private void configureForm() {
         form.setWidth("25em");
 
-        //        form.addSaveListener(this::saveBreakdown);
         form.addUpdateListener(this::updateBreakdown);
-        form.addCloseListener(event -> {
-            closeEditor();
-        });
+        form.addCloseListener(event -> closeEditor());
     }
 
     public void updateBreakdownGrid() {
@@ -131,7 +124,7 @@ public class BreakdownGrid extends VerticalLayout {
                     .map(BreakdownFormModel::toBreakdownFormModel)
                     .toList();
 
-            if (filter.getValue() == null) {
+            if (filter.getValue() == null || filter.getValue().isBlank()) {
                 grid.setItems(breakdowns);
             } else {
                 grid.setItems(breakdowns.stream()
@@ -157,34 +150,12 @@ public class BreakdownGrid extends VerticalLayout {
         }
     }
 
-    // TODO: this is logic of add breakdown button, delete if app works fine
-    private void addBreakdown() {
-        grid.asSingleSelect().clear();
-        form.setFormModeSave();
-        form.setVisible(true);
-    }
-
-    // TODO: delete this if app works fine. Save option is achieved from vehicles grid
-    //    private void saveBreakdown(BreakdownForm.SaveEvent event) {
-    //        try {
-    //            Optional<BreakdownDTO> breakdownDTO =
-    //                    coreAPI.createBreakdown(BreakdownFormModel.toCreateBreakdownDTO(event.getBreakdown()));
-    //            updateBreakdownGrid();
-    //            closeEditor();
-    //            //            breakdownDTO.ifPresent(UpdateVehicleNotification::new);
-    //        } catch (NotAuthenticatedException e) {
-    //            UI.getCurrent().navigate(HomeView.class);
-    //        }
-    //    }
-
     private void updateBreakdown(BreakdownForm.UpdateEvent event) {
         try {
             Optional<BreakdownDTO> breakdownDTO =
                     coreAPI.updateBreakdown(BreakdownFormModel.toUpdateBreakdownDTO(event.getBreakdown()));
             updateBreakdownGrid();
             closeEditor();
-            // TODO: implement if present()
-            //            breakdownDTO.ifPresent();
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }

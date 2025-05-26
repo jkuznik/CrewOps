@@ -1,9 +1,6 @@
 package pl.crewops.view.component.form;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -27,9 +24,20 @@ public class QualificationForm extends FormLayout {
     public QualificationForm() {
         addClassName("qualification-form");
 
+        localize();
+
         binder.bindInstanceFields(this);
 
         add(description, createButtonsLayout());
+    }
+
+    private void localize() {
+        description.setLabel(getTranslation("qualificationForm.description"));
+
+        save.setText(getTranslation("qualificationForm.save"));
+        update.setText(getTranslation("qualificationForm.update"));
+        delete.setText(getTranslation("qualificationForm.delete"));
+        close.setText(getTranslation("qualificationForm.close"));
     }
 
     public void setFormModeSave() {

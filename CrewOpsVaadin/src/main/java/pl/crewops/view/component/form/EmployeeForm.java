@@ -41,11 +41,14 @@ public class EmployeeForm extends FormLayout {
     public EmployeeForm() {
         addClassName("employee-form");
 
+        localize();
+
         roles.setItems(Arrays.stream(RoleType.values())
                 .filter(role -> role != RoleType.ADMIN)
                 .toList());
         roles.setRenderer(
                 new TextRenderer<>(role -> role.name().replace("_", " ").toLowerCase()));
+
         qualifications = new QualificationAccordion();
         vehicles = new VehicleAccordion();
 
@@ -61,6 +64,20 @@ public class EmployeeForm extends FormLayout {
                 qualifications,
                 vehicles,
                 createButtonsLayout());
+    }
+
+    private void localize() {
+        firstName.setLabel(getTranslation("employeeForm.firstName"));
+        lastName.setLabel(getTranslation("employeeForm.lastName"));
+        birthDate.setLabel(getTranslation("employeeForm.birthDate"));
+        phoneNumber.setLabel(getTranslation("employeeForm.phoneNumber"));
+        department.setLabel(getTranslation("employeeForm.department"));
+        roles.setLabel(getTranslation("employeeForm.roles"));
+
+        save.setText(getTranslation("employeeForm.save"));
+        update.setText(getTranslation("employeeForm.update"));
+        delete.setText(getTranslation("employeeForm.delete"));
+        close.setText(getTranslation("employeeForm.close"));
     }
 
     private Component createButtonsLayout() {
@@ -143,7 +160,7 @@ public class EmployeeForm extends FormLayout {
     // Events
     public abstract static class EmployeeFormEvent extends ComponentEvent<EmployeeForm> {
 
-        private EmployeeFormModel employeeFormModel;
+        private final EmployeeFormModel employeeFormModel;
 
         protected EmployeeFormEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
             super(source, false);
@@ -156,28 +173,24 @@ public class EmployeeForm extends FormLayout {
     }
 
     public static class SaveEvent extends EmployeeFormEvent {
-
         SaveEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
             super(source, employeeFormModel);
         }
     }
 
     public static class UpdateEvent extends EmployeeFormEvent {
-
         UpdateEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
             super(source, employeeFormModel);
         }
     }
 
     public static class DeleteEvent extends EmployeeFormEvent {
-
         DeleteEvent(EmployeeForm source, EmployeeFormModel employeeFormModel) {
             super(source, employeeFormModel);
         }
     }
 
     public static class CloseEvent extends EmployeeFormEvent {
-
         CloseEvent(EmployeeForm source) {
             super(source, null);
         }

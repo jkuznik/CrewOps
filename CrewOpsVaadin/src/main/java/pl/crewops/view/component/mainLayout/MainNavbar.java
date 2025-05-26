@@ -6,6 +6,7 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.infrastructure.core.CoreAPI;
@@ -15,6 +16,7 @@ import pl.crewops.view.component.LoggedUserInfoComponent;
 import pl.crewops.view.component.form.LoginForm;
 
 @SpringComponent
+@UIScope
 @CssImport("./styles/mainStyles/main-navbar.css")
 public class MainNavbar extends HorizontalLayout {
 
@@ -53,7 +55,7 @@ public class MainNavbar extends HorizontalLayout {
         rightSide.getStyle().set("padding-right", "20px");
 
         if (principal == null || jwtService.validToken(principal.getToken())) {
-            LoggedUserInfoComponent loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI, jwtService);
+            var loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI, jwtService);
             rightSide.add(loggedUserInfoComponent);
         } else {
             LoginForm loginForm = new LoginForm(coreAPI, jwtService);
@@ -65,7 +67,8 @@ public class MainNavbar extends HorizontalLayout {
 
     private static HorizontalLayout createNavbarLeftSide() {
         var leftSide = new HorizontalLayout();
-        H1 title = new H1("CrewOps");
+        H1 title = new H1();
+        title.setText(title.getTranslation("mainNavbar.title"));
         title.addClassName("main-navbar-title");
         leftSide.setWidthFull();
         leftSide.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);

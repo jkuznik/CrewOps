@@ -15,6 +15,7 @@ import com.vaadin.flow.shared.Registration;
 import pl.crewops.model.BreakdownFormModel;
 
 public class BreakdownForm extends FormLayout {
+
     private final TextField vehicle = new TextField("Vehicle");
     private final TextField description = new TextField("Description");
     private final Checkbox solved = new Checkbox("Solved");
@@ -29,9 +30,22 @@ public class BreakdownForm extends FormLayout {
     public BreakdownForm() {
         addClassName("breakdown-form");
 
+        localize();
+
         configureBinder();
 
         add(vehicle, description, solved, critical, createButtonsLayout());
+    }
+
+    private void localize() {
+        vehicle.setLabel(getTranslation("breakdownForm.vehicle"));
+        description.setLabel(getTranslation("breakdownForm.description"));
+        solved.setLabel(getTranslation("breakdownForm.solved"));
+        critical.setLabel(getTranslation("breakdownForm.critical"));
+
+        save.setText(getTranslation("breakdownForm.save"));
+        update.setText(getTranslation("breakdownForm.update"));
+        close.setText(getTranslation("breakdownForm.close"));
     }
 
     private void configureBinder() {
@@ -39,7 +53,7 @@ public class BreakdownForm extends FormLayout {
 
         binder.forField(description).bind(BreakdownFormModel::getDescription, BreakdownFormModel::setDescription);
 
-        // TODO: implement logic for setSolved only by mechanics, shift leader or manage
+        // TODO: implement logic for setSolved only by mechanics, shift leader or manager
         binder.forField(solved).bind(BreakdownFormModel::isSolved, BreakdownFormModel::setSolved);
 
         binder.forField(critical).bind(BreakdownFormModel::isCritical, BreakdownFormModel::setCritical);
@@ -100,8 +114,7 @@ public class BreakdownForm extends FormLayout {
     }
 
     public abstract static class BreakdownFormEvent extends ComponentEvent<BreakdownForm> {
-
-        private BreakdownFormModel breakdownFormModel;
+        private final BreakdownFormModel breakdownFormModel;
 
         protected BreakdownFormEvent(BreakdownForm source, BreakdownFormModel breakdownFormModel) {
             super(source, false);
@@ -113,36 +126,33 @@ public class BreakdownForm extends FormLayout {
         }
     }
 
-    public static class SaveEvent extends BreakdownForm.BreakdownFormEvent {
-
+    public static class SaveEvent extends BreakdownFormEvent {
         SaveEvent(BreakdownForm source, BreakdownFormModel breakdownFormModel) {
             super(source, breakdownFormModel);
         }
     }
 
-    public static class UpdateEvent extends BreakdownForm.BreakdownFormEvent {
-
+    public static class UpdateEvent extends BreakdownFormEvent {
         UpdateEvent(BreakdownForm source, BreakdownFormModel breakdownFormModel) {
             super(source, breakdownFormModel);
         }
     }
 
-    public static class CloseEvent extends BreakdownForm.BreakdownFormEvent {
-
+    public static class CloseEvent extends BreakdownFormEvent {
         CloseEvent(BreakdownForm source) {
             super(source, null);
         }
     }
 
-    public Registration addSaveListener(ComponentEventListener<BreakdownForm.SaveEvent> listener) {
-        return addListener(BreakdownForm.SaveEvent.class, listener);
+    public Registration addSaveListener(ComponentEventListener<SaveEvent> listener) {
+        return addListener(SaveEvent.class, listener);
     }
 
-    public Registration addUpdateListener(ComponentEventListener<BreakdownForm.UpdateEvent> listener) {
-        return addListener(BreakdownForm.UpdateEvent.class, listener);
+    public Registration addUpdateListener(ComponentEventListener<UpdateEvent> listener) {
+        return addListener(UpdateEvent.class, listener);
     }
 
-    public Registration addCloseListener(ComponentEventListener<BreakdownForm.CloseEvent> listener) {
-        return addListener(BreakdownForm.CloseEvent.class, listener);
+    public Registration addCloseListener(ComponentEventListener<CloseEvent> listener) {
+        return addListener(CloseEvent.class, listener);
     }
 }

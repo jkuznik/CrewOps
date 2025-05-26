@@ -82,7 +82,7 @@ class EmployeeServiceTest {
     }
 
     @Test
-    void shouldReturnEmployeeDTO_whenCreateEmployeeDTOHaveNoQualificationsAndNoVehicles() {
+    void createEmployee_ShouldReturnEmployeeDTO_whenCreateEmployeeDTOHaveNoQualificationsAndNoVehicles() {
         // when
         when(employeeRepository.save(any(Employee.class))).thenReturn(employeeWithEmptyQAndEmptyV);
         EmployeeDTO result = employeeService.createEmployee(createEmployeeWithEmptyQAndEmptyV);
@@ -93,7 +93,7 @@ class EmployeeServiceTest {
     }
 
     @Test
-    void shouldThrowException_whenUsernameAlreadyExists() {
+    void createEmployee_ShouldThrowException_whenUsernameAlreadyExists() {
         // given
         var existedUsername = "existedUsername";
         var authUser = AuthUser.builder().username(existedUsername).build();

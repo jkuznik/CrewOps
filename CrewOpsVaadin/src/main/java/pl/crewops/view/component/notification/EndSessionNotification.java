@@ -9,11 +9,12 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-public class EndSessionNotification {
+public class EndSessionNotification extends VerticalLayout {
     private final Notification notification;
-    private final Button accept = new Button("Accept");
 
     public EndSessionNotification(UI ui, Runnable onSessionEnd) {
+        addClassName("notification-layout");
+
         notification = new Notification();
         notification.setDuration(0);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -21,13 +22,14 @@ public class EndSessionNotification {
         notification.addClassName("custom-notification");
 
         Div message = new Div();
-        message.setText("Your session has expired.\nPlease log in again.");
+        message.setText(message.getTranslation("endSessionNotification.message"));
         message.getStyle()
                 .set("color", "white")
                 .set("white-space", "pre-line") // zachowaj \n jako nową linię
                 .set("text-align", "center");
 
-        accept.setText("Accept");
+        Button accept = new Button();
+        accept.setText(accept.getTranslation("endSessionNotification.accept"));
         accept.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         accept.addClickListener(e -> {
             notification.close();
@@ -35,11 +37,10 @@ public class EndSessionNotification {
             enableUI(ui);
         });
 
-        VerticalLayout content = new VerticalLayout(message, accept);
-        content.setAlignItems(FlexComponent.Alignment.CENTER);
-        content.addClassName("notification-layout");
+        add(message, accept);
+        setAlignItems(FlexComponent.Alignment.CENTER);
 
-        notification.add(content);
+        notification.add(this);
         disableUI(ui);
     }
 

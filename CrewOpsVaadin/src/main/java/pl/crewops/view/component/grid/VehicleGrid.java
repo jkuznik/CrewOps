@@ -25,6 +25,7 @@ import pl.crewops.model.VehicleFormModel;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.BreakdownForm;
 import pl.crewops.view.component.form.VehicleForm;
+import pl.crewops.view.component.notification.AddVehicleNotification;
 import pl.crewops.view.component.notification.UpdateVehicleNotification;
 
 @Slf4j
@@ -33,6 +34,7 @@ public class VehicleGrid extends VerticalLayout {
 
     private final Grid<VehicleFormModel> grid = new Grid<>(VehicleFormModel.class);
     private final TextField filter = new TextField();
+    private final Button addVehicle = new Button();
     private final VehicleForm vehicleForm;
     private final BreakdownForm breakdownForm = new BreakdownForm();
     private VehicleFormModel selectedModel;
@@ -43,6 +45,9 @@ public class VehicleGrid extends VerticalLayout {
 
         configureGrid();
         configureForm();
+
+        localize();
+
         this.addDisplayBreakdownsListener(event -> {
             displayBreakdowns(this, breakdownGrid);
         });
@@ -52,6 +57,24 @@ public class VehicleGrid extends VerticalLayout {
 
         setSizeFull();
         add(getToolbar(), getContent());
+    }
+
+    private void localize() {
+        filter.setPlaceholder(getTranslation("vehicleGrid.filter.placeholder"));
+
+        addVehicle.setText(getTranslation("vehicleGrid.button.addVehicle"));
+
+        setColumnHeader("vehicleType", "vehicleGrid.column.vehicleType");
+        setColumnHeader("registrationNumber", "vehicleGrid.column.registrationNumber");
+        setColumnHeader("broken", "vehicleGrid.column.broken");
+        setColumnHeader("make", "vehicleGrid.column.make");
+        setColumnHeader("model", "vehicleGrid.column.model");
+        setColumnHeader("year", "vehicleGrid.column.year");
+        setColumnHeader("vin", "vehicleGrid.column.vin");
+    }
+
+    private void setColumnHeader(String key, String translationKey) {
+        grid.getColumnByKey(key).setHeader(getTranslation(translationKey));
     }
 
     public void closeEditor() {
@@ -76,22 +99,28 @@ public class VehicleGrid extends VerticalLayout {
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        filter.setPlaceholder("Filter by type");
         filter.setClearButtonVisible(true);
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         filter.addValueChangeListener(event -> updateVehicleGrid());
 
-        Button addVehicle = new Button("Add vehicle");
         addVehicle.addClickListener(event -> addVehicle());
 
         toolbar.add(filter, addVehicle);
-
         return toolbar;
     }
 
     private void configureGrid() {
         grid.setSizeFull();
-        grid.setColumns("vehicleType", "registrationNumber", "broken", "make", "model", "year", "vin");
+        grid.removeAllColumns();
+
+        grid.addColumn(VehicleFormModel::getVehicleType).setKey("vehicleType");
+        grid.addColumn(VehicleFormModel::getRegistrationNumber).setKey("registrationNumber");
+        grid.addColumn(VehicleFormModel::getBroken).setKey("broken");
+        grid.addColumn(VehicleFormModel::getMake).setKey("make");
+        grid.addColumn(VehicleFormModel::getModel).setKey("model");
+        grid.addColumn(VehicleFormModel::getYear).setKey("year");
+        grid.addColumn(VehicleFormModel::getVin).setKey("vin");
+
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 
         grid.asSingleSelect().addValueChangeListener(event -> {
@@ -106,9 +135,7 @@ public class VehicleGrid extends VerticalLayout {
         vehicleForm.addSaveListener(this::saveVehicle);
         vehicleForm.addUpdateListener(this::updateVehicle);
         vehicleForm.addDeleteListener(this::deleteVehicle);
-        vehicleForm.addCloseListener(event -> {
-            closeEditor();
-        });
+        vehicleForm.addCloseListener(event -> closeEditor());
         vehicleForm.addReportBreakdownListener(this::reportBreakdown);
         breakdownForm.addSaveListener(this::saveBreakdown);
     }
@@ -119,15 +146,13 @@ public class VehicleGrid extends VerticalLayout {
                     .map(VehicleFormModel::toVehicleFormModel)
                     .toList();
 
-            if (filter.getValue() == null) {
+            if (filter.getValue() == null || filter.getValue().isBlank()) {
                 grid.setItems(vehicles);
             } else {
                 grid.setItems(vehicles.stream()
                         .filter(vehicleDTO -> vehicleDTO
                                 .getVehicleType()
                                 .toLowerCase()
-                                //                            .registerNumber()
-                                //                            .toLowerCase()
                                 .contains(filter.getValue().toLowerCase()))
                         .toList());
             }
@@ -149,7 +174,6 @@ public class VehicleGrid extends VerticalLayout {
 
     private void addVehicle() {
         breakdownForm.setVisible(false);
-
         grid.asSingleSelect().clear();
         vehicleForm.setFormModeSave();
         vehicleForm.setVisible(true);
@@ -157,13 +181,11 @@ public class VehicleGrid extends VerticalLayout {
 
     private void saveVehicle(VehicleForm.SaveEvent event) {
         try {
-
             Optional<VehicleDTO> vehicleDTO =
                     coreAPI.createVehicle(VehicleFormModel.toCreateVehicleDTO(event.getVehicle()));
             updateVehicleGrid();
             closeEditor();
-            // todo: modify and check other similar exceptions
-            vehicleDTO.ifPresent(UpdateVehicleNotification::new);
+            vehicleDTO.ifPresent(AddVehicleNotification::new);
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
@@ -189,7 +211,6 @@ public class VehicleGrid extends VerticalLayout {
             updateVehicleGrid();
             closeEditor();
             // TODO: notification for add breakdown action
-            //            breakdownDTO.ifPresent()
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
@@ -218,11 +239,9 @@ public class VehicleGrid extends VerticalLayout {
                     .findFirst()
                     .orElseThrow(() -> new NoSuchElementException("No vehicle registered with id "
                             + event.getVehicle().getRegistrationNumber())));
-            breakdownFormModel.setReportedBy(
-                    // TODO: just PoC logic - implement logic
-                    EmployeeDTO.builder()
-                            .id(UUID.fromString("11111111-1111-1111-1111-111111111111"))
-                            .build());
+            breakdownFormModel.setReportedBy(EmployeeDTO.builder()
+                    .id(UUID.fromString("11111111-1111-1111-1111-111111111111"))
+                    .build());
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
@@ -240,7 +259,6 @@ public class VehicleGrid extends VerticalLayout {
 
         protected VehicleGridEvent(VehicleGrid source, BreakdownGrid breakdownGrid) {
             super(source, false);
-
             source.setVisible(false);
             breakdownGrid.setFilter(source.getSelectedVehicle().getRegistrationNumber());
             breakdownGrid.setVisible(true);
@@ -248,7 +266,6 @@ public class VehicleGrid extends VerticalLayout {
     }
 
     public static class DisplayBreakdownsEvent extends VehicleGridEvent {
-
         DisplayBreakdownsEvent(VehicleGrid source, BreakdownGrid breakdownGrid) {
             super(source, breakdownGrid);
         }

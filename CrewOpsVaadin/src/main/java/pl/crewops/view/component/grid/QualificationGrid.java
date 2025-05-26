@@ -16,17 +16,19 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.QualificationFormModel;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.QualificationForm;
+import pl.crewops.view.component.notification.AddQualificationNotification;
 import pl.crewops.view.component.notification.QualificationAlreadyExistNotification;
 import pl.crewops.view.component.notification.UpdateQualificationNotification;
 
 public class QualificationGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
 
-    private final Grid<QualificationFormModel> grid = new Grid<>(QualificationFormModel.class);
+    private final Grid<QualificationFormModel> grid = new Grid<>();
     private final TextField filter = new TextField();
     private final QualificationForm form = new QualificationForm();
+    private final Button addQualification = new Button();
 
-    private List<QualificationFormModel> employees = new ArrayList<>();
+    private List<QualificationFormModel> qualifications = new ArrayList<>();
 
     public QualificationGrid(CoreAPI coreAPI) {
         this.coreAPI = coreAPI;
@@ -34,11 +36,22 @@ public class QualificationGrid extends VerticalLayout {
         configureGrid();
         configureForm();
 
+        localize();
+
         updateGrid();
         closeEditor();
 
         setSizeFull();
         add(getToolbar(), getContent());
+    }
+
+    private void localize() {
+        filter.setPlaceholder(getTranslation("qualificationGrid.filter.placeholder"));
+
+        addQualification.setText(getTranslation("qualificationGrid.button.addQualification"));
+
+        grid.getColumnByKey("description").setHeader(getTranslation("qualificationGrid.column.description"));
+        grid.getColumnByKey("employeesAmount").setHeader(getTranslation("qualificationGrid.column.employeesAmount"));
     }
 
     public void closeEditor() {
@@ -57,27 +70,25 @@ public class QualificationGrid extends VerticalLayout {
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        filter.setPlaceholder("Filter by name");
         filter.setClearButtonVisible(true);
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         filter.addValueChangeListener(event -> updateGrid());
 
-        Button addQualification = new Button("Add qualification");
         addQualification.addClickListener(event -> addQualification());
 
         toolbar.add(filter, addQualification);
-
         return toolbar;
     }
 
     private void configureGrid() {
         grid.setSizeFull();
-        grid.setColumns("description", "employeesAmount");
+
+        grid.addColumn(QualificationFormModel::getDescription).setKey("description");
+        grid.addColumn(QualificationFormModel::getEmployeesAmount).setKey("employeesAmount");
+
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 
-        grid.asSingleSelect().addValueChangeListener(event -> {
-            editQualification(event.getValue());
-        });
+        grid.asSingleSelect().addValueChangeListener(event -> editQualification(event.getValue()));
     }
 
     private void configureForm() {
@@ -86,23 +97,20 @@ public class QualificationGrid extends VerticalLayout {
         form.addSaveListener(this::saveQualification);
         form.addUpdateListener(this::updateQualification);
         form.addDeleteListener(this::deleteQualification);
-        form.addCloseListener(event -> {
-            closeEditor();
-        });
+        form.addCloseListener(event -> closeEditor());
     }
 
     private void updateGrid() {
         try {
-            employees = coreAPI.getAllQualifications().stream()
+            qualifications = coreAPI.getAllQualifications().stream()
                     .map(QualificationFormModel::toQualificationFormModel)
                     .toList();
 
-            if (filter.getValue() == null) {
-                grid.setItems(employees);
+            if (filter.getValue() == null || filter.getValue().isBlank()) {
+                grid.setItems(qualifications);
             } else {
-                grid.setItems(employees.stream()
-                        .filter(qualificationDTO -> qualificationDTO
-                                .getDescription()
+                grid.setItems(qualifications.stream()
+                        .filter(q -> q.getDescription()
                                 .toLowerCase()
                                 .contains(filter.getValue().toLowerCase()))
                         .toList());
@@ -119,7 +127,6 @@ public class QualificationGrid extends VerticalLayout {
             form.setQualification(qualificationFormModel);
             form.setFormModeUpdate();
             form.setVisible(true);
-            addClassName("editing");
         }
     }
 
@@ -130,18 +137,19 @@ public class QualificationGrid extends VerticalLayout {
     }
 
     private void saveQualification(QualificationForm.SaveEvent event) {
-        if (employees.stream().anyMatch(qualification -> qualification
-                .getDescription()
-                .equals(event.getQualification().getDescription()))) {
+        if (qualifications.stream().anyMatch(q -> q.getDescription()
+                .equalsIgnoreCase(event.getQualification().getDescription()))) {
             new QualificationAlreadyExistNotification(event.getQualification().getDescription());
             closeEditor();
             return;
         }
 
         try {
-            coreAPI.createQualification(QualificationFormModel.toCreateQualificationDTO(event.getQualification()));
+            Optional<QualificationDTO> qualificationDTO = coreAPI.createQualification(
+                    QualificationFormModel.toCreateQualificationDTO(event.getQualification()));
             updateGrid();
             closeEditor();
+            qualificationDTO.ifPresent(AddQualificationNotification::new);
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
