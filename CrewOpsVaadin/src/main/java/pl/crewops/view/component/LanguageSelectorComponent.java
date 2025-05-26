@@ -56,6 +56,7 @@ public class LanguageSelectorComponent extends HorizontalLayout implements Local
         });
     }
 
+    // TODO: automate this using CustomI18nProvider getProvidedLocales() method
     private void fillOptions() {
         options.put("🇺🇸", new Locale("en", "US")); // USA
         options.put("🇵🇱", new Locale("pl", "PL")); // Polska

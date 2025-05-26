@@ -55,8 +55,8 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        Button list = new Button("Vehicles list");
-        Button breakdown = new Button("Breakdowns");
+        Button list = new Button(getTranslation("vehicleView.vehicleList"));
+        Button breakdown = new Button(getTranslation("vehicleView.breakdowns"));
         list.addClickListener(event -> displayVehicleGrid());
         breakdown.addClickListener(event -> displayBreakdownGrid());
 

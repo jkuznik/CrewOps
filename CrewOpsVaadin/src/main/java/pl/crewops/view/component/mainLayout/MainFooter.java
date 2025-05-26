@@ -22,6 +22,7 @@ public class MainFooter extends Footer {
         VerticalLayout leftSide = new VerticalLayout();
         leftSide.addClassName("main-footer-column");
 
+        // TODO: implement i18n contact and info values
         Span contactSpan = new Span("Contact");
         contactSpan.addClassName("main-footer-text");
         leftSide.add(contactSpan);

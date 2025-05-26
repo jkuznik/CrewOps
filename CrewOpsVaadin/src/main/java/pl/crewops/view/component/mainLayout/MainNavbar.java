@@ -55,7 +55,7 @@ public class MainNavbar extends HorizontalLayout {
         rightSide.getStyle().set("padding-right", "20px");
 
         if (principal == null || jwtService.validToken(principal.getToken())) {
-            LoggedUserInfoComponent loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI, jwtService);
+            var loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI, jwtService);
             rightSide.add(loggedUserInfoComponent);
         } else {
             LoginForm loginForm = new LoginForm(coreAPI, jwtService);

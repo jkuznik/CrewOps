@@ -9,7 +9,6 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.spring.annotation.SpringComponent;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.Executors;
@@ -24,7 +23,6 @@ import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.LoginForm;
 import pl.crewops.view.component.notification.EndSessionNotification;
 
-@SpringComponent
 public class LoggedUserInfoComponent extends HorizontalLayout {
     private static final Map<UI, Boolean> startedMap = new WeakHashMap<>();
     private boolean sessionEnded = false;
@@ -54,9 +52,9 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         infoLayout.setWidthFull();
         infoLayout.setSpacing(true);
 
-        H1 title = new H1("You are logged as ");
+        H1 title = new H1(getTranslation("loggedUserInfo.title"));
 
-        Button logoutButton = new Button("Logout");
+        Button logoutButton = new Button(getTranslation("loggedUserInfo.logout"));
         logoutButton.addClickListener(event -> logout(coreAPI));
         logoutButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
@@ -96,7 +94,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                         sessionEnded = true;
                         scheduler.shutdown();
                         ui.access(() -> {
-                            countdown.setText("Token expired");
+                            countdown.setText(getTranslation("loggedUserInfo.tokenExpired"));
                             new EndSessionNotification(ui, () -> {
                                         authentication.setAuthenticated(false);
                                         String currentLocation = ui.getInternals()
@@ -114,7 +112,8 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                     }
 
                     String timeFormatted = formatDuration(secondsLeft);
-                    ui.access(() -> countdown.setText("Token expires in: " + timeFormatted));
+                    ui.access(() ->
+                            countdown.setText(getTranslation("loggedUserInfo.tokenCountdownPrefix") + timeFormatted));
                 },
                 0,
                 1,
