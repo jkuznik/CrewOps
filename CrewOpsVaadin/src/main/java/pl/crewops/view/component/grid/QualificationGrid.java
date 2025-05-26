@@ -167,6 +167,7 @@ public class QualificationGrid extends VerticalLayout {
         }
     }
 
+    // TODO: add delete guardian (for example in case if qualification is related to at last one employee)
     private void deleteQualification(QualificationForm.DeleteEvent event) {
         try {
             coreAPI.deleteQualification(event.getQualification().getId());

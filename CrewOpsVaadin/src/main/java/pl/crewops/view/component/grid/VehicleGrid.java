@@ -216,6 +216,7 @@ public class VehicleGrid extends VerticalLayout {
         }
     }
 
+    // TODO: add delete vehicle guardian
     private void deleteVehicle(VehicleForm.DeleteEvent event) {
         try {
             coreAPI.deleteVehicle(event.getVehicle().getId());

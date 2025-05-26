@@ -16,6 +16,18 @@ databaseChangeLog:
               - column: { name: name, value: "EMPLOYEE" }
 
         - insert:
+            tableName: role
+            columns:
+              - column: { name: id, value: "cccccccc-cccc-cccc-cccc-cccccccccccc" }
+              - column: { name: name, value: "SHIFT_LEADER" }
+
+        - insert:
+            tableName: role
+            columns:
+              - column: { name: id, value: "dddddddd-dddd-dddd-dddd-dddddddddddd" }
+              - column: { name: name, value: "ADMIN" }
+
+        - insert:
             tableName: auth_user
             columns:
               - column: { name: id, value: "cccccccc-cccc-cccc-cccc-cccccccccccc" }

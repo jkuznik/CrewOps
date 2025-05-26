@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import javax.management.relation.RoleNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -48,10 +49,15 @@ class AuthService implements AuthAPI {
             authUser.setUsername(createAuthUserDTO.username());
             authUser.setPassword(passwordEncoder.encode(createAuthUserDTO.password()));
             Set<Role> roles = new HashSet<>();
-            createAuthUserDTO
-                    .roles()
-                    .forEach(role ->
-                            roles.add(roleRepository.findByName(role.name()).orElseThrow()));
+            createAuthUserDTO.roles().forEach(role -> {
+                try {
+                    roles.add(roleRepository
+                            .findByName(role.name())
+                            .orElseThrow(() -> new RoleNotFoundException("Role " + role.name() + " not found")));
+                } catch (RoleNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            });
             log.info("Creating auth user " + createAuthUserDTO.username() + " with roles " + roles);
             authUser.setRoles(roles);
             authUser.setEmployee(employee);
