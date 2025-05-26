@@ -17,7 +17,8 @@ public class UpdateQualificationNotification {
 
         Div div = new Div();
         div.addClassName("update-employee-notification-div");
-        div.setText("Successfully update qualification " + qualificationDTO.description());
+        div.setText(
+                div.getTranslation("updateQualificationNotification.messagePrefix") + qualificationDTO.description());
         notification.add(div);
         notification.open();
     }

@@ -12,14 +12,13 @@ import pl.crewops.dto.qualification.QualificationDTO;
 // TODO: consider or just test if this component really have to extends FormLayout or some other
 public class QualificationAccordion extends FormLayout {
 
-    private final Accordion accordion = new Accordion();
-
     public QualificationAccordion() {
         addClassName("qualification-accordion");
     }
 
     public void getValues(Set<QualificationDTO> qualifications) {
         removeAll();
+        Accordion accordion = new Accordion();
         List<Span> items = new ArrayList<>();
 
         qualifications.forEach(qualification -> {

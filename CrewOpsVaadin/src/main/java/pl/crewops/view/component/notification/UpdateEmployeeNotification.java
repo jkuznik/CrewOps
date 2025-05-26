@@ -16,7 +16,8 @@ public class UpdateEmployeeNotification {
 
         Div div = new Div();
         div.addClassName("update-employee-notification-div");
-        div.setText("Successfully update employee " + employeeDTO.firstName() + " " + employeeDTO.lastName());
+        div.setText(div.getTranslation("updateEmployeeNotification.messagePrefix") + employeeDTO.firstName() + " "
+                + employeeDTO.lastName());
         notification.add(div);
         notification.open();
     }

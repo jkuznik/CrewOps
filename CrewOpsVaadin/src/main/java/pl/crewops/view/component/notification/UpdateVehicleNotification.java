@@ -16,7 +16,7 @@ public class UpdateVehicleNotification {
 
         Div div = new Div();
         div.addClassName("update-vehicle-notification-div");
-        div.setText("Successfully update vehicle " + vehicleDTO.registerNumber());
+        div.setText(div.getTranslation("updateVehicleNotification.messagePrefixgit ") + vehicleDTO.registerNumber());
         notification.add(div);
         notification.open();
     }

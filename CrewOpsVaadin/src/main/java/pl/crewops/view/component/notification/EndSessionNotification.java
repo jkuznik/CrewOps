@@ -11,7 +11,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 public class EndSessionNotification {
     private final Notification notification;
-    private final Button accept = new Button("Accept");
 
     public EndSessionNotification(UI ui, Runnable onSessionEnd) {
         notification = new Notification();
@@ -21,13 +20,14 @@ public class EndSessionNotification {
         notification.addClassName("custom-notification");
 
         Div message = new Div();
-        message.setText("Your session has expired.\nPlease log in again.");
+        message.setText(message.getTranslation("endSessionNotification.message"));
         message.getStyle()
                 .set("color", "white")
                 .set("white-space", "pre-line") // zachowaj \n jako nową linię
                 .set("text-align", "center");
 
-        accept.setText("Accept");
+        Button accept = new Button();
+        accept.setText(accept.getTranslation("endSessionNotification.accept"));
         accept.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         accept.addClickListener(e -> {
             notification.close();

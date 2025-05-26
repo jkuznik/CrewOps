@@ -15,7 +15,9 @@ public class QualificationAlreadyExistNotification {
 
         Div div = new Div();
         div.addClassName("update-vehicle-notification-div");
-        div.setText("Qualification '" + description + "' already exist");
+        div.setText(div.getTranslation("qualificationAlreadyExistNotification.messagePrefix")
+                + description
+                + div.getTranslation("qualificationAlreadyExistNotification.messageSuffix"));
         notification.add(div);
         notification.open();
     }
