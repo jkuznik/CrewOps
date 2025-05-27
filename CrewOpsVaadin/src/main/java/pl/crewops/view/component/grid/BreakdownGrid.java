@@ -20,6 +20,8 @@ public class BreakdownGrid extends VerticalLayout {
 
     private final Grid<BreakdownFormModel> grid = new Grid<>();
     private final TextField filter = new TextField();
+    private final TextField descriptionFilter = new TextField();
+
     private final BreakdownForm form;
 
     public BreakdownGrid(CoreAPI coreAPI) {
@@ -59,11 +61,17 @@ public class BreakdownGrid extends VerticalLayout {
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
+        filter.setPlaceholder(getTranslation("breakdownGrid.filter.registrationNumberPlaceholder"));
         filter.setClearButtonVisible(true);
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         filter.addValueChangeListener(event -> updateBreakdownGrid());
 
-        toolbar.add(filter);
+        descriptionFilter.setPlaceholder(getTranslation("breakdownGrid.filter.descriptionPlaceholder"));
+        descriptionFilter.setClearButtonVisible(true);
+        descriptionFilter.setValueChangeMode(ValueChangeMode.LAZY);
+        descriptionFilter.addValueChangeListener(event -> updateBreakdownGrid());
+
+        toolbar.add(filter, descriptionFilter);
 
         return toolbar;
     }
@@ -120,21 +128,27 @@ public class BreakdownGrid extends VerticalLayout {
 
     public void updateBreakdownGrid() {
         try {
+            // TODO: implement cache
             List<BreakdownFormModel> breakdowns = coreAPI.getAllBreakdowns().stream()
                     .map(BreakdownFormModel::toBreakdownFormModel)
                     .toList();
 
-            if (filter.getValue() == null || filter.getValue().isBlank()) {
-                grid.setItems(breakdowns);
-            } else {
-                grid.setItems(breakdowns.stream()
-                        .filter(breakdownDTO -> breakdownDTO
-                                .getVehicle()
-                                .registerNumber()
-                                .toLowerCase()
-                                .contains(filter.getValue().toLowerCase()))
-                        .toList());
-            }
+            String regFilter = filter.getValue() != null ? filter.getValue().toLowerCase() : "";
+            String descFilter = descriptionFilter.getValue() != null
+                    ? descriptionFilter.getValue().toLowerCase()
+                    : "";
+
+            grid.setItems(breakdowns.stream()
+                    .filter(breakdown -> breakdown.getVehicle() != null
+                            && breakdown
+                                    .getVehicle()
+                                    .registerNumber()
+                                    .toLowerCase()
+                                    .contains(regFilter))
+                    .filter(breakdown -> breakdown.getDescription() != null
+                            && breakdown.getDescription().toLowerCase().contains(descFilter))
+                    .toList());
+
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }

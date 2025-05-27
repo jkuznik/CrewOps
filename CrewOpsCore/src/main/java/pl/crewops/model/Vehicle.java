@@ -32,6 +32,7 @@ public class Vehicle extends AbstractEntity {
     @Column(updatable = false)
     private String model;
 
+    // TODO: change this to separate table in db
     @NotNull
     @Enumerated
     @JdbcType(PostgreSQLEnumJdbcType.class)
