@@ -22,10 +22,7 @@ import pl.crewops.domain.vehicle.VehicleAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.exception.EmployeeNotFoundException;
-import pl.crewops.exception.EmployeeQualificationNotFoundException;
-import pl.crewops.exception.ExpireAtException;
-import pl.crewops.exception.UsernameAlreadyExistException;
+import pl.crewops.exception.*;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Qualification;
 import pl.crewops.model.Vehicle;
@@ -69,6 +66,13 @@ class EmployeeService {
     public List<EmployeeDTO> getAllEmployees(int page, int size) {
         log.info("Get all employees with pagination. Page: {}, size: {}", page, size);
         return employeeRepository.findAll(getPageRequest(page, size)).stream()
+                .map(EmployeeMapper::mapToDTO)
+                .toList();
+    }
+
+    public List<EmployeeDTO> getAllActiveEmployees(int page, int size) {
+        log.info("Get all active employees. Page: {}, size: {}", page, size);
+        return employeeRepository.findAllByActiveIsTrue(getPageRequest(page, size)).stream()
                 .map(EmployeeMapper::mapToDTO)
                 .toList();
     }
@@ -122,11 +126,16 @@ class EmployeeService {
     //    TODO: breakdown table have constraint on reportedAt column that is UUID employee_id value, implement logic
     @Transactional
     public void deleteEmployee(@NotNull UUID employeeId) {
-        log.info("Delete employee {}", employeeId);
-        Employee employee =
+        var employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
-        authAPI.deleteByEmployee(employee);
-        employeeRepository.deleteById(employeeId);
+
+        var authUser = authAPI.getByEmployee(employee).orElseThrow(() -> new AuthUserNotFoundException(employee));
+
+        employee.setActive(false);
+        log.info("Delete authUser {}", authUser.getUsername());
+        authAPI.deleteById(authUser.getId());
+        log.info("Set 'active' column to 'false' for employee {}", employeeId);
+        employeeRepository.save(employee);
     }
 
     @Transactional
@@ -205,11 +214,5 @@ class EmployeeService {
     private static PageRequest getPageRequest(int page, int size) {
         return PageRequestFactory.createPageRequest(
                 page, size, Sort.by(Sort.Order.asc("lastName"), Sort.Order.asc("firstName")));
-    }
-
-    public List<EmployeeDTO> getEmployeesByFirstName(String firstName) {
-        return employeeRepository.findByFirstName(firstName).stream()
-                .map(EmployeeMapper::mapToDTO)
-                .toList();
     }
 }

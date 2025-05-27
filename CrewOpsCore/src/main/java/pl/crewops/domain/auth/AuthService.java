@@ -3,10 +3,7 @@ package pl.crewops.domain.auth;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import javax.management.relation.RoleNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +33,11 @@ class AuthService implements AuthAPI {
     @Override
     public Optional<AuthUser> getByUsername(@NotNull String username) {
         return authUserRepository.findByUsername(username);
+    }
+
+    @Override
+    public Optional<AuthUser> getByEmployee(Employee employee) {
+        return authUserRepository.findByEmployee(employee);
     }
 
     @Transactional
@@ -70,8 +72,8 @@ class AuthService implements AuthAPI {
     }
 
     @Transactional
-    public void deleteByEmployee(Employee employee) {
-        authUserRepository.deleteByEmployee(employee);
+    public void deleteById(UUID uuid) {
+        authUserRepository.deleteById(uuid);
     }
 
     @Transactional

@@ -33,7 +33,7 @@ class EmployeeController {
     public ResponseEntity<List<EmployeeDTO>> getEmployees(
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "15") int size) {
         log.info("Get employees");
-        return ResponseEntity.status(HttpStatus.OK).body(employeeService.getAllEmployees(page, size));
+        return ResponseEntity.status(HttpStatus.OK).body(employeeService.getAllActiveEmployees(page, size));
     }
 
     @GetMapping(EMPLOYEES_QID)

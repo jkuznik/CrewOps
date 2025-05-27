@@ -23,7 +23,7 @@ public class Breakdown extends AbstractEntity {
     private Vehicle vehicle;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "reported_by_id")
+    @JoinColumn(name = "reported_by_id", nullable = false)
     private Employee reportedBy;
 
     @ManyToOne(fetch = FetchType.EAGER)

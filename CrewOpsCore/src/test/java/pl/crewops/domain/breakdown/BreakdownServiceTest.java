@@ -38,7 +38,7 @@ class BreakdownServiceTest {
     private BreakdownDTO breakdownDTO;
 
     @Test
-    void shouldReturnBreakdownDTO_WhenCreateDTOIsValid() {
+    void createBreakdown_shouldReturnBreakdownDTO_WhenCreateDTOIsValid() {
         // when
         when(vehicleAPI.getVehicle(any(UUID.class))).thenReturn(getVehicle());
         when(employeeAPI.getEmployee(any(UUID.class))).thenReturn(getEmployee());
