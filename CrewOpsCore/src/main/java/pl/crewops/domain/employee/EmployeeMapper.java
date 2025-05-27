@@ -17,6 +17,7 @@ class EmployeeMapper {
                 .birthDate(createEmployeeDTO.birthDate())
                 .phoneNumber(createEmployeeDTO.phoneNumber())
                 .department(createEmployeeDTO.department())
+                .active(true)
                 .build();
     }
 
