@@ -8,7 +8,7 @@ class VehicleMapper {
 
     public static Vehicle mapToEntity(CreateVehicleDTO createVehicleDTO) {
         var vehicleType = VehicleType.builder()
-                .type(createVehicleDTO.vehicleType().name())
+                .name(createVehicleDTO.vehicleType().name())
                 .build();
         vehicleType.setId(createVehicleDTO.vehicleType().id());
 

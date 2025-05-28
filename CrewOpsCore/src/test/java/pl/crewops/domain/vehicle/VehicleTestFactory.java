@@ -10,7 +10,7 @@ class VehicleTestFactory {
 
     public static Vehicle createVehicle() {
         return Vehicle.builder()
-                .vehicleType(VehicleType.builder().type("ImplementThis").build())
+                .vehicleType(VehicleType.builder().name("ImplementThis").build())
                 .make("make")
                 .model("model")
                 .year(2020)
@@ -22,7 +22,7 @@ class VehicleTestFactory {
 
     public static CreateVehicleDTO createVehicleDTO() {
         return CreateVehicleDTO.builder()
-                .vehicleType(VehicleType.builder().type("ImplementThis").build().toDTO())
+                .vehicleType(VehicleType.builder().name("ImplementThis").build().toDTO())
                 .make("make")
                 .model("model")
                 .year(2020)
@@ -34,7 +34,7 @@ class VehicleTestFactory {
 
     public static CreateVehicleDTO createVehicleDTONotValid() {
         return CreateVehicleDTO.builder()
-                .vehicleType(VehicleType.builder().type("ImplementThis").build().toDTO())
+                .vehicleType(VehicleType.builder().name("ImplementThis").build().toDTO())
                 .make(null)
                 .model("model")
                 .year(2020)

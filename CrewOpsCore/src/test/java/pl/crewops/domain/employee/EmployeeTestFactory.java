@@ -95,7 +95,7 @@ class EmployeeTestFactory {
 
     static Vehicle vehicle() {
         return Vehicle.builder()
-                .vehicleType(VehicleType.builder().type("ImplementThis").build())
+                .vehicleType(VehicleType.builder().name("ImplementThis").build())
                 .make("make")
                 .model("model")
                 .year(2020)
@@ -113,7 +113,7 @@ class EmployeeTestFactory {
         return Set.of(
                 vehicle(),
                 Vehicle.builder()
-                        .vehicleType(VehicleType.builder().type("ImplementThis").build())
+                        .vehicleType(VehicleType.builder().name("ImplementThis").build())
                         .make("make")
                         .model("model")
                         .year(2020)

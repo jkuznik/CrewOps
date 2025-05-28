@@ -22,9 +22,9 @@ public class VehicleType extends AbstractEntity {
     // 5. Test coverage for vehicle type domain
 
     @Column(nullable = false, unique = true)
-    private String type;
+    private String name;
 
     public VehicleTypeDTO toDTO() {
-        return VehicleTypeDTO.builder().id(this.getId()).name(this.getType()).build();
+        return VehicleTypeDTO.builder().id(this.getId()).name(this.getName()).build();
     }
 }

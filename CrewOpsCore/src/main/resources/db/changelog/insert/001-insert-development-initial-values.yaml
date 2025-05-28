@@ -446,28 +446,28 @@ databaseChangeLog:
             columns:
               - column: { name: id, value: '00000000-0000-0000-0000-000000000001' }
               - column: { name: version, valueNumeric: 0 }
-              - column: { name: type, value: 'EXCAVATOR' }
+              - column: { name: name, value: 'EXCAVATOR' }
 
         - insert:
             tableName: vehicle_type
             columns:
               - column: { name: id, value: '00000000-0000-0000-0000-000000000002' }
               - column: { name: version, valueNumeric: 0 }
-              - column: { name: type, value: 'BULLDOZER' }
+              - column: { name: name, value: 'BULLDOZER' }
 
         - insert:
             tableName: vehicle_type
             columns:
               - column: { name: id, value: '00000000-0000-0000-0000-000000000003' }
               - column: { name: version, valueNumeric: 0 }
-              - column: { name: type, value: 'CRANE' }
+              - column: { name: name, value: 'CRANE' }
 
         - insert:
             tableName: vehicle_type
             columns:
               - column: { name: id, value: '00000000-0000-0000-0000-000000000004' }
               - column: { name: version, valueNumeric: 0 }
-              - column: { name: type, value: 'LOADER' }
+              - column: { name: name, value: 'LOADER' }
 
   - changeSet:
       id: 005-assign-vehicle-types

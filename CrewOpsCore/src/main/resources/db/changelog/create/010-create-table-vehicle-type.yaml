@@ -21,7 +21,7 @@ databaseChangeLog:
                     nullable: false
                   defaultValue: 0
               - column:
-                  name: type
+                  name: name
                   type: varchar(31)
                   constraints:
                     nullable: false

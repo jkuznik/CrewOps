@@ -1,14 +1,12 @@
 package pl.crewops.domain.vehicle;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.IntegrationTest;
-import pl.crewops.model.VehicleType;
 
 @Transactional
 class VehicleAPITest extends IntegrationTest {
@@ -27,7 +25,6 @@ class VehicleAPITest extends IntegrationTest {
         // then
         assertThat(vehicle).isNotNull();
         assertThat(vehicle.getId()).isEqualTo(vehicleId);
-        assertThat(vehicle.getVehicleType())
-                .isEqualTo(VehicleType.builder().type("ImplementThis").build());
+        assertThat(vehicle.getVehicleType().getName()).isEqualTo("BULLDOZER");
     }
 }

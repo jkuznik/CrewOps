@@ -90,7 +90,7 @@ public class AuthTestFactory {
 
     public static Vehicle vehicle() {
         return Vehicle.builder()
-                .vehicleType(VehicleType.builder().type("ImplementThis").build())
+                .vehicleType(VehicleType.builder().name("ImplementThis").build())
                 .make("make")
                 .model("model")
                 .year(2020)
@@ -108,7 +108,7 @@ public class AuthTestFactory {
         return Set.of(
                 vehicle(),
                 Vehicle.builder()
-                        .vehicleType(VehicleType.builder().type("ImplementThis").build())
+                        .vehicleType(VehicleType.builder().name("ImplementThis").build())
                         .make("make")
                         .model("model")
                         .year(2020)
