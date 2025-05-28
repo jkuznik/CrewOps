@@ -3,6 +3,7 @@ package pl.crewops.domain.auth;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import pl.crewops.model.Employee;
@@ -15,7 +16,11 @@ interface AuthUserRepository extends JpaRepository<AuthUser, UUID> {
     @Query("SELECT u FROM AuthUser u JOIN FETCH u.roles WHERE u.username = :username")
     Optional<AuthUser> findByUsername(String username);
 
-    void deleteByEmployee(Employee employee);
+    Optional<AuthUser> findByEmployee(Employee employee);
+
+    @Modifying
+    @Query("DELETE FROM AuthUser WHERE id = :id")
+    void deleteById(UUID id);
 }
 
 @Repository

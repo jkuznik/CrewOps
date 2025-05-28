@@ -18,16 +18,6 @@ databaseChangeLog:
                   constraints:
                     nullable: true
               - column:
-                  name: created_at
-                  type: timestamp
-                  constraints:
-                    nullable: true
-              - column:
-                  name: updated_at
-                  type: timestamp
-                  constraints:
-                    nullable: true
-              - column:
                   name: username
                   type: varchar(255)
                   constraints:
@@ -43,6 +33,18 @@ databaseChangeLog:
                   type: uuid
                   constraints:
                     nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
 
         - addForeignKeyConstraint:
             baseTableName: auth_user
@@ -51,3 +53,17 @@ databaseChangeLog:
             referencedTableName: employee
             referencedColumnNames: id
             onDelete: CASCADE
+
+  - changeSet:
+      id: 002-create-auth-user-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            # source: https://neon.tech/postgresql/postgresql-tutorial/postgresql-timestamp
+            sql: |
+              DROP TRIGGER IF EXISTS auth_user_updated_at_trigger ON auth_user;
+              CREATE TRIGGER auth_user_updated_at_trigger
+              BEFORE UPDATE ON auth_user
+              FOR EACH ROW
+              EXECUTE FUNCTION update_updated_at();

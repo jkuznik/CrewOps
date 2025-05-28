@@ -3,7 +3,7 @@ package pl.crewops.domain.employee;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchException;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static pl.crewops.domain.employee.EmployeeTestFactory.*;
 
 import jakarta.validation.ConstraintViolationException;
@@ -14,7 +14,6 @@ import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -198,13 +197,19 @@ class EmployeeServiceTest {
 
     @Test
     void shouldTriggerDeleteEntityMethod() {
+        // given
+        var authUser = AuthUser.builder().username("username").build();
+
         // when
-        Mockito.doNothing().when(employeeRepository).deleteById(any(UUID.class));
         when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithQAndV));
+        when(authAPI.getByEmployee(any(Employee.class))).thenReturn(Optional.of(authUser));
+        doNothing().when(authAPI).deleteById(any());
+
         employeeService.deleteEmployee(employeeId);
 
         // then
-        Mockito.verify(employeeRepository, Mockito.times(1)).deleteById(any(UUID.class));
+        verify(authAPI, times(1)).deleteById(any());
+        assertThat(employeeWithQAndV.isActive()).isFalse();
     }
 
     @Test

@@ -39,16 +39,14 @@ class BreakdownService implements BreakdownAPI {
             vehicle = vehicleAPI.getVehicle(createBreakdownDTO.vehicleId());
         } catch (VehicleNotFoundException e) {
             log.error("Not found vehicle during create breakdown: {}", e.getMessage());
-            // TODO: eventually add custom exception
-            throw new IllegalArgumentException(e.getMessage());
+            throw new VehicleNotFoundException(createBreakdownDTO.vehicleId());
         }
         Employee employee;
         try {
             employee = employeeAPI.getEmployee(createBreakdownDTO.reportedByEmployeeId());
         } catch (EmployeeNotFoundException e) {
-            log.error("Not found employee during create breakdown: {}", e.getMessage());
-            // TODO: eventually add custom exception
-            throw new IllegalArgumentException(e.getMessage());
+            log.error("Not found 'reportedBy' employee during create breakdown: {}", e.getMessage());
+            throw new EmployeeNotFoundException(createBreakdownDTO.reportedByEmployeeId());
         }
 
         var breakdown = Breakdown.builder()
@@ -97,7 +95,7 @@ class BreakdownService implements BreakdownAPI {
             breakdown.setRepairedBy(employee);
             breakdown.setSolvedAt(Instant.now());
         } else {
-            // TODO: consider create custom exception
+            // TODO: consider create custom exception - done, but decided do not create this exception for now
             throw new IllegalArgumentException("Can't update breakdown if not solved");
         }
 

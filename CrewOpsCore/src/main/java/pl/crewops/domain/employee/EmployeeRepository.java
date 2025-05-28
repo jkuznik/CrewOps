@@ -19,6 +19,9 @@ interface EmployeeRepository extends JpaRepository<Employee, UUID> {
     @EntityGraph(attributePaths = {"qualifications", "vehicles"})
     Page<Employee> findAll(Pageable pageable);
 
+    @EntityGraph(attributePaths = {"qualifications", "vehicles"})
+    Page<Employee> findAllByActiveIsTrue(Pageable pageable);
+
     Optional<Employee> findById(UUID id);
 
     @Query("SELECT e FROM Employee e JOIN e.qualifications q WHERE q.id = :qualificationId")
@@ -28,8 +31,6 @@ interface EmployeeRepository extends JpaRepository<Employee, UUID> {
     Page<Employee> findByVehiclesId(@Param("vehiclesId") UUID vehicleId, Pageable pageable);
 
     List<Employee> findByFirstNameAndLastName(String firstName, String lastName);
-
-    List<Employee> findByFirstName(String firstName);
 }
 
 @Repository

@@ -3,10 +3,12 @@ package pl.crewops.domain.auth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static pl.crewops.model.auth.RoleType.ADMIN;
 import static pl.crewops.model.auth.RoleType.EMPLOYEE;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -17,9 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import pl.crewops.auth.AuthRequest;
-import pl.crewops.auth.AuthResponse;
-import pl.crewops.auth.CreateAuthUserDTO;
+import pl.crewops.auth.*;
 import pl.crewops.exception.UsernameAlreadyExistException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.auth.AuthUser;
@@ -58,7 +58,7 @@ class AuthServiceTest {
     private HttpServletResponse response;
 
     @Test
-    void shouldReturnAuthUser_whenUserExists() {
+    void getByUsername_shouldReturnAuthUser_whenUserExists() {
         // given
         var authUser = AuthUser.builder()
                 .username("username")
@@ -78,7 +78,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void shouldReturnAuthUser_whenParamsAreValid() {
+    void createAuthUser_shouldReturnAuthUser_whenParamsAreValid() {
         // given
         var createAuthUserDTO = CreateAuthUserDTO.builder()
                 .username("username")
@@ -108,7 +108,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void shouldReturnAuthResponse_whenLoginSuccess() {
+    void login_shouldReturnAuthResponse_whenLoginSuccess() {
         // given
         String rawPassword = "plainPassword";
         String encodedPassword = "encodedPassword";
@@ -141,7 +141,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void shouldThrowException_whenLoginWithInvalidCredentials() {
+    void login_shouldThrowException_whenLoginWithInvalidCredentials() {
         // given
         String rawPassword = "wrongPassword";
         String encodedPassword = "correctEncodedPassword";
@@ -167,7 +167,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void shouldThrowException_whenUsernameAlreadyExists() {
+    void createAuthUser_shouldThrowException_whenUsernameAlreadyExists() {
         // given
         var authUser = AuthUser.builder()
                 .username("username")
@@ -185,5 +185,31 @@ class AuthServiceTest {
 
         // then
         assertThat(result).isExactlyInstanceOf(UsernameAlreadyExistException.class);
+    }
+
+    @Test
+    void validateToken_shouldReturnValidTokenResponse_whenTokenIsValid() {
+        // given
+        var username = "username";
+
+        var authUser = AuthUser.builder()
+                .username("username")
+                .password("admin")
+                .employee(new Employee())
+                .roles(Set.of(Role.builder().name(ADMIN.name()).build()))
+                .build();
+
+        var validTokenRequest = ValidTokenRequest.builder().token("token").build();
+        // when
+        when(jwtService.extractUsername(any())).thenReturn(username);
+        when(authUserRepository.findByUsername(any())).thenReturn(Optional.of(authUser));
+        when(jwtService.validateToken(any(), any())).thenReturn(true);
+        when(jwtService.extractExpiresAt(any())).thenReturn(new Date());
+
+        ValidTokenResponse result = authService.validateToken(validTokenRequest);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.valid()).isTrue();
     }
 }

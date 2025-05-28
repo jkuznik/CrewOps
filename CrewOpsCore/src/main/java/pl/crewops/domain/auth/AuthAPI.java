@@ -3,6 +3,7 @@ package pl.crewops.domain.auth;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.auth.CreateAuthUserDTO;
@@ -15,7 +16,9 @@ public interface AuthAPI {
 
     Optional<AuthUser> getByUsername(@NotNull String username);
 
+    Optional<AuthUser> getByEmployee(@NotNull Employee employee);
+
     AuthUser createAuthUser(@NotNull @Valid CreateAuthUserDTO createAuthUserDTO, @NotNull @Valid Employee employee);
 
-    void deleteByEmployee(@NotNull @Valid Employee employee);
+    void deleteById(@NotNull UUID uuid);
 }

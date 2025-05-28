@@ -41,6 +41,8 @@ public class Employee extends AbstractEntity {
     @NotNull
     private String department;
 
+    private boolean active;
+
     @Builder.Default
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
