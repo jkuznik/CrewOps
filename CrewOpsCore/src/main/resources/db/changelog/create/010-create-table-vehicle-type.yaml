@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: 001-create-table-vehicle
+      id: 001-create-table-vehicle-type
       author: jkuznik
       changes:
         - createTable:
-            tableName: vehicle
+            tableName: vehicle_type
             columns:
               - column:
                   name: id
@@ -21,39 +21,8 @@ databaseChangeLog:
                     nullable: false
                   defaultValue: 0
               - column:
-                  name: vin
-                  type: varchar(50)
-                  constraints:
-                    unique: true
-                    nullable: true
-              - column:
-                  name: make
+                  name: name
                   type: varchar(31)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: model
-                  type: varchar(31)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: year
-                  type: int
-                  constraints:
-                    nullable: false
-              - column:
-                  name: register_number
-                  type: varchar(15)
-                  constraints:
-                    nullable: true
-              - column:
-                  name: vehicle_type_id
-                  type: uuid
-#                  constraints:
-#                    nullable: false
-              - column:
-                  name: broken
-                  type: boolean
                   constraints:
                     nullable: false
               - column:
@@ -70,14 +39,27 @@ databaseChangeLog:
                     nullable: false
 
   - changeSet:
-      id: 002-create-vehicle-updated_at-trigger
+      id: 002-create-vehicle-vehicle-type-id-foreign-key
+      author: jkuznik
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: vehicle
+            baseColumnNames: vehicle_type_id
+            referencedTableName: vehicle_type
+            referencedColumnNames: id
+            constraintName: fk_vehicle_vehicle_type_id
+            onDelete: SET NULL
+
+  - changeSet:
+      id: 003-create-vehicle-type-updated_at-trigger
       author: jkuznik
       changes:
         - sql:
             dbms: postgresql
+            # source: https://neon.tech/postgresql/postgresql-tutorial/postgresql-timestamp
             sql: |
-              DROP TRIGGER IF EXISTS vehicle_updated_at_trigger ON vehicle;
-              CREATE TRIGGER vehicle_updated_at_trigger
-              BEFORE UPDATE ON vehicle
+              DROP TRIGGER IF EXISTS vehicle_type_updated_at_trigger ON vehicle_type;
+              CREATE TRIGGER vehicle_type_updated_at_trigger
+              BEFORE UPDATE ON vehicle_type
               FOR EACH ROW
               EXECUTE FUNCTION update_updated_at();

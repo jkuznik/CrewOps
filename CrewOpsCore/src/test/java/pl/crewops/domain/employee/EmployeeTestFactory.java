@@ -6,10 +6,10 @@ import java.util.UUID;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.enums.VehicleType;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Qualification;
 import pl.crewops.model.Vehicle;
+import pl.crewops.model.VehicleType;
 
 class EmployeeTestFactory {
 
@@ -95,7 +95,7 @@ class EmployeeTestFactory {
 
     static Vehicle vehicle() {
         return Vehicle.builder()
-                .vehicleType(VehicleType.EXCAVATOR)
+                .vehicleType(VehicleType.builder().name("ImplementThis").build())
                 .make("make")
                 .model("model")
                 .year(2020)
@@ -113,7 +113,7 @@ class EmployeeTestFactory {
         return Set.of(
                 vehicle(),
                 Vehicle.builder()
-                        .vehicleType(VehicleType.BULLDOZER)
+                        .vehicleType(VehicleType.builder().name("ImplementThis").build())
                         .make("make")
                         .model("model")
                         .year(2020)

@@ -40,7 +40,7 @@ class EmployeeMapper {
                         .id(vehicle.getId())
                         .make(vehicle.getMake())
                         .model(vehicle.getModel())
-                        .vehicleType(vehicle.getVehicleType())
+                        .vehicleType(vehicle.getVehicleType().toDTO())
                         .year(vehicle.getYear())
                         .vin(vehicle.getVin())
                         .registerNumber(vehicle.getRegisterNumber())

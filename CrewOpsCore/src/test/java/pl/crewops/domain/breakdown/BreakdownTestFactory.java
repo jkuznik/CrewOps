@@ -8,10 +8,10 @@ import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
-import pl.crewops.enums.VehicleType;
 import pl.crewops.model.Breakdown;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Vehicle;
+import pl.crewops.model.VehicleType;
 
 class BreakdownTestFactory {
 
@@ -70,7 +70,7 @@ class BreakdownTestFactory {
         return Vehicle.builder()
                 .make("make")
                 .model("model")
-                .vehicleType(VehicleType.EXCAVATOR)
+                .vehicleType(VehicleType.builder().name("ImplementThis").build())
                 .registerNumber("registerNumber")
                 .year(2025)
                 .vin("vin")
@@ -91,7 +91,7 @@ class BreakdownTestFactory {
                 .id(vehicleId)
                 .make("make")
                 .model("model")
-                .vehicleType(VehicleType.EXCAVATOR)
+                .vehicleType(VehicleType.builder().name("ImplementThis").build().toDTO())
                 .registerNumber("registerNumber")
                 .vin("vin")
                 .broken(false)
