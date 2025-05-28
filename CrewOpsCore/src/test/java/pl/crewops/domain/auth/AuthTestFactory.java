@@ -7,10 +7,10 @@ import pl.crewops.auth.CreateAuthUserDTO;
 import pl.crewops.auth.RoleDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.enums.VehicleType;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Qualification;
 import pl.crewops.model.Vehicle;
+import pl.crewops.model.VehicleType;
 import pl.crewops.model.auth.RoleType;
 
 public class AuthTestFactory {
@@ -90,7 +90,7 @@ public class AuthTestFactory {
 
     public static Vehicle vehicle() {
         return Vehicle.builder()
-                .vehicleType(VehicleType.EXCAVATOR)
+                .vehicleType(VehicleType.builder().type("ImplementThis").build())
                 .make("make")
                 .model("model")
                 .year(2020)
@@ -108,7 +108,7 @@ public class AuthTestFactory {
         return Set.of(
                 vehicle(),
                 Vehicle.builder()
-                        .vehicleType(VehicleType.BULLDOZER)
+                        .vehicleType(VehicleType.builder().type("ImplementThis").build())
                         .make("make")
                         .model("model")
                         .year(2020)

@@ -1,6 +1,5 @@
 package pl.crewops.domain.vehicle;
 
-import static pl.crewops.domain.vehicle.VehicleMapper.mapToDTO;
 import static pl.crewops.domain.vehicle.VehicleMapper.mapToEntity;
 import static pl.crewops.utils.pagination.PageRequestFactory.createPageRequest;
 
@@ -37,7 +36,7 @@ class VehicleService {
     // that will populate vehicle type
     public VehicleDTO createVehicle(@Valid @NotNull CreateVehicleDTO createVehicleDTO) {
         log.info("Create vehicle: {}", createVehicleDTO);
-        return mapToDTO(vehicleRepository.save(mapToEntity(createVehicleDTO)));
+        return vehicleRepository.save(mapToEntity(createVehicleDTO)).mapToDTO();
     }
 
     public List<VehicleDTO> getAllVehicles(int page, int size) {
@@ -46,7 +45,7 @@ class VehicleService {
         log.info("Get all vehicles with paginaition. Page: {}, size {} ", page, size);
 
         return vehicleRepository.findAll(pageRequest).stream()
-                .map(VehicleMapper::mapToDTO)
+                .map(Vehicle::mapToDTO)
                 .toList();
     }
 
@@ -57,14 +56,16 @@ class VehicleService {
 
     public VehicleDTO getVehicleByRegistrationNumber(@NotNull String registerNumber) {
         log.info("Get vehicle by registration number {}", registerNumber);
-        return mapToDTO(
-                vehicleRepository.findByRegisterNumber(registerNumber).orElseThrow(NoSuchElementException::new));
+        return vehicleRepository
+                .findByRegisterNumber(registerNumber)
+                .orElseThrow(NoSuchElementException::new)
+                .mapToDTO();
     }
 
     public List<VehicleDTO> getVehiclesIn(Set<UUID> ids) {
         log.info("Get vehicles in amount {}, each ids: {}", ids.size(), ids);
         return vehicleRepository.findAllByIdIn(ids).stream()
-                .map(VehicleMapper::mapToDTO)
+                .map(Vehicle::mapToDTO)
                 .toList();
     }
 
@@ -83,7 +84,7 @@ class VehicleService {
         }
 
         log.info("Update vehicle {}", vehicle);
-        return mapToDTO(vehicleRepository.save(vehicle));
+        return vehicleRepository.save(vehicle).mapToDTO();
     }
 
     @Transactional

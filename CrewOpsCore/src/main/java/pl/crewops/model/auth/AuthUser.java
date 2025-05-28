@@ -55,7 +55,7 @@ public class AuthUser extends AbstractEntity {
                                 .make(vehicle.getMake())
                                 .model(vehicle.getModel())
                                 .year(vehicle.getYear())
-                                .vehicleType(vehicle.getVehicleType())
+                                //                                .vehicleType(vehicle.getVehicleType().toDTO())
                                 .registerNumber(vehicle.getRegisterNumber())
                                 .vin(vehicle.getVin())
                                 .broken(vehicle.getBroken())

@@ -7,7 +7,7 @@ import lombok.*;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
-import pl.crewops.enums.VehicleType;
+import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 
 @Getter
 @Setter
@@ -29,7 +29,7 @@ public class VehicleFormModel {
                 .make(vehicleFormModel.getMake())
                 .model(vehicleFormModel.getModel())
                 //                .vehicleType(VehicleType.valueOf(vehicleFormModel.getVehicleType()))
-                .vehicleType(VehicleType.SEMI_TRUCK)
+                .vehicleType(VehicleTypeDTO.builder().name("ImplementThis").build())
                 .year(vehicleFormModel.getYear())
                 .vin(vehicleFormModel.getVin())
                 .registerNumber(vehicleFormModel.getRegistrationNumber())

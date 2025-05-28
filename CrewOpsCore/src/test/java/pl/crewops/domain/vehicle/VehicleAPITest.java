@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.IntegrationTest;
-import pl.crewops.enums.VehicleType;
+import pl.crewops.model.VehicleType;
 
 @Transactional
 class VehicleAPITest extends IntegrationTest {
@@ -27,6 +27,7 @@ class VehicleAPITest extends IntegrationTest {
         // then
         assertThat(vehicle).isNotNull();
         assertThat(vehicle.getId()).isEqualTo(vehicleId);
-        assertThat(vehicle.getVehicleType()).isEqualTo(VehicleType.BULLDOZER);
+        assertThat(vehicle.getVehicleType())
+                .isEqualTo(VehicleType.builder().type("ImplementThis").build());
     }
 }

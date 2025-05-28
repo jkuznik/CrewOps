@@ -7,11 +7,8 @@ import jakarta.validation.constraints.Size;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.*;
-import org.hibernate.annotations.JdbcType;
-import org.hibernate.dialect.PostgreSQLEnumJdbcType;
-import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
-import pl.crewops.enums.VehicleType;
+import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.utils.serializer.EmployeeSetSerializer;
 
 @Getter
@@ -32,10 +29,9 @@ public class Vehicle extends AbstractEntity {
     @Column(updatable = false)
     private String model;
 
-    // TODO: change this to separate table in db
     @NotNull
-    @Enumerated
-    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "vehicle_type_id", nullable = false)
     private VehicleType vehicleType;
 
     @NotNull
@@ -57,28 +53,30 @@ public class Vehicle extends AbstractEntity {
     @ManyToMany(mappedBy = "vehicles")
     private Set<Employee> employees = new LinkedHashSet<>();
 
-    public Vehicle mapToEntity(CreateVehicleDTO createVehicleDTO) {
-        return Vehicle.builder()
-                .make(createVehicleDTO.make())
-                .model(createVehicleDTO.model())
-                .vehicleType(createVehicleDTO.vehicleType())
-                .year(createVehicleDTO.year())
-                .vin(createVehicleDTO.vin())
-                .registerNumber(createVehicleDTO.registerNumber())
-                .broken(createVehicleDTO.broken())
-                .build();
-    }
-
     public VehicleDTO mapToDTO() {
-        return VehicleDTO.builder()
-                .id(this.getId())
-                .make(this.getMake())
-                .model(this.getModel())
-                .vehicleType(this.getVehicleType())
-                .year(this.getYear())
-                .vin(this.getVin())
-                .registerNumber(this.getRegisterNumber())
-                .broken(this.getBroken())
-                .build();
+        if (vehicleType != null) {
+            return VehicleDTO.builder()
+                    .id(this.getId())
+                    .make(this.getMake())
+                    .model(this.getModel())
+                    .vehicleType(this.getVehicleType().toDTO())
+                    .year(this.getYear())
+                    .vin(this.getVin())
+                    .registerNumber(this.getRegisterNumber())
+                    .broken(this.getBroken())
+                    .build();
+
+        } else {
+            return VehicleDTO.builder()
+                    .id(this.getId())
+                    .make(this.getMake())
+                    .model(this.getModel())
+                    .vehicleType(VehicleTypeDTO.builder().name("ImplementThis").build())
+                    .year(this.getYear())
+                    .vin(this.getVin())
+                    .registerNumber(this.getRegisterNumber())
+                    .broken(this.getBroken())
+                    .build();
+        }
     }
 }
