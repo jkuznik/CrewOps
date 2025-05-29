@@ -24,8 +24,7 @@ public class OpenAPIConfig {
     public OpenAPI openAPI() {
         OpenAPI openAPI;
         try {
-            Path path = Paths.get("CrewOpsCore/src/main/resources/static/swagger.yaml");
-            //            Path path = Paths.get("src/main/resources/static/swagger.yaml");
+            Path path = Paths.get("CrewOpsCore/src/main/resources/static/swagger.json");
             InputStream inputStream = Files.newInputStream(path);
             Yaml yaml = new Yaml();
             Map<String, Object> yamlMap = yaml.load(inputStream);
