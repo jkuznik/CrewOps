@@ -1,21 +1,42 @@
 package pl.crewops.openAPI;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.yaml.snakeyaml.Yaml;
 
 @Configuration
 public class OpenAPIConfig {
 
     @Bean
     public OpenAPI openAPI() {
-        return new OpenAPI()
-                .components(new Components()
+        OpenAPI openAPI;
+        try {
+            Path path = Paths.get("CrewOpsCore/src/main/resources/static/swagger.json");
+            InputStream inputStream = Files.newInputStream(path);
+            Yaml yaml = new Yaml();
+            Map<String, Object> yamlMap = yaml.load(inputStream);
+
+            openAPI = convertToOpenAPI(yamlMap);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            openAPI = new OpenAPI();
+        }
+
+        openAPI.components(new Components()
                         .addSecuritySchemes(
                                 "bearer-jwt",
                                 new SecurityScheme()
@@ -35,5 +56,12 @@ public class OpenAPIConfig {
                 .servers(List.of(new io.swagger.v3.oas.models.servers.Server()
                         .url("http://localhost:8080")
                         .description("API Server (Dev)")));
+
+        return openAPI;
+    }
+
+    private OpenAPI convertToOpenAPI(Map<String, Object> yamlMap) {
+        ObjectMapper mapper = Json.mapper();
+        return mapper.convertValue(yamlMap, OpenAPI.class);
     }
 }
