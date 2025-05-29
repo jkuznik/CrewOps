@@ -44,7 +44,8 @@ public class ControllerURL {
             "/swagger-resources/**",
             "/webjars/**",
             "/v3/api-docs/**",
-            "/swagger.yaml"
+            "/swagger.yaml",
+            "/api-docs"
         };
     }
 

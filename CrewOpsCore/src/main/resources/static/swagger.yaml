@@ -1,0 +1,299 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Truck tracking
+  description: "
+  <h2>login: user</h2>
+  <h2>hasło: pass</h2>
+  W środowisku testowym uwierzytelnienie nie jest wymagane."
+  contact:
+    name: Janusz Kuźnik
+    email: janusz.kuznik89@gmail.com
+    url: http://www.github.com/jkuznik
+#servers:
+#  - url: http://localhost:8080
+#    description: Środowisko test
+#  - url: http://localhost:8081
+#    description: Środowisko prod
+externalDocs:
+  description: Konsola h2 - dostępna w środowisku testowym
+  url: http://localhost:8080/secret-h2
+tags:
+  - name: trailer
+    description: Metody CRUD
+  #    externalDocs:
+  #      description: Treść zadania dostępna w środowisku testowym
+  #      url: http://localhost:8080/zadanie.html
+  - name: truck
+    description: Metody CRUD
+#    externalDocs:
+#      description: Treść zadania dostępna w środowisku testowym
+#      url: http://localhost:8080/zadanie.html
+
+paths:
+
+  /trailer:
+    get:
+      tags:
+        - trailer
+      summary: Zwraca listę wszystkich naczep
+      security:
+        - basicAuth: [ ]
+      responses:
+        200:
+          description: Operacja udana
+        401:
+          description: Brak uwierzytelnienia
+
+    post:
+      tags:
+        - trailer
+      summary: Dodawanie naczepy
+      security:
+        - basicAuth: [ ]
+      responses:
+        201:
+          description: Dodano naczepę
+        401:
+          description: Brak uwierzytelnienia
+
+  /trailer/{uuid}:
+
+    get:
+      tags:
+        - trailer
+      summary: Zwraca naczepę według UUID
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: uuid
+          in: path
+          description: UUID identyfikujący naczepę o id 1 w bazie danych
+          required: true
+          example: a42c8aab-a60f-4a77-991e-d97c6248b33f
+      responses:
+        200:
+          description: Operacja udana
+        401:
+          description: Brak uwierzytelnienia
+        404:
+          description: Naczepa o podanym UUID nie istenieje
+
+    patch:
+      tags:
+        - trailer
+      summary: Modyfikacja pola cross hitch naczepy
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: uuid
+          in: path
+          description: UUID identyfikujący naczepę o id 1 w bazie danych
+          required: true
+          example: a42c8aab-a60f-4a77-991e-d97c6248b33f
+      responses:
+        200:
+          description: Operacja udana
+        401:
+          description: Brak uwierzytelnienia
+        404:
+          description: Naczepa o podanym UUID nie istnieje
+
+    delete:
+      tags:
+        - trailer
+      summary: Usuwanie naczepy według UUID
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: uuid
+          in: path
+          description: UUID identyfikujący naczepę o id 1 w bazie danych
+          required: true
+          example: a42c8aab-a60f-4a77-991e-d97c6248b33f
+      responses:
+        204:
+          description: Usunięto naczepę
+        401:
+          description: Brak uwierzytelnienia
+        404:
+          description: Naczepa o podanym UUID nie istnieje
+
+  /trailer/{uuid}/assign-manage:
+    patch:
+      tags:
+        - trailer
+      summary: Endpoint służący do zarządzania przypisywaniem naczep do ciągników
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: uuid
+          in: path
+          description: UUID identyfikujący naczepę o id 1 w bazie danych
+          example: a42c8aab-a60f-4a77-991e-d97c6248b33f
+      responses:
+        200:
+          description: Operacja udana
+        400:
+          description: Błąd żądania - nie prawidłowe dane
+        401:
+          description: Brak uwierzytelnienia
+        404:
+          description: Naczepa o podanym UUID nie istnieje
+        500:
+          description: Błąd serwera
+
+  /trailer/{uuid}/unassign-manage:
+    patch:
+      tags:
+        - trailer
+      summary: Endpoint służący do usuniecia przypisania naczepy do ciągników
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: uuid
+          in: path
+          description: UUID identyfikujący naczepę o id 1 w bazie danych
+          example: a42c8aab-a60f-4a77-991e-d97c6248b33f
+      responses:
+        200:
+          description: Operacja udana
+        400:
+          description: Błąd żądania - nie prawidłowe dane
+        401:
+          description: Brak uwierzytelnienia
+        404:
+          description: Naczepa o podanym UUID nie istnieje
+        500:
+          description: Błąd serwera
+
+  /trailer/{uuid}/cross-hitch:
+    patch:
+      tags:
+        - trailer
+      summary: Endpoint odpowiedzialny za operacje 'cross hitch'
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: uuid
+          in: path
+          description: UUID identyfikujący naczepę o id 1 w bazie danych
+          required: true
+          example: a42c8aab-a60f-4a77-991e-d97c6248b33f
+      responses:
+        200:
+          description: Komunikat informacyjny o wyniku operacji
+        401:
+          description: Brak uwierzytelnienia
+
+  /truck:
+    get:
+      tags:
+        - truck
+      summary: Zwraca listę wszystkich pojazdów
+      security:
+        - basicAuth: [ ]
+      responses:
+        200:
+          description: Operacja udana
+        401:
+          description: Brak uwierzytelnienia
+
+
+    post:
+      tags:
+        - truck
+      summary: Dodawanie pojazdu
+      security:
+        - basicAuth: [ ]
+      responses:
+        201:
+          description: Dodano pojazd
+        401:
+          description: Brak uwierzytelnienia
+
+  /truck/{uuid}:
+    get:
+      tags:
+        - truck
+      summary: Zwraca pojazd według UUID
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: uuid
+          in: path
+          description: UUID identyfikujący pojazd o id 1 w bazie danych
+          required: true
+          example: fc936032-52e8-4ec0-b916-3bc4b49b956c
+      responses:
+        200:
+          description: Operacja udana
+        401:
+          description: Brak uwierzytelnienia
+        404:
+          description: Pojazd o podanym UUID nie istnieje
+
+    patch:
+      tags:
+        - truck
+      summary: Endpoint służący do aktualizowania stanu pojazdu o danym business id
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: uuid
+          in: path
+          description: UUID identyfikujący pojazd o id 1 w bazie danych
+          example: fc936032-52e8-4ec0-b916-3bc4b49b956c
+      responses:
+        200:
+          description: Operacja udana
+        400:
+          description: Błąd żądania - nie prawidłowe dane
+        401:
+          description: Brak uwierzytelnienia
+        404:
+          description: pojazd o podanym UUID nie istnieje
+        500:
+          description: Błąd serwera
+
+    delete:
+      tags:
+        - truck
+      summary: Usuwanie pojazdu według UUID
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: uuid
+          in: path
+          description: UUID identyfikujący pojazd o id 1 w bazie danych
+          required: true
+          example: fc936032-52e8-4ec0-b916-3bc4b49b956c
+      responses:
+        204:
+          description: Usunięto pojazd
+        401:
+          description: Brak uwierzytelnienia
+        404:
+          description: Pojazd o podanym UUId nie istnieje
+
+  /truck/history:
+    get:
+      tags:
+        - truck
+      summary: Zwraca listę przypisań naczep do pojazdów w ciągu ostatniego miesiąca
+      security:
+        - basicAuth: [ ]
+      responses:
+        200:
+          description: Operacja udana
+        401:
+          description: Brak uwierzytelnienia
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+
+
+
