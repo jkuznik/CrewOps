@@ -2,9 +2,13 @@ package pl.crewops.view.component.grid;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import java.util.List;
 import java.util.Optional;
@@ -96,9 +100,31 @@ public class BreakdownGrid extends VerticalLayout {
 
         grid.addColumn(BreakdownFormModel::getDescription).setKey("description");
 
-        grid.addColumn(BreakdownFormModel::isCritical).setKey("critical");
+        grid.addColumn(new ComponentRenderer<>(model -> {
+                    if (model.isCritical()) {
+                        Icon criticalIcon = VaadinIcon.CLOSE_CIRCLE.create();
+                        criticalIcon.setColor("red");
+                        return criticalIcon;
+                    } else {
+                        return new Span();
+                    }
+                }))
+                .setHeader("Critical")
+                .setKey("critical");
 
-        grid.addColumn(BreakdownFormModel::isSolved).setKey("solved");
+        grid.addColumn(new ComponentRenderer<>(model -> {
+                    if (model.isSolved()) {
+                        Icon solvedIcon = VaadinIcon.CHECK_CIRCLE.create();
+                        solvedIcon.setColor("green");
+                        return solvedIcon;
+                    } else {
+                        Icon pendingIcon = VaadinIcon.CLOCK.create();
+                        pendingIcon.setColor("goldenrod");
+                        return pendingIcon;
+                    }
+                }))
+                .setHeader("Solved")
+                .setKey("solved");
 
         grid.addColumn(model -> model.getReportedBy() != null
                         ? model.getReportedBy().firstName() + " "

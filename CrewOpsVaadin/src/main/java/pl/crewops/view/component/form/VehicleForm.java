@@ -3,9 +3,9 @@ package pl.crewops.view.component.form;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -14,6 +14,7 @@ import com.vaadin.flow.shared.Registration;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.stream.IntStream;
+import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.model.VehicleFormModel;
 import pl.crewops.view.component.grid.BreakdownGrid;
 import pl.crewops.view.component.grid.VehicleGrid;
@@ -23,23 +24,23 @@ public class VehicleForm extends FormLayout {
     private final BreakdownGrid breakdownGrid;
 
     // TODO: implement text field setEnable(false) for update action
-    TextField registrationNumber = new TextField("Registration Number");
-    // TODO: implement this
+    TextField registrationNumber = new TextField();
+    TextField make = new TextField();
+    TextField model = new TextField();
+    ComboBox<Integer> year = new ComboBox<>();
+    ComboBox<VehicleTypeDTO> availableVehicleTypes = new ComboBox<>();
+    TextField newVehicleTypeField = new TextField();
+    HorizontalLayout vehicleTypeRow = new HorizontalLayout(newVehicleTypeField, year, availableVehicleTypes);
+    TextField vin = new TextField();
+    Span broken = new Span();
 
-    //    TextField vehicleType = new TextField("Vehicle Type");
-    TextField make = new TextField("Make");
-    TextField model = new TextField("Model");
-    ComboBox<Integer> year = new ComboBox<>("Year");
-    TextField vin = new TextField("Vin");
-    Checkbox broken = new Checkbox("Broken");
+    Button save = new Button();
+    Button update = new Button();
+    Button delete = new Button();
+    Button close = new Button();
 
-    Button save = new Button("Save");
-    Button update = new Button("Update");
-    Button delete = new Button("Delete");
-    Button close = new Button("Close");
-
-    Button reportBreakdown = new Button("Report Breakdown");
-    Button breakdownsList = new Button("Breakdowns List");
+    Button reportBreakdown = new Button();
+    Button breakdownsList = new Button();
 
     Binder<VehicleFormModel> binder = new Binder<>(VehicleFormModel.class);
 
@@ -60,7 +61,9 @@ public class VehicleForm extends FormLayout {
                 .sorted(Comparator.reverseOrder())
                 .toList());
 
-        add(registrationNumber, /*vehicleType,*/ broken, make, model, year, vin, createButtonsLayout());
+        vehicleTypeRow.setSizeFull();
+
+        add(broken, registrationNumber, vehicleTypeRow, make, model, year, vin, createButtonsLayout());
     }
 
     public void setFormModeSave() {
@@ -85,7 +88,8 @@ public class VehicleForm extends FormLayout {
         model.setLabel(getTranslation("vehicleForm.model"));
         year.setLabel(getTranslation("vehicleForm.year"));
         vin.setLabel(getTranslation("vehicleForm.vin"));
-        broken.setLabel(getTranslation("vehicleForm.broken"));
+        availableVehicleTypes.setLabel(getTranslation("vehicleForm.availableVehicleTypes.label"));
+        newVehicleTypeField.setLabel(getTranslation("vehicleForm.newVehicleTypeField.label"));
 
         save.setText(getTranslation("vehicleForm.save"));
         update.setText(getTranslation("vehicleForm.update"));
@@ -127,7 +131,6 @@ public class VehicleForm extends FormLayout {
                 .model(model.getValue())
                 .year(year.getValue())
                 .vin(vin.getValue())
-                .broken(broken.getValue())
                 .registrationNumber(registrationNumber.getValue())
                 .build();
         binder.setBean(vehicleFormModel);
@@ -148,6 +151,19 @@ public class VehicleForm extends FormLayout {
 
     public void setVehicle(VehicleFormModel vehicleFormModel) {
         binder.setBean(vehicleFormModel);
+        if (vehicleFormModel != null) {
+            broken.setVisible(true);
+
+            if (vehicleFormModel.getBroken()) {
+                broken.setText(getTranslation("vehicleForm.broken.true"));
+                broken.getStyle().set("color", "red");
+            } else {
+                broken.setText(getTranslation("vehicleForm.broken.false"));
+                broken.getStyle().set("color", "green");
+            }
+        } else {
+            broken.setVisible(false);
+        }
     }
 
     public abstract static class VehicleFormEvent extends ComponentEvent<VehicleForm> {

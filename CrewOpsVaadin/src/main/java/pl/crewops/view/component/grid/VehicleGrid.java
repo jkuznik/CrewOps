@@ -5,9 +5,12 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.shared.Registration;
 import java.util.List;
@@ -115,7 +118,21 @@ public class VehicleGrid extends VerticalLayout {
 
         grid.addColumn(VehicleFormModel::getVehicleType).setKey("vehicleType");
         grid.addColumn(VehicleFormModel::getRegistrationNumber).setKey("registrationNumber");
-        grid.addColumn(VehicleFormModel::getBroken).setKey("broken");
+
+        grid.addColumn(new ComponentRenderer<>(vehicle -> {
+                    if (vehicle.getBroken()) {
+                        Icon cross = VaadinIcon.CLOSE_CIRCLE.create();
+                        cross.setColor("red");
+                        return cross;
+                    } else {
+                        Icon check = VaadinIcon.CHECK_CIRCLE.create();
+                        check.setColor("green");
+                        return check;
+                    }
+                }))
+                .setHeader("Broken")
+                .setKey("broken");
+
         grid.addColumn(VehicleFormModel::getMake).setKey("make");
         grid.addColumn(VehicleFormModel::getModel).setKey("model");
         grid.addColumn(VehicleFormModel::getYear).setKey("year");

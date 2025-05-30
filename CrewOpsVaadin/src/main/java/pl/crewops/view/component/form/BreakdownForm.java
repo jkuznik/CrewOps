@@ -16,6 +16,8 @@ import pl.crewops.model.BreakdownFormModel;
 
 public class BreakdownForm extends FormLayout {
 
+    // TODO: Update form to display all breakdown description, add solvedBy field and solvedAt date field, in case if
+    // breakdown is solved hide 'update' button
     private final TextField vehicle = new TextField("Vehicle");
     private final TextField description = new TextField("Description");
     private final Checkbox solved = new Checkbox("Solved");
