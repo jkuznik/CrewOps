@@ -17,7 +17,7 @@ public class UpdateVehicleNotification extends Notification {
         div.addClassName("update-vehicle-notification-div");
         div.setText(getTranslation("updateVehicleNotification.messagePrefix") + vehicleDTO.registerNumber());
 
-        add(this);
+        add(div);
         open();
     }
 }
