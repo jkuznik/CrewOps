@@ -83,6 +83,7 @@ public class VehicleForm extends FormLayout {
     }
 
     public void setFormModeSave() {
+        availableVehicleTypes.setValue(null);
         save.setVisible(true);
         update.setVisible(false);
         reportBreakdown.setVisible(false);
@@ -90,7 +91,15 @@ public class VehicleForm extends FormLayout {
         delete.setVisible(false);
     }
 
+    // TODO: Add notification for succes update
     public void setFormModeUpdate() {
+        availableVehicleTypes.setEnabled(false);
+        newVehicleTypeField.setEnabled(false);
+        make.setEnabled(false);
+        model.setEnabled(false);
+        year.setEnabled(false);
+        vin.setEnabled(false);
+
         save.setVisible(false);
         update.setVisible(true);
         reportBreakdown.setVisible(true);
@@ -102,6 +111,8 @@ public class VehicleForm extends FormLayout {
         binder.setBean(vehicleFormModel);
         if (vehicleFormModel != null) {
             broken.setVisible(true);
+
+            availableVehicleTypes.setValue(vehicleFormModel.getVehicleType());
 
             if (vehicleFormModel.getBroken()) {
                 broken.setText(getTranslation("vehicleForm.broken.true"));
