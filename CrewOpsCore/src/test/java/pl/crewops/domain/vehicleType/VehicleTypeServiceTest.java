@@ -52,7 +52,7 @@ class VehicleTypeServiceTest {
     @Test
     void getVehicleType_shouldReturnVehicleType_whenEntityExists() {
         // when
-        when(vehicleTypeRepository.findById(any())).thenReturn(Optional.of(vehicleType));
+        when(vehicleTypeRepository.findByName(any())).thenReturn(Optional.of(vehicleType));
 
         var result = vehicleTypeService.getVehicleTypeByName("name");
 
