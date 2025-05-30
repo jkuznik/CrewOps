@@ -8,6 +8,7 @@ import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
+import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.model.Breakdown;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Vehicle;
@@ -91,7 +92,7 @@ class BreakdownTestFactory {
                 .id(vehicleId)
                 .make("make")
                 .model("model")
-                .vehicleType(VehicleType.builder().name("ImplementThis").build().toDTO())
+                .vehicleType(VehicleTypeDTO.builder().name("LOADER").build())
                 .registerNumber("registerNumber")
                 .vin("vin")
                 .broken(false)

@@ -1,15 +1,15 @@
 package pl.crewops.domain.vehicleType;
 
-import static pl.crewops.domain.vehicleType.VehicleTypeMapper.mapToDTO;
 import static pl.crewops.domain.vehicleType.VehicleTypeMapper.mapToEntity;
 
-import java.util.UUID;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.crewops.dto.vehicleType.CreateVehicleTypeDTO;
 import pl.crewops.dto.vehicleType.VehicleTypeDTO;
-import pl.crewops.exception.VehicleTypeNotFoundException;
 import pl.crewops.model.VehicleType;
 
 @Service
@@ -19,12 +19,19 @@ class VehicleTypeService implements VehicleTypeAPI {
     private final VehicleTypeRepository vehicleTypeRepository;
 
     @Override
-    public VehicleTypeDTO create(CreateVehicleTypeDTO createVehicleTypeDTO) {
-        return mapToDTO(vehicleTypeRepository.save(mapToEntity(createVehicleTypeDTO)));
+    public VehicleType create(CreateVehicleTypeDTO createVehicleTypeDTO) {
+        return vehicleTypeRepository.save(mapToEntity(createVehicleTypeDTO));
     }
 
     @Override
-    public VehicleType getById(UUID id) {
-        return vehicleTypeRepository.findById(id).orElseThrow(() -> new VehicleTypeNotFoundException(id));
+    public Optional<VehicleType> getVehicleTypeByName(String name) {
+        return vehicleTypeRepository.findByName(name);
+    }
+
+    @Override
+    public Set<VehicleTypeDTO> getAllVehicleTypes() {
+        return vehicleTypeRepository.findAll().stream()
+                .map(VehicleTypeMapper::mapToDTO)
+                .collect(Collectors.toSet());
     }
 }

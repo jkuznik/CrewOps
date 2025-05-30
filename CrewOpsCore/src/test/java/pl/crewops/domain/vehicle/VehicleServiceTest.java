@@ -20,17 +20,22 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
+import pl.crewops.domain.vehicleType.VehicleTypeAPI;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.exception.VehicleNotFoundException;
 import pl.crewops.model.Vehicle;
+import pl.crewops.model.VehicleType;
 
 @SpringJUnitConfig(classes = {VehicleService.class, MethodValidationPostProcessor.class})
 class VehicleServiceTest {
 
     @MockitoBean
     private VehicleRepository vehicleRepository;
+
+    @MockitoBean
+    private VehicleTypeAPI vehicleTypeAPI;
 
     @Autowired
     private VehicleService vehicleService;
@@ -40,6 +45,7 @@ class VehicleServiceTest {
     private CreateVehicleDTO createVehicleDTONotValid;
     private UpdateVehicleDTO updateVehicleDTOValid;
     private UpdateVehicleDTO updateVehicleDTONotValid;
+    private VehicleType vehicleType;
     private final UUID vehicleId = UUID.randomUUID();
 
     @BeforeEach
@@ -49,10 +55,12 @@ class VehicleServiceTest {
         createVehicleDTONotValid = createVehicleDTONotValid();
         updateVehicleDTOValid = updateVehicleDTO();
         updateVehicleDTONotValid = updateVehicleDTONotValid();
+        vehicleType = createVehicleType();
     }
 
     @Test
     void shouldCreateVehicle_whenCreateVehicleDTOIsValid() {
+        when(vehicleTypeAPI.getVehicleTypeByName(any())).thenReturn(Optional.of(vehicleType));
         when(vehicleRepository.save(any(Vehicle.class))).thenReturn(vehicle);
 
         VehicleDTO result = vehicleService.createVehicle(createVehicleDTO);
@@ -60,6 +68,7 @@ class VehicleServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.make()).isEqualTo("make");
         assertThat(result.model()).isEqualTo("model");
+        assertThat(result.vehicleType().name()).isEqualTo("name");
     }
 
     @Test

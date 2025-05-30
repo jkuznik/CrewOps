@@ -6,10 +6,7 @@ import static pl.crewops.utils.pagination.PageRequestFactory.createPageRequest;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -17,11 +14,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import pl.crewops.domain.vehicleType.VehicleTypeAPI;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
+import pl.crewops.dto.vehicleType.CreateVehicleTypeDTO;
 import pl.crewops.exception.VehicleNotFoundException;
 import pl.crewops.model.Vehicle;
+import pl.crewops.model.VehicleType;
 
 @Slf4j
 @Service
@@ -30,14 +30,22 @@ import pl.crewops.model.Vehicle;
 class VehicleService {
 
     private final VehicleRepository vehicleRepository;
+    private final VehicleTypeAPI vehicleTypeAPI;
 
     // TODO: extra important!
     // TODO: Adding a new vehicle should allow creating a new type or selecting from existing ones, consider to add new
     // table
     // that will populate vehicle type
     public VehicleDTO createVehicle(@Valid @NotNull CreateVehicleDTO createVehicleDTO) {
-        log.info("Create vehicle: {}", createVehicleDTO);
-        return mapToDTO(vehicleRepository.save(mapToEntity(createVehicleDTO)));
+        VehicleType vehicleType = vehicleTypeAPI
+                .getVehicleTypeByName(createVehicleDTO.vehicleType().name())
+                .orElseGet(() -> vehicleTypeAPI.create(
+                        new CreateVehicleTypeDTO(createVehicleDTO.vehicleType().name())));
+        Vehicle vehicle = mapToEntity(createVehicleDTO);
+        vehicle.setVehicleType(vehicleType);
+
+        log.info("Create vehicle: {}", vehicle);
+        return mapToDTO(vehicleRepository.save(vehicle));
     }
 
     public List<VehicleDTO> getAllVehicles(int page, int size) {
