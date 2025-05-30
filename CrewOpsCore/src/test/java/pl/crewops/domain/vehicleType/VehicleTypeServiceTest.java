@@ -7,7 +7,6 @@ import static pl.crewops.domain.vehicleType.VehicleTypeTestFactory.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +68,7 @@ class VehicleTypeServiceTest {
         // when
         when(vehicleTypeRepository.findAll()).thenReturn(vehicleTypes);
 
-        Set<VehicleTypeDTO> result = vehicleTypeService.getAllVehicleTypes();
+        List<VehicleTypeDTO> result = vehicleTypeService.getAllVehicleTypes();
 
         // then
         assertThat(result).isNotNull();

@@ -2,9 +2,8 @@ package pl.crewops.domain.vehicleType;
 
 import static pl.crewops.domain.vehicleType.VehicleTypeMapper.mapToEntity;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,9 +28,9 @@ class VehicleTypeService implements VehicleTypeAPI {
     }
 
     @Override
-    public Set<VehicleTypeDTO> getAllVehicleTypes() {
+    public List<VehicleTypeDTO> getAllVehicleTypes() {
         return vehicleTypeRepository.findAll().stream()
                 .map(VehicleTypeMapper::mapToDTO)
-                .collect(Collectors.toSet());
+                .toList();
     }
 }

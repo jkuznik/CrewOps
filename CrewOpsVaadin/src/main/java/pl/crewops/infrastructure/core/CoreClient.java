@@ -30,6 +30,7 @@ import pl.crewops.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
+import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 
 @Slf4j
@@ -246,6 +247,22 @@ class CoreClient implements CoreAPI {
                     .body(new ParameterizedTypeReference<List<VehicleDTO>>() {});
         } catch (RestClientException e) {
             log.error("Error getting vehicles");
+            return List.of();
+        }
+    }
+
+    @Override
+    public List<VehicleTypeDTO> getAllVehicleTypes() throws NotAuthenticatedException {
+        isAuthenticated();
+        try {
+            return authorizedClient
+                    .get()
+                    .uri(uriBuilder -> uriBuilder.path(VEHICLE_TYPES).build())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<List<VehicleTypeDTO>>() {});
+        } catch (RestClientException e) {
+            log.error("Error getting vehicle types");
             return List.of();
         }
     }

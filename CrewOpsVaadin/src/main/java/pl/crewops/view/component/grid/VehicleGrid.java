@@ -44,7 +44,7 @@ public class VehicleGrid extends VerticalLayout {
 
     public VehicleGrid(CoreAPI coreAPI, BreakdownGrid breakdownGrid) {
         this.coreAPI = coreAPI;
-        this.vehicleForm = new VehicleForm(this, breakdownGrid);
+        this.vehicleForm = new VehicleForm(this, breakdownGrid, coreAPI);
 
         configureGrid();
         configureForm();

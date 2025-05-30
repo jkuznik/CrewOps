@@ -12,6 +12,8 @@ public class ControllerURL {
     public static final String QUALIFICATION_ID = "qualificationId";
     public static final String VEHICLES = "/vehicles";
     public static final String VEHICLE_ID = "vehicleId";
+    public static final String VEHICLE_TYPES = "/vehicleTypes";
+    public static final String VEHICLE_TYPE_ID = "vehicleTypeId";
     public static final String BREAKDOWNS = "/breakdowns";
     public static final String BREAKDOWN_ID = "breakdownId";
 

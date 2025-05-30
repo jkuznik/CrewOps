@@ -15,20 +15,24 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.stream.IntStream;
 import pl.crewops.dto.vehicleType.VehicleTypeDTO;
+import pl.crewops.exceptions.NotAuthenticatedException;
+import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.VehicleFormModel;
+import pl.crewops.view.HomeView;
 import pl.crewops.view.component.grid.BreakdownGrid;
 import pl.crewops.view.component.grid.VehicleGrid;
 
 public class VehicleForm extends FormLayout {
     private final VehicleGrid vehicleGrid;
     private final BreakdownGrid breakdownGrid;
+    private final CoreAPI coreAPI;
 
     // TODO: implement text field setEnable(false) for update action
     TextField registrationNumber = new TextField();
     TextField make = new TextField();
     TextField model = new TextField();
     ComboBox<Integer> year = new ComboBox<>();
-    ComboBox<VehicleTypeDTO> availableVehicleTypes = new ComboBox<>();
+    ComboBox<String> availableVehicleTypes = new ComboBox<>();
     TextField newVehicleTypeField = new TextField();
     HorizontalLayout vehicleTypeRow = new HorizontalLayout(newVehicleTypeField, year, availableVehicleTypes);
     TextField vin = new TextField();
@@ -44,15 +48,27 @@ public class VehicleForm extends FormLayout {
 
     Binder<VehicleFormModel> binder = new Binder<>(VehicleFormModel.class);
 
-    public VehicleForm(VehicleGrid vehicleGrid, BreakdownGrid breakdownGrid) {
+    public VehicleForm(VehicleGrid vehicleGrid, BreakdownGrid breakdownGrid, CoreAPI coreAPI) {
         addClassName("vehicle-form");
 
         localize();
 
         this.vehicleGrid = vehicleGrid;
         this.breakdownGrid = breakdownGrid;
+        this.coreAPI = coreAPI;
 
         binder.bindInstanceFields(this);
+
+        onlyOneVehicleTypeSelectorGuardian();
+
+        try {
+            availableVehicleTypes.setItems(coreAPI.getAllVehicleTypes().stream()
+                    .map(VehicleTypeDTO::name)
+                    .sorted()
+                    .toList());
+        } catch (NotAuthenticatedException e) {
+            UI.getCurrent().navigate(HomeView.class);
+        }
 
         year.addClassName("vehicle-form-year-combobox");
         // TODO: find way to change item background color
@@ -80,6 +96,27 @@ public class VehicleForm extends FormLayout {
         reportBreakdown.setVisible(true);
         breakdownsList.setVisible(true);
         delete.setVisible(true);
+    }
+
+    public void setVehicle(VehicleFormModel vehicleFormModel) {
+        binder.setBean(vehicleFormModel);
+        if (vehicleFormModel != null) {
+            broken.setVisible(true);
+
+            if (vehicleFormModel.getBroken()) {
+                broken.setText(getTranslation("vehicleForm.broken.true"));
+                broken.getStyle().set("color", "red");
+            } else {
+                broken.setText(getTranslation("vehicleForm.broken.false"));
+                broken.getStyle().set("color", "green");
+            }
+        } else {
+            broken.setVisible(false);
+        }
+    }
+
+    public void displayBreakdowns(VehicleGrid vehicleGrid, BreakdownGrid breakdownGrid) {
+        fireEvent(new DisplayBreakdownsEvent(vehicleGrid, breakdownGrid));
     }
 
     private void localize() {
@@ -126,12 +163,24 @@ public class VehicleForm extends FormLayout {
     }
 
     private void validateAndSave() {
+        String vehicleTypeName;
+        if (availableVehicleTypes.getValue() != null) {
+            vehicleTypeName = availableVehicleTypes.getValue();
+        } else {
+            vehicleTypeName = newVehicleTypeField.getValue();
+        }
+
         var vehicleFormModel = VehicleFormModel.builder()
                 .make(make.getValue())
                 .model(model.getValue())
                 .year(year.getValue())
                 .vin(vin.getValue())
                 .registrationNumber(registrationNumber.getValue())
+                .vehicleType(vehicleTypeName)
+
+                // TODO: In case if new vehicle is already broken implement logic for this or suggest client that create
+                // and add new breakdown to achieve clean history of vehicles
+                .broken(false)
                 .build();
         binder.setBean(vehicleFormModel);
         if (binder.isValid()) {
@@ -145,25 +194,18 @@ public class VehicleForm extends FormLayout {
         }
     }
 
-    public void displayBreakdowns(VehicleGrid vehicleGrid, BreakdownGrid breakdownGrid) {
-        fireEvent(new DisplayBreakdownsEvent(vehicleGrid, breakdownGrid));
-    }
+    private void onlyOneVehicleTypeSelectorGuardian() {
+        availableVehicleTypes.addValueChangeListener(event -> {
+            newVehicleTypeField.clear();
+        });
 
-    public void setVehicle(VehicleFormModel vehicleFormModel) {
-        binder.setBean(vehicleFormModel);
-        if (vehicleFormModel != null) {
-            broken.setVisible(true);
+        newVehicleTypeField.addValueChangeListener(event -> {
+            availableVehicleTypes.clear();
+        });
 
-            if (vehicleFormModel.getBroken()) {
-                broken.setText(getTranslation("vehicleForm.broken.true"));
-                broken.getStyle().set("color", "red");
-            } else {
-                broken.setText(getTranslation("vehicleForm.broken.false"));
-                broken.getStyle().set("color", "green");
-            }
-        } else {
-            broken.setVisible(false);
-        }
+        newVehicleTypeField.getElement().addEventListener("input", e -> {
+            availableVehicleTypes.clear();
+        });
     }
 
     public abstract static class VehicleFormEvent extends ComponentEvent<VehicleForm> {
