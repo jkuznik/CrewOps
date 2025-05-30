@@ -7,8 +7,6 @@ import jakarta.validation.constraints.Size;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.*;
-import pl.crewops.dto.vehicle.VehicleDTO;
-import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.utils.serializer.EmployeeSetSerializer;
 
 @Getter
@@ -53,30 +51,32 @@ public class Vehicle extends AbstractEntity {
     @ManyToMany(mappedBy = "vehicles")
     private Set<Employee> employees = new LinkedHashSet<>();
 
-    public VehicleDTO mapToDTO() {
-        if (vehicleType != null) {
-            return VehicleDTO.builder()
-                    .id(this.getId())
-                    .make(this.getMake())
-                    .model(this.getModel())
-                    .vehicleType(this.getVehicleType().toDTO())
-                    .year(this.getYear())
-                    .vin(this.getVin())
-                    .registerNumber(this.getRegisterNumber())
-                    .broken(this.getBroken())
-                    .build();
-
-        } else {
-            return VehicleDTO.builder()
-                    .id(this.getId())
-                    .make(this.getMake())
-                    .model(this.getModel())
-                    .vehicleType(VehicleTypeDTO.builder().name("ImplementThis").build())
-                    .year(this.getYear())
-                    .vin(this.getVin())
-                    .registerNumber(this.getRegisterNumber())
-                    .broken(this.getBroken())
-                    .build();
-        }
-    }
+    //    public VehicleDTO mapToDTO() {
+    //        if (vehicleType != null) {
+    //            return VehicleDTO.builder()
+    //                    .id(this.getId())
+    //                    .make(this.getMake())
+    //                    .model(this.getModel())
+    //                    .vehicleType(VehicleTypeDTO.builder()
+    //                            .id(this.getVehicleType().getId())
+    //                            .build())
+    //                    .year(this.getYear())
+    //                    .vin(this.getVin())
+    //                    .registerNumber(this.getRegisterNumber())
+    //                    .broken(this.getBroken())
+    //                    .build();
+    //
+    //        } else {
+    //            return VehicleDTO.builder()
+    //                    .id(this.getId())
+    //                    .make(this.getMake())
+    //                    .model(this.getModel())
+    //                    .vehicleType(VehicleTypeDTO.builder().name("ImplementThis").build())
+    //                    .year(this.getYear())
+    //                    .vin(this.getVin())
+    //                    .registerNumber(this.getRegisterNumber())
+    //                    .broken(this.getBroken())
+    //                    .build();
+    //        }
+    //    }
 }

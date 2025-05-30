@@ -6,6 +6,7 @@ import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
+import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.model.Employee;
 
 class EmployeeMapper {
@@ -40,7 +41,10 @@ class EmployeeMapper {
                         .id(vehicle.getId())
                         .make(vehicle.getMake())
                         .model(vehicle.getModel())
-                        .vehicleType(vehicle.getVehicleType().toDTO())
+                        .vehicleType(VehicleTypeDTO.builder()
+                                .id(vehicle.getVehicleType().getId())
+                                .name(vehicle.getVehicleType().getName())
+                                .build())
                         .year(vehicle.getYear())
                         .vin(vehicle.getVin())
                         .registerNumber(vehicle.getRegisterNumber())

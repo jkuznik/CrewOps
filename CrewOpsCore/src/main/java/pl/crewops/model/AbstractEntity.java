@@ -14,7 +14,7 @@ public class AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
-    private UUID id;
+    protected UUID id;
 
     @Version
     private Integer version;

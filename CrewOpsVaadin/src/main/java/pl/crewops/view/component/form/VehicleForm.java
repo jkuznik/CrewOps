@@ -3,9 +3,9 @@ package pl.crewops.view.component.form;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -14,44 +14,61 @@ import com.vaadin.flow.shared.Registration;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.stream.IntStream;
+import pl.crewops.dto.vehicleType.VehicleTypeDTO;
+import pl.crewops.exceptions.NotAuthenticatedException;
+import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.VehicleFormModel;
+import pl.crewops.view.HomeView;
 import pl.crewops.view.component.grid.BreakdownGrid;
 import pl.crewops.view.component.grid.VehicleGrid;
 
 public class VehicleForm extends FormLayout {
     private final VehicleGrid vehicleGrid;
     private final BreakdownGrid breakdownGrid;
+    private final CoreAPI coreAPI;
 
     // TODO: implement text field setEnable(false) for update action
-    TextField registrationNumber = new TextField("Registration Number");
-    // TODO: implement this
+    TextField registrationNumber = new TextField();
+    TextField make = new TextField();
+    TextField model = new TextField();
+    ComboBox<Integer> year = new ComboBox<>();
+    ComboBox<String> availableVehicleTypes = new ComboBox<>();
+    TextField newVehicleTypeField = new TextField();
+    HorizontalLayout vehicleTypeRow = new HorizontalLayout(newVehicleTypeField, year, availableVehicleTypes);
+    TextField vin = new TextField();
+    Span broken = new Span();
 
-    //    TextField vehicleType = new TextField("Vehicle Type");
-    TextField make = new TextField("Make");
-    TextField model = new TextField("Model");
-    ComboBox<Integer> year = new ComboBox<>("Year");
-    TextField vin = new TextField("Vin");
-    Checkbox broken = new Checkbox("Broken");
+    Button save = new Button();
+    Button update = new Button();
+    Button delete = new Button();
+    Button close = new Button();
 
-    Button save = new Button("Save");
-    Button update = new Button("Update");
-    Button delete = new Button("Delete");
-    Button close = new Button("Close");
-
-    Button reportBreakdown = new Button("Report Breakdown");
-    Button breakdownsList = new Button("Breakdowns List");
+    Button reportBreakdown = new Button();
+    Button breakdownsList = new Button();
 
     Binder<VehicleFormModel> binder = new Binder<>(VehicleFormModel.class);
 
-    public VehicleForm(VehicleGrid vehicleGrid, BreakdownGrid breakdownGrid) {
+    public VehicleForm(VehicleGrid vehicleGrid, BreakdownGrid breakdownGrid, CoreAPI coreAPI) {
         addClassName("vehicle-form");
 
         localize();
 
         this.vehicleGrid = vehicleGrid;
         this.breakdownGrid = breakdownGrid;
+        this.coreAPI = coreAPI;
 
         binder.bindInstanceFields(this);
+
+        onlyOneVehicleTypeSelectorGuardian();
+
+        try {
+            availableVehicleTypes.setItems(coreAPI.getAllVehicleTypes().stream()
+                    .map(VehicleTypeDTO::name)
+                    .sorted()
+                    .toList());
+        } catch (NotAuthenticatedException e) {
+            UI.getCurrent().navigate(HomeView.class);
+        }
 
         year.addClassName("vehicle-form-year-combobox");
         // TODO: find way to change item background color
@@ -60,10 +77,13 @@ public class VehicleForm extends FormLayout {
                 .sorted(Comparator.reverseOrder())
                 .toList());
 
-        add(registrationNumber, /*vehicleType,*/ broken, make, model, year, vin, createButtonsLayout());
+        vehicleTypeRow.setSizeFull();
+
+        add(broken, registrationNumber, vehicleTypeRow, make, model, year, vin, createButtonsLayout());
     }
 
     public void setFormModeSave() {
+        availableVehicleTypes.setValue(null);
         save.setVisible(true);
         update.setVisible(false);
         reportBreakdown.setVisible(false);
@@ -71,12 +91,43 @@ public class VehicleForm extends FormLayout {
         delete.setVisible(false);
     }
 
+    // TODO: Add notification for succes update
     public void setFormModeUpdate() {
+        availableVehicleTypes.setEnabled(false);
+        newVehicleTypeField.setEnabled(false);
+        make.setEnabled(false);
+        model.setEnabled(false);
+        year.setEnabled(false);
+        vin.setEnabled(false);
+
         save.setVisible(false);
         update.setVisible(true);
         reportBreakdown.setVisible(true);
         breakdownsList.setVisible(true);
         delete.setVisible(true);
+    }
+
+    public void setVehicle(VehicleFormModel vehicleFormModel) {
+        binder.setBean(vehicleFormModel);
+        if (vehicleFormModel != null) {
+            broken.setVisible(true);
+
+            availableVehicleTypes.setValue(vehicleFormModel.getVehicleType());
+
+            if (vehicleFormModel.getBroken()) {
+                broken.setText(getTranslation("vehicleForm.broken.true"));
+                broken.getStyle().set("color", "red");
+            } else {
+                broken.setText(getTranslation("vehicleForm.broken.false"));
+                broken.getStyle().set("color", "green");
+            }
+        } else {
+            broken.setVisible(false);
+        }
+    }
+
+    public void displayBreakdowns(VehicleGrid vehicleGrid, BreakdownGrid breakdownGrid) {
+        fireEvent(new DisplayBreakdownsEvent(vehicleGrid, breakdownGrid));
     }
 
     private void localize() {
@@ -85,7 +136,8 @@ public class VehicleForm extends FormLayout {
         model.setLabel(getTranslation("vehicleForm.model"));
         year.setLabel(getTranslation("vehicleForm.year"));
         vin.setLabel(getTranslation("vehicleForm.vin"));
-        broken.setLabel(getTranslation("vehicleForm.broken"));
+        availableVehicleTypes.setLabel(getTranslation("vehicleForm.availableVehicleTypes.label"));
+        newVehicleTypeField.setLabel(getTranslation("vehicleForm.newVehicleTypeField.label"));
 
         save.setText(getTranslation("vehicleForm.save"));
         update.setText(getTranslation("vehicleForm.update"));
@@ -122,13 +174,24 @@ public class VehicleForm extends FormLayout {
     }
 
     private void validateAndSave() {
+        String vehicleTypeName;
+        if (availableVehicleTypes.getValue() != null) {
+            vehicleTypeName = availableVehicleTypes.getValue();
+        } else {
+            vehicleTypeName = newVehicleTypeField.getValue();
+        }
+
         var vehicleFormModel = VehicleFormModel.builder()
                 .make(make.getValue())
                 .model(model.getValue())
                 .year(year.getValue())
                 .vin(vin.getValue())
-                .broken(broken.getValue())
                 .registrationNumber(registrationNumber.getValue())
+                .vehicleType(vehicleTypeName)
+
+                // TODO: In case if new vehicle is already broken implement logic for this or suggest client that create
+                // and add new breakdown to achieve clean history of vehicles
+                .broken(false)
                 .build();
         binder.setBean(vehicleFormModel);
         if (binder.isValid()) {
@@ -142,12 +205,18 @@ public class VehicleForm extends FormLayout {
         }
     }
 
-    public void displayBreakdowns(VehicleGrid vehicleGrid, BreakdownGrid breakdownGrid) {
-        fireEvent(new DisplayBreakdownsEvent(vehicleGrid, breakdownGrid));
-    }
+    private void onlyOneVehicleTypeSelectorGuardian() {
+        availableVehicleTypes.addValueChangeListener(event -> {
+            newVehicleTypeField.clear();
+        });
 
-    public void setVehicle(VehicleFormModel vehicleFormModel) {
-        binder.setBean(vehicleFormModel);
+        newVehicleTypeField.addValueChangeListener(event -> {
+            availableVehicleTypes.clear();
+        });
+
+        newVehicleTypeField.getElement().addEventListener("input", e -> {
+            availableVehicleTypes.clear();
+        });
     }
 
     public abstract static class VehicleFormEvent extends ComponentEvent<VehicleForm> {

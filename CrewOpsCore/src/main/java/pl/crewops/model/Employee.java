@@ -6,10 +6,8 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.*;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
 
 @Getter
 @Setter
@@ -69,17 +67,17 @@ public class Employee extends AbstractEntity {
                 .build();
     }
 
-    public EmployeeDTO mapToDTO() {
-        return EmployeeDTO.builder()
-                .id(this.getId())
-                .firstName(this.getFirstName())
-                .lastName(this.getLastName())
-                .birthDate(this.getBirthDate())
-                .phoneNumber(this.getPhoneNumber())
-                .department(this.getDepartment())
-                .qualifications(
-                        qualifications.stream().map(Qualification::mapToDTO).collect(Collectors.toSet()))
-                .vehicles(vehicles.stream().map(Vehicle::mapToDTO).collect(Collectors.toSet()))
-                .build();
-    }
+    //    public EmployeeDTO mapToDTO() {
+    //        return EmployeeDTO.builder()
+    //                .id(this.getId())
+    //                .firstName(this.getFirstName())
+    //                .lastName(this.getLastName())
+    //                .birthDate(this.getBirthDate())
+    //                .phoneNumber(this.getPhoneNumber())
+    //                .department(this.getDepartment())
+    //                .qualifications(
+    //                        qualifications.stream().map(Qualification::mapToDTO).collect(Collectors.toSet()))
+    //                .vehicles(vehicles.stream().map(Vehicle::mapToDTO).collect(Collectors.toSet()))
+    //                .build();
+    //    }
 }

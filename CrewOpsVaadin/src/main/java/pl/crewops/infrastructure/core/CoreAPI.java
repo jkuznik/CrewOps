@@ -24,6 +24,7 @@ import pl.crewops.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
+import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 
 @Repository
@@ -62,6 +63,8 @@ public interface CoreAPI {
     List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException;
 
     List<VehicleDTO> getAllVehicles() throws NotAuthenticatedException;
+
+    List<VehicleTypeDTO> getAllVehicleTypes() throws NotAuthenticatedException;
 
     Optional<VehicleDTO> getVehicleByRegisterNumber(@Valid @NotNull String registerNumber)
             throws NotAuthenticatedException;

@@ -123,7 +123,6 @@ class EmployeeService {
         return mapToDTO(employee);
     }
 
-    //    TODO: breakdown table have constraint on reportedAt column that is UUID employee_id value, implement logic
     @Transactional
     public void deleteEmployee(@NotNull UUID employeeId) {
         var employee =
