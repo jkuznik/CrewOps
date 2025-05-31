@@ -50,7 +50,6 @@ public class BreakdownFormModel {
     public static UpdateBreakdownDTO toUpdateBreakdownDTO(BreakdownFormModel breakdownFormModel) {
         return UpdateBreakdownDTO.builder()
                 .breakdownId(breakdownFormModel.getId())
-                .repairedByEmployeeId(breakdownFormModel.getReportedBy().id())
                 .solved(breakdownFormModel.isSolved())
                 .build();
     }

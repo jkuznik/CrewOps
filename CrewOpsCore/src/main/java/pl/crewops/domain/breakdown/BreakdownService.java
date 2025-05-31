@@ -95,7 +95,6 @@ class BreakdownService implements BreakdownAPI {
             breakdown.setRepairedBy(employee);
             breakdown.setSolvedAt(Instant.now());
         } else {
-            // TODO: consider create custom exception - done, but decided do not create this exception for now
             throw new IllegalArgumentException("Can't update breakdown if not solved");
         }
 

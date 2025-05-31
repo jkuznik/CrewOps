@@ -18,6 +18,7 @@ import com.vaadin.flow.server.VaadinServletResponse;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -83,10 +84,12 @@ public class LoginForm extends FormLayout {
             var username = jwtService.getUsername(token);
             var firstName = jwtService.getFirstName(token);
             var lastName = jwtService.getLastName(token);
+            UUID id = jwtService.getId(token);
             var authorities = jwtService.getAuthorities(token);
 
             var userPrincipal = new UserPrincipal(username, firstName, lastName, authorities);
             userPrincipal.setToken(token);
+            userPrincipal.setId(id);
 
             Authentication auth = new UsernamePasswordAuthenticationToken(userPrincipal, null, authorities);
 

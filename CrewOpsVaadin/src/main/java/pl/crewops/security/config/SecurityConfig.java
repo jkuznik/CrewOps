@@ -20,7 +20,7 @@ public class SecurityConfig {
                 .formLogin()
                 .disable()
                 .httpBasic()
-                .disable(); // możesz zostawić włączone, jeśli chcesz testować z Postmanem
+                .disable();
 
         return http.build();
     }

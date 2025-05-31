@@ -32,10 +32,6 @@ class VehicleService {
     private final VehicleRepository vehicleRepository;
     private final VehicleTypeAPI vehicleTypeAPI;
 
-    // TODO: extra important!
-    // TODO: Adding a new vehicle should allow creating a new type or selecting from existing ones, consider to add new
-    // table
-    // that will populate vehicle type
     public VehicleDTO createVehicle(@Valid @NotNull CreateVehicleDTO createVehicleDTO) {
         VehicleType vehicleType = vehicleTypeAPI
                 .getVehicleTypeByName(createVehicleDTO.vehicleType().name())

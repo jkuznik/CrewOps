@@ -2,6 +2,7 @@ package pl.crewops.security.custom;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -14,6 +15,10 @@ public class UserPrincipal implements CustomUserPrincipal {
     private final String firstName;
     private final String lastName;
     private final Set<RoleGrantedAuthority> grantedAuthorities;
+
+    @Getter
+    @Setter
+    private UUID id;
 
     @Getter
     @Setter

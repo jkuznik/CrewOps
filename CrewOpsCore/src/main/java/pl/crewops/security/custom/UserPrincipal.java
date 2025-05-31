@@ -3,6 +3,7 @@ package pl.crewops.security.custom;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import pl.crewops.model.auth.AuthUser;
@@ -31,6 +32,11 @@ public class UserPrincipal implements CustomUserPrincipal {
     @Override
     public String getLastName() {
         return authUser.getEmployee().getLastName();
+    }
+
+    @Override
+    public UUID getId() {
+        return authUser.getEmployee().getId();
     }
 
     @Override

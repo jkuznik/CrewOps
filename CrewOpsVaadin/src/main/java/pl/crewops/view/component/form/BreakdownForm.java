@@ -15,7 +15,8 @@ import com.vaadin.flow.shared.Registration;
 import pl.crewops.model.BreakdownFormModel;
 
 public class BreakdownForm extends FormLayout {
-
+    // TODO: Implement logic if vehicle have more than 1 critical breakdown - solve one of them should not make vehicle
+    // operational
     // TODO: Update form to display all breakdown description, add solvedBy field and solvedAt date field, in case if
     // breakdown is solved hide 'update' button
     private final TextField vehicle = new TextField("Vehicle");

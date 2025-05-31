@@ -28,8 +28,8 @@ public class EmployeeForm extends FormLayout {
     private final TextField phoneNumber = new TextField("Phone number");
     private final TextField department = new TextField("Department");
     private final CheckboxGroup<RoleType> roles = new CheckboxGroup<>("Roles");
-    private final QualificationAccordion qualifications;
-    private final VehicleAccordion vehicles;
+    private final QualificationAccordion qualifications = new QualificationAccordion();
+    private final VehicleAccordion vehicles = new VehicleAccordion();
 
     private final Button save = new Button("Save");
     private final Button update = new Button("Update");
@@ -48,9 +48,6 @@ public class EmployeeForm extends FormLayout {
                 .toList());
         roles.setRenderer(
                 new TextRenderer<>(role -> role.name().replace("_", " ").toLowerCase()));
-
-        qualifications = new QualificationAccordion();
-        vehicles = new VehicleAccordion();
 
         binder.bindInstanceFields(this);
 

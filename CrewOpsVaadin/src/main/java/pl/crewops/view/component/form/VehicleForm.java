@@ -91,7 +91,6 @@ public class VehicleForm extends FormLayout {
         delete.setVisible(false);
     }
 
-    // TODO: Add notification for succes update
     public void setFormModeUpdate() {
         availableVehicleTypes.setEnabled(false);
         newVehicleTypeField.setEnabled(false);
@@ -188,9 +187,6 @@ public class VehicleForm extends FormLayout {
                 .vin(vin.getValue())
                 .registrationNumber(registrationNumber.getValue())
                 .vehicleType(vehicleTypeName)
-
-                // TODO: In case if new vehicle is already broken implement logic for this or suggest client that create
-                // and add new breakdown to achieve clean history of vehicles
                 .broken(false)
                 .build();
         binder.setBean(vehicleFormModel);
