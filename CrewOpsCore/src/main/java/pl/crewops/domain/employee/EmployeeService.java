@@ -14,7 +14,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 import pl.crewops.auth.CreateAuthUserDTO;
 import pl.crewops.domain.auth.AuthAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
@@ -32,8 +31,7 @@ import pl.crewops.utils.pagination.PageRequestFactory;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Validated
-class EmployeeService {
+class EmployeeService implements EmployeeAPI {
 
     private final EmployeeRepository employeeRepository;
     private final EmployeeQualificationRepository employeeQualificationRepository;
@@ -77,7 +75,7 @@ class EmployeeService {
                 .toList();
     }
 
-    public Employee getEmployeeById(UUID id) {
+    public Employee getEmployee(UUID id) {
         return employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
     }
 
@@ -95,8 +93,9 @@ class EmployeeService {
                 .toList();
     }
 
+    @Override
     @Transactional
-    public EmployeeDTO updateEmployee(@Valid @NotNull UpdateEmployeeDTO updateEmployeeDTO) {
+    public EmployeeDTO updateEmployee(@NotNull @Valid UpdateEmployeeDTO updateEmployeeDTO) {
         Employee employee = employeeRepository
                 .findById(updateEmployeeDTO.employeeId())
                 .orElseThrow(() -> new EmployeeNotFoundException(updateEmployeeDTO.employeeId()));
@@ -152,7 +151,7 @@ class EmployeeService {
 
     @Transactional
     public EmployeeDTO updateQualificationExpiredAt(
-            @NotNull UUID employeeId, @NotNull UUID qualificationId, Instant expiredAt) {
+            @NotNull UUID employeeId, @NotNull UUID qualificationId, @NotNull Instant expiredAt) {
         EmployeeQualification employeeQualification = employeeQualificationRepository
                 .findByEmployeeQualificationId(employeeId, qualificationId)
                 .orElseThrow(() -> new EmployeeQualificationNotFoundException(employeeId, qualificationId));
