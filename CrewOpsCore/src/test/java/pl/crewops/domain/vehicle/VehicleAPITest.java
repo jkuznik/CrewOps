@@ -1,7 +1,11 @@
 package pl.crewops.domain.vehicle;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchException;
+import static pl.crewops.domain.vehicle.VehicleTestFactory.createVehicleDTONotValid;
+import static pl.crewops.domain.vehicle.VehicleTestFactory.updateVehicleDTONotValid;
 
+import jakarta.validation.ConstraintViolationException;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,5 +82,34 @@ class VehicleAPITest extends IntegrationTest {
         assertThat(result).isNotNull();
         assertThat(result.getVehicleType()).isNotNull();
         assertThat(result.getVehicleType().getName()).isEqualTo("NEW TYPE");
+    }
+
+    @Test
+    void shouldThrowException_whenCreateVehicleDTOIsNull() {
+        Exception result = catchException(() -> vehicleAPI.createVehicle(null));
+
+        assertThat(result).isInstanceOf(ConstraintViolationException.class);
+    }
+
+    @Test
+    void shouldThrowException_whenCreateVehicleDTOIsInvalid() {
+        // given
+        var createVehicleDTONotValid = createVehicleDTONotValid();
+
+        // when
+        Exception result = catchException(() -> vehicleAPI.createVehicle(createVehicleDTONotValid));
+
+        assertThat(result).isInstanceOf(ConstraintViolationException.class);
+    }
+
+    @Test
+    void shouldThrowException_whenUpdateVehicleDTOIsInvalid() {
+        // given
+        var updateVehicleDTONotValid = updateVehicleDTONotValid();
+
+        // when
+        Exception result = catchException(() -> vehicleAPI.updateVehicle(updateVehicleDTONotValid));
+
+        assertThat(result).isInstanceOf(ConstraintViolationException.class);
     }
 }

@@ -3,8 +3,6 @@ package pl.crewops.domain.employee;
 import static pl.crewops.domain.employee.EmployeeMapper.mapToDTO;
 import static pl.crewops.domain.employee.EmployeeMapper.mapToEntity;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -40,7 +38,7 @@ class EmployeeService implements EmployeeAPI {
     private final AuthAPI authAPI;
 
     @Transactional
-    public EmployeeDTO createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO) {
+    public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
         if (authAPI.getByUsername(createEmployeeDTO.username()).isPresent()) {
             throw new UsernameAlreadyExistException(createEmployeeDTO.username());
         }
@@ -79,23 +77,22 @@ class EmployeeService implements EmployeeAPI {
         return employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
     }
 
-    public List<EmployeeDTO> getEmployeesByQualification(@NotNull UUID qualificationId, int page, int size) {
+    public List<EmployeeDTO> getEmployeesByQualification(UUID qualificationId, int page, int size) {
         log.info("Get employees by qualification");
         return employeeRepository.findByQualificationId(qualificationId, getPageRequest(page, size)).stream()
                 .map(EmployeeMapper::mapToDTO)
                 .toList();
     }
 
-    public List<EmployeeDTO> getEmployeesByVehicles(@NotNull UUID vehicleId, int page, int size) {
+    public List<EmployeeDTO> getEmployeesByVehicles(UUID vehicleId, int page, int size) {
         log.info("Get employees by vehicles");
         return employeeRepository.findByVehiclesId(vehicleId, getPageRequest(page, size)).stream()
                 .map(EmployeeMapper::mapToDTO)
                 .toList();
     }
 
-    @Override
     @Transactional
-    public EmployeeDTO updateEmployee(@NotNull @Valid UpdateEmployeeDTO updateEmployeeDTO) {
+    public EmployeeDTO updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) {
         Employee employee = employeeRepository
                 .findById(updateEmployeeDTO.employeeId())
                 .orElseThrow(() -> new EmployeeNotFoundException(updateEmployeeDTO.employeeId()));
@@ -112,7 +109,7 @@ class EmployeeService implements EmployeeAPI {
     }
 
     @Transactional
-    public EmployeeDTO removePhoneNumber(@NotNull UUID employeeId) {
+    public EmployeeDTO removePhoneNumber(UUID employeeId) {
         Employee employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
 
@@ -123,7 +120,7 @@ class EmployeeService implements EmployeeAPI {
     }
 
     @Transactional
-    public void deleteEmployee(@NotNull UUID employeeId) {
+    public void deleteEmployee(UUID employeeId) {
         var employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
 
@@ -137,7 +134,7 @@ class EmployeeService implements EmployeeAPI {
     }
 
     @Transactional
-    public EmployeeDTO addQualification(@NotNull UUID employeeId, @NotNull UUID qualificationId) {
+    public EmployeeDTO addQualification(UUID employeeId, UUID qualificationId) {
         Employee employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
 
@@ -150,8 +147,7 @@ class EmployeeService implements EmployeeAPI {
     }
 
     @Transactional
-    public EmployeeDTO updateQualificationExpiredAt(
-            @NotNull UUID employeeId, @NotNull UUID qualificationId, @NotNull Instant expiredAt) {
+    public EmployeeDTO updateQualificationExpiredAt(UUID employeeId, UUID qualificationId, Instant expiredAt) {
         EmployeeQualification employeeQualification = employeeQualificationRepository
                 .findByEmployeeQualificationId(employeeId, qualificationId)
                 .orElseThrow(() -> new EmployeeQualificationNotFoundException(employeeId, qualificationId));
@@ -166,7 +162,7 @@ class EmployeeService implements EmployeeAPI {
     }
 
     @Transactional
-    public void removeQualification(@NotNull UUID employeeId, @NotNull UUID qualificationId) {
+    public void removeQualification(UUID employeeId, UUID qualificationId) {
         Employee employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
 
@@ -177,7 +173,7 @@ class EmployeeService implements EmployeeAPI {
     }
 
     @Transactional
-    public EmployeeDTO addVehicle(@NotNull UUID employeeId, @NotNull UUID vehicleId) {
+    public EmployeeDTO addVehicle(UUID employeeId, UUID vehicleId) {
         Employee employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
 
@@ -190,7 +186,7 @@ class EmployeeService implements EmployeeAPI {
     }
 
     @Transactional
-    public void removeVehicle(@NotNull UUID employeeId, @NotNull UUID vehicleId) {
+    public void removeVehicle(UUID employeeId, UUID vehicleId) {
         Employee employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
 

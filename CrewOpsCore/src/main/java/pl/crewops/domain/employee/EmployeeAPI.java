@@ -45,4 +45,6 @@ public interface EmployeeAPI {
     EmployeeDTO addVehicle(@NotNull UUID employeeId, @NotNull UUID vehicleId) throws EmployeeNotFoundException;
 
     void removeVehicle(@NotNull UUID employeeId, @NotNull UUID vehicleId) throws EmployeeNotFoundException;
+
+    List<EmployeeDTO> getAllActiveEmployees(int page, int size);
 }

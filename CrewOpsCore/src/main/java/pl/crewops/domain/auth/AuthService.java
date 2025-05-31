@@ -2,7 +2,6 @@ package pl.crewops.domain.auth;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.constraints.NotNull;
 import java.util.*;
 import javax.management.relation.RoleNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +30,7 @@ class AuthService implements AuthAPI {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public Optional<AuthUser> getByUsername(@NotNull String username) {
+    public Optional<AuthUser> getByUsername(String username) {
         return authUserRepository.findByUsername(username);
     }
 
@@ -77,7 +76,7 @@ class AuthService implements AuthAPI {
     }
 
     @Transactional
-    public AuthResponse login(@NotNull AuthRequest authRequest, HttpServletResponse response) {
+    public AuthResponse login(AuthRequest authRequest, HttpServletResponse response) {
         try {
             AuthUser byUsername = byUsername(authRequest.username());
             log.debug("Login action by username: {}", byUsername);
@@ -96,7 +95,7 @@ class AuthService implements AuthAPI {
         }
     }
 
-    public ValidTokenResponse validateToken(@NotNull ValidTokenRequest validTokenRequest) {
+    public ValidTokenResponse validateToken(ValidTokenRequest validTokenRequest) {
         try {
             log.debug("Token validation started");
             AuthUser authUser;

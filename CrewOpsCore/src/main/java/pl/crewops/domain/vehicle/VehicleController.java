@@ -20,28 +20,27 @@ import pl.crewops.dto.vehicle.VehicleDTO;
 @RequiredArgsConstructor
 class VehicleController {
 
-    private final VehicleService vehicleService;
+    private final VehicleAPI vehicleAPI;
 
     @PostMapping(VEHICLES)
-    public ResponseEntity<VehicleDTO> createVehicle(@RequestBody CreateVehicleDTO createVehicleDTO) {
-        return ResponseEntity.status(HttpStatus.OK).body(vehicleService.createVehicle(createVehicleDTO));
+    public ResponseEntity<VehicleDTO> createVehicle(@NotNull @Valid @RequestBody CreateVehicleDTO createVehicleDTO) {
+        return ResponseEntity.status(HttpStatus.OK).body(vehicleAPI.createVehicle(createVehicleDTO));
     }
 
     @GetMapping(VEHICLES)
     public ResponseEntity<List<VehicleDTO>> getAllVehicles(
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "15") int size) {
-        return ResponseEntity.status(HttpStatus.OK).body(vehicleService.getAllVehicles(page, size));
+        return ResponseEntity.status(HttpStatus.OK).body(vehicleAPI.getAllVehicles(page, size));
     }
 
     @GetMapping(VEHICLES_RN)
     public ResponseEntity<VehicleDTO> getVehicleByRegistrationNumber(@PathVariable String registrationNumber) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(vehicleService.getVehicleByRegistrationNumber(registrationNumber));
+        return ResponseEntity.status(HttpStatus.OK).body(vehicleAPI.getVehicleByRegistrationNumber(registrationNumber));
     }
 
     @PostMapping(VEHICLES_VIDS)
-    public ResponseEntity<List<VehicleDTO>> getVehiclesByIds(@RequestBody @Valid @NotNull Set<UUID> vehicleIds) {
-        return ResponseEntity.status(HttpStatus.OK).body(vehicleService.getVehiclesIn(vehicleIds));
+    public ResponseEntity<List<VehicleDTO>> getVehiclesByIds(@RequestBody @NotNull Set<UUID> vehicleIds) {
+        return ResponseEntity.status(HttpStatus.OK).body(vehicleAPI.getVehiclesIn(vehicleIds));
     }
 
     @PatchMapping(VEHICLES_VID)
@@ -58,12 +57,12 @@ class VehicleController {
                 .broken(updateRequest.broken())
                 .build();
 
-        return ResponseEntity.status(HttpStatus.OK).body(vehicleService.updateVehicle(updateVehicleDTO));
+        return ResponseEntity.status(HttpStatus.OK).body(vehicleAPI.updateVehicle(updateVehicleDTO));
     }
 
     @DeleteMapping(VEHICLES_VID)
     public ResponseEntity<VehicleDTO> deleteVehicle(@PathVariable(VEHICLE_ID) UUID vehicleId) {
-        vehicleService.deleteVehicle(vehicleId);
+        vehicleAPI.deleteVehicle(vehicleId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
