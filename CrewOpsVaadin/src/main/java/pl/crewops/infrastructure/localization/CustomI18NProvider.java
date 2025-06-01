@@ -2,9 +2,7 @@ package pl.crewops.infrastructure.localization;
 
 import com.vaadin.flow.i18n.I18NProvider;
 import java.text.MessageFormat;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
@@ -16,9 +14,20 @@ public class CustomI18NProvider implements I18NProvider {
 
     private static final String BUNDLE_PREFIX = "i18n/messages";
 
+    private static final Map<String, Locale> FLAG_TO_LOCALE = Map.of(
+            "🇺🇸", new Locale("en", "US"),
+            "🇵🇱", new Locale("pl", "PL"),
+            "🇩🇪", new Locale("de", "DE"));
+
+    private final List<Locale> LOCALES = List.copyOf(FLAG_TO_LOCALE.values());
+
+    public static Map<String, Locale> getFlagToLocale() {
+        return FLAG_TO_LOCALE;
+    }
+
     @Override
     public List<Locale> getProvidedLocales() {
-        return List.of(new Locale("en", "US"), new Locale("pl", "PL"), new Locale("de", "DE"));
+        return LOCALES;
     }
 
     @Override

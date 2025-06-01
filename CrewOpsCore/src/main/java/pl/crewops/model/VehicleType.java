@@ -13,9 +13,6 @@ import lombok.*;
 @AllArgsConstructor
 public class VehicleType extends AbstractEntity {
 
-    // TODO:
-    // 3. Implement logic to delete vehicle type when last vehicle of that type is removed from db
-
     @Column(nullable = false, unique = true)
     private String name;
 
