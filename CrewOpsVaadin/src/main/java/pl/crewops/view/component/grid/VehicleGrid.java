@@ -201,6 +201,7 @@ public class VehicleGrid extends VerticalLayout {
             Optional<VehicleDTO> vehicleDTO =
                     coreAPI.createVehicle(VehicleFormModel.toCreateVehicleDTO(event.getVehicle()));
             updateVehicleGrid();
+            vehicleForm.updateAvailableVehicleTypes(coreAPI);
             closeEditor();
             vehicleDTO.ifPresent(AddVehicleNotification::new);
         } catch (NotAuthenticatedException e) {
@@ -238,6 +239,7 @@ public class VehicleGrid extends VerticalLayout {
         try {
             coreAPI.deleteVehicle(event.getVehicle().getId());
             updateVehicleGrid();
+            vehicleForm.updateAvailableVehicleTypes(coreAPI);
             closeEditor();
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);

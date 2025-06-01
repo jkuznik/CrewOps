@@ -17,6 +17,7 @@ import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.dto.vehicleType.CreateVehicleTypeDTO;
 import pl.crewops.exception.VehicleNotFoundException;
+import pl.crewops.exception.VehicleTypeNotFoundException;
 import pl.crewops.model.Vehicle;
 import pl.crewops.model.VehicleType;
 
@@ -93,6 +94,17 @@ class VehicleService implements VehicleAPI {
     @Transactional
     public void deleteVehicle(UUID vehicleId) {
         log.info("Delete vehicle {}", vehicleId);
-        vehicleRepository.deleteById(vehicleId);
+        var vehicle = vehicleRepository.findById(vehicleId).orElseThrow(() -> new VehicleNotFoundException(vehicleId));
+        var vehicleType = vehicleTypeAPI
+                .getVehicleTypeByName(vehicle.getVehicleType().getName())
+                .orElseThrow(() -> new VehicleTypeNotFoundException(
+                        vehicle.getVehicleType().getId()));
+
+        if (vehicleRepository.countByVehicleType(vehicleType) == 1) {
+            vehicleRepository.deleteById(vehicleId);
+            vehicleTypeAPI.delete(vehicleType);
+        } else {
+            vehicleRepository.deleteById(vehicleId);
+        }
     }
 }

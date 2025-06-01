@@ -13,7 +13,7 @@ import pl.crewops.model.Vehicle;
 import pl.crewops.model.VehicleType;
 import pl.crewops.model.auth.RoleType;
 
-public class AuthTestFactory {
+class AuthTestFactory {
 
     public static CreateAuthUserDTO createAuthUserDTO() {
         return CreateAuthUserDTO.builder()

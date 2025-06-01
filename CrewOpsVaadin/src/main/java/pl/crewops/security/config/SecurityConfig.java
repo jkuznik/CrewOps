@@ -10,7 +10,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // TODO: configure this as fast as possible
+    // TODO: configure this as fast as possible -
+    //  this will be configure during 'Improve security and session management for Vaadin module' issue
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

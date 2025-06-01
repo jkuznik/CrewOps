@@ -18,4 +18,6 @@ public interface VehicleTypeAPI {
     Optional<VehicleType> getVehicleTypeByName(@NotNull @NotBlank String name);
 
     List<VehicleTypeDTO> getAllVehicleTypes();
+
+    void delete(@NotNull VehicleType vehicleType);
 }

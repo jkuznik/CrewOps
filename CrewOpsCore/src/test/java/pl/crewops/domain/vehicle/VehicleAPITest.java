@@ -6,6 +6,7 @@ import static pl.crewops.domain.vehicle.VehicleTestFactory.createVehicleDTONotVa
 import static pl.crewops.domain.vehicle.VehicleTestFactory.updateVehicleDTONotValid;
 
 import jakarta.validation.ConstraintViolationException;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,9 @@ import pl.crewops.IntegrationTest;
 import pl.crewops.domain.vehicleType.VehicleTypeAPI;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicleType.VehicleTypeDTO;
+import pl.crewops.exception.VehicleNotFoundException;
 import pl.crewops.model.Vehicle;
+import pl.crewops.model.VehicleType;
 
 @Transactional
 class VehicleAPITest extends IntegrationTest {
@@ -111,5 +114,37 @@ class VehicleAPITest extends IntegrationTest {
         Exception result = catchException(() -> vehicleAPI.updateVehicle(updateVehicleDTONotValid));
 
         assertThat(result).isInstanceOf(ConstraintViolationException.class);
+    }
+
+    @Test
+    void deleteVehicle_shouldDeleteVehicle_whenVehicleExists() {
+        // given
+        var vehicleId = UUID.fromString("33333333-3333-3333-3333-333333333333");
+
+        // when
+        vehicleAPI.deleteVehicle(vehicleId);
+
+        Exception result = catchException(() -> vehicleAPI.getVehicle(vehicleId));
+
+        // then
+        assertThat(result).isInstanceOf(VehicleNotFoundException.class);
+    }
+
+    @Test
+    void deleteVehicle_shouldDeleteVehicleAndVehicleType_whenExistOnlyOneVehicleWithCurrentVehicleType() {
+        // given
+        var vehicleId = UUID.fromString("77777777-cccc-cccc-cccc-cccccccccccc"); // only one vehicle with 'loader' type
+        Optional<VehicleType> before = vehicleTypeAPI.getVehicleTypeByName("LOADER");
+
+        // when
+        vehicleAPI.deleteVehicle(vehicleId);
+
+        Optional<VehicleType> after = vehicleTypeAPI.getVehicleTypeByName("LOADER");
+        Exception result = catchException(() -> vehicleAPI.getVehicle(vehicleId));
+
+        // then
+        assertThat(before.isPresent()).isTrue();
+        assertThat(after.isPresent()).isFalse();
+        assertThat(result).isInstanceOf(VehicleNotFoundException.class);
     }
 }

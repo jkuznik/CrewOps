@@ -62,10 +62,7 @@ public class VehicleForm extends FormLayout {
         onlyOneVehicleTypeSelectorGuardian();
 
         try {
-            availableVehicleTypes.setItems(coreAPI.getAllVehicleTypes().stream()
-                    .map(VehicleTypeDTO::name)
-                    .sorted()
-                    .toList());
+            updateAvailableVehicleTypes(coreAPI);
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
@@ -83,6 +80,13 @@ public class VehicleForm extends FormLayout {
     }
 
     public void setFormModeSave() {
+        availableVehicleTypes.setEnabled(true);
+        newVehicleTypeField.setEnabled(true);
+        make.setEnabled(true);
+        model.setEnabled(true);
+        year.setEnabled(true);
+        vin.setEnabled(true);
+
         availableVehicleTypes.setValue(null);
         save.setVisible(true);
         update.setVisible(false);
@@ -127,6 +131,13 @@ public class VehicleForm extends FormLayout {
 
     public void displayBreakdowns(VehicleGrid vehicleGrid, BreakdownGrid breakdownGrid) {
         fireEvent(new DisplayBreakdownsEvent(vehicleGrid, breakdownGrid));
+    }
+
+    public void updateAvailableVehicleTypes(CoreAPI coreAPI) throws NotAuthenticatedException {
+        availableVehicleTypes.setItems(coreAPI.getAllVehicleTypes().stream()
+                .map(VehicleTypeDTO::name)
+                .sorted()
+                .toList());
     }
 
     private void localize() {

@@ -33,4 +33,9 @@ class VehicleTypeService implements VehicleTypeAPI {
                 .map(VehicleTypeMapper::mapToDTO)
                 .toList();
     }
+
+    @Override
+    public void delete(VehicleType vehicleType) {
+        vehicleTypeRepository.delete(vehicleType);
+    }
 }
