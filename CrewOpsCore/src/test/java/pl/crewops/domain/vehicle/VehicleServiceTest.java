@@ -118,6 +118,9 @@ class VehicleServiceTest {
 
     @Test
     void shouldDeleteVehicle_whenIdIsValid() {
+        // when
+        when(vehicleRepository.findById(any(UUID.class))).thenReturn(Optional.of(vehicle));
+        when(vehicleTypeAPI.getVehicleTypeByName(any())).thenReturn(Optional.of(vehicleType));
         doNothing().when(vehicleRepository).deleteById(vehicleId);
 
         vehicleService.deleteVehicle(vehicleId);
