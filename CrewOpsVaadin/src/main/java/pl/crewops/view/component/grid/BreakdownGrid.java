@@ -143,7 +143,10 @@ public class BreakdownGrid extends VerticalLayout {
 
         grid.addColumn(BreakdownFormModel::getSolvedAt).setKey("solvedAt");
 
-        grid.getColumns().forEach(column -> column.setAutoWidth(true));
+        grid.getColumns().forEach(column -> {
+            column.setFlexGrow(1);
+            column.setAutoWidth(false);
+        });
 
         grid.asSingleSelect().addValueChangeListener(event -> editBreakdown(event.getValue()));
     }
