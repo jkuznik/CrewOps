@@ -27,7 +27,6 @@ public class VehicleForm extends FormLayout {
     private final BreakdownGrid breakdownGrid;
     private final CoreAPI coreAPI;
 
-    // TODO: implement text field setEnable(false) for update action
     TextField registrationNumber = new TextField();
     TextField make = new TextField();
     TextField model = new TextField();

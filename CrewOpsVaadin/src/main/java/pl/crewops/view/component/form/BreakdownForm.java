@@ -64,7 +64,6 @@ public class BreakdownForm extends FormLayout {
 
         binder.forField(description).bind(BreakdownFormModel::getDescription, BreakdownFormModel::setDescription);
 
-        // TODO: implement logic for setSolved only by mechanics, shift leader or manager
         binder.forField(solved).bind(BreakdownFormModel::isSolved, BreakdownFormModel::setSolved);
 
         binder.forField(critical).bind(BreakdownFormModel::isCritical, BreakdownFormModel::setCritical);
