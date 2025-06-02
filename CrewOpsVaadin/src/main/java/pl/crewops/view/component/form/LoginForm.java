@@ -26,10 +26,12 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.web.client.RestClientException;
 import pl.crewops.auth.AuthRequest;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtService;
+import pl.crewops.view.component.notification.LoginFailNotification;
 
 @SpringComponent
 @CssImport("./styles/component/login-form.css")
@@ -110,9 +112,9 @@ public class LoginForm extends FormLayout {
 
             UI.getCurrent().getPage().reload();
 
-        } catch (Exception e) {
+        } catch (RestClientException e) {
             log.info("Login failed: {}", e.getMessage());
-            // TODO: implement UI error feedback
+            new LoginFailNotification();
         }
     }
 
