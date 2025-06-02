@@ -28,6 +28,7 @@ import pl.crewops.model.VehicleFormModel;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.BreakdownForm;
 import pl.crewops.view.component.form.VehicleForm;
+import pl.crewops.view.component.notification.AddBreakdownNotification;
 import pl.crewops.view.component.notification.AddVehicleNotification;
 import pl.crewops.view.component.notification.UpdateVehicleNotification;
 
@@ -228,7 +229,7 @@ public class VehicleGrid extends VerticalLayout {
                     coreAPI.createBreakdown(BreakdownFormModel.toCreateBreakdownDTO(event.getBreakdown()));
             updateVehicleGrid();
             closeEditor();
-            // TODO: notification for add breakdown action
+            breakdownDTO.ifPresent(AddBreakdownNotification::new);
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }

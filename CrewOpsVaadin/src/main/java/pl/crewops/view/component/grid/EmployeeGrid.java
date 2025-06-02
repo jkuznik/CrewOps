@@ -166,7 +166,6 @@ public class EmployeeGrid extends VerticalLayout {
         }
     }
 
-    // TODO: add delete employee guardian
     private void deleteEmployee(EmployeeForm.DeleteEvent event) {
         new DeleteEmployeeGuardian(event.getEmployee(), () -> {
             try {
