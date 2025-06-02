@@ -3,8 +3,6 @@ package pl.crewops.domain.employee;
 import static pl.crewops.domain.employee.EmployeeMapper.mapToDTO;
 import static pl.crewops.domain.employee.EmployeeMapper.mapToEntity;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -14,7 +12,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 import pl.crewops.auth.CreateAuthUserDTO;
 import pl.crewops.domain.auth.AuthAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
@@ -32,8 +29,7 @@ import pl.crewops.utils.pagination.PageRequestFactory;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Validated
-class EmployeeService {
+class EmployeeService implements EmployeeAPI {
 
     private final EmployeeRepository employeeRepository;
     private final EmployeeQualificationRepository employeeQualificationRepository;
@@ -42,7 +38,7 @@ class EmployeeService {
     private final AuthAPI authAPI;
 
     @Transactional
-    public EmployeeDTO createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO) {
+    public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
         if (authAPI.getByUsername(createEmployeeDTO.username()).isPresent()) {
             throw new UsernameAlreadyExistException(createEmployeeDTO.username());
         }
@@ -77,18 +73,18 @@ class EmployeeService {
                 .toList();
     }
 
-    public Employee getEmployeeById(UUID id) {
+    public Employee getEmployee(UUID id) {
         return employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
     }
 
-    public List<EmployeeDTO> getEmployeesByQualification(@NotNull UUID qualificationId, int page, int size) {
+    public List<EmployeeDTO> getEmployeesByQualification(UUID qualificationId, int page, int size) {
         log.info("Get employees by qualification");
         return employeeRepository.findByQualificationId(qualificationId, getPageRequest(page, size)).stream()
                 .map(EmployeeMapper::mapToDTO)
                 .toList();
     }
 
-    public List<EmployeeDTO> getEmployeesByVehicles(@NotNull UUID vehicleId, int page, int size) {
+    public List<EmployeeDTO> getEmployeesByVehicles(UUID vehicleId, int page, int size) {
         log.info("Get employees by vehicles");
         return employeeRepository.findByVehiclesId(vehicleId, getPageRequest(page, size)).stream()
                 .map(EmployeeMapper::mapToDTO)
@@ -96,7 +92,7 @@ class EmployeeService {
     }
 
     @Transactional
-    public EmployeeDTO updateEmployee(@Valid @NotNull UpdateEmployeeDTO updateEmployeeDTO) {
+    public EmployeeDTO updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) {
         Employee employee = employeeRepository
                 .findById(updateEmployeeDTO.employeeId())
                 .orElseThrow(() -> new EmployeeNotFoundException(updateEmployeeDTO.employeeId()));
@@ -113,7 +109,7 @@ class EmployeeService {
     }
 
     @Transactional
-    public EmployeeDTO removePhoneNumber(@NotNull UUID employeeId) {
+    public EmployeeDTO removePhoneNumber(UUID employeeId) {
         Employee employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
 
@@ -124,7 +120,7 @@ class EmployeeService {
     }
 
     @Transactional
-    public void deleteEmployee(@NotNull UUID employeeId) {
+    public void deleteEmployee(UUID employeeId) {
         var employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
 
@@ -138,7 +134,7 @@ class EmployeeService {
     }
 
     @Transactional
-    public EmployeeDTO addQualification(@NotNull UUID employeeId, @NotNull UUID qualificationId) {
+    public EmployeeDTO addQualification(UUID employeeId, UUID qualificationId) {
         Employee employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
 
@@ -151,8 +147,7 @@ class EmployeeService {
     }
 
     @Transactional
-    public EmployeeDTO updateQualificationExpiredAt(
-            @NotNull UUID employeeId, @NotNull UUID qualificationId, Instant expiredAt) {
+    public EmployeeDTO updateQualificationExpiredAt(UUID employeeId, UUID qualificationId, Instant expiredAt) {
         EmployeeQualification employeeQualification = employeeQualificationRepository
                 .findByEmployeeQualificationId(employeeId, qualificationId)
                 .orElseThrow(() -> new EmployeeQualificationNotFoundException(employeeId, qualificationId));
@@ -167,7 +162,7 @@ class EmployeeService {
     }
 
     @Transactional
-    public void removeQualification(@NotNull UUID employeeId, @NotNull UUID qualificationId) {
+    public void removeQualification(UUID employeeId, UUID qualificationId) {
         Employee employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
 
@@ -178,7 +173,7 @@ class EmployeeService {
     }
 
     @Transactional
-    public EmployeeDTO addVehicle(@NotNull UUID employeeId, @NotNull UUID vehicleId) {
+    public EmployeeDTO addVehicle(UUID employeeId, UUID vehicleId) {
         Employee employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
 
@@ -191,7 +186,7 @@ class EmployeeService {
     }
 
     @Transactional
-    public void removeVehicle(@NotNull UUID employeeId, @NotNull UUID vehicleId) {
+    public void removeVehicle(UUID employeeId, UUID vehicleId) {
         Employee employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
 

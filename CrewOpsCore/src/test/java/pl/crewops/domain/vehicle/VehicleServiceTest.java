@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static pl.crewops.domain.vehicle.VehicleTestFactory.*;
 
-import jakarta.validation.ConstraintViolationException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +18,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import pl.crewops.domain.vehicleType.VehicleTypeAPI;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
@@ -28,7 +26,7 @@ import pl.crewops.exception.VehicleNotFoundException;
 import pl.crewops.model.Vehicle;
 import pl.crewops.model.VehicleType;
 
-@SpringJUnitConfig(classes = {VehicleService.class, MethodValidationPostProcessor.class})
+@SpringJUnitConfig(classes = {VehicleService.class})
 class VehicleServiceTest {
 
     @MockitoBean
@@ -42,9 +40,7 @@ class VehicleServiceTest {
 
     private Vehicle vehicle;
     private CreateVehicleDTO createVehicleDTO;
-    private CreateVehicleDTO createVehicleDTONotValid;
     private UpdateVehicleDTO updateVehicleDTOValid;
-    private UpdateVehicleDTO updateVehicleDTONotValid;
     private VehicleType vehicleType;
     private final UUID vehicleId = UUID.randomUUID();
 
@@ -52,9 +48,7 @@ class VehicleServiceTest {
     void setUp() {
         vehicle = createVehicle();
         createVehicleDTO = createVehicleDTO();
-        createVehicleDTONotValid = createVehicleDTONotValid();
         updateVehicleDTOValid = updateVehicleDTO();
-        updateVehicleDTONotValid = updateVehicleDTONotValid();
         vehicleType = createVehicleType();
     }
 
@@ -69,20 +63,6 @@ class VehicleServiceTest {
         assertThat(result.make()).isEqualTo("make");
         assertThat(result.model()).isEqualTo("model");
         assertThat(result.vehicleType().name()).isEqualTo("name");
-    }
-
-    @Test
-    void shouldThrowException_whenCreateVehicleDTOIsNull() {
-        Exception result = catchException(() -> vehicleService.createVehicle(null));
-
-        assertThat(result).isInstanceOf(ConstraintViolationException.class);
-    }
-
-    @Test
-    void shouldThrowException_whenCreateVehicleDTOIsInvalid() {
-        Exception result = catchException(() -> vehicleService.createVehicle(createVehicleDTONotValid));
-
-        assertThat(result).isInstanceOf(ConstraintViolationException.class);
     }
 
     @Test
@@ -128,13 +108,6 @@ class VehicleServiceTest {
     }
 
     @Test
-    void shouldThrowException_whenUpdateVehicleDTOIsInvalid() {
-        Exception result = catchException(() -> vehicleService.updateVehicle(updateVehicleDTONotValid));
-
-        assertThat(result).isInstanceOf(ConstraintViolationException.class);
-    }
-
-    @Test
     void shouldThrowException_whenVehicleToUpdateDoesNotExist() {
         when(vehicleRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
 
@@ -145,6 +118,9 @@ class VehicleServiceTest {
 
     @Test
     void shouldDeleteVehicle_whenIdIsValid() {
+        // when
+        when(vehicleRepository.findById(any(UUID.class))).thenReturn(Optional.of(vehicle));
+        when(vehicleTypeAPI.getVehicleTypeByName(any())).thenReturn(Optional.of(vehicleType));
         doNothing().when(vehicleRepository).deleteById(vehicleId);
 
         vehicleService.deleteVehicle(vehicleId);

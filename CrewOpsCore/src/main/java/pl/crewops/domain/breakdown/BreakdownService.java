@@ -80,6 +80,8 @@ class BreakdownService implements BreakdownAPI {
                 .collect(Collectors.toList());
     }
 
+    // TODO: test for new case - multiple breakdowns with critical true related with one vehicle should not allow to set
+    // vehicle break = false
     @Transactional
     public BreakdownDTO updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO) {
         log.info("Updating breakdown: {}", updateBreakdownDTO);
@@ -90,17 +92,20 @@ class BreakdownService implements BreakdownAPI {
         if (updateBreakdownDTO.solved()) {
             Employee employee = employeeAPI.getEmployee(updateBreakdownDTO.repairedByEmployeeId());
             Vehicle vehicle = vehicleAPI.getVehicle(breakdown.getVehicle().getId());
-            vehicle.setBroken(false);
             breakdown.setSolved(true);
             breakdown.setRepairedBy(employee);
             breakdown.setSolvedAt(Instant.now());
+            var updatedBreakdown = toDTO(breakdownRepository.save(breakdown));
+
+            if (breakdownRepository.findFirstByVehicleAndSolvedIsFalse(vehicle).isEmpty()) {
+                vehicle.setBroken(false);
+            }
+
+            log.info("Updated breakdown: {}", breakdown);
+            return updatedBreakdown;
         } else {
-            // TODO: consider create custom exception - done, but decided do not create this exception for now
             throw new IllegalArgumentException("Can't update breakdown if not solved");
         }
-
-        log.info("Updated breakdown: {}", breakdown);
-        return toDTO(breakdownRepository.save(breakdown));
     }
 
     @Transactional

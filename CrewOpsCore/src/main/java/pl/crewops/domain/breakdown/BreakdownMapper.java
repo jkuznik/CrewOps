@@ -18,7 +18,6 @@ class BreakdownMapper {
         return BreakdownDTO.builder()
                 .id(breakdown.getId())
                 .description(breakdown.getDescription())
-                // TODO: implement rest, refactor mappers and move all mapped methods to entity classes
                 .vehicle(VehicleDTO.builder()
                         .id(vehicle.getId())
                         .make(vehicle.getMake())

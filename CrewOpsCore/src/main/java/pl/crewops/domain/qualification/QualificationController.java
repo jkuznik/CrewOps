@@ -22,25 +22,24 @@ import pl.crewops.dto.qualification.UpdateQualificationDTO;
 @Validated
 class QualificationController {
 
-    private final QualificationService qualificationService;
+    private final QualificationAPI qualificationAPI;
 
     @PostMapping(QUALIFICATIONS)
     public ResponseEntity<QualificationDTO> createQualification(
             @RequestBody @Valid @NotNull CreateQualificationDTO createQualificationDTO) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(qualificationService.createQualification(createQualificationDTO));
+        return ResponseEntity.status(HttpStatus.OK).body(qualificationAPI.createQualification(createQualificationDTO));
     }
 
     @GetMapping(QUALIFICATIONS)
     public ResponseEntity<List<QualificationDTO>> getQualifications(
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "15") int size) {
-        return ResponseEntity.status(HttpStatus.OK).body(qualificationService.getAllQualifications(page, size));
+        return ResponseEntity.status(HttpStatus.OK).body(qualificationAPI.getAllQualifications(page, size));
     }
 
     @PostMapping(QUALIFICATIONS_QIDS)
     public ResponseEntity<List<QualificationDTO>> getQualificationsByIds(
-            @RequestBody @Valid @NotNull Set<UUID> qualificationIds) {
-        return ResponseEntity.status(HttpStatus.OK).body(qualificationService.getQualificationsIn(qualificationIds));
+            @RequestBody @NotNull Set<UUID> qualificationIds) {
+        return ResponseEntity.status(HttpStatus.OK).body(qualificationAPI.getQualificationsIn(qualificationIds));
     }
 
     @PatchMapping(QUALIFICATIONS_QID)
@@ -57,13 +56,12 @@ class QualificationController {
                 .description(updateRequest.description())
                 .build();
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(qualificationService.updateQualification(updateQualificationDTO));
+        return ResponseEntity.status(HttpStatus.OK).body(qualificationAPI.updateQualification(updateQualificationDTO));
     }
 
     @DeleteMapping(QUALIFICATIONS_QID)
     public ResponseEntity<Void> deleteQualification(@PathVariable(QUALIFICATION_ID) UUID qualificationId) {
-        qualificationService.deleteQualification(qualificationId);
+        qualificationAPI.deleteQualification(qualificationId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

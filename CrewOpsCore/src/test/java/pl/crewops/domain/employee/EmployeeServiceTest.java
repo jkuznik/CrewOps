@@ -6,12 +6,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static pl.crewops.domain.employee.EmployeeTestFactory.*;
 
-import jakarta.validation.ConstraintViolationException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +18,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import pl.crewops.domain.auth.AuthAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
 import pl.crewops.domain.vehicle.VehicleAPI;
@@ -35,8 +32,19 @@ import pl.crewops.model.Vehicle;
 import pl.crewops.model.auth.AuthUser;
 import pl.crewops.model.joinTable.EmployeeQualification;
 
-@SpringJUnitConfig(classes = {EmployeeService.class, MethodValidationPostProcessor.class})
+@SpringJUnitConfig(
+        classes = {
+            EmployeeService.class,
+            EmployeeRepository.class,
+            EmployeeQualificationRepository.class,
+            QualificationAPI.class,
+            VehicleAPI.class,
+            AuthAPI.class
+        })
 class EmployeeServiceTest {
+
+    @Autowired
+    EmployeeService employeeService;
 
     @MockitoBean
     EmployeeRepository employeeRepository;
@@ -53,13 +61,8 @@ class EmployeeServiceTest {
     @MockitoBean
     AuthAPI authAPI;
 
-    @Autowired
-    EmployeeService employeeService;
-
     private CreateEmployeeDTO createEmployeeWithEmptyQAndEmptyV;
-    private CreateEmployeeDTO createEmployeeDTOWithNullFields;
     private UpdateEmployeeDTO updateEmployeeDTO;
-    private UpdateEmployeeDTO updateEmployeeDTONotValid;
     private Employee employeeWithQAndV;
     private Employee employeeWithEmptyQAndEmptyV;
     private Qualification qualification;
@@ -71,9 +74,7 @@ class EmployeeServiceTest {
     @BeforeEach
     void setUp() {
         createEmployeeWithEmptyQAndEmptyV = EmployeeTestFactory.createEmployeeDTO();
-        createEmployeeDTOWithNullFields = createEmployeeDTONotValid();
         updateEmployeeDTO = updateEmployeeDTO();
-        updateEmployeeDTONotValid = updateEmployeeDTONotValid();
         employeeWithQAndV = employeeWithQualificationsAndVehicles();
         employeeWithEmptyQAndEmptyV = employeeWithoutQualificationsAndVehicles();
         qualification = qualification();
@@ -106,17 +107,6 @@ class EmployeeServiceTest {
     }
 
     @Test
-    void shouldThrowException_whenCreateEmployeeDTOIsNotValid() {
-        // when
-        Exception result =
-                Assertions.catchException(() -> employeeService.createEmployee(createEmployeeDTOWithNullFields));
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result).isExactlyInstanceOf(ConstraintViolationException.class);
-    }
-
-    @Test
     void shouldReturnEmployeeDTO_whenUpdateEmployeeDTOHaveNoQualificationsAndNoVehicles() {
         // when
         when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithEmptyQAndEmptyV));
@@ -125,16 +115,6 @@ class EmployeeServiceTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.firstName()).isEqualTo("firstName");
-    }
-
-    @Test
-    void shouldThrowException_whenUpdateEmployeeDTOIsNotValid() {
-        // given
-        Exception result = Assertions.catchException(() -> employeeService.updateEmployee(updateEmployeeDTONotValid));
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result).isExactlyInstanceOf(ConstraintViolationException.class);
     }
 
     @Test

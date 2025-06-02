@@ -16,6 +16,7 @@ import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.EmployeeForm;
 import pl.crewops.view.component.notification.AddEmployeeNotification;
+import pl.crewops.view.component.notification.DeleteEmployeeGuardian;
 import pl.crewops.view.component.notification.UpdateEmployeeNotification;
 
 public class EmployeeGrid extends VerticalLayout {
@@ -165,14 +166,15 @@ public class EmployeeGrid extends VerticalLayout {
         }
     }
 
-    // TODO: add delete employee guardian
     private void deleteEmployee(EmployeeForm.DeleteEvent event) {
-        try {
-            coreAPI.deleteEmployee(event.getEmployee().getId());
-            updateGrid();
-            closeEditor();
-        } catch (NotAuthenticatedException e) {
-            UI.getCurrent().navigate(HomeView.class);
-        }
+        new DeleteEmployeeGuardian(event.getEmployee(), () -> {
+            try {
+                coreAPI.deleteEmployee(event.getEmployee().getId());
+                updateGrid();
+                closeEditor();
+            } catch (NotAuthenticatedException e) {
+                UI.getCurrent().navigate(HomeView.class);
+            }
+        });
     }
 }

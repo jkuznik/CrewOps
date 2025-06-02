@@ -18,6 +18,7 @@ import com.vaadin.flow.server.VaadinServletResponse;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,10 +26,12 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.web.client.RestClientException;
 import pl.crewops.auth.AuthRequest;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtService;
+import pl.crewops.view.component.notification.LoginFailNotification;
 
 @SpringComponent
 @CssImport("./styles/component/login-form.css")
@@ -83,10 +86,12 @@ public class LoginForm extends FormLayout {
             var username = jwtService.getUsername(token);
             var firstName = jwtService.getFirstName(token);
             var lastName = jwtService.getLastName(token);
+            UUID id = jwtService.getId(token);
             var authorities = jwtService.getAuthorities(token);
 
             var userPrincipal = new UserPrincipal(username, firstName, lastName, authorities);
             userPrincipal.setToken(token);
+            userPrincipal.setId(id);
 
             Authentication auth = new UsernamePasswordAuthenticationToken(userPrincipal, null, authorities);
 
@@ -107,9 +112,9 @@ public class LoginForm extends FormLayout {
 
             UI.getCurrent().getPage().reload();
 
-        } catch (Exception e) {
+        } catch (RestClientException e) {
             log.info("Login failed: {}", e.getMessage());
-            // TODO: implement UI error feedback
+            new LoginFailNotification();
         }
     }
 

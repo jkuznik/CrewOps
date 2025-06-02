@@ -4,8 +4,6 @@ import static pl.crewops.domain.vehicle.VehicleMapper.mapToDTO;
 import static pl.crewops.domain.vehicle.VehicleMapper.mapToEntity;
 import static pl.crewops.utils.pagination.PageRequestFactory.createPageRequest;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,30 +11,25 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 import pl.crewops.domain.vehicleType.VehicleTypeAPI;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.dto.vehicleType.CreateVehicleTypeDTO;
 import pl.crewops.exception.VehicleNotFoundException;
+import pl.crewops.exception.VehicleTypeNotFoundException;
 import pl.crewops.model.Vehicle;
 import pl.crewops.model.VehicleType;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Validated
-class VehicleService {
+class VehicleService implements VehicleAPI {
 
     private final VehicleRepository vehicleRepository;
     private final VehicleTypeAPI vehicleTypeAPI;
 
-    // TODO: extra important!
-    // TODO: Adding a new vehicle should allow creating a new type or selecting from existing ones, consider to add new
-    // table
-    // that will populate vehicle type
-    public VehicleDTO createVehicle(@Valid @NotNull CreateVehicleDTO createVehicleDTO) {
+    public VehicleDTO createVehicle(CreateVehicleDTO createVehicleDTO) {
         VehicleType vehicleType = vehicleTypeAPI
                 .getVehicleTypeByName(createVehicleDTO.vehicleType().name())
                 .orElseGet(() -> vehicleTypeAPI.create(
@@ -58,12 +51,16 @@ class VehicleService {
                 .toList();
     }
 
-    public Vehicle getVehicleById(@NotNull UUID id) throws VehicleNotFoundException {
+    public Vehicle getVehicle(UUID vehicleId) throws VehicleNotFoundException {
+        return vehicleRepository.findById(vehicleId).orElseThrow(() -> new VehicleNotFoundException(vehicleId));
+    }
+
+    public Vehicle getVehicleById(UUID id) throws VehicleNotFoundException {
         log.info("Get vehicle by id {}", id);
         return vehicleRepository.findById(id).orElseThrow(() -> new VehicleNotFoundException(id));
     }
 
-    public VehicleDTO getVehicleByRegistrationNumber(@NotNull String registerNumber) {
+    public VehicleDTO getVehicleByRegistrationNumber(String registerNumber) {
         log.info("Get vehicle by registration number {}", registerNumber);
         return mapToDTO(
                 vehicleRepository.findByRegisterNumber(registerNumber).orElseThrow(NoSuchElementException::new));
@@ -77,7 +74,7 @@ class VehicleService {
     }
 
     @Transactional
-    public VehicleDTO updateVehicle(@Valid @NotNull UpdateVehicleDTO updateVehicleDTO) {
+    public VehicleDTO updateVehicle(UpdateVehicleDTO updateVehicleDTO) {
         Vehicle vehicle = vehicleRepository
                 .findById(updateVehicleDTO.vehicleId())
                 .orElseThrow(() -> new VehicleNotFoundException(updateVehicleDTO.vehicleId()));
@@ -95,8 +92,19 @@ class VehicleService {
     }
 
     @Transactional
-    public void deleteVehicle(@NotNull UUID vehicleId) {
+    public void deleteVehicle(UUID vehicleId) {
         log.info("Delete vehicle {}", vehicleId);
-        vehicleRepository.deleteById(vehicleId);
+        var vehicle = vehicleRepository.findById(vehicleId).orElseThrow(() -> new VehicleNotFoundException(vehicleId));
+        var vehicleType = vehicleTypeAPI
+                .getVehicleTypeByName(vehicle.getVehicleType().getName())
+                .orElseThrow(() -> new VehicleTypeNotFoundException(
+                        vehicle.getVehicleType().getId()));
+
+        if (vehicleRepository.countByVehicleType(vehicleType) == 1) {
+            vehicleRepository.deleteById(vehicleId);
+            vehicleTypeAPI.delete(vehicleType);
+        } else {
+            vehicleRepository.deleteById(vehicleId);
+        }
     }
 }

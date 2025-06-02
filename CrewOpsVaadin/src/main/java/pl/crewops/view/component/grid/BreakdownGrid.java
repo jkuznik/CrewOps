@@ -12,10 +12,13 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.dto.breakdown.BreakdownDTO;
+import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.BreakdownFormModel;
+import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.BreakdownForm;
 
@@ -101,7 +104,7 @@ public class BreakdownGrid extends VerticalLayout {
         grid.addColumn(BreakdownFormModel::getDescription).setKey("description");
 
         grid.addColumn(new ComponentRenderer<>(model -> {
-                    if (model.isCritical()) {
+                    if (model.isCritical() && !model.isSolved()) {
                         Icon criticalIcon = VaadinIcon.CLOSE_CIRCLE.create();
                         criticalIcon.setColor("red");
                         return criticalIcon;
@@ -140,7 +143,10 @@ public class BreakdownGrid extends VerticalLayout {
 
         grid.addColumn(BreakdownFormModel::getSolvedAt).setKey("solvedAt");
 
-        grid.getColumns().forEach(column -> column.setAutoWidth(true));
+        grid.getColumns().forEach(column -> {
+            column.setFlexGrow(1);
+            column.setAutoWidth(false);
+        });
 
         grid.asSingleSelect().addValueChangeListener(event -> editBreakdown(event.getValue()));
     }
@@ -192,12 +198,22 @@ public class BreakdownGrid extends VerticalLayout {
 
     private void updateBreakdown(BreakdownForm.UpdateEvent event) {
         try {
-            Optional<BreakdownDTO> breakdownDTO =
-                    coreAPI.updateBreakdown(BreakdownFormModel.toUpdateBreakdownDTO(event.getBreakdown()));
+            Optional<BreakdownDTO> breakdownDTO = coreAPI.updateBreakdown(toUpdateBreakdownDTO(event.getBreakdown()));
             updateBreakdownGrid();
             closeEditor();
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
+    }
+
+    private UpdateBreakdownDTO toUpdateBreakdownDTO(BreakdownFormModel breakdownFormModel) {
+        var principal = (UserPrincipal)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return UpdateBreakdownDTO.builder()
+                .breakdownId(breakdownFormModel.getId())
+                .repairedByEmployeeId(principal.getId())
+                .solved(breakdownFormModel.isSolved())
+                .build();
     }
 }

@@ -39,12 +39,6 @@ public class HomeView extends MainLayout {
 
         H1 title = new H1(label);
         currentContent.add(title);
-        // TODO: delete this code snippet any time, this code only check if footer is displaying in proper time depends
-        // on scroller
-        //        for (int i = 1; i <= 50; i++) {
-        //            String lineText = getTranslation("homeView.line", i);
-        //            currentContent.add(new Span(lineText));
-        //        }
 
         return currentContent;
     }

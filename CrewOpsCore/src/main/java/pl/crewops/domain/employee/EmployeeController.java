@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
@@ -20,20 +21,22 @@ import pl.crewops.dto.employee.UpdateEmployeeDTO;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+@Validated
 class EmployeeController {
 
-    private final EmployeeService employeeService;
+    private final EmployeeAPI employeeAPI;
 
     @PostMapping(EMPLOYEES)
-    public ResponseEntity<EmployeeDTO> createEmployee(@Valid @RequestBody CreateEmployeeDTO createEmployeeDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.createEmployee(createEmployeeDTO));
+    public ResponseEntity<EmployeeDTO> createEmployee(
+            @NotNull @Valid @RequestBody CreateEmployeeDTO createEmployeeDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(employeeAPI.createEmployee(createEmployeeDTO));
     }
 
     @GetMapping(EMPLOYEES)
     public ResponseEntity<List<EmployeeDTO>> getEmployees(
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "15") int size) {
         log.info("Get employees");
-        return ResponseEntity.status(HttpStatus.OK).body(employeeService.getAllActiveEmployees(page, size));
+        return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.getAllActiveEmployees(page, size));
     }
 
     @GetMapping(EMPLOYEES_QID)
@@ -42,7 +45,7 @@ class EmployeeController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(employeeService.getEmployeesByQualification(qualificationId, page, size));
+                .body(employeeAPI.getEmployeesByQualification(qualificationId, page, size));
     }
 
     @GetMapping(EMPLOYEES_VID)
@@ -50,12 +53,12 @@ class EmployeeController {
             @PathVariable(VEHICLE_ID) UUID vehicleId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size) {
-        return ResponseEntity.status(HttpStatus.OK).body(employeeService.getEmployeesByVehicles(vehicleId, page, size));
+        return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.getEmployeesByVehicles(vehicleId, page, size));
     }
 
     @PatchMapping(EMPLOYEES_EID)
     public ResponseEntity<EmployeeDTO> updateEmployee(
-            @PathVariable(EMPLOYEE_ID) UUID employeeId, @RequestBody @Valid @NotNull UpdateEmployeeDTO updateRequest) {
+            @PathVariable(EMPLOYEE_ID) UUID employeeId, @NotNull @Valid @RequestBody UpdateEmployeeDTO updateRequest) {
 
         if (!updateRequest.employeeId().equals(employeeId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Path ID and body ID must match");
@@ -67,30 +70,30 @@ class EmployeeController {
                 .department(updateRequest.department())
                 .build();
 
-        return ResponseEntity.status(HttpStatus.OK).body(employeeService.updateEmployee(updateEmployeeDTO));
+        return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.updateEmployee(updateEmployeeDTO));
     }
 
     @PatchMapping(EMPLOYEES_EID_PHONE)
     public ResponseEntity<EmployeeDTO> removePhoneNumber(@PathVariable(EMPLOYEE_ID) UUID employeeId) {
-        return ResponseEntity.status(HttpStatus.OK).body(employeeService.removePhoneNumber(employeeId));
+        return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.removePhoneNumber(employeeId));
     }
 
     @DeleteMapping(EMPLOYEES_EID)
     public ResponseEntity<Void> deleteEmployee(@PathVariable(EMPLOYEE_ID) UUID employeeId) {
-        employeeService.deleteEmployee(employeeId);
+        employeeAPI.deleteEmployee(employeeId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping(EMPLOYEES_EID_QUALIFICATIONS_QID)
     public ResponseEntity<EmployeeDTO> addEmployeeQualification(
             @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(QUALIFICATION_ID) UUID qualificationId) {
-        return ResponseEntity.status(HttpStatus.OK).body(employeeService.addQualification(employeeId, qualificationId));
+        return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.addQualification(employeeId, qualificationId));
     }
 
     @DeleteMapping(EMPLOYEES_EID_QUALIFICATIONS_QID)
     public ResponseEntity<Void> removeEmployeeQualification(
             @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(QUALIFICATION_ID) UUID qualificationId) {
-        employeeService.removeQualification(employeeId, qualificationId);
+        employeeAPI.removeQualification(employeeId, qualificationId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
@@ -98,21 +101,21 @@ class EmployeeController {
     public ResponseEntity<EmployeeDTO> updateEmployeeQualification(
             @PathVariable(EMPLOYEE_ID) UUID employeeId,
             @PathVariable(QUALIFICATION_ID) UUID qualificationId,
-            @RequestBody Instant expireAt) {
+            @NotNull @RequestBody Instant expireAt) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(employeeService.updateQualificationExpiredAt(employeeId, qualificationId, expireAt));
+                .body(employeeAPI.updateQualificationExpiredAt(employeeId, qualificationId, expireAt));
     }
 
     @PatchMapping(EMPLOYEES_EID_VEHICLES_VID)
     public ResponseEntity<EmployeeDTO> addEmployeeVehicles(
             @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(VEHICLE_ID) UUID vehicleId) {
-        return ResponseEntity.status(HttpStatus.OK).body(employeeService.addVehicle(employeeId, vehicleId));
+        return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.addVehicle(employeeId, vehicleId));
     }
 
     @DeleteMapping(EMPLOYEES_EID_VEHICLES_VID)
     public ResponseEntity<Void> removeEmployeeVehicles(
             @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(VEHICLE_ID) UUID vehicleId) {
-        employeeService.removeVehicle(employeeId, vehicleId);
+        employeeAPI.removeVehicle(employeeId, vehicleId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

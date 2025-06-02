@@ -20,16 +20,16 @@ import pl.crewops.auth.ValidTokenResponse;
 @Slf4j
 @RequiredArgsConstructor
 class AuthController {
-    private final AuthService authService;
+    private final AuthAPI authAPI;
 
     @PostMapping(LOGIN)
     public ResponseEntity<AuthResponse> login(
             @Valid @RequestBody AuthRequest authRequest, HttpServletResponse response) {
-        return ResponseEntity.status(HttpStatus.OK).body(authService.login(authRequest, response));
+        return ResponseEntity.status(HttpStatus.OK).body(authAPI.login(authRequest, response));
     }
 
     @PostMapping(VALIDATE)
     public ResponseEntity<ValidTokenResponse> validate(@Valid @RequestBody ValidTokenRequest validTokenRequest) {
-        return ResponseEntity.status(HttpStatus.OK).body(authService.validateToken(validTokenRequest));
+        return ResponseEntity.status(HttpStatus.OK).body(authAPI.validateToken(validTokenRequest));
     }
 }

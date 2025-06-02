@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 import pl.crewops.dto.qualification.QualificationDTO;
 
-// TODO: consider or just test if this component really have to extends FormLayout or some other
 public class QualificationAccordion extends FormLayout {
 
     public QualificationAccordion() {

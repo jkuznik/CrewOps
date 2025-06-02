@@ -28,7 +28,9 @@ import pl.crewops.model.VehicleFormModel;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.BreakdownForm;
 import pl.crewops.view.component.form.VehicleForm;
+import pl.crewops.view.component.notification.AddBreakdownNotification;
 import pl.crewops.view.component.notification.AddVehicleNotification;
+import pl.crewops.view.component.notification.DeleteVehicleGuardian;
 import pl.crewops.view.component.notification.UpdateVehicleNotification;
 
 @Slf4j
@@ -201,6 +203,7 @@ public class VehicleGrid extends VerticalLayout {
             Optional<VehicleDTO> vehicleDTO =
                     coreAPI.createVehicle(VehicleFormModel.toCreateVehicleDTO(event.getVehicle()));
             updateVehicleGrid();
+            vehicleForm.updateAvailableVehicleTypes(coreAPI);
             closeEditor();
             vehicleDTO.ifPresent(AddVehicleNotification::new);
         } catch (NotAuthenticatedException e) {
@@ -227,21 +230,23 @@ public class VehicleGrid extends VerticalLayout {
                     coreAPI.createBreakdown(BreakdownFormModel.toCreateBreakdownDTO(event.getBreakdown()));
             updateVehicleGrid();
             closeEditor();
-            // TODO: notification for add breakdown action
+            breakdownDTO.ifPresent(AddBreakdownNotification::new);
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
     }
 
-    // TODO: add delete vehicle guardian
     private void deleteVehicle(VehicleForm.DeleteEvent event) {
-        try {
-            coreAPI.deleteVehicle(event.getVehicle().getId());
-            updateVehicleGrid();
-            closeEditor();
-        } catch (NotAuthenticatedException e) {
-            UI.getCurrent().navigate(HomeView.class);
-        }
+        new DeleteVehicleGuardian(event.getVehicle(), () -> {
+            try {
+                coreAPI.deleteVehicle(event.getVehicle().getId());
+                updateVehicleGrid();
+                vehicleForm.updateAvailableVehicleTypes(coreAPI);
+                closeEditor();
+            } catch (NotAuthenticatedException e) {
+                UI.getCurrent().navigate(HomeView.class);
+            }
+        });
     }
 
     private void reportBreakdown(VehicleForm.ReportBreakdown event) {

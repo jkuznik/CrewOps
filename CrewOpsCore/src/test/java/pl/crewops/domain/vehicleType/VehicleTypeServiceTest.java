@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -74,5 +75,15 @@ class VehicleTypeServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.size()).isEqualTo(1);
         assertThat(result.contains(vehicleTypeDTO)).isTrue();
+    }
+
+    @Test
+    void delete_shouldTriggerDeleteMethod_whenEntityInNotNull() {
+        // when
+        Mockito.doNothing().when(vehicleTypeRepository).delete(any());
+        vehicleTypeService.delete(vehicleType);
+
+        // then
+        Mockito.verify(vehicleTypeRepository, Mockito.times(1)).delete(vehicleType);
     }
 }

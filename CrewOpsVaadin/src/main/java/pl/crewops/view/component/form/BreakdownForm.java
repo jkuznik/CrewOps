@@ -8,6 +8,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
@@ -15,17 +16,17 @@ import com.vaadin.flow.shared.Registration;
 import pl.crewops.model.BreakdownFormModel;
 
 public class BreakdownForm extends FormLayout {
-
+    // TODO: config binding actions and insert-values components validation with info message in not valid values cases
     // TODO: Update form to display all breakdown description, add solvedBy field and solvedAt date field, in case if
     // breakdown is solved hide 'update' button
-    private final TextField vehicle = new TextField("Vehicle");
-    private final TextField description = new TextField("Description");
-    private final Checkbox solved = new Checkbox("Solved");
-    private final Checkbox critical = new Checkbox("Critical");
+    private final TextField vehicle = new TextField();
+    private final TextArea description = new TextArea();
+    private final Checkbox solved = new Checkbox();
+    private final Checkbox critical = new Checkbox();
 
-    private final Button save = new Button("Save");
-    private final Button update = new Button("Update");
-    private final Button close = new Button("Close");
+    private final Button save = new Button();
+    private final Button update = new Button();
+    private final Button close = new Button();
 
     private final Binder<BreakdownFormModel> binder = new BeanValidationBinder<>(BreakdownFormModel.class);
 
@@ -33,6 +34,7 @@ public class BreakdownForm extends FormLayout {
         addClassName("breakdown-form");
 
         localize();
+        configDescriptionField();
 
         configureBinder();
 
@@ -48,6 +50,13 @@ public class BreakdownForm extends FormLayout {
         save.setText(getTranslation("breakdownForm.save"));
         update.setText(getTranslation("breakdownForm.update"));
         close.setText(getTranslation("breakdownForm.close"));
+    }
+
+    private void configDescriptionField() {
+        description.setWidthFull();
+        description.setMinHeight("100px");
+        description.setMaxHeight("300px");
+        description.getStyle().set("resize", "vertical");
     }
 
     private void configureBinder() {

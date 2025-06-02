@@ -1,7 +1,11 @@
 package pl.crewops.domain.qualification;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchException;
+import static pl.crewops.domain.qualification.QualificationTestFactory.createCreateQualificationDTOWithoutDescription;
+import static pl.crewops.domain.qualification.QualificationTestFactory.createUpdateQualificationDTOWithoutDescription;
 
+import jakarta.validation.ConstraintViolationException;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,5 +31,40 @@ class QualificationAPITest extends IntegrationTest {
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(qualificationId);
         assertThat(result.getDescription()).isEqualTo("Operator maszyn ciężkich – uprawnienia kat. I");
+    }
+
+    @Test
+    void shouldThrowException_whenCreatedQualificationDTOIsNotValid() {
+        // given
+        var createQualificationDTOWithoutDescription = createCreateQualificationDTOWithoutDescription();
+
+        // when
+        Exception result =
+                catchException(() -> qualificationAPI.createQualification(createQualificationDTOWithoutDescription));
+
+        // then
+        assertThat(result).isInstanceOf(ConstraintViolationException.class);
+    }
+
+    @Test
+    void shouldThrowException_whenCreatedQualificationDTOIsNull() {
+        // when
+        Exception result = catchException(() -> qualificationAPI.createQualification(null));
+
+        // then
+        assertThat(result).isInstanceOf(ConstraintViolationException.class);
+    }
+
+    @Test
+    void shouldThrowException_whenUpdatedQualificationDTOIsNotValid() {
+        // given
+        var updateQualificationDTOWithoutDescription = createUpdateQualificationDTOWithoutDescription();
+
+        // when
+        Exception result =
+                catchException(() -> qualificationAPI.updateQualification(updateQualificationDTOWithoutDescription));
+
+        // then
+        assertThat(result).isInstanceOf(ConstraintViolationException.class);
     }
 }

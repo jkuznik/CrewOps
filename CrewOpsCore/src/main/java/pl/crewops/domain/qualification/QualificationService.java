@@ -4,8 +4,6 @@ import static pl.crewops.domain.qualification.QualificationMapper.mapToDTO;
 import static pl.crewops.domain.qualification.QualificationMapper.mapToEntity;
 import static pl.crewops.utils.pagination.PageRequestFactory.createPageRequest;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -15,7 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
@@ -25,17 +22,16 @@ import pl.crewops.model.Qualification;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Validated
-class QualificationService {
+class QualificationService implements QualificationAPI {
 
     private final QualificationRepository qualificationRepository;
 
-    public QualificationDTO createQualification(@Valid @NotNull CreateQualificationDTO createQualificationDTO) {
+    public QualificationDTO createQualification(CreateQualificationDTO createQualificationDTO) {
         log.info("Create qualification: {}", createQualificationDTO);
         return mapToDTO(qualificationRepository.save(mapToEntity(createQualificationDTO)));
     }
 
-    public Qualification getQualification(@NotNull UUID qualificationId) {
+    public Qualification getQualification(UUID qualificationId) {
         log.info("Get qualification: {}", qualificationId);
         return qualificationRepository
                 .findById(qualificationId)
@@ -59,7 +55,7 @@ class QualificationService {
     }
 
     @Transactional
-    public QualificationDTO updateQualification(@Valid @NotNull UpdateQualificationDTO updateQualificationDTO) {
+    public QualificationDTO updateQualification(UpdateQualificationDTO updateQualificationDTO) {
         Qualification qualification = getQualification(updateQualificationDTO.qualificationId());
 
         qualification.setDescription(updateQualificationDTO.description());
@@ -69,7 +65,7 @@ class QualificationService {
     }
 
     @Transactional
-    public void deleteQualification(@NotNull UUID qualificationId) {
+    public void deleteQualification(UUID qualificationId) {
         log.info("Delete qualification: {}", qualificationId);
         qualificationRepository.deleteById(qualificationId);
     }

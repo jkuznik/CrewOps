@@ -1,12 +1,10 @@
 package pl.crewops.domain.qualification;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static pl.crewops.domain.qualification.QualificationTestFactory.*;
 
-import jakarta.validation.ConstraintViolationException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -19,13 +17,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.model.Qualification;
 
-@SpringJUnitConfig(classes = {QualificationService.class, MethodValidationPostProcessor.class})
+@SpringJUnitConfig(classes = {QualificationService.class})
 class QualificationServiceTest {
 
     @MockitoBean
@@ -36,18 +33,14 @@ class QualificationServiceTest {
 
     private Qualification qualification;
     private CreateQualificationDTO createQualificationDTO;
-    private CreateQualificationDTO createQualificationDTOWithoutDescription;
     private UpdateQualificationDTO updateQualificationDTOWithDescription;
-    private UpdateQualificationDTO updateQualificationDTOWithoutDescription;
     private final UUID qualificationId = UUID.randomUUID();
 
     @BeforeEach
     void setUp() {
         qualification = createQualification();
         createQualificationDTO = createCreateQualificationDTOWithDescription();
-        createQualificationDTOWithoutDescription = createCreateQualificationDTOWithoutDescription();
         updateQualificationDTOWithDescription = createUpdateQualificationDTOWithDescription();
-        updateQualificationDTOWithoutDescription = createUpdateQualificationDTOWithoutDescription();
     }
 
     @Test
@@ -59,25 +52,6 @@ class QualificationServiceTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.description()).isEqualTo("description");
-    }
-
-    @Test
-    void shouldThrowException_whenCreatedQualificationDTOIsNotValid() {
-        // when
-        Exception result = catchException(
-                () -> qualificationService.createQualification(createQualificationDTOWithoutDescription));
-
-        // then
-        assertThat(result).isInstanceOf(ConstraintViolationException.class);
-    }
-
-    @Test
-    void shouldThrowException_whenCreatedQualificationDTOIsNull() {
-        // when
-        Exception result = catchException(() -> qualificationService.createQualification(null));
-
-        // then
-        assertThat(result).isInstanceOf(ConstraintViolationException.class);
     }
 
     @Test
@@ -104,16 +78,6 @@ class QualificationServiceTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.description()).isEqualTo(qualification.getDescription());
-    }
-
-    @Test
-    void shouldThrowException_whenUpdatedQualificationDTOIsNotValid() {
-        // when
-        Exception result = catchException(
-                () -> qualificationService.updateQualification(updateQualificationDTOWithoutDescription));
-
-        // then
-        assertThat(result).isInstanceOf(ConstraintViolationException.class);
     }
 
     @Test

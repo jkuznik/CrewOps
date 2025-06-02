@@ -3,7 +3,9 @@ package pl.crewops.domain.employee;
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.crewops.domain.employee.EmployeeTestFactory.*;
 
+import jakarta.validation.ConstraintViolationException;
 import java.util.UUID;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +37,29 @@ class EmployeeAPITest extends IntegrationTest {
         // then
         assertThat(result.firstName()).isEqualTo("firstName");
         assertThat(result.firstName()).isEqualTo(employee.getFirstName());
+    }
+
+    @Test
+    void shouldThrowException_whenCreateEmployeeDTOIsNotValid() {
+        // given
+        var createEmployeeDTOWithNullFields = createEmployeeDTONotValid();
+        // when
+        Exception result = Assertions.catchException(() -> employeeAPI.createEmployee(createEmployeeDTOWithNullFields));
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result).isExactlyInstanceOf(ConstraintViolationException.class);
+    }
+
+    @Test
+    void shouldThrowException_whenUpdateEmployeeDTOIsNotValid() {
+        // given
+        var updateEmployeeDTONotValid = updateEmployeeDTONotValid();
+        Exception result = Assertions.catchException(() -> employeeAPI.updateEmployee(updateEmployeeDTONotValid));
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result).isExactlyInstanceOf(ConstraintViolationException.class);
     }
 
     @Test

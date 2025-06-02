@@ -48,6 +48,10 @@ public class JwtService {
         return (String) extractClaims(token).get("lastName");
     }
 
+    public UUID getId(String token) {
+        return UUID.fromString((String) extractClaims(token).get("id"));
+    }
+
     public Date getExpiration(String token) {
         Object exp = extractClaims(token).get("exp");
         if (exp instanceof Number) {
