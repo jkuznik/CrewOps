@@ -9,6 +9,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import java.util.List;
 import java.util.Optional;
+import lombok.Getter;
+import lombok.Setter;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
@@ -19,6 +21,8 @@ import pl.crewops.view.component.notification.AddEmployeeNotification;
 import pl.crewops.view.component.notification.DeleteEmployeeGuardian;
 import pl.crewops.view.component.notification.UpdateEmployeeNotification;
 
+@Getter
+@Setter
 public class EmployeeGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
 
@@ -26,6 +30,7 @@ public class EmployeeGrid extends VerticalLayout {
     private final TextField filter = new TextField();
     private final EmployeeForm form = new EmployeeForm();
     private final Button addEmployee = new Button();
+    private QualificationGrid qualificationGrid;
 
     public EmployeeGrid(CoreAPI coreAPI) {
         this.coreAPI = coreAPI;
@@ -171,6 +176,7 @@ public class EmployeeGrid extends VerticalLayout {
             try {
                 coreAPI.deleteEmployee(event.getEmployee().getId());
                 updateGrid();
+                qualificationGrid.updateGrid();
                 closeEditor();
             } catch (NotAuthenticatedException e) {
                 UI.getCurrent().navigate(HomeView.class);

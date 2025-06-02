@@ -2,6 +2,7 @@ package pl.crewops.domain.qualification;
 
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
+import pl.crewops.model.Employee;
 import pl.crewops.model.Qualification;
 
 class QualificationMapper {
@@ -13,10 +14,13 @@ class QualificationMapper {
     }
 
     public static QualificationDTO mapToDTO(Qualification qualification) {
+        long count =
+                qualification.getEmployees().stream().filter(Employee::isActive).count();
+
         return QualificationDTO.builder()
                 .id(qualification.getId())
                 .description(qualification.getDescription())
-                .employeesAmount(qualification.getEmployees().size())
+                .employeesAmount((int) count)
                 .build();
     }
 }

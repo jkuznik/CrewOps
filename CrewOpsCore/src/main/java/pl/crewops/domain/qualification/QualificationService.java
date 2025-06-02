@@ -24,8 +24,6 @@ import pl.crewops.model.Qualification;
 @RequiredArgsConstructor
 class QualificationService implements QualificationAPI {
 
-    // TODO: implement logic to return employeeAmount with current qualification depending only on
-    // employees with 'active' true
     private final QualificationRepository qualificationRepository;
 
     public QualificationDTO createQualification(CreateQualificationDTO createQualificationDTO) {
@@ -33,6 +31,7 @@ class QualificationService implements QualificationAPI {
         return mapToDTO(qualificationRepository.save(mapToEntity(createQualificationDTO)));
     }
 
+    // TODO: test to check if any returned record has employee with active false
     public Qualification getQualification(UUID qualificationId) {
         log.info("Get qualification: {}", qualificationId);
         return qualificationRepository

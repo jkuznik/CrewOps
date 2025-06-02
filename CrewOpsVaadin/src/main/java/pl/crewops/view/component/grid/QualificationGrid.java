@@ -10,6 +10,8 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import lombok.Getter;
+import lombok.Setter;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
@@ -21,6 +23,8 @@ import pl.crewops.view.component.notification.DeleteQualificationGuardian;
 import pl.crewops.view.component.notification.QualificationAlreadyExistNotification;
 import pl.crewops.view.component.notification.UpdateQualificationNotification;
 
+@Getter
+@Setter
 public class QualificationGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
 
@@ -28,13 +32,12 @@ public class QualificationGrid extends VerticalLayout {
     private final TextField filter = new TextField();
     private final QualificationForm form = new QualificationForm();
     private final Button addQualification = new Button();
-    private final EmployeeGrid employeeGrid;
+    private EmployeeGrid employeeGrid;
 
     private List<QualificationFormModel> qualifications = new ArrayList<>();
 
-    public QualificationGrid(CoreAPI coreAPI, EmployeeGrid employeeGrid) {
+    public QualificationGrid(CoreAPI coreAPI) {
         this.coreAPI = coreAPI;
-        this.employeeGrid = employeeGrid;
 
         configureGrid();
         configureForm();
@@ -103,7 +106,7 @@ public class QualificationGrid extends VerticalLayout {
         form.addCloseListener(event -> closeEditor());
     }
 
-    private void updateGrid() {
+    public void updateGrid() {
         try {
             qualifications = coreAPI.getAllQualifications().stream()
                     .map(QualificationFormModel::toQualificationFormModel)
