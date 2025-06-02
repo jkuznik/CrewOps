@@ -30,6 +30,7 @@ import pl.crewops.view.component.form.BreakdownForm;
 import pl.crewops.view.component.form.VehicleForm;
 import pl.crewops.view.component.notification.AddBreakdownNotification;
 import pl.crewops.view.component.notification.AddVehicleNotification;
+import pl.crewops.view.component.notification.DeleteVehicleGuardian;
 import pl.crewops.view.component.notification.UpdateVehicleNotification;
 
 @Slf4j
@@ -235,16 +236,17 @@ public class VehicleGrid extends VerticalLayout {
         }
     }
 
-    // TODO: add delete vehicle guardian
     private void deleteVehicle(VehicleForm.DeleteEvent event) {
-        try {
-            coreAPI.deleteVehicle(event.getVehicle().getId());
-            updateVehicleGrid();
-            vehicleForm.updateAvailableVehicleTypes(coreAPI);
-            closeEditor();
-        } catch (NotAuthenticatedException e) {
-            UI.getCurrent().navigate(HomeView.class);
-        }
+        new DeleteVehicleGuardian(event.getVehicle(), () -> {
+            try {
+                coreAPI.deleteVehicle(event.getVehicle().getId());
+                updateVehicleGrid();
+                vehicleForm.updateAvailableVehicleTypes(coreAPI);
+                closeEditor();
+            } catch (NotAuthenticatedException e) {
+                UI.getCurrent().navigate(HomeView.class);
+            }
+        });
     }
 
     private void reportBreakdown(VehicleForm.ReportBreakdown event) {

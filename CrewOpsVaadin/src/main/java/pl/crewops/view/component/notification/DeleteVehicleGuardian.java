@@ -8,41 +8,41 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import pl.crewops.model.EmployeeFormModel;
+import pl.crewops.model.VehicleFormModel;
 
-public class DeleteEmployeeGuardian extends Notification {
+public class DeleteVehicleGuardian extends Notification {
 
-    public DeleteEmployeeGuardian(EmployeeFormModel employeeFormModel, Runnable onDeleteConfirmed) {
-        addClassName("delete-employee-guardian");
+    public DeleteVehicleGuardian(VehicleFormModel vehicleFormModel, Runnable onDeleteConfirmed) {
+        addClassName("delete-vehicle-guardian");
         addThemeVariants(NotificationVariant.LUMO_ERROR);
         setPosition(Position.MIDDLE);
         setDuration(0);
 
-        String fullName = employeeFormModel.getFirstName() + " " + employeeFormModel.getLastName();
+        String registrationNumber = vehicleFormModel.getRegistrationNumber();
 
         var message = new Div();
-        message.addClassName("delete-employee-guardian-div");
-        message.setText(getTranslation("deleteEmployeeGuardian.warningMessage") + " " + fullName);
+        message.addClassName("delete-vehicle-guardian-div");
+        message.setText(getTranslation("deleteVehicleGuardian.warningMessage") + " " + registrationNumber);
 
-        var confirmTextField = new TextField(getTranslation("deleteEmployeeGuardian.confirmTextField"));
+        var confirmTextField = new TextField(getTranslation("deleteVehicleGuardian.confirmTextField"));
         confirmTextField.setWidthFull();
         confirmTextField.setValueChangeMode(ValueChangeMode.EAGER);
 
-        var deleteButton = new Button(getTranslation("deleteEmployeeGuardian.deleteButton"));
+        var deleteButton = new Button(getTranslation("deleteVehicleGuardian.deleteButton"));
         deleteButton.setEnabled(false);
         deleteButton.addClickListener(e -> {
             onDeleteConfirmed.run();
             close();
         });
 
-        var cancelButton = new Button(getTranslation("deleteEmployeeGuardian.cancelButton"));
+        var cancelButton = new Button(getTranslation("deleteVehicleGuardian.cancelButton"));
         cancelButton.addClickListener(e -> {
             close();
         });
 
         confirmTextField.addValueChangeListener(e -> {
             String value = e.getValue() != null ? e.getValue().trim() : "";
-            deleteButton.setEnabled(value.equalsIgnoreCase(fullName));
+            deleteButton.setEnabled(value.equalsIgnoreCase(registrationNumber));
         });
 
         var buttons = new HorizontalLayout(deleteButton, cancelButton);
