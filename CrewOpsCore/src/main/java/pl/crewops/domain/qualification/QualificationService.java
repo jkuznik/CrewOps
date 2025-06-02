@@ -24,6 +24,8 @@ import pl.crewops.model.Qualification;
 @RequiredArgsConstructor
 class QualificationService implements QualificationAPI {
 
+    // TODO: implement logic to return employeeAmount with current qualification depending only on
+    // employees with 'active' true
     private final QualificationRepository qualificationRepository;
 
     public QualificationDTO createQualification(CreateQualificationDTO createQualificationDTO) {

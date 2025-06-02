@@ -103,7 +103,7 @@ public class EmployeeGrid extends VerticalLayout {
         form.addCloseListener(event -> closeEditor());
     }
 
-    private void updateGrid() {
+    public void updateGrid() {
         try {
             List<EmployeeFormModel> employees = coreAPI.getAllEmployees().stream()
                     .map(EmployeeFormModel::toEmployeeFormModel)
