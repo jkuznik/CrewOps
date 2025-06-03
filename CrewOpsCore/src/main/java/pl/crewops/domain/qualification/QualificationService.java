@@ -31,7 +31,6 @@ class QualificationService implements QualificationAPI {
         return mapToDTO(qualificationRepository.save(mapToEntity(createQualificationDTO)));
     }
 
-    // TODO: test to check if any returned record has employee with active false
     public Qualification getQualification(UUID qualificationId) {
         log.info("Get qualification: {}", qualificationId);
         return qualificationRepository
