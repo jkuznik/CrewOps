@@ -12,10 +12,23 @@
     justify-content: center;
     min-width: 3em;
     max-width: 3em;
+    background-color: #1e1e1e;
+    color: #f0f0f0;
 }
 
 .flag-combo::part(input-field) {
     border-radius: 999px;
 }
 
+vaadin-combo-box-overlay[theme~="language-combo"]::part(content) {
+    background-color: #2a2a2a;
+}
 
+vaadin-combo-box-item::part(content) {
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+}
+
+vaadin-combo-box-item:hover::part(content) {
+    background-color: #3a3a3a;
+}

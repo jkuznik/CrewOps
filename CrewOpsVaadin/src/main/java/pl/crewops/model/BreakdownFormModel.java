@@ -1,5 +1,7 @@
 package pl.crewops.model;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.*;
@@ -15,8 +17,14 @@ import pl.crewops.dto.vehicle.VehicleDTO;
 @AllArgsConstructor
 public class BreakdownFormModel {
     private UUID id;
-    private String description;
+
+    @NotNull
     private VehicleDTO vehicle;
+
+    @NotNull
+    @Size(min = 5, max = 2047, message = "Description have to match between 5 and 2047 characters length")
+    private String description;
+
     private EmployeeDTO reportedBy;
     private EmployeeDTO repairedBy;
     private boolean critical;

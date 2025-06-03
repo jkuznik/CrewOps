@@ -26,6 +26,7 @@ public class LanguageSelectorComponent extends HorizontalLayout implements Local
 
     private void configureComboBox() {
         select.setClassName("flag-combo");
+        select.setThemeName("language-combo");
         select.setItems(options.keySet());
         select.setLabel(null);
 
