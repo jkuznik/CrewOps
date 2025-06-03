@@ -75,3 +75,66 @@ databaseChangeLog:
             columns:
               - column: { name: auth_user_id, value: "ffffffff-ffff-ffff-ffff-ffffffffffff" }
               - column: { name: role_id, value: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
+        - insert:
+            tableName: auth_user
+            columns:
+              - column: { name: id, value: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee" }
+              - column: { name: username, value: "lid" }
+              - column: { name: password, value: "$2a$10$vSpEyb9I7ZHpQnze1ViufeZr3666vOnEtEGWSsobXO2LvhXhJehzu" }
+              - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column: { name: employee_id, value: "88888888-8888-8888-8888-888888888888" }
+
+        - insert:
+            tableName: auth_user
+            columns:
+              - column: { name: id, value: "99999999-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
+              - column: { name: username, value: "man" }
+              - column: { name: password, value: "$2a$10$qXw4jdCfu76ER4RVC19ba.MTzKCTMBlB19EEwCHUUH1n/ey.dN/RO" }
+              - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column: { name: employee_id, value: "99999999-9999-9999-9999-999999999999" }
+
+        - insert:
+            tableName: auth_user_role
+            columns:
+              - column: { name: auth_user_id, value: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee" }
+              - column: { name: role_id, value: "cccccccc-cccc-cccc-cccc-cccccccccccc" }  # SHIFT_LEADER
+
+        - insert:
+            tableName: auth_user_role
+            columns:
+              - column: { name: auth_user_id, value: "99999999-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
+              - column: { name: role_id, value: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }  # MANAGER
+
+        - insert:
+            tableName: auth_user
+            columns:
+              - column: { name: id, value: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" }
+              - column: { name: username, value: "emp" }
+              - column: { name: password, value: "$2a$10$WN9qoSLICDobK0XPzJgkkujN4v/Z9n9mc37DekK9b6EIrfEnQg3.e" }
+              - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column: { name: employee_id, value: "10101010-1010-1010-1010-101010101010" }
+
+        - insert:
+            tableName: auth_user
+            columns:
+              - column: { name: id, value: "bbbbbbbb-cccc-dddd-eeee-ffffffffffff" }
+              - column: { name: username, value: "emp2" }
+              - column: { name: password, value: "$2a$10$WN9qoSLICDobK0XPzJgkkujN4v/Z9n9mc37DekK9b6EIrfEnQg3.e" }
+              - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column: { name: employee_id, value: "20202020-2020-2020-2020-202020202020" }
+
+        - insert:
+            tableName: auth_user_role
+            columns:
+              - column: { name: auth_user_id, value: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" }
+              - column: { name: role_id, value: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" }  # EMPLOYEE
+
+        - insert:
+            tableName: auth_user_role
+            columns:
+              - column: { name: auth_user_id, value: "bbbbbbbb-cccc-dddd-eeee-ffffffffffff" }
+              - column: { name: role_id, value: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" }  # EMPLOYEE

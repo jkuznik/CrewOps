@@ -10,6 +10,8 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import lombok.Getter;
+import lombok.Setter;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
@@ -17,9 +19,12 @@ import pl.crewops.model.QualificationFormModel;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.QualificationForm;
 import pl.crewops.view.component.notification.AddQualificationNotification;
+import pl.crewops.view.component.notification.DeleteQualificationGuardian;
 import pl.crewops.view.component.notification.QualificationAlreadyExistNotification;
 import pl.crewops.view.component.notification.UpdateQualificationNotification;
 
+@Getter
+@Setter
 public class QualificationGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
 
@@ -27,6 +32,7 @@ public class QualificationGrid extends VerticalLayout {
     private final TextField filter = new TextField();
     private final QualificationForm form = new QualificationForm();
     private final Button addQualification = new Button();
+    private EmployeeGrid employeeGrid;
 
     private List<QualificationFormModel> qualifications = new ArrayList<>();
 
@@ -100,7 +106,7 @@ public class QualificationGrid extends VerticalLayout {
         form.addCloseListener(event -> closeEditor());
     }
 
-    private void updateGrid() {
+    public void updateGrid() {
         try {
             qualifications = coreAPI.getAllQualifications().stream()
                     .map(QualificationFormModel::toQualificationFormModel)
@@ -167,11 +173,26 @@ public class QualificationGrid extends VerticalLayout {
         }
     }
 
-    // TODO: add delete guardian (for example in case if qualification is related to at last one employee)
     private void deleteQualification(QualificationForm.DeleteEvent event) {
+        var qualification = event.getQualification();
+
+        if (qualification.getEmployeesAmount() > 0) {
+            deleteQualificationWithGuardian(event, qualification);
+        } else {
+            executeDelete(event);
+        }
+    }
+
+    private void deleteQualificationWithGuardian(
+            QualificationForm.DeleteEvent event, QualificationFormModel qualification) {
+        new DeleteQualificationGuardian(qualification, () -> executeDelete(event));
+    }
+
+    private void executeDelete(QualificationForm.DeleteEvent event) {
         try {
             coreAPI.deleteQualification(event.getQualification().getId());
             updateGrid();
+            employeeGrid.updateGrid();
             closeEditor();
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);

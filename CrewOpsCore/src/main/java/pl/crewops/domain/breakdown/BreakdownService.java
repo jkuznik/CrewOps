@@ -80,8 +80,6 @@ class BreakdownService implements BreakdownAPI {
                 .collect(Collectors.toList());
     }
 
-    // TODO: test for new case - multiple breakdowns with critical true related with one vehicle should not allow to set
-    // vehicle break = false
     @Transactional
     public BreakdownDTO updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO) {
         log.info("Updating breakdown: {}", updateBreakdownDTO);

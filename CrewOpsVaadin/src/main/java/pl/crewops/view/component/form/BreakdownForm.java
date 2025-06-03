@@ -7,18 +7,18 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.shared.Registration;
 import pl.crewops.model.BreakdownFormModel;
 
 public class BreakdownForm extends FormLayout {
-    // TODO: config binding actions and insert-values components validation with info message in not valid values cases
-    // TODO: Update form to display all breakdown description, add solvedBy field and solvedAt date field, in case if
-    // breakdown is solved hide 'update' button
+
     private final TextField vehicle = new TextField();
     private final TextArea description = new TextArea();
     private final Checkbox solved = new Checkbox();
@@ -35,9 +35,7 @@ public class BreakdownForm extends FormLayout {
 
         localize();
         configDescriptionField();
-
-        configureBinder();
-
+        configureStaticBindings();
         add(vehicle, description, solved, critical, createButtonsLayout());
     }
 
@@ -59,15 +57,8 @@ public class BreakdownForm extends FormLayout {
         description.getStyle().set("resize", "vertical");
     }
 
-    private void configureBinder() {
+    private void configureStaticBindings() {
         binder.forField(vehicle).bindReadOnly(model -> model.getVehicle().registerNumber());
-
-        binder.forField(description).bind(BreakdownFormModel::getDescription, BreakdownFormModel::setDescription);
-
-        // TODO: implement logic for setSolved only by mechanics, shift leader or manager
-        binder.forField(solved).bind(BreakdownFormModel::isSolved, BreakdownFormModel::setSolved);
-
-        binder.forField(critical).bind(BreakdownFormModel::isCritical, BreakdownFormModel::setCritical);
     }
 
     private HorizontalLayout createButtonsLayout() {
@@ -78,45 +69,75 @@ public class BreakdownForm extends FormLayout {
         save.addClickShortcut(Key.ENTER);
         close.addClickShortcut(Key.ESCAPE);
 
-        save.addClickListener(event -> validateAndSave());
-        update.addClickListener(event -> validateAndUpdate());
-        close.addClickListener(event -> fireEvent(new CloseEvent(this)));
+        save.addClickListener(e -> validateAndSave());
+        update.addClickListener(e -> validateAndUpdate());
+        close.addClickListener(e -> fireEvent(new CloseEvent(this)));
 
-        binder.addStatusChangeListener(e -> save.setEnabled(binder.isValid()));
         return new HorizontalLayout(save, update, close);
     }
 
+    private void clearBinderBindings() {
+        binder.removeBinding(description);
+        binder.removeBinding(solved);
+        binder.removeBinding(critical);
+    }
+
     public void setFormModeSave() {
+        clearBinderBindings();
+
+        binder.forField(description)
+                .asRequired(getTranslation("breakdownForm.description.required"))
+                .withValidator(
+                        desc -> desc.length() >= 5 && desc.length() <= 2047,
+                        getTranslation("breakdownForm.description.length"))
+                .bind(BreakdownFormModel::getDescription, BreakdownFormModel::setDescription);
+
+        binder.forField(critical).bind(BreakdownFormModel::isCritical, BreakdownFormModel::setCritical);
+
         save.setVisible(true);
-        solved.setVisible(false);
-        description.setReadOnly(false);
-        critical.setVisible(true);
         update.setVisible(false);
+        solved.setVisible(false);
+        critical.setVisible(true);
+        description.setReadOnly(false);
     }
 
     public void setFormModeUpdate() {
+        clearBinderBindings();
+
+        binder.forField(description).bind(BreakdownFormModel::getDescription, BreakdownFormModel::setDescription);
+
+        binder.forField(solved).bind(BreakdownFormModel::isSolved, BreakdownFormModel::setSolved);
+
+        update.setVisible(true);
         save.setVisible(false);
         solved.setVisible(true);
-        description.setReadOnly(true);
         critical.setVisible(false);
-        update.setVisible(true);
+        description.setReadOnly(true);
     }
 
     private void validateAndSave() {
-        BreakdownFormModel breakdownFormModel = new BreakdownFormModel();
-        breakdownFormModel.setVehicle(binder.getBean().getVehicle());
-        breakdownFormModel.setDescription(description.getValue());
-        breakdownFormModel.setReportedBy(binder.getBean().getReportedBy());
-        breakdownFormModel.setCritical(critical.getValue());
-        binder.setBean(breakdownFormModel);
-        if (binder.isValid()) {
-            fireEvent(new SaveEvent(this, binder.getBean()));
+        BreakdownFormModel model = new BreakdownFormModel();
+        try {
+            binder.writeBean(model);
+            model.setVehicle(binder.getBean().getVehicle());
+            model.setReportedBy(binder.getBean().getReportedBy());
+            fireEvent(new SaveEvent(this, model));
+        } catch (ValidationException e) {
         }
     }
 
     private void validateAndUpdate() {
-        if (binder.isValid()) {
-            fireEvent(new UpdateEvent(this, binder.getBean()));
+        if (!solved.getValue()) {
+            solved.setInvalid(true);
+            solved.setErrorMessage(getTranslation("breakdownForm.solved.required"));
+            return;
+        }
+
+        try {
+            BreakdownFormModel model = binder.getBean();
+            fireEvent(new UpdateEvent(this, model));
+        } catch (Exception e) {
+            Notification.show("Unexpected error while updating");
         }
     }
 

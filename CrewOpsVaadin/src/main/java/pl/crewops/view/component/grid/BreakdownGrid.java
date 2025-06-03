@@ -18,9 +18,12 @@ import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.BreakdownFormModel;
+import pl.crewops.model.auth.RoleGrantedAuthority;
+import pl.crewops.model.auth.RoleType;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.BreakdownForm;
+import pl.crewops.view.component.notification.UpdateBreakdownNotification;
 
 public class BreakdownGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
@@ -197,12 +200,31 @@ public class BreakdownGrid extends VerticalLayout {
     }
 
     private void updateBreakdown(BreakdownForm.UpdateEvent event) {
-        try {
-            Optional<BreakdownDTO> breakdownDTO = coreAPI.updateBreakdown(toUpdateBreakdownDTO(event.getBreakdown()));
-            updateBreakdownGrid();
-            closeEditor();
-        } catch (NotAuthenticatedException e) {
-            UI.getCurrent().navigate(HomeView.class);
+        var principal = (UserPrincipal)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        boolean hasPermission = principal.getAuthorities().stream()
+                .map(RoleGrantedAuthority::getAuthority)
+                .anyMatch(
+                        authority -> authority.equals("ROLE_" + RoleType.SHIFT_LEADER.name())
+                                || authority.equals("ROLE_" + RoleType.MANAGER.name())
+                        //                                authority.equals(RoleType.MECHANIC.name())
+                        );
+
+        principal.getAuthorities().forEach(authority -> System.out.println(authority.getAuthority()));
+
+        if (hasPermission) {
+            try {
+                Optional<BreakdownDTO> breakdownDTO =
+                        coreAPI.updateBreakdown(toUpdateBreakdownDTO(event.getBreakdown()));
+                updateBreakdownGrid();
+                closeEditor();
+                if (breakdownDTO.isPresent()) {
+                    new UpdateBreakdownNotification();
+                }
+            } catch (NotAuthenticatedException e) {
+                UI.getCurrent().navigate(HomeView.class);
+            }
         }
     }
 

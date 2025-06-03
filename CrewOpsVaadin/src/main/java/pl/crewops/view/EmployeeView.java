@@ -38,6 +38,9 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
 
         employeeGrid = new EmployeeGrid(coreAPI);
         qualificationGrid = new QualificationGrid(coreAPI);
+        employeeGrid.setQualificationGrid(qualificationGrid);
+        qualificationGrid.setEmployeeGrid(employeeGrid);
+
         qualificationGrid.setVisible(false);
         addClassName("employee-view");
 

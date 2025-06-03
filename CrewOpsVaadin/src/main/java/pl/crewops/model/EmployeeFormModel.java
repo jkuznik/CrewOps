@@ -24,7 +24,7 @@ public class EmployeeFormModel {
     private UUID id;
     private @NotNull @Size(min = 2, max = 50, message = "Minimal length is 2") String firstName;
     private @NotNull @Size(min = 2, max = 50, message = "Minimal length is 2") String lastName;
-    private @NotNull LocalDate birthDate;
+    private @NotNull(message = "This field can't be empty") LocalDate birthDate;
     private @Size(max = 15, message = "Max length is 15") String phoneNumber;
     private @NotNull @Size(min = 2, max = 50, message = "Minimal length is 2") String department;
     private Set<RoleType> roles;

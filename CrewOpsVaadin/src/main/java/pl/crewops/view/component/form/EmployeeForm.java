@@ -134,14 +134,14 @@ public class EmployeeForm extends FormLayout {
                 .department(department.getValue())
                 .roles(roles.getValue())
                 .build();
-        binder.setBean(employeeFormModel);
-        if (binder.isValid()) {
-            fireEvent(new SaveEvent(this, binder.getBean()));
+
+        if (binder.writeBeanIfValid(employeeFormModel)) {
+            fireEvent(new SaveEvent(this, employeeFormModel));
         }
     }
 
     private void validateAndUpdate() {
-        if (binder.isValid()) {
+        if (binder.validate().isOk()) {
             fireEvent(new UpdateEvent(this, binder.getBean()));
         }
     }
