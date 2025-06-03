@@ -5,6 +5,9 @@
     profiles:
       active: dev
 
+    cache:
+      cache-names: employeeCache
+
   security:
     properties:
       clientIdInput: ${CREWOPS_CLIENT_ID_INPUT}
