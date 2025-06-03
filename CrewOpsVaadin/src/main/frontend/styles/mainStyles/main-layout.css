@@ -48,6 +48,12 @@ html, body {
 
 /* GLOBALNE STYLE DLA FORMULARZY */
 
+vaadin-combo-box-overlay::part(content),
+vaadin-combo-box-overlay::part(dropdown) {
+    background-color: #f5f5f5;
+}
+
+
 vaadin-text-field::part(input-field),
 vaadin-date-picker::part(input-field),
 vaadin-combo-box::part(input-field),

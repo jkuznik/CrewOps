@@ -4,6 +4,7 @@ import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -22,6 +23,7 @@ import pl.crewops.view.HomeView;
 import pl.crewops.view.component.grid.BreakdownGrid;
 import pl.crewops.view.component.grid.VehicleGrid;
 
+@CssImport("./styles/component/combo-box.css")
 public class VehicleForm extends FormLayout {
     private final VehicleGrid vehicleGrid;
     private final BreakdownGrid breakdownGrid;
@@ -66,8 +68,12 @@ public class VehicleForm extends FormLayout {
             UI.getCurrent().navigate(HomeView.class);
         }
 
+        availableVehicleTypes.addClassName("vehicle-form-vehicle-type-combobox");
+        availableVehicleTypes.getElement().setAttribute("theme", "vehicle-type-combo");
+
         year.addClassName("vehicle-form-year-combobox");
-        // TODO: find way to change item background color
+        year.getElement().setAttribute("theme", "year-combo");
+
         year.setItems(IntStream.rangeClosed(1980, LocalDate.now().getYear())
                 .boxed()
                 .sorted(Comparator.reverseOrder())
