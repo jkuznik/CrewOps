@@ -15,7 +15,7 @@ import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtService;
 import pl.crewops.view.component.grid.BreakdownGrid;
 import pl.crewops.view.component.grid.VehicleGrid;
-import pl.crewops.view.component.mainLayout.MainLayout;
+import pl.crewops.view.layout.MainLayout;
 
 @Slf4j
 @Route(value = "vehicles")

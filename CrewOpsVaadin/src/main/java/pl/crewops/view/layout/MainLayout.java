@@ -1,4 +1,4 @@
-package pl.crewops.view.component.mainLayout;
+package pl.crewops.view.layout;
 
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.dependency.CssImport;

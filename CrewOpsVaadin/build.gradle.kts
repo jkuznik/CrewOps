@@ -22,6 +22,7 @@ dependencies {
     }
     implementation("com.vaadin:vaadin-spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-cache")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 

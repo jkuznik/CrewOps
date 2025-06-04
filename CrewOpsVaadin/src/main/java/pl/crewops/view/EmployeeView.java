@@ -14,7 +14,7 @@ import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtService;
 import pl.crewops.view.component.grid.EmployeeGrid;
 import pl.crewops.view.component.grid.QualificationGrid;
-import pl.crewops.view.component.mainLayout.MainLayout;
+import pl.crewops.view.layout.MainLayout;
 
 @Route(value = "employees")
 @PageTitle("Employee management")
