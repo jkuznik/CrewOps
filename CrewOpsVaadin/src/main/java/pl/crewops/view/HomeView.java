@@ -58,7 +58,7 @@ public class HomeView extends MainLayout {
                             const clientHeight = content.clientHeight;
                             const scrolledPercentage = (scrollTop + clientHeight) / scrollHeight;
 
-                            if (scrolledPercentage >= 0.95) {
+                            if (scrolledPercentage >= 0.80) {
                                 $0.$server.showFooter(true);
                             } else {
                                 $0.$server.showFooter(false);

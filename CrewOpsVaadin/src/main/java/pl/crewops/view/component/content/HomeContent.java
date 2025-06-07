@@ -11,6 +11,75 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 public class HomeContent extends VerticalLayout {
 
     public HomeContent() {
+        Div contentWrapper = new Div();
+        contentWrapper
+                .getStyle()
+                .set("max-width", "1800px")
+                .set("margin", "0 auto")
+                .set("width", "100%");
+
+        var topGallery = topGallery();
+        var middleGallery = middleGallery();
+        middleGallery.getStyle().set("margin-bottom", "40px"); // <-- odstęp 40px
+
+        var bottomGallery = bottomGallery();
+
+        contentWrapper.add(topGallery, middleGallery, bottomGallery);
+        add(contentWrapper);
+    }
+
+    private HorizontalLayout bottomGallery() {
+        var bottomGallery = new HorizontalLayout();
+        bottomGallery.setSpacing(false);
+        bottomGallery.setPadding(false);
+        bottomGallery.setWidthFull();
+
+        Div scrollableImageWrapper = new Div();
+        scrollableImageWrapper
+                .getStyle()
+                .set("width", "100%")
+                .set("overflow", "auto")
+                .set("display", "block")
+                .set("padding", "10px 0");
+
+        Image screen4 = createZoomableImage("images/dependencies-pic.png", "Screen 4");
+        screen4.getStyle()
+                .set("transform", "scale(1.5)")
+                .set("transform-origin", "top left")
+                .set("display", "block");
+
+        scrollableImageWrapper.add(screen4);
+        bottomGallery.add(scrollableImageWrapper);
+
+        return bottomGallery;
+    }
+
+    private HorizontalLayout middleGallery() {
+        HorizontalLayout middleGallery = new HorizontalLayout();
+        middleGallery.setSpacing(false);
+        middleGallery.setPadding(false);
+        middleGallery.setWidthFull();
+
+        Div scrollableImageWrapper = new Div();
+        scrollableImageWrapper
+                .getStyle()
+                .set("max-width", "100%")
+                .set("overflow", "auto")
+                .set("display", "block");
+
+        Image screen3 = createZoomableImage("images/test-pic.png", "Screen 3");
+        screen3.getStyle()
+                .set("transform", "scale(1.3)")
+                .set("transform-origin", "top left")
+                .set("display", "block");
+
+        scrollableImageWrapper.add(screen3);
+        middleGallery.add(scrollableImageWrapper);
+
+        return middleGallery;
+    }
+
+    private HorizontalLayout topGallery() {
         HorizontalLayout topGallery = new HorizontalLayout();
         topGallery.setWidthFull();
         topGallery.setPadding(false);
@@ -45,15 +114,30 @@ public class HomeContent extends VerticalLayout {
                 .set("margin-left", "10px");
         textContainer.getElement().getStyle().set("flex-grow", "2");
 
-        Span systemDescription = new Span(
-                "System został zaprojektowany w oparciu o wielomodułową architekturę, umożliwiającą logiczne rozdzielenie odpowiedzialności oraz łatwiejsze zarządzanie kodem. Każdy moduł odpowiada za wyraźnie zdefiniowany obszar funkcjonalny, dzięki czemu możliwa jest niezależna praca nad różnymi częściami systemu oraz ich łatwe testowanie i utrzymywanie. Podejście to wspiera skalowalność i rozwój projektu w dłuższej perspektywie.");
-        systemDescription.getStyle().set("display", "block").set("margin-bottom", "300px");
+        Span systemDescription = new Span(getTranslation("homeContent.systemDescription"));
+        systemDescription
+                .getStyle()
+                .set("display", "block")
+                .set("margin-bottom", "35px")
+                .set("font-size", "21px");
 
-        Span vaadinDescription = new Span(
-                "W warstwie prezentacji zastosowano podejście komponentowe oparte na frameworku Vaadin. Kluczowe widoki i funkcje użytkownika są budowane z użyciem reużywalnych komponentów, które zawierają zarówno logikę interfejsu, jak i spójny wygląd. Takie podejście ułatwia utrzymanie jednolitego stylu graficznego w całej aplikacji oraz przyspiesza implementację kolejnych funkcjonalności.");
-        vaadinDescription.getStyle().set("margin-top", "auto");
+        Span vaadinDescription = new Span(getTranslation("homeContent.vaadinDescription"));
+        vaadinDescription.getStyle().set("margin-bottom", "35px").set("font-size", "21px");
 
-        textContainer.add(systemDescription, vaadinDescription);
+        Span additionalDescription = new Span(getTranslation("homeContent.additionalDescription"));
+        additionalDescription
+                .getStyle()
+                .set("display", "block")
+                .set("margin-bottom", "35px")
+                .set("font-size", "21px");
+
+        Image screen3 = createZoomableImage("images/cache-pic.png", "Cache");
+        screen3.getStyle()
+                .set("transform-origin", "top left")
+                .set("display", "block")
+                .set("margin-top", "20px");
+
+        textContainer.add(systemDescription, vaadinDescription, additionalDescription, screen3);
 
         Image screen2 = createZoomableImage("images/vaadin-components-pic.png", "vaadin");
         Div container2 = new Div(screen2);
@@ -65,36 +149,7 @@ public class HomeContent extends VerticalLayout {
         container2.getElement().getStyle().set("flex-grow", "1");
 
         topGallery.add(container1, textContainer, container2);
-
-        var middleGallery = new HorizontalLayout();
-        middleGallery.setSpacing(true);
-        middleGallery.setPadding(true);
-        middleGallery.getStyle().set("overflow-x", "auto").set("white-space", "nowrap");
-
-        Image screen3 = createZoomableImage("images/test-pic.png", "Screen 3");
-
-        middleGallery.add(screen3);
-
-        var middleGallery2 = new HorizontalLayout();
-
-        middleGallery2.setSpacing(true);
-        middleGallery2.setPadding(true);
-        middleGallery2.getStyle().set("overflow-x", "auto").set("white-space", "nowrap");
-
-        Image screen4 = createZoomableImage("images/dependencies-pic.png", "Screen 4");
-
-        middleGallery2.add(screen4);
-
-        var bottomGallery = new HorizontalLayout();
-        bottomGallery.setSpacing(true);
-        bottomGallery.setPadding(true);
-        bottomGallery.getStyle().set("overflow-x", "auto").set("white-space", "nowrap");
-
-        Image screen5 = createZoomableImage("images/cache-pic.png", "Screen 5");
-
-        bottomGallery.add(screen5);
-
-        add(topGallery, middleGallery, middleGallery2, bottomGallery);
+        return topGallery;
     }
 
     private Image createZoomableImage(String src, String alt) {
