@@ -10,7 +10,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtService;
-import pl.crewops.view.component.mainLayout.MainLayout;
+import pl.crewops.view.layout.MainLayout;
 
 @Route(value = "")
 @PageTitle("Crew Ops")

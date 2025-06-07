@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
@@ -76,6 +78,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    @CacheEvict(value = "employeeCache", allEntries = true)
     public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -206,6 +209,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    @Cacheable(cacheNames = "employeeCache")
     public List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException {
         isAuthenticated();
         try {
