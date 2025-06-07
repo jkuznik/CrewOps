@@ -18,7 +18,7 @@ import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-public class BreakdownController {
+class BreakdownController {
     private final BreakdownService breakdownService;
 
     @PostMapping(BREAKDOWNS)
