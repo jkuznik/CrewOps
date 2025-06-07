@@ -218,7 +218,7 @@ class CoreClient implements CoreAPI {
                     .uri(uriBuilder -> uriBuilder.path(EMPLOYEES).build())
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
-                    .body(new ParameterizedTypeReference<List<EmployeeDTO>>() {});
+                    .body(new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
             log.error("Error getting employees");
             return List.of();

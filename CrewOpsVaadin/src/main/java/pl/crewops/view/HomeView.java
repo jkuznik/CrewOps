@@ -3,13 +3,12 @@ package pl.crewops.view;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtService;
+import pl.crewops.view.component.content.HomeContent;
 import pl.crewops.view.layout.MainLayout;
 
 @Route(value = "")
@@ -29,16 +28,15 @@ public class HomeView extends MainLayout {
         VerticalLayout currentContent = new VerticalLayout();
         currentContent.setId("view-content");
 
-        currentContent.setSizeFull();
+        currentContent.setWidthFull();
         currentContent.setPadding(true);
         currentContent.setSpacing(true);
         currentContent.getStyle().set("overflow", "auto");
 
-        Span label = new Span(getTranslation("homeView.title"));
-        label.getStyle().set("white-space", "pre-wrap");
+        HomeContent homeContent = new HomeContent();
+        homeContent.setWidthFull();
 
-        H1 title = new H1(label);
-        currentContent.add(title);
+        currentContent.add(homeContent);
 
         return currentContent;
     }
