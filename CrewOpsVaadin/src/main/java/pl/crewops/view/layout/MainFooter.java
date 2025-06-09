@@ -1,6 +1,7 @@
 package pl.crewops.view.layout;
 
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -31,7 +32,12 @@ public class MainFooter extends Footer {
 
         Span infoSpan = new Span(getTranslation("mainFooter.info"));
         infoSpan.addClassName("main-footer-text");
-        rightSide.add(infoSpan);
+
+        Anchor infoLink = new Anchor("/info", getTranslation("mainFooter.infoLink"));
+        infoLink.setTarget("_self");
+        infoLink.addClassName("main-footer-link");
+
+        rightSide.add(infoSpan, infoLink);
 
         mainFooterLayout.add(leftSide, rightSide);
         add(mainFooterLayout);

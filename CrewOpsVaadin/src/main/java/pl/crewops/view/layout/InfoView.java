@@ -1,4 +1,4 @@
-package pl.crewops.view;
+package pl.crewops.view.layout;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
@@ -8,23 +8,19 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtService;
-import pl.crewops.view.component.content.HomeContent;
-import pl.crewops.view.layout.MainLayout;
+import pl.crewops.view.component.content.InfoContent;
 
-@Route(value = "")
-@PageTitle("Crew Ops")
-public class HomeView extends MainLayout {
+@Route(value = "info")
+@PageTitle("Information")
+public class InfoView extends MainLayout {
 
-    public HomeView(CoreAPI coreAPI, JwtService jwtService) {
+    public InfoView(CoreAPI coreAPI, JwtService jwtService) {
         super(coreAPI, jwtService);
-        addClassName("home-view");
+        addClassName("info-view");
 
         mainContent.removeAll();
-        VerticalLayout currentContent = getCurrentContent();
-        currentContent.setSizeFull();
-
-        mainContent.add(currentContent, mainFooter);
-        mainContent.setFlexGrow(1, currentContent);
+        mainContent.add(getCurrentContent(), mainFooter);
+        mainContent.setFlexGrow(1, getCurrentContent());
     }
 
     private VerticalLayout getCurrentContent() {
@@ -36,10 +32,10 @@ public class HomeView extends MainLayout {
         currentContent.setSpacing(true);
         currentContent.getStyle().set("overflow", "auto");
 
-        HomeContent homeContent = new HomeContent();
-        homeContent.setSizeFull();
+        InfoContent infoContent = new InfoContent();
+        infoContent.setWidthFull();
 
-        currentContent.add(homeContent);
+        currentContent.add(infoContent);
 
         return currentContent;
     }
@@ -55,7 +51,6 @@ public class HomeView extends MainLayout {
                         const content = document.getElementById('view-content');
                         const footer = document.getElementById('footer');
                         content.addEventListener('scroll', function() {
-                            // Percentage of content scroll
                             const scrollTop = content.scrollTop;
                             const scrollHeight = content.scrollHeight;
                             const clientHeight = content.clientHeight;
