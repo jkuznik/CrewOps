@@ -19,20 +19,63 @@ public class InfoContent extends VerticalLayout {
                 .set("width", "100%");
 
         var topGallery = topGallery();
+        topGallery.getStyle().set("margin-bottom", "60px");
+
         var middleGallery = middleGallery();
-        middleGallery.getStyle().set("margin-bottom", "40px");
+        middleGallery.getStyle().set("margin-bottom", "60px");
 
         var bottomGallery = bottomGallery();
+        bottomGallery.getStyle().set("margin-bottom", "60px");
 
-        contentWrapper.add(topGallery, middleGallery, bottomGallery);
+        var finalGallery = finalGallery();
+        finalGallery.getStyle().set("margin-top", "60px");
+
+        contentWrapper.add(topGallery, middleGallery, bottomGallery, finalGallery);
         add(contentWrapper);
     }
 
+    private VerticalLayout finalGallery() {
+        VerticalLayout finalGallery = new VerticalLayout();
+        finalGallery.setPadding(false);
+        finalGallery.setSpacing(true);
+        finalGallery.setWidthFull();
+
+        Span gitDescription = new Span(getTranslation("infoContent.gitDescription"));
+        gitDescription.getStyle().set("font-size", "21px").set("margin-bottom", "20px");
+
+        VerticalLayout imagesColumn = new VerticalLayout();
+        imagesColumn.setSpacing(true);
+        imagesColumn.setPadding(false);
+        imagesColumn.setWidthFull();
+
+        Image img1 = createZoomableImage("images/todo-list-pic.png", "GitHub todo list");
+        Image img2 = createZoomableImage("images/open-issues-pic.png", "GitHub open issues");
+        Image img3 = createZoomableImage("images/done-issues-pic.png", "GitHub done issues");
+
+        // Ustawiamy, żeby zdjęcia były dostosowane do szerokości rodzica
+        img1.setWidth("100%");
+        img2.setWidth("100%");
+        img3.setWidth("100%");
+
+        imagesColumn.add(img1, img2, img3);
+        finalGallery.add(gitDescription, imagesColumn);
+
+        return finalGallery;
+    }
+
     private HorizontalLayout bottomGallery() {
-        var bottomGallery = new HorizontalLayout();
+        HorizontalLayout bottomGallery = new HorizontalLayout();
         bottomGallery.setSpacing(false);
         bottomGallery.setPadding(false);
         bottomGallery.setWidthFull();
+
+        VerticalLayout wrapper = new VerticalLayout();
+        wrapper.setPadding(false);
+        wrapper.setSpacing(false);
+        wrapper.setWidthFull();
+
+        Span moduleDescription = new Span(getTranslation("infoContent.moduleDescription"));
+        moduleDescription.getStyle().set("margin-bottom", "20px").set("font-size", "20px");
 
         Div scrollableImageWrapper = new Div();
         scrollableImageWrapper
@@ -49,16 +92,24 @@ public class InfoContent extends VerticalLayout {
                 .set("display", "block");
 
         scrollableImageWrapper.add(screen4);
-        bottomGallery.add(scrollableImageWrapper);
+        wrapper.add(moduleDescription, scrollableImageWrapper);
+        bottomGallery.add(wrapper);
 
         return bottomGallery;
     }
 
-    private HorizontalLayout middleGallery() {
-        HorizontalLayout middleGallery = new HorizontalLayout();
+    private VerticalLayout middleGallery() {
+        VerticalLayout middleGallery = new VerticalLayout();
         middleGallery.setSpacing(false);
         middleGallery.setPadding(false);
         middleGallery.setWidthFull();
+
+        Span testsDescription = new Span(getTranslation("infoContent.testsDescription"));
+        testsDescription
+                .getStyle()
+                .set("font-size", "20px")
+                .set("margin-bottom", "15px")
+                .set("display", "block");
 
         Div scrollableImageWrapper = new Div();
         scrollableImageWrapper
@@ -74,7 +125,7 @@ public class InfoContent extends VerticalLayout {
                 .set("display", "block");
 
         scrollableImageWrapper.add(screen3);
-        middleGallery.add(scrollableImageWrapper);
+        middleGallery.add(testsDescription, scrollableImageWrapper);
 
         return middleGallery;
     }

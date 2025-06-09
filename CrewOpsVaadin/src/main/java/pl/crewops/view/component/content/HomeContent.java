@@ -51,32 +51,22 @@ public class HomeContent extends VerticalLayout {
         textLayout.setPadding(false);
         textLayout.setSpacing(true);
 
-        H2 title = new H2("CrewOps – sprawne zarządzanie zespołami i sprzętem w terenie");
+        H2 title = new H2(getTranslation("homeContent.title"));
 
-        Paragraph intro = new Paragraph(
-                "Aplikacja została zaprojektowana z myślą o usprawnieniu codziennej pracy technicznych załóg pracowniczych oraz skutecznym monitorowaniu dostępności sprzętu ciężkiego.");
+        Paragraph intro = new Paragraph(getTranslation("homeContent.intro"));
 
         UnorderedList features = new UnorderedList(
-                new ListItem(
-                        "Zarządzanie załogami pracowniczymi – możliwość przypisywania pracowników do konkretnych zmian, zespołów roboczych lub maszyn. System umożliwia śledzenie dostępności kadry w czasie rzeczywistym."),
-                new ListItem(
-                        "Monitoring i ewidencja maszyn – przegląd aktualnie dostępnych, przypisanych lub wyłączonych z użytku maszyn."),
-                new ListItem(
-                        "Zgłaszanie i rejestracja awarii – użytkownicy mogą zgłaszać usterki techniczne maszyn bezpośrednio z poziomu aplikacji. Każde zgłoszenie trafia do rejestru usterek, gdzie można śledzić jego status i historię napraw."),
-                new ListItem(
-                        "Panel administracyjny – pełna kontrola nad uprawnieniami użytkowników, widokiem systemu, logami działań."),
-                new ListItem(
-                        "Obecnie dostępna przez przeglądarkę internetową. Wersja mobilna na smartfony – w przygotowaniu."));
+                new ListItem(getTranslation("homeContent.feature1")),
+                new ListItem(getTranslation("homeContent.feature2")),
+                new ListItem(getTranslation("homeContent.feature3")),
+                new ListItem(getTranslation("homeContent.feature4")),
+                new ListItem(getTranslation("homeContent.feature5")));
 
-        Paragraph loginInfo = new Paragraph("Dane logowania – konta przykładowe:");
+        Paragraph loginInfo = new Paragraph(getTranslation("homeContent.loginInfo"));
         loginInfo.getStyle().set("margin-top", "20px");
 
         Paragraph credentials = new Paragraph();
-        credentials
-                .getElement()
-                .setProperty(
-                        "innerHTML",
-                        "admin / admin<br>user / user<br><br>Oba konta obecnie mają pełne uprawnienia, umożliwiające testowanie wszystkich funkcji systemu.");
+        credentials.getElement().setProperty("innerHTML", getTranslation("homeContent.credentials"));
 
         textLayout.add(title, intro, features, loginInfo, credentials);
 

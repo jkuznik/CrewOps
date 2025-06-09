@@ -27,6 +27,11 @@ public class MainFooter extends Footer {
         contactSpan.addClassName("main-footer-text");
         leftSide.add(contactSpan);
 
+        Anchor githubLink = new Anchor("https://github.com/jkuznik", "GitHub");
+        githubLink.setTarget("_blank");
+        githubLink.addClassName("main-footer-link");
+        leftSide.add(githubLink);
+
         VerticalLayout rightSide = new VerticalLayout();
         rightSide.addClassName("main-footer-column");
 

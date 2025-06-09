@@ -30,4 +30,16 @@
     font-size: 12px;
     color: #B0B0B0;
     text-align: center;
+    font-family: 'Arial', sans-serif;
+}
+
+.main-footer-text, .main-footer-link {
+    font-family: 'Arial', sans-serif;
+    color: #B0B0B0;
+    text-decoration: none;
+}
+
+.main-footer-link:hover {
+    text-decoration: none;
+    color: #B0B0B0;
 }
