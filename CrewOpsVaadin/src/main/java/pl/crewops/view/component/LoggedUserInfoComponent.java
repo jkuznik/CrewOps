@@ -5,7 +5,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.server.VaadinSession;
@@ -52,13 +51,11 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         infoLayout.setWidthFull();
         infoLayout.setSpacing(true);
 
-        H1 title = new H1(getTranslation("loggedUserInfo.title"));
-
         Button logoutButton = new Button(getTranslation("loggedUserInfo.logout"));
         logoutButton.addClickListener(event -> logout(coreAPI));
         logoutButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
-        infoLayout.add(title, getInfo(jwtService), logoutButton);
+        infoLayout.add(getInfo(jwtService), logoutButton);
         return infoLayout;
     }
 
