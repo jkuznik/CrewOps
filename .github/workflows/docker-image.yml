@@ -1,0 +1,28 @@
+name: Update docker image
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login Dockerhub
+        env:
+          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      - name: Build the Docker image
+        run: |
+          docker build -t jkuznik/crewops:${{ github.sha }} .
+          docker tag jkuznik/crewops:${{ github.sha }} jkuznik/crewops:latest
+
+      - name: Push to Dockerhub
+        run: |
+          docker push jkuznik/crewops:${{ github.sha }}
+          docker push jkuznik/crewops:latest
