@@ -4,13 +4,13 @@ FROM gradle:8.13.0-jdk21 AS builder
 WORKDIR /app
 
 # Copy settings from the root project
-COPY settings.gradle.kts build.gradle.kts ./
-COPY gradle gradle/
+COPY ../settings.gradle.kts build.gradle.kts ./
+COPY ../gradle gradle/
 
 # Copy only the submodule code and dependencies
-COPY CrewOpsModel CrewOpsModel/
-COPY CrewOpsSecurity CrewOpsSecurity/
-COPY CrewOpsCore CrewOpsCore/
+COPY ../CrewOpsModel CrewOpsModel/
+COPY ../CrewOpsSecurity CrewOpsSecurity/
+COPY ../CrewOpsCore CrewOpsCore/
 
 # Build the submodule JAR
 RUN gradle :CrewOpsCore:build -x test --no-daemon --info

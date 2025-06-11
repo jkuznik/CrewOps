@@ -1,4 +1,4 @@
-name: Update docker image
+name: Update crewops-core image
 
 on:
   push:
@@ -19,10 +19,10 @@ jobs:
         run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       - name: Build the Docker image
         run: |
-          docker build -t jkuznik/crewops:${{ github.sha }} .
-          docker tag jkuznik/crewops:${{ github.sha }} jkuznik/crewops:latest
+          docker build -t jkuznik/crewops-core:${{ github.sha }} .
+          docker tag jkuznik/crewops-core:${{ github.sha }} jkuznik/crewops-core:latest
 
       - name: Push to Dockerhub
         run: |
-          docker push jkuznik/crewops:${{ github.sha }}
-          docker push jkuznik/crewops:latest
+          docker push jkuznik/crewops-core:${{ github.sha }}
+          docker push jkuznik/crewops-core:latest
