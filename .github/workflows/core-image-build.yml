@@ -1,4 +1,4 @@
-name: Build & Push core image
+name: Build And Push core image
 
 on:
   push:

@@ -2,7 +2,7 @@ name: Run Vaadin on host
 
 on:
   workflow_run:
-    workflows: ["Build & Push vaadin image"]
+    workflows: ["Build And Push vaadin image"]
     types:
       - completed
 
