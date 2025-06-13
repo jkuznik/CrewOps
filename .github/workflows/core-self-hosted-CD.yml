@@ -2,13 +2,13 @@ name: Run crewops-core on host
 
 on:
   workflow_run:
-    workflows: ["Update crewops-core image"]
+    workflows: ["Build & Push core image"]
     types:
       - completed
 
 jobs:
-  deploy-core:
-    runs-on: self-hosted
+  deploy-vaadin:
+    runs-on: [self-hosted, linux]
 
     steps:
       - name: Pull latest image
