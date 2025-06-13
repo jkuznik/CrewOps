@@ -1,45 +1,46 @@
 plugins {
-    id("com.vaadin") version "24.6.6"
-}
+        id("com.vaadin") version "24.6.6"
+    }
 
-repositories {
-    maven (url = uri("https://maven.vaadin.com/vaadin-addons"))
-}
+    repositories {
+        maven (url = uri("https://maven.vaadin.com/vaadin-addons"))
+    }
 
-extra["vaadinVersion"] = "24.6.6"
+    extra["vaadinVersion"] = "24.6.6"
 
-val production: Boolean = project.hasProperty("production")
+    val production: Boolean = project.hasProperty("production")
 
-dependencies {
+    dependencies {
 
-    if (production) {
-        // using vaadin-core instead of vaadin artifact should force to use only free components
-        implementation("com.vaadin:vaadin-core:24.7.1") {
-            exclude(group = "com.vaadin", module = "vaadin-dev")
-        }
-    } else {
+//        if (production) {
+//            // using vaadin-core instead of vaadin artifact should force to use only free components
+//            implementation("com.vaadin:vaadin-core:24.7.1") {
+//                exclude(group = "com.vaadin", module = "vaadin-dev")
+//            }
+//        } else {
+//            implementation("com.vaadin:vaadin-core:24.7.1")
+//        }
         implementation("com.vaadin:vaadin-core:24.7.1")
+        implementation("com.vaadin:vaadin-spring-boot-starter")
+        implementation("org.springframework.boot:spring-boot-starter-cache")
+
+        implementation(project(":CrewOpsModel"))
+        implementation(project(":CrewOpsSecurity"))
     }
 
-    implementation("com.vaadin:vaadin-spring-boot-starter")
-    implementation("org.springframework.boot:spring-boot-starter-cache")
-
-    implementation(project(":CrewOpsModel"))
-    implementation(project(":CrewOpsSecurity"))
-}
-
-dependencyManagement {
-    imports {
-        mavenBom("com.vaadin:vaadin-bom:${property("vaadinVersion")}")
-    }
-}
-
-tasks {
-    if (production) {
-        named("build") {
-            dependsOn("vaadinBuildFrontend")
+    dependencyManagement {
+        imports {
+            mavenBom("com.vaadin:vaadin-bom:${property("vaadinVersion")}")
         }
     }
+
+vaadin {
+    optimizeBundle = true
+    pnpmEnable = true
+}
+
+tasks.named("build") {
+    dependsOn("vaadinBuildFrontend")
 }
 
 defaultTasks("clean", "vaadinBuildFrontend", "build")

@@ -1,0 +1,35 @@
+name: Build And Push core image
+
+on:
+  push:
+    branches: [ "dev" ]
+    paths:
+      - 'CrewOpsCore/**'
+      - '.docker/core.dockerfile'
+      - 'settings.gradle.kts'
+      - 'build.gradle.kts'
+      - 'gradle/**'
+      - '.github/workflows/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Docker login
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+
+      - name: Build core image
+        run: |
+          docker build -t jkuznik/crewops-core:${{ github.sha }} -f $GITHUB_WORKSPACE/.docker/core.dockerfile $GITHUB_WORKSPACE
+          docker tag jkuznik/crewops-core:${{ github.sha }} jkuznik/crewops-core:latest
+
+      - name: Push core image
+        run: |
+          docker push jkuznik/crewops-core:${{ github.sha }}
+          docker push jkuznik/crewops-core:latest

@@ -1,13 +1,19 @@
-  spring:
-    application:
-      name: CrewOps UI
+server:
+  port: 8081
 
-    profiles:
-      active: dev
+spring:
+  application:
+    name: CrewOps UI
 
-    cache:
-      cache-names: employeeCache
+  profiles:
+    active: dev
 
-  security:
-    properties:
-      clientIdInput: ${CREWOPS_CLIENT_ID_INPUT}
+  cache:
+    cache-names: employeeCache
+
+security:
+  properties:
+    clientIdInput: ${CREWOPS_CLIENT_ID_INPUT}
+
+core:
+  base-url: http://core:8080

@@ -47,9 +47,9 @@ public class HomeContent extends VerticalLayout {
         imageContainer.add(headerImage);
 
         VerticalLayout textLayout = new VerticalLayout();
-        textLayout.setWidth("50%");
         textLayout.setPadding(false);
         textLayout.setSpacing(true);
+        textLayout.getStyle().set("flex-grow", "1").set("max-width", "600px").set("min-width", "600px");
 
         H2 title = new H2(getTranslation("homeContent.title"));
 

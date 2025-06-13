@@ -3,7 +3,7 @@ services:
     container_name: CrewOpsDb
     build:
       context: .
-      dockerfile: postgres.dockerfile
+      dockerfile: .docker/postgres.dockerfile
     environment:
       POSTGRES_DB: ${CREWOPS_POSTGRES_DB}
       POSTGRES_USER: ${CREWOPS_POSTGRES_USER}
@@ -19,7 +19,7 @@ services:
     container_name: CrewOpsCore
     build:
       context: .
-      dockerfile: core.dockerfile
+      dockerfile: .docker/core.dockerfile
     env_file: .env-compose
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db_postgres:5432/${CREWOPS_POSTGRES_DB}
@@ -29,6 +29,21 @@ services:
       - "8080:8080"
     depends_on:
       - db_postgres
+    restart: always
+    networks:
+      - crewOps
+
+  vaadin:
+    container_name: CrewOpsVaadin
+    build:
+      context: .
+      dockerfile: .docker/vaadin.dockerfile
+    env_file: .env-compose
+    environment:
+      CREWOPS_CLIENT_ID_INPUT: ${CREWOPS_CLIENT_ID_INPUT}
+      JWT_CREWOPS: ${JWT_CREWOPS}
+    ports:
+      - "8081:8081"
     restart: always
     networks:
       - crewOps
