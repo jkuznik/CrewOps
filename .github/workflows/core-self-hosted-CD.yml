@@ -7,7 +7,7 @@ on:
       - completed
 
 jobs:
-  deploy-vaadin:
+  deploy-core:
     runs-on: [self-hosted, linux]
 
     steps:
