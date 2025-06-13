@@ -1,4 +1,4 @@
-name: Build & Push vaadin image
+name: Build And Push vaadin image
 
 on:
   push:

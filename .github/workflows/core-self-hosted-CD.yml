@@ -2,7 +2,7 @@ name: Run crewops-core on host
 
 on:
   workflow_run:
-    workflows: ["Build & Push core image"]
+    workflows: ["Build And Push core image"]
     types:
       - completed
 
