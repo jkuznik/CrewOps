@@ -9,6 +9,7 @@ on:
       - 'settings.gradle.kts'
       - 'build.gradle.kts'
       - 'gradle/**'
+      - '.github/workflows/**'
 
 jobs:
   build:
