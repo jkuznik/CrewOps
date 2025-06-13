@@ -1,6 +1,5 @@
-name: Run application on host
+name: Run crewops-core on host
 
-# Only trigger, when the build workflow succeeded
 on:
   workflow_run:
     workflows: ["Update crewops-core image"]
@@ -8,30 +7,37 @@ on:
       - completed
 
 jobs:
-  build:
-
+  deploy-core:
     runs-on: self-hosted
 
     steps:
-      - name: Pull docker image
+      - name: Pull latest image
         run: sudo docker pull jkuznik/crewops-core:latest
-      - name: Delete old docker container
-        run: sudo docker rm -f crewops-core-container || true
-      - name: Run new docker container
+
+      - name: Remove old container (if exists)
+        run: sudo docker rm -f core || true
+
+      - name: Run new container
         env:
-          SPRING_DATASOURCE_URL: ${{secrets.SPRING_DATASOURCE_URL}}
-          SPRING_DATASOURCE_USERNAME: ${{secrets.SPRING_DATASOURCE_USERNAME}}
-          SPRING_DATASOURCE_PASSWORD: ${{secrets.SPRING_DATASOURCE_PASSWORD}}
-          CREWOPS_CLIENT_ID_HASH: ${{secrets.CREWOPS_CLIENT_ID_HASH}}
-          JWT_CREWOPS: ${{secrets.JWT_CREWOPS}}
-          JWT_EXPIRATION_CREWOPS: ${{secrets.JWT_EXPIRATION_CREWOPS}}
+          SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+          CREWOPS_CLIENT_ID_HASH: ${{ secrets.CREWOPS_CLIENT_ID_HASH }}
+          CREWOPS_CLIENT_ID_INPUT: ${{ secrets.CREWOPS_CLIENT_ID_INPUT }}
+          JWT_CREWOPS: ${{ secrets.JWT_CREWOPS }}
+          JWT_EXPIRATION_CREWOPS: ${{ secrets.JWT_EXPIRATION_CREWOPS }}
         run: |
-          sudo docker run -d --name crewops-core-container --network crewops -p 8080:8080 \
-          -e SPRING_DATASOURCE_URL=$SPRING_DATASOURCE_URL \
-          -e SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME \
-          -e SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD \
-          -e CREWOPS_CLIENT_ID_HASH=$CREWOPS_CLIENT_ID_HASH \
-          -e JWT_CREWOPS=$JWT_CREWOPS \
-          -e JWT_EXPIRATION_CREWOPS=$JWT_EXPIRATION_CREWOPS \
-          -e TZ=Europe/Warsaw \
-          jkuznik/disaster-alert
+          sudo docker run -d \
+            --name core \
+            --network crewOps \
+            -e SPRING_DATASOURCE_URL=$SPRING_DATASOURCE_URL \
+            -e SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME \
+            -e SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD \
+            -e CREWOPS_CLIENT_ID_HASH=$CREWOPS_CLIENT_ID_HASH \
+            -e CREWOPS_CLIENT_ID_INPUT=$CREWOPS_CLIENT_ID_INPUT \
+            -e JWT_CREWOPS=$JWT_CREWOPS \
+            -e JWT_EXPIRATION_CREWOPS=$JWT_EXPIRATION_CREWOPS \
+            -e TZ=Europe/Warsaw \
+            -p 8080:8080 \
+            --memory=300m \
+            jkuznik/crewops-core:latest

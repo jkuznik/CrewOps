@@ -1,0 +1,34 @@
+name: Build & Push vaadin image
+
+on:
+  push:
+    branches: [ "dev" ]
+    paths:
+      - 'CrewOpsVaadin/**'
+      - '.docker/vaadin.dockerfile'
+      - 'settings.gradle.kts'
+      - 'build.gradle.kts'
+      - 'gradle/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+#      - uses: actions/checkout@v4  uncomment after tests
+
+      - name: Docker login
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+
+      - name: Build vaadin image
+        run: |
+          docker build -t jkuznik/crewops-vaadin:${{ github.sha }} -f .docker/vaadin.dockerfile .
+          docker tag jkuznik/crewops-vaadin:${{ github.sha }} jkuznik/crewops-vaadin:latest
+
+      - name: Push vaadin image
+        run: |
+          docker push jkuznik/crewops-vaadin:${{ github.sha }}
+          docker push jkuznik/crewops-vaadin:latest
