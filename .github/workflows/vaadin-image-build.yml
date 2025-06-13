@@ -25,7 +25,7 @@ jobs:
 
       - name: Build vaadin image
         run: |
-          docker build -t jkuznik/crewops-vaadin:${{ github.sha }} -f .docker/vaadin.dockerfile .
+          docker build -t jkuznik/crewops-vaadin:${{ github.sha }} -f $GITHUB_WORKSPACE/.docker/vaadin.dockerfile $GITHUB_WORKSPACE
           docker tag jkuznik/crewops-vaadin:${{ github.sha }} jkuznik/crewops-vaadin:latest
 
       - name: Push vaadin image

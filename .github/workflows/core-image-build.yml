@@ -25,7 +25,7 @@ jobs:
 
       - name: Build core image
         run: |
-          docker build -t jkuznik/crewops-core:${{ github.sha }} -f .docker/core.dockerfile .
+          docker build -t jkuznik/crewops-core:${{ github.sha }} -f $GITHUB_WORKSPACE/.docker/core.dockerfile $GITHUB_WORKSPACE
           docker tag jkuznik/crewops-core:${{ github.sha }} jkuznik/crewops-core:latest
 
       - name: Push core image
