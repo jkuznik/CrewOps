@@ -1,4 +1,4 @@
-name: Run Vaadin on host
+name: Run Vaadin container on host
 
 on:
   workflow_run:
