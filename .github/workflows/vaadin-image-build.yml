@@ -2,7 +2,7 @@ name: Build And Push vaadin image
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "main" ]
     paths:
       - 'CrewOpsVaadin/**'
       - '.docker/vaadin.dockerfile'

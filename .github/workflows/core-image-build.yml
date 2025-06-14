@@ -2,7 +2,7 @@ name: Build And Push core image
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "main" ]
     paths:
       - 'CrewOpsCore/**'
       - '.docker/core.dockerfile'
