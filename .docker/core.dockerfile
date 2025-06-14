@@ -28,4 +28,4 @@ COPY --from=builder /app/CrewOpsCore/build/libs/*.jar app.jar
 EXPOSE 8080
 
 # Run the application
-ENTRYPOINT ["sh", "-c", "java -jar app.jar --CREWOPS_CLIENT_ID_HASH=$CREWOPS_CLIENT_ID_HASH --JWT_CREWOPS=$JWT_CREWOPS"]
+ENTRYPOINT ["sh", "-c", "java -jar app.jar --spring.profiles.active=prod"]

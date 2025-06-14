@@ -19,13 +19,14 @@ jobs:
 
       - name: Run new container
         env:
-          SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
-          SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+          SPRING_DATASOURCE_URL: jdbc:postgresql://CrewOpsDb:5432/crewops
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.CREWOPS_POSTGRES_USER }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.CREWOPS_POSTGRES_PASSWORD }}
           CREWOPS_CLIENT_ID_HASH: ${{ secrets.CREWOPS_CLIENT_ID_HASH }}
           CREWOPS_CLIENT_ID_INPUT: ${{ secrets.CREWOPS_CLIENT_ID_INPUT }}
           JWT_CREWOPS: ${{ secrets.JWT_CREWOPS }}
           JWT_EXPIRATION_CREWOPS: ${{ secrets.JWT_EXPIRATION_CREWOPS }}
+          SPRING_PROFILES_ACTIVE: prod
         run: |
           sudo docker run -d \
             --name core \
@@ -37,6 +38,7 @@ jobs:
             -e CREWOPS_CLIENT_ID_INPUT=$CREWOPS_CLIENT_ID_INPUT \
             -e JWT_CREWOPS=$JWT_CREWOPS \
             -e JWT_EXPIRATION_CREWOPS=$JWT_EXPIRATION_CREWOPS \
+            -e SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE \
             -e TZ=Europe/Warsaw \
             -p 8080:8080 \
             --memory=300m \
