@@ -1,4 +1,4 @@
-name: Run crewops-core on host
+name: Run Core container on host
 
 on:
   workflow_run:
