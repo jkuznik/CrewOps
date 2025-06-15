@@ -19,7 +19,7 @@ jobs:
 
       - name: Run new container
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://CrewOpsDb:5432/crewops
+          SPRING_DATASOURCE_URL: jdbc:postgresql://CrewOpsDb:5432/${{ secrets.CREWOPS_POSTGRES_DB}}
           SPRING_DATASOURCE_USERNAME: ${{ secrets.CREWOPS_POSTGRES_USER }}
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.CREWOPS_POSTGRES_PASSWORD }}
           CREWOPS_CLIENT_ID_HASH: ${{ secrets.CREWOPS_CLIENT_ID_HASH }}
