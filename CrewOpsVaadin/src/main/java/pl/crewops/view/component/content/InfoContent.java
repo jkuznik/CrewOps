@@ -30,8 +30,20 @@ public class InfoContent extends VerticalLayout {
         var finalGallery = finalGallery();
         finalGallery.getStyle().set("margin-top", "60px");
 
-        contentWrapper.add(topGallery, middleGallery, bottomGallery, finalGallery);
+        contentWrapper.add(noticeGallery(), topGallery, middleGallery, bottomGallery, finalGallery);
         add(contentWrapper);
+    }
+
+    private VerticalLayout noticeGallery() {
+        VerticalLayout noticeLayout = new VerticalLayout();
+        noticeLayout.setWidthFull();
+        noticeLayout.setSpacing(false);
+        noticeLayout.setPadding(true);
+
+        Span heading = new Span(getTranslation("infoContent.limitedFunctionalityNotice"));
+
+        noticeLayout.add(heading);
+        return noticeLayout;
     }
 
     private VerticalLayout finalGallery() {

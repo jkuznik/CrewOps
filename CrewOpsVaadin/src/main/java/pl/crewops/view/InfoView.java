@@ -1,4 +1,4 @@
-package pl.crewops.view.layout;
+package pl.crewops.view;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
@@ -9,6 +9,7 @@ import com.vaadin.flow.router.Route;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtService;
 import pl.crewops.view.component.content.InfoContent;
+import pl.crewops.view.layout.MainLayout;
 
 @Route(value = "info")
 @PageTitle("Information")
