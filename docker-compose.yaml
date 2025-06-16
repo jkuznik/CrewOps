@@ -20,6 +20,7 @@ services:
     build:
       context: .
       dockerfile: .docker/core.dockerfile
+      pull: false
     env_file: .env-compose
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db_postgres:5432/${CREWOPS_POSTGRES_DB}
@@ -38,6 +39,7 @@ services:
     build:
       context: .
       dockerfile: .docker/vaadin.dockerfile
+      pull: false
     env_file: .env-compose
     environment:
       CREWOPS_CLIENT_ID_INPUT: ${CREWOPS_CLIENT_ID_INPUT}
