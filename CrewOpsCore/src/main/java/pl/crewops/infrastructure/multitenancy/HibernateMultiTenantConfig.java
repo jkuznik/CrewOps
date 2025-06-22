@@ -10,13 +10,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 @Configuration
-public class JpaMultiTenantConfig {
+public class HibernateMultiTenantConfig {
 
     private final DataSource dataSource;
     private final SchemaPerTenantConnectionProvider connectionProvider;
     private final TenantIdentifierResolver tenantIdentifierResolver;
 
-    public JpaMultiTenantConfig(
+    public HibernateMultiTenantConfig(
             DataSource dataSource,
             SchemaPerTenantConnectionProvider connectionProvider,
             TenantIdentifierResolver tenantIdentifierResolver) {
