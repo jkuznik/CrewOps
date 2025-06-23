@@ -33,6 +33,7 @@ databaseChangeLog:
                   type: uuid
                   constraints:
                     nullable: false
+                    unique: true
               - column:
                   name: created_at
                   type: timestamp
@@ -45,14 +46,6 @@ databaseChangeLog:
                   defaultValueComputed: CURRENT_TIMESTAMP
                   constraints:
                     nullable: false
-
-        - addForeignKeyConstraint:
-            baseTableName: auth_user
-            baseColumnNames: employee_id
-            constraintName: fk_auth_user_employee
-            referencedTableName: employee
-            referencedColumnNames: id
-            onDelete: CASCADE
 
   - changeSet:
       id: 002-create-auth-user-updated_at-trigger

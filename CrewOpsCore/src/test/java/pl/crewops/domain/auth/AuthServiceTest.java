@@ -8,10 +8,7 @@ import static pl.crewops.model.auth.RoleType.EMPLOYEE;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,13 +82,15 @@ class AuthServiceTest {
                 .password("password")
                 .roles(new HashSet<>())
                 .build();
+        UUID randomUUID = UUID.randomUUID();
         var employee = Employee.builder().build();
+        employee.setId(randomUUID);
         var role = Role.builder().name(EMPLOYEE.name()).build();
         var authUser = AuthUser.builder()
                 .username("username")
                 .password("password")
                 .roles(Set.of(role))
-                .employee(employee)
+                .employeeId(randomUUID)
                 .build();
 
         // when
@@ -99,7 +98,7 @@ class AuthServiceTest {
         when(roleRepository.findById(any())).thenReturn(Optional.of(role));
         when(authUserRepository.save(any())).thenReturn(authUser);
 
-        AuthUser result = authService.createAuthUser(createAuthUserDTO, employee);
+        AuthUser result = authService.createAuthUser(createAuthUserDTO, randomUUID);
 
         // then
         assertThat(result).isNotNull();
@@ -115,14 +114,12 @@ class AuthServiceTest {
         String token = "jwt-token";
 
         var role = Role.builder().name(EMPLOYEE.name()).build();
+        UUID randomUUID = UUID.randomUUID();
         var authUser = AuthUser.builder()
                 .username("username")
                 .password(encodedPassword)
                 .roles(Set.of(role))
-                .employee(Employee.builder()
-                        .firstName("firstName")
-                        .lastName("lastName")
-                        .build())
+                .employeeId(randomUUID)
                 .build();
 
         var authRequest =
@@ -181,7 +178,8 @@ class AuthServiceTest {
 
         // when
         when(authUserRepository.findByUsername("username")).thenReturn(Optional.of(authUser));
-        Exception result = Assertions.catchException(() -> authService.createAuthUser(createAuthUserDTO, employee));
+        Exception result =
+                Assertions.catchException(() -> authService.createAuthUser(createAuthUserDTO, UUID.randomUUID()));
 
         // then
         assertThat(result).isExactlyInstanceOf(UsernameAlreadyExistException.class);
@@ -195,7 +193,7 @@ class AuthServiceTest {
         var authUser = AuthUser.builder()
                 .username("username")
                 .password("admin")
-                .employee(new Employee())
+                .employeeId(UUID.randomUUID())
                 .roles(Set.of(Role.builder().name(ADMIN.name()).build()))
                 .build();
 

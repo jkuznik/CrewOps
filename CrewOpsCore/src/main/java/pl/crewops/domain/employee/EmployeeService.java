@@ -50,7 +50,7 @@ class EmployeeService implements EmployeeAPI {
                     .password(createEmployeeDTO.password())
                     .roles(createEmployeeDTO.roles())
                     .build();
-            authAPI.createAuthUser(createAuthUser, employee);
+            authAPI.createAuthUser(createAuthUser, employee.getId());
             log.info("Create employee {}", createEmployeeDTO);
             return mapToDTO(employee);
         } catch (Exception e) {
@@ -124,7 +124,7 @@ class EmployeeService implements EmployeeAPI {
         var employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
 
-        var authUser = authAPI.getByEmployee(employee).orElseThrow(() -> new AuthUserNotFoundException(employee));
+        var authUser = authAPI.getByEmployeeId(employeeId).orElseThrow(() -> new AuthUserNotFoundException(employee));
 
         employee.setActive(false);
         log.info("Delete authUser {}", authUser.getUsername());

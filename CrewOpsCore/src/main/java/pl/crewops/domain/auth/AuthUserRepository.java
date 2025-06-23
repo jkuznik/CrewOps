@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import pl.crewops.model.Employee;
 import pl.crewops.model.auth.AuthUser;
 import pl.crewops.model.auth.Role;
 
@@ -16,7 +15,7 @@ interface AuthUserRepository extends JpaRepository<AuthUser, UUID> {
     @Query("SELECT u FROM AuthUser u JOIN FETCH u.roles WHERE u.username = :username")
     Optional<AuthUser> findByUsername(String username);
 
-    Optional<AuthUser> findByEmployee(Employee employee);
+    Optional<AuthUser> findByEmployeeId(UUID employeeId);
 
     @Modifying
     @Query("DELETE FROM AuthUser WHERE id = :id")

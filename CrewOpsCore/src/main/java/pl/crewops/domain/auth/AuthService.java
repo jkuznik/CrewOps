@@ -11,9 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.auth.*;
-import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exception.UsernameAlreadyExistException;
-import pl.crewops.model.Employee;
 import pl.crewops.model.auth.AuthUser;
 import pl.crewops.model.auth.Role;
 import pl.crewops.security.custom.UserPrincipal;
@@ -35,12 +33,12 @@ class AuthService implements AuthAPI {
     }
 
     @Override
-    public Optional<AuthUser> getByEmployee(Employee employee) {
-        return authUserRepository.findByEmployee(employee);
+    public Optional<AuthUser> getByEmployeeId(UUID employeeId) {
+        return authUserRepository.findByEmployeeId(employeeId);
     }
 
     @Transactional
-    public AuthUser createAuthUser(CreateAuthUserDTO createAuthUserDTO, Employee employee) {
+    public AuthUser createAuthUser(CreateAuthUserDTO createAuthUserDTO, UUID employeeId) {
         if (getByUsername(createAuthUserDTO.username()).isPresent()) {
             log.error("Username " + createAuthUserDTO.username() + " already exists");
             throw new UsernameAlreadyExistException("Username " + createAuthUserDTO.username() + " already exists");
@@ -61,7 +59,7 @@ class AuthService implements AuthAPI {
             });
             log.info("Creating auth user " + createAuthUserDTO.username() + " with roles " + roles);
             authUser.setRoles(roles);
-            authUser.setEmployee(employee);
+            authUser.setEmployeeId(employeeId);
             log.info("Auth user instantiated successfully as " + authUser.toString());
             return authUserRepository.save(authUser);
         } catch (Exception e) {
@@ -105,22 +103,21 @@ class AuthService implements AuthAPI {
                         .orElseThrow(() ->
                                 new UsernameNotFoundException("Username " + validTokenRequest.token() + " not found"));
             } catch (ExpiredJwtException e) {
-                return new ValidTokenResponse(false, null, null);
+                return new ValidTokenResponse(false, null);
             }
             var userDetails = new UserPrincipal(authUser);
             boolean result = jwtService.validateToken(validTokenRequest.token(), userDetails);
             if (result) {
                 Date expiresAt = jwtService.extractExpiresAt(validTokenRequest.token());
-                EmployeeDTO employeeDTO = authUser.exctractEmployeeDTO();
                 log.debug("Token validation finished");
-                return new ValidTokenResponse(true, expiresAt, employeeDTO);
+                return new ValidTokenResponse(true, expiresAt);
             } else {
                 log.error("Token validation failed");
-                return new ValidTokenResponse(false, null, null);
+                return new ValidTokenResponse(false, null);
             }
         } catch (IllegalArgumentException e) {
             log.error("Token validation failed with exception");
-            return new ValidTokenResponse(false, null, null);
+            return new ValidTokenResponse(false, null);
         }
     }
 

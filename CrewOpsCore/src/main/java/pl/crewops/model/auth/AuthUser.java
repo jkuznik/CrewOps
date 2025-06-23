@@ -2,13 +2,14 @@ package pl.crewops.model.auth;
 
 import jakarta.persistence.*;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.*;
+import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.model.AbstractEntity;
-import pl.crewops.model.Employee;
 
 @Entity
 @Getter
@@ -24,9 +25,8 @@ public class AuthUser extends AbstractEntity {
     @Column(nullable = false)
     private String password;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "employee_id", referencedColumnName = "id", nullable = false, unique = true)
-    private Employee employee;
+    @Column(nullable = false, unique = true)
+    private UUID employeeId;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -35,7 +35,9 @@ public class AuthUser extends AbstractEntity {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
-    public EmployeeDTO exctractEmployeeDTO() {
+    public EmployeeDTO exctractEmployeeDTO(EmployeeAPI employeeAPI) {
+        var employee = employeeAPI.getEmployee(employeeId);
+
         return EmployeeDTO.builder()
                 .id(employee.getId())
                 .firstName(employee.getFirstName())

@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.UUID;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
+import pl.crewops.config.SpringContext;
+import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.model.auth.AuthUser;
 import pl.crewops.model.auth.RoleGrantedAuthority;
 
@@ -26,17 +28,19 @@ public class UserPrincipal implements CustomUserPrincipal {
 
     @Override
     public String getFirstName() {
-        return authUser.getEmployee().getFirstName();
+        EmployeeAPI employeeAPI = SpringContext.getBean(EmployeeAPI.class);
+        return employeeAPI.getEmployee(authUser.getEmployeeId()).getFirstName();
     }
 
     @Override
     public String getLastName() {
-        return authUser.getEmployee().getLastName();
+        EmployeeAPI employeeAPI = SpringContext.getBean(EmployeeAPI.class);
+        return employeeAPI.getEmployee(authUser.getEmployeeId()).getLastName();
     }
 
     @Override
     public UUID getId() {
-        return authUser.getEmployee().getId();
+        return authUser.getEmployeeId();
     }
 
     @Override

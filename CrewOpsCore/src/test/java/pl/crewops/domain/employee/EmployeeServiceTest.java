@@ -182,7 +182,7 @@ class EmployeeServiceTest {
 
         // when
         when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithQAndV));
-        when(authAPI.getByEmployee(any(Employee.class))).thenReturn(Optional.of(authUser));
+        when(authAPI.getByEmployeeId(any(UUID.class))).thenReturn(Optional.of(authUser));
         doNothing().when(authAPI).deleteById(any());
 
         employeeService.deleteEmployee(employeeId);
