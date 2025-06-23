@@ -21,28 +21,8 @@
                     $$ LANGUAGE plpgsql;
 
     - include:
-        file: db/changelog/create/001-create-table-employee.yaml
+          file: db/changelog/create/public/001-create-table-role.yaml
     - include:
-        file: db/changelog/create/002-create-table-vehicle.yaml
+          file: db/changelog/create/public/002-create-table-auth-user.yaml
     - include:
-        file: db/changelog/create/003-create-join-table-employee-vehicle.yaml
-    - include:
-          file: db/changelog/create/004-create-table-qualification.yaml
-    - include:
-          file: db/changelog/create/005-create-join-table-employee-qualification.yaml
-    - include:
-          file: db/changelog/create/006-create-table-role.yaml
-    - include:
-          file: db/changelog/create/007-create-table-auth-user.yaml
-    - include:
-          file: db/changelog/create/008-create-join-table-auth-user-role.yaml
-    - include:
-          file: db/changelog/create/009-create-table-breakdown.yaml
-    - include:
-          file: db/changelog/create/010-create-table-vehicle-type.yaml
-
-#   # TODO: config multi profiles and remove this from prod
-    - include:
-          file: db/changelog/insert/001-insert-development-initial-values.yaml
-    - include:
-          file: db/changelog/insert/002-insert-auth-users.yaml
+          file: db/changelog/create/public/003-create-join-table-auth-user-role.yaml
