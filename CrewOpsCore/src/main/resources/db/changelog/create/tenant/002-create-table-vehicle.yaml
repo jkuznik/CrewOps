@@ -80,4 +80,4 @@ databaseChangeLog:
               CREATE TRIGGER vehicle_updated_at_trigger
               BEFORE UPDATE ON vehicle
               FOR EACH ROW
-              EXECUTE FUNCTION update_updated_at();
+              EXECUTE FUNCTION public.update_updated_at();

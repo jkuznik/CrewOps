@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
@@ -13,7 +12,6 @@ import pl.crewops.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.exception.QualificationNotFoundException;
 import pl.crewops.model.Qualification;
 
-@Component
 @Validated
 public interface QualificationAPI {
 

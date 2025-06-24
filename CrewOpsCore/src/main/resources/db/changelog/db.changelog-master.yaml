@@ -26,3 +26,7 @@
           file: db/changelog/create/public/002-create-table-auth-user.yaml
     - include:
           file: db/changelog/create/public/003-create-join-table-auth-user-role.yaml
+
+#   delete this after configure tests properly
+    - include:
+          file: db/changelog/insert/002-insert-auth-users.yaml

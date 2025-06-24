@@ -1,6 +1,7 @@
 package pl.crewops;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -12,6 +13,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import pl.crewops.infrastructure.multitenancy.TenantContext;
+import pl.crewops.utils.liquibase.LiquibaseSchemaMigrator;
 
 @ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
@@ -22,6 +25,7 @@ public abstract class IntegrationTest {
     public static final String TESTCONTAINER_DB_NAME = "testdb";
     public static final String TESTCONTAINER_DB_USERNAME = "testUsername";
     public static final String TESTCONTAINER_DB_PASSWORD = "testPassword";
+    public static final String TEST_TENANT = "tenant_test";
 
     public static final PostgreSQLContainer<?> postgresSQLContainer = new PostgreSQLContainer<>(
                     DockerImageName.parse("postgis/postgis:16-3.4").asCompatibleSubstituteFor("postgres"))
@@ -29,6 +33,15 @@ public abstract class IntegrationTest {
             .withUsername(TESTCONTAINER_DB_USERNAME)
             .withPassword(TESTCONTAINER_DB_PASSWORD)
             .withReuse(true);
+
+    @Autowired
+    private LiquibaseSchemaMigrator schemaMigrator;
+
+    @Autowired
+    protected MockMvc mockMvc;
+
+    @Autowired
+    private TenantSchemaInitializer schemaInitializer;
 
     @BeforeAll
     public static void startContainer() {
@@ -42,6 +55,10 @@ public abstract class IntegrationTest {
         registry.add("spring.datasource.password", postgresSQLContainer::getPassword);
     }
 
-    @Autowired
-    protected MockMvc mockMvc;
+    @BeforeEach
+    public void setupTenantSchema() {
+        schemaInitializer.createSchemaIfNotExists(TEST_TENANT);
+        TenantContext.setCurrentTenant(TEST_TENANT);
+        schemaMigrator.runMigrations(TEST_TENANT);
+    }
 }

@@ -51,4 +51,4 @@ databaseChangeLog:
               CREATE TRIGGER qualification_updated_at_trigger
               BEFORE UPDATE ON qualification
               FOR EACH ROW
-              EXECUTE FUNCTION update_updated_at();
+              EXECUTE FUNCTION public.update_updated_at();

@@ -5,12 +5,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.auth.*;
 import pl.crewops.model.auth.AuthUser;
 
-@Component
 @Validated
 public interface AuthAPI {
 

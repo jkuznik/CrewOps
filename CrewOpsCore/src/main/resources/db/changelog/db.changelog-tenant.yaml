@@ -1,5 +1,24 @@
   databaseChangeLog:
-
+    - changeSet:
+        id: 001-initial-new-tenant
+        author: jkuznik
+    - changeSet:
+        id: 002-create-update_updated_at-function
+        author: jkuznik
+        changes:
+            - sql:
+                dbms: postgresql
+                #   source: https://docs.liquibase.com/change-types/sql.html#yaml_example
+                endDelimiter: \nGO
+                splitStatements: true
+                #   source: https://neon.tech/postgresql/postgresql-tutorial/postgresql-timestamp
+                sql: |
+                    CREATE OR REPLACE FUNCTION update_updated_at() RETURNS TRIGGER AS $$
+                        BEGIN 
+                            NEW.updated_at = current_timestamp;
+                            RETURN NEW;
+                        END;
+                    $$ LANGUAGE plpgsql;
     - include:
         file: db/changelog/create/tenant/001-create-table-employee.yaml
     - include:
@@ -18,5 +37,3 @@
  #   # TODO: config multi profiles and remove this from prod
     - include:
         file: db/changelog/insert/001-insert-development-initial-values.yaml
-    - include:
-        file: db/changelog/insert/002-insert-auth-users.yaml

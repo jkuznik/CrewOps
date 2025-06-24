@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
@@ -13,7 +12,6 @@ import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.exception.EmployeeNotFoundException;
 import pl.crewops.model.Employee;
 
-@Component
 @Validated
 public interface EmployeeAPI {
 

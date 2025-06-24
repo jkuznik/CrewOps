@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.IntegrationTest;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.Employee;
 
 @Transactional
@@ -26,6 +27,7 @@ class EmployeeAPITest extends IntegrationTest {
     @Test
     void shouldReturnEmployeeWithNoQualificationsAndNoVehicles() {
         // given
+        TenantContext.setCurrentTenant(TEST_TENANT);
         var createEmployeeDTO = EmployeeTestFactory.createEmployeeDTO();
 
         // when
