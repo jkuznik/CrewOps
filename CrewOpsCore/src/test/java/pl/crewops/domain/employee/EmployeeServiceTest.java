@@ -29,8 +29,8 @@ import pl.crewops.exception.UsernameAlreadyExistException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Qualification;
 import pl.crewops.model.Vehicle;
-import pl.crewops.model.auth.AuthUser;
 import pl.crewops.model.joinTable.EmployeeQualification;
+import pl.crewops.model.publicSchema.AuthUser;
 
 @SpringJUnitConfig(
         classes = {

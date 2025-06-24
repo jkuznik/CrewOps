@@ -21,7 +21,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.util.AntPathMatcher;
 import pl.crewops.enums.ControllerURL;
-import pl.crewops.model.auth.AuthUser;
+import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.security.custom.CustomAuthentication;
 import pl.crewops.security.custom.CustomAuthenticationManager;
 import pl.crewops.security.custom.UserPrincipal;

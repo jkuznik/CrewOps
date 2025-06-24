@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.auth.*;
 import pl.crewops.exception.UsernameAlreadyExistException;
-import pl.crewops.model.auth.AuthUser;
-import pl.crewops.model.auth.Role;
+import pl.crewops.model.publicSchema.AuthUser;
+import pl.crewops.model.publicSchema.Role;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtService;
 
@@ -79,6 +79,8 @@ class AuthService implements AuthAPI {
             AuthUser byUsername = byUsername(authRequest.username());
             log.debug("Login action by username: {}", byUsername);
             if (passwordEncoder.matches(authRequest.password(), byUsername.getPassword())) {
+                // TODO: in case when password is matches for this username there is necessary to know tenant id to
+                // setSchema where employee with employeeId stored in AuthUser should exist
                 var userPrincipal = new UserPrincipal(byUsername);
                 String token = jwtService.generateToken(userPrincipal);
                 log.debug("Login successful, token: {}", token);

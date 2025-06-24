@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import pl.crewops.model.auth.AuthUser;
-import pl.crewops.model.auth.Role;
+import pl.crewops.model.publicSchema.AuthUser;
+import pl.crewops.model.publicSchema.Role;
 
 @Repository
 interface AuthUserRepository extends JpaRepository<AuthUser, UUID> {

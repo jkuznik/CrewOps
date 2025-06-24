@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -53,6 +54,11 @@ public abstract class IntegrationTest {
         registry.add("spring.datasource.url", postgresSQLContainer::getJdbcUrl);
         registry.add("spring.datasource.username", postgresSQLContainer::getUsername);
         registry.add("spring.datasource.password", postgresSQLContainer::getPassword);
+    }
+
+    @BeforeTransaction
+    public void setUpTenant() {
+        TenantContext.setCurrentTenant(TEST_TENANT);
     }
 
     @BeforeEach

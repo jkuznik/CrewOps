@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.auth.*;
-import pl.crewops.model.auth.AuthUser;
+import pl.crewops.model.publicSchema.AuthUser;
 
 @Validated
 public interface AuthAPI {

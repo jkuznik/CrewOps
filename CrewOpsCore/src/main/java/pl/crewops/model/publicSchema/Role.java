@@ -1,11 +1,13 @@
-package pl.crewops.model.auth;
+package pl.crewops.model.publicSchema;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.*;
 import pl.crewops.model.AbstractEntity;
 
 @Entity
+@Table(schema = "public")
 @Getter
 @Setter
 @Builder

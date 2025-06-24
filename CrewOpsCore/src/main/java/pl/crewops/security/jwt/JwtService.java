@@ -50,8 +50,6 @@ public class JwtService {
     }
 
     public String extractUsername(String token) {
-        // using extractClaim we can extract the username, or any other claim (those defaults and each custom claim we
-        // create), from jwt token
         return extractClaim(token, Claims::getSubject);
     }
 

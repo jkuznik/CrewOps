@@ -19,8 +19,8 @@ public class SchemaPerTenantConnectionProvider implements MultiTenantConnectionP
 
     @Override
     public Connection getConnection(String tenantIdentifier) throws SQLException {
-        final Connection connection = dataSource.getConnection();
-        connection.createStatement().execute("SET search_path TO " + tenantIdentifier);
+        Connection connection = dataSource.getConnection();
+        connection.createStatement().execute("SET search_path TO " + tenantIdentifier + ", public");
         return connection;
     }
 

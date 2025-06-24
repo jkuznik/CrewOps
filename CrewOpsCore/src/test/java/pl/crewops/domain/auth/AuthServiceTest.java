@@ -19,8 +19,8 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.auth.*;
 import pl.crewops.exception.UsernameAlreadyExistException;
 import pl.crewops.model.Employee;
-import pl.crewops.model.auth.AuthUser;
-import pl.crewops.model.auth.Role;
+import pl.crewops.model.publicSchema.AuthUser;
+import pl.crewops.model.publicSchema.Role;
 import pl.crewops.security.jwt.JwtService;
 
 @SpringJUnitConfig(

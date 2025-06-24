@@ -8,8 +8,8 @@ import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import pl.crewops.config.SpringContext;
 import pl.crewops.domain.employee.EmployeeAPI;
-import pl.crewops.model.auth.AuthUser;
 import pl.crewops.model.auth.RoleGrantedAuthority;
+import pl.crewops.model.publicSchema.AuthUser;
 
 public class UserPrincipal implements CustomUserPrincipal {
 

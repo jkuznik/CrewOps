@@ -1,4 +1,4 @@
-package pl.crewops.model.auth;
+package pl.crewops.model.publicSchema;
 
 import jakarta.persistence.*;
 import java.util.Set;
@@ -12,6 +12,7 @@ import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.model.AbstractEntity;
 
 @Entity
+@Table(schema = "public")
 @Getter
 @Setter
 @Builder
