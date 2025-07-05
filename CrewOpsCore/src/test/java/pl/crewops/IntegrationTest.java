@@ -37,10 +37,10 @@ public abstract class IntegrationTest {
             .withReuse(true);
 
     @Autowired
-    private LiquibaseSchemaMigrator schemaMigrator;
+    protected MockMvc mockMvc;
 
     @Autowired
-    protected MockMvc mockMvc;
+    private LiquibaseSchemaMigrator schemaMigrator;
 
     @Autowired
     private TenantSchemaInitializer schemaInitializer;
