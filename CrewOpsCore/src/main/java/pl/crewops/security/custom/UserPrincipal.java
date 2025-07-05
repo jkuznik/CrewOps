@@ -6,10 +6,10 @@ import java.util.Set;
 import java.util.UUID;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
-import pl.crewops.config.SpringContext;
 import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.model.auth.RoleGrantedAuthority;
 import pl.crewops.model.publicSchema.AuthUser;
+import pl.crewops.utils.spring.SpringContext;
 
 public class UserPrincipal implements CustomUserPrincipal {
 

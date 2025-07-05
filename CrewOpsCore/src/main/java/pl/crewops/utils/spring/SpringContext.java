@@ -1,4 +1,4 @@
-package pl.crewops.config;
+package pl.crewops.utils.spring;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
