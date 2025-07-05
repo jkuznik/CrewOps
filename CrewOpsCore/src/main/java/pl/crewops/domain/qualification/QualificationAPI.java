@@ -9,7 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
-import pl.crewops.exception.QualificationNotFoundException;
+import pl.crewops.exception.domain.qualification.QualificationNotFoundException;
 import pl.crewops.model.Qualification;
 
 @Validated

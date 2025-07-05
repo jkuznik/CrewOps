@@ -1,4 +1,4 @@
-package pl.crewops.utils.liquibase;
+package pl.crewops.utils.multitenancy;
 
 import java.sql.Connection;
 import javax.sql.DataSource;
@@ -10,6 +10,7 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import org.springframework.stereotype.Component;
+import pl.crewops.exception.multitenancy.CreateSchemaException;
 
 @Component
 public class LiquibaseSchemaMigrator {
@@ -34,7 +35,7 @@ public class LiquibaseSchemaMigrator {
 
             liquibase.update(new Contexts(), new LabelExpression());
         } catch (Exception e) {
-            throw new RuntimeException("Liquibase migration failed for schema: " + schemaName, e);
+            throw new CreateSchemaException("Liquibase migration failed for schema: " + schemaName, e);
         }
     }
 }

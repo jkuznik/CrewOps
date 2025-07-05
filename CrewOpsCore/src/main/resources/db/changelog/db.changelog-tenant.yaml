@@ -20,19 +20,19 @@
                         END;
                     $$ LANGUAGE plpgsql;
     - include:
-        file: db/changelog/create/tenant/001-create-table-employee.yaml
+        file: db/changelog/create/tenantSchema/001-create-table-employee.yaml
     - include:
-        file: db/changelog/create/tenant/002-create-table-vehicle.yaml
+        file: db/changelog/create/tenantSchema/002-create-table-vehicle.yaml
     - include:
-        file: db/changelog/create/tenant/003-create-join-table-employee-vehicle.yaml
+        file: db/changelog/create/tenantSchema/003-create-join-table-employee-vehicle.yaml
     - include:
-        file: db/changelog/create/tenant/004-create-table-qualification.yaml
+        file: db/changelog/create/tenantSchema/004-create-table-qualification.yaml
     - include:
-        file: db/changelog/create/tenant/005-create-join-table-employee-qualification.yaml
+        file: db/changelog/create/tenantSchema/005-create-join-table-employee-qualification.yaml
     - include:
-        file: db/changelog/create/tenant/006-create-table-breakdown.yaml
+        file: db/changelog/create/tenantSchema/006-create-table-breakdown.yaml
     - include:
-        file: db/changelog/create/tenant/007-create-table-vehicle-type.yaml
+        file: db/changelog/create/tenantSchema/007-create-table-vehicle-type.yaml
 
  #   # TODO: config multi profiles and remove this from prod
     - include:

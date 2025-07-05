@@ -15,7 +15,7 @@ import pl.crewops.IntegrationTest;
 import pl.crewops.domain.vehicleType.VehicleTypeAPI;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicleType.VehicleTypeDTO;
-import pl.crewops.exception.VehicleNotFoundException;
+import pl.crewops.exception.domain.vehicle.VehicleNotFoundException;
 import pl.crewops.model.Vehicle;
 import pl.crewops.model.VehicleType;
 

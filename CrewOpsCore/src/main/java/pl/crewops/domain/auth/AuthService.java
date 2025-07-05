@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.auth.*;
-import pl.crewops.exception.UsernameAlreadyExistException;
+import pl.crewops.exception.auth.UsernameAlreadyExistException;
 import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.model.publicSchema.Role;
 import pl.crewops.security.custom.UserPrincipal;

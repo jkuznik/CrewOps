@@ -8,6 +8,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
+import pl.crewops.exception.auth.UsernameAlreadyExistException;
+import pl.crewops.exception.domain.employee.EmployeeNotFoundException;
+import pl.crewops.exception.domain.employee.EmployeeQualificationNotFoundException;
+import pl.crewops.exception.domain.employee.ExpireAtException;
+import pl.crewops.exception.domain.qualification.QualificationNotFoundException;
+import pl.crewops.exception.domain.vehicle.VehicleNotFoundException;
 
 @Slf4j
 @RestControllerAdvice

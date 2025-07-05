@@ -9,7 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
-import pl.crewops.exception.VehicleNotFoundException;
+import pl.crewops.exception.domain.vehicle.VehicleNotFoundException;
 import pl.crewops.model.Vehicle;
 
 @Validated

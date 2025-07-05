@@ -15,7 +15,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
-import pl.crewops.utils.liquibase.LiquibaseSchemaMigrator;
+import pl.crewops.utils.multitenancy.LiquibaseSchemaMigrator;
+import pl.crewops.utils.multitenancy.TenantSchemaInitializer;
 
 @ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc

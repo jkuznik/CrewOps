@@ -1,9 +1,10 @@
-package pl.crewops;
+package pl.crewops.utils.multitenancy;
 
 import java.sql.Connection;
 import java.sql.Statement;
 import javax.sql.DataSource;
 import org.springframework.stereotype.Component;
+import pl.crewops.exception.multitenancy.CreateSchemaException;
 
 @Component
 public class TenantSchemaInitializer {
@@ -19,7 +20,7 @@ public class TenantSchemaInitializer {
                 Statement statement = connection.createStatement()) {
             statement.execute("CREATE SCHEMA IF NOT EXISTS " + schema);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create tenant schema: " + schema, e);
+            throw new CreateSchemaException("Failed to create tenant schema: " + schema, e);
         }
     }
 }

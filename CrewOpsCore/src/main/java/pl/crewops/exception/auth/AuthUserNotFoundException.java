@@ -1,4 +1,4 @@
-package pl.crewops.exception;
+package pl.crewops.exception.auth;
 
 import pl.crewops.model.Employee;
 

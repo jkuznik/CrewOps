@@ -21,11 +21,11 @@
                     $$ LANGUAGE plpgsql;
 
     - include:
-          file: db/changelog/create/public/001-create-table-role.yaml
+          file: db/changelog/create/publicSchema/001-create-table-role.yaml
     - include:
-          file: db/changelog/create/public/002-create-table-auth-user.yaml
+          file: db/changelog/create/publicSchema/002-create-table-auth-user.yaml
     - include:
-          file: db/changelog/create/public/003-create-join-table-auth-user-role.yaml
+          file: db/changelog/create/publicSchema/003-create-join-table-auth-user-role.yaml
 
 #   delete this after configure tests properly
     - include:
