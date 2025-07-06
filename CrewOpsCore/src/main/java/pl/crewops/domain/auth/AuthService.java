@@ -11,11 +11,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.auth.*;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.exception.UsernameAlreadyExistException;
+import pl.crewops.domain.employee.AuthRequirementEmployeeAPI;
+import pl.crewops.domain.tenant.TenantAPI;
+import pl.crewops.exception.auth.UsernameAlreadyExistException;
+import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.Employee;
-import pl.crewops.model.auth.AuthUser;
-import pl.crewops.model.auth.Role;
+import pl.crewops.model.publicSchema.AuthUser;
+import pl.crewops.model.publicSchema.Role;
+import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtService;
 
@@ -28,6 +31,8 @@ class AuthService implements AuthAPI {
     private final AuthUserRepository authUserRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthRequirementEmployeeAPI authRequirementAPI;
+    private final TenantAPI tenantAPI;
 
     @Override
     public Optional<AuthUser> getByUsername(String username) {
@@ -35,20 +40,22 @@ class AuthService implements AuthAPI {
     }
 
     @Override
-    public Optional<AuthUser> getByEmployee(Employee employee) {
-        return authUserRepository.findByEmployee(employee);
+    public Optional<AuthUser> getByEmployeeId(UUID employeeId) {
+        return authUserRepository.findByEmployeeId(employeeId);
     }
 
     @Transactional
-    public AuthUser createAuthUser(CreateAuthUserDTO createAuthUserDTO, Employee employee) {
+    public AuthUser createAuthUser(CreateAuthUserDTO createAuthUserDTO, UUID employeeId, String tenantName) {
         if (getByUsername(createAuthUserDTO.username()).isPresent()) {
             log.error("Username " + createAuthUserDTO.username() + " already exists");
             throw new UsernameAlreadyExistException("Username " + createAuthUserDTO.username() + " already exists");
         }
         try {
+            Tenant tenant = tenantAPI.getByName(tenantName);
             var authUser = new AuthUser();
             authUser.setUsername(createAuthUserDTO.username());
             authUser.setPassword(passwordEncoder.encode(createAuthUserDTO.password()));
+            authUser.setTenant(tenant);
             Set<Role> roles = new HashSet<>();
             createAuthUserDTO.roles().forEach(role -> {
                 try {
@@ -61,7 +68,7 @@ class AuthService implements AuthAPI {
             });
             log.info("Creating auth user " + createAuthUserDTO.username() + " with roles " + roles);
             authUser.setRoles(roles);
-            authUser.setEmployee(employee);
+            authUser.setEmployeeId(employeeId);
             log.info("Auth user instantiated successfully as " + authUser.toString());
             return authUserRepository.save(authUser);
         } catch (Exception e) {
@@ -79,25 +86,26 @@ class AuthService implements AuthAPI {
     public AuthResponse login(AuthRequest authRequest, HttpServletResponse response) {
         try {
             AuthUser byUsername = byUsername(authRequest.username());
-            log.debug("Login action by username: {}", byUsername);
+            log.info("Login action by username: {}", byUsername);
             if (passwordEncoder.matches(authRequest.password(), byUsername.getPassword())) {
-                var userPrincipal = new UserPrincipal(byUsername);
-                String token = jwtService.generateToken(userPrincipal);
-                log.debug("Login successful, token: {}", token);
-                return new AuthResponse(token);
+                String schemaName = byUsername.getTenant().getSchemaName();
+                return finalizeLoginAction(byUsername, schemaName);
             } else {
                 log.error("Login failed");
                 throw new IllegalArgumentException("Invalid username or password");
             }
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Login failed");
-            throw new IllegalArgumentException("Invalid username or password");
+            throw new RuntimeException();
         }
     }
 
+    @Transactional
     public ValidTokenResponse validateToken(ValidTokenRequest validTokenRequest) {
         try {
-            log.debug("Token validation started");
+            log.info("Token validation started");
             AuthUser authUser;
             try {
                 authUser = authUserRepository
@@ -105,22 +113,40 @@ class AuthService implements AuthAPI {
                         .orElseThrow(() ->
                                 new UsernameNotFoundException("Username " + validTokenRequest.token() + " not found"));
             } catch (ExpiredJwtException e) {
-                return new ValidTokenResponse(false, null, null);
+                return new ValidTokenResponse(false, null);
             }
-            var userDetails = new UserPrincipal(authUser);
-            boolean result = jwtService.validateToken(validTokenRequest.token(), userDetails);
-            if (result) {
-                Date expiresAt = jwtService.extractExpiresAt(validTokenRequest.token());
-                EmployeeDTO employeeDTO = authUser.exctractEmployeeDTO();
-                log.debug("Token validation finished");
-                return new ValidTokenResponse(true, expiresAt, employeeDTO);
-            } else {
-                log.error("Token validation failed");
-                return new ValidTokenResponse(false, null, null);
+            try {
+                TenantContext.setCurrentTenant(authUser.getTenant().getSchemaName());
+                Employee employee = authRequirementAPI.getEmployeeById(authUser.getEmployeeId());
+                var userPrincipal = new UserPrincipal(authUser, employee.getFirstName(), employee.getLastName());
+                boolean result = jwtService.validateToken(validTokenRequest.token(), userPrincipal);
+                if (result) {
+                    Date expiresAt = jwtService.extractExpiresAt(validTokenRequest.token());
+                    log.info("Token validation finished");
+                    return new ValidTokenResponse(true, expiresAt);
+                } else {
+                    log.info("Token validation failed");
+                    return new ValidTokenResponse(false, null);
+                }
+            } finally {
+                TenantContext.clear();
             }
         } catch (IllegalArgumentException e) {
-            log.error("Token validation failed with exception");
-            return new ValidTokenResponse(false, null, null);
+            log.info("Token validation failed with exception");
+            return new ValidTokenResponse(false, null);
+        }
+    }
+
+    private AuthResponse finalizeLoginAction(AuthUser authUser, String schemaName) {
+        try {
+            TenantContext.setCurrentTenant(schemaName);
+            Employee employee = authRequirementAPI.getEmployeeById(authUser.getEmployeeId());
+            var userPrincipal = new UserPrincipal(authUser, employee.getFirstName(), employee.getLastName());
+            String token = jwtService.generateToken(userPrincipal);
+            log.info("Login successful, token: {}", token);
+            return new AuthResponse(token);
+        } finally {
+            TenantContext.clear();
         }
     }
 

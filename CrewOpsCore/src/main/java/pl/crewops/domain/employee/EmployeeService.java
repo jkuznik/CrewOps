@@ -19,7 +19,12 @@ import pl.crewops.domain.vehicle.VehicleAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.exception.*;
+import pl.crewops.exception.auth.AuthUserNotFoundException;
+import pl.crewops.exception.auth.UsernameAlreadyExistException;
+import pl.crewops.exception.domain.employee.EmployeeNotFoundException;
+import pl.crewops.exception.domain.employee.EmployeeQualificationNotFoundException;
+import pl.crewops.exception.domain.employee.ExpireAtException;
+import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Qualification;
 import pl.crewops.model.Vehicle;
@@ -39,6 +44,8 @@ class EmployeeService implements EmployeeAPI {
 
     @Transactional
     public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
+        log.info("Im in");
+        log.info(TenantContext.getCurrentTenant());
         if (authAPI.getByUsername(createEmployeeDTO.username()).isPresent()) {
             throw new UsernameAlreadyExistException(createEmployeeDTO.username());
         }
@@ -50,7 +57,7 @@ class EmployeeService implements EmployeeAPI {
                     .password(createEmployeeDTO.password())
                     .roles(createEmployeeDTO.roles())
                     .build();
-            authAPI.createAuthUser(createAuthUser, employee);
+            authAPI.createAuthUser(createAuthUser, employee.getId(), createEmployeeDTO.tenantName());
             log.info("Create employee {}", createEmployeeDTO);
             return mapToDTO(employee);
         } catch (Exception e) {
@@ -59,6 +66,7 @@ class EmployeeService implements EmployeeAPI {
         }
     }
 
+    @Transactional
     public List<EmployeeDTO> getAllEmployees(int page, int size) {
         log.info("Get all employees with pagination. Page: {}, size: {}", page, size);
         return employeeRepository.findAll(getPageRequest(page, size)).stream()
@@ -66,6 +74,7 @@ class EmployeeService implements EmployeeAPI {
                 .toList();
     }
 
+    @Transactional
     public List<EmployeeDTO> getAllActiveEmployees(int page, int size) {
         log.info("Get all active employees. Page: {}, size: {}", page, size);
         return employeeRepository.findAllByActiveIsTrue(getPageRequest(page, size)).stream()
@@ -73,10 +82,12 @@ class EmployeeService implements EmployeeAPI {
                 .toList();
     }
 
+    @Transactional
     public Employee getEmployee(UUID id) {
         return employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
     }
 
+    @Transactional
     public List<EmployeeDTO> getEmployeesByQualification(UUID qualificationId, int page, int size) {
         log.info("Get employees by qualification");
         return employeeRepository.findByQualificationId(qualificationId, getPageRequest(page, size)).stream()
@@ -84,6 +95,7 @@ class EmployeeService implements EmployeeAPI {
                 .toList();
     }
 
+    @Transactional
     public List<EmployeeDTO> getEmployeesByVehicles(UUID vehicleId, int page, int size) {
         log.info("Get employees by vehicles");
         return employeeRepository.findByVehiclesId(vehicleId, getPageRequest(page, size)).stream()
@@ -124,7 +136,7 @@ class EmployeeService implements EmployeeAPI {
         var employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
 
-        var authUser = authAPI.getByEmployee(employee).orElseThrow(() -> new AuthUserNotFoundException(employee));
+        var authUser = authAPI.getByEmployeeId(employeeId).orElseThrow(() -> new AuthUserNotFoundException(employee));
 
         employee.setActive(false);
         log.info("Delete authUser {}", authUser.getUsername());

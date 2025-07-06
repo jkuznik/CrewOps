@@ -20,8 +20,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.util.AntPathMatcher;
+import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.enums.ControllerURL;
-import pl.crewops.model.auth.AuthUser;
+import pl.crewops.model.publicSchema.AuthUser;
+import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.security.custom.CustomAuthentication;
 import pl.crewops.security.custom.CustomAuthenticationManager;
 import pl.crewops.security.custom.UserPrincipal;
@@ -33,7 +35,8 @@ import pl.crewops.security.custom.UserPrincipal;
             JwtExceptionResolver.class,
             UserDetailsService.class,
             CustomAuthenticationManager.class,
-            AntPathMatcher.class
+            AntPathMatcher.class,
+            TenantAPI.class,
         })
 class JwtAuthFilterTest {
 
@@ -64,6 +67,9 @@ class JwtAuthFilterTest {
     @MockitoBean
     private AntPathMatcher antPathMatcher;
 
+    @MockitoBean
+    private TenantAPI tenantAPI;
+
     @Test
     void shouldDoFilterInternal() throws ServletException, IOException {
         // given
@@ -71,10 +77,12 @@ class JwtAuthFilterTest {
         String username = "TestUser";
         var authUser =
                 AuthUser.builder().username(username).roles(new HashSet<>()).build();
-        UserPrincipal userPrincipal = new UserPrincipal(authUser);
+        Tenant tenant = Tenant.builder().name("test").schemaName("test").build();
+        UserPrincipal userPrincipal = new UserPrincipal(authUser, "firstName", "lastName");
         CustomAuthentication auth = new CustomAuthentication(userPrincipal);
 
         // when
+        when(tenantAPI.getByName(any())).thenReturn(tenant);
         when(request.getRequestURI()).thenReturn("/test-endpoint");
         when(jwtService.extractTokenFromRequest(request)).thenReturn(fakeToken);
         when(jwtService.extractUsername(fakeToken)).thenReturn(username);

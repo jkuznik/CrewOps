@@ -14,11 +14,12 @@ public class UserPrincipal implements CustomUserPrincipal {
     private final String username;
     private final String firstName;
     private final String lastName;
+    private final String tenantName;
     private final Set<RoleGrantedAuthority> grantedAuthorities;
 
     @Getter
     @Setter
-    private UUID id;
+    private UUID employeeId;
 
     @Getter
     @Setter
@@ -37,6 +38,11 @@ public class UserPrincipal implements CustomUserPrincipal {
     @Override
     public String getUsername() {
         return username;
+    }
+
+    @Override
+    public String getTenantName() {
+        return tenantName;
     }
 
     @Override

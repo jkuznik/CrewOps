@@ -24,13 +24,13 @@ import pl.crewops.domain.vehicle.VehicleAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.exception.ExpireAtException;
-import pl.crewops.exception.UsernameAlreadyExistException;
+import pl.crewops.exception.auth.UsernameAlreadyExistException;
+import pl.crewops.exception.domain.employee.ExpireAtException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Qualification;
 import pl.crewops.model.Vehicle;
-import pl.crewops.model.auth.AuthUser;
 import pl.crewops.model.joinTable.EmployeeQualification;
+import pl.crewops.model.publicSchema.AuthUser;
 
 @SpringJUnitConfig(
         classes = {
@@ -182,7 +182,7 @@ class EmployeeServiceTest {
 
         // when
         when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithQAndV));
-        when(authAPI.getByEmployee(any(Employee.class))).thenReturn(Optional.of(authUser));
+        when(authAPI.getByEmployeeId(any(UUID.class))).thenReturn(Optional.of(authUser));
         doNothing().when(authAPI).deleteById(any());
 
         employeeService.deleteEmployee(employeeId);

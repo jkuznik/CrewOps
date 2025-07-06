@@ -16,8 +16,8 @@ import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.dto.vehicleType.CreateVehicleTypeDTO;
-import pl.crewops.exception.VehicleNotFoundException;
-import pl.crewops.exception.VehicleTypeNotFoundException;
+import pl.crewops.exception.domain.vehicle.VehicleNotFoundException;
+import pl.crewops.exception.domain.vehicle.VehicleTypeNotFoundException;
 import pl.crewops.model.Vehicle;
 import pl.crewops.model.VehicleType;
 
@@ -29,6 +29,7 @@ class VehicleService implements VehicleAPI {
     private final VehicleRepository vehicleRepository;
     private final VehicleTypeAPI vehicleTypeAPI;
 
+    @Transactional
     public VehicleDTO createVehicle(CreateVehicleDTO createVehicleDTO) {
         VehicleType vehicleType = vehicleTypeAPI
                 .getVehicleTypeByName(createVehicleDTO.vehicleType().name())
@@ -41,6 +42,7 @@ class VehicleService implements VehicleAPI {
         return mapToDTO(vehicleRepository.save(vehicle));
     }
 
+    @Transactional
     public List<VehicleDTO> getAllVehicles(int page, int size) {
         PageRequest pageRequest =
                 createPageRequest(page, size, Sort.by(Sort.Order.asc("make"), Sort.Order.asc("model")));
@@ -51,6 +53,7 @@ class VehicleService implements VehicleAPI {
                 .toList();
     }
 
+    @Transactional
     public Vehicle getVehicle(UUID vehicleId) throws VehicleNotFoundException {
         return vehicleRepository.findById(vehicleId).orElseThrow(() -> new VehicleNotFoundException(vehicleId));
     }
@@ -60,6 +63,7 @@ class VehicleService implements VehicleAPI {
         return vehicleRepository.findById(id).orElseThrow(() -> new VehicleNotFoundException(id));
     }
 
+    @Transactional
     public VehicleDTO getVehicleByRegistrationNumber(String registerNumber) {
         log.info("Get vehicle by registration number {}", registerNumber);
         return mapToDTO(

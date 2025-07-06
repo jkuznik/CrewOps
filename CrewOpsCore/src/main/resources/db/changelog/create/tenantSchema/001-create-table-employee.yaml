@@ -1,0 +1,79 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-table-employee
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: employee
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+                  defaultValueComputed: gen_random_uuid()
+              - column:
+                  name: version
+                  type: integer
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+              - column:
+                  name: first_name
+                  type: varchar(31)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: varchar(31)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: birth_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: phone_number
+                  type: varchar(15)
+                  constraints:
+                      nullable: true
+              - column:
+                  name: department
+                  type: varchar(63)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 002-create-employee-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            # source: https://neon.tech/postgresql/postgresql-tutorial/postgresql-timestamp
+            sql: |
+              DROP TRIGGER IF EXISTS employee_updated_at_trigger ON employee;
+              CREATE TRIGGER employee_updated_at_trigger
+              BEFORE UPDATE ON employee
+              FOR EACH ROW
+              EXECUTE FUNCTION public.update_updated_at();

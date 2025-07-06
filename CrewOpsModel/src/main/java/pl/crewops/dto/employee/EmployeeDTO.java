@@ -18,15 +18,4 @@ public record EmployeeDTO(
         String department,
         Set<RoleDTO> roles,
         Set<QualificationDTO> qualifications,
-        Set<VehicleDTO> vehicles) {
-
-    public static CreateEmployeeDTO toCreateEmployeeDTO(EmployeeDTO thereIsAIssue) {
-        return CreateEmployeeDTO.builder()
-                .firstName(thereIsAIssue.firstName)
-                .lastName(thereIsAIssue.lastName)
-                .birthDate(thereIsAIssue.birthDate)
-                .phoneNumber(thereIsAIssue.phoneNumber)
-                .department(thereIsAIssue.department)
-                .build();
-    }
-}
+        Set<VehicleDTO> vehicles) {}

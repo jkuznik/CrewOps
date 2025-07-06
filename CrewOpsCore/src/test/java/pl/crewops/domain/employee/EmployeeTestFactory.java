@@ -3,6 +3,7 @@ package pl.crewops.domain.employee;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
+import pl.crewops.IntegrationTest;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -60,6 +61,7 @@ class EmployeeTestFactory {
                 .username("username")
                 .password("password")
                 .roles(Set.of())
+                .tenantName(IntegrationTest.TEST_TENANT_NAME)
                 .build();
     }
 

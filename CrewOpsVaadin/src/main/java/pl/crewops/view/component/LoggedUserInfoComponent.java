@@ -24,9 +24,9 @@ import pl.crewops.view.component.notification.EndSessionNotification;
 
 public class LoggedUserInfoComponent extends HorizontalLayout {
     private static final Map<UI, Boolean> startedMap = new WeakHashMap<>();
+    private final Authentication authentication;
     private boolean sessionEnded = false;
     private UserPrincipal principal;
-    private Authentication authentication;
 
     public LoggedUserInfoComponent(CoreAPI coreAPI, JwtService jwtService) {
         addClassName("logged-user-info");

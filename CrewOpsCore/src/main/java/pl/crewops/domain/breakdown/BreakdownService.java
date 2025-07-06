@@ -16,9 +16,9 @@ import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
-import pl.crewops.exception.BreakdownNotFoundException;
-import pl.crewops.exception.EmployeeNotFoundException;
-import pl.crewops.exception.VehicleNotFoundException;
+import pl.crewops.exception.domain.breakdown.BreakdownNotFoundException;
+import pl.crewops.exception.domain.employee.EmployeeNotFoundException;
+import pl.crewops.exception.domain.vehicle.VehicleNotFoundException;
 import pl.crewops.model.Breakdown;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Vehicle;
@@ -70,10 +70,12 @@ class BreakdownService implements BreakdownAPI {
         return toDTO(breakdownRepository.save(breakdown));
     }
 
+    @Transactional
     public Breakdown getBreakdown(UUID id) {
         return breakdownRepository.findById(id).orElseThrow(() -> new BreakdownNotFoundException(id));
     }
 
+    @Transactional
     public List<BreakdownDTO> getAllBreakdowns() {
         return breakdownRepository.findAll().stream()
                 .map(BreakdownMapper::toDTO)

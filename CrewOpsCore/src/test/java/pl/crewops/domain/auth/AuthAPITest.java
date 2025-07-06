@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.IntegrationTest;
-import pl.crewops.model.auth.AuthUser;
+import pl.crewops.model.publicSchema.AuthUser;
 
 @Transactional
 public class AuthAPITest extends IntegrationTest {

@@ -1,0 +1,39 @@
+  databaseChangeLog:
+    - changeSet:
+        id: 001-initial-new-tenant
+        author: jkuznik
+    - changeSet:
+        id: 002-create-update_updated_at-function
+        author: jkuznik
+        changes:
+            - sql:
+                dbms: postgresql
+                #   source: https://docs.liquibase.com/change-types/sql.html#yaml_example
+                endDelimiter: \nGO
+                splitStatements: true
+                #   source: https://neon.tech/postgresql/postgresql-tutorial/postgresql-timestamp
+                sql: |
+                    CREATE OR REPLACE FUNCTION update_updated_at() RETURNS TRIGGER AS $$
+                        BEGIN 
+                            NEW.updated_at = current_timestamp;
+                            RETURN NEW;
+                        END;
+                    $$ LANGUAGE plpgsql;
+    - include:
+        file: db/changelog/create/tenantSchema/001-create-table-employee.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/002-create-table-vehicle.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/003-create-join-table-employee-vehicle.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/004-create-table-qualification.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/005-create-join-table-employee-qualification.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/006-create-table-breakdown.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/007-create-table-vehicle-type.yaml
+
+ #   # TODO: config multi profiles and remove this from prod
+    - include:
+        file: db/changelog/insert/001-insert-development-initial-values.yaml

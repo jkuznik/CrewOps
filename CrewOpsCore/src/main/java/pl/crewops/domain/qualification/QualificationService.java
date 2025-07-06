@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
-import pl.crewops.exception.QualificationNotFoundException;
+import pl.crewops.exception.domain.qualification.QualificationNotFoundException;
 import pl.crewops.model.Qualification;
 
 @Slf4j
@@ -26,11 +26,13 @@ class QualificationService implements QualificationAPI {
 
     private final QualificationRepository qualificationRepository;
 
+    @Transactional
     public QualificationDTO createQualification(CreateQualificationDTO createQualificationDTO) {
         log.info("Create qualification: {}", createQualificationDTO);
         return mapToDTO(qualificationRepository.save(mapToEntity(createQualificationDTO)));
     }
 
+    @Transactional
     public Qualification getQualification(UUID qualificationId) {
         log.info("Get qualification: {}", qualificationId);
         return qualificationRepository
@@ -38,6 +40,7 @@ class QualificationService implements QualificationAPI {
                 .orElseThrow(() -> new QualificationNotFoundException(qualificationId));
     }
 
+    @Transactional
     public List<QualificationDTO> getQualificationsIn(Set<UUID> ids) {
         log.info("Get qualifications in: {}", ids);
         return qualificationRepository.findAllByIdIn(ids).stream()
@@ -45,6 +48,7 @@ class QualificationService implements QualificationAPI {
                 .toList();
     }
 
+    @Transactional
     public List<QualificationDTO> getAllQualifications(int page, int size) {
         PageRequest pageRequest = createPageRequest(page, size, Sort.by(Sort.Order.asc("description")));
 

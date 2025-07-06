@@ -32,7 +32,8 @@ public class JwtService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("firstName", userPrincipal.getFirstName());
         claims.put("lastName", userPrincipal.getLastName());
-        claims.put("id", userPrincipal.getId());
+        claims.put("tenantName", userPrincipal.getTenantName());
+        claims.put("id", userPrincipal.getEmployeeId());
         claims.put(
                 "authorities",
                 userPrincipal.getAuthorities().stream()
@@ -50,8 +51,6 @@ public class JwtService {
     }
 
     public String extractUsername(String token) {
-        // using extractClaim we can extract the username, or any other claim (those defaults and each custom claim we
-        // create), from jwt token
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -61,6 +60,10 @@ public class JwtService {
 
     public String extractLastName(String token) {
         return extractClaim(token, claims -> claims.get("lastName", String.class));
+    }
+
+    public String extractTenantName(String token) {
+        return extractClaim(token, claims -> claims.get("tenantName", String.class));
     }
 
     public UUID extractId(String token) {

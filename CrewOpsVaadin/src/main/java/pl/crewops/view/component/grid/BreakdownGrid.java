@@ -234,7 +234,7 @@ public class BreakdownGrid extends VerticalLayout {
 
         return UpdateBreakdownDTO.builder()
                 .breakdownId(breakdownFormModel.getId())
-                .repairedByEmployeeId(principal.getId())
+                .repairedByEmployeeId(principal.getEmployeeId())
                 .solved(breakdownFormModel.isSolved())
                 .build();
     }

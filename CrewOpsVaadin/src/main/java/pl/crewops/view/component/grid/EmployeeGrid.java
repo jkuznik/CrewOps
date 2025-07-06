@@ -11,10 +11,13 @@ import java.util.List;
 import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
+import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.EmployeeForm;
 import pl.crewops.view.component.notification.AddEmployeeNotification;
@@ -30,10 +33,12 @@ public class EmployeeGrid extends VerticalLayout {
     private final TextField filter = new TextField();
     private final EmployeeForm form = new EmployeeForm();
     private final Button addEmployee = new Button();
+    private final Authentication authentication;
     private QualificationGrid qualificationGrid;
 
     public EmployeeGrid(CoreAPI coreAPI) {
         this.coreAPI = coreAPI;
+        this.authentication = SecurityContextHolder.getContext().getAuthentication();
 
         configureGrid();
         configureForm();
@@ -149,8 +154,11 @@ public class EmployeeGrid extends VerticalLayout {
 
     private void saveEmployee(EmployeeForm.SaveEvent event) {
         try {
+            UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+            String tenantName = principal.getTenantName();
+
             Optional<EmployeeDTO> employeeDTO =
-                    coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee()));
+                    coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee(), tenantName));
             updateGrid();
             closeEditor();
             employeeDTO.ifPresent(AddEmployeeNotification::new);

@@ -1,0 +1,66 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-table-tenant
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: tenant
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: version
+                  type: integer
+                  constraints:
+                    nullable: true
+              - column:
+                  name: name
+                  type: varchar(63)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: schema_name
+                  type: varchar(63)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: active
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(31)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 002-create-tenant-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS tenant_updated_at_trigger ON public.tenant;
+              CREATE TRIGGER tenant_updated_at_trigger
+              BEFORE UPDATE ON public.tenant
+              FOR EACH ROW
+              EXECUTE FUNCTION update_updated_at();

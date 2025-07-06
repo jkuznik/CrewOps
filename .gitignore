@@ -8,6 +8,8 @@ build/
 !**/src/test/**/build/
 CrewOpsVaadin/src/main/frontend/generated
 CrewOpsVaadin/node_modules
+CrewOpsVaadin/.DS_Store
+.DS_Store
 .vaadin-node-tasks.lock
 package-lock.json
 package.json

@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import pl.crewops.domain.auth.AuthAPI;
+import pl.crewops.domain.employee.AuthRequirementEmployeeAPI;
+import pl.crewops.model.Employee;
+import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.security.custom.UserPrincipal;
 
 @Configuration
@@ -13,10 +16,15 @@ import pl.crewops.security.custom.UserPrincipal;
 public class UserDetailsServiceConfig {
 
     private final AuthAPI authAPI;
+    private final AuthRequirementEmployeeAPI authRequirementAPI;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> new UserPrincipal(
-                authAPI.getByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username)));
+        return username -> {
+            AuthUser authUser =
+                    authAPI.getByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+            Employee employee = authRequirementAPI.getEmployeeById(authUser.getEmployeeId());
+            return new UserPrincipal(authUser, employee.getFirstName(), employee.getLastName());
+        };
     }
 }
