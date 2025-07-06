@@ -12,7 +12,7 @@ import pl.crewops.model.Employee;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class AuthRequirementAPI {
+public class AuthRequirementEmployeeAPI {
     private final EmployeeRepository employeeRepository;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import pl.crewops.domain.auth.AuthAPI;
-import pl.crewops.domain.employee.AuthRequirementAPI;
+import pl.crewops.domain.employee.AuthRequirementEmployeeAPI;
 import pl.crewops.model.Employee;
 import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.security.custom.UserPrincipal;
@@ -16,7 +16,7 @@ import pl.crewops.security.custom.UserPrincipal;
 public class UserDetailsServiceConfig {
 
     private final AuthAPI authAPI;
-    private final AuthRequirementAPI authRequirementAPI;
+    private final AuthRequirementEmployeeAPI authRequirementAPI;
 
     @Bean
     public UserDetailsService userDetailsService() {

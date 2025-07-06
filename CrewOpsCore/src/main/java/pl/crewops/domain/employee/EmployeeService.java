@@ -57,7 +57,7 @@ class EmployeeService implements EmployeeAPI {
                     .password(createEmployeeDTO.password())
                     .roles(createEmployeeDTO.roles())
                     .build();
-            authAPI.createAuthUser(createAuthUser, employee.getId());
+            authAPI.createAuthUser(createAuthUser, employee.getId(), createEmployeeDTO.tenantName());
             log.info("Create employee {}", createEmployeeDTO);
             return mapToDTO(employee);
         } catch (Exception e) {

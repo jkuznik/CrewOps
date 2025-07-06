@@ -13,12 +13,10 @@ import javax.sql.DataSource;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.IntegrationTest;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.Employee;
 
 @Transactional
@@ -32,11 +30,6 @@ class EmployeeAPITest extends IntegrationTest {
 
     @Autowired
     private DataSource dataSource;
-
-    @BeforeTransaction
-    void setTenantContextBeforeTransaction() {
-        TenantContext.setCurrentTenant(TEST_TENANT);
-    }
 
     @Test
     void printCurrentSchema() throws SQLException {

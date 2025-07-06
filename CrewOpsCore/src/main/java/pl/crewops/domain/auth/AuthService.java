@@ -11,12 +11,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.auth.*;
-import pl.crewops.domain.employee.AuthRequirementAPI;
+import pl.crewops.domain.employee.AuthRequirementEmployeeAPI;
+import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.exception.auth.UsernameAlreadyExistException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.Employee;
 import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.model.publicSchema.Role;
+import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtService;
 
@@ -29,7 +31,8 @@ class AuthService implements AuthAPI {
     private final AuthUserRepository authUserRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthRequirementAPI authRequirementAPI;
+    private final AuthRequirementEmployeeAPI authRequirementAPI;
+    private final TenantAPI tenantAPI;
 
     @Override
     public Optional<AuthUser> getByUsername(String username) {
@@ -42,15 +45,17 @@ class AuthService implements AuthAPI {
     }
 
     @Transactional
-    public AuthUser createAuthUser(CreateAuthUserDTO createAuthUserDTO, UUID employeeId) {
+    public AuthUser createAuthUser(CreateAuthUserDTO createAuthUserDTO, UUID employeeId, String tenantName) {
         if (getByUsername(createAuthUserDTO.username()).isPresent()) {
             log.error("Username " + createAuthUserDTO.username() + " already exists");
             throw new UsernameAlreadyExistException("Username " + createAuthUserDTO.username() + " already exists");
         }
         try {
+            Tenant tenant = tenantAPI.getByName(tenantName);
             var authUser = new AuthUser();
             authUser.setUsername(createAuthUserDTO.username());
             authUser.setPassword(passwordEncoder.encode(createAuthUserDTO.password()));
+            authUser.setTenant(tenant);
             Set<Role> roles = new HashSet<>();
             createAuthUserDTO.roles().forEach(role -> {
                 try {

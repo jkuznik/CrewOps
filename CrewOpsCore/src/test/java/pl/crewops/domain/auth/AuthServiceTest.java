@@ -17,7 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.auth.*;
-import pl.crewops.domain.employee.AuthRequirementAPI;
+import pl.crewops.domain.employee.AuthRequirementEmployeeAPI;
+import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.exception.auth.UsernameAlreadyExistException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.publicSchema.AuthUser;
@@ -32,7 +33,8 @@ import pl.crewops.security.jwt.JwtService;
             AuthUserRepository.class,
             RoleRepository.class,
             PasswordEncoder.class,
-            AuthRequirementAPI.class
+            AuthRequirementEmployeeAPI.class,
+            TenantAPI.class
         })
 class AuthServiceTest {
 
@@ -58,7 +60,10 @@ class AuthServiceTest {
     private HttpServletResponse response;
 
     @MockitoBean
-    private AuthRequirementAPI authRequirementAPI;
+    private AuthRequirementEmployeeAPI authRequirementAPI;
+
+    @MockitoBean
+    private TenantAPI tenantAPI;
 
     @Test
     void getByUsername_shouldReturnAuthUser_whenUserExists() {
@@ -104,7 +109,7 @@ class AuthServiceTest {
         when(roleRepository.findById(any())).thenReturn(Optional.of(role));
         when(authUserRepository.save(any())).thenReturn(authUser);
 
-        AuthUser result = authService.createAuthUser(createAuthUserDTO, randomUUID);
+        AuthUser result = authService.createAuthUser(createAuthUserDTO, randomUUID, "tenantName");
 
         // then
         assertThat(result).isNotNull();
@@ -189,8 +194,8 @@ class AuthServiceTest {
 
         // when
         when(authUserRepository.findByUsername("username")).thenReturn(Optional.of(authUser));
-        Exception result =
-                Assertions.catchException(() -> authService.createAuthUser(createAuthUserDTO, UUID.randomUUID()));
+        Exception result = Assertions.catchException(
+                () -> authService.createAuthUser(createAuthUserDTO, UUID.randomUUID(), "tenantName"));
 
         // then
         assertThat(result).isExactlyInstanceOf(UsernameAlreadyExistException.class);
@@ -200,10 +205,12 @@ class AuthServiceTest {
     void validateToken_shouldReturnValidTokenResponse_whenTokenIsValid() {
         // given
         var username = "username";
+        var tenant = Tenant.builder().name("test-tenant").build();
 
         var authUser = AuthUser.builder()
                 .username("username")
                 .password("admin")
+                .tenant(tenant)
                 .employeeId(UUID.randomUUID())
                 .roles(Set.of(Role.builder().name(ADMIN.name()).build()))
                 .build();

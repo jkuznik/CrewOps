@@ -2,6 +2,7 @@ package pl.crewops.domain.auth;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,7 +17,10 @@ public interface AuthAPI {
 
     Optional<AuthUser> getByEmployeeId(@NotNull UUID employeeId);
 
-    AuthUser createAuthUser(@NotNull @Valid CreateAuthUserDTO createAuthUserDTO, @NotNull @Valid UUID employeeId);
+    AuthUser createAuthUser(
+            @NotNull @Valid CreateAuthUserDTO createAuthUserDTO,
+            @NotNull @Valid UUID employeeId,
+            @NotNull @NotBlank String tenantName);
 
     void deleteById(@NotNull UUID uuid);
 

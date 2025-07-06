@@ -27,7 +27,9 @@ public abstract class IntegrationTest {
     public static final String TESTCONTAINER_DB_NAME = "testdb";
     public static final String TESTCONTAINER_DB_USERNAME = "testUsername";
     public static final String TESTCONTAINER_DB_PASSWORD = "testPassword";
-    public static final String TEST_TENANT = "tenant_test";
+    public static final String TEST_SCHEMA_NAME = "testtenant_2f3b1d5c9e8f";
+    public static final String TEST_TENANT_NAME =
+            "TestTenant"; // tenant with this name is available in db by test values insertions
 
     public static final PostgreSQLContainer<?> postgresSQLContainer = new PostgreSQLContainer<>(
                     DockerImageName.parse("postgis/postgis:16-3.4").asCompatibleSubstituteFor("postgres"))
@@ -45,11 +47,6 @@ public abstract class IntegrationTest {
     @Autowired
     private TenantSchemaInitializer schemaInitializer;
 
-    @BeforeAll
-    public static void startContainer() {
-        postgresSQLContainer.start();
-    }
-
     @DynamicPropertySource
     public static void setTestContainerProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", postgresSQLContainer::getJdbcUrl);
@@ -57,15 +54,20 @@ public abstract class IntegrationTest {
         registry.add("spring.datasource.password", postgresSQLContainer::getPassword);
     }
 
-    @BeforeTransaction
-    public void setUpTenant() {
-        TenantContext.setCurrentTenant(TEST_TENANT);
+    @BeforeAll
+    public static void startContainer() {
+        postgresSQLContainer.start();
     }
 
     @BeforeEach
     public void setupTenantSchema() {
-        schemaInitializer.createSchemaIfNotExists(TEST_TENANT);
-        TenantContext.setCurrentTenant(TEST_TENANT);
-        schemaMigrator.runMigrations(TEST_TENANT);
+        TenantContext.setCurrentTenant(TEST_SCHEMA_NAME);
+        schemaInitializer.createSchemaIfNotExists(TEST_SCHEMA_NAME);
+        schemaMigrator.runMigrations(TEST_SCHEMA_NAME);
+    }
+
+    @BeforeTransaction
+    public void setUpTenant() {
+        TenantContext.setCurrentTenant(TEST_SCHEMA_NAME);
     }
 }
