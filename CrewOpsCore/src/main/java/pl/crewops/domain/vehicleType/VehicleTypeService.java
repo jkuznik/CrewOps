@@ -7,6 +7,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.dto.vehicleType.CreateVehicleTypeDTO;
 import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.model.VehicleType;
@@ -18,16 +19,19 @@ class VehicleTypeService implements VehicleTypeAPI {
     private final VehicleTypeRepository vehicleTypeRepository;
 
     @Override
+    @Transactional
     public VehicleType create(CreateVehicleTypeDTO createVehicleTypeDTO) {
         return vehicleTypeRepository.save(mapToEntity(createVehicleTypeDTO));
     }
 
     @Override
+    @Transactional
     public Optional<VehicleType> getVehicleTypeByName(String name) {
         return vehicleTypeRepository.findByName(name);
     }
 
     @Override
+    @Transactional
     public List<VehicleTypeDTO> getAllVehicleTypes() {
         return vehicleTypeRepository.findAll().stream()
                 .map(VehicleTypeMapper::mapToDTO)
@@ -35,6 +39,7 @@ class VehicleTypeService implements VehicleTypeAPI {
     }
 
     @Override
+    @Transactional
     public void delete(VehicleType vehicleType) {
         vehicleTypeRepository.delete(vehicleType);
     }

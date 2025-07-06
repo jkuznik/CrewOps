@@ -14,7 +14,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
+import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.enums.ControllerURL;
+import pl.crewops.infrastructure.multitenancy.TenantContext;
+import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.security.custom.CustomAuthentication;
 import pl.crewops.security.custom.CustomAuthenticationManager;
 import pl.crewops.security.custom.UserPrincipal;
@@ -28,13 +31,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtExceptionResolver jwtExceptionResolver;
     private final UserDetailsService userDetailsService;
     private final CustomAuthenticationManager authenticationManager;
+    private final TenantAPI tenantAPI;
 
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
+        TenantContext.clear();
         String requestURI = request.getRequestURI();
         log.info("Request URI: {} - jwt Auth Filter", requestURI);
         if (isPublicUrl(requestURI)) {
@@ -45,6 +49,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             log.info("Jwt Auth Filter - starting authentication");
             final String token = jwtService.extractTokenFromRequest(request);
+            final String tenantName = jwtService.extractTenantName(token);
+            Tenant tenant = tenantAPI.getByName(tenantName);
+            TenantContext.setCurrentTenant(tenant.getSchemaName());
+            log.info("Schema set to: {}", tenant.getSchemaName());
             final String username = jwtService.extractUsername(token);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

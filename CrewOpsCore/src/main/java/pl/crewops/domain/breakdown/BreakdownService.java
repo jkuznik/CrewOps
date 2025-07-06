@@ -70,10 +70,12 @@ class BreakdownService implements BreakdownAPI {
         return toDTO(breakdownRepository.save(breakdown));
     }
 
+    @Transactional
     public Breakdown getBreakdown(UUID id) {
         return breakdownRepository.findById(id).orElseThrow(() -> new BreakdownNotFoundException(id));
     }
 
+    @Transactional
     public List<BreakdownDTO> getAllBreakdowns() {
         return breakdownRepository.findAll().stream()
                 .map(BreakdownMapper::toDTO)

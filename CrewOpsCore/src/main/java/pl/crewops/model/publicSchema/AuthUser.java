@@ -36,6 +36,10 @@ public class AuthUser extends AbstractEntity {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "tenant_id", nullable = false)
+    private Tenant tenant;
+
     public EmployeeDTO exctractEmployeeDTO(EmployeeAPI employeeAPI) {
         var employee = employeeAPI.getEmployee(employeeId);
 

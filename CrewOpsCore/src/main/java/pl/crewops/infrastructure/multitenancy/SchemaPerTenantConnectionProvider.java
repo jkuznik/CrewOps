@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SchemaPerTenantConnectionProvider implements MultiTenantConnectionProvider<String> {
-    //    TODO: implment security filter to dynamic set schema per request
     private final DataSource dataSource;
 
     public SchemaPerTenantConnectionProvider(DataSource dataSource) {
@@ -26,11 +25,13 @@ public class SchemaPerTenantConnectionProvider implements MultiTenantConnectionP
 
     @Override
     public Connection getAnyConnection() throws SQLException {
+        System.out.println("[MultiTenant] getAnyConnection called");
         return dataSource.getConnection();
     }
 
     @Override
     public void releaseAnyConnection(Connection connection) throws SQLException {
+        connection.createStatement().execute("SET search_path TO public");
         connection.close();
     }
 
@@ -56,7 +57,7 @@ public class SchemaPerTenantConnectionProvider implements MultiTenantConnectionP
 
     @Override
     public void releaseConnection(String s, Connection connection) throws SQLException {
-        connection.setSchema("public");
+        connection.createStatement().execute("SET search_path TO public");
         connection.close();
     }
 }

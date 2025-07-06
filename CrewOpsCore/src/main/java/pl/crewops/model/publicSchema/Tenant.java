@@ -14,6 +14,8 @@ import pl.crewops.model.AbstractEntity;
 @Table(name = "tenant", schema = "public")
 public class Tenant extends AbstractEntity {
 
+    // TODO consider to add new relation with table 'tenant_info'
+    // where can be stored more specific information about tenant like address or phone number
     @Column(nullable = false, unique = true)
     private String name;
 

@@ -15,7 +15,7 @@ public class TenantSchemaInitializer {
         this.dataSource = dataSource;
     }
 
-    public void createSchemaIfNotExists(String schema) {
+    public void createSchemaIfNotExists(String schema) throws CreateSchemaException {
         try (Connection connection = dataSource.getConnection();
                 Statement statement = connection.createStatement()) {
             statement.execute("CREATE SCHEMA IF NOT EXISTS " + schema);

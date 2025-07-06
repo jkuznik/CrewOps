@@ -6,20 +6,23 @@ import java.util.Set;
 import java.util.UUID;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
-import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.model.auth.RoleGrantedAuthority;
 import pl.crewops.model.publicSchema.AuthUser;
-import pl.crewops.utils.spring.SpringContext;
 
 public class UserPrincipal implements CustomUserPrincipal {
 
     @Getter
     private final AuthUser authUser;
 
+    private final String firstName;
+    private final String lastName;
+
     private final Set<GrantedAuthority> grantedAuthorities;
 
-    public UserPrincipal(AuthUser authUser) {
+    public UserPrincipal(AuthUser authUser, String firstName, String lastName) {
         this.authUser = authUser;
+        this.firstName = firstName;
+        this.lastName = lastName;
         Set<GrantedAuthority> grantedAuthoritiesSet = new HashSet<>();
         authUser.getRoles()
                 .forEach(role -> grantedAuthoritiesSet.add(new RoleGrantedAuthority("ROLE_" + role.getName())));
@@ -28,18 +31,21 @@ public class UserPrincipal implements CustomUserPrincipal {
 
     @Override
     public String getFirstName() {
-        EmployeeAPI employeeAPI = SpringContext.getBean(EmployeeAPI.class);
-        return employeeAPI.getEmployee(authUser.getEmployeeId()).getFirstName();
+        return firstName;
     }
 
     @Override
     public String getLastName() {
-        EmployeeAPI employeeAPI = SpringContext.getBean(EmployeeAPI.class);
-        return employeeAPI.getEmployee(authUser.getEmployeeId()).getLastName();
+        return lastName;
     }
 
     @Override
-    public UUID getId() {
+    public String getTenantName() {
+        return authUser.getTenant().getName();
+    }
+
+    @Override
+    public UUID getEmployeeId() {
         return authUser.getEmployeeId();
     }
 

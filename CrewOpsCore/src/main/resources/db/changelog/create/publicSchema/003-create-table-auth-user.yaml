@@ -35,6 +35,11 @@ databaseChangeLog:
                     nullable: false
                     unique: true
               - column:
+                  name: tenant_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
                   name: created_at
                   type: timestamp
                   defaultValueComputed: CURRENT_TIMESTAMP
@@ -46,6 +51,14 @@ databaseChangeLog:
                   defaultValueComputed: CURRENT_TIMESTAMP
                   constraints:
                     nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: auth_user
+            baseColumnNames: tenant_id
+            constraintName: fk_auth_user_tenant
+            referencedTableName: tenant
+            referencedColumnNames: id
+            onDelete: CASCADE
 
   - changeSet:
       id: 002-create-auth-user-updated_at-trigger

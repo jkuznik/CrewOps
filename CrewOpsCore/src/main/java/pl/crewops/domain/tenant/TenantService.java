@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.dto.tenant.CreateTenantDTO;
 import pl.crewops.dto.tenant.TenantDTO;
 import pl.crewops.exception.multitenancy.CreateSchemaException;
+import pl.crewops.exception.multitenancy.TenantNotExistException;
+import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.utils.multitenancy.LiquibaseSchemaMigrator;
 import pl.crewops.utils.multitenancy.TenantSchemaInitializer;
 
@@ -22,8 +24,8 @@ class TenantService implements TenantAPI {
     @Override
     @Transactional
     public TenantDTO createTenant(CreateTenantDTO createTenantDTO) {
-        var tenant = TenantMapper.mapToEntity(createTenantDTO);
-        tenantRepository.save(tenant);
+        var notPersistedTenant = TenantMapper.mapToEntity(createTenantDTO);
+        Tenant tenant = tenantRepository.save(notPersistedTenant);
 
         String schemaName;
         try {
@@ -37,5 +39,11 @@ class TenantService implements TenantAPI {
 
         tenant.setSchemaName(schemaName);
         return TenantMapper.mapToDTO(tenantRepository.save(tenant));
+    }
+
+    @Override
+    @Transactional
+    public Tenant getByName(String name) {
+        return tenantRepository.findByName(name).orElseThrow(() -> new TenantNotExistException(name));
     }
 }

@@ -23,10 +23,14 @@
     - include:
           file: db/changelog/create/publicSchema/001-create-table-role.yaml
     - include:
-          file: db/changelog/create/publicSchema/002-create-table-auth-user.yaml
+          file: db/changelog/create/publicSchema/002-create-table-tenant.yaml
     - include:
-          file: db/changelog/create/publicSchema/003-create-join-table-auth-user-role.yaml
+          file: db/changelog/create/publicSchema/003-create-table-auth-user.yaml
+    - include:
+          file: db/changelog/create/publicSchema/004-create-join-table-auth-user-role.yaml
 
-#   delete this after configure tests properly
+#   delete this after configure prod environment
     - include:
-          file: db/changelog/insert/002-insert-auth-users.yaml
+          file: db/changelog/insert/002-insert-test-tenant-record.yaml
+    - include:
+          file: db/changelog/insert/003-insert-auth-users.yaml

@@ -5,7 +5,7 @@ import pl.crewops.exception.multitenancy.CreateSchemaException;
 
 class TenantSchemaNameGenerator {
 
-    public static String generateTenantSchemaName(String name, UUID tenantId) throws IllegalArgumentException {
+    public static String generateTenantSchemaName(String name, UUID tenantId) throws CreateSchemaException {
 
         var prefix = name.toLowerCase().replaceAll("[^a-z0-9_]", "_");
         var uuidPart = tenantId.toString().replaceAll("-", "").substring(0, 12);

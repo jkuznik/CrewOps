@@ -110,10 +110,14 @@ class EmployeeControllerTest {
     @Test
     void shouldReturnStatusCREATED_whenCreateEmployeeDTOIsValid_byMANAGER() throws Exception {
         // given
-        var principal = new UserPrincipal(AuthUser.builder()
-                .username("username")
-                .roles(Set.of(Role.builder().name(RoleType.MANAGER.name()).build()))
-                .build());
+        var principal = new UserPrincipal(
+                AuthUser.builder()
+                        .username("username")
+                        .roles(Set.of(
+                                Role.builder().name(RoleType.MANAGER.name()).build()))
+                        .build(),
+                "firstName",
+                "lastName");
 
         satisfyJwtService();
 
@@ -130,10 +134,14 @@ class EmployeeControllerTest {
     @Test
     void getEmployees() throws Exception {
         // given
-        var principal = new UserPrincipal(AuthUser.builder()
-                .username("username")
-                .roles(Set.of(Role.builder().name(RoleType.MANAGER.name()).build()))
-                .build());
+        var principal = new UserPrincipal(
+                AuthUser.builder()
+                        .username("username")
+                        .roles(Set.of(
+                                Role.builder().name(RoleType.MANAGER.name()).build()))
+                        .build(),
+                "firstName",
+                "lastName");
 
         satisfyJwtService();
 

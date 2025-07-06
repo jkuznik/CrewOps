@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-insert-test-tenant
+      author: jkuznik
+      changes:
+        - insert:
+            tableName: tenant
+            columns:
+              - column:
+                  name: id
+                  value: "2f3b1d5c-9e8f-4bca-9c56-123456789abc"
+              - column:
+                  name: version
+                  valueNumeric: 0
+              - column:
+                  name: name
+                  value: "TestTenant"
+              - column:
+                  name: schema_name
+                  value: "testtenant_2f3b1d5c9e8f"
+              - column:
+                  name: active
+                  valueBoolean: true
+              - column:
+                  name: status
+                  value: "ACTIVE"
+              - column:
+                  name: created_at
+                  valueDate: now()
+              - column:
+                  name: updated_at
+                  valueDate: now()
