@@ -18,9 +18,6 @@ public class AuthAPITest extends IntegrationTest {
     private static final Logger log = LoggerFactory.getLogger(AuthAPITest.class);
 
     @Autowired
-    private AuthAPI authAPI;
-
-    @Autowired
     private AuthUserRepository authUserRepository;
 
     @Test

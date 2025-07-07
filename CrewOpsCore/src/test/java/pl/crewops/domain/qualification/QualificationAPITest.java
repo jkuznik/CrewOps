@@ -8,16 +8,12 @@ import static pl.crewops.domain.qualification.QualificationTestFactory.createUpd
 import jakarta.validation.ConstraintViolationException;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.IntegrationTest;
 import pl.crewops.model.Qualification;
 
 @Transactional
 class QualificationAPITest extends IntegrationTest {
-
-    @Autowired
-    private QualificationAPI qualificationAPI;
 
     @Test
     void shouldReturnQualification_whenQualificationExists() {
