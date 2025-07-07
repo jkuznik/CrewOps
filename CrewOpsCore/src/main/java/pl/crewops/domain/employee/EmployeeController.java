@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 
@@ -25,12 +24,6 @@ import pl.crewops.dto.employee.UpdateEmployeeDTO;
 class EmployeeController {
 
     private final EmployeeAPI employeeAPI;
-
-    @PostMapping(EMPLOYEES)
-    public ResponseEntity<EmployeeDTO> createEmployee(
-            @NotNull @Valid @RequestBody CreateEmployeeDTO createEmployeeDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(employeeAPI.createEmployee(createEmployeeDTO));
-    }
 
     @GetMapping(EMPLOYEES)
     public ResponseEntity<List<EmployeeDTO>> getEmployees(
@@ -76,12 +69,6 @@ class EmployeeController {
     @PatchMapping(EMPLOYEES_EID_PHONE)
     public ResponseEntity<EmployeeDTO> removePhoneNumber(@PathVariable(EMPLOYEE_ID) UUID employeeId) {
         return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.removePhoneNumber(employeeId));
-    }
-
-    @DeleteMapping(EMPLOYEES_EID)
-    public ResponseEntity<Void> deleteEmployee(@PathVariable(EMPLOYEE_ID) UUID employeeId) {
-        employeeAPI.deleteEmployee(employeeId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping(EMPLOYEES_EID_QUALIFICATIONS_QID)

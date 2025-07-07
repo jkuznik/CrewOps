@@ -11,16 +11,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import pl.crewops.auth.CreateAuthUserDTO;
-import pl.crewops.domain.auth.AuthAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
 import pl.crewops.domain.vehicle.VehicleAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.exception.auth.AuthUserNotFoundException;
-import pl.crewops.exception.auth.UsernameAlreadyExistException;
 import pl.crewops.exception.domain.employee.EmployeeNotFoundException;
 import pl.crewops.exception.domain.employee.EmployeeQualificationNotFoundException;
 import pl.crewops.exception.domain.employee.ExpireAtException;
@@ -40,24 +37,13 @@ class EmployeeService implements EmployeeAPI {
     private final EmployeeQualificationRepository employeeQualificationRepository;
     private final QualificationAPI qualificationAPI;
     private final VehicleAPI vehicleAPI;
-    private final AuthAPI authAPI;
 
     @Transactional
     public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
         log.info("Im in");
         log.info(TenantContext.getCurrentTenant());
-        if (authAPI.getByUsername(createEmployeeDTO.username()).isPresent()) {
-            throw new UsernameAlreadyExistException(createEmployeeDTO.username());
-        }
-
         try {
             Employee employee = employeeRepository.save(mapToEntity(createEmployeeDTO));
-            var createAuthUser = CreateAuthUserDTO.builder()
-                    .username(createEmployeeDTO.username())
-                    .password(createEmployeeDTO.password())
-                    .roles(createEmployeeDTO.roles())
-                    .build();
-            authAPI.createAuthUser(createAuthUser, employee.getId(), createEmployeeDTO.tenantName());
             log.info("Create employee {}", createEmployeeDTO);
             return mapToDTO(employee);
         } catch (Exception e) {
@@ -82,7 +68,7 @@ class EmployeeService implements EmployeeAPI {
                 .toList();
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Employee getEmployee(UUID id) {
         return employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
     }
@@ -136,11 +122,7 @@ class EmployeeService implements EmployeeAPI {
         var employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
 
-        var authUser = authAPI.getByEmployeeId(employeeId).orElseThrow(() -> new AuthUserNotFoundException(employee));
-
         employee.setActive(false);
-        log.info("Delete authUser {}", authUser.getUsername());
-        authAPI.deleteById(authUser.getId());
         log.info("Set 'active' column to 'false' for employee {}", employeeId);
         employeeRepository.save(employee);
     }

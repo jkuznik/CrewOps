@@ -8,6 +8,9 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.auth.*;
+import pl.crewops.dto.employee.CreateEmployeeDTO;
+import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.model.Employee;
 import pl.crewops.model.publicSchema.AuthUser;
 
 @Validated
@@ -27,4 +30,10 @@ public interface AuthAPI {
     AuthResponse login(@NotNull @Valid AuthRequest authRequest, HttpServletResponse response);
 
     ValidTokenResponse validateToken(@NotNull @Valid ValidTokenRequest validTokenRequest);
+
+    EmployeeDTO createEmployee(@NotNull @Valid CreateEmployeeDTO createEmployeeDTO);
+
+    void deleteEmployee(UUID employeeId);
+
+    Employee getEmployeeById(UUID employeeId);
 }

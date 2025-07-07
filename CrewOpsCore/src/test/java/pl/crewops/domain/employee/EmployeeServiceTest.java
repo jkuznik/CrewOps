@@ -24,7 +24,6 @@ import pl.crewops.domain.vehicle.VehicleAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.exception.auth.UsernameAlreadyExistException;
 import pl.crewops.exception.domain.employee.ExpireAtException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Qualification;
@@ -90,20 +89,6 @@ class EmployeeServiceTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.firstName()).isEqualTo("firstName");
-    }
-
-    @Test
-    void createEmployee_ShouldThrowException_whenUsernameAlreadyExists() {
-        // given
-        var existedUsername = "existedUsername";
-        var authUser = AuthUser.builder().username(existedUsername).build();
-
-        // when
-        when(authAPI.getByUsername(any())).thenReturn(Optional.of(authUser));
-        var result = catchException(() -> employeeService.createEmployee(createEmployeeWithEmptyQAndEmptyV));
-
-        // then
-        assertThat(result).isExactlyInstanceOf(UsernameAlreadyExistException.class);
     }
 
     @Test
@@ -182,13 +167,10 @@ class EmployeeServiceTest {
 
         // when
         when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithQAndV));
-        when(authAPI.getByEmployeeId(any(UUID.class))).thenReturn(Optional.of(authUser));
-        doNothing().when(authAPI).deleteById(any());
 
         employeeService.deleteEmployee(employeeId);
 
         // then
-        verify(authAPI, times(1)).deleteById(any());
         assertThat(employeeWithQAndV.isActive()).isFalse();
     }
 

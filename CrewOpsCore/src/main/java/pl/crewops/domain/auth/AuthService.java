@@ -11,8 +11,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.auth.*;
-import pl.crewops.domain.employee.AuthRequirementEmployeeAPI;
+import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.tenant.TenantAPI;
+import pl.crewops.dto.employee.CreateEmployeeDTO;
+import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.exception.auth.AuthUserNotFoundException;
 import pl.crewops.exception.auth.UsernameAlreadyExistException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.Employee;
@@ -31,8 +35,8 @@ class AuthService implements AuthAPI {
     private final AuthUserRepository authUserRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthRequirementEmployeeAPI authRequirementAPI;
     private final TenantAPI tenantAPI;
+    private final EmployeeAPI employeeAPI;
 
     @Override
     public Optional<AuthUser> getByUsername(String username) {
@@ -42,6 +46,52 @@ class AuthService implements AuthAPI {
     @Override
     public Optional<AuthUser> getByEmployeeId(UUID employeeId) {
         return authUserRepository.findByEmployeeId(employeeId);
+    }
+
+    @Override
+    public Employee getEmployeeById(UUID employeeId) {
+        return employeeAPI.getEmployee(employeeId);
+    }
+
+    @Transactional
+    public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
+        log.info("Im in");
+        log.info(TenantContext.getCurrentTenant());
+        if (getByUsername(createEmployeeDTO.username()).isPresent()) {
+            throw new UsernameAlreadyExistException(createEmployeeDTO.username());
+        }
+
+        try {
+            EmployeeDTO employee = employeeAPI.createEmployee(createEmployeeDTO);
+            var createAuthUser = CreateAuthUserDTO.builder()
+                    .username(createEmployeeDTO.username())
+                    .password(createEmployeeDTO.password())
+                    .roles(createEmployeeDTO.roles())
+                    .build();
+            createAuthUser(createAuthUser, employee.id(), createEmployeeDTO.tenantName());
+            log.info("Create employee {}", createEmployeeDTO);
+            return employee;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Transactional
+    public void deleteEmployee(UUID employeeId) {
+        var employee = employeeAPI.getEmployee(employeeId);
+
+        var authUser = getByEmployeeId(employeeId).orElseThrow(() -> new AuthUserNotFoundException(employee));
+
+        employee.setActive(false);
+        log.info("Delete authUser {}", authUser.getUsername());
+        deleteById(authUser.getId());
+        log.info("Set 'active' column to 'false' for employee {}", employeeId);
+        employeeAPI.updateEmployee(UpdateEmployeeDTO.builder()
+                .employeeId(employeeId)
+                .department(employee.getDepartment())
+                .phoneNumber(employee.getPhoneNumber())
+                .build());
     }
 
     @Transactional
@@ -117,7 +167,7 @@ class AuthService implements AuthAPI {
             }
             try {
                 TenantContext.setCurrentTenant(authUser.getTenant().getSchemaName());
-                Employee employee = authRequirementAPI.getEmployeeById(authUser.getEmployeeId());
+                Employee employee = employeeAPI.getEmployee(authUser.getEmployeeId());
                 var userPrincipal = new UserPrincipal(authUser, employee.getFirstName(), employee.getLastName());
                 boolean result = jwtService.validateToken(validTokenRequest.token(), userPrincipal);
                 if (result) {
@@ -140,7 +190,7 @@ class AuthService implements AuthAPI {
     private AuthResponse finalizeLoginAction(AuthUser authUser, String schemaName) {
         try {
             TenantContext.setCurrentTenant(schemaName);
-            Employee employee = authRequirementAPI.getEmployeeById(authUser.getEmployeeId());
+            Employee employee = employeeAPI.getEmployee(authUser.getEmployeeId());
             var userPrincipal = new UserPrincipal(authUser, employee.getFirstName(), employee.getLastName());
             String token = jwtService.generateToken(userPrincipal);
             log.info("Login successful, token: {}", token);

@@ -4,17 +4,19 @@ import static pl.crewops.enums.ControllerURL.*;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pl.crewops.auth.AuthRequest;
 import pl.crewops.auth.AuthResponse;
 import pl.crewops.auth.ValidTokenRequest;
 import pl.crewops.auth.ValidTokenResponse;
+import pl.crewops.dto.employee.CreateEmployeeDTO;
+import pl.crewops.dto.employee.EmployeeDTO;
 
 @RestController
 @Slf4j
@@ -31,5 +33,17 @@ class AuthController {
     @PostMapping(VALIDATE)
     public ResponseEntity<ValidTokenResponse> validate(@Valid @RequestBody ValidTokenRequest validTokenRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(authAPI.validateToken(validTokenRequest));
+    }
+
+    @PostMapping(EMPLOYEES)
+    public ResponseEntity<EmployeeDTO> createEmployee(
+            @NotNull @Valid @RequestBody CreateEmployeeDTO createEmployeeDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authAPI.createEmployee(createEmployeeDTO));
+    }
+
+    @DeleteMapping(EMPLOYEES_EID)
+    public ResponseEntity<Void> deleteEmployee(@PathVariable(EMPLOYEE_ID) UUID employeeId) {
+        authAPI.deleteEmployee(employeeId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
