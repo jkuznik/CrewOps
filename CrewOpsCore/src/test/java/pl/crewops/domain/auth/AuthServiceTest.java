@@ -1,6 +1,7 @@
 package pl.crewops.domain.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static pl.crewops.model.auth.RoleType.ADMIN;
@@ -8,6 +9,7 @@ import static pl.crewops.model.auth.RoleType.EMPLOYEE;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDate;
 import java.util.*;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,9 +18,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import pl.crewops.IntegrationTest;
 import pl.crewops.auth.*;
-import pl.crewops.domain.employee.AuthRequirementEmployeeAPI;
+import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.tenant.TenantAPI;
+import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.exception.auth.UsernameAlreadyExistException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.publicSchema.AuthUser;
@@ -33,7 +37,7 @@ import pl.crewops.security.jwt.JwtService;
             AuthUserRepository.class,
             RoleRepository.class,
             PasswordEncoder.class,
-            AuthRequirementEmployeeAPI.class,
+            EmployeeAPI.class,
             TenantAPI.class
         })
 class AuthServiceTest {
@@ -60,10 +64,10 @@ class AuthServiceTest {
     private HttpServletResponse response;
 
     @MockitoBean
-    private AuthRequirementEmployeeAPI authRequirementAPI;
+    private TenantAPI tenantAPI;
 
     @MockitoBean
-    private TenantAPI tenantAPI;
+    private EmployeeAPI employeeAPI;
 
     @Test
     void getByUsername_shouldReturnAuthUser_whenUserExists() {
@@ -118,6 +122,30 @@ class AuthServiceTest {
     }
 
     @Test
+    void createEmployee_ShouldThrowException_whenUsernameAlreadyExists() {
+        // given
+        var existedUsername = "existedUsername";
+        CreateEmployeeDTO createEmployeeDTO = CreateEmployeeDTO.builder()
+                .firstName("firstName")
+                .lastName("lastName")
+                .birthDate(LocalDate.parse("2000-01-01"))
+                .phoneNumber("123456789")
+                .department("department")
+                .username(existedUsername)
+                .password("password")
+                .roles(Set.of())
+                .tenantName(IntegrationTest.TEST_TENANT_NAME)
+                .build();
+
+        // when
+        when(authUserRepository.findByUsername(existedUsername)).thenReturn(Optional.of(new AuthUser()));
+        var result = catchException(() -> authService.createEmployee(createEmployeeDTO));
+
+        // then
+        assertThat(result).isExactlyInstanceOf(UsernameAlreadyExistException.class);
+    }
+
+    @Test
     void login_shouldReturnAuthResponse_whenLoginSuccess() {
         // given
         String rawPassword = "plainPassword";
@@ -142,7 +170,7 @@ class AuthServiceTest {
 
         // when
         when(authUserRepository.findByUsername("username")).thenReturn(Optional.of(authUser));
-        when(authRequirementAPI.getEmployeeById(any())).thenReturn(employee);
+        when(employeeAPI.getEmployee(any())).thenReturn(employee);
         when(passwordEncoder.matches(rawPassword, encodedPassword)).thenReturn(true);
         when(jwtService.generateToken(any())).thenReturn(token);
 
@@ -222,7 +250,7 @@ class AuthServiceTest {
         // when
         when(jwtService.extractUsername(any())).thenReturn(username);
         when(authUserRepository.findByUsername(any())).thenReturn(Optional.of(authUser));
-        when(authRequirementAPI.getEmployeeById(any())).thenReturn(employee);
+        when(employeeAPI.getEmployee(any())).thenReturn(employee);
         when(jwtService.validateToken(any(), any())).thenReturn(true);
         when(jwtService.extractExpiresAt(any())).thenReturn(new Date());
 
