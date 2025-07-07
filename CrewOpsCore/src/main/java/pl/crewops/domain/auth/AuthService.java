@@ -55,8 +55,7 @@ class AuthService implements AuthAPI {
 
     @Transactional
     public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
-        log.info("Im in");
-        log.info(TenantContext.getCurrentTenant());
+        log.info("Create employee current tenant is: {}", TenantContext.getCurrentTenant());
         if (getByUsername(createEmployeeDTO.username()).isPresent()) {
             throw new UsernameAlreadyExistException(createEmployeeDTO.username());
         }

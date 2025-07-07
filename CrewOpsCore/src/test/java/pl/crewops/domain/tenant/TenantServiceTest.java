@@ -71,7 +71,7 @@ class TenantServiceTest {
 
         // when
         when(tenantRepository.save(any(Tenant.class))).thenReturn(tenant);
-        doThrow(new CreateSchemaException("test")).when(tenantSchemaInitializer).createSchemaIfNotExists(schemaName);
+        doThrow(new CreateSchemaException("test")).when(tenantSchemaInitializer).createSchemaIfNotExists(any());
 
         Exception result = catchException(() -> tenantService.createTenant(createTenantDTO));
 
