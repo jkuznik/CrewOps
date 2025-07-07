@@ -23,9 +23,6 @@ import pl.crewops.model.Employee;
 class EmployeeAPITest extends IntegrationTest {
 
     @Autowired
-    private EmployeeAPI employeeAPI;
-
-    @Autowired
     private EmployeeRepository employeeRepository;
 
     @Autowired

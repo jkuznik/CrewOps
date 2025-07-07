@@ -1,5 +1,6 @@
 package pl.crewops.domain.tenant;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,11 +26,11 @@ class TenantService implements TenantAPI {
     @Transactional
     public TenantDTO createTenant(CreateTenantDTO createTenantDTO) {
         var notPersistedTenant = TenantMapper.mapToEntity(createTenantDTO);
-        Tenant tenant = tenantRepository.save(notPersistedTenant);
 
         String schemaName;
         try {
-            schemaName = TenantSchemaNameGenerator.generateTenantSchemaName(tenant.getName(), tenant.getId());
+            schemaName =
+                    TenantSchemaNameGenerator.generateTenantSchemaName(notPersistedTenant.getName(), UUID.randomUUID());
             tenantSchemaInitializer.createSchemaIfNotExists(schemaName);
             liquibaseSchemaMigrator.runMigrations(schemaName);
         } catch (CreateSchemaException e) {
@@ -37,8 +38,8 @@ class TenantService implements TenantAPI {
             throw new RuntimeException(e);
         }
 
-        tenant.setSchemaName(schemaName);
-        return TenantMapper.mapToDTO(tenantRepository.save(tenant));
+        notPersistedTenant.setSchemaName(schemaName);
+        return TenantMapper.mapToDTO(tenantRepository.save(notPersistedTenant));
     }
 
     @Override

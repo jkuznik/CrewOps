@@ -9,10 +9,8 @@ import jakarta.validation.ConstraintViolationException;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.IntegrationTest;
-import pl.crewops.domain.vehicleType.VehicleTypeAPI;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.exception.domain.vehicle.VehicleNotFoundException;
@@ -21,12 +19,6 @@ import pl.crewops.model.VehicleType;
 
 @Transactional
 class VehicleAPITest extends IntegrationTest {
-
-    @Autowired
-    private VehicleAPI vehicleAPI;
-
-    @Autowired
-    private VehicleTypeAPI vehicleTypeAPI;
 
     @Test
     void shouldReturnVehicle_whenVehicleExists() {

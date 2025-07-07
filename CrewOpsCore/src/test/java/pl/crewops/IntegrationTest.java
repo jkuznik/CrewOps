@@ -14,6 +14,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import pl.crewops.domain.auth.AuthAPI;
+import pl.crewops.domain.employee.EmployeeAPI;
+import pl.crewops.domain.qualification.QualificationAPI;
+import pl.crewops.domain.tenant.TenantAPI;
+import pl.crewops.domain.vehicle.VehicleAPI;
+import pl.crewops.domain.vehicleType.VehicleTypeAPI;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.utils.multitenancy.LiquibaseSchemaMigrator;
 import pl.crewops.utils.multitenancy.TenantSchemaInitializer;
@@ -40,6 +46,24 @@ public abstract class IntegrationTest {
 
     @Autowired
     protected MockMvc mockMvc;
+
+    @Autowired
+    protected AuthAPI authAPI;
+
+    @Autowired
+    protected EmployeeAPI employeeAPI;
+
+    @Autowired
+    protected QualificationAPI qualificationAPI;
+
+    @Autowired
+    protected TenantAPI tenantAPI;
+
+    @Autowired
+    protected VehicleAPI vehicleAPI;
+
+    @Autowired
+    protected VehicleTypeAPI vehicleTypeAPI;
 
     @Autowired
     private LiquibaseSchemaMigrator schemaMigrator;
