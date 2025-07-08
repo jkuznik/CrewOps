@@ -1,0 +1,16 @@
+package pl.crewops.dto.company;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import java.util.UUID;
+import lombok.Builder;
+import pl.crewops.dto.address.AddressDTO;
+
+@Builder
+public record CreateCompanyDTO(
+        @NotNull UUID id,
+        @Size(max = 63) @NotNull @NotBlank String name,
+        @Email @NotNull @NotBlank String email,
+        @NotNull AddressDTO address) {}
