@@ -1,0 +1,71 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-table-company
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: company
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: version
+                  type: integer
+                  constraints:
+                    nullable: true
+              - column:
+                  name: name
+                  type: varchar(63)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: company
+            baseColumnNames: address_id
+            constraintName: fk_company_address
+            referencedTableName: address
+            referencedColumnNames: id
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+
+  - changeSet:
+      id: 002-create-company-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS company_updated_at_trigger ON company;
+              CREATE TRIGGER company_updated_at_trigger
+              BEFORE UPDATE ON company
+              FOR EACH ROW
+              EXECUTE FUNCTION public.update_updated_at();

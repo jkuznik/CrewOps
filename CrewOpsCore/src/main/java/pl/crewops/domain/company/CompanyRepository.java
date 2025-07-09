@@ -8,4 +8,6 @@ import pl.crewops.model.Company;
 interface CompanyRepository extends JpaRepository<Company, UUID> {
 
     Optional<Company> findByEmail(String email);
+
+    Optional<Company> findById(UUID id);
 }

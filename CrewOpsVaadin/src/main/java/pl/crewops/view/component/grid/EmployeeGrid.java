@@ -9,6 +9,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.Authentication;
@@ -155,10 +156,10 @@ public class EmployeeGrid extends VerticalLayout {
     private void saveEmployee(EmployeeForm.SaveEvent event) {
         try {
             UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-            String tenantName = principal.getCompanyId();
+            UUID companyId = principal.getCompanyId();
 
             Optional<EmployeeDTO> employeeDTO =
-                    coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee(), tenantName));
+                    coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee(), companyId));
             updateGrid();
             closeEditor();
             employeeDTO.ifPresent(AddEmployeeNotification::new);

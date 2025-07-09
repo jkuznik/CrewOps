@@ -33,7 +33,7 @@ public class JwtService {
         claims.put("firstName", userPrincipal.getFirstName());
         claims.put("lastName", userPrincipal.getLastName());
         claims.put("tenantCompanyId", userPrincipal.getCompanyId());
-        claims.put("id", userPrincipal.getEmployeeId());
+        claims.put("employeeId", userPrincipal.getEmployeeId());
         claims.put(
                 "authorities",
                 userPrincipal.getAuthorities().stream()
@@ -66,8 +66,8 @@ public class JwtService {
         return extractClaim(token, claims -> claims.get("tenantCompanyId", String.class));
     }
 
-    public UUID extractId(String token) {
-        return extractClaim(token, claims -> claims.get("id", UUID.class));
+    public UUID extractEmployeeId(String token) {
+        return extractClaim(token, claims -> claims.get("employeeId", UUID.class));
     }
 
     public Collection<? extends GrantedAuthority> extractAuthorities(String token) {

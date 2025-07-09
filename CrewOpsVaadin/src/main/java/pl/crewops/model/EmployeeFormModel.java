@@ -44,7 +44,7 @@ public class EmployeeFormModel {
                 .build();
     }
 
-    public static CreateEmployeeDTO toCreateEmployeeDTO(EmployeeFormModel employeeFormModel, String tenantName) {
+    public static CreateEmployeeDTO toCreateEmployeeDTO(EmployeeFormModel employeeFormModel, UUID companyId) {
         Set<RoleDTO> createRoles = employeeFormModel.roles.stream()
                 .map(role -> RoleDTO.builder().name(role.name()).build())
                 .collect(Collectors.toSet());
@@ -58,7 +58,7 @@ public class EmployeeFormModel {
                 .username(employeeFormModel.firstName.substring(0, 3) + employeeFormModel.lastName.substring(0, 3))
                 .password("pass")
                 .roles(createRoles)
-                .tenantName(tenantName)
+                .companyId(companyId)
                 .build();
     }
 

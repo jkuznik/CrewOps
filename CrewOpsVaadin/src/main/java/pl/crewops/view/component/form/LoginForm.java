@@ -86,13 +86,13 @@ public class LoginForm extends FormLayout {
             var username = jwtService.getUsername(token);
             var firstName = jwtService.getFirstName(token);
             var lastName = jwtService.getLastName(token);
-            var tenantName = jwtService.getTenantName(token);
-            UUID id = jwtService.getId(token);
+            UUID companyId = jwtService.getTenantCompanyId(token);
+            UUID employeeId = jwtService.getEmployeeId(token);
             var authorities = jwtService.getAuthorities(token);
 
-            var userPrincipal = new UserPrincipal(username, firstName, lastName, tenantName, authorities);
+            var userPrincipal = new UserPrincipal(username, firstName, lastName, companyId, authorities);
             userPrincipal.setToken(token);
-            userPrincipal.setEmployeeId(id);
+            userPrincipal.setEmployeeId(employeeId);
 
             Authentication auth = new UsernamePasswordAuthenticationToken(userPrincipal, null, authorities);
 

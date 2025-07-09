@@ -23,6 +23,7 @@ import pl.crewops.auth.ValidTokenResponse;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
+import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -222,6 +223,22 @@ class CoreClient implements CoreAPI {
         } catch (RestClientException e) {
             log.error("Error getting employees");
             return List.of();
+        }
+    }
+
+    public Optional<CompanyDTO> getCompanyById(UUID companyId) throws NotAuthenticatedException {
+        log.info("Call getCompanyById");
+        isAuthenticated();
+        try {
+            return authorizedClient
+                    .get()
+                    .uri(uriBuilder -> uriBuilder.path(COMPANIES_CID).build(companyId))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<Optional<CompanyDTO>>() {});
+        } catch (RestClientException e) {
+            log.error("Error getting company by id");
+            return Optional.empty();
         }
     }
 

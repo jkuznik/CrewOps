@@ -15,6 +15,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import pl.crewops.dto.company.CompanyDTO;
+import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtService;
@@ -55,24 +57,45 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         logoutButton.addClickListener(event -> logout(coreAPI));
         logoutButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
-        infoLayout.add(getInfo(jwtService), logoutButton);
+        UserInformation userInformation = getInfo(coreAPI, jwtService);
+        infoLayout.add(displayUserInfo(userInformation), logoutButton);
         return infoLayout;
     }
 
-    private Component getInfo(JwtService jwtService) {
-        Span userInfo = new Span(
-                jwtService.getFirstName(principal.getToken()) + " " + jwtService.getLastName(principal.getToken()));
+    private UserInformation getInfo(CoreAPI coreAPI, JwtService jwtService) {
+
+        String companyName = "";
+        try {
+            CompanyDTO companyDTO = coreAPI.getCompanyById(jwtService.getTenantCompanyId(principal.getToken()))
+                    .orElseThrow(() -> new RuntimeException("Can't retrieve company name for logged user info"));
+            companyName = companyDTO.name();
+
+        } catch (NotAuthenticatedException e) {
+            System.out.println("JWT token not authenticated during retrieve user info");
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return new UserInformation(
+                companyName,
+                jwtService.getFirstName(principal.getToken()),
+                jwtService.getLastName(principal.getToken()),
+                jwtService.getExpiration(principal.getToken()).toInstant().getEpochSecond());
+    }
+
+    private Component displayUserInfo(UserInformation userInformation) {
+        Span companyName = new Span(userInformation.companyName);
+        Span userName = new Span(userInformation.userName + " " + userInformation.userLastname);
         Span countdown = new Span();
         countdown.getStyle().set("font-weight", "bold");
         countdown.getStyle().set("margin-left", "1rem");
 
-        Div container = new Div(userInfo, countdown);
+        Div container = new Div(companyName, userName, countdown);
         container.getStyle().set("display", "flex");
         container.getStyle().set("align-items", "center");
         container.getStyle().set("gap", "1rem");
 
-        long expiryEpoch =
-                jwtService.getExpiration(principal.getToken()).toInstant().getEpochSecond();
+        long expiryEpoch = userInformation.expiryEpoch;
         UI ui = UI.getCurrent();
 
         // 🔒 Zapobiegaj wielokrotnemu uruchamianiu timera dla jednej sesji
@@ -135,4 +158,6 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
             ui.getPage().reload();
         });
     }
+
+    private record UserInformation(String companyName, String userName, String userLastname, long expiryEpoch) {}
 }
