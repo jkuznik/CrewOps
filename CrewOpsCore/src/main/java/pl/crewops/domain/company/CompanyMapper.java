@@ -9,7 +9,6 @@ class CompanyMapper {
 
     static Company mapToEntity(CreateCompanyDTO createCompanyDTO) {
         return Company.builder()
-                .id(createCompanyDTO.id())
                 .name(createCompanyDTO.name())
                 .email(createCompanyDTO.email())
                 .build();

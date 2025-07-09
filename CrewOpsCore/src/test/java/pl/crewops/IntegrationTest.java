@@ -1,5 +1,6 @@
 package pl.crewops;
 
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,8 +35,9 @@ public abstract class IntegrationTest {
     public static final String TESTCONTAINER_DB_USERNAME = "testUsername";
     public static final String TESTCONTAINER_DB_PASSWORD = "testPassword";
     public static final String TEST_SCHEMA_NAME = "testtenant_2f3b1d5c9e8f";
-    public static final String TEST_TENANT_NAME =
-            "TestTenant"; // tenant with this name is available in db by test values insertions
+    public static final UUID TEST_TENANT_COMPANY_ID = UUID.fromString(
+            "2f3b1d5c-9e8f-4bca-9c56-123456789abd"); // tenant with this name is available in db by test values
+    // insertions
 
     public static final PostgreSQLContainer<?> postgresSQLContainer = new PostgreSQLContainer<>(
                     DockerImageName.parse("postgis/postgis:16-3.4").asCompatibleSubstituteFor("postgres"))

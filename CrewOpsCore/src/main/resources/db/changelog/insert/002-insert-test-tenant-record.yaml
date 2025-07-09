@@ -13,8 +13,8 @@ databaseChangeLog:
                   name: version
                   valueNumeric: 0
               - column:
-                  name: name
-                  value: "TestTenant"
+                  name: company_id
+                  value: "2f3b1d5c-9e8f-4bca-9c56-123456789abd"
               - column:
                   name: schema_name
                   value: "testtenant_2f3b1d5c9e8f"

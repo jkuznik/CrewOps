@@ -1,16 +1,19 @@
 package pl.crewops.domain.tenant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.UUID;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.IntegrationTest;
+import pl.crewops.dto.address.AddressDTO;
+import pl.crewops.dto.address.CreateAddressDTO;
+import pl.crewops.dto.company.CreateCompanyDTO;
 import pl.crewops.dto.tenant.CreateTenantDTO;
 import pl.crewops.dto.tenant.TenantDTO;
 import pl.crewops.model.publicSchema.Tenant;
@@ -24,12 +27,29 @@ class TenantAPITest extends IntegrationTest {
     @Test
     void createTenant_shouldCreateNewTenantAndNewSchema() {
         // given
-        var tenantName = "brandNewTenant";
-        var createTenantDTO = CreateTenantDTO.builder().name(tenantName).build();
+        var companyName = "companyName";
+        var createTenantDTO = CreateTenantDTO.builder()
+                .createAddressDTO(CreateAddressDTO.builder()
+                        .postalCode("postalCode")
+                        .city("city")
+                        .street("street")
+                        .localNumber("localNumber")
+                        .build())
+                .createCompanyDTO(CreateCompanyDTO.builder()
+                        .name(companyName)
+                        .email("test@email.com")
+                        .address(AddressDTO.builder()
+                                .postalCode("postalCode")
+                                .city("city")
+                                .street("street")
+                                .localNumber("localNumber")
+                                .build())
+                        .build())
+                .build();
 
         // when
         TenantDTO result = tenantAPI.createTenant(createTenantDTO);
-        Tenant tenant = tenantAPI.getByName(tenantName);
+        Tenant tenant = tenantAPI.getByCompanyId(result.companyId());
 
         boolean schemaExists = schemaExists(tenant.getSchemaName());
 
@@ -37,20 +57,19 @@ class TenantAPITest extends IntegrationTest {
         assertThat(result).isNotNull();
         assertThat(result.active()).isTrue();
         assertThat(schemaExists).isTrue();
-        assertThat(tenant.getName()).isEqualTo(tenantName);
+        assertThat(tenant.getCompanyId()).isInstanceOf(UUID.class);
     }
 
     @Test
     void getByName() {
-        // given
-        var tenantName = "TestTenant"; // hardcoded tenant in development and test environment insertions
-
         // when
-        Tenant result = tenantAPI.getByName(tenantName);
+        Tenant result = tenantAPI.getByCompanyId(
+                IntegrationTest
+                        .TEST_TENANT_COMPANY_ID); // hardcoded tenant in development and test environment insertions
 
         // then
         assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo(tenantName);
+        assertThat(result.getCompanyId()).isEqualTo(IntegrationTest.TEST_TENANT_COMPANY_ID);
         assertThat(result.getSchemaName()).isEqualTo("testtenant_2f3b1d5c9e8f"); // hardcoded in insertions
     }
 

@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -49,8 +50,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             log.info("Jwt Auth Filter - starting authentication");
             final String token = jwtService.extractTokenFromRequest(request);
-            final String tenantName = jwtService.extractTenantName(token);
-            Tenant tenant = tenantAPI.getByName(tenantName);
+            final String tenantCompanyId = jwtService.extractTenantCompanyId(token);
+            Tenant tenant = tenantAPI.getByCompanyId(UUID.fromString(tenantCompanyId));
             TenantContext.setCurrentTenant(tenant.getSchemaName());
             log.info("Schema set to: {}", tenant.getSchemaName());
             final String username = jwtService.extractUsername(token);

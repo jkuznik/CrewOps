@@ -7,5 +7,5 @@ import pl.crewops.model.publicSchema.Tenant;
 
 interface TenantRepository extends JpaRepository<Tenant, UUID> {
 
-    Optional<Tenant> findByName(String name);
+    Optional<Tenant> findByCompanyId(UUID companyId);
 }

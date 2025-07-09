@@ -5,4 +5,4 @@ import lombok.Builder;
 import pl.crewops.enums.TenantStatus;
 
 @Builder
-public record TenantDTO(UUID id, String name, boolean active, TenantStatus status) {}
+public record TenantDTO(UUID id, UUID companyId, boolean active, TenantStatus status) {}

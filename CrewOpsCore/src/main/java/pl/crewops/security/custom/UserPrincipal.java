@@ -40,8 +40,8 @@ public class UserPrincipal implements CustomUserPrincipal {
     }
 
     @Override
-    public String getTenantName() {
-        return authUser.getTenant().getName();
+    public UUID getCompanyId() {
+        return authUser.getTenant().getCompanyId();
     }
 
     @Override

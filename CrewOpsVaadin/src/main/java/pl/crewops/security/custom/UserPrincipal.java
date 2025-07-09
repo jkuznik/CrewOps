@@ -41,7 +41,7 @@ public class UserPrincipal implements CustomUserPrincipal {
     }
 
     @Override
-    public String getTenantName() {
+    public UUID getCompanyId() {
         return tenantName;
     }
 

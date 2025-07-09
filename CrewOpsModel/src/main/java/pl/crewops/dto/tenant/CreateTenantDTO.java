@@ -1,9 +1,9 @@
 package pl.crewops.dto.tenant;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
+import lombok.NonNull;
+import pl.crewops.dto.address.CreateAddressDTO;
+import pl.crewops.dto.company.CreateCompanyDTO;
 
 @Builder
-public record CreateTenantDTO(@Size(max = 50) @NotNull @NotBlank String name) {}
+public record CreateTenantDTO(@NonNull CreateCompanyDTO createCompanyDTO, @NonNull CreateAddressDTO createAddressDTO) {}

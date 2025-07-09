@@ -32,7 +32,7 @@ public class JwtService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("firstName", userPrincipal.getFirstName());
         claims.put("lastName", userPrincipal.getLastName());
-        claims.put("tenantName", userPrincipal.getTenantName());
+        claims.put("tenantCompanyId", userPrincipal.getCompanyId());
         claims.put("id", userPrincipal.getEmployeeId());
         claims.put(
                 "authorities",
@@ -62,8 +62,8 @@ public class JwtService {
         return extractClaim(token, claims -> claims.get("lastName", String.class));
     }
 
-    public String extractTenantName(String token) {
-        return extractClaim(token, claims -> claims.get("tenantName", String.class));
+    public String extractTenantCompanyId(String token) {
+        return extractClaim(token, claims -> claims.get("tenantCompanyId", String.class));
     }
 
     public UUID extractId(String token) {

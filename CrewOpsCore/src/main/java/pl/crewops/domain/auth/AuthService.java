@@ -67,7 +67,7 @@ class AuthService implements AuthAPI {
                     .password(createEmployeeDTO.password())
                     .roles(createEmployeeDTO.roles())
                     .build();
-            createAuthUser(createAuthUser, employee.id(), createEmployeeDTO.tenantName());
+            createAuthUser(createAuthUser, employee.id(), createEmployeeDTO.companyId());
             log.info("Create employee {}", createEmployeeDTO);
             return employee;
         } catch (Exception e) {
@@ -94,13 +94,13 @@ class AuthService implements AuthAPI {
     }
 
     @Transactional
-    public AuthUser createAuthUser(CreateAuthUserDTO createAuthUserDTO, UUID employeeId, String tenantName) {
+    public AuthUser createAuthUser(CreateAuthUserDTO createAuthUserDTO, UUID employeeId, UUID companyId) {
         if (getByUsername(createAuthUserDTO.username()).isPresent()) {
             log.error("Username " + createAuthUserDTO.username() + " already exists");
             throw new UsernameAlreadyExistException("Username " + createAuthUserDTO.username() + " already exists");
         }
         try {
-            Tenant tenant = tenantAPI.getByName(tenantName);
+            Tenant tenant = tenantAPI.getByCompanyId(companyId);
             var authUser = new AuthUser();
             authUser.setUsername(createAuthUserDTO.username());
             authUser.setPassword(passwordEncoder.encode(createAuthUserDTO.password()));

@@ -155,7 +155,7 @@ public class EmployeeGrid extends VerticalLayout {
     private void saveEmployee(EmployeeForm.SaveEvent event) {
         try {
             UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-            String tenantName = principal.getTenantName();
+            String tenantName = principal.getCompanyId();
 
             Optional<EmployeeDTO> employeeDTO =
                     coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee(), tenantName));

@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -75,16 +76,18 @@ class JwtAuthFilterTest {
         // given
         String fakeToken = "Bearer testToken";
         String username = "TestUser";
+        var companyId = UUID.randomUUID();
         var authUser =
                 AuthUser.builder().username(username).roles(new HashSet<>()).build();
-        Tenant tenant = Tenant.builder().name("test").schemaName("test").build();
+        Tenant tenant = Tenant.builder().companyId(companyId).schemaName("test").build();
         UserPrincipal userPrincipal = new UserPrincipal(authUser, "firstName", "lastName");
         CustomAuthentication auth = new CustomAuthentication(userPrincipal);
 
         // when
-        when(tenantAPI.getByName(any())).thenReturn(tenant);
+        when(tenantAPI.getByCompanyId(any())).thenReturn(tenant);
         when(request.getRequestURI()).thenReturn("/test-endpoint");
         when(jwtService.extractTokenFromRequest(request)).thenReturn(fakeToken);
+        when(jwtService.extractTenantCompanyId(any())).thenReturn(companyId.toString());
         when(jwtService.extractUsername(fakeToken)).thenReturn(username);
 
         when(userDetailsService.loadUserByUsername(username)).thenReturn(userPrincipal);
