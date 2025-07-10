@@ -40,4 +40,4 @@
 
  #   # TODO: config multi profiles and remove this from prod
     - include:
-        file: db/changelog/insert/001-insert-development-initial-values.yaml
+        file: db/changelog/insert/002-insert-development-requirement-values.yaml

@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-insert-role-initial-values
+      author: jkuznik
+      changes:
+        - insert:
+            tableName: role
+            columns:
+              - column: { name: id, value: "5f3a5ee4-1e2c-4f6a-861b-4cb860ff2a13" }
+              - column: { name: name, value: "MANAGER" }
+
+        - insert:
+            tableName: role
+            columns:
+              - column: { name: id, value: "f8bd1c2a-79a4-4713-8748-37604be09e12" }
+              - column: { name: name, value: "EMPLOYEE" }
+
+        - insert:
+            tableName: role
+            columns:
+              - column: { name: id, value: "f6da9837-73b9-49ae-a9ff-7b2d0b493b33" }
+              - column: { name: name, value: "SHIFT_LEADER" }
+
+        - insert:
+            tableName: role
+            columns:
+              - column: { name: id, value: "e90a0e1e-8ab9-41ec-b98e-23a7bba4ef58" }
+              - column: { name: name, value: "ADMIN" }
