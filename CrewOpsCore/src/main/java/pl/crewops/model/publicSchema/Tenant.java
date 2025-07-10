@@ -3,7 +3,6 @@ package pl.crewops.model.publicSchema;
 import jakarta.persistence.*;
 import java.util.UUID;
 import lombok.*;
-import pl.crewops.enums.TenantStatus;
 import pl.crewops.model.AbstractEntity;
 
 @Getter
@@ -22,8 +21,4 @@ public class Tenant extends AbstractEntity {
     private String schemaName;
 
     private boolean active;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TenantStatus status;
 }

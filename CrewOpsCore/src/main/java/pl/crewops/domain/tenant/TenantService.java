@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.domain.company.CompanyAPI;
 import pl.crewops.dto.tenant.CreateTenantDTO;
 import pl.crewops.dto.tenant.TenantDTO;
-import pl.crewops.enums.TenantStatus;
 import pl.crewops.exception.multitenancy.CreateSchemaException;
 import pl.crewops.exception.multitenancy.TenantNotExistException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
@@ -41,8 +40,7 @@ class TenantService implements TenantAPI {
             log.error(e.getMessage());
             throw new RuntimeException(e);
         }
-        var notPersistedTenant =
-                Tenant.builder().active(true).status(TenantStatus.TRIAL).build();
+        var notPersistedTenant = Tenant.builder().active(true).build();
         notPersistedTenant.setSchemaName(schemaName);
         notPersistedTenant.setCompanyId(UUID.randomUUID());
         var persistedTenant = tenantRepository.save(notPersistedTenant);

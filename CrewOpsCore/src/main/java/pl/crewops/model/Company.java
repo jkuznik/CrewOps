@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.*;
+import pl.crewops.enums.CompanyStatus;
 
 @Getter
 @Setter
@@ -26,6 +27,10 @@ public class Company {
     @Email
     @Column(nullable = false, unique = true)
     private String email;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CompanyStatus status;
 
     @Id
     @Column(name = "id", nullable = false)

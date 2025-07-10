@@ -22,9 +22,6 @@ databaseChangeLog:
                   name: active
                   valueBoolean: true
               - column:
-                  name: status
-                  value: "ACTIVE"
-              - column:
                   name: created_at
                   valueDate: now()
               - column:
@@ -49,9 +46,6 @@ databaseChangeLog:
               - column:
                   name: active
                   valueBoolean: true
-              - column:
-                  name: status
-                  value: "ACTIVE"
               - column:
                   name: created_at
                   valueDate: now()

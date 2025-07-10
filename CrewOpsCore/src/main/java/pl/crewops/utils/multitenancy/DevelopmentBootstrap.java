@@ -35,6 +35,7 @@ public class DevelopmentBootstrap {
         String testValues = "db/changelog/insert/002-insert-development-requirement-values.yaml";
         executeInsert(tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, testSchemaName, testValues);
 
+        // TODO: modify way to create admin user before starts production
         String adminSchemaName = "crewops_2b3b7d5c9e8f";
         String adminValues = "db/changelog/insert/005-insert-admin-account-values.yaml";
 

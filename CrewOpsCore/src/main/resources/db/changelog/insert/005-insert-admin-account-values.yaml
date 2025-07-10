@@ -23,6 +23,7 @@ databaseChangeLog:
               - column: { name: name, value: "CrewOps" }
               - column: { name: address_id, value: "8faf1d5c-9e8f-4bca-9c56-123456789aab" }
               - column: { name: email, value: "disaster.alert2@gmail.com" }
+              - column: { name: status, value: "ACTIVE" }
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
 

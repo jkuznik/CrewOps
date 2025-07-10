@@ -10,7 +10,6 @@ class TenantMapper {
                 .id(tenant.getId())
                 .companyId(tenant.getCompanyId())
                 .active(tenant.isActive())
-                .status(tenant.getStatus())
                 .build();
     }
 }

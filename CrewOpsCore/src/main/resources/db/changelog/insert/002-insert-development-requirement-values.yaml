@@ -25,6 +25,7 @@ databaseChangeLog:
               - column: { name: name, value: "TestCompanyName" }
               - column: { name: address_id, value: "2f3b1d5c-9e8f-4bca-9c56-123456789aab" }
               - column: { name: email, value: "company@email.com" }
+              - column: { name: status, value: "TRIAL" }
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
 

@@ -3,6 +3,7 @@ package pl.crewops.domain.company;
 import pl.crewops.dto.address.AddressDTO;
 import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.company.CreateCompanyDTO;
+import pl.crewops.enums.CompanyStatus;
 import pl.crewops.model.Company;
 
 class CompanyMapper {
@@ -11,6 +12,7 @@ class CompanyMapper {
         return Company.builder()
                 .name(createCompanyDTO.name())
                 .email(createCompanyDTO.email())
+                .status(CompanyStatus.TRIAL)
                 .build();
     }
 
@@ -25,6 +27,7 @@ class CompanyMapper {
                         .localNumber(company.getAddress().getLocalNumber())
                         .build())
                 .email(company.getEmail())
+                .status(company.getStatus())
                 .build();
     }
 }
