@@ -1,4 +1,4 @@
-package pl.crewops.view.component;
+package pl.crewops.view.component.navbarComponents;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.model.auth.RoleGrantedAuthority;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtService;
 import pl.crewops.view.HomeView;
@@ -58,6 +59,9 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         logoutButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
         UserInformation userInformation = getInfo(coreAPI, jwtService);
+        if (principal.getAuthorities().contains(new RoleGrantedAuthority("ROLE_ADMIN"))) {
+            infoLayout.add(new CompanyCreator(coreAPI));
+        }
         infoLayout.add(displayUserInfo(userInformation), logoutButton);
         return infoLayout;
     }

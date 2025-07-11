@@ -12,8 +12,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtService;
-import pl.crewops.view.component.LoggedUserInfoComponent;
 import pl.crewops.view.component.form.LoginForm;
+import pl.crewops.view.component.navbarComponents.LoggedUserInfoComponent;
 
 @SpringComponent
 @UIScope
