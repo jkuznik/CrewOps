@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.auth.*;
 import pl.crewops.domain.employee.EmployeeAPI;
@@ -53,13 +54,14 @@ class AuthService implements AuthAPI {
         return employeeAPI.getEmployee(employeeId);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
         log.info("Create employee current tenant is: {}", TenantContext.getCurrentTenant());
         if (getByUsername(createEmployeeDTO.username()).isPresent()) {
             throw new UsernameAlreadyExistException(createEmployeeDTO.username());
         }
 
+        // TODO: modify password generator or allow to add own password in vaadin app
         try {
             EmployeeDTO employee = employeeAPI.createEmployee(createEmployeeDTO);
             var createAuthUser = CreateAuthUserDTO.builder()

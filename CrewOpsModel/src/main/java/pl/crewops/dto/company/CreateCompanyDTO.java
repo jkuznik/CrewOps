@@ -10,5 +10,4 @@ import pl.crewops.dto.address.AddressDTO;
 @Builder
 public record CreateCompanyDTO(
         @Size(max = 63) @NotNull @NotBlank String name,
-        @Email @NotNull @NotBlank String email,
-        @NotNull AddressDTO address) {}
+        @Email @NotNull @NotBlank String email) {}

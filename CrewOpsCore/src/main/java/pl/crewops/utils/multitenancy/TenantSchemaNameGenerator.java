@@ -1,9 +1,9 @@
-package pl.crewops.domain.tenant;
+package pl.crewops.utils.multitenancy;
 
 import java.util.UUID;
 import pl.crewops.exception.multitenancy.CreateSchemaException;
 
-class TenantSchemaNameGenerator {
+public class TenantSchemaNameGenerator {
 
     public static String generateTenantSchemaName(String name, UUID tenantId) throws CreateSchemaException {
 

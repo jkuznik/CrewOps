@@ -25,7 +25,7 @@ class TenantAPITest extends IntegrationTest {
     private DataSource dataSource;
 
     @Test
-    void createTenant_shouldCreateNewTenantAndNewSchema() {
+    void createTenant_shouldSaveNewNewCustomerAndNewSchema() {
         // given
         var companyName = "companyName";
         var createTenantDTO = CreateTenantDTO.builder()
@@ -48,7 +48,7 @@ class TenantAPITest extends IntegrationTest {
                 .build();
 
         // when
-        TenantDTO result = tenantAPI.createTenant(createTenantDTO);
+        TenantDTO result = tenantAPI.createNewCustomer(createTenantDTO, );
         Tenant tenant = tenantAPI.getByCompanyId(result.companyId());
 
         boolean schemaExists = schemaExists(tenant.getSchemaName());

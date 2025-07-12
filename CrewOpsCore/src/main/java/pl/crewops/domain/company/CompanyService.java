@@ -28,7 +28,8 @@ class CompanyService implements CompanyAPI {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void createCompany(CreateAddressDTO createAddressDTO, CreateCompanyDTO createCompanyDTO, UUID companyId)
+    public CompanyDTO createCompany(
+            CreateAddressDTO createAddressDTO, CreateCompanyDTO createCompanyDTO, UUID companyId)
             throws NoUniqueCompanyEmailException {
         if (companyRepository.findByEmail(createCompanyDTO.email()).isPresent()) {
             throw new NoUniqueCompanyEmailException(createCompanyDTO.email());
@@ -37,7 +38,7 @@ class CompanyService implements CompanyAPI {
         var company = mapToEntity(createCompanyDTO);
         company.setId(companyId);
         company.setAddress(address);
-        mapToDTO(companyRepository.save(company));
+        return mapToDTO(companyRepository.save(company));
     }
 
     @Transactional

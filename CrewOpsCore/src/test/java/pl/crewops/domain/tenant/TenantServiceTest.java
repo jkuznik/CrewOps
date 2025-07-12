@@ -18,6 +18,7 @@ import pl.crewops.exception.multitenancy.CreateSchemaException;
 import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.utils.multitenancy.LiquibaseSchemaMigrator;
 import pl.crewops.utils.multitenancy.TenantSchemaInitializer;
+import pl.crewops.utils.multitenancy.TenantSchemaNameGenerator;
 
 @SpringJUnitConfig(
         classes = {
@@ -55,7 +56,7 @@ class TenantServiceTest {
     }
 
     @Test
-    void createTenant_shouldReturnTenantDTO_whenTenantIsValidAndSchemaNotExists() {
+    void createTenant_shouldReturnTenantDTO_whenNewCustomerIsValidAndSchemaNotExists() {
         // given
         String schemaName = TenantSchemaNameGenerator.generateTenantSchemaName(testCompanyName, tenant.getId());
 
@@ -65,7 +66,7 @@ class TenantServiceTest {
         doNothing().when(liquibaseSchemaMigrator).runMigrations(schemaName);
         doNothing().when(companyAPI).createCompany(any(), any(), any());
 
-        TenantDTO result = tenantService.createTenant(createTenantDTO);
+        TenantDTO result = tenantService.createNewCustomer(createTenantDTO, );
 
         // then
         assertThat(result).isNotNull();
@@ -73,7 +74,7 @@ class TenantServiceTest {
     }
 
     @Test
-    void createTenant_shouldThrowException_whenTenantIsAlreadyExists() {
+    void createTenant_shouldThrowException_whenNewCustomerIsAlreadyExists() {
         // given
         String schemaName = TenantSchemaNameGenerator.generateTenantSchemaName(testCompanyName, tenant.getId());
 
@@ -81,7 +82,7 @@ class TenantServiceTest {
         when(tenantRepository.save(any(Tenant.class))).thenReturn(tenant);
         doThrow(new CreateSchemaException("test")).when(tenantSchemaInitializer).createSchemaIfNotExists(any());
 
-        Exception result = catchException(() -> tenantService.createTenant(createTenantDTO));
+        Exception result = catchException(() -> tenantService.createNewCustomer(createTenantDTO, ));
 
         // then
         assertThat(result).isInstanceOf(RuntimeException.class);
