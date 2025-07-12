@@ -26,7 +26,7 @@ import pl.crewops.model.Vehicle;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-class BreakdownService implements BreakdownAPI {
+class BreakdownService {
 
     private final BreakdownRepository breakdownRepository;
     private final VehicleAPI vehicleAPI;
@@ -70,12 +70,12 @@ class BreakdownService implements BreakdownAPI {
         return toDTO(breakdownRepository.save(breakdown));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Breakdown getBreakdown(UUID id) {
         return breakdownRepository.findById(id).orElseThrow(() -> new BreakdownNotFoundException(id));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<BreakdownDTO> getAllBreakdowns() {
         return breakdownRepository.findAll().stream()
                 .map(BreakdownMapper::toDTO)

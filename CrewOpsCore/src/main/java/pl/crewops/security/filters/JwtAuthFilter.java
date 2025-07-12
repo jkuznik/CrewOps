@@ -1,4 +1,4 @@
-package pl.crewops.security.jwt;
+package pl.crewops.security.filters;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,6 +22,8 @@ import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.security.custom.CustomAuthentication;
 import pl.crewops.security.custom.CustomAuthenticationManager;
 import pl.crewops.security.custom.UserPrincipal;
+import pl.crewops.security.jwt.JwtExceptionResolver;
+import pl.crewops.security.jwt.JwtService;
 
 @Slf4j
 @Component
@@ -39,6 +41,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        // TODO: create new filter to set tenant contex and remove this responsibility from this filter
         TenantContext.clear();
         String requestURI = request.getRequestURI();
         log.info("Request URI: {} - jwt Auth Filter", requestURI);

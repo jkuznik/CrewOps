@@ -54,22 +54,11 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public String extractFirstName(String token) {
-        return extractClaim(token, claims -> claims.get("firstName", String.class));
-    }
-
-    public String extractLastName(String token) {
-        return extractClaim(token, claims -> claims.get("lastName", String.class));
-    }
-
     public String extractTenantCompanyId(String token) {
         return extractClaim(token, claims -> claims.get("tenantCompanyId", String.class));
     }
 
-    public UUID extractEmployeeId(String token) {
-        return extractClaim(token, claims -> claims.get("employeeId", UUID.class));
-    }
-
+    // TODO: delete this if still never used in next code refactor iteration
     public Collection<? extends GrantedAuthority> extractAuthorities(String token) {
         Set<?> rawAuthorities = extractClaim(token, claims -> claims.get("authorities", Set.class));
 

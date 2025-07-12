@@ -32,7 +32,7 @@ class QualificationService implements QualificationAPI {
         return mapToDTO(qualificationRepository.save(mapToEntity(createQualificationDTO)));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Qualification getQualification(UUID qualificationId) {
         log.info("Get qualification: {}", qualificationId);
         return qualificationRepository
@@ -40,7 +40,7 @@ class QualificationService implements QualificationAPI {
                 .orElseThrow(() -> new QualificationNotFoundException(qualificationId));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<QualificationDTO> getQualificationsIn(Set<UUID> ids) {
         log.info("Get qualifications in: {}", ids);
         return qualificationRepository.findAllByIdIn(ids).stream()
@@ -48,7 +48,7 @@ class QualificationService implements QualificationAPI {
                 .toList();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<QualificationDTO> getAllQualifications(int page, int size) {
         PageRequest pageRequest = createPageRequest(page, size, Sort.by(Sort.Order.asc("description")));
 

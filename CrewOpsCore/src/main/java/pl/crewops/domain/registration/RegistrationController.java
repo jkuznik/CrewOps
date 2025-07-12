@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import pl.crewops.dto.CreateCustomerCommand;
+import pl.crewops.dto.tenant.TenantDTO;
 import pl.crewops.enums.ControllerURL;
 
 @RestController
@@ -17,7 +18,7 @@ class RegistrationController {
     private final RegistrationService registrationService;
 
     @PostMapping(ControllerURL.REGISTER)
-    public ResponseEntity<Void> registerCustomer(
+    public ResponseEntity<TenantDTO> registerCustomer(
             @NotNull @Valid @RequestBody CreateCustomerCommand createCustomerCommand) {
         return ResponseEntity.ok(registrationService.registerCustomer(createCustomerCommand));
     }

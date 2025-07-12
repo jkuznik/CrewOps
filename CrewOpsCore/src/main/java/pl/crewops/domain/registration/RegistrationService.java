@@ -14,6 +14,7 @@ import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.dto.CreateCustomerCommand;
 import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
+import pl.crewops.dto.tenant.TenantDTO;
 import pl.crewops.exception.multitenancy.CreateSchemaException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.publicSchema.Tenant;
@@ -33,8 +34,9 @@ class RegistrationService {
     private final TenantAPI tenantAPI;
     private final CompanyAPI companyAPI;
 
+    // TODO: implement security to allow only admin can trigger this method
     @Transactional
-    Void registerCustomer(@Valid @NotNull CreateCustomerCommand createCustomerCommand) {
+    TenantDTO registerCustomer(@Valid @NotNull CreateCustomerCommand createCustomerCommand) {
         String schemaName;
         try {
             schemaName = TenantSchemaNameGenerator.generateTenantSchemaName(
@@ -57,19 +59,23 @@ class RegistrationService {
                 createCustomerCommand.createTenantDTO().createCompanyDTO(),
                 generatedCompanyId);
 
-        // TODO: clean this solution after PoC !!!! extra ugly solution
-        // TODO do it directly after successful implement registration feature
         var createEmployeeDTO = extractCreateEmployeeDTO(createCustomerCommand.createEmployeeDTO(), company.id());
         authAPI.createAuthUserWithRelatedEmployee(createEmployeeDTO);
         TenantContext.clear();
 
-        tenantAPI.saveTenant(tenant);
-        return null;
+        Tenant saveTenant = tenantAPI.saveTenant(tenant);
+        return TenantDTO.builder()
+                .id(tenant.getId())
+                .companyId(saveTenant.getCompanyId())
+                .active(tenant.isActive())
+                .build();
     }
 
     private CreateEmployeeDTO extractCreateEmployeeDTO(@NotNull CreateEmployeeDTO employeeDTO, UUID companyId) {
         return CreateEmployeeDTO.builder()
                 .companyId(
+                        // TODO: clean this solution after PoC !!!! extra ugly solution
+                        // TODO do it directly after successful implement registration feature
                         companyId) // keep attention! this valid is set only to satisfy constraints validations - in be
                 // logic companyId is token other way
                 .firstName(employeeDTO.firstName())

@@ -41,7 +41,7 @@ class CompanyService implements CompanyAPI {
         return mapToDTO(companyRepository.save(company));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public CompanyDTO getCompanyById(UUID companyId) {
         log.info("Get company by id: {}", companyId);
         Company company =

@@ -40,16 +40,19 @@ class AuthService implements AuthAPI {
     private final EmployeeAPI employeeAPI;
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<AuthUser> getByUsername(String username) {
         return authUserRepository.findByUsername(username);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<AuthUser> getByEmployeeId(UUID employeeId) {
         return authUserRepository.findByEmployeeId(employeeId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Employee getEmployeeById(UUID employeeId) {
         return employeeAPI.getEmployee(employeeId);
     }
@@ -61,7 +64,8 @@ class AuthService implements AuthAPI {
             throw new UsernameAlreadyExistException(createEmployeeDTO.username());
         }
 
-        // TODO: modify password generator or allow to add own password in vaadin app
+        // TODO: modify password generator or allow to add own password in vaadin app - do this after sending
+        // notifications implemented to achieve sending generated credentials
         try {
             EmployeeDTO employee = employeeAPI.createEmployee(createEmployeeDTO);
             var createAuthUser = CreateAuthUserDTO.builder()
@@ -133,10 +137,11 @@ class AuthService implements AuthAPI {
         authUserRepository.deleteById(uuid);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public AuthResponse login(AuthRequest authRequest, HttpServletResponse response) {
         try {
-            AuthUser byUsername = byUsername(authRequest.username());
+            AuthUser byUsername = getByUsername(authRequest.username())
+                    .orElseThrow(() -> new UsernameNotFoundException(authRequest.username()));
             log.info("Login action by username: {}", byUsername);
             if (passwordEncoder.matches(authRequest.password(), byUsername.getPassword())) {
                 String schemaName = byUsername.getTenant().getSchemaName();
@@ -153,7 +158,7 @@ class AuthService implements AuthAPI {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ValidTokenResponse validateToken(ValidTokenRequest validTokenRequest) {
         try {
             log.info("Token validation started");
@@ -199,9 +204,5 @@ class AuthService implements AuthAPI {
         } finally {
             TenantContext.clear();
         }
-    }
-
-    private AuthUser byUsername(String username) {
-        return getByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
     }
 }

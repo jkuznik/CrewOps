@@ -30,6 +30,7 @@ import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
+import pl.crewops.dto.tenant.TenantDTO;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
@@ -100,18 +101,19 @@ class CoreClient implements CoreAPI {
     }
 
     @Override
-    public void createNewCustomer(CreateCustomerCommand command) throws NotAuthenticatedException {
+    public Optional<TenantDTO> createNewCustomer(CreateCustomerCommand command) throws NotAuthenticatedException {
         isAuthenticated();
         try {
-            authorizedClient
+            return Optional.ofNullable(authorizedClient
                     .post()
                     .uri(uriBuilder -> uriBuilder.path(REGISTER).build())
                     .body(command)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
-                    .body(new ParameterizedTypeReference<Void>() {});
+                    .body(new ParameterizedTypeReference<TenantDTO>() {}));
         } catch (RestClientException e) {
             log.error("Create new customer error");
+            return Optional.empty();
         }
     }
 

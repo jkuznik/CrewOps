@@ -16,8 +16,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import pl.crewops.security.cvf.ClientValidationFilter;
-import pl.crewops.security.jwt.JwtAuthFilter;
+import pl.crewops.security.filters.ClientValidationFilter;
+import pl.crewops.security.filters.JwtAuthFilter;
 
 @Configuration
 @AllArgsConstructor
@@ -26,6 +26,7 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final ClientValidationFilter clientValidationFilter;
 
+    // TODO: configure current handling endpoint
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)

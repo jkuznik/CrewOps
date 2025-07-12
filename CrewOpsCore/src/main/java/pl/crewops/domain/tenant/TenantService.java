@@ -23,7 +23,7 @@ class TenantService implements TenantAPI {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Tenant getByCompanyId(UUID companyId) {
         return tenantRepository.findByCompanyId(companyId).orElseThrow(() -> new TenantNotExistException(companyId));
     }

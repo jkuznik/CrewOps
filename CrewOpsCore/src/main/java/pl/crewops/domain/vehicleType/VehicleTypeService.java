@@ -25,13 +25,13 @@ class VehicleTypeService implements VehicleTypeAPI {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Optional<VehicleType> getVehicleTypeByName(String name) {
         return vehicleTypeRepository.findByName(name);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<VehicleTypeDTO> getAllVehicleTypes() {
         return vehicleTypeRepository.findAll().stream()
                 .map(VehicleTypeMapper::mapToDTO)

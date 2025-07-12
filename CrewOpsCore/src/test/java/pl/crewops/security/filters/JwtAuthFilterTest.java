@@ -1,4 +1,4 @@
-package pl.crewops.security.jwt;
+package pl.crewops.security.filters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,6 +28,8 @@ import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.security.custom.CustomAuthentication;
 import pl.crewops.security.custom.CustomAuthenticationManager;
 import pl.crewops.security.custom.UserPrincipal;
+import pl.crewops.security.jwt.JwtExceptionResolver;
+import pl.crewops.security.jwt.JwtService;
 
 @SpringJUnitConfig(
         classes = {
