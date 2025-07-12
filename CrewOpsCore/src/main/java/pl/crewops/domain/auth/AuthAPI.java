@@ -31,7 +31,7 @@ public interface AuthAPI {
 
     ValidTokenResponse validateToken(@NotNull @Valid ValidTokenRequest validTokenRequest);
 
-    EmployeeDTO createEmployee(@NotNull @Valid CreateEmployeeDTO createEmployeeDTO);
+    EmployeeDTO createAuthUserWithRelatedEmployee(@NotNull @Valid CreateEmployeeDTO createEmployeeDTO);
 
     void deleteEmployee(UUID employeeId);
 

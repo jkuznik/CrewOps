@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
@@ -23,7 +22,6 @@ import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
-import pl.crewops.dto.tenant.TenantDTO;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
@@ -71,16 +69,9 @@ public interface CoreAPI {
 
     List<VehicleTypeDTO> getAllVehicleTypes() throws NotAuthenticatedException;
 
-    Optional<VehicleDTO> getVehicleByRegisterNumber(@Valid @NotNull String registerNumber)
-            throws NotAuthenticatedException;
-
     List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException;
 
     Optional<CompanyDTO> getCompanyById(@NotNull UUID companyId) throws NotAuthenticatedException;
-
-    List<QualificationDTO> getQualificationsByIds(Set<UUID> qualificationIds) throws NotAuthenticatedException;
-
-    List<VehicleDTO> getVehiclesByIds(Set<UUID> vehicleIds) throws NotAuthenticatedException;
 
     void deleteEmployee(@NotNull UUID employeeId) throws NotAuthenticatedException;
 

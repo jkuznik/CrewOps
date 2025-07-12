@@ -38,7 +38,8 @@ class AuthController {
     @PostMapping(EMPLOYEES)
     public ResponseEntity<EmployeeDTO> createEmployee(
             @NotNull @Valid @RequestBody CreateEmployeeDTO createEmployeeDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authAPI.createEmployee(createEmployeeDTO));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(authAPI.createAuthUserWithRelatedEmployee(createEmployeeDTO));
     }
 
     @DeleteMapping(EMPLOYEES_EID)

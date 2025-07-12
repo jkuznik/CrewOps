@@ -5,9 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
-import pl.crewops.dto.address.AddressDTO;
 
 @Builder
 public record CreateCompanyDTO(
-        @Size(max = 63) @NotNull @NotBlank String name,
-        @Email @NotNull @NotBlank String email) {}
+        @Size(max = 63) @NotNull @NotBlank String name, @Email @NotNull @NotBlank String email) {}

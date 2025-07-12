@@ -60,7 +60,7 @@ class RegistrationService {
         // TODO: clean this solution after PoC !!!! extra ugly solution
         // TODO do it directly after successful implement registration feature
         var createEmployeeDTO = extractCreateEmployeeDTO(createCustomerCommand.createEmployeeDTO(), company.id());
-        authAPI.createEmployee(createEmployeeDTO);
+        authAPI.createAuthUserWithRelatedEmployee(createEmployeeDTO);
         TenantContext.clear();
 
         tenantAPI.saveTenant(tenant);

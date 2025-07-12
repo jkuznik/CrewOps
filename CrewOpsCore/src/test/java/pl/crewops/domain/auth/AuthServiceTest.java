@@ -122,7 +122,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void createEmployee_ShouldThrowException_whenUsernameAlreadyExists() {
+    void createAuthUserWithRelatedEmployee_ShouldThrowException_whenUsernameAlreadyExists() {
         // given
         var existedUsername = "existedUsername";
         CreateEmployeeDTO createEmployeeDTO = CreateEmployeeDTO.builder()
@@ -139,7 +139,7 @@ class AuthServiceTest {
 
         // when
         when(authUserRepository.findByUsername(existedUsername)).thenReturn(Optional.of(new AuthUser()));
-        var result = catchException(() -> authService.createEmployee(createEmployeeDTO));
+        var result = catchException(() -> authService.createAuthUserWithRelatedEmployee(createEmployeeDTO));
 
         // then
         assertThat(result).isExactlyInstanceOf(UsernameAlreadyExistException.class);

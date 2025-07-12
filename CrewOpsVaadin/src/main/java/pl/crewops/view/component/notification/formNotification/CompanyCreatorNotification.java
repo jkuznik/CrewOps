@@ -4,6 +4,10 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.textfield.TextField;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Consumer;
 import pl.crewops.auth.RoleDTO;
 import pl.crewops.dto.CreateCustomerCommand;
 import pl.crewops.dto.address.CreateAddressDTO;
@@ -14,11 +18,6 @@ import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.view.component.form.EmployeeForm;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Consumer;
 
 public class CompanyCreatorNotification extends Notification {
 
@@ -31,8 +30,7 @@ public class CompanyCreatorNotification extends Notification {
 
         var companyCreatorForm = new CompanyCreatorForm();
 
-        companyCreatorForm.addSaveButtonListener(companyInformation -> createNewTenant(coreAPI, companyInformation)
-                );
+        companyCreatorForm.addSaveButtonListener(companyInformation -> createNewTenant(coreAPI, companyInformation));
         companyCreatorForm.addCloseButtonListener(event -> close());
         add(companyCreatorForm);
     }
@@ -40,11 +38,14 @@ public class CompanyCreatorNotification extends Notification {
     private void createNewTenant(CoreAPI coreAPI, CompanyInformation companyInformation) {
         var createTenantDTO = getCreateTenantDTO(companyInformation);
         var createEmployeeDTO = CreateEmployeeDTO.builder()
-                .companyId(UUID.randomUUID())   // keep attention! this valid is set only to satisfy constraints validations - in be logic companyId is token other way
+                .companyId(UUID.randomUUID()) // keep attention! this valid is set only to satisfy constraints
+                // validations - in
+                // be logic companyId is token other way
                 .firstName(companyInformation.initialEmployeeInfo.getFirstName())
                 .lastName(companyInformation.initialEmployeeInfo.getLastName())
                 .department(companyInformation.initialEmployeeInfo.getDepartment())
-                //TODO: modify this to allow set own pass and username or implement generate mechanism (on the BE side but remind to clean DTO)
+                // TODO: modify this to allow set own pass and username or implement generate mechanism (on the BE side
+                // but remind to clean DTO)
                 .username(companyInformation.initialEmployeeInfo.getFirstName())
                 .password("pass")
                 .phoneNumber(companyInformation.initialEmployeeInfo.getPhoneNumber())
@@ -131,8 +132,7 @@ public class CompanyCreatorNotification extends Notification {
                         city.getValue(),
                         street.getValue(),
                         localNumber.getValue(),
-                        event.getEmployee()
-                ));
+                        event.getEmployee()));
             }
         }
 
@@ -158,8 +158,5 @@ public class CompanyCreatorNotification extends Notification {
             String city,
             String street,
             String localNumber,
-            EmployeeFormModel initialEmployeeInfo
-    ) {
-
-    }
+            EmployeeFormModel initialEmployeeInfo) {}
 }

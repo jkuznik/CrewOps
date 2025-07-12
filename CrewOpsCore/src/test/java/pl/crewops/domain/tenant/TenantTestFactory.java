@@ -1,7 +1,6 @@
 package pl.crewops.domain.tenant;
 
 import java.util.UUID;
-import pl.crewops.dto.address.AddressDTO;
 import pl.crewops.dto.address.CreateAddressDTO;
 import pl.crewops.dto.company.CreateCompanyDTO;
 import pl.crewops.dto.tenant.CreateTenantDTO;
@@ -23,12 +22,6 @@ class TenantTestFactory {
                 .createCompanyDTO(CreateCompanyDTO.builder()
                         .name("companyName")
                         .email("test@email.com")
-                        .address(AddressDTO.builder()
-                                .postalCode("postalCode")
-                                .city("city")
-                                .street("street")
-                                .localNumber("localNumber")
-                                .build())
                         .build())
                 .build();
     }
