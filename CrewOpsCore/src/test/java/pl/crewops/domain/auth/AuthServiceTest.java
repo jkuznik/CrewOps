@@ -113,7 +113,7 @@ class AuthServiceTest {
         when(roleRepository.findById(any())).thenReturn(Optional.of(role));
         when(authUserRepository.save(any())).thenReturn(authUser);
 
-        AuthUser result = authService.createAuthUser(createAuthUserDTO, randomUUID, "tenantName");
+        AuthUser result = authService.createAuthUser(createAuthUserDTO, randomUUID, UUID.randomUUID());
 
         // then
         assertThat(result).isNotNull();
@@ -122,7 +122,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void createEmployee_ShouldThrowException_whenUsernameAlreadyExists() {
+    void createAuthUserWithRelatedEmployee_ShouldThrowException_whenUsernameAlreadyExists() {
         // given
         var existedUsername = "existedUsername";
         CreateEmployeeDTO createEmployeeDTO = CreateEmployeeDTO.builder()
@@ -134,12 +134,12 @@ class AuthServiceTest {
                 .username(existedUsername)
                 .password("password")
                 .roles(Set.of())
-                .tenantName(IntegrationTest.TEST_TENANT_NAME)
+                .companyId(IntegrationTest.TEST_TENANT_COMPANY_ID)
                 .build();
 
         // when
         when(authUserRepository.findByUsername(existedUsername)).thenReturn(Optional.of(new AuthUser()));
-        var result = catchException(() -> authService.createEmployee(createEmployeeDTO));
+        var result = catchException(() -> authService.createAuthUserWithRelatedEmployee(createEmployeeDTO));
 
         // then
         assertThat(result).isExactlyInstanceOf(UsernameAlreadyExistException.class);
@@ -151,7 +151,7 @@ class AuthServiceTest {
         String rawPassword = "plainPassword";
         String encodedPassword = "encodedPassword";
         String token = "jwt-token";
-        Tenant tenant = Tenant.builder().name("test-tenant").build();
+        Tenant tenant = Tenant.builder().companyId(UUID.randomUUID()).build();
         Employee employee =
                 Employee.builder().firstName("firstName").lastName("lastName").build();
 
@@ -223,7 +223,7 @@ class AuthServiceTest {
         // when
         when(authUserRepository.findByUsername("username")).thenReturn(Optional.of(authUser));
         Exception result = Assertions.catchException(
-                () -> authService.createAuthUser(createAuthUserDTO, UUID.randomUUID(), "tenantName"));
+                () -> authService.createAuthUser(createAuthUserDTO, UUID.randomUUID(), UUID.randomUUID()));
 
         // then
         assertThat(result).isExactlyInstanceOf(UsernameAlreadyExistException.class);
@@ -233,7 +233,7 @@ class AuthServiceTest {
     void validateToken_shouldReturnValidTokenResponse_whenTokenIsValid() {
         // given
         var username = "username";
-        var tenant = Tenant.builder().name("test-tenant").build();
+        var tenant = Tenant.builder().companyId(UUID.randomUUID()).build();
 
         var authUser = AuthUser.builder()
                 .username("username")

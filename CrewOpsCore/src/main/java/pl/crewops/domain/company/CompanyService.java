@@ -1,0 +1,52 @@
+package pl.crewops.domain.company;
+
+import static pl.crewops.domain.company.CompanyMapper.mapToDTO;
+import static pl.crewops.domain.company.CompanyMapper.mapToEntity;
+
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import pl.crewops.domain.address.AddressAPI;
+import pl.crewops.dto.address.CreateAddressDTO;
+import pl.crewops.dto.company.CompanyDTO;
+import pl.crewops.dto.company.CreateCompanyDTO;
+import pl.crewops.exception.domain.company.CompanyNotFoundException;
+import pl.crewops.exception.domain.company.NoUniqueCompanyEmailException;
+import pl.crewops.model.Address;
+import pl.crewops.model.Company;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+class CompanyService implements CompanyAPI {
+
+    private final CompanyRepository companyRepository;
+    private final AddressAPI addressAPI;
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public CompanyDTO createCompany(
+            CreateAddressDTO createAddressDTO, CreateCompanyDTO createCompanyDTO, UUID companyId)
+            throws NoUniqueCompanyEmailException {
+        if (companyRepository.findByEmail(createCompanyDTO.email()).isPresent()) {
+            throw new NoUniqueCompanyEmailException(createCompanyDTO.email());
+        }
+        Address address = addressAPI.createAddress(createAddressDTO);
+        var company = mapToEntity(createCompanyDTO);
+        company.setId(companyId);
+        company.setAddress(address);
+        return mapToDTO(companyRepository.save(company));
+    }
+
+    @Transactional
+    public CompanyDTO getCompanyById(UUID companyId) {
+        log.info("Get company by id: {}", companyId);
+        Company company =
+                companyRepository.findById(companyId).orElseThrow(() -> new CompanyNotFoundException(companyId));
+        log.info("Company name: {}", company.getName());
+        return mapToDTO(company);
+    }
+}

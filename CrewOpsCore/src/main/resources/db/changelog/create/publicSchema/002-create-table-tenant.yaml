@@ -10,16 +10,14 @@ databaseChangeLog:
                   name: id
                   type: uuid
                   constraints:
-                    nullable: false
                     primaryKey: true
+                    nullable: false
               - column:
                   name: version
                   type: integer
-                  constraints:
-                    nullable: true
               - column:
-                  name: name
-                  type: varchar(63)
+                  name: company_id
+                  type: uuid
                   constraints:
                     nullable: false
                     unique: true
@@ -32,11 +30,6 @@ databaseChangeLog:
               - column:
                   name: active
                   type: boolean
-                  constraints:
-                    nullable: false
-              - column:
-                  name: status
-                  type: varchar(31)
                   constraints:
                     nullable: false
               - column:

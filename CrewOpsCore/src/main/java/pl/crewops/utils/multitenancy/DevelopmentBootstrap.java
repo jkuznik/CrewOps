@@ -31,8 +31,23 @@ public class DevelopmentBootstrap {
         this.liquibaseSchemaMigrator = liquibaseSchemaMigrator;
         this.dataSource = dataSource;
 
-        String schemaName = "testtenant_2f3b1d5c9e8f";
+        String testSchemaName = "testtenant_2f3b1d5c9e8f";
+        String testValues = "db/changelog/insert/002-insert-development-requirement-values.yaml";
+        executeInsert(tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, testSchemaName, testValues);
 
+        // TODO: modify way to create admin user before starts production
+        String adminSchemaName = "crewops_2b3b7d5c9e8f";
+        String adminValues = "db/changelog/insert/005-insert-admin-account-values.yaml";
+
+        executeInsert(tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, adminSchemaName, adminValues);
+    }
+
+    private static void executeInsert(
+            TenantSchemaInitializer tenantSchemaInitializer,
+            LiquibaseSchemaMigrator liquibaseSchemaMigrator,
+            DataSource dataSource,
+            String schemaName,
+            String changelogSrc) {
         tenantSchemaInitializer.createSchemaIfNotExists(schemaName);
         liquibaseSchemaMigrator.runMigrations(schemaName);
 
@@ -44,10 +59,7 @@ public class DevelopmentBootstrap {
 
             database.setDefaultSchemaName(schemaName);
 
-            Liquibase liquibase = new Liquibase(
-                    "db/changelog/insert/001-insert-development-initial-values.yaml",
-                    new ClassLoaderResourceAccessor(),
-                    database);
+            Liquibase liquibase = new Liquibase(changelogSrc, new ClassLoaderResourceAccessor(), database);
 
             liquibase.update(new Contexts(), new LabelExpression());
         } catch (Exception e) {

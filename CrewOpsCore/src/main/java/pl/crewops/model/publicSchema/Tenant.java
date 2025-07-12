@@ -1,8 +1,8 @@
 package pl.crewops.model.publicSchema;
 
 import jakarta.persistence.*;
+import java.util.UUID;
 import lombok.*;
-import pl.crewops.enums.TenantStatus;
 import pl.crewops.model.AbstractEntity;
 
 @Getter
@@ -14,17 +14,11 @@ import pl.crewops.model.AbstractEntity;
 @Table(name = "tenant", schema = "public")
 public class Tenant extends AbstractEntity {
 
-    // TODO consider to add new relation with table 'tenant_info'
-    // where can be stored more specific information about tenant like address or phone number
-    @Column(nullable = false, unique = true)
-    private String name;
+    @Column(name = "company_id", nullable = false, unique = true)
+    private UUID companyId;
 
     @Column(nullable = false, unique = true)
     private String schemaName;
 
     private boolean active;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TenantStatus status;
 }

@@ -116,6 +116,6 @@ class BreakdownTestFactory {
     }
 
     private static Set<RoleDTO> roleDTOSet() {
-        return Set.of(RoleDTO.builder().id(roleId).name("name").build());
+        return Set.of(RoleDTO.builder().name("name").build());
     }
 }

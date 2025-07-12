@@ -61,7 +61,7 @@ class EmployeeTestFactory {
                 .username("username")
                 .password("password")
                 .roles(Set.of())
-                .tenantName(IntegrationTest.TEST_TENANT_NAME)
+                .companyId(IntegrationTest.TEST_TENANT_COMPANY_ID)
                 .build();
     }
 

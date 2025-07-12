@@ -1,6 +1,6 @@
 package pl.crewops.enums;
 
-public enum TenantStatus {
+public enum CompanyStatus {
     TRIAL,
     ACTIVE,
     UNPAID,

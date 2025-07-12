@@ -1,0 +1,67 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-table-address
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: address
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+                  defaultValueComputed: gen_random_uuid()
+              - column:
+                  name: version
+                  type: integer
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+              - column:
+                  name: postal_code
+                  type: varchar(31)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: city
+                  type: varchar(31)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: street
+                  type: varchar(31)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: local_number
+                  type: varchar(31)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 002-create-address-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS address_updated_at_trigger ON address;
+              CREATE TRIGGER address_updated_at_trigger
+              BEFORE UPDATE ON address
+              FOR EACH ROW
+              EXECUTE FUNCTION public.update_updated_at();

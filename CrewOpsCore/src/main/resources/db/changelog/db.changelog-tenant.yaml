@@ -33,7 +33,11 @@
         file: db/changelog/create/tenantSchema/006-create-table-breakdown.yaml
     - include:
         file: db/changelog/create/tenantSchema/007-create-table-vehicle-type.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/008-create-table-address.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/009-create-table-company.yaml
 
  #   # TODO: config multi profiles and remove this from prod
     - include:
-        file: db/changelog/insert/001-insert-development-initial-values.yaml
+        file: db/changelog/insert/002-insert-development-requirement-values.yaml

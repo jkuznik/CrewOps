@@ -4,14 +4,10 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import pl.crewops.dto.tenant.CreateTenantDTO;
-import pl.crewops.dto.tenant.TenantDTO;
-import pl.crewops.exception.multitenancy.CreateSchemaException;
 import pl.crewops.exception.multitenancy.TenantNotExistException;
 import pl.crewops.model.publicSchema.Tenant;
-import pl.crewops.utils.multitenancy.LiquibaseSchemaMigrator;
-import pl.crewops.utils.multitenancy.TenantSchemaInitializer;
 
 @Slf4j
 @Service
@@ -19,32 +15,16 @@ import pl.crewops.utils.multitenancy.TenantSchemaInitializer;
 class TenantService implements TenantAPI {
 
     private final TenantRepository tenantRepository;
-    private final TenantSchemaInitializer tenantSchemaInitializer;
-    private final LiquibaseSchemaMigrator liquibaseSchemaMigrator;
 
     @Override
-    @Transactional
-    public TenantDTO createTenant(CreateTenantDTO createTenantDTO) {
-        var notPersistedTenant = TenantMapper.mapToEntity(createTenantDTO);
-
-        String schemaName;
-        try {
-            schemaName =
-                    TenantSchemaNameGenerator.generateTenantSchemaName(notPersistedTenant.getName(), UUID.randomUUID());
-            tenantSchemaInitializer.createSchemaIfNotExists(schemaName);
-            liquibaseSchemaMigrator.runMigrations(schemaName);
-        } catch (CreateSchemaException e) {
-            log.error(e.getMessage());
-            throw new RuntimeException(e);
-        }
-
-        notPersistedTenant.setSchemaName(schemaName);
-        return TenantMapper.mapToDTO(tenantRepository.save(notPersistedTenant));
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Tenant saveTenant(Tenant tenant) {
+        return tenantRepository.save(tenant);
     }
 
     @Override
     @Transactional
-    public Tenant getByName(String name) {
-        return tenantRepository.findByName(name).orElseThrow(() -> new TenantNotExistException(name));
+    public Tenant getByCompanyId(UUID companyId) {
+        return tenantRepository.findByCompanyId(companyId).orElseThrow(() -> new TenantNotExistException(companyId));
     }
 }

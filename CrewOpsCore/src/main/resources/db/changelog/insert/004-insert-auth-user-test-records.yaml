@@ -4,40 +4,26 @@ databaseChangeLog:
       author: jkuznik
       changes:
         - insert:
-            tableName: role
-            columns:
-              - column: { name: id, value: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
-              - column: { name: name, value: "MANAGER" }
-
-        - insert:
-            tableName: role
-            columns:
-              - column: { name: id, value: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" }
-              - column: { name: name, value: "EMPLOYEE" }
-
-        - insert:
-            tableName: role
-            columns:
-              - column: { name: id, value: "cccccccc-cccc-cccc-cccc-cccccccccccc" }
-              - column: { name: name, value: "SHIFT_LEADER" }
-
-        - insert:
-            tableName: role
-            columns:
-              - column: { name: id, value: "dddddddd-dddd-dddd-dddd-dddddddddddd" }
-              - column: { name: name, value: "ADMIN" }
-
-        - insert:
             tableName: auth_user
             columns:
               - column: { name: id, value: "cccccccc-cccc-cccc-cccc-cccccccccccc" }
-              - column: { name: username, value: "admin" }
+              - column: { name: username, value: "manager" }
               - column: { name: password, value: "$2a$10$njg7g8ZWIxIpGEap4x7XQ.RGShM6ti/kLZ6402ZvnmqyeTtFlcseK" }  # bcrypt hash
               - column: { name: tenant_id, value: "2f3b1d5c-9e8f-4bca-9c56-123456789abc" }
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: employee_id, value: "11111111-1111-1111-1111-111111111111" }
 
+        - insert:
+            tableName: auth_user
+            columns:
+              - column: { name: id, value: "2bc51b6d-1f3a-4bca-9c56-123456789abc" }
+              - column: { name: username, value: "admin" }
+              - column: { name: password, value: "$2a$10$njg7g8ZWIxIpGEap4x7XQ.RGShM6ti/kLZ6402ZvnmqyeTtFlcseK" }  # bcrypt hash
+              - column: { name: tenant_id, value: "2b3b7d5c-9e8f-4bca-9c56-123456789abc" }
+              - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column: { name: employee_id, value: "1cd62a5c-9e2f-4bca-9c56-123456789abc" }
 
         - insert:
             tableName: auth_user
@@ -62,23 +48,6 @@ databaseChangeLog:
               - column: { name: employee_id, value: "77777777-7777-7777-7777-777777777777" }
 
         - insert:
-            tableName: auth_user_role
-            columns:
-              - column: { name: auth_user_id, value: "cccccccc-cccc-cccc-cccc-cccccccccccc" }
-              - column: { name: role_id, value: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
-
-        - insert:
-            tableName: auth_user_role
-            columns:
-              - column: { name: auth_user_id, value: "dddddddd-dddd-dddd-dddd-dddddddddddd" }
-              - column: { name: role_id, value: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" }
-
-        - insert:
-            tableName: auth_user_role
-            columns:
-              - column: { name: auth_user_id, value: "ffffffff-ffff-ffff-ffff-ffffffffffff" }
-              - column: { name: role_id, value: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
-        - insert:
             tableName: auth_user
             columns:
               - column: { name: id, value: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee" }
@@ -99,18 +68,6 @@ databaseChangeLog:
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: employee_id, value: "99999999-9999-9999-9999-999999999999" }
-
-        - insert:
-            tableName: auth_user_role
-            columns:
-              - column: { name: auth_user_id, value: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee" }
-              - column: { name: role_id, value: "cccccccc-cccc-cccc-cccc-cccccccccccc" }  # SHIFT_LEADER
-
-        - insert:
-            tableName: auth_user_role
-            columns:
-              - column: { name: auth_user_id, value: "99999999-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
-              - column: { name: role_id, value: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }  # MANAGER
 
         - insert:
             tableName: auth_user
@@ -138,10 +95,46 @@ databaseChangeLog:
             tableName: auth_user_role
             columns:
               - column: { name: auth_user_id, value: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" }
-              - column: { name: role_id, value: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" }  # EMPLOYEE
+              - column: { name: role_id, value: "f8bd1c2a-79a4-4713-8748-37604be09e12" }  # EMPLOYEE
 
         - insert:
             tableName: auth_user_role
             columns:
               - column: { name: auth_user_id, value: "bbbbbbbb-cccc-dddd-eeee-ffffffffffff" }
-              - column: { name: role_id, value: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" }  # EMPLOYEE
+              - column: { name: role_id, value: "f8bd1c2a-79a4-4713-8748-37604be09e12" }
+
+        - insert:
+            tableName: auth_user_role
+            columns:
+              - column: { name: auth_user_id, value: "dddddddd-dddd-dddd-dddd-dddddddddddd" }
+              - column: { name: role_id, value: "f8bd1c2a-79a4-4713-8748-37604be09e12" }  # EMPLOYEE
+
+        - insert:
+            tableName: auth_user_role
+            columns:
+              - column: { name: auth_user_id, value: "cccccccc-cccc-cccc-cccc-cccccccccccc" }
+              - column: { name: role_id, value: "5f3a5ee4-1e2c-4f6a-861b-4cb860ff2a13" }  # MANAGER
+
+        - insert:
+            tableName: auth_user_role
+            columns:
+              - column: { name: auth_user_id, value: "ffffffff-ffff-ffff-ffff-ffffffffffff" }
+              - column: { name: role_id, value: "5f3a5ee4-1e2c-4f6a-861b-4cb860ff2a13" }
+
+        - insert:
+            tableName: auth_user_role
+            columns:
+              - column: { name: auth_user_id, value: "99999999-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
+              - column: { name: role_id, value: "5f3a5ee4-1e2c-4f6a-861b-4cb860ff2a13" }  # MANAGER
+
+        - insert:
+            tableName: auth_user_role
+            columns:
+              - column: { name: auth_user_id, value: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee" }
+              - column: { name: role_id, value: "f6da9837-73b9-49ae-a9ff-7b2d0b493b33" }  # SHIFT_LEADER
+
+        - insert:
+            tableName: auth_user_role
+            columns:
+              - column: { name: auth_user_id, value: "2bc51b6d-1f3a-4bca-9c56-123456789abc" }
+              - column: { name: role_id, value: "e90a0e1e-8ab9-41ec-b98e-23a7bba4ef58" }  # ADMIN

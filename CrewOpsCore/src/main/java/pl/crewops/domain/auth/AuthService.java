@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.auth.*;
 import pl.crewops.domain.employee.EmployeeAPI;
@@ -53,13 +54,14 @@ class AuthService implements AuthAPI {
         return employeeAPI.getEmployee(employeeId);
     }
 
-    @Transactional
-    public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public EmployeeDTO createAuthUserWithRelatedEmployee(CreateEmployeeDTO createEmployeeDTO) {
         log.info("Create employee current tenant is: {}", TenantContext.getCurrentTenant());
         if (getByUsername(createEmployeeDTO.username()).isPresent()) {
             throw new UsernameAlreadyExistException(createEmployeeDTO.username());
         }
 
+        // TODO: modify password generator or allow to add own password in vaadin app
         try {
             EmployeeDTO employee = employeeAPI.createEmployee(createEmployeeDTO);
             var createAuthUser = CreateAuthUserDTO.builder()
@@ -67,7 +69,7 @@ class AuthService implements AuthAPI {
                     .password(createEmployeeDTO.password())
                     .roles(createEmployeeDTO.roles())
                     .build();
-            createAuthUser(createAuthUser, employee.id(), createEmployeeDTO.tenantName());
+            createAuthUser(createAuthUser, employee.id(), createEmployeeDTO.companyId());
             log.info("Create employee {}", createEmployeeDTO);
             return employee;
         } catch (Exception e) {
@@ -94,13 +96,13 @@ class AuthService implements AuthAPI {
     }
 
     @Transactional
-    public AuthUser createAuthUser(CreateAuthUserDTO createAuthUserDTO, UUID employeeId, String tenantName) {
+    public AuthUser createAuthUser(CreateAuthUserDTO createAuthUserDTO, UUID employeeId, UUID companyId) {
         if (getByUsername(createAuthUserDTO.username()).isPresent()) {
             log.error("Username " + createAuthUserDTO.username() + " already exists");
             throw new UsernameAlreadyExistException("Username " + createAuthUserDTO.username() + " already exists");
         }
         try {
-            Tenant tenant = tenantAPI.getByName(tenantName);
+            Tenant tenant = tenantAPI.getByCompanyId(companyId);
             var authUser = new AuthUser();
             authUser.setUsername(createAuthUserDTO.username());
             authUser.setPassword(passwordEncoder.encode(createAuthUserDTO.password()));

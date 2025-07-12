@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
@@ -12,9 +11,11 @@ import pl.crewops.auth.AuthRequest;
 import pl.crewops.auth.AuthResponse;
 import pl.crewops.auth.ValidTokenRequest;
 import pl.crewops.auth.ValidTokenResponse;
+import pl.crewops.dto.CreateCustomerCommand;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
+import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -49,6 +50,8 @@ public interface CoreAPI {
     Optional<VehicleDTO> createVehicle(@Valid @NotNull CreateVehicleDTO createVehicleDTO)
             throws NotAuthenticatedException;
 
+    void createNewCustomer(@Valid @NotNull CreateCustomerCommand command) throws NotAuthenticatedException;
+
     Optional<VehicleDTO> updateVehicle(@Valid @NotNull UpdateVehicleDTO updateVehicleDTO)
             throws NotAuthenticatedException;
 
@@ -66,14 +69,9 @@ public interface CoreAPI {
 
     List<VehicleTypeDTO> getAllVehicleTypes() throws NotAuthenticatedException;
 
-    Optional<VehicleDTO> getVehicleByRegisterNumber(@Valid @NotNull String registerNumber)
-            throws NotAuthenticatedException;
-
     List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException;
 
-    List<QualificationDTO> getQualificationsByIds(Set<UUID> qualificationIds) throws NotAuthenticatedException;
-
-    List<VehicleDTO> getVehiclesByIds(Set<UUID> vehicleIds) throws NotAuthenticatedException;
+    Optional<CompanyDTO> getCompanyById(@NotNull UUID companyId) throws NotAuthenticatedException;
 
     void deleteEmployee(@NotNull UUID employeeId) throws NotAuthenticatedException;
 

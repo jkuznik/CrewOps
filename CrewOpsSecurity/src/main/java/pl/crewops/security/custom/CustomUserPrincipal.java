@@ -9,7 +9,7 @@ public interface CustomUserPrincipal extends UserDetails {
 
     String getLastName();
 
-    String getTenantName();
+    UUID getCompanyId();
 
     UUID getEmployeeId();
 }

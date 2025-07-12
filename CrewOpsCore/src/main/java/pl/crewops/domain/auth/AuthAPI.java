@@ -23,7 +23,7 @@ public interface AuthAPI {
     AuthUser createAuthUser(
             @NotNull @Valid CreateAuthUserDTO createAuthUserDTO,
             @NotNull @Valid UUID employeeId,
-            @NotNull @NotBlank String tenantName);
+            @NotNull @NotBlank UUID companyId);
 
     void deleteById(@NotNull UUID uuid);
 
@@ -31,7 +31,7 @@ public interface AuthAPI {
 
     ValidTokenResponse validateToken(@NotNull @Valid ValidTokenRequest validTokenRequest);
 
-    EmployeeDTO createEmployee(@NotNull @Valid CreateEmployeeDTO createEmployeeDTO);
+    EmployeeDTO createAuthUserWithRelatedEmployee(@NotNull @Valid CreateEmployeeDTO createEmployeeDTO);
 
     void deleteEmployee(UUID employeeId);
 

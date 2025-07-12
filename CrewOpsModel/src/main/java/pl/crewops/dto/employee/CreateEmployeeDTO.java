@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.Set;
+import java.util.UUID;
 import lombok.Builder;
 import pl.crewops.auth.RoleDTO;
 
@@ -17,5 +18,5 @@ public record CreateEmployeeDTO(
         @Size(max = 50) @NotNull @NotBlank String department,
         @Size(max = 50) @NotNull @NotBlank String username,
         @Size(max = 50) @NotNull @NotBlank String password,
-        @Size(max = 50) @NotNull @NotBlank String tenantName,
+        @NotNull UUID companyId,
         Set<RoleDTO> roles) {}

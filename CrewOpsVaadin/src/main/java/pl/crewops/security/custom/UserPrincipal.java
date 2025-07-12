@@ -14,7 +14,7 @@ public class UserPrincipal implements CustomUserPrincipal {
     private final String username;
     private final String firstName;
     private final String lastName;
-    private final String tenantName;
+    private final UUID companyId;
     private final Set<RoleGrantedAuthority> grantedAuthorities;
 
     @Getter
@@ -41,8 +41,8 @@ public class UserPrincipal implements CustomUserPrincipal {
     }
 
     @Override
-    public String getTenantName() {
-        return tenantName;
+    public UUID getCompanyId() {
+        return companyId;
     }
 
     @Override

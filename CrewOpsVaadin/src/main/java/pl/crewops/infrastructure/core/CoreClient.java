@@ -4,7 +4,6 @@ import static pl.crewops.enums.ControllerURL.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +19,11 @@ import pl.crewops.auth.AuthRequest;
 import pl.crewops.auth.AuthResponse;
 import pl.crewops.auth.ValidTokenRequest;
 import pl.crewops.auth.ValidTokenResponse;
+import pl.crewops.dto.CreateCustomerCommand;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
+import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -46,6 +47,7 @@ class CoreClient implements CoreAPI {
     @Setter
     private boolean authenticated;
 
+    @Override
     public AuthResponse login(AuthRequest authRequest) {
         try {
             return coreClient
@@ -61,6 +63,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    @Override
     public ValidTokenResponse validateToken(ValidTokenRequest validTokenRequest) {
         try {
             log.debug("Validating token start");
@@ -78,6 +81,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    @Override
     @CacheEvict(value = "employeeCache", allEntries = true)
     public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) throws NotAuthenticatedException {
         isAuthenticated();
@@ -95,6 +99,23 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    @Override
+    public void createNewCustomer(CreateCustomerCommand command) throws NotAuthenticatedException {
+        isAuthenticated();
+        try {
+            authorizedClient
+                    .post()
+                    .uri(uriBuilder -> uriBuilder.path(REGISTER).build())
+                    .body(command)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<Void>() {});
+        } catch (RestClientException e) {
+            log.error("Create new customer error");
+        }
+    }
+
+    @Override
     public Optional<EmployeeDTO> updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -110,6 +131,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    @Override
     public Optional<QualificationDTO> updateQualification(UpdateQualificationDTO updateQualificationDTO)
             throws NotAuthenticatedException {
         isAuthenticated();
@@ -127,6 +149,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    @Override
     public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO)
             throws NotAuthenticatedException {
         isAuthenticated();
@@ -144,6 +167,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    @Override
     public Optional<VehicleDTO> createVehicle(CreateVehicleDTO createVehicleDTO) throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -160,6 +184,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    @Override
     public Optional<VehicleDTO> updateVehicle(UpdateVehicleDTO updateVehicleDTO) throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -209,6 +234,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    @Override
     @Cacheable(cacheNames = "employeeCache")
     public List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException {
         isAuthenticated();
@@ -225,6 +251,24 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    @Override
+    public Optional<CompanyDTO> getCompanyById(UUID companyId) throws NotAuthenticatedException {
+        log.info("Call getCompanyById");
+        isAuthenticated();
+        try {
+            return authorizedClient
+                    .get()
+                    .uri(uriBuilder -> uriBuilder.path(COMPANIES_CID).build(companyId))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<Optional<CompanyDTO>>() {});
+        } catch (RestClientException e) {
+            log.error("Error getting company by id");
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -240,6 +284,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    @Override
     public List<VehicleDTO> getAllVehicles() throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -272,20 +317,6 @@ class CoreClient implements CoreAPI {
     }
 
     @Override
-    public Optional<VehicleDTO> getVehicleByRegisterNumber(String registerNumber) throws NotAuthenticatedException {
-        isAuthenticated();
-        try {
-            return authorizedClient
-                    .get()
-                    .uri(uriBuilder -> uriBuilder.path(VEHICLES_RN).build(registerNumber))
-                    .retrieve()
-                    .body(new ParameterizedTypeReference<Optional<VehicleDTO>>() {});
-        } catch (RestClientException e) {
-            log.error("Error getting vehicle");
-            return Optional.empty();
-        }
-    }
-
     public List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -301,38 +332,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    public List<QualificationDTO> getQualificationsByIds(Set<UUID> qualificationsIds) throws NotAuthenticatedException {
-        isAuthenticated();
-        try {
-            return authorizedClient
-                    .post()
-                    .uri(uriBuilder -> uriBuilder.path(QUALIFICATIONS_QIDS).build())
-                    .body(qualificationsIds)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .retrieve()
-                    .body(new ParameterizedTypeReference<List<QualificationDTO>>() {});
-        } catch (RestClientException e) {
-            log.error("Error getting qualifications", e);
-            return List.of();
-        }
-    }
-
-    public List<VehicleDTO> getVehiclesByIds(Set<UUID> vehiclesIds) throws NotAuthenticatedException {
-        isAuthenticated();
-        try {
-            return authorizedClient
-                    .post()
-                    .uri(uriBuilder -> uriBuilder.path(VEHICLES_VIDS).build())
-                    .body(vehiclesIds)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .retrieve()
-                    .body(new ParameterizedTypeReference<List<VehicleDTO>>() {});
-        } catch (RestClientException e) {
-            log.error("Error getting qualifications", e);
-            return List.of();
-        }
-    }
-
+    @Override
     public void deleteEmployee(UUID employeeId) throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -348,6 +348,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    @Override
     public void deleteQualification(UUID qualificationId) throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -363,6 +364,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    @Override
     public void deleteVehicle(UUID vehicleId) throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -378,6 +380,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    @Override
     public void setToken(String token) {
         authorizedClient = coreClient
                 .mutate()
