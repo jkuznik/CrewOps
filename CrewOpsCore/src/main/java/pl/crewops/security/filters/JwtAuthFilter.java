@@ -41,22 +41,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        // TODO: create new filter to set tenant contex and remove this responsibility from this filter
         TenantContext.clear();
-        String requestURI = request.getRequestURI();
-        log.info("Request URI: {} - jwt Auth Filter", requestURI);
-        if (isPublicUrl(requestURI)) {
-            log.info("Skipping JWT authentication for: {}", requestURI);
+        if (isPublicUrl(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             return;
         }
         try {
-            log.info("Jwt Auth Filter - starting authentication");
+            log.info("Jwt filter authentication starting");
             final String token = jwtService.extractTokenFromRequest(request);
             final String tenantCompanyId = jwtService.extractTenantCompanyId(token);
             Tenant tenant = tenantAPI.getByCompanyId(UUID.fromString(tenantCompanyId));
             TenantContext.setCurrentTenant(tenant.getSchemaName());
-            log.info("Schema set to: {}", tenant.getSchemaName());
             final String username = jwtService.extractUsername(token);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -64,9 +59,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 if (jwtService.validateToken(token, userPrincipal)) {
                     CustomAuthentication customAuthentication = new CustomAuthentication(userPrincipal);
                     Authentication authenticate = authenticationManager.authenticate(customAuthentication);
-
                     SecurityContextHolder.getContext().setAuthentication(authenticate);
-                    log.info("Jwt Auth Filter - authentication successful");
                 }
             }
             filterChain.doFilter(request, response);

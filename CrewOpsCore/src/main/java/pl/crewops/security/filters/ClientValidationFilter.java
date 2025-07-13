@@ -28,24 +28,18 @@ public class ClientValidationFilter extends OncePerRequestFilter {
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
-        String requestURI = request.getRequestURI();
-        log.info("Request URI: {} - client validation filter", requestURI);
-        if (isPublicUrl(requestURI)) {
-            log.info("Skipping client validation authentication for: {}", requestURI);
+        if (isPublicUrl(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        log.info("Client validation - starting validation");
-        log.info("BCrypt {}", securityConfigProperties.getClientId());
+        log.info("Client authentication starting");
         String clientId = request.getHeader("Client-Id");
-
         if (passwordEncoder.matches(clientId, securityConfigProperties.getClientId())) {
             log.info("Client validation succesful");
             filterChain.doFilter(request, response);
         } else {
-            log.error("Client validation - not validating client {}", clientId);
+            log.error("Client authentication failed");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Client ID");
         }
     }

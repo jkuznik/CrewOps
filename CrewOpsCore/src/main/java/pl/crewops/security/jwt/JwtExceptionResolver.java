@@ -6,11 +6,13 @@ import io.jsonwebtoken.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 
+@Slf4j
 @Component
 public class JwtExceptionResolver implements HandlerExceptionResolver {
 
@@ -26,7 +28,7 @@ public class JwtExceptionResolver implements HandlerExceptionResolver {
                 response.sendError(HttpStatus.CONFLICT.value(), "Authentication error");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.warn("Error while resolving jwt exception", e);
         }
         return new ModelAndView();
     }
