@@ -17,7 +17,6 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.dto.company.CompanyDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.auth.RoleGrantedAuthority;
@@ -81,9 +80,8 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
         }
-        EmployeeDTO employeeDTO = null;
         try {
-            employeeDTO = coreAPI.getEmployeeById(jwtService.getEmployeeId(principal.getToken()))
+            var employeeDTO = coreAPI.getEmployeeById(jwtService.getEmployeeId(principal.getToken()))
                     .orElseThrow(NoSuchElementException::new);
             return new UserInformation(
                     companyName,
