@@ -39,6 +39,7 @@ import pl.crewops.security.custom.CustomAuthenticationManager;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.filters.ClientValidationFilter;
 import pl.crewops.security.filters.JwtAuthFilter;
+import pl.crewops.security.filters.TenantContextFilter;
 import pl.crewops.security.jwt.JwtExceptionResolver;
 import pl.crewops.security.jwt.JwtService;
 import pl.crewops.security.providers.CustomProvider;
@@ -65,6 +66,9 @@ class EmployeeControllerTest {
 
     @MockitoBean
     private ClientValidationFilter clientValidationFilter;
+
+    @MockitoBean
+    private TenantContextFilter tenantContextFilter;
 
     @MockitoBean
     private JwtService jwtService;
@@ -132,6 +136,7 @@ class EmployeeControllerTest {
         // given
         var principal = new UserPrincipal(AuthUser.builder()
                 .username("username")
+                .employeeId(employeeId)
                 .roles(Set.of(Role.builder().name(RoleType.MANAGER.name()).build()))
                 .build());
 
@@ -151,7 +156,7 @@ class EmployeeControllerTest {
 
     private void satisfyJwtService() {
         when(jwtService.extractTokenFromRequest(any())).thenReturn("token");
-        when(jwtService.extractUsername(any())).thenReturn("username");
+        when(jwtService.extractEmployeeId(any())).thenReturn(employeeId);
         when(jwtService.validateToken(any(), any())).thenReturn(true);
     }
 }

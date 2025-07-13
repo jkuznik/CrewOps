@@ -232,7 +232,6 @@ class AuthServiceTest {
     @Test
     void validateToken_shouldReturnValidTokenResponse_whenTokenIsValid() {
         // given
-        var username = "username";
         var tenant = Tenant.builder().companyId(UUID.randomUUID()).build();
 
         var authUser = AuthUser.builder()
@@ -248,8 +247,8 @@ class AuthServiceTest {
 
         var validTokenRequest = ValidTokenRequest.builder().token("token").build();
         // when
-        when(jwtService.extractUsername(any())).thenReturn(username);
-        when(authUserRepository.findByUsername(any())).thenReturn(Optional.of(authUser));
+        when(jwtService.extractEmployeeId(any())).thenReturn(UUID.randomUUID());
+        when(authUserRepository.findByEmployeeId(any())).thenReturn(Optional.of(authUser));
         when(employeeAPI.getEmployeeById(any())).thenReturn(employee);
         when(jwtService.validateToken(any(), any())).thenReturn(true);
         when(jwtService.extractExpiresAt(any())).thenReturn(new Date());

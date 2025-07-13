@@ -1,18 +1,17 @@
 package pl.crewops.security.filters;
 
+import static pl.crewops.enums.ControllerURL.isPublicUrl;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
-import pl.crewops.enums.ControllerURL;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.security.config.SecurityConfigProperties;
 
@@ -23,8 +22,6 @@ public class ClientValidationFilter extends OncePerRequestFilter {
 
     private final SecurityConfigProperties securityConfigProperties;
     private final PasswordEncoder passwordEncoder;
-
-    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -41,9 +38,5 @@ public class ClientValidationFilter extends OncePerRequestFilter {
             log.error("Client authentication failed");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Client ID");
         }
-    }
-
-    private boolean isPublicUrl(String requestURI) {
-        return Arrays.stream(ControllerURL.publicUrl()).anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
     }
 }

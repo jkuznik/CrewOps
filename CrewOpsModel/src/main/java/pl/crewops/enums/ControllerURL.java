@@ -1,6 +1,12 @@
 package pl.crewops.enums;
 
+import java.util.Arrays;
+import org.springframework.util.AntPathMatcher;
+
 public class ControllerURL {
+
+    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
+
     public static final String LOGIN = "/login";
     public static final String REGISTER = "/register";
     public static final String LOGOUT = "/logout";
@@ -52,6 +58,10 @@ public class ControllerURL {
             "/swagger.yaml",
             "/api-docs"
         };
+    }
+
+    public static boolean isPublicUrl(String requestURI) {
+        return Arrays.stream(ControllerURL.publicUrl()).anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
     }
 
     public static String[] shiftLeaderUrlPATCH() {

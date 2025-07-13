@@ -1,19 +1,18 @@
 package pl.crewops.security.filters;
 
+import static pl.crewops.enums.ControllerURL.isPublicUrl;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
-import pl.crewops.enums.ControllerURL;
 import pl.crewops.security.custom.CustomAuthentication;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtExceptionResolver;
@@ -27,8 +26,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final JwtExceptionResolver jwtExceptionResolver;
     private final UserDetailsService userDetailsService;
-
-    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -52,9 +49,5 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             log.error("Jwt Auth Filter - error", e);
             jwtExceptionResolver.resolveException(request, response, null, e);
         }
-    }
-
-    private boolean isPublicUrl(String requestURI) {
-        return Arrays.stream(ControllerURL.publicUrl()).anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
     }
 }
