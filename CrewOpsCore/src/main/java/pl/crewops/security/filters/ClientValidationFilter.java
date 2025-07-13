@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import pl.crewops.enums.ControllerURL;
+import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.security.config.SecurityConfigProperties;
 
 @Slf4j
@@ -28,15 +29,13 @@ public class ClientValidationFilter extends OncePerRequestFilter {
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        TenantContext.clear();
         if (isPublicUrl(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        log.info("Client authentication starting");
         String clientId = request.getHeader("Client-Id");
         if (passwordEncoder.matches(clientId, securityConfigProperties.getClientId())) {
-            log.info("Client validation succesful");
             filterChain.doFilter(request, response);
         } else {
             log.error("Client authentication failed");

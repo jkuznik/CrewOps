@@ -82,7 +82,7 @@ class JwtAuthFilterTest {
         var authUser =
                 AuthUser.builder().username(username).roles(new HashSet<>()).build();
         Tenant tenant = Tenant.builder().companyId(companyId).schemaName("test").build();
-        UserPrincipal userPrincipal = new UserPrincipal(authUser, "firstName", "lastName");
+        UserPrincipal userPrincipal = new UserPrincipal(authUser);
         CustomAuthentication auth = new CustomAuthentication(userPrincipal);
 
         // when

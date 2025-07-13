@@ -18,13 +18,15 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import pl.crewops.security.filters.ClientValidationFilter;
 import pl.crewops.security.filters.JwtAuthFilter;
+import pl.crewops.security.filters.TenantContextFilter;
 
 @Configuration
 @AllArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthFilter jwtAuthFilter;
     private final ClientValidationFilter clientValidationFilter;
+    private final JwtAuthFilter jwtAuthFilter;
+    private final TenantContextFilter tenantContextFilter;
 
     // TODO: configure current handling endpoint
     @Bean
@@ -50,6 +52,7 @@ public class SecurityConfig {
                         .authenticated())
                 .addFilterBefore(clientValidationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(tenantContextFilter, UsernamePasswordAuthenticationFilter.class)
                 .headers(headers ->
                         headers.frameOptions(Customizer.withDefaults()).disable())
                 .sessionManagement(sessionManagementConfigurer ->

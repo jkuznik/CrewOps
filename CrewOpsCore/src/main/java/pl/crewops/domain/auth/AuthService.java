@@ -54,7 +54,7 @@ class AuthService implements AuthAPI {
     @Override
     @Transactional(readOnly = true)
     public Employee getEmployeeById(UUID employeeId) {
-        return employeeAPI.getEmployee(employeeId);
+        return employeeAPI.getEmployeeById(employeeId);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -84,7 +84,7 @@ class AuthService implements AuthAPI {
 
     @Transactional
     public void deleteEmployee(UUID employeeId) {
-        var employee = employeeAPI.getEmployee(employeeId);
+        var employee = employeeAPI.getEmployeeById(employeeId);
 
         var authUser = getByEmployeeId(employeeId).orElseThrow(() -> new AuthUserNotFoundException(employee));
 
@@ -138,14 +138,45 @@ class AuthService implements AuthAPI {
     }
 
     @Transactional(readOnly = true)
+    public ValidTokenResponse validateToken(ValidTokenRequest validTokenRequest) {
+        try {
+            AuthUser authUser;
+            try {
+                authUser = authUserRepository
+                        .findByUsername(jwtService.extractUsername(validTokenRequest.token()))
+                        .orElseThrow(() ->
+                                new UsernameNotFoundException("Username " + validTokenRequest.token() + " not found"));
+            } catch (ExpiredJwtException e) {
+                return new ValidTokenResponse(false, null);
+            }
+            try {
+                TenantContext.setCurrentTenant(authUser.getTenant().getSchemaName());
+                var userPrincipal = new UserPrincipal(authUser);
+                boolean result = jwtService.validateToken(validTokenRequest.token(), userPrincipal);
+                if (result) {
+                    Date expiresAt = jwtService.extractExpiresAt(validTokenRequest.token());
+                    return new ValidTokenResponse(true, expiresAt);
+                } else {
+                    log.error("Token validation failed");
+                    return new ValidTokenResponse(false, null);
+                }
+            } finally {
+                TenantContext.clear();
+            }
+        } catch (IllegalArgumentException e) {
+            log.error("Token validation failed with exception");
+            return new ValidTokenResponse(false, null);
+        }
+    }
+
+    @Transactional(readOnly = true)
     public AuthResponse login(AuthRequest authRequest, HttpServletResponse response) {
         try {
-            AuthUser byUsername = getByUsername(authRequest.username())
+            AuthUser authUser = getByUsername(authRequest.username())
                     .orElseThrow(() -> new UsernameNotFoundException(authRequest.username()));
-            log.info("Login action by username: {}", byUsername);
-            if (passwordEncoder.matches(authRequest.password(), byUsername.getPassword())) {
-                String schemaName = byUsername.getTenant().getSchemaName();
-                return finalizeLoginAction(byUsername, schemaName);
+            if (passwordEncoder.matches(authRequest.password(), authUser.getPassword())) {
+                TenantContext.setCurrentTenant(authUser.getTenant().getSchemaName());
+                return finalizeLoginAction(authUser);
             } else {
                 log.error("Login failed");
                 throw new IllegalArgumentException("Invalid username or password");
@@ -158,48 +189,11 @@ class AuthService implements AuthAPI {
         }
     }
 
-    @Transactional(readOnly = true)
-    public ValidTokenResponse validateToken(ValidTokenRequest validTokenRequest) {
+    private AuthResponse finalizeLoginAction(AuthUser authUser) {
         try {
-            log.info("Token validation started");
-            AuthUser authUser;
-            try {
-                authUser = authUserRepository
-                        .findByUsername(jwtService.extractUsername(validTokenRequest.token()))
-                        .orElseThrow(() ->
-                                new UsernameNotFoundException("Username " + validTokenRequest.token() + " not found"));
-            } catch (ExpiredJwtException e) {
-                return new ValidTokenResponse(false, null);
-            }
-            try {
-                TenantContext.setCurrentTenant(authUser.getTenant().getSchemaName());
-                Employee employee = employeeAPI.getEmployee(authUser.getEmployeeId());
-                var userPrincipal = new UserPrincipal(authUser, employee.getFirstName(), employee.getLastName());
-                boolean result = jwtService.validateToken(validTokenRequest.token(), userPrincipal);
-                if (result) {
-                    Date expiresAt = jwtService.extractExpiresAt(validTokenRequest.token());
-                    log.info("Token validation finished");
-                    return new ValidTokenResponse(true, expiresAt);
-                } else {
-                    log.info("Token validation failed");
-                    return new ValidTokenResponse(false, null);
-                }
-            } finally {
-                TenantContext.clear();
-            }
-        } catch (IllegalArgumentException e) {
-            log.info("Token validation failed with exception");
-            return new ValidTokenResponse(false, null);
-        }
-    }
-
-    private AuthResponse finalizeLoginAction(AuthUser authUser, String schemaName) {
-        try {
-            TenantContext.setCurrentTenant(schemaName);
-            Employee employee = employeeAPI.getEmployee(authUser.getEmployeeId());
-            var userPrincipal = new UserPrincipal(authUser, employee.getFirstName(), employee.getLastName());
+            var userPrincipal = new UserPrincipal(authUser);
             String token = jwtService.generateToken(userPrincipal);
-            log.info("Login successful, token: {}", token);
+            log.info("Login successful for user: {}", authUser.getUsername());
             return new AuthResponse(token);
         } finally {
             TenantContext.clear();

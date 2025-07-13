@@ -65,6 +65,8 @@ public interface CoreAPI {
 
     List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException;
 
+    Optional<EmployeeDTO> getEmployeeById(UUID employeeId) throws NotAuthenticatedException;
+
     List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException;
 
     List<VehicleDTO> getAllVehicles() throws NotAuthenticatedException;

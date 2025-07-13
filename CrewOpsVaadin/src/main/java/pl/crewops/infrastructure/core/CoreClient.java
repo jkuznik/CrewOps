@@ -287,6 +287,22 @@ class CoreClient implements CoreAPI {
     }
 
     @Override
+    public Optional<EmployeeDTO> getEmployeeById(UUID employeeId) throws NotAuthenticatedException {
+        isAuthenticated();
+        try {
+            return authorizedClient
+                    .get()
+                    .uri(uriBuilder -> uriBuilder.path(EMPLOYEES_EID).build(employeeId))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<Optional<EmployeeDTO>>() {});
+        } catch (RestClientException e) {
+            log.error("Error getting employee by id");
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public List<VehicleDTO> getAllVehicles() throws NotAuthenticatedException {
         isAuthenticated();
         try {

@@ -43,7 +43,7 @@ class BreakdownService {
         }
         Employee employee;
         try {
-            employee = employeeAPI.getEmployee(createBreakdownDTO.reportedByEmployeeId());
+            employee = employeeAPI.getEmployeeById(createBreakdownDTO.reportedByEmployeeId());
         } catch (EmployeeNotFoundException e) {
             log.error("Not found 'reportedBy' employee during create breakdown: {}", e.getMessage());
             throw new EmployeeNotFoundException(createBreakdownDTO.reportedByEmployeeId());
@@ -90,7 +90,7 @@ class BreakdownService {
                 .orElseThrow(() -> new BreakdownNotFoundException(updateBreakdownDTO.breakdownId()));
 
         if (updateBreakdownDTO.solved()) {
-            Employee employee = employeeAPI.getEmployee(updateBreakdownDTO.repairedByEmployeeId());
+            Employee employee = employeeAPI.getEmployeeById(updateBreakdownDTO.repairedByEmployeeId());
             Vehicle vehicle = vehicleAPI.getVehicle(breakdown.getVehicle().getId());
             breakdown.setSolved(true);
             breakdown.setRepairedBy(employee);

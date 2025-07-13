@@ -40,14 +40,6 @@ public class JwtService {
         return (String) extractClaims(token).get("sub");
     }
 
-    public String getFirstName(String token) {
-        return (String) extractClaims(token).get("firstName");
-    }
-
-    public String getLastName(String token) {
-        return (String) extractClaims(token).get("lastName");
-    }
-
     public UUID getTenantCompanyId(String token) {
         return UUID.fromString((String) extractClaims(token).get("tenantCompanyId"));
     }

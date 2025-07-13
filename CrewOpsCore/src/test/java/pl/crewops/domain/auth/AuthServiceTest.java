@@ -170,7 +170,7 @@ class AuthServiceTest {
 
         // when
         when(authUserRepository.findByUsername("username")).thenReturn(Optional.of(authUser));
-        when(employeeAPI.getEmployee(any())).thenReturn(employee);
+        when(employeeAPI.getEmployeeById(any())).thenReturn(employee);
         when(passwordEncoder.matches(rawPassword, encodedPassword)).thenReturn(true);
         when(jwtService.generateToken(any())).thenReturn(token);
 
@@ -250,7 +250,7 @@ class AuthServiceTest {
         // when
         when(jwtService.extractUsername(any())).thenReturn(username);
         when(authUserRepository.findByUsername(any())).thenReturn(Optional.of(authUser));
-        when(employeeAPI.getEmployee(any())).thenReturn(employee);
+        when(employeeAPI.getEmployeeById(any())).thenReturn(employee);
         when(jwtService.validateToken(any(), any())).thenReturn(true);
         when(jwtService.extractExpiresAt(any())).thenReturn(new Date());
 

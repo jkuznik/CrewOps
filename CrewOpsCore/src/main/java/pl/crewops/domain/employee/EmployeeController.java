@@ -8,7 +8,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -18,7 +17,6 @@ import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 
 @RestController
-@Slf4j
 @RequiredArgsConstructor
 @Validated
 class EmployeeController {
@@ -28,26 +26,32 @@ class EmployeeController {
     @GetMapping(EMPLOYEES)
     public ResponseEntity<List<EmployeeDTO>> getEmployees(
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "15") int size) {
-        log.info("Get employees");
         return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.getAllActiveEmployees(page, size));
     }
 
-    @GetMapping(EMPLOYEES_QID)
-    public ResponseEntity<List<EmployeeDTO>> getEmployeesByQualification(
-            @PathVariable(QUALIFICATION_ID) UUID qualificationId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "15") int size) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(employeeAPI.getEmployeesByQualification(qualificationId, page, size));
+    @GetMapping(EMPLOYEES_EID)
+    public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable(EMPLOYEE_ID) UUID employeeId) {
+        return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.getEmployeeDTOById(employeeId));
     }
+    // TODO: fix this uri conflicts
 
-    @GetMapping(EMPLOYEES_VID)
-    public ResponseEntity<List<EmployeeDTO>> getEmployeesByVehicleId(
-            @PathVariable(VEHICLE_ID) UUID vehicleId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "15") int size) {
-        return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.getEmployeesByVehicles(vehicleId, page, size));
-    }
+    //    @GetMapping(EMPLOYEES_QID)
+    //    public ResponseEntity<List<EmployeeDTO>> getEmployeesByQualification(
+    //            @PathVariable(QUALIFICATION_ID) UUID qualificationId,
+    //            @RequestParam(defaultValue = "0") int page,
+    //            @RequestParam(defaultValue = "15") int size) {
+    //        return ResponseEntity.status(HttpStatus.OK)
+    //                .body(employeeAPI.getEmployeesByQualification(qualificationId, page, size));
+    //    }
+    //
+    //    @GetMapping(EMPLOYEES_VID)
+    //    public ResponseEntity<List<EmployeeDTO>> getEmployeesByVehicleId(
+    //            @PathVariable(VEHICLE_ID) UUID vehicleId,
+    //            @RequestParam(defaultValue = "0") int page,
+    //            @RequestParam(defaultValue = "15") int size) {
+    //        return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.getEmployeesByVehicles(vehicleId, page,
+    // size));
+    //    }
 
     @PatchMapping(EMPLOYEES_EID)
     public ResponseEntity<EmployeeDTO> updateEmployee(

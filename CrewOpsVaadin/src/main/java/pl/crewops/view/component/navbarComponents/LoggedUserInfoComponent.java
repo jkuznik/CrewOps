@@ -9,6 +9,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.server.VaadinSession;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.WeakHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -16,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.dto.company.CompanyDTO;
+import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.auth.RoleGrantedAuthority;
@@ -79,11 +81,17 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
         }
-
+        EmployeeDTO employeeDTO = null;
+        try {
+            employeeDTO = coreAPI.getEmployeeById(jwtService.getEmployeeId(principal.getToken()))
+                    .orElseThrow(NoSuchElementException::new);
+        } catch (NotAuthenticatedException e) {
+            System.out.println("JWT token not authenticated during retrieve user info");
+        }
         return new UserInformation(
                 companyName,
-                jwtService.getFirstName(principal.getToken()),
-                jwtService.getLastName(principal.getToken()),
+                employeeDTO.firstName(),
+                employeeDTO.lastName(),
                 jwtService.getExpiration(principal.getToken()).toInstant().getEpochSecond());
     }
 

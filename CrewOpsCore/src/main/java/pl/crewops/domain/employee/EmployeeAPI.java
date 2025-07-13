@@ -17,7 +17,9 @@ public interface EmployeeAPI {
 
     EmployeeDTO createEmployee(@NotNull @Valid CreateEmployeeDTO createEmployeeDTO);
 
-    Employee getEmployee(@NotNull UUID id) throws EmployeeNotFoundException;
+    Employee getEmployeeById(@NotNull UUID id) throws EmployeeNotFoundException;
+
+    EmployeeDTO getEmployeeDTOById(@NotNull UUID id) throws EmployeeNotFoundException;
 
     List<EmployeeDTO> getAllEmployees(int page, int size);
 

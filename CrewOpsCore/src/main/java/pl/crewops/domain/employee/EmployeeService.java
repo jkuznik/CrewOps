@@ -69,8 +69,13 @@ class EmployeeService implements EmployeeAPI {
     }
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
-    public Employee getEmployee(UUID id) {
+    public Employee getEmployeeById(UUID id) {
         return employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
+    }
+
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    public EmployeeDTO getEmployeeDTOById(UUID id) {
+        return mapToDTO(getEmployeeById(id));
     }
 
     @Transactional(readOnly = true)

@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import pl.crewops.model.auth.RoleGrantedAuthority;
 import pl.crewops.security.config.SecurityConfigProperties;
 import pl.crewops.security.custom.CustomUserPrincipal;
 
@@ -30,8 +29,6 @@ public class JwtService {
         var userPrincipal = (CustomUserPrincipal) userDetails;
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put("firstName", userPrincipal.getFirstName());
-        claims.put("lastName", userPrincipal.getLastName());
         claims.put("tenantCompanyId", userPrincipal.getCompanyId());
         claims.put("employeeId", userPrincipal.getEmployeeId());
         claims.put(
@@ -56,20 +53,6 @@ public class JwtService {
 
     public String extractTenantCompanyId(String token) {
         return extractClaim(token, claims -> claims.get("tenantCompanyId", String.class));
-    }
-
-    // TODO: delete this if still never used in next code refactor iteration
-    public Collection<? extends GrantedAuthority> extractAuthorities(String token) {
-        Set<?> rawAuthorities = extractClaim(token, claims -> claims.get("authorities", Set.class));
-
-        if (rawAuthorities == null) {
-            return Collections.emptySet();
-        }
-
-        return rawAuthorities.stream()
-                .map(String::valueOf)
-                .map(RoleGrantedAuthority::new)
-                .collect(Collectors.toSet());
     }
 
     public Date extractExpiresAt(String token) {
@@ -119,7 +102,6 @@ public class JwtService {
             return null;
         }
         byte[] keyBytes = Decoders.BASE64.decode(securityConfigProperties.getJwtSecret());
-        log.info("JWT SecretKey initialized");
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }
