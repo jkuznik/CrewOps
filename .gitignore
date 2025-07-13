@@ -15,6 +15,9 @@ package-lock.json
 package.json
 target
 src/main/frontend
+node_modules
+vite.config.ts
+vite.generated.ts
 tsconfig.json
 types.d.ts
 
