@@ -26,15 +26,16 @@ public class ControllerURL {
     public static final String COMPANY_ID = "companyId";
 
     public static final String EMPLOYEES_EID = EMPLOYEES + "/{" + EMPLOYEE_ID + "}";
-    public static final String EMPLOYEES_QID = EMPLOYEES + "/{" + QUALIFICATION_ID + "}";
-    public static final String EMPLOYEES_VID = EMPLOYEES + "/{" + VEHICLE_ID + "}";
     public static final String BREAKDOWNS_BID = BREAKDOWNS + "/{" + BREAKDOWN_ID + "}";
     public static final String COMPANIES_CID = COMPANIES + "/{" + COMPANY_ID + "}";
 
     public static final String QUALIFICATIONS_QID = QUALIFICATIONS + "/{" + QUALIFICATION_ID + "}";
+    public static final String QUALIFICATIONS_QID_EMPLOYEES =
+            QUALIFICATIONS + "/{" + QUALIFICATION_ID + "}" + EMPLOYEES;
     public static final String QUALIFICATIONS_QIDS = QUALIFICATIONS + "/collection";
 
     public static final String VEHICLES_VID = VEHICLES + "/{" + VEHICLE_ID + "}";
+    public static final String VEHICLES_VID_EMPLOYEES = VEHICLES + "/{" + VEHICLE_ID + "}" + EMPLOYEES;
     public static final String VEHICLES_RN = VEHICLES + "/{registrationNumber}";
     public static final String VEHICLES_VIDS = VEHICLES + "/collection";
 

@@ -33,25 +33,23 @@ class EmployeeController {
     public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable(EMPLOYEE_ID) UUID employeeId) {
         return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.getEmployeeDTOById(employeeId));
     }
-    // TODO: fix this uri conflicts
 
-    //    @GetMapping(EMPLOYEES_QID)
-    //    public ResponseEntity<List<EmployeeDTO>> getEmployeesByQualification(
-    //            @PathVariable(QUALIFICATION_ID) UUID qualificationId,
-    //            @RequestParam(defaultValue = "0") int page,
-    //            @RequestParam(defaultValue = "15") int size) {
-    //        return ResponseEntity.status(HttpStatus.OK)
-    //                .body(employeeAPI.getEmployeesByQualification(qualificationId, page, size));
-    //    }
-    //
-    //    @GetMapping(EMPLOYEES_VID)
-    //    public ResponseEntity<List<EmployeeDTO>> getEmployeesByVehicleId(
-    //            @PathVariable(VEHICLE_ID) UUID vehicleId,
-    //            @RequestParam(defaultValue = "0") int page,
-    //            @RequestParam(defaultValue = "15") int size) {
-    //        return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.getEmployeesByVehicles(vehicleId, page,
-    // size));
-    //    }
+    @GetMapping(QUALIFICATIONS_QID_EMPLOYEES)
+    public ResponseEntity<List<EmployeeDTO>> getEmployeesByQualification(
+            @PathVariable(QUALIFICATION_ID) UUID qualificationId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(employeeAPI.getEmployeesByQualification(qualificationId, page, size));
+    }
+
+    @GetMapping(VEHICLES_VID_EMPLOYEES)
+    public ResponseEntity<List<EmployeeDTO>> getEmployeesByVehicleId(
+            @PathVariable(VEHICLE_ID) UUID vehicleId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size) {
+        return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.getEmployeesByVehicles(vehicleId, page, size));
+    }
 
     @PatchMapping(EMPLOYEES_EID)
     public ResponseEntity<EmployeeDTO> updateEmployee(

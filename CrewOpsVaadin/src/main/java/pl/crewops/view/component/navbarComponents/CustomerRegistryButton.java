@@ -11,7 +11,6 @@ public class CustomerRegistryButton extends Div {
         registry.addClickListener(e -> {
             new CompanyCreatorNotification(coreAPI);
         });
-
         add(registry);
     }
 }
