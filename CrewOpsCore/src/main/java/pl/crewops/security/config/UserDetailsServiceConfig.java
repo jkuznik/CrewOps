@@ -1,5 +1,6 @@
 package pl.crewops.security.config;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,9 +18,9 @@ public class UserDetailsServiceConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> {
-            AuthUser authUser =
-                    authAPI.getByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+        return employeeId -> {
+            AuthUser authUser = authAPI.getByEmployeeId(UUID.fromString(employeeId))
+                    .orElseThrow(() -> new UsernameNotFoundException(employeeId));
             return new UserPrincipal(authUser);
         };
     }

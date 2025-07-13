@@ -65,7 +65,7 @@ class CoreClient implements CoreAPI {
     }
 
     @Override
-    public ValidTokenResponse validateToken(ValidTokenRequest validTokenRequest) {
+    public Optional<ValidTokenResponse> validateToken(ValidTokenRequest validTokenRequest) {
         try {
             log.debug("Validating token start");
             ValidTokenResponse body = coreClient
@@ -75,10 +75,10 @@ class CoreClient implements CoreAPI {
                     .retrieve()
                     .body(new ParameterizedTypeReference<ValidTokenResponse>() {});
             log.debug("Validated token: {}", body);
-            return body;
+            return Optional.ofNullable(body);
         } catch (RestClientException e) {
             log.error("Validation failed");
-            throw e;
+            return Optional.empty();
         }
     }
 

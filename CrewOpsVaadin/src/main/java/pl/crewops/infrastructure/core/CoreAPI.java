@@ -35,7 +35,7 @@ public interface CoreAPI {
 
     AuthResponse login(@Valid @NotNull AuthRequest request);
 
-    ValidTokenResponse validateToken(@Valid @NotNull ValidTokenRequest validTokenRequest);
+    Optional<ValidTokenResponse> validateToken(@Valid @NotNull ValidTokenRequest validTokenRequest);
 
     Optional<EmployeeDTO> createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO)
             throws NotAuthenticatedException;

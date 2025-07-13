@@ -85,14 +85,19 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         try {
             employeeDTO = coreAPI.getEmployeeById(jwtService.getEmployeeId(principal.getToken()))
                     .orElseThrow(NoSuchElementException::new);
+            return new UserInformation(
+                    companyName,
+                    employeeDTO.firstName(),
+                    employeeDTO.lastName(),
+                    jwtService.getExpiration(principal.getToken()).toInstant().getEpochSecond());
         } catch (NotAuthenticatedException e) {
-            System.out.println("JWT token not authenticated during retrieve user info");
+            System.out.println("Some problem occurred while retrieving employee information");
+            return new UserInformation(
+                    companyName,
+                    "system",
+                    "issue",
+                    jwtService.getExpiration(principal.getToken()).toInstant().getEpochSecond());
         }
-        return new UserInformation(
-                companyName,
-                employeeDTO.firstName(),
-                employeeDTO.lastName(),
-                jwtService.getExpiration(principal.getToken()).toInstant().getEpochSecond());
     }
 
     private Component displayUserInfo(UserInformation userInformation) {

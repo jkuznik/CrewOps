@@ -39,9 +39,9 @@ import pl.crewops.security.custom.CustomAuthenticationManager;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.filters.ClientValidationFilter;
 import pl.crewops.security.filters.JwtAuthFilter;
-import pl.crewops.security.jwt.JwtAuthProvider;
 import pl.crewops.security.jwt.JwtExceptionResolver;
 import pl.crewops.security.jwt.JwtService;
+import pl.crewops.security.providers.CustomProvider;
 
 @WebMvcTest(
         controllers = EmployeeController.class,
@@ -79,7 +79,7 @@ class EmployeeControllerTest {
     private CustomAuthenticationManager authenticationManager;
 
     @MockitoBean
-    private JwtAuthProvider jwtAuthProvider;
+    private CustomProvider customProvider;
 
     private CreateEmployeeDTO createEmployeeWithEmptyQAndEmptyV;
     private CreateEmployeeDTO createEmployeeDTOWithNullFields;

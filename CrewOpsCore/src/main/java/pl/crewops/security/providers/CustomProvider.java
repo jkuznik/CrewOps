@@ -1,4 +1,4 @@
-package pl.crewops.security.jwt;
+package pl.crewops.security.providers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +11,7 @@ import pl.crewops.security.custom.CustomAuthentication;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtAuthProvider implements AuthenticationProvider {
+public class CustomProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {

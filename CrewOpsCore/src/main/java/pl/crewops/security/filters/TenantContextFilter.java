@@ -19,6 +19,7 @@ import pl.crewops.enums.ControllerURL;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.security.custom.CustomAuthentication;
+import pl.crewops.security.custom.CustomAuthenticationManager;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtService;
 
@@ -27,6 +28,7 @@ import pl.crewops.security.jwt.JwtService;
 @RequiredArgsConstructor
 public class TenantContextFilter extends OncePerRequestFilter {
 
+    private final CustomAuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final TenantAPI tenantAPI;
 
@@ -48,8 +50,8 @@ public class TenantContextFilter extends OncePerRequestFilter {
             Tenant tenant = tenantAPI.getByCompanyId(UUID.fromString(jwtService.extractTenantCompanyId(token)));
             if (tenant.getSchemaName().equals(schemaName)) {
                 TenantContext.setCurrentTenant(schemaName);
-            } else {
-                authentication.setAuthenticated(false);
+                authenticationManager.authenticate(
+                        authentication); // authentication set true only one in filter chain in this place
             }
         }
         filterChain.doFilter(request, response);

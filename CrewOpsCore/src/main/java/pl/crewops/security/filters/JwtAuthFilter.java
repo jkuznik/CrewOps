@@ -15,7 +15,6 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import pl.crewops.enums.ControllerURL;
 import pl.crewops.security.custom.CustomAuthentication;
-import pl.crewops.security.custom.CustomAuthenticationManager;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtExceptionResolver;
 import pl.crewops.security.jwt.JwtService;
@@ -28,7 +27,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final JwtExceptionResolver jwtExceptionResolver;
     private final UserDetailsService userDetailsService;
-    private final CustomAuthenticationManager authenticationManager;
 
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
@@ -42,13 +40,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             log.info("Jwt filter authentication starting for {}", request.getRequestURI());
             final String token = jwtService.extractTokenFromRequest(request);
-            final String username = jwtService.extractUsername(token);
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserPrincipal userPrincipal = (UserPrincipal) userDetailsService.loadUserByUsername(username);
+            final String employeeId = jwtService.extractEmployeeId(token).toString();
+            if (employeeId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserPrincipal userPrincipal = (UserPrincipal) userDetailsService.loadUserByUsername(employeeId);
                 if (jwtService.validateToken(token, userPrincipal)) {
-                    CustomAuthentication customAuthentication = new CustomAuthentication(userPrincipal);
-                    authenticationManager.authenticate(customAuthentication);
-                    SecurityContextHolder.getContext().setAuthentication(customAuthentication);
+                    SecurityContextHolder.getContext().setAuthentication(new CustomAuthentication(userPrincipal));
                 }
             }
             filterChain.doFilter(request, response);

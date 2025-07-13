@@ -83,12 +83,11 @@ public class LoginForm extends FormLayout {
             String token = coreAPI.login(authRequest).token();
             log.info("Successfully logged in, token: {}", token);
 
-            var username = jwtService.getUsername(token);
             UUID companyId = jwtService.getTenantCompanyId(token);
             UUID employeeId = jwtService.getEmployeeId(token);
             var authorities = jwtService.getAuthorities(token);
 
-            var userPrincipal = new UserPrincipal(username, companyId, authorities);
+            var userPrincipal = new UserPrincipal(companyId, authorities);
             userPrincipal.setToken(token);
             userPrincipal.setEmployeeId(employeeId);
 

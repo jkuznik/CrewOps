@@ -1,12 +1,12 @@
 package pl.crewops.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.crewops.auth.ValidTokenRequest;
+import pl.crewops.auth.ValidTokenResponse;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.auth.RoleGrantedAuthority;
 
@@ -36,16 +36,12 @@ public class JwtService {
         }
     }
 
-    public String getUsername(String token) {
-        return (String) extractClaims(token).get("sub");
-    }
-
     public UUID getTenantCompanyId(String token) {
         return UUID.fromString((String) extractClaims(token).get("tenantCompanyId"));
     }
 
     public UUID getEmployeeId(String token) {
-        return UUID.fromString((String) extractClaims(token).get("employeeId"));
+        return UUID.fromString((String) extractClaims(token).get("sub"));
     }
 
     public Date getExpiration(String token) {
@@ -73,19 +69,12 @@ public class JwtService {
         return expiration != null && expiration.before(new Date());
     }
 
-    public String extractTokenFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
-    }
-
     public boolean validToken(String token) {
         if (token == null) {
             return false;
         }
-        var validTokenResponse = coreAPI.validateToken(new ValidTokenRequest(token));
+        var validTokenResponse =
+                coreAPI.validateToken(new ValidTokenRequest(token)).orElse(new ValidTokenResponse(false, new Date()));
 
         return validTokenResponse.valid();
     }

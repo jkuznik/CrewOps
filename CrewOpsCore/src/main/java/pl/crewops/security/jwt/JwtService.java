@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import pl.crewops.security.config.SecurityConfigProperties;
 import pl.crewops.security.custom.CustomUserPrincipal;
+import pl.crewops.security.custom.UserPrincipal;
 
 @Slf4j
 @Service
@@ -30,7 +31,6 @@ public class JwtService {
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("tenantCompanyId", userPrincipal.getCompanyId());
-        claims.put("employeeId", userPrincipal.getEmployeeId());
         claims.put(
                 "authorities",
                 userPrincipal.getAuthorities().stream()
@@ -38,7 +38,7 @@ public class JwtService {
                         .collect(Collectors.toList()));
         return Jwts.builder()
                 .claims()
-                .subject(userDetails.getUsername())
+                .subject(userPrincipal.getEmployeeId().toString())
                 .issuedAt(Date.from(Instant.now()))
                 .expiration(Date.from(Instant.now().plusSeconds(securityConfigProperties.getJwtExpiration())))
                 .add(claims)
@@ -49,6 +49,10 @@ public class JwtService {
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public UUID extractEmployeeId(String token) {
+        return UUID.fromString(extractClaim(token, Claims::getSubject));
     }
 
     public String extractTenantCompanyId(String token) {
@@ -84,8 +88,9 @@ public class JwtService {
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
-        final String userName = extractUsername(token);
-        return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        final UUID userName = extractEmployeeId(token);
+        UserPrincipal principal = (UserPrincipal) userDetails;
+        return (userName.equals(principal.getAuthUser().getEmployeeId()) && !isTokenExpired(token));
     }
 
     private boolean isTokenExpired(String token) {

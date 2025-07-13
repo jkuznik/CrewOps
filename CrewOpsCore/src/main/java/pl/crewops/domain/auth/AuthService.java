@@ -1,6 +1,5 @@
 package pl.crewops.domain.auth;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.*;
 import javax.management.relation.RoleNotFoundException;
@@ -140,28 +139,19 @@ class AuthService implements AuthAPI {
     @Transactional(readOnly = true)
     public ValidTokenResponse validateToken(ValidTokenRequest validTokenRequest) {
         try {
-            AuthUser authUser;
-            try {
-                authUser = authUserRepository
-                        .findByUsername(jwtService.extractUsername(validTokenRequest.token()))
-                        .orElseThrow(() ->
-                                new UsernameNotFoundException("Username " + validTokenRequest.token() + " not found"));
-            } catch (ExpiredJwtException e) {
+            var authUser = authUserRepository
+                    .findByEmployeeId(jwtService.extractEmployeeId(validTokenRequest.token()))
+                    .orElseThrow(() ->
+                            new UsernameNotFoundException("Username " + validTokenRequest.token() + " not found"));
+            var userPrincipal = new UserPrincipal(authUser);
+            boolean result = jwtService.validateToken(validTokenRequest.token(), userPrincipal);
+            if (result) {
+                Date expiresAt = jwtService.extractExpiresAt(validTokenRequest.token());
+                return new ValidTokenResponse(true, expiresAt);
+            } else {
+                log.error("Token validation failed");
+                // TODO: implement ExpiredJWTToken or something exception
                 return new ValidTokenResponse(false, null);
-            }
-            try {
-                TenantContext.setCurrentTenant(authUser.getTenant().getSchemaName());
-                var userPrincipal = new UserPrincipal(authUser);
-                boolean result = jwtService.validateToken(validTokenRequest.token(), userPrincipal);
-                if (result) {
-                    Date expiresAt = jwtService.extractExpiresAt(validTokenRequest.token());
-                    return new ValidTokenResponse(true, expiresAt);
-                } else {
-                    log.error("Token validation failed");
-                    return new ValidTokenResponse(false, null);
-                }
-            } finally {
-                TenantContext.clear();
             }
         } catch (IllegalArgumentException e) {
             log.error("Token validation failed with exception");
