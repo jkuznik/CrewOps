@@ -61,7 +61,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
 
         UserInformation userInformation = getInfo(coreAPI, jwtService);
         if (principal.getAuthorities().contains(new RoleGrantedAuthority("ROLE_ADMIN"))) {
-            infoLayout.add(new CompanyCreator(coreAPI));
+            infoLayout.add(new CustomerRegistryButton(coreAPI));
         }
         infoLayout.add(displayUserInfo(userInformation), logoutButton);
         return infoLayout;

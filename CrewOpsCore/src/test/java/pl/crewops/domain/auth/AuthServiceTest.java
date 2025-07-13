@@ -218,8 +218,6 @@ class AuthServiceTest {
 
         var createAuthUserDTO = AuthTestFactory.createAuthUserDTO();
 
-        var employee = AuthTestFactory.createEmployeeWithoutQualificationsAndVehicles();
-
         // when
         when(authUserRepository.findByUsername("username")).thenReturn(Optional.of(authUser));
         Exception result = Assertions.catchException(

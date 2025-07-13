@@ -47,10 +47,6 @@ public class JwtService {
                 .compact();
     }
 
-    //    public String extractUsername(String token) {
-    //        return extractClaim(token, Claims::getSubject);
-    //    }
-
     public UUID extractEmployeeId(String token) {
         return UUID.fromString(extractClaim(token, Claims::getSubject));
     }
