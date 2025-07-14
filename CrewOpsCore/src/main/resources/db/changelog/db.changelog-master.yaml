@@ -36,3 +36,5 @@
           file: db/changelog/insert/003-insert-tenant-test-record.yaml
     - include:
           file: db/changelog/insert/004-insert-auth-user-test-records.yaml
+    - include:
+        file: db/changelog/insert/005-insert-admin-account-values.yaml

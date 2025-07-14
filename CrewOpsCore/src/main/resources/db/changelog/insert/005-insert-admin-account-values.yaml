@@ -1,6 +1,23 @@
 databaseChangeLog:
   - changeSet:
-      id: 001-insert-admin-account-values
+      id: 001-create-schema
+      author: jkuznik
+      changes:
+        - sql:
+            sql: "CREATE SCHEMA IF NOT EXISTS ${tenant.schema.name};"
+
+  - changeSet:
+      id: 002-set-search-path
+      author: jkuznik
+      changes:
+        - sql:
+            sql: "SET search_path TO ${tenant.schema.name};"
+
+  - include:
+      file: db/changelog/db.changelog-tenant.yaml
+
+  - changeSet:
+      id: 003-insert-admin-account-values
       author: jkuznik
       changes:
         - insert:
@@ -81,8 +98,21 @@ databaseChangeLog:
                   name: phone_number
                   value: ${employee.phone.number}
               - column:
+                  name: department
+                  value: admin
+              - column:
+                  name: active
+                  value: true
+              - column:
                   name: created_at
                   valueComputed: "CURRENT_TIMESTAMP"
               - column:
                   name: updated_at
                   valueComputed: "CURRENT_TIMESTAMP"
+
+  - changeSet:
+      id: 004-reset-search-path
+      author: jkuznik
+      changes:
+        - sql:
+            sql: "SET search_path TO public;"
