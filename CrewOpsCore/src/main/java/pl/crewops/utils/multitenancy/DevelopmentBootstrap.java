@@ -39,7 +39,8 @@ public class DevelopmentBootstrap {
         String adminSchemaName = "crewops_2b3b7d5c9e8f";
         String adminValues = "db/changelog/insert/005-insert-admin-account-values.yaml";
 
-        executeInsert(tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, adminSchemaName, adminValues);
+        //        executeInsert(tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, adminSchemaName,
+        // adminValues);
     }
 
     private static void executeInsert(
