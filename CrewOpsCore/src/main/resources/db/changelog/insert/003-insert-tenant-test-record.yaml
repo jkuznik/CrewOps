@@ -33,22 +33,22 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  value: "2b3b7d5c-9e8f-4bca-9c56-123456789abc"
+                  value: ${tenant.id}
               - column:
                   name: version
                   valueNumeric: 0
               - column:
                   name: company_id
-                  value: "2b3b7d5c-9e8f-4bca-9c56-123456789abd"
+                  value: ${tenant.company.id}
               - column:
                   name: schema_name
-                  value: "crewops_2b3b7d5c9e8f"
+                  value: ${tenant.schema.name}
               - column:
                   name: active
-                  valueBoolean: true
+                  valueBoolean: ${tenant.active}
               - column:
                   name: created_at
-                  valueDate: now()
+                  valueComputed: "NOW()"
               - column:
                   name: updated_at
-                  valueDate: now()
+                  valueComputed: "NOW()"

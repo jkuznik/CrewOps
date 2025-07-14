@@ -5,13 +5,13 @@ import java.util.UUID;
 import lombok.*;
 import pl.crewops.model.AbstractEntity;
 
+@Entity
+@Table(name = "tenant", schema = "public")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "tenant", schema = "public")
 public class Tenant extends AbstractEntity {
 
     @Column(name = "company_id", nullable = false, unique = true)

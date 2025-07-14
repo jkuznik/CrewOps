@@ -7,7 +7,7 @@ import lombok.*;
 import pl.crewops.model.AbstractEntity;
 
 @Entity
-@Table(schema = "public")
+@Table(name = "role", schema = "public")
 @Getter
 @Setter
 @Builder

@@ -6,12 +6,6 @@ databaseChangeLog:
         - insert:
             tableName: role
             columns:
-              - column: { name: id, value: "5f3a5ee4-1e2c-4f6a-861b-4cb860ff2a13" }
-              - column: { name: name, value: "MANAGER" }
-
-        - insert:
-            tableName: role
-            columns:
               - column: { name: id, value: "f8bd1c2a-79a4-4713-8748-37604be09e12" }
               - column: { name: name, value: "EMPLOYEE" }
 
@@ -24,5 +18,23 @@ databaseChangeLog:
         - insert:
             tableName: role
             columns:
+              - column: { name: id, value: "a1df9437-1e2c-49ae-b98e-37604be09e12" }
+              - column: { name: name, value: "MECHANIC" }
+
+        - insert:
+            tableName: role
+            columns:
+              - column: { name: id, value: "5f3a5ee4-1e2c-4f6a-861b-4cb860ff2a13" }
+              - column: { name: name, value: "MANAGER" }
+
+        - insert:
+            tableName: role
+            columns:
+              - column: { name: id, value: "d3c27d55-7421-41f3-8bc2-7f8c2c712a85" }
+              - column: { name: name, value: "COMPANY_ADMIN" }
+
+        - insert:
+            tableName: role
+            columns:
               - column: { name: id, value: "e90a0e1e-8ab9-41ec-b98e-23a7bba4ef58" }
-              - column: { name: name, value: "ADMIN" }
+              - column: { name: name, value: "SYSTEM_ADMIN" }

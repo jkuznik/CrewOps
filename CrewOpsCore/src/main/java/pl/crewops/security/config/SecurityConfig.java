@@ -39,14 +39,14 @@ public class SecurityConfig {
                         .permitAll()
                         // shift leader permission
                         .requestMatchers(HttpMethod.PATCH, shiftLeaderUrlPATCH())
-                        .hasAnyRole(SHIFT_LEADER.name(), MANAGER.name(), ADMIN.name())
+                        .hasAnyRole(SHIFT_LEADER.name(), MANAGER.name(), SYSTEM_ADMIN.name())
                         // manager permission
                         .requestMatchers(HttpMethod.POST, managerUrlPOST())
-                        .hasAnyRole(MANAGER.name(), ADMIN.name())
+                        .hasAnyRole(MANAGER.name(), SYSTEM_ADMIN.name())
                         .requestMatchers(HttpMethod.PATCH, managerUrlPATCH())
-                        .hasAnyRole(MANAGER.name(), ADMIN.name())
+                        .hasAnyRole(MANAGER.name(), SYSTEM_ADMIN.name())
                         .requestMatchers(HttpMethod.DELETE, managerUrlDELETE())
-                        .hasAnyRole(MANAGER.name(), ADMIN.name())
+                        .hasAnyRole(MANAGER.name(), SYSTEM_ADMIN.name())
                         //
                         .anyRequest()
                         .authenticated())

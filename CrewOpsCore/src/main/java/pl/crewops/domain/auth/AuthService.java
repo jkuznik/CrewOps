@@ -63,8 +63,6 @@ class AuthService implements AuthAPI {
             throw new UsernameAlreadyExistException(createEmployeeDTO.username());
         }
 
-        // TODO: modify password generator or allow to add own password in vaadin app - do this after sending
-        // notifications implemented to achieve sending generated credentials
         try {
             EmployeeDTO employee = employeeAPI.createEmployee(createEmployeeDTO);
             var createAuthUser = CreateAuthUserDTO.builder()
@@ -150,7 +148,6 @@ class AuthService implements AuthAPI {
                 return new ValidTokenResponse(true, expiresAt);
             } else {
                 log.error("Token validation failed");
-                // TODO: implement ExpiredJWTToken or something exception
                 return new ValidTokenResponse(false, null);
             }
         } catch (IllegalArgumentException e) {

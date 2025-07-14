@@ -59,7 +59,7 @@ class RegistrationService {
                 createCustomerCommand.createTenantDTO().createCompanyDTO(),
                 generatedCompanyId);
 
-        var createEmployeeDTO = extractCreateEmployeeDTO(createCustomerCommand.createEmployeeDTO(), company.id());
+        var createEmployeeDTO = setCompanyId(createCustomerCommand.createEmployeeDTO(), company.id());
         authAPI.createAuthUserWithRelatedEmployee(createEmployeeDTO);
         TenantContext.clear();
 
@@ -71,23 +71,21 @@ class RegistrationService {
                 .build();
     }
 
-    private CreateEmployeeDTO extractCreateEmployeeDTO(@NotNull CreateEmployeeDTO employeeDTO, UUID companyId) {
+    private CreateEmployeeDTO setCompanyId(CreateEmployeeDTO createEmployeeDTO, UUID companyId) {
         return CreateEmployeeDTO.builder()
-                .companyId(
-                        // TODO: clean this solution after PoC !!!! extra ugly solution
-                        // TODO do it directly after successful implement registration feature
-                        companyId) // keep attention! this valid is set only to satisfy constraints validations - in be
-                // logic companyId is token other way
-                .firstName(employeeDTO.firstName())
-                .lastName(employeeDTO.lastName())
-                .department(employeeDTO.department())
-                // TODO: modify this to allow set own pass and username or implement generate mechanism (on the BE side
-                // but remind to clean DTO)
-                .username(employeeDTO.firstName())
+                .companyId(companyId)
+                .firstName(createEmployeeDTO.firstName())
+                .lastName(createEmployeeDTO.lastName())
+                .department(createEmployeeDTO.department())
+                // TODO: modify this to allow set own pass and username or implement generator mechanism (on the BE side
+                //  but remember to clean DTO) - update: implement only generator mechanism but before of that have to
+                //  add notifications mechanism to send generated values via email or in-app notifications and user
+                //  console on frontend site to allow users modify theirs credentials
+                .username(createEmployeeDTO.firstName())
                 .password("pass")
-                .phoneNumber(employeeDTO.phoneNumber())
-                .birthDate(employeeDTO.birthDate())
-                .roles(employeeDTO.roles())
+                .phoneNumber(createEmployeeDTO.phoneNumber())
+                .birthDate(createEmployeeDTO.birthDate())
+                .roles(createEmployeeDTO.roles())
                 .build();
     }
 }

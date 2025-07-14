@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static pl.crewops.model.auth.RoleType.ADMIN;
 import static pl.crewops.model.auth.RoleType.EMPLOYEE;
+import static pl.crewops.model.auth.RoleType.SYSTEM_ADMIN;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -237,7 +237,7 @@ class AuthServiceTest {
                 .password("admin")
                 .tenant(tenant)
                 .employeeId(UUID.randomUUID())
-                .roles(Set.of(Role.builder().name(ADMIN.name()).build()))
+                .roles(Set.of(Role.builder().name(SYSTEM_ADMIN.name()).build()))
                 .build();
 
         Employee employee =

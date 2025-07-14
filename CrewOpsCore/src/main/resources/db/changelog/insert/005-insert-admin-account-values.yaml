@@ -6,36 +6,83 @@ databaseChangeLog:
         - insert:
             tableName: address
             columns:
-              - column: { name: id, value: "8faf1d5c-9e8f-4bca-9c56-123456789aab" }
-              - column: { name: version, value: 0 }
-              - column: { name: postal_code, value: "postalCode" }
-              - column: { name: city, value: "city" }
-              - column: { name: street, value: "street" }
-              - column: { name: local_number, value: "localNumber" }
-              - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
-              - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column:
+                  name: id
+                  value: ${address.id}
+              - column:
+                  name: version
+                  valueNumeric: 0
+              - column:
+                  name: postal_code
+                  value: ${address.postal.code}
+              - column:
+                  name: city
+                  value: ${address.city}
+              - column:
+                  name: street
+                  value: ${address.street}
+              - column:
+                  name: local_number
+                  value: ${address.local.number}
+              - column:
+                  name: created_at
+                  valueComputed: "CURRENT_TIMESTAMP"
+              - column:
+                  name: updated_at
+                  valueComputed: "CURRENT_TIMESTAMP"
 
         - insert:
             tableName: company
             columns:
-              - column: { name: id, value: "2b3b7d5c-9e8f-4bca-9c56-123456789abd" }
-              - column: { name: version, value: 0 }
-              - column: { name: name, value: "CrewOps" }
-              - column: { name: address_id, value: "8faf1d5c-9e8f-4bca-9c56-123456789aab" }
-              - column: { name: email, value: "disaster.alert2@gmail.com" }
-              - column: { name: status, value: "ACTIVE" }
-              - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
-              - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column:
+                  name: id
+                  value: ${company.id}
+              - column:
+                  name: version
+                  valueNumeric: 0
+              - column:
+                  name: name
+                  value: ${company.name}
+              - column:
+                  name: address_id
+                  value: ${company.address.id}
+              - column:
+                  name: email
+                  value: ${company.email}
+              - column:
+                  name: status
+                  value: ${company.status}
+              - column:
+                  name: created_at
+                  valueComputed: "CURRENT_TIMESTAMP"
+              - column:
+                  name: updated_at
+                  valueComputed: "CURRENT_TIMESTAMP"
 
         - insert:
             tableName: employee
             columns:
-              - column: { name: id, value: "1cd62a5c-9e2f-4bca-9c56-123456789abc" }
-              - column: { name: version, value: 0 }
-              - column: { name: first_name, value: "Admin" }
-              - column: { name: last_name, value: "User" }
-              - column: { name: birth_date, value: "2000-01-01" }
-              - column: { name: phone_number, value: "123456789" }
-              - column: { name: department, value: "Administration" }
-              - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
-              - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column:
+                  name: id
+                  value: ${employee.id}
+              - column:
+                  name: version
+                  valueNumeric: 0
+              - column:
+                  name: first_name
+                  value: ${employee.first.name}
+              - column:
+                  name: last_name
+                  value: ${employee.last.name}
+              - column:
+                  name: birth_date
+                  value: ${employee.birth.date}
+              - column:
+                  name: phone_number
+                  value: ${employee.phone.number}
+              - column:
+                  name: created_at
+                  valueComputed: "CURRENT_TIMESTAMP"
+              - column:
+                  name: updated_at
+                  valueComputed: "CURRENT_TIMESTAMP"

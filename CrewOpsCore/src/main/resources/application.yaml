@@ -9,6 +9,38 @@ spring:
     enabled: true
     default-schema: public
     change-log: db/changelog/db.changelog-master.yaml
+    parameters:
+      address.id: ${CREW_OPS_ADDRESS_ID}
+      address.postal.code: ${CREW_OPS_ADDRESS_POSTAL_CODE}
+      address.city: ${CREW_OPS_ADDRESS_CITY}
+      address.street: ${CREW_OPS_ADDRESS_STREET}
+      address.local.number: ${CREW_OPS_ADDRESS_LOCAL}
+
+      company.id: ${CREW_OPS_COMPANY_ID}
+      company.name: ${CREW_OPS_COMPANY_NAME}
+      company.address.id: ${CREW_OPS_COMPANY_ADDRESS_ID}
+      company.email: ${CREW_OPS_COMPANY_EMAIL}
+      company.status: ${CREW_OPS_COMPANY_STATUS}
+
+      employee.id: ${CREW_OPS_EMPLOYEE_ID}
+      employee.first.name: ${CREW_OPS_EMPLOYEE_FIRST_NAME}
+      employee.last.name: ${CREW_OPS_EMPLOYEE_LAST_NAME}
+      employee.birth.date: ${CREW_OPS_EMPLOYEE_BIRTH_DATE}
+      employee.phone.number: ${CREW_OPS_EMPLOYEE_PHONE}
+
+      tenant.id: ${CREW_OPS_TENANT_ID}
+      tenant.company.id: ${CREW_OPS_TENANT_COMPANY_ID}
+      tenant.schema.name: ${CREW_OPS_TENANT_SCHEMA_NAME}
+      tenant.active: ${CREW_OPS_TENANT_ACTIVE}
+
+      auth.user.id: ${CREW_OPS_AUTH_USER_ID}
+      auth.user.username: ${CREW_OPS_AUTH_USER_USERNAME}
+      auth.user.password: ${CREW_OPS_AUTH_USER_PASSWORD}
+      auth.user.tenant.id: ${CREW_OPS_AUTH_USER_TENANT_ID}
+      auth.user.employee.id: ${CREW_OPS_AUTH_USER_EMPLOYEE_ID}
+
+      auth.user.role.auth.user.id: ${CREW_OPS_AUTH_USER_ROLE_USER_ID}
+      auth.user.role.role.id: ${CREW_OPS_AUTH_USER_ROLE_ROLE_ID}
 
   datasource:
     driver-class-name: org.postgresql.Driver
