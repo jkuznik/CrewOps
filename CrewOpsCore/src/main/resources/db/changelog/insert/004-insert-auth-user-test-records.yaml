@@ -4,31 +4,6 @@ databaseChangeLog:
       author: jkuznik
       changes:
         - insert:
-            tableName: tenant
-            columns:
-              - column:
-                  name: id
-                  value: ${tenant.id}
-              - column:
-                  name: version
-                  valueNumeric: 0
-              - column:
-                  name: company_id
-                  value: ${tenant.company.id}
-              - column:
-                  name: schema_name
-                  value: ${tenant.schema.name}
-              - column:
-                  name: active
-                  valueBoolean: ${tenant.active}
-              - column:
-                  name: created_at
-                  valueComputed: "NOW()"
-              - column:
-                  name: updated_at
-                  valueComputed: "NOW()"
-
-        - insert:
             tableName: auth_user
             columns:
               - column: { name: id, value: "cccccccc-cccc-cccc-cccc-cccccccccccc" }
@@ -104,41 +79,6 @@ databaseChangeLog:
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: employee_id, value: "20202020-2020-2020-2020-202020202020" }
-
-        - insert:
-            tableName: auth_user
-            columns:
-              - column:
-                  name: id
-                  value: ${auth.user.id}
-              - column:
-                  name: username
-                  value: ${auth.user.username}
-              - column:
-                  name: password
-                  value: ${auth.user.password}
-              - column:
-                  name: employee_id
-                  value: ${auth.user.employee.id}
-              - column:
-                  name: tenant_id
-                  value: ${auth.user.tenant.id}
-              - column:
-                  name: created_at
-                  valueComputed: "CURRENT_TIMESTAMP"
-              - column:
-                  name: updated_at
-                  valueComputed: "CURRENT_TIMESTAMP"
-
-        - insert:
-            tableName: auth_user_role
-            columns:
-              - column:
-                  name: auth_user_id
-                  value: ${auth.user.role.auth.user.id}
-              - column:
-                  name: role_id
-                  value: ${auth.user.role.role.id}
 
         - insert:
             tableName: auth_user_role
