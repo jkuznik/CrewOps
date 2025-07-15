@@ -1,5 +1,7 @@
 package pl.crewops.view.component.navbarComponents;
 
+import static pl.crewops.model.auth.RoleType.*;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -60,7 +62,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         logoutButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
         UserInformation userInformation = getInfo(coreAPI, jwtService);
-        if (principal.getAuthorities().contains(new RoleGrantedAuthority("ROLE_SYSTEM_ADMIN"))) {
+        if (principal.getAuthorities().contains(new RoleGrantedAuthority(SYSTEM_ADMIN))) {
             infoLayout.add(new CustomerRegistryButton(coreAPI));
         }
         infoLayout.add(displayUserInfo(userInformation), logoutButton);

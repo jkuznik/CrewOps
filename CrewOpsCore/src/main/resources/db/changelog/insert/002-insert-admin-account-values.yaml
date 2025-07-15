@@ -7,20 +7,349 @@ databaseChangeLog:
             sql: "CREATE SCHEMA IF NOT EXISTS ${tenant.schema.name};"
 
   - changeSet:
-      id: 002-set-search-path
+      id: 002-create-table-employee
+      author: jkuznik
+      changes:
+        - createTable:
+            schemaName: ${tenant.schema.name}
+            tableName: employee
+            columns:
+              - column: { name: id, type: uuid, defaultValueComputed: gen_random_uuid(), constraints: { primaryKey: true, nullable: false, unique: true } }
+              - column: { name: version, type: integer, defaultValue: 0, constraints: { nullable: false } }
+              - column: { name: first_name, type: varchar(31), constraints: { nullable: false } }
+              - column: { name: last_name, type: varchar(31), constraints: { nullable: false } }
+              - column: { name: birth_date, type: date, constraints: { nullable: false } }
+              - column: { name: phone_number, type: varchar(15), constraints: { nullable: true } }
+              - column: { name: department, type: varchar(63), constraints: { nullable: false } }
+              - column: { name: active, type: boolean, defaultValueBoolean: true, constraints: { nullable: false } }
+              - column: { name: created_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+
+  - changeSet:
+      id: 003-create-employee-updated_at-trigger
       author: jkuznik
       changes:
         - sql:
-            sql: "SET search_path TO ${tenant.schema.name};"
-
-  - include:
-      file: db/changelog/db.changelog-tenant.yaml
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS employee_updated_at_trigger ON ${tenant.schema.name}.employee;
+              CREATE TRIGGER employee_updated_at_trigger
+              BEFORE UPDATE ON ${tenant.schema.name}.employee
+              FOR EACH ROW
+              EXECUTE FUNCTION public.update_updated_at();
 
   - changeSet:
-      id: 003-insert-admin-account-values
+      id: 004-create-table-vehicle
+      author: jkuznik
+      changes:
+        - createTable:
+            schemaName: ${tenant.schema.name}
+            tableName: vehicle
+            columns:
+              - column: { name: id, type: uuid, defaultValueComputed: gen_random_uuid(), constraints: { primaryKey: true, nullable: false, unique: true } }
+              - column: { name: version, type: integer, defaultValue: 0, constraints: { nullable: false } }
+              - column: { name: vin, type: varchar(50), constraints: { unique: true, nullable: true } }
+              - column: { name: make, type: varchar(31), constraints: { nullable: false } }
+              - column: { name: model, type: varchar(31), constraints: { nullable: false } }
+              - column: { name: year, type: int, constraints: { nullable: false } }
+              - column: { name: register_number, type: varchar(15), constraints: { nullable: true } }
+              - column: { name: vehicle_type_id, type: uuid }
+              - column: { name: broken, type: boolean, constraints: { nullable: false } }
+              - column: { name: created_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+
+  - changeSet:
+      id: 005-create-vehicle-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS vehicle_updated_at_trigger ON ${tenant.schema.name}.vehicle;
+              CREATE TRIGGER vehicle_updated_at_trigger
+              BEFORE UPDATE ON ${tenant.schema.name}.vehicle
+              FOR EACH ROW
+              EXECUTE FUNCTION public.update_updated_at();
+              
+  - changeSet:
+      id: 006-create-table-employee-vehicle
+      author: jkuznik
+      changes:
+        - createTable:
+            schemaName: ${tenant.schema.name}
+            tableName: employee_vehicle
+            columns:
+              - column: { name: employee_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: vehicle_id, type: uuid, constraints: { nullable: false } }
+
+        - addPrimaryKey:
+            schemaName: ${tenant.schema.name}
+            tableName: employee_vehicle
+            columnNames: employee_id, vehicle_id
+            constraintName: pk_employee_vehicle
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${tenant.schema.name}
+            baseTableName: employee_vehicle
+            baseColumnNames: employee_id
+            constraintName: fk_employee_vehicle_employee
+            referencedTableSchemaName: ${tenant.schema.name}
+            referencedTableName: employee
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${tenant.schema.name}
+            baseTableName: employee_vehicle
+            baseColumnNames: vehicle_id
+            constraintName: fk_employee_vehicle_vehicle
+            referencedTableSchemaName: ${tenant.schema.name}
+            referencedTableName: vehicle
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+  - changeSet:
+      id: 007-create-table-qualification
+      author: jkuznik
+      changes:
+        - createTable:
+            schemaName: ${tenant.schema.name}
+            tableName: qualification
+            columns:
+              - column: { name: id, type: uuid, defaultValueComputed: gen_random_uuid(), constraints: { primaryKey: true, nullable: false, unique: true } }
+              - column: { name: version, type: integer, defaultValue: 0, constraints: { nullable: false } }
+              - column: { name: description, type: text, constraints: { nullable: false, unique: true } }
+              - column: { name: created_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+
+  - changeSet:
+      id: 008-create-qualification-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS qualification_updated_at_trigger ON ${tenant.schema.name}.qualification;
+              CREATE TRIGGER qualification_updated_at_trigger
+              BEFORE UPDATE ON ${tenant.schema.name}.qualification
+              FOR EACH ROW
+              EXECUTE FUNCTION public.update_updated_at();
+
+  - changeSet:
+      id: 009-create-table-employee-qualification
+      author: jkuznik
+      changes:
+        - createTable:
+            schemaName: ${tenant.schema.name}
+            tableName: employee_qualification
+            columns:
+              - column: { name: employee_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: qualification_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: expired_at, type: timestamp, constraints: { nullable: true } }
+
+        - addPrimaryKey:
+            schemaName: ${tenant.schema.name}
+            tableName: employee_qualification
+            columnNames: employee_id, qualification_id
+            constraintName: pk_employee_qualification
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${tenant.schema.name}
+            baseTableName: employee_qualification
+            baseColumnNames: employee_id
+            constraintName: fk_employee_qualification_employee
+            referencedTableSchemaName: ${tenant.schema.name}
+            referencedTableName: employee
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${tenant.schema.name}
+            baseTableName: employee_qualification
+            baseColumnNames: qualification_id
+            constraintName: fk_employee_qualification_qualification
+            referencedTableSchemaName: ${tenant.schema.name}
+            referencedTableName: qualification
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+  - changeSet:
+      id: 010-create-table-breakdown
+      author: jkuznik
+      changes:
+        - createTable:
+            schemaName: ${tenant.schema.name}
+            tableName: breakdown
+            columns:
+              - column: { name: id, type: uuid, defaultValueComputed: gen_random_uuid(), constraints: { primaryKey: true, nullable: false, unique: true } }
+              - column: { name: version, type: integer, defaultValue: 0, constraints: { nullable: false } }
+              - column: { name: description, type: varchar(2047), constraints: { nullable: false } }
+              - column: { name: vehicle_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: reported_by_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: repaired_by_id, type: uuid, constraints: { nullable: true } }
+              - column: { name: solved, type: boolean, constraints: { nullable: false } }
+              - column: { name: critical, type: boolean, constraints: { nullable: false } }
+              - column: { name: solved_at, type: timestamp, constraints: { nullable: true } }
+              - column: { name: created_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${tenant.schema.name}
+            baseTableName: breakdown
+            baseColumnNames: vehicle_id
+            referencedTableSchemaName: ${tenant.schema.name}
+            referencedTableName: vehicle
+            referencedColumnNames: id
+            constraintName: fk_breakdown_vehicle
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${tenant.schema.name}
+            baseTableName: breakdown
+            baseColumnNames: reported_by_id
+            referencedTableSchemaName: ${tenant.schema.name}
+            referencedTableName: employee
+            referencedColumnNames: id
+            constraintName: fk_breakdown_reported_by
+            onDelete: SET NULL
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${tenant.schema.name}
+            baseTableName: breakdown
+            baseColumnNames: repaired_by_id
+            referencedTableSchemaName: ${tenant.schema.name}
+            referencedTableName: employee
+            referencedColumnNames: id
+            constraintName: fk_breakdown_repaired_by
+            onDelete: SET NULL
+
+  - changeSet:
+      id: 011-create-breakdown-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS breakdown_updated_at_trigger ON ${tenant.schema.name}.breakdown;
+              CREATE TRIGGER breakdown_updated_at_trigger
+              BEFORE UPDATE ON ${tenant.schema.name}.breakdown
+              FOR EACH ROW
+              EXECUTE FUNCTION public.update_updated_at();
+              
+  - changeSet:
+      id: 012-create-table-vehicle-type
+      author: jkuznik
+      changes:
+        - createTable:
+            schemaName: ${tenant.schema.name}
+            tableName: vehicle_type
+            columns:
+              - column: { name: id, type: uuid, defaultValueComputed: gen_random_uuid(), constraints: { primaryKey: true, nullable: false, unique: true } }
+              - column: { name: version, type: integer, defaultValue: 0, constraints: { nullable: false } }
+              - column: { name: name, type: varchar(31), constraints: { nullable: false } }
+              - column: { name: created_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${tenant.schema.name}
+            baseTableName: vehicle
+            baseColumnNames: vehicle_type_id
+            referencedTableSchemaName: ${tenant.schema.name}
+            referencedTableName: vehicle_type
+            referencedColumnNames: id
+            constraintName: fk_vehicle_vehicle_type_id
+            onDelete: SET NULL
+
+  - changeSet:
+      id: 013-create-vehicle-type-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS vehicle_type_updated_at_trigger ON ${tenant.schema.name}.vehicle_type;
+              CREATE TRIGGER vehicle_type_updated_at_trigger
+              BEFORE UPDATE ON ${tenant.schema.name}.vehicle_type
+              FOR EACH ROW
+              EXECUTE FUNCTION public.update_updated_at();
+              
+  - changeSet:
+      id: 014-create-table-address
+      author: jkuznik
+      changes:
+        - createTable:
+            schemaName: ${tenant.schema.name}
+            tableName: address
+            columns:
+              - column: { name: id, type: uuid, defaultValueComputed: gen_random_uuid(), constraints: { primaryKey: true, nullable: false, unique: true } }
+              - column: { name: version, type: integer, defaultValue: 0, constraints: { nullable: false } }
+              - column: { name: postal_code, type: varchar(31), constraints: { nullable: false } }
+              - column: { name: city, type: varchar(31), constraints: { nullable: false } }
+              - column: { name: street, type: varchar(31), constraints: { nullable: false } }
+              - column: { name: local_number, type: varchar(31), constraints: { nullable: false } }
+              - column: { name: created_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+
+  - changeSet:
+      id: 015-create-address-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS address_updated_at_trigger ON ${tenant.schema.name}.address;
+              CREATE TRIGGER address_updated_at_trigger
+              BEFORE UPDATE ON ${tenant.schema.name}.address
+              FOR EACH ROW
+              EXECUTE FUNCTION public.update_updated_at();    
+
+  - changeSet:
+      id: 016-create-table-company
+      author: jkuznik
+      changes:
+        - createTable:
+            schemaName: ${tenant.schema.name}
+            tableName: company
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false, unique: true } }
+              - column: { name: version, type: integer, constraints: { nullable: true } }
+              - column: { name: name, type: varchar(63), constraints: { nullable: false } }
+              - column: { name: address_id, type: uuid, constraints: { nullable: false, unique: true } }
+              - column: { name: email, type: varchar(255), constraints: { nullable: false, unique: true } }
+              - column: { name: status, type: varchar(31), constraints: { nullable: false } }
+              - column: { name: created_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+
+        - addForeignKeyConstraint:
+            baseTableName: company
+            baseColumnNames: address_id
+            constraintName: fk_company_address
+            referencedTableName: address
+            referencedColumnNames: id
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+            baseTableSchemaName: ${tenant.schema.name}
+            referencedTableSchemaName: ${tenant.schema.name}
+
+  - changeSet:
+      id: 017-create-company-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS company_updated_at_trigger ON ${tenant.schema.name}.company;
+              CREATE TRIGGER company_updated_at_trigger
+              BEFORE UPDATE ON ${tenant.schema.name}.company
+              FOR EACH ROW
+              EXECUTE FUNCTION public.update_updated_at();
+
+  - changeSet:
+      id: 018-insert-admin-account-values
       author: jkuznik
       changes:
         - insert:
+            schemaName: ${tenant.schema.name}
             tableName: address
             columns:
               - column:
@@ -49,6 +378,7 @@ databaseChangeLog:
                   valueComputed: "CURRENT_TIMESTAMP"
 
         - insert:
+            schemaName: ${tenant.schema.name}
             tableName: company
             columns:
               - column:
@@ -77,6 +407,7 @@ databaseChangeLog:
                   valueComputed: "CURRENT_TIMESTAMP"
 
         - insert:
+            schemaName: ${tenant.schema.name}
             tableName: employee
             columns:
               - column:
@@ -109,10 +440,3 @@ databaseChangeLog:
               - column:
                   name: updated_at
                   valueComputed: "CURRENT_TIMESTAMP"
-
-  - changeSet:
-      id: 004-reset-search-path
-      author: jkuznik
-      changes:
-        - sql:
-            sql: "SET search_path TO public;"

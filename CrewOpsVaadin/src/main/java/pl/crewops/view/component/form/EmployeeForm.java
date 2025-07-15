@@ -1,5 +1,7 @@
 package pl.crewops.view.component.form;
 
+import static pl.crewops.model.auth.RoleType.*;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -66,15 +68,13 @@ public class EmployeeForm extends FormLayout {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var principal = (UserPrincipal) authentication.getPrincipal();
 
-        if (principal.getAuthorities().contains(new RoleGrantedAuthority("ROLE_COMPANY_ADMIN"))) {
-            roles.setItems(Arrays.stream(RoleType.values())
-                    .filter(role -> role != RoleType.SYSTEM_ADMIN && role != RoleType.EMPLOYEE)
+        if (principal.getAuthorities().contains(new RoleGrantedAuthority(COMPANY_ADMIN))) {
+            roles.setItems(Arrays.stream(values())
+                    .filter(role -> role != SYSTEM_ADMIN && role != EMPLOYEE)
                     .toList());
         } else {
-            roles.setItems(Arrays.stream(RoleType.values())
-                    .filter(role -> role != RoleType.EMPLOYEE
-                            && role != RoleType.COMPANY_ADMIN
-                            && role != RoleType.SYSTEM_ADMIN)
+            roles.setItems(Arrays.stream(values())
+                    .filter(role -> role != EMPLOYEE && role != COMPANY_ADMIN && role != SYSTEM_ADMIN)
                     .toList());
         }
         roles.setRenderer(

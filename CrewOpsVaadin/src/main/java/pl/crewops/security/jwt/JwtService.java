@@ -9,6 +9,7 @@ import pl.crewops.auth.ValidTokenRequest;
 import pl.crewops.auth.ValidTokenResponse;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.auth.RoleGrantedAuthority;
+import pl.crewops.model.auth.RoleType;
 
 @Slf4j
 @Service
@@ -58,7 +59,7 @@ public class JwtService {
             return ((List<?>) authoritiesClaim)
                     .stream()
                             .filter(obj -> obj instanceof String)
-                            .map(obj -> new RoleGrantedAuthority((String) obj))
+                            .map(obj -> new RoleGrantedAuthority(RoleType.valueOf(((String) obj).replace("ROLE_", ""))))
                             .collect(Collectors.toSet());
         }
         return Collections.emptySet();
