@@ -17,7 +17,7 @@ import pl.crewops.exception.multitenancy.CreateSchemaException;
 
 @Slf4j
 @Component
-@Profile(value = "dev")
+@Profile(value = {"dev", "integration"})
 public class BootstrapDatabase {
 
     private final TenantSchemaInitializer tenantSchemaInitializer;
@@ -26,6 +26,8 @@ public class BootstrapDatabase {
     private final Environment environment;
 
     private final String testSchemaName = "testtenant_2f3b1d5c9e8f";
+    private final String testTenantChangelogPath = "db/changelog/insert/003-insert-tenant-test-record.yaml";
+    private final String testAuthUserRelationsPath = "db/changelog/insert/004-insert-auth-user-test-records.yaml";
     private final String testValuesChangelogPath = "db/changelog/insert/005-insert-development-requirement-values.yaml";
 
     public BootstrapDatabase(
@@ -37,6 +39,11 @@ public class BootstrapDatabase {
         this.liquibaseSchemaMigrator = liquibaseSchemaMigrator;
         this.dataSource = dataSource;
         this.environment = environment;
+
+        executeInsert(tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, "public", testTenantChangelogPath);
+
+        executeInsert(
+                tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, "public", testAuthUserRelationsPath);
 
         executeInsert(
                 tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, testSchemaName, testValuesChangelogPath);
