@@ -41,4 +41,4 @@
 
  #   # TODO: config multi profiles and remove this from prod
     - include:
-        file: db/changelog/insert/002-insert-development-requirement-values.yaml
+        file: db/changelog/insert/005-insert-development-requirement-values.yaml

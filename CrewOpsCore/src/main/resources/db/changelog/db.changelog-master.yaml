@@ -31,7 +31,7 @@
     - include:
           file: db/changelog/insert/001-insert-role-initial-values.yaml
     - include:
-        file: db/changelog/insert/005-insert-admin-account-values.yaml
+        file: db/changelog/insert/002-insert-admin-account-values.yaml
 
 #   delete this after configure prod environment
     - include:

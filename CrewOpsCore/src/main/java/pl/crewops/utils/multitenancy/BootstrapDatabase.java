@@ -26,7 +26,7 @@ public class BootstrapDatabase {
     private final Environment environment;
 
     private final String testSchemaName = "testtenant_2f3b1d5c9e8f";
-    private final String testValuesChangelogPath = "db/changelog/insert/002-insert-development-requirement-values.yaml";
+    private final String testValuesChangelogPath = "db/changelog/insert/005-insert-development-requirement-values.yaml";
 
     public BootstrapDatabase(
             TenantSchemaInitializer tenantSchemaInitializer,

@@ -42,6 +42,8 @@ class RegistrationService {
             schemaName = TenantSchemaNameGenerator.generateTenantSchemaName(
                     createCustomerCommand.createTenantDTO().createCompanyDTO().name(), UUID.randomUUID());
             tenantSchemaInitializer.createSchemaIfNotExists(schemaName);
+            // TODO: make sure to mute development values insertions in db.changelog-tenant.yaml
+            //  before any prod instance running
             liquibaseSchemaMigrator.runMigrations(schemaName);
         } catch (CreateSchemaException e) {
             log.error(e.getMessage());
