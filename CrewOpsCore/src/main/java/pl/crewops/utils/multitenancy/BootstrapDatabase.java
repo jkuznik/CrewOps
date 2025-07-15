@@ -25,6 +25,9 @@ public class BootstrapDatabase {
     private final DataSource dataSource;
     private final Environment environment;
 
+    private final String testSchemaName = "testtenant_2f3b1d5c9e8f";
+    private final String testValuesChangelogPath = "db/changelog/insert/002-insert-development-requirement-values.yaml";
+
     public BootstrapDatabase(
             TenantSchemaInitializer tenantSchemaInitializer,
             LiquibaseSchemaMigrator liquibaseSchemaMigrator,
@@ -35,12 +38,11 @@ public class BootstrapDatabase {
         this.dataSource = dataSource;
         this.environment = environment;
 
-        String testSchemaName = "testtenant_2f3b1d5c9e8f";
-        String testValues = "db/changelog/insert/002-insert-development-requirement-values.yaml";
-        executeInsert(tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, testSchemaName, testValues);
+        executeInsert(
+                tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, testSchemaName, testValuesChangelogPath);
     }
 
-    private static void executeInsert(
+    private void executeInsert(
             TenantSchemaInitializer tenantSchemaInitializer,
             LiquibaseSchemaMigrator liquibaseSchemaMigrator,
             DataSource dataSource,

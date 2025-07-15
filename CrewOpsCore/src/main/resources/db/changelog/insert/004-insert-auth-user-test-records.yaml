@@ -4,6 +4,31 @@ databaseChangeLog:
       author: jkuznik
       changes:
         - insert:
+            tableName: tenant
+            columns:
+              - column:
+                  name: id
+                  value: ${tenant.id}
+              - column:
+                  name: version
+                  valueNumeric: 0
+              - column:
+                  name: company_id
+                  value: ${tenant.company.id}
+              - column:
+                  name: schema_name
+                  value: ${tenant.schema.name}
+              - column:
+                  name: active
+                  valueBoolean: ${tenant.active}
+              - column:
+                  name: created_at
+                  valueComputed: "NOW()"
+              - column:
+                  name: updated_at
+                  valueComputed: "NOW()"
+
+        - insert:
             tableName: auth_user
             columns:
               - column: { name: id, value: "cccccccc-cccc-cccc-cccc-cccccccccccc" }
