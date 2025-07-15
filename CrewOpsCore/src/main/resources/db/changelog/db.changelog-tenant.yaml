@@ -39,6 +39,6 @@
     - include:
         file: db/changelog/create/tenantSchema/009-create-table-company.yaml
 
- #   # TODO: config multi profiles and remove this from prod
-    - include:
-        file: db/changelog/insert/005-insert-development-requirement-values.yaml
+ #   unmute this in case if created customer should have initial values like employees or vehicles
+#    - include:
+#        file: db/changelog/insert/005-insert-development-requirement-values.yaml
