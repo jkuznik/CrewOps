@@ -7,9 +7,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.security.custom.CustomAuthentication;
 import pl.crewops.security.custom.CustomAuthenticationManager;
 import pl.crewops.security.custom.UserPrincipal;
-import pl.crewops.security.jwt.JwtService;
+import pl.crewops.security.jwt.JwtServiceCore;
 
 @Slf4j
 @Component
@@ -28,7 +28,7 @@ import pl.crewops.security.jwt.JwtService;
 public class TenantContextFilter extends OncePerRequestFilter {
 
     private final CustomAuthenticationManager authenticationManager;
-    private final JwtService jwtService;
+    private final JwtServiceCore jwtService;
     private final TenantAPI tenantAPI;
 
     @Override
@@ -44,11 +44,14 @@ public class TenantContextFilter extends OncePerRequestFilter {
             var principal = (UserPrincipal) authentication.getPrincipal();
             String schemaName = principal.getAuthUser().getTenant().getSchemaName();
             String token = jwtService.extractTokenFromRequest(request);
-            Tenant tenant = tenantAPI.getByCompanyId(UUID.fromString(jwtService.extractTenantCompanyId(token)));
+            Tenant tenant = tenantAPI.getByCompanyId(jwtService.extractCompanyId(token));
             if (tenant.getSchemaName().equals(schemaName)) {
                 TenantContext.setCurrentTenant(schemaName);
                 authenticationManager.authenticate(
                         authentication); // authentication set true only once in whole filter chain in this place
+            } else {
+                response.setStatus(HttpStatus.FORBIDDEN.value());
+                return;
             }
         }
         filterChain.doFilter(request, response);

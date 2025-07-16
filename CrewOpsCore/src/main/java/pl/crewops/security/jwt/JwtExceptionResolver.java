@@ -21,11 +21,11 @@ public class JwtExceptionResolver implements HandlerExceptionResolver {
             HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
         try {
             if (ex instanceof ExpiredJwtException) {
-                response.sendError(HttpStatus.CONFLICT.value(), "Token expired");
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Token expired");
             } else if (ex instanceof SignatureException || ex instanceof MalformedJwtException) {
-                response.sendError(HttpStatus.CONFLICT.value(), "Invalid JWT token");
+                response.sendError(HttpStatus.FORBIDDEN.value(), "Invalid JWT token");
             } else {
-                response.sendError(HttpStatus.CONFLICT.value(), "Authentication error");
+                response.sendError(HttpStatus.FORBIDDEN.value(), "Authentication error");
             }
         } catch (IOException e) {
             log.warn("Error while resolving jwt exception", e);

@@ -34,16 +34,20 @@ class RegistrationService {
     private final TenantAPI tenantAPI;
     private final CompanyAPI companyAPI;
 
-    // TODO: implement security to allow only admin can trigger this method
+    // TODO: 1 implement security to allow only admin can trigger this method
+    // TODO: 2 implement logic to rollback db changes in cross schema queries in case of exception occurs for this
+    // action
     @Transactional
     TenantDTO registerCustomer(@Valid @NotNull CreateCustomerCommand createCustomerCommand) {
+        boolean persistTenant = false;
+        boolean persistCompany = false;
+        boolean persistAuthUser = false;
+
         String schemaName;
         try {
             schemaName = TenantSchemaNameGenerator.generateTenantSchemaName(
                     createCustomerCommand.createTenantDTO().createCompanyDTO().name(), UUID.randomUUID());
             tenantSchemaInitializer.createSchemaIfNotExists(schemaName);
-            // TODO: make sure to mute development values insertions in db.changelog-tenant.yaml
-            //  before any prod instance running
             liquibaseSchemaMigrator.runMigrations(schemaName);
         } catch (CreateSchemaException e) {
             log.error(e.getMessage());

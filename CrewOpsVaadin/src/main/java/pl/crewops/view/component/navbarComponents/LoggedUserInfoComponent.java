@@ -23,7 +23,7 @@ import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.auth.RoleGrantedAuthority;
 import pl.crewops.security.custom.UserPrincipal;
-import pl.crewops.security.jwt.JwtService;
+import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.LoginForm;
 import pl.crewops.view.component.notification.EndSessionNotification;
@@ -34,15 +34,14 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
     private boolean sessionEnded = false;
     private UserPrincipal principal;
 
-    public LoggedUserInfoComponent(CoreAPI coreAPI, JwtService jwtService) {
+    public LoggedUserInfoComponent(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
         addClassName("logged-user-info");
 
         this.authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null
                 && authentication.isAuthenticated()
-                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal
-                && jwtService.validToken(userPrincipal.getToken())) {
+                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
 
             this.principal = userPrincipal;
             add(loggedUserInfo(coreAPI, jwtService), new LanguageSelectorComponent());
@@ -52,7 +51,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         }
     }
 
-    private Component loggedUserInfo(CoreAPI coreAPI, JwtService jwtService) {
+    private Component loggedUserInfo(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
         var infoLayout = new HorizontalLayout();
         infoLayout.setWidthFull();
         infoLayout.setSpacing(true);
@@ -69,11 +68,11 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         return infoLayout;
     }
 
-    private UserInformation getInfo(CoreAPI coreAPI, JwtService jwtService) {
+    private UserInformation getInfo(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
 
         String companyName = "";
         try {
-            CompanyDTO companyDTO = coreAPI.getCompanyById(jwtService.getTenantCompanyId(principal.getToken()))
+            CompanyDTO companyDTO = coreAPI.getCompanyById(jwtService.extractCompanyId(principal.getToken()))
                     .orElseThrow(() -> new RuntimeException("Can't retrieve company name for logged user info"));
             companyName = companyDTO.name();
 
@@ -83,20 +82,26 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
             System.out.println(e.getMessage());
         }
         try {
-            var employeeDTO = coreAPI.getEmployeeById(jwtService.getEmployeeId(principal.getToken()))
+            var employeeDTO = coreAPI.getEmployeeById(jwtService.extractEmployeeId(principal.getToken()))
                     .orElseThrow(NoSuchElementException::new);
             return new UserInformation(
                     companyName,
                     employeeDTO.firstName(),
                     employeeDTO.lastName(),
-                    jwtService.getExpiration(principal.getToken()).toInstant().getEpochSecond());
+                    jwtService
+                            .extractExpiresAt(principal.getToken())
+                            .toInstant()
+                            .getEpochSecond());
         } catch (NotAuthenticatedException e) {
             System.out.println("Some problem occurred while retrieving employee information");
             return new UserInformation(
                     companyName,
                     "system",
                     "issue",
-                    jwtService.getExpiration(principal.getToken()).toInstant().getEpochSecond());
+                    jwtService
+                            .extractExpiresAt(principal.getToken())
+                            .toInstant()
+                            .getEpochSecond());
         }
     }
 

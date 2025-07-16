@@ -7,7 +7,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.security.jwt.JwtService;
+import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.view.component.content.HomeContent;
 import pl.crewops.view.layout.MainLayout;
 
@@ -15,7 +15,7 @@ import pl.crewops.view.layout.MainLayout;
 @PageTitle("Crew Ops")
 public class HomeView extends MainLayout {
 
-    public HomeView(CoreAPI coreAPI, JwtService jwtService) {
+    public HomeView(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
         super(coreAPI, jwtService);
         addClassName("home-view");
 

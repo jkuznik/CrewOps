@@ -12,7 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.custom.UserPrincipal;
-import pl.crewops.security.jwt.JwtService;
+import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.view.component.grid.BreakdownGrid;
 import pl.crewops.view.component.grid.VehicleGrid;
 import pl.crewops.view.layout.MainLayout;
@@ -26,15 +26,14 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
 
     private UserPrincipal principal;
 
-    public VehicleView(CoreAPI coreAPI, JwtService jwtService) {
+    public VehicleView(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
         super(coreAPI, jwtService);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null
                 && authentication.isAuthenticated()
-                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal
-                && jwtService.validToken(userPrincipal.getToken())) {
+                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
 
             this.principal = userPrincipal;
         }

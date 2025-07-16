@@ -28,12 +28,12 @@ import pl.crewops.model.Employee;
 import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.model.publicSchema.Role;
 import pl.crewops.model.publicSchema.Tenant;
-import pl.crewops.security.jwt.JwtService;
+import pl.crewops.security.jwt.JwtServiceCore;
 
 @SpringJUnitConfig(
         classes = {
             AuthService.class,
-            JwtService.class,
+            JwtServiceCore.class,
             AuthUserRepository.class,
             RoleRepository.class,
             PasswordEncoder.class,
@@ -46,7 +46,7 @@ class AuthServiceTest {
     private AuthService authService;
 
     @MockitoBean
-    private JwtService jwtService;
+    private JwtServiceCore jwtService;
 
     @MockitoBean
     private AuthUserRepository authUserRepository;
@@ -248,7 +248,7 @@ class AuthServiceTest {
         when(jwtService.extractEmployeeId(any())).thenReturn(UUID.randomUUID());
         when(authUserRepository.findByEmployeeId(any())).thenReturn(Optional.of(authUser));
         when(employeeAPI.getEmployeeById(any())).thenReturn(employee);
-        when(jwtService.validateToken(any(), any())).thenReturn(true);
+        when(jwtService.validToken(any(), any())).thenReturn(true);
         when(jwtService.extractExpiresAt(any())).thenReturn(new Date());
 
         ValidTokenResponse result = authService.validateToken(validTokenRequest);

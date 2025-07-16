@@ -10,7 +10,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.security.custom.UserPrincipal;
-import pl.crewops.security.jwt.JwtService;
+import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.view.EmployeeView;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.VehicleView;
@@ -20,7 +20,7 @@ import pl.crewops.view.VehicleView;
 @CssImport("./styles/mainStyles/main-drawer.css")
 public class MainDrawer extends VerticalLayout {
 
-    private final JwtService jwtService;
+    private final JwtServiceVaadin jwtService;
     private UserPrincipal principal;
 
     private final RouterLink homeLink = new RouterLink(HomeView.class);
@@ -29,7 +29,7 @@ public class MainDrawer extends VerticalLayout {
 
     private final Span footerText = new Span();
 
-    public MainDrawer(JwtService jwtService) {
+    public MainDrawer(JwtServiceVaadin jwtService) {
         addClassName("main-drawer");
 
         this.jwtService = jwtService;
@@ -40,8 +40,7 @@ public class MainDrawer extends VerticalLayout {
 
         if (authentication != null
                 && authentication.isAuthenticated()
-                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal
-                && jwtService.validToken(userPrincipal.getToken())) {
+                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
 
             this.principal = userPrincipal;
         }

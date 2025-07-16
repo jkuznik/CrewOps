@@ -25,12 +25,12 @@ import pl.crewops.enums.ControllerURL;
 import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtExceptionResolver;
-import pl.crewops.security.jwt.JwtService;
+import pl.crewops.security.jwt.JwtServiceCore;
 
 @SpringJUnitConfig(
         classes = {
             JwtAuthFilter.class,
-            JwtService.class,
+            JwtServiceCore.class,
             JwtExceptionResolver.class,
             UserDetailsService.class,
             AntPathMatcher.class,
@@ -44,7 +44,7 @@ class JwtAuthFilterTest {
     private JwtExceptionResolver jwtExceptionResolver;
 
     @MockitoBean
-    private JwtService jwtService;
+    private JwtServiceCore jwtService;
 
     @MockitoBean
     private HttpServletRequest request;
@@ -77,7 +77,7 @@ class JwtAuthFilterTest {
         when(jwtService.extractEmployeeId(fakeToken)).thenReturn(employeeId);
 
         when(userDetailsService.loadUserByUsername(employeeId.toString())).thenReturn(userPrincipal);
-        when(jwtService.validateToken(fakeToken, userPrincipal)).thenReturn(true);
+        when(jwtService.validToken(fakeToken, userPrincipal)).thenReturn(true);
 
         jwtAuthFilter.doFilterInternal(request, response, filterChain);
 

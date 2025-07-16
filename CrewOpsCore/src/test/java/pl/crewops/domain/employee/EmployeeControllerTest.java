@@ -41,7 +41,7 @@ import pl.crewops.security.filters.ClientValidationFilter;
 import pl.crewops.security.filters.JwtAuthFilter;
 import pl.crewops.security.filters.TenantContextFilter;
 import pl.crewops.security.jwt.JwtExceptionResolver;
-import pl.crewops.security.jwt.JwtService;
+import pl.crewops.security.jwt.JwtServiceCore;
 import pl.crewops.security.providers.CustomProvider;
 
 @WebMvcTest(
@@ -71,7 +71,7 @@ class EmployeeControllerTest {
     private TenantContextFilter tenantContextFilter;
 
     @MockitoBean
-    private JwtService jwtService;
+    private JwtServiceCore jwtService;
 
     @MockitoBean
     private UserDetailsService userDetailsService;
@@ -157,6 +157,6 @@ class EmployeeControllerTest {
     private void satisfyJwtService() {
         when(jwtService.extractTokenFromRequest(any())).thenReturn("token");
         when(jwtService.extractEmployeeId(any())).thenReturn(employeeId);
-        when(jwtService.validateToken(any(), any())).thenReturn(true);
+        when(jwtService.validToken(any(), any())).thenReturn(true);
     }
 }

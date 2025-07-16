@@ -24,14 +24,14 @@ import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.model.publicSchema.Role;
 import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.security.custom.UserPrincipal;
-import pl.crewops.security.jwt.JwtService;
+import pl.crewops.security.jwt.JwtServiceCore;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 class AuthService implements AuthAPI {
 
-    private final JwtService jwtService;
+    private final JwtServiceCore jwtService;
     private final AuthUserRepository authUserRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -142,7 +142,7 @@ class AuthService implements AuthAPI {
                     .orElseThrow(() ->
                             new UsernameNotFoundException("Username " + validTokenRequest.token() + " not found"));
             var userPrincipal = new UserPrincipal(authUser);
-            boolean result = jwtService.validateToken(validTokenRequest.token(), userPrincipal);
+            boolean result = jwtService.validToken(validTokenRequest.token(), userPrincipal);
             if (result) {
                 Date expiresAt = jwtService.extractExpiresAt(validTokenRequest.token());
                 return new ValidTokenResponse(true, expiresAt);

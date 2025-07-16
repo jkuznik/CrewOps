@@ -11,7 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.custom.UserPrincipal;
-import pl.crewops.security.jwt.JwtService;
+import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.view.component.form.LoginForm;
 import pl.crewops.view.component.navbarComponents.LoggedUserInfoComponent;
 
@@ -21,10 +21,10 @@ import pl.crewops.view.component.navbarComponents.LoggedUserInfoComponent;
 public class MainNavbar extends HorizontalLayout {
 
     private final CoreAPI coreAPI;
-    private final JwtService jwtService;
+    private final JwtServiceVaadin jwtService;
     private UserPrincipal principal;
 
-    public MainNavbar(CoreAPI coreAPI, JwtService jwtService) {
+    public MainNavbar(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
         addClassName("main-navbar");
 
         this.coreAPI = coreAPI;
@@ -34,8 +34,7 @@ public class MainNavbar extends HorizontalLayout {
 
         if (authentication != null
                 && authentication.isAuthenticated()
-                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal
-                && jwtService.validToken(userPrincipal.getToken())) {
+                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
 
             this.principal = userPrincipal;
         }
@@ -54,7 +53,7 @@ public class MainNavbar extends HorizontalLayout {
         rightSide.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         rightSide.getStyle().set("padding-right", "20px");
 
-        if (principal == null || jwtService.validToken(principal.getToken())) {
+        if (principal != null && jwtService.validToken(principal.getToken())) {
             var loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI, jwtService);
             rightSide.add(loggedUserInfoComponent);
         } else {

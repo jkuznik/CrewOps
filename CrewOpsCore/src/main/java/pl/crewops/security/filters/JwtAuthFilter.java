@@ -16,14 +16,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import pl.crewops.security.custom.CustomAuthentication;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtExceptionResolver;
-import pl.crewops.security.jwt.JwtService;
+import pl.crewops.security.jwt.JwtServiceCore;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    private final JwtService jwtService;
+    private final JwtServiceCore jwtService;
     private final JwtExceptionResolver jwtExceptionResolver;
     private final UserDetailsService userDetailsService;
 
@@ -40,7 +40,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             final String employeeId = jwtService.extractEmployeeId(token).toString();
             if (employeeId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserPrincipal userPrincipal = (UserPrincipal) userDetailsService.loadUserByUsername(employeeId);
-                if (jwtService.validateToken(token, userPrincipal)) {
+                if (jwtService.validToken(token, userPrincipal)) {
                     SecurityContextHolder.getContext().setAuthentication(new CustomAuthentication(userPrincipal));
                 }
             }

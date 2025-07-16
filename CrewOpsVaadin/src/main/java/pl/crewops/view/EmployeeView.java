@@ -11,7 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.custom.UserPrincipal;
-import pl.crewops.security.jwt.JwtService;
+import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.view.component.grid.EmployeeGrid;
 import pl.crewops.view.component.grid.QualificationGrid;
 import pl.crewops.view.layout.MainLayout;
@@ -24,14 +24,13 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
 
     private UserPrincipal principal;
 
-    public EmployeeView(CoreAPI coreAPI, JwtService jwtService) {
+    public EmployeeView(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
         super(coreAPI, jwtService);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null
                 && authentication.isAuthenticated()
-                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal
-                && jwtService.validToken(userPrincipal.getToken())) {
+                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
 
             this.principal = userPrincipal;
         }
