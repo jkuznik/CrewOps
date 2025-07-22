@@ -17,4 +17,6 @@ public interface CompanyAPI {
             @NotNull @Valid CreateCompanyDTO createCompanyDTO,
             @NotNull UUID companyId)
             throws NoUniqueCompanyEmailException;
+
+    void delete(@NotNull UUID companyId);
 }

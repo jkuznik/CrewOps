@@ -38,7 +38,7 @@ class RegistrationServiceTest extends IntegrationTest {
     void registerCustomer() {}
 
     @Test
-    void registerCustomer_shouldSaveNewCustomerAndNewSchema() {
+    void registerCustomer_happyPathShouldSaveNewCustomerAndNewSchema() {
         // given
         var companyName = "companyName";
         var employeeFirstName = "employeeFirstName";
@@ -85,7 +85,7 @@ class RegistrationServiceTest extends IntegrationTest {
             assertThat(schemaExists).isTrue();
             assertThat(tenant.getCompanyId()).isInstanceOf(UUID.class);
         } finally {
-            cleanup(tenant.getSchemaName(), employeeFirstName, tenant.getId());
+            //            cleanup(tenant.getSchemaName(), employeeFirstName, tenant.getId());
         }
     }
 
@@ -107,4 +107,7 @@ class RegistrationServiceTest extends IntegrationTest {
         jdbcTemplate.update("DELETE FROM public.tenant WHERE id = ?", tenantId);
         jdbcTemplate.execute("DROP SCHEMA IF EXISTS " + schemaName + " CASCADE");
     }
+
+    @Test
+    void testRegisterCustomer() {}
 }

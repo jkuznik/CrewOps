@@ -29,4 +29,10 @@ class TenantService implements TenantAPI {
     public Tenant getByCompanyId(UUID companyId) {
         return tenantRepository.findByCompanyId(companyId).orElseThrow(() -> new TenantNotExistException(companyId));
     }
+
+    @Override
+    @Transactional
+    public void delete(UUID tenantId) {
+        tenantRepository.deleteById(tenantId);
+    }
 }

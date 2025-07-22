@@ -6,7 +6,10 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.domain.auth.AuthAPI;
 import pl.crewops.domain.company.CompanyAPI;
@@ -15,6 +18,7 @@ import pl.crewops.dto.CreateCustomerCommand;
 import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.tenant.TenantDTO;
+import pl.crewops.exception.auth.RegisterCustomerException;
 import pl.crewops.exception.multitenancy.CreateSchemaException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.publicSchema.Tenant;
@@ -33,17 +37,18 @@ class RegistrationService {
     private final AuthAPI authAPI;
     private final TenantAPI tenantAPI;
     private final CompanyAPI companyAPI;
+    private final PlatformTransactionManager transactionManager;
 
     // TODO: 1 implement security to allow only admin can trigger this method
     // TODO: 2 implement logic to rollback db changes in cross schema queries in case of exception occurs for this
     // action
-    @Transactional
+    //    @Transactional
     TenantDTO registerCustomer(@Valid @NotNull CreateCustomerCommand createCustomerCommand) {
-        boolean persistTenant = false;
-        boolean persistCompany = false;
-        boolean persistAuthUser = false;
+        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
 
-        String schemaName;
+        String schemaName = "";
+
         try {
             schemaName = TenantSchemaNameGenerator.generateTenantSchemaName(
                     createCustomerCommand.createTenantDTO().createCompanyDTO().name(), UUID.randomUUID());
@@ -53,31 +58,80 @@ class RegistrationService {
             log.error(e.getMessage());
             throw new RuntimeException(e);
         }
-        var notPersistedTenant = Tenant.builder().active(true).build();
-        notPersistedTenant.setSchemaName(schemaName);
-        notPersistedTenant.setCompanyId(UUID.randomUUID());
-        var tenant = tenantAPI.saveTenant(notPersistedTenant);
-        var generatedCompanyId = tenant.getCompanyId();
 
-        TenantContext.setCurrentTenant(schemaName);
-        CompanyDTO company = companyAPI.createCompany(
-                createCustomerCommand.createTenantDTO().createAddressDTO(),
-                createCustomerCommand.createTenantDTO().createCompanyDTO(),
-                generatedCompanyId);
+        TransactionStatus saveTenantStep = transactionManager.getTransaction(def);
+        UUID tenantId = null;
+        UUID companyId = null;
+        Tenant tenant = null;
 
-        var createEmployeeDTO = setCompanyId(createCustomerCommand.createEmployeeDTO(), company.id());
-        authAPI.createAuthUserWithRelatedEmployee(createEmployeeDTO);
+        try {
+            var notPersistedTenant = Tenant.builder().active(true).build();
+            notPersistedTenant.setSchemaName(schemaName);
+            notPersistedTenant.setCompanyId(UUID.randomUUID());
+            tenant = tenantAPI.saveTenant(notPersistedTenant);
+            transactionManager.commit(saveTenantStep);
+
+            tenantId = tenant.getId();
+            companyId = tenant.getCompanyId();
+        } catch (Exception e) {
+            transactionManager.rollback(saveTenantStep);
+            throw new RegisterCustomerException("Failed to create tenant during registration");
+        }
+
+        TransactionStatus saveCompanyStep = transactionManager.getTransaction(def);
+        CompanyDTO company = null;
+
+        try {
+            TenantContext.setCurrentTenant(schemaName);
+
+            company = companyAPI.createCompany(
+                    createCustomerCommand.createTenantDTO().createAddressDTO(),
+                    createCustomerCommand.createTenantDTO().createCompanyDTO(),
+                    companyId);
+            transactionManager.commit(saveCompanyStep);
+
+        } catch (Exception e) {
+            transactionManager.rollback(saveCompanyStep);
+            cleanTenant(tenantId);
+            TenantContext.clear();
+            throw new RegisterCustomerException("Failed to create company during registration");
+        }
+
+        // TODO: implement manually rollback in createAuthUserWithRelatedEmployee
+        TransactionStatus saveAuthUserWithRelatedEmployee = transactionManager.getTransaction(def);
+
+        var createEmployeeDTO =
+                prepareCreateEmployeeDTOWithGeneratedCompanyId(createCustomerCommand.createEmployeeDTO(), company.id());
+        try {
+            authAPI.createAuthUserWithRelatedEmployee(createEmployeeDTO);
+            transactionManager.commit(saveAuthUserWithRelatedEmployee);
+
+        } catch (Exception e) {
+            transactionManager.rollback(saveAuthUserWithRelatedEmployee);
+            cleanCompany(companyId);
+            cleanTenant(tenantId);
+            throw new RegisterCustomerException("Failed to create employee during registration");
+        }
+
         TenantContext.clear();
 
-        Tenant saveTenant = tenantAPI.saveTenant(tenant);
         return TenantDTO.builder()
-                .id(tenant.getId())
-                .companyId(saveTenant.getCompanyId())
-                .active(tenant.isActive())
+                .id(tenantId)
+                .companyId(companyId)
+                .active(true)
                 .build();
     }
 
-    private CreateEmployeeDTO setCompanyId(CreateEmployeeDTO createEmployeeDTO, UUID companyId) {
+    private void cleanCompany(UUID companyId) {
+        companyAPI.delete(companyId);
+    }
+
+    private void cleanTenant(UUID tenantId) {
+        tenantAPI.delete(tenantId);
+    }
+
+    private CreateEmployeeDTO prepareCreateEmployeeDTOWithGeneratedCompanyId(
+            CreateEmployeeDTO createEmployeeDTO, UUID companyId) {
         return CreateEmployeeDTO.builder()
                 .companyId(companyId)
                 .firstName(createEmployeeDTO.firstName())

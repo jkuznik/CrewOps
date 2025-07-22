@@ -48,4 +48,10 @@ class CompanyService implements CompanyAPI {
         log.info("Get company by id: {}", companyId);
         return mapToDTO(company);
     }
+
+    @Override
+    @Transactional
+    public void delete(UUID companyId) {
+        companyRepository.deleteById(companyId);
+    }
 }
