@@ -7,5 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class CrewOpsCore {
     public static void main(String[] args) {
         SpringApplication.run(CrewOpsCore.class, args);
+        System.out.println("Test CI/CD");
     }
 }
