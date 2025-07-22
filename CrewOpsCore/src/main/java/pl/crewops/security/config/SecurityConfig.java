@@ -16,16 +16,19 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import pl.crewops.security.cvf.ClientValidationFilter;
-import pl.crewops.security.jwt.JwtAuthFilter;
+import pl.crewops.security.filters.ClientValidationFilter;
+import pl.crewops.security.filters.JwtAuthFilter;
+import pl.crewops.security.filters.TenantContextFilter;
 
 @Configuration
 @AllArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthFilter jwtAuthFilter;
     private final ClientValidationFilter clientValidationFilter;
+    private final JwtAuthFilter jwtAuthFilter;
+    private final TenantContextFilter tenantContextFilter;
 
+    // TODO: configure current handling endpoint
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
@@ -36,19 +39,20 @@ public class SecurityConfig {
                         .permitAll()
                         // shift leader permission
                         .requestMatchers(HttpMethod.PATCH, shiftLeaderUrlPATCH())
-                        .hasAnyRole(SHIFT_LEADER.name(), MANAGER.name(), ADMIN.name())
+                        .hasAnyRole(SHIFT_LEADER.name(), MANAGER.name(), SYSTEM_ADMIN.name())
                         // manager permission
                         .requestMatchers(HttpMethod.POST, managerUrlPOST())
-                        .hasAnyRole(MANAGER.name(), ADMIN.name())
+                        .hasAnyRole(MANAGER.name(), SYSTEM_ADMIN.name())
                         .requestMatchers(HttpMethod.PATCH, managerUrlPATCH())
-                        .hasAnyRole(MANAGER.name(), ADMIN.name())
+                        .hasAnyRole(MANAGER.name(), SYSTEM_ADMIN.name())
                         .requestMatchers(HttpMethod.DELETE, managerUrlDELETE())
-                        .hasAnyRole(MANAGER.name(), ADMIN.name())
+                        .hasAnyRole(MANAGER.name(), SYSTEM_ADMIN.name())
                         //
                         .anyRequest()
                         .authenticated())
                 .addFilterBefore(clientValidationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(tenantContextFilter, UsernamePasswordAuthenticationFilter.class)
                 .headers(headers ->
                         headers.frameOptions(Customizer.withDefaults()).disable())
                 .sessionManagement(sessionManagementConfigurer ->

@@ -1,5 +1,7 @@
 package pl.crewops.view.component.form;
 
+import static pl.crewops.model.auth.RoleType.*;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -16,8 +18,12 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.shared.Registration;
 import java.util.Arrays;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.model.EmployeeFormModel;
+import pl.crewops.model.auth.RoleGrantedAuthority;
 import pl.crewops.model.auth.RoleType;
+import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.view.component.accordion.QualificationAccordion;
 import pl.crewops.view.component.accordion.VehicleAccordion;
 
@@ -42,12 +48,7 @@ public class EmployeeForm extends FormLayout {
         addClassName("employee-form");
 
         localize();
-
-        roles.setItems(Arrays.stream(RoleType.values())
-                .filter(role -> role != RoleType.ADMIN)
-                .toList());
-        roles.setRenderer(
-                new TextRenderer<>(role -> role.name().replace("_", " ").toLowerCase()));
+        configureRolesCheckbox();
 
         binder.bindInstanceFields(this);
 
@@ -61,6 +62,23 @@ public class EmployeeForm extends FormLayout {
                 qualifications,
                 vehicles,
                 createButtonsLayout());
+    }
+
+    private void configureRolesCheckbox() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var principal = (UserPrincipal) authentication.getPrincipal();
+
+        if (principal.getAuthorities().contains(new RoleGrantedAuthority(COMPANY_ADMIN))) {
+            roles.setItems(Arrays.stream(values())
+                    .filter(role -> role != SYSTEM_ADMIN && role != EMPLOYEE)
+                    .toList());
+        } else {
+            roles.setItems(Arrays.stream(values())
+                    .filter(role -> role != EMPLOYEE && role != COMPANY_ADMIN && role != SYSTEM_ADMIN)
+                    .toList());
+        }
+        roles.setRenderer(
+                new TextRenderer<>(role -> role.name().replace("_", " ").toLowerCase()));
     }
 
     private void localize() {

@@ -2,7 +2,6 @@ package pl.crewops.domain.breakdown;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchException;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static pl.crewops.domain.breakdown.BreakdownTestFactory.*;
@@ -41,7 +40,7 @@ class BreakdownServiceTest {
     void createBreakdown_shouldReturnBreakdownDTO_WhenCreateDTOIsValid() {
         // when
         when(vehicleAPI.getVehicle(any(UUID.class))).thenReturn(getVehicle());
-        when(employeeAPI.getEmployee(any(UUID.class))).thenReturn(getEmployee());
+        when(employeeAPI.getEmployeeById(any(UUID.class))).thenReturn(getEmployee());
         when(breakdownRepository.save(any(Breakdown.class))).thenReturn(getBreakdown());
 
         // then
@@ -80,7 +79,7 @@ class BreakdownServiceTest {
     void shouldReturnBreakdownDTO_WhenUpdateDTOIsValid() {
         // when
         when(breakdownRepository.findById(any())).thenReturn(Optional.of(getBreakdown()));
-        when(employeeAPI.getEmployee(any(UUID.class))).thenReturn(getEmployee());
+        when(employeeAPI.getEmployeeById(any(UUID.class))).thenReturn(getEmployee());
         when(vehicleAPI.getVehicle(any())).thenReturn(getVehicle());
         when(breakdownRepository.save(any(Breakdown.class))).thenReturn(getBreakdown());
 

@@ -18,13 +18,21 @@ class TenantService implements TenantAPI {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    // this propagation is required to force commit and achieve access to tenant_id generated on db side after INSERT
+    // query
     public Tenant saveTenant(Tenant tenant) {
         return tenantRepository.save(tenant);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Tenant getByCompanyId(UUID companyId) {
         return tenantRepository.findByCompanyId(companyId).orElseThrow(() -> new TenantNotExistException(companyId));
+    }
+
+    @Override
+    @Transactional
+    public void delete(UUID tenantId) {
+        tenantRepository.deleteById(tenantId);
     }
 }

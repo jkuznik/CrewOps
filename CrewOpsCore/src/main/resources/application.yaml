@@ -5,6 +5,9 @@ spring:
   profiles:
     active: dev
 
+  config:
+    import: "classpath:application-liquibase.yaml"
+
   liquibase:
     enabled: true
     default-schema: public

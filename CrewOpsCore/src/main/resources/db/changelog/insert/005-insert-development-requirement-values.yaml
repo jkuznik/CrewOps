@@ -1,4 +1,5 @@
-# Generate by GPT
+# Each new tenant created will be uploaded by those values in development process
+# Be sure that changelog is not trigger in any prod instance
 
 databaseChangeLog:
   - changeSet:

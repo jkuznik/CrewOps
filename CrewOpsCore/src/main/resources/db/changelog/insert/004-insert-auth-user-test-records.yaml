@@ -17,17 +17,6 @@ databaseChangeLog:
         - insert:
             tableName: auth_user
             columns:
-              - column: { name: id, value: "2bc51b6d-1f3a-4bca-9c56-123456789abc" }
-              - column: { name: username, value: "admin" }
-              - column: { name: password, value: "$2a$10$njg7g8ZWIxIpGEap4x7XQ.RGShM6ti/kLZ6402ZvnmqyeTtFlcseK" }  # bcrypt hash
-              - column: { name: tenant_id, value: "2b3b7d5c-9e8f-4bca-9c56-123456789abc" }
-              - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
-              - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
-              - column: { name: employee_id, value: "1cd62a5c-9e2f-4bca-9c56-123456789abc" }
-
-        - insert:
-            tableName: auth_user
-            columns:
               - column: { name: id, value: "dddddddd-dddd-dddd-dddd-dddddddddddd" }
               - column: { name: username, value: "user" }
               - column: { name: password, value: "$2a$10$DmojJF9kuAagam17R46BTet9kujoGPS9RORXsFxNrtEnVB2qkDdcK" }  # bcrypt hash
@@ -132,9 +121,3 @@ databaseChangeLog:
             columns:
               - column: { name: auth_user_id, value: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee" }
               - column: { name: role_id, value: "f6da9837-73b9-49ae-a9ff-7b2d0b493b33" }  # SHIFT_LEADER
-
-        - insert:
-            tableName: auth_user_role
-            columns:
-              - column: { name: auth_user_id, value: "2bc51b6d-1f3a-4bca-9c56-123456789abc" }
-              - column: { name: role_id, value: "e90a0e1e-8ab9-41ec-b98e-23a7bba4ef58" }  # ADMIN

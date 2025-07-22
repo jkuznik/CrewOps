@@ -26,7 +26,7 @@ import pl.crewops.model.Vehicle;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-class BreakdownService implements BreakdownAPI {
+class BreakdownService {
 
     private final BreakdownRepository breakdownRepository;
     private final VehicleAPI vehicleAPI;
@@ -43,7 +43,7 @@ class BreakdownService implements BreakdownAPI {
         }
         Employee employee;
         try {
-            employee = employeeAPI.getEmployee(createBreakdownDTO.reportedByEmployeeId());
+            employee = employeeAPI.getEmployeeById(createBreakdownDTO.reportedByEmployeeId());
         } catch (EmployeeNotFoundException e) {
             log.error("Not found 'reportedBy' employee during create breakdown: {}", e.getMessage());
             throw new EmployeeNotFoundException(createBreakdownDTO.reportedByEmployeeId());
@@ -70,12 +70,12 @@ class BreakdownService implements BreakdownAPI {
         return toDTO(breakdownRepository.save(breakdown));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Breakdown getBreakdown(UUID id) {
         return breakdownRepository.findById(id).orElseThrow(() -> new BreakdownNotFoundException(id));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<BreakdownDTO> getAllBreakdowns() {
         return breakdownRepository.findAll().stream()
                 .map(BreakdownMapper::toDTO)
@@ -90,7 +90,7 @@ class BreakdownService implements BreakdownAPI {
                 .orElseThrow(() -> new BreakdownNotFoundException(updateBreakdownDTO.breakdownId()));
 
         if (updateBreakdownDTO.solved()) {
-            Employee employee = employeeAPI.getEmployee(updateBreakdownDTO.repairedByEmployeeId());
+            Employee employee = employeeAPI.getEmployeeById(updateBreakdownDTO.repairedByEmployeeId());
             Vehicle vehicle = vehicleAPI.getVehicle(breakdown.getVehicle().getId());
             breakdown.setSolved(true);
             breakdown.setRepairedBy(employee);

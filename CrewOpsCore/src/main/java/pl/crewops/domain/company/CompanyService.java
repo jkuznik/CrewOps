@@ -41,12 +41,17 @@ class CompanyService implements CompanyAPI {
         return mapToDTO(companyRepository.save(company));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public CompanyDTO getCompanyById(UUID companyId) {
-        log.info("Get company by id: {}", companyId);
         Company company =
                 companyRepository.findById(companyId).orElseThrow(() -> new CompanyNotFoundException(companyId));
-        log.info("Company name: {}", company.getName());
+        log.info("Get company by id: {}", companyId);
         return mapToDTO(company);
+    }
+
+    @Override
+    @Transactional
+    public void delete(UUID companyId) {
+        companyRepository.deleteById(companyId);
     }
 }

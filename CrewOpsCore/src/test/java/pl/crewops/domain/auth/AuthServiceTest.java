@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static pl.crewops.model.auth.RoleType.ADMIN;
 import static pl.crewops.model.auth.RoleType.EMPLOYEE;
+import static pl.crewops.model.auth.RoleType.SYSTEM_ADMIN;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,12 +28,12 @@ import pl.crewops.model.Employee;
 import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.model.publicSchema.Role;
 import pl.crewops.model.publicSchema.Tenant;
-import pl.crewops.security.jwt.JwtService;
+import pl.crewops.security.jwt.JwtServiceCore;
 
 @SpringJUnitConfig(
         classes = {
             AuthService.class,
-            JwtService.class,
+            JwtServiceCore.class,
             AuthUserRepository.class,
             RoleRepository.class,
             PasswordEncoder.class,
@@ -46,7 +46,7 @@ class AuthServiceTest {
     private AuthService authService;
 
     @MockitoBean
-    private JwtService jwtService;
+    private JwtServiceCore jwtService;
 
     @MockitoBean
     private AuthUserRepository authUserRepository;
@@ -170,7 +170,7 @@ class AuthServiceTest {
 
         // when
         when(authUserRepository.findByUsername("username")).thenReturn(Optional.of(authUser));
-        when(employeeAPI.getEmployee(any())).thenReturn(employee);
+        when(employeeAPI.getEmployeeById(any())).thenReturn(employee);
         when(passwordEncoder.matches(rawPassword, encodedPassword)).thenReturn(true);
         when(jwtService.generateToken(any())).thenReturn(token);
 
@@ -218,8 +218,6 @@ class AuthServiceTest {
 
         var createAuthUserDTO = AuthTestFactory.createAuthUserDTO();
 
-        var employee = AuthTestFactory.createEmployeeWithoutQualificationsAndVehicles();
-
         // when
         when(authUserRepository.findByUsername("username")).thenReturn(Optional.of(authUser));
         Exception result = Assertions.catchException(
@@ -232,7 +230,6 @@ class AuthServiceTest {
     @Test
     void validateToken_shouldReturnValidTokenResponse_whenTokenIsValid() {
         // given
-        var username = "username";
         var tenant = Tenant.builder().companyId(UUID.randomUUID()).build();
 
         var authUser = AuthUser.builder()
@@ -240,7 +237,7 @@ class AuthServiceTest {
                 .password("admin")
                 .tenant(tenant)
                 .employeeId(UUID.randomUUID())
-                .roles(Set.of(Role.builder().name(ADMIN.name()).build()))
+                .roles(Set.of(Role.builder().name(SYSTEM_ADMIN.name()).build()))
                 .build();
 
         Employee employee =
@@ -248,10 +245,10 @@ class AuthServiceTest {
 
         var validTokenRequest = ValidTokenRequest.builder().token("token").build();
         // when
-        when(jwtService.extractUsername(any())).thenReturn(username);
-        when(authUserRepository.findByUsername(any())).thenReturn(Optional.of(authUser));
-        when(employeeAPI.getEmployee(any())).thenReturn(employee);
-        when(jwtService.validateToken(any(), any())).thenReturn(true);
+        when(jwtService.extractEmployeeId(any())).thenReturn(UUID.randomUUID());
+        when(authUserRepository.findByEmployeeId(any())).thenReturn(Optional.of(authUser));
+        when(employeeAPI.getEmployeeById(any())).thenReturn(employee);
+        when(jwtService.validToken(any(), any())).thenReturn(true);
         when(jwtService.extractExpiresAt(any())).thenReturn(new Date());
 
         ValidTokenResponse result = authService.validateToken(validTokenRequest);

@@ -5,18 +5,18 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
-import pl.crewops.security.jwt.JwtAuthProvider;
+import pl.crewops.security.providers.CustomProvider;
 
 @Component
 @AllArgsConstructor
 public class CustomAuthenticationManager implements AuthenticationManager {
 
-    private final JwtAuthProvider jwtAuthProvider;
+    private final CustomProvider customProvider;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        if (jwtAuthProvider.supports(authentication.getClass())) {
-            return jwtAuthProvider.authenticate(authentication);
+        if (customProvider.supports(authentication.getClass())) {
+            return customProvider.authenticate(authentication);
         }
 
         return authentication;

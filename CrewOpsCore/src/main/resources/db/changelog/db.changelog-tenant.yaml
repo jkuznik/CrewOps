@@ -2,6 +2,7 @@
     - changeSet:
         id: 001-initial-new-tenant
         author: jkuznik
+
     - changeSet:
         id: 002-create-update_updated_at-function
         author: jkuznik
@@ -37,7 +38,3 @@
         file: db/changelog/create/tenantSchema/008-create-table-address.yaml
     - include:
         file: db/changelog/create/tenantSchema/009-create-table-company.yaml
-
- #   # TODO: config multi profiles and remove this from prod
-    - include:
-        file: db/changelog/insert/002-insert-development-requirement-values.yaml

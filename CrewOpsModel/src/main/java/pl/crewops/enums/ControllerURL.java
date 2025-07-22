@@ -1,6 +1,12 @@
 package pl.crewops.enums;
 
+import java.util.Arrays;
+import org.springframework.util.AntPathMatcher;
+
 public class ControllerURL {
+
+    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
+
     public static final String LOGIN = "/login";
     public static final String REGISTER = "/register";
     public static final String LOGOUT = "/logout";
@@ -20,15 +26,16 @@ public class ControllerURL {
     public static final String COMPANY_ID = "companyId";
 
     public static final String EMPLOYEES_EID = EMPLOYEES + "/{" + EMPLOYEE_ID + "}";
-    public static final String EMPLOYEES_QID = EMPLOYEES + "/{" + QUALIFICATION_ID + "}";
-    public static final String EMPLOYEES_VID = EMPLOYEES + "/{" + VEHICLE_ID + "}";
     public static final String BREAKDOWNS_BID = BREAKDOWNS + "/{" + BREAKDOWN_ID + "}";
     public static final String COMPANIES_CID = COMPANIES + "/{" + COMPANY_ID + "}";
 
     public static final String QUALIFICATIONS_QID = QUALIFICATIONS + "/{" + QUALIFICATION_ID + "}";
+    public static final String QUALIFICATIONS_QID_EMPLOYEES =
+            QUALIFICATIONS + "/{" + QUALIFICATION_ID + "}" + EMPLOYEES;
     public static final String QUALIFICATIONS_QIDS = QUALIFICATIONS + "/collection";
 
     public static final String VEHICLES_VID = VEHICLES + "/{" + VEHICLE_ID + "}";
+    public static final String VEHICLES_VID_EMPLOYEES = VEHICLES + "/{" + VEHICLE_ID + "}" + EMPLOYEES;
     public static final String VEHICLES_RN = VEHICLES + "/{registrationNumber}";
     public static final String VEHICLES_VIDS = VEHICLES + "/collection";
 
@@ -54,9 +61,12 @@ public class ControllerURL {
         };
     }
 
+    public static boolean isPublicUrl(String requestURI) {
+        return Arrays.stream(ControllerURL.publicUrl()).anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
+    }
+
     public static String[] shiftLeaderUrlPATCH() {
-        return new String[] {
-            "/" + VEHICLES_VID,
+        return new String[] {"/" + VEHICLES_VID, "/" + BREAKDOWNS_BID // TODO: implement this on FE side
         };
     }
 

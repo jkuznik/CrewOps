@@ -7,7 +7,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.security.jwt.JwtService;
+import pl.crewops.security.jwt.JwtServiceVaadin;
 
 @SpringComponent
 // @Scope("prototype")
@@ -16,12 +16,12 @@ import pl.crewops.security.jwt.JwtService;
 public class MainLayout extends AppLayout {
 
     protected final CoreAPI coreAPI;
-    protected final JwtService jwtService;
+    protected final JwtServiceVaadin jwtService;
 
     protected final VerticalLayout mainContent = new VerticalLayout();
     protected final Footer mainFooter = new MainFooter();
 
-    public MainLayout(CoreAPI coreAPI, JwtService jwtService) {
+    public MainLayout(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
         addClassName("main-layout");
 
         this.coreAPI = coreAPI;

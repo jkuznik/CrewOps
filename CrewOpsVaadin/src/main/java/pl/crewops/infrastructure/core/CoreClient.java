@@ -30,6 +30,7 @@ import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
+import pl.crewops.dto.tenant.TenantDTO;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
@@ -64,7 +65,7 @@ class CoreClient implements CoreAPI {
     }
 
     @Override
-    public ValidTokenResponse validateToken(ValidTokenRequest validTokenRequest) {
+    public Optional<ValidTokenResponse> validateToken(ValidTokenRequest validTokenRequest) {
         try {
             log.debug("Validating token start");
             ValidTokenResponse body = coreClient
@@ -74,10 +75,10 @@ class CoreClient implements CoreAPI {
                     .retrieve()
                     .body(new ParameterizedTypeReference<ValidTokenResponse>() {});
             log.debug("Validated token: {}", body);
-            return body;
+            return Optional.ofNullable(body);
         } catch (RestClientException e) {
             log.error("Validation failed");
-            throw e;
+            return Optional.empty();
         }
     }
 
@@ -100,18 +101,19 @@ class CoreClient implements CoreAPI {
     }
 
     @Override
-    public void createNewCustomer(CreateCustomerCommand command) throws NotAuthenticatedException {
+    public Optional<TenantDTO> createNewCustomer(CreateCustomerCommand command) throws NotAuthenticatedException {
         isAuthenticated();
         try {
-            authorizedClient
+            return Optional.ofNullable(authorizedClient
                     .post()
                     .uri(uriBuilder -> uriBuilder.path(REGISTER).build())
                     .body(command)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
-                    .body(new ParameterizedTypeReference<Void>() {});
+                    .body(new ParameterizedTypeReference<TenantDTO>() {}));
         } catch (RestClientException e) {
             log.error("Create new customer error");
+            return Optional.empty();
         }
     }
 
@@ -281,6 +283,22 @@ class CoreClient implements CoreAPI {
         } catch (RestClientException e) {
             log.error("Error getting qualifications");
             return List.of();
+        }
+    }
+
+    @Override
+    public Optional<EmployeeDTO> getEmployeeById(UUID employeeId) throws NotAuthenticatedException {
+        isAuthenticated();
+        try {
+            return authorizedClient
+                    .get()
+                    .uri(uriBuilder -> uriBuilder.path(EMPLOYEES_EID).build(employeeId))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<Optional<EmployeeDTO>>() {});
+        } catch (RestClientException e) {
+            log.error("Error getting employee by id");
+            return Optional.empty();
         }
     }
 

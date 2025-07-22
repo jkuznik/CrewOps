@@ -30,9 +30,5 @@
           file: db/changelog/create/publicSchema/004-create-join-table-auth-user-role.yaml
     - include:
           file: db/changelog/insert/001-insert-role-initial-values.yaml
-
-#   delete this after configure prod environment
     - include:
-          file: db/changelog/insert/003-insert-tenant-test-record.yaml
-    - include:
-          file: db/changelog/insert/004-insert-auth-user-test-records.yaml
+        file: db/changelog/insert/002-insert-admin-account-values.yaml

@@ -22,6 +22,7 @@ import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
+import pl.crewops.dto.tenant.TenantDTO;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
@@ -34,7 +35,7 @@ public interface CoreAPI {
 
     AuthResponse login(@Valid @NotNull AuthRequest request);
 
-    ValidTokenResponse validateToken(@Valid @NotNull ValidTokenRequest validTokenRequest);
+    Optional<ValidTokenResponse> validateToken(@Valid @NotNull ValidTokenRequest validTokenRequest);
 
     Optional<EmployeeDTO> createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO)
             throws NotAuthenticatedException;
@@ -50,7 +51,8 @@ public interface CoreAPI {
     Optional<VehicleDTO> createVehicle(@Valid @NotNull CreateVehicleDTO createVehicleDTO)
             throws NotAuthenticatedException;
 
-    void createNewCustomer(@Valid @NotNull CreateCustomerCommand command) throws NotAuthenticatedException;
+    Optional<TenantDTO> createNewCustomer(@Valid @NotNull CreateCustomerCommand command)
+            throws NotAuthenticatedException;
 
     Optional<VehicleDTO> updateVehicle(@Valid @NotNull UpdateVehicleDTO updateVehicleDTO)
             throws NotAuthenticatedException;
@@ -62,6 +64,8 @@ public interface CoreAPI {
             throws NotAuthenticatedException;
 
     List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException;
+
+    Optional<EmployeeDTO> getEmployeeById(UUID employeeId) throws NotAuthenticatedException;
 
     List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException;
 

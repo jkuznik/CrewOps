@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +15,6 @@ import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 
 @RestController
-@Slf4j
 @RequiredArgsConstructor
 class BreakdownController {
     private final BreakdownService breakdownService;
@@ -29,7 +27,6 @@ class BreakdownController {
     @GetMapping(BREAKDOWNS)
     public ResponseEntity<List<BreakdownDTO>> getBreakdowns(
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "15") int size) {
-        log.info("Get breakdowns");
         return ResponseEntity.status(HttpStatus.OK).body(breakdownService.getAllBreakdowns());
     }
 

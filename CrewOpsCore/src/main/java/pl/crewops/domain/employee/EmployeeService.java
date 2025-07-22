@@ -52,7 +52,7 @@ class EmployeeService implements EmployeeAPI {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<EmployeeDTO> getAllEmployees(int page, int size) {
         log.info("Get all employees with pagination. Page: {}, size: {}", page, size);
         return employeeRepository.findAll(getPageRequest(page, size)).stream()
@@ -60,7 +60,7 @@ class EmployeeService implements EmployeeAPI {
                 .toList();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<EmployeeDTO> getAllActiveEmployees(int page, int size) {
         log.info("Get all active employees. Page: {}, size: {}", page, size);
         return employeeRepository.findAllByActiveIsTrue(getPageRequest(page, size)).stream()
@@ -68,12 +68,17 @@ class EmployeeService implements EmployeeAPI {
                 .toList();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Employee getEmployee(UUID id) {
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    public Employee getEmployeeById(UUID id) {
         return employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
     }
 
-    @Transactional
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    public EmployeeDTO getEmployeeDTOById(UUID id) {
+        return mapToDTO(getEmployeeById(id));
+    }
+
+    @Transactional(readOnly = true)
     public List<EmployeeDTO> getEmployeesByQualification(UUID qualificationId, int page, int size) {
         log.info("Get employees by qualification");
         return employeeRepository.findByQualificationId(qualificationId, getPageRequest(page, size)).stream()
@@ -81,7 +86,7 @@ class EmployeeService implements EmployeeAPI {
                 .toList();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<EmployeeDTO> getEmployeesByVehicles(UUID vehicleId, int page, int size) {
         log.info("Get employees by vehicles");
         return employeeRepository.findByVehiclesId(vehicleId, getPageRequest(page, size)).stream()

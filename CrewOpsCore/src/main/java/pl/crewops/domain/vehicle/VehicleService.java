@@ -42,7 +42,7 @@ class VehicleService implements VehicleAPI {
         return mapToDTO(vehicleRepository.save(vehicle));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<VehicleDTO> getAllVehicles(int page, int size) {
         PageRequest pageRequest =
                 createPageRequest(page, size, Sort.by(Sort.Order.asc("make"), Sort.Order.asc("model")));
@@ -53,23 +53,25 @@ class VehicleService implements VehicleAPI {
                 .toList();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Vehicle getVehicle(UUID vehicleId) throws VehicleNotFoundException {
         return vehicleRepository.findById(vehicleId).orElseThrow(() -> new VehicleNotFoundException(vehicleId));
     }
 
+    @Transactional(readOnly = true)
     public Vehicle getVehicleById(UUID id) throws VehicleNotFoundException {
         log.info("Get vehicle by id {}", id);
         return vehicleRepository.findById(id).orElseThrow(() -> new VehicleNotFoundException(id));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public VehicleDTO getVehicleByRegistrationNumber(String registerNumber) {
         log.info("Get vehicle by registration number {}", registerNumber);
         return mapToDTO(
                 vehicleRepository.findByRegisterNumber(registerNumber).orElseThrow(NoSuchElementException::new));
     }
 
+    @Transactional(readOnly = true)
     public List<VehicleDTO> getVehiclesIn(Set<UUID> ids) {
         log.info("Get vehicles in amount {}, each ids: {}", ids.size(), ids);
         return vehicleRepository.findAllByIdIn(ids).stream()

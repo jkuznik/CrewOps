@@ -11,4 +11,6 @@ public interface TenantAPI {
     Tenant getByCompanyId(@NotNull UUID companyId);
 
     Tenant saveTenant(@NotNull Tenant tenant);
+
+    void delete(@NotNull UUID tenantId);
 }

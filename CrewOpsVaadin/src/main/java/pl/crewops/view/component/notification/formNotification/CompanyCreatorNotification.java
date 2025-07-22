@@ -38,9 +38,9 @@ public class CompanyCreatorNotification extends Notification {
     private void createNewTenant(CoreAPI coreAPI, CompanyInformation companyInformation) {
         var createTenantDTO = getCreateTenantDTO(companyInformation);
         var createEmployeeDTO = CreateEmployeeDTO.builder()
-                .companyId(UUID.randomUUID()) // keep attention! this valid is set only to satisfy constraints
-                // validations - in
-                // be logic companyId is token other way
+                .companyId(UUID.randomUUID()) // This value is set only to satisfy constraints validations.
+                // Proper value of companyId is set on BE side after dynamic generated
+                // value when new record is saved in Company table in persist layer.
                 .firstName(companyInformation.initialEmployeeInfo.getFirstName())
                 .lastName(companyInformation.initialEmployeeInfo.getLastName())
                 .department(companyInformation.initialEmployeeInfo.getDepartment())

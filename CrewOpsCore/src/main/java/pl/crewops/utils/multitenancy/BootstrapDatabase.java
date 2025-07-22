@@ -11,38 +11,45 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import pl.crewops.exception.multitenancy.CreateSchemaException;
 
 @Slf4j
 @Component
-@Profile(value = "dev")
-public class DevelopmentBootstrap {
+@Profile(value = {"dev", "integration"})
+public class BootstrapDatabase {
 
     private final TenantSchemaInitializer tenantSchemaInitializer;
     private final LiquibaseSchemaMigrator liquibaseSchemaMigrator;
     private final DataSource dataSource;
+    private final Environment environment;
 
-    public DevelopmentBootstrap(
+    private final String testSchemaName = "testtenant_2f3b1d5c9e8f";
+    private final String testTenantChangelogPath = "db/changelog/insert/003-insert-tenant-test-record.yaml";
+    private final String testAuthUserRelationsPath = "db/changelog/insert/004-insert-auth-user-test-records.yaml";
+    private final String testValuesChangelogPath = "db/changelog/insert/005-insert-development-requirement-values.yaml";
+
+    public BootstrapDatabase(
             TenantSchemaInitializer tenantSchemaInitializer,
             LiquibaseSchemaMigrator liquibaseSchemaMigrator,
-            DataSource dataSource) {
+            DataSource dataSource,
+            Environment environment) {
         this.tenantSchemaInitializer = tenantSchemaInitializer;
         this.liquibaseSchemaMigrator = liquibaseSchemaMigrator;
         this.dataSource = dataSource;
+        this.environment = environment;
 
-        String testSchemaName = "testtenant_2f3b1d5c9e8f";
-        String testValues = "db/changelog/insert/002-insert-development-requirement-values.yaml";
-        executeInsert(tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, testSchemaName, testValues);
+        executeInsert(tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, "public", testTenantChangelogPath);
 
-        // TODO: modify way to create admin user before starts production
-        String adminSchemaName = "crewops_2b3b7d5c9e8f";
-        String adminValues = "db/changelog/insert/005-insert-admin-account-values.yaml";
+        executeInsert(
+                tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, "public", testAuthUserRelationsPath);
 
-        executeInsert(tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, adminSchemaName, adminValues);
+        executeInsert(
+                tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, testSchemaName, testValuesChangelogPath);
     }
 
-    private static void executeInsert(
+    private void executeInsert(
             TenantSchemaInitializer tenantSchemaInitializer,
             LiquibaseSchemaMigrator liquibaseSchemaMigrator,
             DataSource dataSource,

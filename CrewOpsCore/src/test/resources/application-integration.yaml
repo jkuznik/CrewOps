@@ -1,6 +1,4 @@
 spring:
-  liquibase:
-    enabled: true
   jpa:
     properties:
       hibernate:

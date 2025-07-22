@@ -3,6 +3,8 @@ package pl.crewops.model.auth;
 public enum RoleType {
     EMPLOYEE,
     SHIFT_LEADER,
+    MECHANIC,
     MANAGER,
-    ADMIN
+    COMPANY_ADMIN,
+    SYSTEM_ADMIN
 }

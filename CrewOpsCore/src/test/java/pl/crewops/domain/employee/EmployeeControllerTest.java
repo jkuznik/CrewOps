@@ -37,11 +37,12 @@ import pl.crewops.security.config.SecurityConfig;
 import pl.crewops.security.custom.CustomAuthentication;
 import pl.crewops.security.custom.CustomAuthenticationManager;
 import pl.crewops.security.custom.UserPrincipal;
-import pl.crewops.security.cvf.ClientValidationFilter;
-import pl.crewops.security.jwt.JwtAuthFilter;
-import pl.crewops.security.jwt.JwtAuthProvider;
+import pl.crewops.security.filters.ClientValidationFilter;
+import pl.crewops.security.filters.JwtAuthFilter;
+import pl.crewops.security.filters.TenantContextFilter;
 import pl.crewops.security.jwt.JwtExceptionResolver;
-import pl.crewops.security.jwt.JwtService;
+import pl.crewops.security.jwt.JwtServiceCore;
+import pl.crewops.security.providers.CustomProvider;
 
 @WebMvcTest(
         controllers = EmployeeController.class,
@@ -67,7 +68,10 @@ class EmployeeControllerTest {
     private ClientValidationFilter clientValidationFilter;
 
     @MockitoBean
-    private JwtService jwtService;
+    private TenantContextFilter tenantContextFilter;
+
+    @MockitoBean
+    private JwtServiceCore jwtService;
 
     @MockitoBean
     private UserDetailsService userDetailsService;
@@ -79,7 +83,7 @@ class EmployeeControllerTest {
     private CustomAuthenticationManager authenticationManager;
 
     @MockitoBean
-    private JwtAuthProvider jwtAuthProvider;
+    private CustomProvider customProvider;
 
     private CreateEmployeeDTO createEmployeeWithEmptyQAndEmptyV;
     private CreateEmployeeDTO createEmployeeDTOWithNullFields;
@@ -110,14 +114,10 @@ class EmployeeControllerTest {
     @Test
     void shouldReturnStatusCREATED_whenCreateEmployeeDTOIsValid_byMANAGER() throws Exception {
         // given
-        var principal = new UserPrincipal(
-                AuthUser.builder()
-                        .username("username")
-                        .roles(Set.of(
-                                Role.builder().name(RoleType.MANAGER.name()).build()))
-                        .build(),
-                "firstName",
-                "lastName");
+        var principal = new UserPrincipal(AuthUser.builder()
+                .username("username")
+                .roles(Set.of(Role.builder().name(RoleType.MANAGER.name()).build()))
+                .build());
 
         satisfyJwtService();
 
@@ -134,14 +134,11 @@ class EmployeeControllerTest {
     @Test
     void getEmployees() throws Exception {
         // given
-        var principal = new UserPrincipal(
-                AuthUser.builder()
-                        .username("username")
-                        .roles(Set.of(
-                                Role.builder().name(RoleType.MANAGER.name()).build()))
-                        .build(),
-                "firstName",
-                "lastName");
+        var principal = new UserPrincipal(AuthUser.builder()
+                .username("username")
+                .employeeId(employeeId)
+                .roles(Set.of(Role.builder().name(RoleType.MANAGER.name()).build()))
+                .build());
 
         satisfyJwtService();
 
@@ -159,7 +156,7 @@ class EmployeeControllerTest {
 
     private void satisfyJwtService() {
         when(jwtService.extractTokenFromRequest(any())).thenReturn("token");
-        when(jwtService.extractUsername(any())).thenReturn("username");
-        when(jwtService.validateToken(any(), any())).thenReturn(true);
+        when(jwtService.extractEmployeeId(any())).thenReturn(employeeId);
+        when(jwtService.validToken(any(), any())).thenReturn(true);
     }
 }

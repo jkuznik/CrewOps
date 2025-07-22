@@ -43,7 +43,7 @@ services:
     env_file: .env-compose
     environment:
       CREWOPS_CLIENT_ID_INPUT: ${CREWOPS_CLIENT_ID_INPUT}
-      JWT_CREWOPS: ${JWT_CREWOPS}
+#      JWT_CREWOPS: ${JWT_CREWOPS}
     ports:
       - "8081:8081"
     restart: always

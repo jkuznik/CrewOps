@@ -30,7 +30,7 @@ import org.springframework.web.client.RestClientException;
 import pl.crewops.auth.AuthRequest;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.custom.UserPrincipal;
-import pl.crewops.security.jwt.JwtService;
+import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.view.component.notification.LoginFailNotification;
 
 @SpringComponent
@@ -42,7 +42,7 @@ public class LoginForm extends FormLayout {
     private final PasswordField password = new PasswordField();
     private final Button login = new Button();
 
-    public LoginForm(CoreAPI coreAPI, JwtService jwtService) {
+    public LoginForm(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
         addClassName("login-form");
 
         username.addClassName("login-input");
@@ -59,7 +59,7 @@ public class LoginForm extends FormLayout {
         login.setText(getTranslation("loginForm.login"));
     }
 
-    private Component createLoginForm(CoreAPI coreAPI, JwtService jwtService) {
+    private Component createLoginForm(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
         var layout = new HorizontalLayout();
         layout.setSpacing(true);
         layout.addClassName("login-form-layout");
@@ -70,12 +70,12 @@ public class LoginForm extends FormLayout {
         return layout;
     }
 
-    private void configureLoginButton(CoreAPI coreAPI, JwtService jwtService) {
+    private void configureLoginButton(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
         login.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         login.addClickListener(event -> loginAction(coreAPI, jwtService));
     }
 
-    private void loginAction(CoreAPI coreAPI, JwtService jwtService) {
+    private void loginAction(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
         var authRequest = new AuthRequest(username.getValue(), password.getValue());
 
         try {
@@ -83,14 +83,11 @@ public class LoginForm extends FormLayout {
             String token = coreAPI.login(authRequest).token();
             log.info("Successfully logged in, token: {}", token);
 
-            var username = jwtService.getUsername(token);
-            var firstName = jwtService.getFirstName(token);
-            var lastName = jwtService.getLastName(token);
-            UUID companyId = jwtService.getTenantCompanyId(token);
-            UUID employeeId = jwtService.getEmployeeId(token);
-            var authorities = jwtService.getAuthorities(token);
+            UUID companyId = jwtService.extractCompanyId(token);
+            UUID employeeId = jwtService.extractEmployeeId(token);
+            var authorities = jwtService.extractAuthorities(token);
 
-            var userPrincipal = new UserPrincipal(username, firstName, lastName, companyId, authorities);
+            var userPrincipal = new UserPrincipal(companyId, authorities);
             userPrincipal.setToken(token);
             userPrincipal.setEmployeeId(employeeId);
 

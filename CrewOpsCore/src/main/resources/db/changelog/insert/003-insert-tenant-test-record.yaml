@@ -27,28 +27,3 @@ databaseChangeLog:
               - column:
                   name: updated_at
                   valueDate: now()
-
-        - insert:
-            tableName: tenant
-            columns:
-              - column:
-                  name: id
-                  value: "2b3b7d5c-9e8f-4bca-9c56-123456789abc"
-              - column:
-                  name: version
-                  valueNumeric: 0
-              - column:
-                  name: company_id
-                  value: "2b3b7d5c-9e8f-4bca-9c56-123456789abd"
-              - column:
-                  name: schema_name
-                  value: "crewops_2b3b7d5c9e8f"
-              - column:
-                  name: active
-                  valueBoolean: true
-              - column:
-                  name: created_at
-                  valueDate: now()
-              - column:
-                  name: updated_at
-                  valueDate: now()

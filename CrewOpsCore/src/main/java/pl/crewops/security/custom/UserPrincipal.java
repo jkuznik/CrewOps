@@ -7,6 +7,7 @@ import java.util.UUID;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import pl.crewops.model.auth.RoleGrantedAuthority;
+import pl.crewops.model.auth.RoleType;
 import pl.crewops.model.publicSchema.AuthUser;
 
 public class UserPrincipal implements CustomUserPrincipal {
@@ -14,29 +15,15 @@ public class UserPrincipal implements CustomUserPrincipal {
     @Getter
     private final AuthUser authUser;
 
-    private final String firstName;
-    private final String lastName;
-
     private final Set<GrantedAuthority> grantedAuthorities;
 
-    public UserPrincipal(AuthUser authUser, String firstName, String lastName) {
+    public UserPrincipal(AuthUser authUser) {
         this.authUser = authUser;
-        this.firstName = firstName;
-        this.lastName = lastName;
         Set<GrantedAuthority> grantedAuthoritiesSet = new HashSet<>();
         authUser.getRoles()
-                .forEach(role -> grantedAuthoritiesSet.add(new RoleGrantedAuthority("ROLE_" + role.getName())));
+                .forEach(role -> grantedAuthoritiesSet.add(
+                        new RoleGrantedAuthority(RoleType.valueOf(role.getName().replace("ROLE_", "")))));
         this.grantedAuthorities = grantedAuthoritiesSet;
-    }
-
-    @Override
-    public String getFirstName() {
-        return firstName;
-    }
-
-    @Override
-    public String getLastName() {
-        return lastName;
     }
 
     @Override

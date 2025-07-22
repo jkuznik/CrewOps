@@ -1,4 +1,4 @@
-package pl.crewops.security.jwt;
+package pl.crewops.security.filters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,23 +21,19 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.util.AntPathMatcher;
-import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.enums.ControllerURL;
 import pl.crewops.model.publicSchema.AuthUser;
-import pl.crewops.model.publicSchema.Tenant;
-import pl.crewops.security.custom.CustomAuthentication;
-import pl.crewops.security.custom.CustomAuthenticationManager;
 import pl.crewops.security.custom.UserPrincipal;
+import pl.crewops.security.jwt.JwtExceptionResolver;
+import pl.crewops.security.jwt.JwtServiceCore;
 
 @SpringJUnitConfig(
         classes = {
             JwtAuthFilter.class,
-            JwtService.class,
+            JwtServiceCore.class,
             JwtExceptionResolver.class,
             UserDetailsService.class,
-            CustomAuthenticationManager.class,
             AntPathMatcher.class,
-            TenantAPI.class,
         })
 class JwtAuthFilterTest {
 
@@ -46,6 +42,9 @@ class JwtAuthFilterTest {
 
     @Autowired
     private JwtExceptionResolver jwtExceptionResolver;
+
+    @MockitoBean
+    private JwtServiceCore jwtService;
 
     @MockitoBean
     private HttpServletRequest request;
@@ -57,44 +56,28 @@ class JwtAuthFilterTest {
     private FilterChain filterChain;
 
     @MockitoBean
-    private JwtService jwtService;
-
-    @MockitoBean
     private UserDetailsService userDetailsService;
 
     @MockitoBean
-    private CustomAuthenticationManager customAuthenticationManager;
-
-    @MockitoBean
     private AntPathMatcher antPathMatcher;
-
-    @MockitoBean
-    private TenantAPI tenantAPI;
 
     @Test
     void shouldDoFilterInternal() throws ServletException, IOException {
         // given
         String fakeToken = "Bearer testToken";
-        String username = "TestUser";
-        var companyId = UUID.randomUUID();
+        var username = "TestUser";
+        var employeeId = UUID.randomUUID();
         var authUser =
                 AuthUser.builder().username(username).roles(new HashSet<>()).build();
-        Tenant tenant = Tenant.builder().companyId(companyId).schemaName("test").build();
-        UserPrincipal userPrincipal = new UserPrincipal(authUser, "firstName", "lastName");
-        CustomAuthentication auth = new CustomAuthentication(userPrincipal);
+        UserPrincipal userPrincipal = new UserPrincipal(authUser);
 
         // when
-        when(tenantAPI.getByCompanyId(any())).thenReturn(tenant);
         when(request.getRequestURI()).thenReturn("/test-endpoint");
         when(jwtService.extractTokenFromRequest(request)).thenReturn(fakeToken);
-        when(jwtService.extractTenantCompanyId(any())).thenReturn(companyId.toString());
-        when(jwtService.extractUsername(fakeToken)).thenReturn(username);
+        when(jwtService.extractEmployeeId(fakeToken)).thenReturn(employeeId);
 
-        when(userDetailsService.loadUserByUsername(username)).thenReturn(userPrincipal);
-        when(jwtService.validateToken(fakeToken, userPrincipal)).thenReturn(true);
-
-        when(customAuthenticationManager.authenticate(any(CustomAuthentication.class)))
-                .thenReturn(auth);
+        when(userDetailsService.loadUserByUsername(employeeId.toString())).thenReturn(userPrincipal);
+        when(jwtService.validToken(fakeToken, userPrincipal)).thenReturn(true);
 
         jwtAuthFilter.doFilterInternal(request, response, filterChain);
 
