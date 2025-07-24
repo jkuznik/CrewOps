@@ -7,8 +7,8 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -21,6 +21,7 @@ import pl.crewops.security.filters.JwtAuthFilter;
 import pl.crewops.security.filters.TenantContextFilter;
 
 @Configuration
+@EnableMethodSecurity(prePostEnabled = true)
 @AllArgsConstructor
 public class SecurityConfig {
 
@@ -37,21 +38,7 @@ public class SecurityConfig {
                         // public access
                         .requestMatchers(publicUrl())
                         .permitAll()
-                        // shift leader permission
-                        .requestMatchers(HttpMethod.PATCH, shiftLeaderUrlPATCH())
-                        .hasAnyRole(SHIFT_LEADER.name(), MANAGER.name(), SYSTEM_ADMIN.name())
-                        // manager permission
-                        .requestMatchers(HttpMethod.POST, managerUrlPOST())
-                        .hasAnyRole(MANAGER.name(), SYSTEM_ADMIN.name())
-                        .requestMatchers(HttpMethod.PATCH, managerUrlPATCH())
-                        .hasAnyRole(MANAGER.name(), SYSTEM_ADMIN.name())
-                        .requestMatchers(HttpMethod.DELETE, managerUrlDELETE())
-                        .hasAnyRole(MANAGER.name(), SYSTEM_ADMIN.name())
-                        // customer admin permission
-
-                        // system admin permission
-                        .requestMatchers(HttpMethod.POST, systemAdminUrlPOST())
-                        .hasRole(SYSTEM_ADMIN.name())
+                        // permission of any resource is handled by AoP -
                         .anyRequest()
                         .authenticated())
                 .addFilterBefore(clientValidationFilter, UsernamePasswordAuthenticationFilter.class)

@@ -29,13 +29,13 @@ import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
-import pl.crewops.dto.tenant.TenantDTO;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.registration.CreateCustomerCommand;
+import pl.crewops.registration.CreateCustomerResult;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -48,6 +48,7 @@ class CoreClient implements CoreAPI {
     @Setter
     private boolean authenticated;
 
+    // permit all for sure
     @Override
     public AuthResponse login(AuthRequest authRequest) {
         try {
@@ -64,6 +65,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // permit all or authenticated on fe side?
     @Override
     public Optional<ValidTokenResponse> validateToken(ValidTokenRequest validTokenRequest) {
         try {
@@ -82,6 +84,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // manager permission
     @Override
     @CacheEvict(value = "employeeCache", allEntries = true)
     public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) throws NotAuthenticatedException {
@@ -100,8 +103,10 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // TODO: consider about implement security on fe side
     @Override
-    public Optional<TenantDTO> createNewCustomer(CreateCustomerCommand command) throws NotAuthenticatedException {
+    public Optional<CreateCustomerResult> registerNewCustomer(CreateCustomerCommand command)
+            throws NotAuthenticatedException {
         isAuthenticated();
         try {
             return Optional.ofNullable(authorizedClient
@@ -110,13 +115,14 @@ class CoreClient implements CoreAPI {
                     .body(command)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
-                    .body(new ParameterizedTypeReference<TenantDTO>() {}));
+                    .body(new ParameterizedTypeReference<CreateCustomerResult>() {}));
         } catch (RestClientException e) {
             log.error("Create new customer error");
             return Optional.empty();
         }
     }
 
+    // manager permission
     @Override
     public Optional<EmployeeDTO> updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) throws NotAuthenticatedException {
         isAuthenticated();
@@ -133,6 +139,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // manager permission
     @Override
     public Optional<QualificationDTO> updateQualification(UpdateQualificationDTO updateQualificationDTO)
             throws NotAuthenticatedException {
@@ -151,6 +158,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // manager permission
     @Override
     public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO)
             throws NotAuthenticatedException {
@@ -169,6 +177,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // manager permission or mechanic authority?
     @Override
     public Optional<VehicleDTO> createVehicle(CreateVehicleDTO createVehicleDTO) throws NotAuthenticatedException {
         isAuthenticated();
@@ -186,6 +195,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // shift leader or mechanic
     @Override
     public Optional<VehicleDTO> updateVehicle(UpdateVehicleDTO updateVehicleDTO) throws NotAuthenticatedException {
         isAuthenticated();
@@ -202,6 +212,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // authenticated
     @Override
     public Optional<BreakdownDTO> createBreakdown(CreateBreakdownDTO createBreakdownDTO)
             throws NotAuthenticatedException {
@@ -219,6 +230,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // shift leader or mechanic
     @Override
     public Optional<BreakdownDTO> updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO)
             throws NotAuthenticatedException {

@@ -21,13 +21,13 @@ import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
-import pl.crewops.dto.tenant.TenantDTO;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.registration.CreateCustomerCommand;
+import pl.crewops.registration.CreateCustomerResult;
 
 @Repository
 @Validated
@@ -51,7 +51,7 @@ public interface CoreAPI {
     Optional<VehicleDTO> createVehicle(@Valid @NotNull CreateVehicleDTO createVehicleDTO)
             throws NotAuthenticatedException;
 
-    Optional<TenantDTO> createNewCustomer(@Valid @NotNull CreateCustomerCommand command)
+    Optional<CreateCustomerResult> registerNewCustomer(@Valid @NotNull CreateCustomerCommand command)
             throws NotAuthenticatedException;
 
     Optional<VehicleDTO> updateVehicle(@Valid @NotNull UpdateVehicleDTO updateVehicleDTO)

@@ -57,7 +57,7 @@ public class CompanyCreatorNotification extends Notification {
                 .createEmployeeDTO(createEmployeeDTO)
                 .build();
         try {
-            coreAPI.createNewCustomer(createCustomerCommand);
+            coreAPI.registerNewCustomer(createCustomerCommand);
         } catch (NotAuthenticatedException e) {
             System.out.println("Error creating new customer with initial employee");
         }

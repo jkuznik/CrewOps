@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.crewops.auth.*;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
+import pl.crewops.security.custom.permissionAnnotation.ManagerPermission;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,7 +31,8 @@ class AuthController {
     }
 
     @PostMapping(EMPLOYEES)
-    public ResponseEntity<CreateAuthUserResult> createEmployee(
+    @ManagerPermission
+    public ResponseEntity<CreateAuthUserResult> createAuthUserWithRelatedEmployee(
             @NotNull @Valid @RequestBody CreateEmployeeDTO createEmployeeDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(authAPI.createAuthUserWithRelatedEmployee(createEmployeeDTO));

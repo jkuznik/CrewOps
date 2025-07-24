@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.crewops.enums.ControllerURL;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
+import pl.crewops.security.custom.permissionAnnotation.SystemAdminPermission;
 
 @RestController
+@SystemAdminPermission
 @RequiredArgsConstructor
 class RegistrationController {
 

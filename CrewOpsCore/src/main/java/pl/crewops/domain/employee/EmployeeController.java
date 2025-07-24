@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.security.custom.permissionAnnotation.ManagerPermission;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,6 +53,7 @@ class EmployeeController {
     }
 
     @PatchMapping(EMPLOYEES_EID)
+    @ManagerPermission
     public ResponseEntity<EmployeeDTO> updateEmployee(
             @PathVariable(EMPLOYEE_ID) UUID employeeId, @NotNull @Valid @RequestBody UpdateEmployeeDTO updateRequest) {
 

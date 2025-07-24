@@ -63,36 +63,4 @@ public class ControllerURL {
     public static boolean isPublicUrl(String requestURI) {
         return Arrays.stream(ControllerURL.publicUrl()).anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
     }
-
-    public static String[] shiftLeaderUrlPATCH() {
-        return new String[] {
-            "/" + VEHICLES_VID, "/" + BREAKDOWNS_BID // TODO: implement this on FE side (hide some buttons or etc.)
-        };
-    }
-
-    public static String[] managerUrlPOST() {
-        return new String[] {"/" + EMPLOYEES, "/" + QUALIFICATIONS, "/" + VEHICLES};
-    }
-
-    public static String[] managerUrlPATCH() {
-        return new String[] {
-            "/" + EMPLOYEES_EID,
-            "/" + EMPLOYEES_EID_PHONE,
-            "/" + EMPLOYEES_EID_QUALIFICATIONS_QID,
-            "/" + EMPLOYEES_EID_QUALIFICATIONS_QID_EXPIRED,
-            "/" + EMPLOYEES_EID_VEHICLES_VID,
-            "/" + QUALIFICATIONS_QID,
-            "/" + VEHICLES_VID
-        };
-    }
-
-    public static String[] managerUrlDELETE() {
-        return new String[] {
-            "/" + EMPLOYEES_EID, "/" + EMPLOYEES_EID_QUALIFICATIONS_QID, "/" + EMPLOYEES_EID_VEHICLES_VID
-        };
-    }
-
-    public static String[] systemAdminUrlPOST() {
-        return new String[] {"/" + REGISTER};
-    }
 }

@@ -15,6 +15,8 @@ import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
+import pl.crewops.security.custom.permissionAnnotation.ManagerPermission;
+import pl.crewops.security.custom.permissionAnnotation.ShiftLeaderPermission;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,7 +24,9 @@ class VehicleController {
 
     private final VehicleAPI vehicleAPI;
 
+    // TODO: consider if mechanic can have access to this action
     @PostMapping(VEHICLES)
+    @ManagerPermission
     public ResponseEntity<VehicleDTO> createVehicle(@NotNull @Valid @RequestBody CreateVehicleDTO createVehicleDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(vehicleAPI.createVehicle(createVehicleDTO));
     }
@@ -43,7 +47,9 @@ class VehicleController {
         return ResponseEntity.status(HttpStatus.OK).body(vehicleAPI.getVehiclesIn(vehicleIds));
     }
 
+    // TODO: consider how to solve additional permission for MECHANIC, maybe implement this as additional authority
     @PatchMapping(VEHICLES_VID)
+    @ShiftLeaderPermission
     public ResponseEntity<VehicleDTO> updateVehicle(
             @PathVariable(VEHICLE_ID) UUID vehicleId, @RequestBody @Valid @NotNull UpdateVehicleDTO updateRequest) {
 
