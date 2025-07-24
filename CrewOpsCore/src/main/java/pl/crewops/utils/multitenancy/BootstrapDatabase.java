@@ -20,7 +20,7 @@ import pl.crewops.exception.multitenancy.CreateSchemaException;
 @Profile(value = {"dev", "integration"})
 public class BootstrapDatabase {
 
-    private final TenantSchemaInitializer tenantSchemaInitializer;
+    private final SchemaManager schemaManager;
     private final LiquibaseSchemaMigrator liquibaseSchemaMigrator;
     private final DataSource dataSource;
     private final Environment environment;
@@ -31,31 +31,29 @@ public class BootstrapDatabase {
     private final String testValuesChangelogPath = "db/changelog/insert/005-insert-development-requirement-values.yaml";
 
     public BootstrapDatabase(
-            TenantSchemaInitializer tenantSchemaInitializer,
+            SchemaManager schemaManager,
             LiquibaseSchemaMigrator liquibaseSchemaMigrator,
             DataSource dataSource,
             Environment environment) {
-        this.tenantSchemaInitializer = tenantSchemaInitializer;
+        this.schemaManager = schemaManager;
         this.liquibaseSchemaMigrator = liquibaseSchemaMigrator;
         this.dataSource = dataSource;
         this.environment = environment;
 
-        executeInsert(tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, "public", testTenantChangelogPath);
+        executeInsert(schemaManager, liquibaseSchemaMigrator, dataSource, "public", testTenantChangelogPath);
 
-        executeInsert(
-                tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, "public", testAuthUserRelationsPath);
+        executeInsert(schemaManager, liquibaseSchemaMigrator, dataSource, "public", testAuthUserRelationsPath);
 
-        executeInsert(
-                tenantSchemaInitializer, liquibaseSchemaMigrator, dataSource, testSchemaName, testValuesChangelogPath);
+        executeInsert(schemaManager, liquibaseSchemaMigrator, dataSource, testSchemaName, testValuesChangelogPath);
     }
 
     private void executeInsert(
-            TenantSchemaInitializer tenantSchemaInitializer,
+            SchemaManager schemaManager,
             LiquibaseSchemaMigrator liquibaseSchemaMigrator,
             DataSource dataSource,
             String schemaName,
             String changelogSrc) {
-        tenantSchemaInitializer.createSchemaIfNotExists(schemaName);
+        schemaManager.createSchemaIfNotExists(schemaName);
         liquibaseSchemaMigrator.runMigrations(schemaName);
 
         try (Connection connection = dataSource.getConnection()) {

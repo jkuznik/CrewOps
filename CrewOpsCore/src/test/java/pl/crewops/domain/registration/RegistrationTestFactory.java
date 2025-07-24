@@ -38,7 +38,7 @@ class RegistrationTestFactory {
                 .department("department")
                 .birthDate(LocalDate.now())
                 .companyId(UUID.randomUUID())
-                .username("username")
+                .username(FIRST_NAME)
                 .password("password")
                 .phoneNumber("phoneNumber")
                 .roles(new HashSet<RoleDTO>())

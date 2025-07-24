@@ -23,7 +23,7 @@ import pl.crewops.domain.vehicle.VehicleAPI;
 import pl.crewops.domain.vehicleType.VehicleTypeAPI;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.utils.multitenancy.LiquibaseSchemaMigrator;
-import pl.crewops.utils.multitenancy.TenantSchemaInitializer;
+import pl.crewops.utils.multitenancy.SchemaManager;
 
 @ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
@@ -71,7 +71,7 @@ public abstract class IntegrationTest {
     private LiquibaseSchemaMigrator schemaMigrator;
 
     @Autowired
-    private TenantSchemaInitializer schemaInitializer;
+    private SchemaManager schemaInitializer;
 
     @BeforeAll
     public static void startContainer() {

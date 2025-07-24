@@ -24,7 +24,7 @@ import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
 import pl.crewops.utils.multitenancy.LiquibaseSchemaMigrator;
-import pl.crewops.utils.multitenancy.TenantSchemaInitializer;
+import pl.crewops.utils.multitenancy.SchemaManager;
 import pl.crewops.utils.multitenancy.TenantSchemaNameGenerator;
 
 @Slf4j
@@ -33,7 +33,7 @@ import pl.crewops.utils.multitenancy.TenantSchemaNameGenerator;
 @Validated
 class RegistrationService {
 
-    private final TenantSchemaInitializer tenantSchemaInitializer;
+    private final SchemaManager schemaManager;
     private final LiquibaseSchemaMigrator liquibaseSchemaMigrator;
     private final AuthAPI authAPI;
     private final TenantAPI tenantAPI;
@@ -57,7 +57,7 @@ class RegistrationService {
         try {
             schemaName = TenantSchemaNameGenerator.generateTenantSchemaName(
                     createCustomerCommand.createTenantDTO().createCompanyDTO().name(), UUID.randomUUID());
-            tenantSchemaInitializer.createSchemaIfNotExists(schemaName);
+            schemaManager.createSchemaIfNotExists(schemaName);
             liquibaseSchemaMigrator.runMigrations(schemaName);
         } catch (CreateSchemaException e) {
             log.error(e.getMessage());
@@ -80,6 +80,7 @@ class RegistrationService {
             companyId = tenant.getCompanyId();
         } catch (Exception e) {
             transactionManager.rollback(saveTenantStep);
+            schemaManager.dropSchema(schemaName);
             throw new RegisterCustomerException("Failed to create tenant during registration");
         }
 
@@ -98,6 +99,7 @@ class RegistrationService {
             transactionManager.rollback(saveCompanyStep);
             cleanTenant(tenantId);
             TenantContext.clear();
+            schemaManager.dropSchema(schemaName);
             throw new RegisterCustomerException("Failed to create company during registration");
         }
 
@@ -114,6 +116,8 @@ class RegistrationService {
             transactionManager.rollback(saveAuthUserWithRelatedEmployee);
             cleanCompany(companyId);
             cleanTenant(tenantId);
+            TenantContext.clear();
+            schemaManager.dropSchema(schemaName);
             throw new RegisterCustomerException("Failed to create employee during registration");
         }
 
