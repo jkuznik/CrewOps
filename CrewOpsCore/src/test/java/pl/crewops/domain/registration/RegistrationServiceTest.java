@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import pl.crewops.IntegrationTest;
+import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.Employee;
 import pl.crewops.model.publicSchema.Tenant;
 
@@ -39,9 +40,12 @@ class RegistrationServiceTest extends IntegrationTest {
             // when
             var result = registrationService.registerCustomer(createCustomerCommand);
             tenant = tenantAPI.getByCompanyId(
-                    result.authUserResult().authUserDTO().tenant().id());
+                    result.authUserResult().authUserDTO().tenant().companyId());
+
+            TenantContext.setCurrentTenant(tenant.getSchemaName());
             Employee employee = employeeAPI.getEmployeeById(
                     result.authUserResult().authUserDTO().employeeId());
+            TenantContext.clear();
 
             boolean schemaExists = schemaExists(tenant.getSchemaName());
 
@@ -49,7 +53,8 @@ class RegistrationServiceTest extends IntegrationTest {
             assertThat(result).isNotNull();
             assertThat(result.authUserResult().authUserDTO().tenant().active()).isTrue();
             assertThat(schemaExists).isTrue();
-            assertThat(tenant.getCompanyId()).isInstanceOf(UUID.class);
+            assertThat(tenant.getId()).isInstanceOf(UUID.class);
+            assertThat(employee.getId()).isInstanceOf(UUID.class);
         } finally {
             cleanup(tenant.getSchemaName(), FIRST_NAME, tenant.getId());
         }
