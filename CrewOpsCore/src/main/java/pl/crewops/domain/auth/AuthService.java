@@ -57,6 +57,8 @@ class AuthService implements AuthAPI {
         }
 
         try {
+            // until createEmployee is in this same tx then hibernate handle rollback, check this some time if any
+            // implementation is required
             EmployeeDTO employee = employeeAPI.createEmployee(createEmployeeDTO);
             var createAuthUser = CreateAuthUserDTO.builder()
                     .username(createEmployeeDTO.username())

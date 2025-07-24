@@ -41,9 +41,6 @@ class RegistrationService {
     private final PlatformTransactionManager transactionManager;
 
     // TODO: 1 implement security to allow only admin can trigger this method
-    // TODO: 2 implement logic to rollback db changes in cross schema queries in case of exception occurs for this
-    // TODO: 3 make sure of nice test coverage after implement manually mantain tx rollback
-    // action
 
     CreateCustomerResult registerCustomer(@Valid @NotNull CreateCustomerCommand createCustomerCommand) {
         DefaultTransactionDefinition def = new DefaultTransactionDefinition();
@@ -103,7 +100,6 @@ class RegistrationService {
             throw new RegisterCustomerException("Failed to create company during registration");
         }
 
-        // TODO: implement manually rollback in createAuthUserWithRelatedEmployee
         TransactionStatus saveAuthUserWithRelatedEmployee = transactionManager.getTransaction(def);
 
         var createEmployeeDTO = prepareCreateEmployeeDTOWithGeneratedCompanyId(

@@ -92,6 +92,8 @@ class AuthServiceTest {
     @Test
     void createAuthUser_shouldReturnAuthUser_whenParamsAreValid() {
         // given
+        var tenant = new Tenant();
+        tenant.setId(UUID.randomUUID());
         var createAuthUserDTO = CreateAuthUserDTO.builder()
                 .username("username")
                 .password("password")
@@ -109,6 +111,7 @@ class AuthServiceTest {
                 .build();
 
         // when
+        when(tenantAPI.getByCompanyId(any())).thenReturn(tenant);
         when(passwordEncoder.encode("password")).thenReturn("password");
         when(roleRepository.findById(any())).thenReturn(Optional.of(role));
         when(authUserRepository.save(any())).thenReturn(authUser);
