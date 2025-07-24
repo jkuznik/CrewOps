@@ -11,7 +11,6 @@ import pl.crewops.auth.AuthRequest;
 import pl.crewops.auth.AuthResponse;
 import pl.crewops.auth.ValidTokenRequest;
 import pl.crewops.auth.ValidTokenResponse;
-import pl.crewops.dto.CreateCustomerCommand;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
@@ -28,6 +27,7 @@ import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
+import pl.crewops.registration.CreateCustomerCommand;
 
 @Repository
 @Validated

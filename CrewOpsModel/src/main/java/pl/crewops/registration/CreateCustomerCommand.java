@@ -1,4 +1,4 @@
-package pl.crewops.dto;
+package pl.crewops.registration;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;

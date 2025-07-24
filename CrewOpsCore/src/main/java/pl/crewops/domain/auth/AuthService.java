@@ -16,6 +16,7 @@ import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.dto.tenant.TenantDTO;
 import pl.crewops.exception.auth.UsernameAlreadyExistException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.publicSchema.AuthUser;
@@ -49,7 +50,7 @@ class AuthService implements AuthAPI {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public EmployeeDTO createAuthUserWithRelatedEmployee(CreateEmployeeDTO createEmployeeDTO) {
+    public CreateAuthUserResult createAuthUserWithRelatedEmployee(CreateEmployeeDTO createEmployeeDTO) {
         log.info("Create employee current tenant is: {}", TenantContext.getCurrentTenant());
         if (getByUsername(createEmployeeDTO.username()).isPresent()) {
             throw new UsernameAlreadyExistException(createEmployeeDTO.username());
@@ -62,9 +63,9 @@ class AuthService implements AuthAPI {
                     .password(createEmployeeDTO.password())
                     .roles(createEmployeeDTO.roles())
                     .build();
-            createAuthUser(createAuthUser, employee.id(), createEmployeeDTO.companyId());
+            AuthUserDTO authUser = createAuthUser(createAuthUser, employee.id(), createEmployeeDTO.companyId());
             log.info("Create employee {}", createEmployeeDTO);
-            return employee;
+            return new CreateAuthUserResult(employee, authUser);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
@@ -84,7 +85,7 @@ class AuthService implements AuthAPI {
     }
 
     @Transactional
-    public AuthUser createAuthUser(CreateAuthUserDTO createAuthUserDTO, UUID employeeId, UUID companyId) {
+    public AuthUserDTO createAuthUser(CreateAuthUserDTO createAuthUserDTO, UUID employeeId, UUID companyId) {
         if (getByUsername(createAuthUserDTO.username()).isPresent()) {
             log.error("Username " + createAuthUserDTO.username() + " already exists");
             throw new UsernameAlreadyExistException("Username " + createAuthUserDTO.username() + " already exists");
@@ -109,11 +110,31 @@ class AuthService implements AuthAPI {
             authUser.setRoles(roles);
             authUser.setEmployeeId(employeeId);
             log.info("Auth user instantiated successfully as " + authUser.toString());
-            return authUserRepository.save(authUser);
+            authUserRepository.save(authUser);
+            return authUserDTO(authUser);
         } catch (Exception e) {
             e.printStackTrace();
             throw new IllegalArgumentException(e);
         }
+    }
+
+    private TenantDTO tenantDTO(Tenant tenant) {
+        return TenantDTO.builder()
+                .id(tenant.getId())
+                .active(tenant.isActive())
+                .schemaName(tenant.getSchemaName())
+                .companyId(tenant.getCompanyId())
+                .build();
+    }
+
+    private AuthUserDTO authUserDTO(AuthUser authUser) {
+        return AuthUserDTO.builder()
+                .id(authUser.getId())
+                .username(authUser.getUsername())
+                .password(authUser.getPassword())
+                .employeeId(authUser.getEmployeeId())
+                .tenant(tenantDTO(authUser.getTenant()))
+                .build();
     }
 
     @Transactional(readOnly = true)

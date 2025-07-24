@@ -10,12 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.crewops.auth.AuthRequest;
-import pl.crewops.auth.AuthResponse;
-import pl.crewops.auth.ValidTokenRequest;
-import pl.crewops.auth.ValidTokenResponse;
+import pl.crewops.auth.*;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +30,7 @@ class AuthController {
     }
 
     @PostMapping(EMPLOYEES)
-    public ResponseEntity<EmployeeDTO> createEmployee(
+    public ResponseEntity<CreateAuthUserResult> createEmployee(
             @NotNull @Valid @RequestBody CreateEmployeeDTO createEmployeeDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(authAPI.createAuthUserWithRelatedEmployee(createEmployeeDTO));

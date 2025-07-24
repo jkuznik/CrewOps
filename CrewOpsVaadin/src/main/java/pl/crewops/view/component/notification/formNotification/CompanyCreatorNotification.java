@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import pl.crewops.auth.RoleDTO;
-import pl.crewops.dto.CreateCustomerCommand;
 import pl.crewops.dto.address.CreateAddressDTO;
 import pl.crewops.dto.company.CreateCompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
@@ -17,6 +16,7 @@ import pl.crewops.dto.tenant.CreateTenantDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
+import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.view.component.form.EmployeeForm;
 
 public class CompanyCreatorNotification extends Notification {

@@ -11,17 +11,18 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.validation.annotation.Validated;
+import pl.crewops.auth.CreateAuthUserResult;
 import pl.crewops.domain.auth.AuthAPI;
 import pl.crewops.domain.company.CompanyAPI;
 import pl.crewops.domain.tenant.TenantAPI;
-import pl.crewops.dto.CreateCustomerCommand;
 import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.dto.tenant.TenantDTO;
 import pl.crewops.exception.auth.RegisterCustomerException;
 import pl.crewops.exception.multitenancy.CreateSchemaException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.publicSchema.Tenant;
+import pl.crewops.registration.CreateCustomerCommand;
+import pl.crewops.registration.CreateCustomerResult;
 import pl.crewops.utils.multitenancy.LiquibaseSchemaMigrator;
 import pl.crewops.utils.multitenancy.TenantSchemaInitializer;
 import pl.crewops.utils.multitenancy.TenantSchemaNameGenerator;
@@ -43,12 +44,15 @@ class RegistrationService {
     // TODO: 2 implement logic to rollback db changes in cross schema queries in case of exception occurs for this
     // TODO: 3 make sure of nice test coverage after implement manually mantain tx rollback
     // action
-    //    @Transactional
-    TenantDTO registerCustomer(@Valid @NotNull CreateCustomerCommand createCustomerCommand) {
+
+    CreateCustomerResult registerCustomer(@Valid @NotNull CreateCustomerCommand createCustomerCommand) {
         DefaultTransactionDefinition def = new DefaultTransactionDefinition();
         def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
 
-        String schemaName = "";
+        CreateAuthUserResult authUserWithRelatedEmployee;
+        CompanyDTO companyDTO;
+
+        String schemaName;
 
         try {
             schemaName = TenantSchemaNameGenerator.generateTenantSchemaName(
@@ -57,13 +61,13 @@ class RegistrationService {
             liquibaseSchemaMigrator.runMigrations(schemaName);
         } catch (CreateSchemaException e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e);
+            throw new CreateSchemaException("Fail to create schema during customer registration.\n" + e.getMessage());
         }
 
         TransactionStatus saveTenantStep = transactionManager.getTransaction(def);
-        UUID tenantId = null;
-        UUID companyId = null;
-        Tenant tenant = null;
+        UUID tenantId;
+        UUID companyId;
+        Tenant tenant;
 
         try {
             var notPersistedTenant = Tenant.builder().active(true).build();
@@ -80,12 +84,11 @@ class RegistrationService {
         }
 
         TransactionStatus saveCompanyStep = transactionManager.getTransaction(def);
-        CompanyDTO company = null;
 
         try {
             TenantContext.setCurrentTenant(schemaName);
 
-            company = companyAPI.createCompany(
+            companyDTO = companyAPI.createCompany(
                     createCustomerCommand.createTenantDTO().createAddressDTO(),
                     createCustomerCommand.createTenantDTO().createCompanyDTO(),
                     companyId);
@@ -101,10 +104,10 @@ class RegistrationService {
         // TODO: implement manually rollback in createAuthUserWithRelatedEmployee
         TransactionStatus saveAuthUserWithRelatedEmployee = transactionManager.getTransaction(def);
 
-        var createEmployeeDTO =
-                prepareCreateEmployeeDTOWithGeneratedCompanyId(createCustomerCommand.createEmployeeDTO(), company.id());
+        var createEmployeeDTO = prepareCreateEmployeeDTOWithGeneratedCompanyId(
+                createCustomerCommand.createEmployeeDTO(), companyDTO.id());
         try {
-            authAPI.createAuthUserWithRelatedEmployee(createEmployeeDTO);
+            authUserWithRelatedEmployee = authAPI.createAuthUserWithRelatedEmployee(createEmployeeDTO);
             transactionManager.commit(saveAuthUserWithRelatedEmployee);
 
         } catch (Exception e) {
@@ -116,11 +119,7 @@ class RegistrationService {
 
         TenantContext.clear();
 
-        return TenantDTO.builder()
-                .id(tenantId)
-                .companyId(companyId)
-                .active(true)
-                .build();
+        return new CreateCustomerResult(authUserWithRelatedEmployee, companyDTO);
     }
 
     private void cleanCompany(UUID companyId) {

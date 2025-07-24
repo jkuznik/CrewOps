@@ -50,33 +50,4 @@ public class Vehicle extends AbstractEntity {
     @JsonSerialize(using = EmployeeSetSerializer.class)
     @ManyToMany(mappedBy = "vehicles")
     private Set<Employee> employees = new LinkedHashSet<>();
-
-    //    public VehicleDTO mapToDTO() {
-    //        if (vehicleType != null) {
-    //            return VehicleDTO.builder()
-    //                    .id(this.getId())
-    //                    .make(this.getMake())
-    //                    .model(this.getModel())
-    //                    .vehicleType(VehicleTypeDTO.builder()
-    //                            .id(this.getVehicleType().getId())
-    //                            .build())
-    //                    .year(this.getYear())
-    //                    .vin(this.getVin())
-    //                    .registerNumber(this.getRegisterNumber())
-    //                    .broken(this.getBroken())
-    //                    .build();
-    //
-    //        } else {
-    //            return VehicleDTO.builder()
-    //                    .id(this.getId())
-    //                    .make(this.getMake())
-    //                    .model(this.getModel())
-    //                    .vehicleType(VehicleTypeDTO.builder().name("ImplementThis").build())
-    //                    .year(this.getYear())
-    //                    .vin(this.getVin())
-    //                    .registerNumber(this.getRegisterNumber())
-    //                    .broken(this.getBroken())
-    //                    .build();
-    //        }
-    //    }
 }

@@ -19,7 +19,7 @@ public interface AuthAPI {
 
     Optional<AuthUser> getByEmployeeId(@NotNull UUID employeeId);
 
-    AuthUser createAuthUser(
+    AuthUserDTO createAuthUser(
             @NotNull @Valid CreateAuthUserDTO createAuthUserDTO,
             @NotNull @Valid UUID employeeId,
             @NotNull @NotBlank UUID companyId);
@@ -28,7 +28,7 @@ public interface AuthAPI {
 
     ValidTokenResponse validateToken(@NotNull @Valid ValidTokenRequest validTokenRequest);
 
-    EmployeeDTO createAuthUserWithRelatedEmployee(@NotNull @Valid CreateEmployeeDTO createEmployeeDTO);
+    CreateAuthUserResult createAuthUserWithRelatedEmployee(@NotNull @Valid CreateEmployeeDTO createEmployeeDTO);
 
     EmployeeDTO terminateEmployeeAuthUserAccount(UUID employeeId);
 }

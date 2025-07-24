@@ -97,7 +97,6 @@ class EmployeeService implements EmployeeAPI {
     @Transactional
     public EmployeeDTO updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) {
         Employee employee = employeeRepository
-                // TODO: n+1
                 .findById(updateEmployeeDTO.employeeId())
                 .orElseThrow(() -> new EmployeeNotFoundException(updateEmployeeDTO.employeeId()));
 
