@@ -17,5 +17,6 @@ public record EmployeeDTO(
         String phoneNumber,
         String department,
         Set<RoleDTO> roles,
+        boolean active,
         Set<QualificationDTO> qualifications,
         Set<VehicleDTO> vehicles) {}

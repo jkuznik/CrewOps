@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import pl.crewops.domain.auth.AuthAPI;
+import pl.crewops.exception.auth.AuthUserNotFoundException;
 import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.security.custom.UserPrincipal;
 
@@ -20,7 +20,7 @@ public class UserDetailsServiceConfig {
     public UserDetailsService userDetailsService() {
         return employeeId -> {
             AuthUser authUser = authAPI.getByEmployeeId(UUID.fromString(employeeId))
-                    .orElseThrow(() -> new UsernameNotFoundException(employeeId));
+                    .orElseThrow(() -> new AuthUserNotFoundException(employeeId));
             return new UserPrincipal(authUser);
         };
     }

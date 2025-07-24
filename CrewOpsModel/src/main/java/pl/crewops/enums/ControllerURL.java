@@ -66,7 +66,8 @@ public class ControllerURL {
     }
 
     public static String[] shiftLeaderUrlPATCH() {
-        return new String[] {"/" + VEHICLES_VID, "/" + BREAKDOWNS_BID // TODO: implement this on FE side
+        return new String[] {
+            "/" + VEHICLES_VID, "/" + BREAKDOWNS_BID // TODO: implement this on FE side (hide some buttons or etc.)
         };
     }
 

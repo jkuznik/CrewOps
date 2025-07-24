@@ -30,6 +30,7 @@ class EmployeeMapper {
                 .birthDate(employee.getBirthDate())
                 .phoneNumber(employee.getPhoneNumber())
                 .department(employee.getDepartment())
+                .active(employee.isActive())
                 .qualifications(getQualifications(employee))
                 .vehicles(getVehicles(employee))
                 .build();

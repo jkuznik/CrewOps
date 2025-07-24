@@ -1,13 +1,13 @@
 package pl.crewops.exception.auth;
 
-import pl.crewops.model.Employee;
+import java.util.UUID;
 
 public class AuthUserNotFoundException extends RuntimeException {
     public AuthUserNotFoundException(String message) {
         super(message);
     }
 
-    public AuthUserNotFoundException(Employee employee) {
-        super("AuthUser related to employee with id " + employee.getId() + " not found");
+    public AuthUserNotFoundException(UUID employeeId) {
+        super("AuthUser related to employee with id " + employeeId + " not found");
     }
 }

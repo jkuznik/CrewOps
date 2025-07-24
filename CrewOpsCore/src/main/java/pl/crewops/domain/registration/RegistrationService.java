@@ -41,6 +41,7 @@ class RegistrationService {
 
     // TODO: 1 implement security to allow only admin can trigger this method
     // TODO: 2 implement logic to rollback db changes in cross schema queries in case of exception occurs for this
+    // TODO: 3 make sure of nice test coverage after implement manually mantain tx rollback
     // action
     //    @Transactional
     TenantDTO registerCustomer(@Valid @NotNull CreateCustomerCommand createCustomerCommand) {

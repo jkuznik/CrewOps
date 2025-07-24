@@ -16,10 +16,8 @@ import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.exception.auth.AuthUserNotFoundException;
 import pl.crewops.exception.auth.UsernameAlreadyExistException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
-import pl.crewops.model.Employee;
 import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.model.publicSchema.Role;
 import pl.crewops.model.publicSchema.Tenant;
@@ -50,12 +48,6 @@ class AuthService implements AuthAPI {
         return authUserRepository.findByEmployeeId(employeeId);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Employee getEmployeeById(UUID employeeId) {
-        return employeeAPI.getEmployeeById(employeeId);
-    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public EmployeeDTO createAuthUserWithRelatedEmployee(CreateEmployeeDTO createEmployeeDTO) {
         log.info("Create employee current tenant is: {}", TenantContext.getCurrentTenant());
@@ -80,19 +72,14 @@ class AuthService implements AuthAPI {
     }
 
     @Transactional
-    public void deleteEmployee(UUID employeeId) {
-        var employee = employeeAPI.getEmployeeById(employeeId);
-
-        var authUser = getByEmployeeId(employeeId).orElseThrow(() -> new AuthUserNotFoundException(employee));
-
-        employee.setActive(false);
-        log.info("Delete authUser {}", authUser.getUsername());
-        deleteById(authUser.getId());
+    // this method has to delete AuthUser record and set false on Active column for related Employee
+    public EmployeeDTO terminateEmployeeAuthUserAccount(UUID employeeId) {
+        log.info("Delete authUser wit employee id: {}", employeeId);
+        authUserRepository.deleteByEmployeeId(employeeId);
         log.info("Set 'active' column to 'false' for employee {}", employeeId);
-        employeeAPI.updateEmployee(UpdateEmployeeDTO.builder()
+        return employeeAPI.updateEmployee(UpdateEmployeeDTO.builder()
                 .employeeId(employeeId)
-                .department(employee.getDepartment())
-                .phoneNumber(employee.getPhoneNumber())
+                .active(Boolean.FALSE)
                 .build());
     }
 
@@ -127,11 +114,6 @@ class AuthService implements AuthAPI {
             e.printStackTrace();
             throw new IllegalArgumentException(e);
         }
-    }
-
-    @Transactional
-    public void deleteById(UUID uuid) {
-        authUserRepository.deleteById(uuid);
     }
 
     @Transactional(readOnly = true)

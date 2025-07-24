@@ -3,7 +3,7 @@ package pl.crewops.domain.auth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchException;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static pl.crewops.model.auth.RoleType.EMPLOYEE;
 import static pl.crewops.model.auth.RoleType.SYSTEM_ADMIN;
 
@@ -256,5 +256,17 @@ class AuthServiceTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.valid()).isTrue();
+    }
+
+    @Test
+    void terminateEmployeeAuthUserAccount_shouldSetEmployeeActiveToFalse_andDeleteAuthUser() {
+        // given
+        var employeeId = UUID.randomUUID();
+
+        // when
+        authService.terminateEmployeeAuthUserAccount(employeeId);
+
+        verify(authUserRepository).deleteByEmployeeId(employeeId);
+        verify(employeeAPI).updateEmployee(any());
     }
 }

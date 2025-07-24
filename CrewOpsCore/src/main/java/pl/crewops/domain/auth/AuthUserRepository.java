@@ -20,6 +20,10 @@ interface AuthUserRepository extends JpaRepository<AuthUser, UUID> {
     @Modifying
     @Query("DELETE FROM AuthUser WHERE id = :id")
     void deleteById(UUID id);
+
+    @Modifying
+    @Query("DELETE FROM AuthUser WHERE employeeId =:employeeId")
+    void deleteByEmployeeId(UUID employeeId);
 }
 
 @Repository

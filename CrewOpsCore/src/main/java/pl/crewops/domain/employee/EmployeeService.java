@@ -97,6 +97,7 @@ class EmployeeService implements EmployeeAPI {
     @Transactional
     public EmployeeDTO updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) {
         Employee employee = employeeRepository
+                // TODO: n+1
                 .findById(updateEmployeeDTO.employeeId())
                 .orElseThrow(() -> new EmployeeNotFoundException(updateEmployeeDTO.employeeId()));
 
@@ -105,6 +106,10 @@ class EmployeeService implements EmployeeAPI {
         }
         if (updateEmployeeDTO.department() != null) {
             employee.setDepartment(updateEmployeeDTO.department());
+        }
+
+        if (updateEmployeeDTO.active() != null) {
+            employee.setActive(updateEmployeeDTO.active());
         }
 
         log.info("Update employee {}", updateEmployeeDTO);

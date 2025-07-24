@@ -85,7 +85,7 @@ class RegistrationServiceTest extends IntegrationTest {
             assertThat(schemaExists).isTrue();
             assertThat(tenant.getCompanyId()).isInstanceOf(UUID.class);
         } finally {
-            //            cleanup(tenant.getSchemaName(), employeeFirstName, tenant.getId());
+            cleanup(tenant.getSchemaName(), employeeFirstName, tenant.getId());
         }
     }
 
