@@ -47,7 +47,11 @@ public class SecurityConfig {
                         .hasAnyRole(MANAGER.name(), SYSTEM_ADMIN.name())
                         .requestMatchers(HttpMethod.DELETE, managerUrlDELETE())
                         .hasAnyRole(MANAGER.name(), SYSTEM_ADMIN.name())
-                        //
+                        // customer admin permission
+
+                        // system admin permission
+                        .requestMatchers(HttpMethod.POST, systemAdminUrlPOST())
+                        .hasRole(SYSTEM_ADMIN.name())
                         .anyRequest()
                         .authenticated())
                 .addFilterBefore(clientValidationFilter, UsernamePasswordAuthenticationFilter.class)

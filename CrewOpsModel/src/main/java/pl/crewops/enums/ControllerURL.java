@@ -48,7 +48,6 @@ public class ControllerURL {
     public static String[] publicUrl() {
         return new String[] {
             LOGIN,
-            REGISTER,
             LOGOUT,
             VALIDATE,
             "/swagger-ui.html",
@@ -91,5 +90,9 @@ public class ControllerURL {
         return new String[] {
             "/" + EMPLOYEES_EID, "/" + EMPLOYEES_EID_QUALIFICATIONS_QID, "/" + EMPLOYEES_EID_VEHICLES_VID
         };
+    }
+
+    public static String[] systemAdminUrlPOST() {
+        return new String[] {"/" + REGISTER};
     }
 }
