@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import pl.crewops.IntegrationTest;
 import pl.crewops.auth.CreateAuthUserDTO;
-import pl.crewops.exception.auth.RegisterCustomerException;
+import pl.crewops.exception.domain.registration.RegisterCustomerException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.Employee;
 import pl.crewops.model.publicSchema.Tenant;

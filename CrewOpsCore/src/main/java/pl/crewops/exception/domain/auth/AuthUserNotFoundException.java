@@ -1,4 +1,4 @@
-package pl.crewops.exception.auth;
+package pl.crewops.exception.domain.auth;
 
 import java.util.UUID;
 

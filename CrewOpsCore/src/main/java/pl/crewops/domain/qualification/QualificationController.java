@@ -63,6 +63,7 @@ class QualificationController {
     }
 
     @DeleteMapping(QUALIFICATIONS_QID)
+    @ManagerPermission
     public ResponseEntity<Void> deleteQualification(@PathVariable(QUALIFICATION_ID) UUID qualificationId) {
         qualificationAPI.deleteQualification(qualificationId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

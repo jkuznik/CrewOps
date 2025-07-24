@@ -77,7 +77,7 @@ public interface CoreAPI {
 
     Optional<CompanyDTO> getCompanyById(@NotNull UUID companyId) throws NotAuthenticatedException;
 
-    void deleteEmployee(@NotNull UUID employeeId) throws NotAuthenticatedException;
+    void terminateEmployeeAccount(@NotNull UUID employeeId) throws NotAuthenticatedException;
 
     void deleteQualification(@NotNull UUID qualificationId) throws NotAuthenticatedException;
 

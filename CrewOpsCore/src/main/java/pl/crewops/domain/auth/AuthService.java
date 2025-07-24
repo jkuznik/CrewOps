@@ -17,7 +17,7 @@ import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.dto.tenant.TenantDTO;
-import pl.crewops.exception.auth.UsernameAlreadyExistException;
+import pl.crewops.exception.domain.auth.UsernameAlreadyExistException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.model.publicSchema.Role;

@@ -29,7 +29,6 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final TenantContextFilter tenantContextFilter;
 
-    // TODO: configure current handling endpoint
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)

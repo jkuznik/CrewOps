@@ -248,6 +248,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // authenticated
     @Override
     @Cacheable(cacheNames = "employeeCache")
     public List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException {
@@ -265,6 +266,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // authenticated
     @Override
     public Optional<CompanyDTO> getCompanyById(UUID companyId) throws NotAuthenticatedException {
         log.info("Call getCompanyById");
@@ -282,6 +284,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // authenticated
     @Override
     public List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException {
         isAuthenticated();
@@ -298,6 +301,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // authenticated
     @Override
     public Optional<EmployeeDTO> getEmployeeById(UUID employeeId) throws NotAuthenticatedException {
         isAuthenticated();
@@ -314,6 +318,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // authenticated
     @Override
     public List<VehicleDTO> getAllVehicles() throws NotAuthenticatedException {
         isAuthenticated();
@@ -330,6 +335,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // authenticated
     @Override
     public List<VehicleTypeDTO> getAllVehicleTypes() throws NotAuthenticatedException {
         isAuthenticated();
@@ -346,6 +352,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // authenticated
     @Override
     public List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException {
         isAuthenticated();
@@ -362,8 +369,9 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // manager permission
     @Override
-    public void deleteEmployee(UUID employeeId) throws NotAuthenticatedException {
+    public void terminateEmployeeAccount(UUID employeeId) throws NotAuthenticatedException {
         isAuthenticated();
         try {
             authorizedClient
@@ -378,6 +386,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // manager permission
     @Override
     public void deleteQualification(UUID qualificationId) throws NotAuthenticatedException {
         isAuthenticated();
@@ -394,6 +403,7 @@ class CoreClient implements CoreAPI {
         }
     }
 
+    // manager permission
     @Override
     public void deleteVehicle(UUID vehicleId) throws NotAuthenticatedException {
         isAuthenticated();

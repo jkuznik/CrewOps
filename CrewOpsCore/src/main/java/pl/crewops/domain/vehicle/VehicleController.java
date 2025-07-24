@@ -24,7 +24,6 @@ class VehicleController {
 
     private final VehicleAPI vehicleAPI;
 
-    // TODO: consider if mechanic can have access to this action
     @PostMapping(VEHICLES)
     @ManagerPermission
     public ResponseEntity<VehicleDTO> createVehicle(@NotNull @Valid @RequestBody CreateVehicleDTO createVehicleDTO) {
@@ -67,6 +66,7 @@ class VehicleController {
     }
 
     @DeleteMapping(VEHICLES_VID)
+    @ManagerPermission
     public ResponseEntity<VehicleDTO> deleteVehicle(@PathVariable(VEHICLE_ID) UUID vehicleId) {
         vehicleAPI.deleteVehicle(vehicleId);
         return ResponseEntity.status(HttpStatus.OK).build();

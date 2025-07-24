@@ -23,7 +23,7 @@ import pl.crewops.auth.*;
 import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.exception.auth.UsernameAlreadyExistException;
+import pl.crewops.exception.domain.auth.UsernameAlreadyExistException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.model.publicSchema.Role;

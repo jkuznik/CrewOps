@@ -17,7 +17,7 @@ import pl.crewops.domain.company.CompanyAPI;
 import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.exception.auth.RegisterCustomerException;
+import pl.crewops.exception.domain.registration.RegisterCustomerException;
 import pl.crewops.exception.multitenancy.CreateSchemaException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.publicSchema.Tenant;
@@ -39,8 +39,6 @@ class RegistrationService {
     private final TenantAPI tenantAPI;
     private final CompanyAPI companyAPI;
     private final PlatformTransactionManager transactionManager;
-
-    // TODO: 1 implement security to allow only admin can trigger this method
 
     CreateCustomerResult registerCustomer(@Valid @NotNull CreateCustomerCommand createCustomerCommand) {
         DefaultTransactionDefinition def = new DefaultTransactionDefinition();

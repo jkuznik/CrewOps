@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import pl.crewops.domain.auth.AuthAPI;
-import pl.crewops.exception.auth.AuthUserNotFoundException;
+import pl.crewops.exception.domain.auth.AuthUserNotFoundException;
 import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.security.custom.UserPrincipal;
 

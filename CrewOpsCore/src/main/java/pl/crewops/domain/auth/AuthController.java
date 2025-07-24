@@ -39,7 +39,8 @@ class AuthController {
     }
 
     @DeleteMapping(EMPLOYEES_EID)
-    public ResponseEntity<Void> deleteEmployee(@PathVariable(EMPLOYEE_ID) UUID employeeId) {
+    @ManagerPermission
+    public ResponseEntity<Void> terminateEmployeeAuthUserAccount(@PathVariable(EMPLOYEE_ID) UUID employeeId) {
         authAPI.terminateEmployeeAuthUserAccount(employeeId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

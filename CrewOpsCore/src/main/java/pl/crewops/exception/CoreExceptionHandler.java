@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
-import pl.crewops.exception.auth.UsernameAlreadyExistException;
+import pl.crewops.exception.domain.auth.UsernameAlreadyExistException;
 import pl.crewops.exception.domain.employee.EmployeeNotFoundException;
 import pl.crewops.exception.domain.employee.EmployeeQualificationNotFoundException;
 import pl.crewops.exception.domain.employee.ExpireAtException;
@@ -19,6 +19,7 @@ import pl.crewops.exception.domain.vehicle.VehicleNotFoundException;
 @RestControllerAdvice
 class CoreExceptionHandler {
 
+    // TODO: handle custom exceptions
     @ExceptionHandler(HttpStatusCodeException.class)
     public ResponseEntity<String> handleHttpStatusCodeException(HttpStatusCodeException ex) {
         log.error("HttpStatusCodeException: Status={}, Body={}", ex.getStatusCode(), ex.getResponseBodyAsString());
