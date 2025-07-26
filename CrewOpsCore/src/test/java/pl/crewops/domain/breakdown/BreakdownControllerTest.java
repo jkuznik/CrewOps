@@ -69,6 +69,28 @@ class BreakdownControllerTest {
     }
 
     @Test
+    @DisplayName("POST /breakdowns should return 401 when user is not authenticated")
+    void createBreakdown_ShouldReturn401WhenUnauthorized() throws Exception {
+        CreateBreakdownDTO request =
+                new CreateBreakdownDTO(UUID.randomUUID(), UUID.randomUUID(), "Unauthorized test", true);
+
+        mockMvc.perform(post(BREAKDOWNS)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("POST /breakdowns should return 400 for invalid request body")
+    @WithMockUser
+    void createBreakdown_ShouldReturn400WhenInvalidInput() throws Exception {
+        String invalidJson = "{}"; // missing required fields
+
+        mockMvc.perform(post(BREAKDOWNS).contentType(MediaType.APPLICATION_JSON).content(invalidJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     @DisplayName("GET /breakdowns should return list of breakdowns")
     @WithMockUser
     void getBreakdowns_ShouldReturnList() throws Exception {
@@ -91,34 +113,9 @@ class BreakdownControllerTest {
     }
 
     @Test
-    @DisplayName("PATCH /breakdowns/{id} should update and return 200 when role is correct")
-    @WithMockUser(roles = "SHIFT_LEADER")
-    void updateBreakdown_ShouldReturn200WithCorrectRole() throws Exception {
-        UUID id = UUID.randomUUID();
-
-        UpdateBreakdownDTO updateRequest = UpdateBreakdownDTO.builder()
-                .breakdownId(id)
-                .repairedByEmployeeId(UUID.randomUUID())
-                .solved(true)
-                .build();
-
-        BreakdownDTO response = BreakdownDTO.builder()
-                .id(id)
-                .description("Fixed")
-                .critical(false)
-                .solved(true)
-                .vehicle(VehicleDTO.builder().build())
-                .repairedBy(null)
-                .reportedBy(null)
-                .build();
-
-        when(breakdownService.updateBreakdown(any(UpdateBreakdownDTO.class))).thenReturn(response);
-
-        mockMvc.perform(patch(BREAKDOWNS + "/" + id)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.solved").value(true));
+    @DisplayName("GET /breakdowns should return 401 when user is not authenticated")
+    void getBreakdowns_ShouldReturn401() throws Exception {
+        mockMvc.perform(get(BREAKDOWNS)).andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -141,6 +138,23 @@ class BreakdownControllerTest {
     }
 
     @Test
+    @DisplayName("PATCH /breakdowns/{id} should return 401 when not authenticated")
+    void updateBreakdown_ShouldReturn401WhenUnauthenticated() throws Exception {
+        UUID id = UUID.randomUUID();
+
+        UpdateBreakdownDTO updateRequest = UpdateBreakdownDTO.builder()
+                .breakdownId(id)
+                .repairedByEmployeeId(UUID.randomUUID())
+                .solved(true)
+                .build();
+
+        mockMvc.perform(patch(BREAKDOWNS + "/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     @DisplayName("PATCH /breakdowns/{id} should return 403 when role is missing")
     @WithMockUser(
             roles = "MECHANIC") // Not allowed but in the future implementation this case probably will be change then
@@ -158,5 +172,61 @@ class BreakdownControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("PATCH /breakdowns/{id} should allow SHIFT_LEADER role")
+    @WithMockUser(roles = "SHIFT_LEADER")
+    void updateBreakdown_ShouldAllowShiftLeader() throws Exception {
+        testUpdateBreakdownSuccess();
+    }
+
+    @Test
+    @DisplayName("PATCH /breakdowns/{id} should allow MANAGER role")
+    @WithMockUser(roles = "MANAGER")
+    void updateBreakdown_ShouldAllowManager() throws Exception {
+        testUpdateBreakdownSuccess();
+    }
+
+    @Test
+    @DisplayName("PATCH /breakdowns/{id} should allow COMPANY_ADMIN role")
+    @WithMockUser(roles = "COMPANY_ADMIN")
+    void updateBreakdown_ShouldAllowCompanyAdmin() throws Exception {
+        testUpdateBreakdownSuccess();
+    }
+
+    @Test
+    @DisplayName("PATCH /breakdowns/{id} should allow SYSTEM_ADMIN role")
+    @WithMockUser(roles = "SYSTEM_ADMIN")
+    void updateBreakdown_ShouldAllowSystemAdmin() throws Exception {
+        testUpdateBreakdownSuccess();
+    }
+
+    private void testUpdateBreakdownSuccess() throws Exception {
+        UUID id = UUID.randomUUID();
+
+        UpdateBreakdownDTO updateRequest = UpdateBreakdownDTO.builder()
+                .breakdownId(id)
+                .repairedByEmployeeId(UUID.randomUUID())
+                .solved(true)
+                .build();
+
+        BreakdownDTO response = BreakdownDTO.builder()
+                .id(id)
+                .description("Updated by allowed role")
+                .critical(false)
+                .solved(true)
+                .vehicle(VehicleDTO.builder().build())
+                .repairedBy(null)
+                .reportedBy(null)
+                .build();
+
+        when(breakdownService.updateBreakdown(any(UpdateBreakdownDTO.class))).thenReturn(response);
+
+        mockMvc.perform(patch(BREAKDOWNS + "/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.solved").value(true));
     }
 }

@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -45,6 +46,8 @@ public class SecurityConfig {
                 .addFilterBefore(clientValidationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(tenantContextFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(eh -> eh.authenticationEntryPoint((request, response, authException) ->
+                        response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized")))
                 .headers(headers ->
                         headers.frameOptions(Customizer.withDefaults()).disable())
                 .sessionManagement(sessionManagementConfigurer ->

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import pl.crewops.exception.domain.auth.UsernameAlreadyExistException;
+import pl.crewops.exception.domain.company.CompanyNotFoundException;
 import pl.crewops.exception.domain.employee.EmployeeNotFoundException;
 import pl.crewops.exception.domain.employee.EmployeeQualificationNotFoundException;
 import pl.crewops.exception.domain.employee.ExpireAtException;
@@ -17,9 +18,8 @@ import pl.crewops.exception.domain.vehicle.VehicleNotFoundException;
 
 @Slf4j
 @RestControllerAdvice
-class CoreExceptionHandler {
+public class CoreExceptionHandler {
 
-    // TODO: handle custom exceptions
     @ExceptionHandler(HttpStatusCodeException.class)
     public ResponseEntity<String> handleHttpStatusCodeException(HttpStatusCodeException ex) {
         log.error("HttpStatusCodeException: Status={}, Body={}", ex.getStatusCode(), ex.getResponseBodyAsString());
@@ -27,13 +27,13 @@ class CoreExceptionHandler {
     }
 
     @ExceptionHandler(UsernameAlreadyExistException.class)
-    public ResponseEntity<String> handleEmployeeNotFound(UsernameAlreadyExistException ex) {
+    public ResponseEntity<String> handleUsernameAlreadyExist(UsernameAlreadyExistException ex) {
         log.error("UsernameAlreadyExistException: Message={}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exist: " + ex.getMessage());
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<String> handleEmployeeNotFound(ExpiredJwtException ex) {
+    public ResponseEntity<String> handleExpiredJwtException(ExpiredJwtException ex) {
         log.error("ExpiredJwtException: Message={}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.CONFLICT).body("Jwt token expired: " + ex.getMessage());
     }
@@ -52,7 +52,7 @@ class CoreExceptionHandler {
     }
 
     @ExceptionHandler(ExpireAtException.class)
-    public ResponseEntity<String> handeExpireAtException(ExpireAtException ex) {
+    public ResponseEntity<String> handleExpireAtException(ExpireAtException ex) {
         log.error("ExpireAtException: Message={}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.CONFLICT).body("Token expired: " + ex.getMessage());
     }
@@ -66,6 +66,12 @@ class CoreExceptionHandler {
     @ExceptionHandler(VehicleNotFoundException.class)
     public ResponseEntity<String> handleVehicleNotFoundException(VehicleNotFoundException ex) {
         log.error("VehicleNotFoundException: Message={}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Resource not found: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(CompanyNotFoundException.class)
+    public ResponseEntity<String> handleCompanyNotFoundException(CompanyNotFoundException ex) {
+        log.error("CompanyNotFoundException: Message={}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Resource not found: " + ex.getMessage());
     }
 
