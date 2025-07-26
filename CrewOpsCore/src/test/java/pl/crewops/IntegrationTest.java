@@ -1,5 +1,6 @@
 package pl.crewops;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,6 +52,9 @@ public abstract class IntegrationTest {
 
     @Autowired
     protected MockMvc mockMvc;
+
+    @Autowired
+    protected ObjectMapper objectMapper;
 
     @Autowired
     protected TestRestTemplate restTemplate;
