@@ -20,6 +20,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import pl.crewops.auth.AuthUserDTO;
 import pl.crewops.auth.CreateAuthUserResult;
 import pl.crewops.dto.address.AddressDTO;
@@ -37,7 +38,8 @@ import pl.crewops.security.config.TestSecuriityConfig;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest
-@ContextConfiguration(classes = {TestSecuriityConfig.class, RegistrationController.class})
+@ContextConfiguration(
+        classes = {TestSecuriityConfig.class, RegistrationController.class, MethodValidationPostProcessor.class})
 class RegistrationControllerTest {
 
     @Autowired
@@ -49,81 +51,81 @@ class RegistrationControllerTest {
     @MockitoBean
     private RegistrationService registrationService;
 
-    //    @Test
-    //    @WithMockUser(roles = "SYSTEM_ADMIN")
-    //    @DisplayName("POST /register should return 400 when postalCode is blank")
-    //    void registerCustomer_ShouldReturn400_BlankPostalCode() throws Exception {
-    //        var address = CreateAddressDTO.builder()
-    //                .postalCode("  ") // Invalid
-    //                .city("Warsaw")
-    //                .street("Main St")
-    //                .localNumber("10A")
-    //                .build();
-    //
-    //        var company = CreateCompanyDTO.builder()
-    //                .name("Valid Company")
-    //                .email("contact@company.com")
-    //                .build();
-    //
-    //        var tenant = CreateTenantDTO.builder()
-    //                .createCompanyDTO(company)
-    //                .createAddressDTO(address)
-    //                .build();
-    //
-    //        var employee = CreateEmployeeDTO.builder()
-    //                .firstName("John")
-    //                .lastName("Doe")
-    //                .phoneNumber("+48123123123")
-    //                .build();
-    //
-    //        var command = CreateCustomerCommand.builder()
-    //                .createTenantDTO(tenant)
-    //                .createEmployeeDTO(employee)
-    //                .build();
-    //
-    //        mockMvc.perform(post("/register")
-    //                        .contentType(MediaType.APPLICATION_JSON)
-    //                        .content(objectMapper.writeValueAsString(command)))
-    //                .andExpect(status().isBadRequest());
-    //    }
-    //
-    //    @Test
-    //    @WithMockUser(roles = "SYSTEM_ADMIN")
-    //    @DisplayName("POST /register should return 400 when email is invalid")
-    //    void registerCustomer_ShouldReturn400_InvalidEmail() throws Exception {
-    //        var address = CreateAddressDTO.builder()
-    //                .postalCode("00-001")
-    //                .city("Warsaw")
-    //                .street("Main St")
-    //                .localNumber("10A")
-    //                .build();
-    //
-    //        var company = CreateCompanyDTO.builder()
-    //                .name("Valid Company")
-    //                .email("not-an-email") // Invalid
-    //                .build();
-    //
-    //        var tenant = CreateTenantDTO.builder()
-    //                .createCompanyDTO(company)
-    //                .createAddressDTO(address)
-    //                .build();
-    //
-    //        var employee = CreateEmployeeDTO.builder()
-    //                .firstName("John")
-    //                .lastName("Doe")
-    //                .phoneNumber("+48123123123")
-    //                .build();
-    //
-    //        var command = CreateCustomerCommand.builder()
-    //                .createTenantDTO(tenant)
-    //                .createEmployeeDTO(employee)
-    //                .build();
-    //
-    //        mockMvc.perform(post("/register")
-    //                        .contentType(MediaType.APPLICATION_JSON)
-    //                        .content(objectMapper.writeValueAsString(command)))
-    //                .andExpect(status().isBadRequest());
-    //    }
+    @Test
+    @WithMockUser(roles = "SYSTEM_ADMIN")
+    @DisplayName("POST /register should return 400 when postalCode is blank")
+    void registerCustomer_ShouldReturn400_BlankPostalCode() throws Exception {
+        var address = CreateAddressDTO.builder()
+                .postalCode("  ")
+                .city("Warsaw")
+                .street("Main St")
+                .localNumber("10A")
+                .build();
+
+        var company = CreateCompanyDTO.builder()
+                .name("Valid Company")
+                .email("contact@company.com")
+                .build();
+
+        var tenant = CreateTenantDTO.builder()
+                .createCompanyDTO(company)
+                .createAddressDTO(address)
+                .build();
+
+        var employee = CreateEmployeeDTO.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .phoneNumber("+48123123123")
+                .build();
+
+        var command = CreateCustomerCommand.builder()
+                .createTenantDTO(tenant)
+                .createEmployeeDTO(employee)
+                .build();
+
+        mockMvc.perform(post("/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(command)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(roles = "SYSTEM_ADMIN")
+    @DisplayName("POST /register should return 400 when email is invalid")
+    void registerCustomer_ShouldReturn400_InvalidEmail() throws Exception {
+        var address = CreateAddressDTO.builder()
+                .postalCode("00-001")
+                .city("Warsaw")
+                .street("Main St")
+                .localNumber("10A")
+                .build();
+
+        var company = CreateCompanyDTO.builder()
+                .name("Valid Company")
+                .email("not-an-email") // Invalid
+                .build();
+
+        var tenant = CreateTenantDTO.builder()
+                .createCompanyDTO(company)
+                .createAddressDTO(address)
+                .build();
+
+        var employee = CreateEmployeeDTO.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .phoneNumber("+48123123123")
+                .build();
+
+        var command = CreateCustomerCommand.builder()
+                .createTenantDTO(tenant)
+                .createEmployeeDTO(employee)
+                .build();
+
+        mockMvc.perform(post("/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(command)))
+                .andExpect(status().isBadRequest());
+    }
 
     @Test
     @WithMockUser(roles = "SYSTEM_ADMIN")
