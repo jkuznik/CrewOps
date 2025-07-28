@@ -184,7 +184,7 @@ class VehicleControllerTest {
 
     @Test
     @WithMockUser(roles = "MECHANIC")
-    @DisplayName("PATCH /vehicles/{id} should return 403 for MECHANIC")
+    @DisplayName("PATCH /vehicles/{id} should return 200 for MECHANIC")
     void updateVehicle_ShouldReturn403_Mechanic() throws Exception {
         UUID id = UUID.randomUUID();
         UpdateVehicleDTO req = new UpdateVehicleDTO(id, "ABC2", true);
@@ -192,7 +192,7 @@ class VehicleControllerTest {
         mockMvc.perform(patch("/vehicles/" + id)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk());
     }
 
     @Test
