@@ -1,5 +1,7 @@
 package pl.crewops.domain.auth;
 
+import static pl.crewops.utils.credentialsGenerator.PasswordService.generatePassword;
+
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.*;
 import javax.management.relation.RoleNotFoundException;
@@ -55,16 +57,17 @@ class AuthService implements AuthAPI {
         if (getByUsername(createEmployeeDTO.username()).isPresent()) {
             throw new UsernameAlreadyExistException(createEmployeeDTO.username());
         }
-
         try {
             // until createEmployee is in this same tx then hibernate handle rollback, check this some time if any
             // implementation is required
             EmployeeDTO employee = employeeAPI.createEmployee(createEmployeeDTO);
             var createAuthUser = CreateAuthUserDTO.builder()
                     .username(createEmployeeDTO.username())
-                    .password(createEmployeeDTO.password())
+                    .password(generatePassword())
                     .roles(createEmployeeDTO.roles())
                     .build();
+            // TODO: help line to see generated pass - remove this after implment notification service
+            System.out.println("Passgen: " + createAuthUser.password());
             AuthUserDTO authUser = createAuthUser(createAuthUser, employee.id(), createEmployeeDTO.companyId());
             log.info("Create employee {}", createEmployeeDTO);
             return new CreateAuthUserResult(employee, authUser);
@@ -174,10 +177,8 @@ class AuthService implements AuthAPI {
                 throw new IllegalArgumentException("Invalid username or password");
             }
         } catch (IllegalArgumentException e) {
+            log.error("Login failed, {}", e.getMessage());
             throw e;
-        } catch (Exception e) {
-            log.error("Login failed");
-            throw new RuntimeException();
         }
     }
 

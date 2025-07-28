@@ -47,7 +47,6 @@ public class CompanyCreatorNotification extends Notification {
                 // TODO: modify this to allow set own pass and username or implement generate mechanism (on the BE side
                 // but remind to clean DTO)
                 .username(companyInformation.initialEmployeeInfo.getFirstName())
-                .password("pass")
                 .phoneNumber(companyInformation.initialEmployeeInfo.getPhoneNumber())
                 .birthDate(companyInformation.initialEmployeeInfo.getBirthDate())
                 .roles(extractRoles(companyInformation))

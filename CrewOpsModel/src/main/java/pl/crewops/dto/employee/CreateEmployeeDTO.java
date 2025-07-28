@@ -17,6 +17,5 @@ public record CreateEmployeeDTO(
         @Size(max = 15) String phoneNumber,
         @Size(max = 50) @NotNull @NotBlank String department,
         @Size(max = 50) @NotNull @NotBlank String username,
-        @Size(max = 50) @NotNull @NotBlank String password,
         @NotNull UUID companyId,
         Set<RoleDTO> roles) {}

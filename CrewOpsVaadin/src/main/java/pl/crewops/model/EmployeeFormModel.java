@@ -49,6 +49,8 @@ public class EmployeeFormModel {
                 .map(role -> RoleDTO.builder().name(role.name()).build())
                 .collect(Collectors.toSet());
 
+        createRoles.add(new RoleDTO(RoleType.EMPLOYEE.name()));
+
         return CreateEmployeeDTO.builder()
                 .firstName(employeeFormModel.getFirstName())
                 .lastName(employeeFormModel.getLastName())
@@ -56,7 +58,6 @@ public class EmployeeFormModel {
                 .phoneNumber(employeeFormModel.getPhoneNumber())
                 .department(employeeFormModel.getDepartment())
                 .username(employeeFormModel.firstName.substring(0, 3) + employeeFormModel.lastName.substring(0, 3))
-                .password("pass")
                 .roles(createRoles)
                 .companyId(companyId)
                 .build();

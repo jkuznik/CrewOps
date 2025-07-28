@@ -100,10 +100,9 @@ class RegistrationService {
 
         TransactionStatus saveAuthUserWithRelatedEmployee = transactionManager.getTransaction(def);
 
-        var createEmployeeDTO = prepareCreateEmployeeDTOWithGeneratedCompanyId(
-                createCustomerCommand.createEmployeeDTO(), companyDTO.id());
+        var updatedCreateEmployeeDto = updateCompanyId(createCustomerCommand.createEmployeeDTO(), companyDTO.id());
         try {
-            authUserWithRelatedEmployee = authAPI.createAuthUserWithRelatedEmployee(createEmployeeDTO);
+            authUserWithRelatedEmployee = authAPI.createAuthUserWithRelatedEmployee(updatedCreateEmployeeDto);
             transactionManager.commit(saveAuthUserWithRelatedEmployee);
 
         } catch (Exception e) {
@@ -128,19 +127,13 @@ class RegistrationService {
         tenantAPI.delete(tenantId);
     }
 
-    private CreateEmployeeDTO prepareCreateEmployeeDTOWithGeneratedCompanyId(
-            CreateEmployeeDTO createEmployeeDTO, UUID companyId) {
+    private CreateEmployeeDTO updateCompanyId(CreateEmployeeDTO createEmployeeDTO, UUID companyId) {
         return CreateEmployeeDTO.builder()
                 .companyId(companyId)
                 .firstName(createEmployeeDTO.firstName())
                 .lastName(createEmployeeDTO.lastName())
                 .department(createEmployeeDTO.department())
-                // TODO: modify this to allow set own pass and username or implement generator mechanism (on the BE side
-                //  but remember to clean DTO) - update: implement only generator mechanism but before of that have to
-                //  add notifications mechanism to send generated values via email or in-app notifications and user
-                //  console on frontend site to allow users modify theirs credentials
                 .username(createEmployeeDTO.firstName())
-                .password("pass")
                 .phoneNumber(createEmployeeDTO.phoneNumber())
                 .birthDate(createEmployeeDTO.birthDate())
                 .roles(createEmployeeDTO.roles())
