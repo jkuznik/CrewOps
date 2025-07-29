@@ -13,6 +13,9 @@ It offers robust features for ✅ workforce coordination, 📦 resource tracking
 
 [![OpenAPI](https://img.shields.io/badge/OpenAPI-3.0-yellow?logo=openapiinitiative&logoColor=black)](https://www.openapis.org/)
 
+[![Mockito](https://img.shields.io/badge/Mockito-4.11.0-8A2BE2?logo=mockito&logoColor=white)](https://site.mockito.org/)
+[![Testcontainers](https://img.shields.io/badge/Testcontainers-1.20.6-2496ED?logo=docker&logoColor=white)](https://www.testcontainers.org/)
+
 
 ### 🎨 Frontend
 [![Vaadin](https://img.shields.io/badge/Vaadin-24+-0078D7?logo=vaadin&logoColor=white)](https://vaadin.com/)
