@@ -38,8 +38,10 @@ public class CompanyCreatorNotification extends Notification {
     private void createNewTenant(CoreAPI coreAPI, CompanyInformation companyInformation) {
         var createTenantDTO = getCreateTenantDTO(companyInformation);
         var createEmployeeDTO = CreateEmployeeDTO.builder()
-                .companyId(UUID.randomUUID()) // TODO: fix this
-                // This value is set only to satisfy constraints validations.
+                // TODO: to fix this is required remove constraint or create brand new object for FE
+                //  or just accept as it is
+                .companyId(UUID.randomUUID())
+                // This companyId value is set only to satisfy constraints validations.
                 // Proper value of companyId is set on BE side after dynamic generated
                 // value when new record is saved in Company table in persist layer.
                 .firstName(companyInformation.initialEmployeeInfo.getFirstName())
@@ -74,6 +76,7 @@ public class CompanyCreatorNotification extends Notification {
                 .createCompanyDTO(CreateCompanyDTO.builder()
                         .name(companyInformation.companyName)
                         .email(companyInformation.companyEmail)
+                        .taxId(companyInformation.companyTaxId)
                         .build())
                 .createAddressDTO(CreateAddressDTO.builder()
                         .postalCode(companyInformation.postalCode)
@@ -88,6 +91,7 @@ public class CompanyCreatorNotification extends Notification {
         // company
         private final TextField companyName = new TextField();
         private final TextField companyEmail = new TextField();
+        private final TextField companyTaxId = new TextField();
         // address
         private final TextField postalCode = new TextField();
         private final TextField city = new TextField();
@@ -107,12 +111,13 @@ public class CompanyCreatorNotification extends Notification {
             employeeForm.setFormModeSave();
             employeeForm.addSaveListener(this::saveEmployee);
             employeeForm.addCloseListener(this::closeButton);
-            add(companyName, companyEmail, postalCode, city, street, localNumber, employeeForm);
+            add(companyName, companyEmail, companyTaxId, postalCode, city, street, localNumber, employeeForm);
         }
 
         private void localize() {
             companyName.setLabel(getTranslation("companyCreatorForm.companyName"));
             companyEmail.setLabel(getTranslation("companyCreatorForm.companyEmail"));
+            companyTaxId.setLabel(getTranslation("TODOTODOTODOTODOTODO"));
             postalCode.setLabel(getTranslation("companyCreatorForm.postalCode"));
             city.setLabel(getTranslation("companyCreatorForm.city"));
             street.setLabel(getTranslation("companyCreatorForm.street"));
@@ -125,6 +130,7 @@ public class CompanyCreatorNotification extends Notification {
                 saveButtonListener.accept(new CompanyInformation(
                         companyName.getValue(),
                         companyEmail.getValue(),
+                        companyTaxId.getValue(),
                         postalCode.getValue(),
                         city.getValue(),
                         street.getValue(),
@@ -151,6 +157,7 @@ public class CompanyCreatorNotification extends Notification {
     private record CompanyInformation(
             String companyName,
             String companyEmail,
+            String companyTaxId,
             String postalCode,
             String city,
             String street,

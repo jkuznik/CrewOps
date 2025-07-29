@@ -15,7 +15,6 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @Profile({"test", "integration"})
-// @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class TestSecuriityConfig {
 
