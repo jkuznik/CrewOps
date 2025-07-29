@@ -13,6 +13,7 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.view.component.form.LoginForm;
+import pl.crewops.view.component.navbarComponents.LanguageSelectorComponent;
 import pl.crewops.view.component.navbarComponents.LoggedUserInfoComponent;
 
 @SpringComponent
@@ -55,10 +56,10 @@ public class MainNavbar extends HorizontalLayout {
 
         if (principal != null && jwtService.validToken(principal.getToken())) {
             var loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI, jwtService);
-            rightSide.add(loggedUserInfoComponent);
+            rightSide.add(loggedUserInfoComponent, new LanguageSelectorComponent());
         } else {
             LoginForm loginForm = new LoginForm(coreAPI, jwtService);
-            rightSide.add(loginForm);
+            rightSide.add(loginForm, new LanguageSelectorComponent());
         }
 
         return rightSide;

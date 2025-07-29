@@ -40,6 +40,7 @@ databaseChangeLog:
               - column: { name: birth_date, value: "1985-06-15" }
               - column: { name: phone_number, value: "123456789" }
               - column: { name: department, value: "Eksploatacja" }
+              - column: { name: active, value: true }
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
 

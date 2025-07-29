@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import pl.crewops.exception.domain.company.NoUniqueCompanyTaxIdException;
 import pl.crewops.exception.multitenancy.TenantNotExistException;
 import pl.crewops.model.publicSchema.Tenant;
 
@@ -21,6 +22,9 @@ class TenantService implements TenantAPI {
     // this propagation is required to force commit and achieve access to tenant_id generated on db side after INSERT
     // query
     public Tenant saveTenant(Tenant tenant) {
+        if (tenantRepository.findByTaxId(tenant.getTaxId()).isPresent()) {
+            throw new NoUniqueCompanyTaxIdException(tenant.getTaxId());
+        }
         return tenantRepository.save(tenant);
     }
 

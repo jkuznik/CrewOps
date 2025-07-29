@@ -22,6 +22,7 @@ spring:
       tenant.id: ${CREW_OPS_TENANT_ID}
       tenant.company.id: ${CREW_OPS_TENANT_COMPANY_ID}
       tenant.schema.name: ${CREW_OPS_TENANT_SCHEMA_NAME}
+      tenant.tax.id: ${CREW_OPS_TENANT_TAX_ID}
       tenant.active: ${CREW_OPS_TENANT_ACTIVE}
 
       auth.user.id: ${CREW_OPS_AUTH_USER_ID}

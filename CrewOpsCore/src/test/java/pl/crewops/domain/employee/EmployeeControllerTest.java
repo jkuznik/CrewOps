@@ -1,55 +1,35 @@
 package pl.crewops.domain.employee;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static pl.crewops.domain.employee.EmployeeMapper.mapToDTO;
-import static pl.crewops.domain.employee.EmployeeTestFactory.*;
-import static pl.crewops.enums.ControllerURL.EMPLOYEES;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Instant;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.model.Employee;
-import pl.crewops.model.Qualification;
-import pl.crewops.model.Vehicle;
-import pl.crewops.model.auth.RoleType;
-import pl.crewops.model.publicSchema.AuthUser;
-import pl.crewops.model.publicSchema.Role;
-import pl.crewops.security.config.SecurityConfig;
-import pl.crewops.security.custom.CustomAuthentication;
-import pl.crewops.security.custom.CustomAuthenticationManager;
-import pl.crewops.security.custom.UserPrincipal;
-import pl.crewops.security.filters.ClientValidationFilter;
-import pl.crewops.security.filters.JwtAuthFilter;
-import pl.crewops.security.filters.TenantContextFilter;
-import pl.crewops.security.jwt.JwtExceptionResolver;
-import pl.crewops.security.jwt.JwtServiceCore;
-import pl.crewops.security.providers.CustomProvider;
+import pl.crewops.security.config.TestSecuriityConfig;
 
-@WebMvcTest(
-        controllers = EmployeeController.class,
-        includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthFilter.class),
-        excludeFilters =
-                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = ClientValidationFilter.class))
-@ContextConfiguration(classes = SecurityConfig.class)
+@ActiveProfiles("test")
+@ExtendWith(SpringExtension.class)
+@WebMvcTest
+@ContextConfiguration(classes = {TestSecuriityConfig.class, EmployeeController.class})
 class EmployeeControllerTest {
 
     @Autowired
@@ -59,104 +39,204 @@ class EmployeeControllerTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
-    private EmployeeService employeeService;
+    private EmployeeAPI employeeAPI;
 
-    @MockitoBean
-    private JwtAuthFilter jwtAuthFilter;
-
-    @MockitoBean
-    private ClientValidationFilter clientValidationFilter;
-
-    @MockitoBean
-    private TenantContextFilter tenantContextFilter;
-
-    @MockitoBean
-    private JwtServiceCore jwtService;
-
-    @MockitoBean
-    private UserDetailsService userDetailsService;
-
-    @MockitoBean
-    private JwtExceptionResolver jwtExceptionResolver;
-
-    @MockitoBean
-    private CustomAuthenticationManager authenticationManager;
-
-    @MockitoBean
-    private CustomProvider customProvider;
-
-    private CreateEmployeeDTO createEmployeeWithEmptyQAndEmptyV;
-    private CreateEmployeeDTO createEmployeeDTOWithNullFields;
-    private UpdateEmployeeDTO updateEmployeeDTO;
-    private UpdateEmployeeDTO updateEmployeeDTONotValid;
-    private Employee employeeWithQAndV;
-    private Employee employeeWithEmptyQAndEmptyV;
-    private EmployeeDTO employeeDTO;
-    private Qualification qualification;
-    private Vehicle vehicle;
-    private final UUID employeeId = UUID.randomUUID();
-    private final UUID qualificationId = UUID.randomUUID();
-    private final UUID vehicleId = UUID.randomUUID();
-
-    @BeforeEach
-    void setUp() {
-        createEmployeeWithEmptyQAndEmptyV = EmployeeTestFactory.createEmployeeDTO();
-        createEmployeeDTOWithNullFields = createEmployeeDTONotValid();
-        updateEmployeeDTO = updateEmployeeDTO();
-        updateEmployeeDTONotValid = updateEmployeeDTONotValid();
-        employeeWithQAndV = employeeWithQualificationsAndVehicles();
-        employeeWithEmptyQAndEmptyV = employeeWithoutQualificationsAndVehicles();
-        employeeDTO = employeeDTO();
-        qualification = qualification();
-        vehicle = vehicle();
+    @Test
+    @DisplayName("GET /employees should return 401 when unauthenticated")
+    void getEmployees_ShouldReturn401() throws Exception {
+        mockMvc.perform(get("/employees")).andExpect(status().isUnauthorized());
     }
 
     @Test
-    void shouldReturnStatusCREATED_whenCreateEmployeeDTOIsValid_byMANAGER() throws Exception {
-        // given
-        var principal = new UserPrincipal(AuthUser.builder()
-                .username("username")
-                .roles(Set.of(Role.builder().name(RoleType.MANAGER.name()).build()))
-                .build());
+    @DisplayName("PATCH /employees/{id} should return 401 when unauthenticated")
+    void updateEmployee_ShouldReturn401() throws Exception {
+        UUID id = UUID.randomUUID();
+        UpdateEmployeeDTO update =
+                UpdateEmployeeDTO.builder().employeeId(id).department("HR").build();
 
-        satisfyJwtService();
-
-        // when
-        when(authenticationManager.authenticate(any())).thenReturn(new CustomAuthentication(principal));
-        when(employeeService.createEmployee(any())).thenReturn(mapToDTO(employeeWithQAndV));
-
-        mockMvc.perform(post(EMPLOYEES)
+        mockMvc.perform(patch("/employees/" + id)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(EmployeeTestFactory.createEmployeeDTONotValid())))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                        .content(objectMapper.writeValueAsString(update)))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void getEmployees() throws Exception {
-        // given
-        var principal = new UserPrincipal(AuthUser.builder()
-                .username("username")
-                .employeeId(employeeId)
-                .roles(Set.of(Role.builder().name(RoleType.MANAGER.name()).build()))
-                .build());
+    @DisplayName("PATCH /employees/{id} should return 403 when user lacks required role")
+    @WithMockUser(roles = "MECHANIC")
+    void updateEmployee_ShouldReturn403ForInsufficientRole() throws Exception {
+        UUID id = UUID.randomUUID();
+        UpdateEmployeeDTO update =
+                UpdateEmployeeDTO.builder().employeeId(id).department("Tech").build();
 
-        satisfyJwtService();
-
-        // when
-        when(userDetailsService.loadUserByUsername(any())).thenReturn(principal);
-        when(authenticationManager.authenticate(any(CustomAuthentication.class)))
-                .thenReturn(new CustomAuthentication(principal));
-        when(employeeService.getAllEmployees(0, 15)).thenReturn(List.of(employeeDTO));
-
-        // when
-        satisfyJwtService();
-        mockMvc.perform(get(EMPLOYEES).param("page", "0").param("size", "15"))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+        mockMvc.perform(patch("/employees/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(update)))
+                .andExpect(status().isForbidden());
     }
 
-    private void satisfyJwtService() {
-        when(jwtService.extractTokenFromRequest(any())).thenReturn("token");
-        when(jwtService.extractEmployeeId(any())).thenReturn(employeeId);
-        when(jwtService.validToken(any(), any())).thenReturn(true);
+    @Test
+    @DisplayName("PATCH /employees/{id} should return 400 when path ID ≠ body ID")
+    @WithMockUser(roles = "MANAGER")
+    void updateEmployee_ShouldReturn400OnIdMismatch() throws Exception {
+        UUID pathId = UUID.randomUUID();
+        UUID bodyId = UUID.randomUUID(); // mismatch
+        UpdateEmployeeDTO update =
+                UpdateEmployeeDTO.builder().employeeId(bodyId).department("QA").build();
+
+        mockMvc.perform(patch("/employees/" + pathId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(update)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("PATCH /employees/{id} should allow MANAGER role")
+    @WithMockUser(roles = "MANAGER")
+    void updateEmployee_ShouldAllowManager() throws Exception {
+        testUpdateSuccess();
+    }
+
+    @Test
+    @DisplayName("PATCH /employees/{id} should allow COMPANY_ADMIN role")
+    @WithMockUser(roles = "COMPANY_ADMIN")
+    void updateEmployee_ShouldAllowCompanyAdmin() throws Exception {
+        testUpdateSuccess();
+    }
+
+    @Test
+    @DisplayName("PATCH /employees/{id} should allow SYSTEM_ADMIN role")
+    @WithMockUser(roles = "SYSTEM_ADMIN")
+    void updateEmployee_ShouldAllowSystemAdmin() throws Exception {
+        testUpdateSuccess();
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("GET /employees should return 200 with data")
+    void getEmployees_ShouldReturn200() throws Exception {
+        when(employeeAPI.getAllActiveEmployees(0, 15))
+                .thenReturn(List.of(EmployeeDTO.builder().build()));
+
+        mockMvc.perform(get("/employees"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("GET /employees/{id} should return 200")
+    void getEmployeeById_ShouldReturn200() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(employeeAPI.getEmployeeDTOById(id))
+                .thenReturn(EmployeeDTO.builder().id(id).build());
+
+        mockMvc.perform(get("/employees/" + id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id.toString()));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("PATCH /employees/{id}/phone should remove phone and return 200")
+    void removePhoneNumber_ShouldSucceed() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(employeeAPI.removePhoneNumber(id))
+                .thenReturn(EmployeeDTO.builder().id(id).build());
+
+        mockMvc.perform(patch("/employees/" + id + "/phone"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id.toString()));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("PATCH /employees/{id}/qualifications/{id} should succeed")
+    void addQualification_ShouldReturn200() throws Exception {
+        UUID eid = UUID.randomUUID();
+        UUID qid = UUID.randomUUID();
+
+        when(employeeAPI.addQualification(eid, qid))
+                .thenReturn(EmployeeDTO.builder().id(eid).build());
+
+        mockMvc.perform(patch("/employees/" + eid + "/qualifications/" + qid))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(eid.toString()));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("PATCH /employees/{id}/qualifications/{id}/expired should update expiry date")
+    void updateQualificationExpire_ShouldReturn200() throws Exception {
+        UUID eid = UUID.randomUUID();
+        UUID qid = UUID.randomUUID();
+        Instant newDate = Instant.now().plusSeconds(3600);
+
+        when(employeeAPI.updateQualificationExpiredAt(eid, qid, newDate))
+                .thenReturn(EmployeeDTO.builder().id(eid).build());
+
+        mockMvc.perform(patch("/employees/" + eid + "/qualifications/" + qid + "/expired")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newDate)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(eid.toString()));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("DELETE /employees/{eid}/qualifications/{qid} should return 204")
+    void removeQualification_ShouldReturn204() throws Exception {
+        UUID eid = UUID.randomUUID();
+        UUID qid = UUID.randomUUID();
+
+        doNothing().when(employeeAPI).removeQualification(eid, qid);
+
+        mockMvc.perform(delete("/employees/" + eid + "/qualifications/" + qid)).andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("PATCH /employees/{eid}/vehicles/{vid} should return 200")
+    void addVehicleToEmployee_ShouldReturn200() throws Exception {
+        UUID eid = UUID.randomUUID();
+        UUID vid = UUID.randomUUID();
+
+        when(employeeAPI.addVehicle(eid, vid))
+                .thenReturn(EmployeeDTO.builder().id(eid).build());
+
+        mockMvc.perform(patch("/employees/" + eid + "/vehicles/" + vid))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(eid.toString()));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("DELETE /employees/{eid}/vehicles/{vid} should return 204")
+    void removeVehicleFromEmployee_ShouldReturn204() throws Exception {
+        UUID eid = UUID.randomUUID();
+        UUID vid = UUID.randomUUID();
+
+        doNothing().when(employeeAPI).removeVehicle(eid, vid);
+
+        mockMvc.perform(delete("/employees/" + eid + "/vehicles/" + vid)).andExpect(status().isNoContent());
+    }
+
+    private void testUpdateSuccess() throws Exception {
+        UUID id = UUID.randomUUID();
+
+        UpdateEmployeeDTO update = UpdateEmployeeDTO.builder()
+                .employeeId(id)
+                .department("Operations")
+                .build();
+
+        EmployeeDTO response =
+                EmployeeDTO.builder().id(id).department("Operations").build();
+
+        when(employeeAPI.updateEmployee(any(UpdateEmployeeDTO.class))).thenReturn(response);
+
+        mockMvc.perform(patch("/employees/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(update)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.department").value("Operations"));
     }
 }

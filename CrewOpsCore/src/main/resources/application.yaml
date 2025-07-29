@@ -3,7 +3,7 @@ spring:
     name: CrewOps Core
 
   profiles:
-    active: dev
+    default: dev
 
   config:
     import: "classpath:application-liquibase.yaml"

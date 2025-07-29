@@ -32,6 +32,7 @@ public class Company {
     @Column(nullable = false)
     private CompanyStatus status;
 
+    // the reason why this entity not extends AbstractEntity is caused by different id column configuration
     @Id
     @Column(name = "id", nullable = false)
     protected UUID id;

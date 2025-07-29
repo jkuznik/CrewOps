@@ -1,5 +1,7 @@
 package pl.crewops.domain.auth;
 
+import static pl.crewops.utils.credentialsGenerator.CredentialGenerator.generatePassword;
+
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.*;
 import javax.management.relation.RoleNotFoundException;
@@ -10,21 +12,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import pl.crewops.auth.*;
 import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.tenant.TenantAPI;
+import pl.crewops.dto.auth.*;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.exception.auth.AuthUserNotFoundException;
-import pl.crewops.exception.auth.UsernameAlreadyExistException;
+import pl.crewops.dto.tenant.TenantDTO;
+import pl.crewops.exception.domain.auth.UsernameAlreadyExistException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
-import pl.crewops.model.Employee;
 import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.model.publicSchema.Role;
 import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceCore;
+import pl.crewops.utils.credentialsGenerator.CredentialGenerator;
 
 @Service
 @Slf4j
@@ -50,29 +52,31 @@ class AuthService implements AuthAPI {
         return authUserRepository.findByEmployeeId(employeeId);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Employee getEmployeeById(UUID employeeId) {
-        return employeeAPI.getEmployeeById(employeeId);
-    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public EmployeeDTO createAuthUserWithRelatedEmployee(CreateEmployeeDTO createEmployeeDTO) {
+    public CreateAuthUserResult createAuthUserWithRelatedEmployee(CreateEmployeeDTO createEmployeeDTO) {
         log.info("Create employee current tenant is: {}", TenantContext.getCurrentTenant());
-        if (getByUsername(createEmployeeDTO.username()).isPresent()) {
-            throw new UsernameAlreadyExistException(createEmployeeDTO.username());
-        }
+        String username;
+        do {
+            username =
+                    CredentialGenerator.generateUsername(createEmployeeDTO.firstName(), createEmployeeDTO.lastName());
+        } while (getByUsername(username).isPresent());
 
         try {
+            // until createEmployee is in this same tx then hibernate handle rollback, check this some time if any
+            // implementation is required
             EmployeeDTO employee = employeeAPI.createEmployee(createEmployeeDTO);
             var createAuthUser = CreateAuthUserDTO.builder()
-                    .username(createEmployeeDTO.username())
-                    .password(createEmployeeDTO.password())
+                    .username(username)
+                    .password(generatePassword())
                     .roles(createEmployeeDTO.roles())
                     .build();
-            createAuthUser(createAuthUser, employee.id(), createEmployeeDTO.companyId());
-            log.info("Create employee {}", createEmployeeDTO);
-            return employee;
+            AuthUserDTO authUser = createAuthUser(createAuthUser, employee.id(), createEmployeeDTO.companyId());
+            log.info(
+                    "Create employee {} \n with username {} \n password {}",
+                    createEmployeeDTO.firstName() + " " + createEmployeeDTO.lastName(),
+                    createAuthUser.username(),
+                    createAuthUser.password());
+            return new CreateAuthUserResult(employee, authUser);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
@@ -80,24 +84,19 @@ class AuthService implements AuthAPI {
     }
 
     @Transactional
-    public void deleteEmployee(UUID employeeId) {
-        var employee = employeeAPI.getEmployeeById(employeeId);
-
-        var authUser = getByEmployeeId(employeeId).orElseThrow(() -> new AuthUserNotFoundException(employee));
-
-        employee.setActive(false);
-        log.info("Delete authUser {}", authUser.getUsername());
-        deleteById(authUser.getId());
+    // this method has to delete AuthUser record and set false on Active column for related Employee
+    public EmployeeDTO terminateEmployeeAuthUserAccount(UUID employeeId) {
+        log.info("Delete authUser wit employee id: {}", employeeId);
+        authUserRepository.deleteByEmployeeId(employeeId);
         log.info("Set 'active' column to 'false' for employee {}", employeeId);
-        employeeAPI.updateEmployee(UpdateEmployeeDTO.builder()
+        return employeeAPI.updateEmployee(UpdateEmployeeDTO.builder()
                 .employeeId(employeeId)
-                .department(employee.getDepartment())
-                .phoneNumber(employee.getPhoneNumber())
+                .active(Boolean.FALSE)
                 .build());
     }
 
     @Transactional
-    public AuthUser createAuthUser(CreateAuthUserDTO createAuthUserDTO, UUID employeeId, UUID companyId) {
+    public AuthUserDTO createAuthUser(CreateAuthUserDTO createAuthUserDTO, UUID employeeId, UUID companyId) {
         if (getByUsername(createAuthUserDTO.username()).isPresent()) {
             log.error("Username " + createAuthUserDTO.username() + " already exists");
             throw new UsernameAlreadyExistException("Username " + createAuthUserDTO.username() + " already exists");
@@ -122,16 +121,31 @@ class AuthService implements AuthAPI {
             authUser.setRoles(roles);
             authUser.setEmployeeId(employeeId);
             log.info("Auth user instantiated successfully as " + authUser.toString());
-            return authUserRepository.save(authUser);
+            authUserRepository.save(authUser);
+            return authUserDTO(authUser);
         } catch (Exception e) {
             e.printStackTrace();
             throw new IllegalArgumentException(e);
         }
     }
 
-    @Transactional
-    public void deleteById(UUID uuid) {
-        authUserRepository.deleteById(uuid);
+    private TenantDTO tenantDTO(Tenant tenant) {
+        return TenantDTO.builder()
+                .id(tenant.getId())
+                .active(tenant.isActive())
+                .schemaName(tenant.getSchemaName())
+                .companyId(tenant.getCompanyId())
+                .build();
+    }
+
+    private AuthUserDTO authUserDTO(AuthUser authUser) {
+        return AuthUserDTO.builder()
+                .id(authUser.getId())
+                .username(authUser.getUsername())
+                .password(authUser.getPassword())
+                .employeeId(authUser.getEmployeeId())
+                .tenant(tenantDTO(authUser.getTenant()))
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -169,10 +183,8 @@ class AuthService implements AuthAPI {
                 throw new IllegalArgumentException("Invalid username or password");
             }
         } catch (IllegalArgumentException e) {
+            log.error("Login failed, {}", e.getMessage());
             throw e;
-        } catch (Exception e) {
-            log.error("Login failed");
-            throw new RuntimeException();
         }
     }
 

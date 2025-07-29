@@ -22,6 +22,9 @@ public class LiquibaseSchemaMigrator {
     }
 
     public void runMigrations(String schemaName) throws CreateSchemaException {
+        if (schemaName != null && schemaName.equals("public")) {
+            return;
+        }
         try (Connection connection = dataSource.getConnection()) {
             connection.createStatement().execute("SET search_path TO " + schemaName);
 

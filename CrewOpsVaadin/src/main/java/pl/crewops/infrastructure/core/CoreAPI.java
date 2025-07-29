@@ -7,11 +7,10 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
-import pl.crewops.auth.AuthRequest;
-import pl.crewops.auth.AuthResponse;
-import pl.crewops.auth.ValidTokenRequest;
-import pl.crewops.auth.ValidTokenResponse;
-import pl.crewops.dto.CreateCustomerCommand;
+import pl.crewops.dto.auth.AuthRequest;
+import pl.crewops.dto.auth.AuthResponse;
+import pl.crewops.dto.auth.ValidTokenRequest;
+import pl.crewops.dto.auth.ValidTokenResponse;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
@@ -22,12 +21,13 @@ import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
-import pl.crewops.dto.tenant.TenantDTO;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
+import pl.crewops.registration.CreateCustomerCommand;
+import pl.crewops.registration.CreateCustomerResult;
 
 @Repository
 @Validated
@@ -51,7 +51,7 @@ public interface CoreAPI {
     Optional<VehicleDTO> createVehicle(@Valid @NotNull CreateVehicleDTO createVehicleDTO)
             throws NotAuthenticatedException;
 
-    Optional<TenantDTO> createNewCustomer(@Valid @NotNull CreateCustomerCommand command)
+    Optional<CreateCustomerResult> registerNewCustomer(@Valid @NotNull CreateCustomerCommand command)
             throws NotAuthenticatedException;
 
     Optional<VehicleDTO> updateVehicle(@Valid @NotNull UpdateVehicleDTO updateVehicleDTO)
@@ -77,7 +77,7 @@ public interface CoreAPI {
 
     Optional<CompanyDTO> getCompanyById(@NotNull UUID companyId) throws NotAuthenticatedException;
 
-    void deleteEmployee(@NotNull UUID employeeId) throws NotAuthenticatedException;
+    void terminateEmployeeAccount(@NotNull UUID employeeId) throws NotAuthenticatedException;
 
     void deleteQualification(@NotNull UUID qualificationId) throws NotAuthenticatedException;
 

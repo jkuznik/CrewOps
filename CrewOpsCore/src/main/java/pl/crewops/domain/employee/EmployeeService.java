@@ -107,6 +107,10 @@ class EmployeeService implements EmployeeAPI {
             employee.setDepartment(updateEmployeeDTO.department());
         }
 
+        if (updateEmployeeDTO.active() != null) {
+            employee.setActive(updateEmployeeDTO.active());
+        }
+
         log.info("Update employee {}", updateEmployeeDTO);
         return mapToDTO(employee);
     }

@@ -13,27 +13,25 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import pl.crewops.exception.multitenancy.CreateSchemaException;
 import pl.crewops.utils.multitenancy.LiquibaseSchemaMigrator;
-import pl.crewops.utils.multitenancy.TenantSchemaInitializer;
+import pl.crewops.utils.multitenancy.SchemaManager;
 
 @Component
 @Profile(value = "test")
 public class ITBootstrap {
 
-    private final TenantSchemaInitializer tenantSchemaInitializer;
+    private final SchemaManager schemaManager;
     private final LiquibaseSchemaMigrator liquibaseSchemaMigrator;
     private final DataSource dataSource;
 
     public ITBootstrap(
-            TenantSchemaInitializer tenantSchemaInitializer,
-            LiquibaseSchemaMigrator liquibaseSchemaMigrator,
-            DataSource dataSource) {
-        this.tenantSchemaInitializer = tenantSchemaInitializer;
+            SchemaManager schemaManager, LiquibaseSchemaMigrator liquibaseSchemaMigrator, DataSource dataSource) {
+        this.schemaManager = schemaManager;
         this.liquibaseSchemaMigrator = liquibaseSchemaMigrator;
         this.dataSource = dataSource;
 
         String schemaName = IntegrationTest.TEST_SCHEMA_NAME;
 
-        tenantSchemaInitializer.createSchemaIfNotExists(schemaName);
+        schemaManager.createSchemaIfNotExists(schemaName);
         liquibaseSchemaMigrator.runMigrations(schemaName);
 
         try (Connection connection = dataSource.getConnection()) {

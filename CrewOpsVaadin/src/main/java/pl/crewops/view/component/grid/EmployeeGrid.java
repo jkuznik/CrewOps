@@ -183,7 +183,7 @@ public class EmployeeGrid extends VerticalLayout {
     private void deleteEmployee(EmployeeForm.DeleteEvent event) {
         new DeleteEmployeeGuardian(event.getEmployee(), () -> {
             try {
-                coreAPI.deleteEmployee(event.getEmployee().getId());
+                coreAPI.terminateEmployeeAccount(event.getEmployee().getId());
                 updateGrid();
                 qualificationGrid.updateGrid();
                 closeEditor();

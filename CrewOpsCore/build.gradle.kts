@@ -7,6 +7,8 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.5")
     implementation("org.liquibase:liquibase-core:4.31.1")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
+    
+    implementation("org.passay:passay:1.6.6")
 
     testImplementation("org.testcontainers:testcontainers:1.20.6")
     testImplementation("org.testcontainers:junit-jupiter:1.20.6")

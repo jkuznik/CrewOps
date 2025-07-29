@@ -10,12 +10,15 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.security.custom.permissionAnnotation.ManagerPermission;
 
+@ActiveProfiles("test")
 @RestController
 @RequiredArgsConstructor
 @Validated
@@ -52,6 +55,7 @@ class EmployeeController {
     }
 
     @PatchMapping(EMPLOYEES_EID)
+    @ManagerPermission
     public ResponseEntity<EmployeeDTO> updateEmployee(
             @PathVariable(EMPLOYEE_ID) UUID employeeId, @NotNull @Valid @RequestBody UpdateEmployeeDTO updateRequest) {
 

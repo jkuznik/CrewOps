@@ -58,8 +58,6 @@ class EmployeeTestFactory {
                 .birthDate(LocalDate.parse("2000-01-01"))
                 .phoneNumber("123456789")
                 .department("department")
-                .username("username")
-                .password("password")
                 .roles(Set.of())
                 .companyId(IntegrationTest.TEST_TENANT_COMPANY_ID)
                 .build();

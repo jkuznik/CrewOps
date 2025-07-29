@@ -42,7 +42,7 @@ public class Employee extends AbstractEntity {
     private boolean active;
 
     @Builder.Default
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JoinTable(
             name = "employee_qualification",
             joinColumns = @JoinColumn(name = "employee_id"),
@@ -50,7 +50,7 @@ public class Employee extends AbstractEntity {
     private Set<Qualification> qualifications = new LinkedHashSet<>();
 
     @Builder.Default
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JoinTable(
             name = "employee_vehicle",
             joinColumns = @JoinColumn(name = "employee_id"),
@@ -66,18 +66,4 @@ public class Employee extends AbstractEntity {
                 .department(createEmployeeDTO.department())
                 .build();
     }
-
-    //    public EmployeeDTO mapToDTO() {
-    //        return EmployeeDTO.builder()
-    //                .id(this.getId())
-    //                .firstName(this.getFirstName())
-    //                .lastName(this.getLastName())
-    //                .birthDate(this.getBirthDate())
-    //                .phoneNumber(this.getPhoneNumber())
-    //                .department(this.getDepartment())
-    //                .qualifications(
-    //                        qualifications.stream().map(Qualification::mapToDTO).collect(Collectors.toSet()))
-    //                .vehicles(vehicles.stream().map(Vehicle::mapToDTO).collect(Collectors.toSet()))
-    //                .build();
-    //    }
 }

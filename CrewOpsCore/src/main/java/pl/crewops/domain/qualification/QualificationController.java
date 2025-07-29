@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
+import pl.crewops.security.custom.permissionAnnotation.ManagerPermission;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +26,7 @@ class QualificationController {
     private final QualificationAPI qualificationAPI;
 
     @PostMapping(QUALIFICATIONS)
+    @ManagerPermission
     public ResponseEntity<QualificationDTO> createQualification(
             @RequestBody @Valid @NotNull CreateQualificationDTO createQualificationDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(qualificationAPI.createQualification(createQualificationDTO));
@@ -43,6 +45,7 @@ class QualificationController {
     }
 
     @PatchMapping(QUALIFICATIONS_QID)
+    @ManagerPermission
     public ResponseEntity<QualificationDTO> updateQualification(
             @PathVariable(QUALIFICATION_ID) UUID qualificationId,
             @RequestBody @Valid @NotNull UpdateQualificationDTO updateRequest) {
@@ -60,6 +63,7 @@ class QualificationController {
     }
 
     @DeleteMapping(QUALIFICATIONS_QID)
+    @ManagerPermission
     public ResponseEntity<Void> deleteQualification(@PathVariable(QUALIFICATION_ID) UUID qualificationId) {
         qualificationAPI.deleteQualification(qualificationId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

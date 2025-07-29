@@ -97,4 +97,15 @@ class EmployeeAPITest extends IntegrationTest {
         assertThat(result.phoneNumber()).isEqualTo("987654321");
         assertThat(result.department()).isEqualTo("foo");
     }
+
+    @Test
+    void getEmployeeById_nPlus1() {
+        // given
+        Employee employeeById = employeeAPI.getEmployeeById(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+
+        assertThat(employeeById.getQualifications().isEmpty()).isFalse();
+        assertThat(employeeById.getVehicles().isEmpty()).isFalse();
+        assertThat(employeeById.getVehicles().stream().findFirst().get().getVehicleType())
+                .isNotNull();
+    }
 }

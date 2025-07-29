@@ -7,8 +7,10 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -21,6 +23,8 @@ import pl.crewops.security.filters.JwtAuthFilter;
 import pl.crewops.security.filters.TenantContextFilter;
 
 @Configuration
+@Profile({"dev", "prod"})
+@EnableMethodSecurity(prePostEnabled = true)
 @AllArgsConstructor
 public class SecurityConfig {
 
@@ -28,7 +32,6 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final TenantContextFilter tenantContextFilter;
 
-    // TODO: configure current handling endpoint
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
@@ -37,22 +40,14 @@ public class SecurityConfig {
                         // public access
                         .requestMatchers(publicUrl())
                         .permitAll()
-                        // shift leader permission
-                        .requestMatchers(HttpMethod.PATCH, shiftLeaderUrlPATCH())
-                        .hasAnyRole(SHIFT_LEADER.name(), MANAGER.name(), SYSTEM_ADMIN.name())
-                        // manager permission
-                        .requestMatchers(HttpMethod.POST, managerUrlPOST())
-                        .hasAnyRole(MANAGER.name(), SYSTEM_ADMIN.name())
-                        .requestMatchers(HttpMethod.PATCH, managerUrlPATCH())
-                        .hasAnyRole(MANAGER.name(), SYSTEM_ADMIN.name())
-                        .requestMatchers(HttpMethod.DELETE, managerUrlDELETE())
-                        .hasAnyRole(MANAGER.name(), SYSTEM_ADMIN.name())
-                        //
+                        // permission of any resource is handled by AoP -
                         .anyRequest()
                         .authenticated())
                 .addFilterBefore(clientValidationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(tenantContextFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(eh -> eh.authenticationEntryPoint((request, response, authException) ->
+                        response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized")))
                 .headers(headers ->
                         headers.frameOptions(Customizer.withDefaults()).disable())
                 .sessionManagement(sessionManagementConfigurer ->

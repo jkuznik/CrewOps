@@ -2,6 +2,7 @@ package pl.crewops.domain.auth;
 
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,7 +13,7 @@ import pl.crewops.model.publicSchema.Role;
 @Repository
 interface AuthUserRepository extends JpaRepository<AuthUser, UUID> {
 
-    @Query("SELECT u FROM AuthUser u JOIN FETCH u.roles WHERE u.username = :username")
+    @EntityGraph(attributePaths = {"roles"})
     Optional<AuthUser> findByUsername(String username);
 
     Optional<AuthUser> findByEmployeeId(UUID employeeId);
@@ -20,6 +21,10 @@ interface AuthUserRepository extends JpaRepository<AuthUser, UUID> {
     @Modifying
     @Query("DELETE FROM AuthUser WHERE id = :id")
     void deleteById(UUID id);
+
+    @Modifying
+    @Query("DELETE FROM AuthUser WHERE employeeId =:employeeId")
+    void deleteByEmployeeId(UUID employeeId);
 }
 
 @Repository

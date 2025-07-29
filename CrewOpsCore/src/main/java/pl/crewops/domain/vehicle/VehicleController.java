@@ -15,6 +15,8 @@ import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
+import pl.crewops.security.custom.permissionAnnotation.ManagerPermission;
+import pl.crewops.security.custom.permissionAnnotation.MechanicPermission;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +25,7 @@ class VehicleController {
     private final VehicleAPI vehicleAPI;
 
     @PostMapping(VEHICLES)
+    @ManagerPermission
     public ResponseEntity<VehicleDTO> createVehicle(@NotNull @Valid @RequestBody CreateVehicleDTO createVehicleDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(vehicleAPI.createVehicle(createVehicleDTO));
     }
@@ -44,6 +47,7 @@ class VehicleController {
     }
 
     @PatchMapping(VEHICLES_VID)
+    @MechanicPermission
     public ResponseEntity<VehicleDTO> updateVehicle(
             @PathVariable(VEHICLE_ID) UUID vehicleId, @RequestBody @Valid @NotNull UpdateVehicleDTO updateRequest) {
 
@@ -61,6 +65,7 @@ class VehicleController {
     }
 
     @DeleteMapping(VEHICLES_VID)
+    @ManagerPermission
     public ResponseEntity<VehicleDTO> deleteVehicle(@PathVariable(VEHICLE_ID) UUID vehicleId) {
         vehicleAPI.deleteVehicle(vehicleId);
         return ResponseEntity.status(HttpStatus.OK).build();

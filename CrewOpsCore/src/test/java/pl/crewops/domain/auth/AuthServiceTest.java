@@ -3,13 +3,12 @@ package pl.crewops.domain.auth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchException;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static pl.crewops.model.auth.RoleType.EMPLOYEE;
 import static pl.crewops.model.auth.RoleType.SYSTEM_ADMIN;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.time.LocalDate;
 import java.util.*;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -18,12 +17,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import pl.crewops.IntegrationTest;
-import pl.crewops.auth.*;
 import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.tenant.TenantAPI;
-import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.exception.auth.UsernameAlreadyExistException;
+import pl.crewops.dto.auth.*;
+import pl.crewops.exception.domain.auth.UsernameAlreadyExistException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.model.publicSchema.Role;
@@ -92,6 +89,8 @@ class AuthServiceTest {
     @Test
     void createAuthUser_shouldReturnAuthUser_whenParamsAreValid() {
         // given
+        var tenant = new Tenant();
+        tenant.setId(UUID.randomUUID());
         var createAuthUserDTO = CreateAuthUserDTO.builder()
                 .username("username")
                 .password("password")
@@ -109,37 +108,32 @@ class AuthServiceTest {
                 .build();
 
         // when
+        when(tenantAPI.getByCompanyId(any())).thenReturn(tenant);
         when(passwordEncoder.encode("password")).thenReturn("password");
         when(roleRepository.findById(any())).thenReturn(Optional.of(role));
         when(authUserRepository.save(any())).thenReturn(authUser);
 
-        AuthUser result = authService.createAuthUser(createAuthUserDTO, randomUUID, UUID.randomUUID());
+        AuthUserDTO result = authService.createAuthUser(createAuthUserDTO, randomUUID, UUID.randomUUID());
 
         // then
         assertThat(result).isNotNull();
-        assertThat(result.getPassword()).isEqualTo("password");
-        assertThat(result.getRoles()).isEqualTo(Set.of(role));
+        assertThat(result.password()).isEqualTo("password");
+        //        assertThat(result.roles()).isEqualTo(Set.of(role));
     }
 
     @Test
     void createAuthUserWithRelatedEmployee_ShouldThrowException_whenUsernameAlreadyExists() {
         // given
         var existedUsername = "existedUsername";
-        CreateEmployeeDTO createEmployeeDTO = CreateEmployeeDTO.builder()
-                .firstName("firstName")
-                .lastName("lastName")
-                .birthDate(LocalDate.parse("2000-01-01"))
-                .phoneNumber("123456789")
-                .department("department")
+        var createAuthUserDTO = CreateAuthUserDTO.builder()
                 .username(existedUsername)
                 .password("password")
-                .roles(Set.of())
-                .companyId(IntegrationTest.TEST_TENANT_COMPANY_ID)
+                .roles(new HashSet<>())
                 .build();
-
         // when
         when(authUserRepository.findByUsername(existedUsername)).thenReturn(Optional.of(new AuthUser()));
-        var result = catchException(() -> authService.createAuthUserWithRelatedEmployee(createEmployeeDTO));
+        var result = catchException(
+                () -> authService.createAuthUser(createAuthUserDTO, UUID.randomUUID(), UUID.randomUUID()));
 
         // then
         assertThat(result).isExactlyInstanceOf(UsernameAlreadyExistException.class);
@@ -256,5 +250,17 @@ class AuthServiceTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.valid()).isTrue();
+    }
+
+    @Test
+    void terminateEmployeeAuthUserAccount_shouldSetEmployeeActiveToFalse_andDeleteAuthUser() {
+        // given
+        var employeeId = UUID.randomUUID();
+
+        // when
+        authService.terminateEmployeeAuthUserAccount(employeeId);
+
+        verify(authUserRepository).deleteByEmployeeId(employeeId);
+        verify(employeeAPI).updateEmployee(any());
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
+import pl.crewops.security.custom.permissionAnnotation.ShiftLeaderPermission;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,6 +32,7 @@ class BreakdownController {
     }
 
     @PatchMapping(BREAKDOWNS_BID)
+    @ShiftLeaderPermission
     public ResponseEntity<BreakdownDTO> updateBreakdown(
             @PathVariable(BREAKDOWN_ID) UUID breakdownId, @Valid @RequestBody UpdateBreakdownDTO updateRequest) {
         if (!updateRequest.breakdownId().equals(breakdownId)) {

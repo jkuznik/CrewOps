@@ -1,5 +1,6 @@
 package pl.crewops;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,6 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -23,11 +26,13 @@ import pl.crewops.domain.vehicle.VehicleAPI;
 import pl.crewops.domain.vehicleType.VehicleTypeAPI;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.utils.multitenancy.LiquibaseSchemaMigrator;
-import pl.crewops.utils.multitenancy.TenantSchemaInitializer;
+import pl.crewops.utils.multitenancy.SchemaManager;
 
 @ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
-@SpringBootTest(properties = "spring.profiles.active=integration")
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "spring.profiles.active=integration")
 @Testcontainers
 public abstract class IntegrationTest {
 
@@ -35,9 +40,8 @@ public abstract class IntegrationTest {
     public static final String TESTCONTAINER_DB_USERNAME = "testUsername";
     public static final String TESTCONTAINER_DB_PASSWORD = "testPassword";
     public static final String TEST_SCHEMA_NAME = "testtenant_2f3b1d5c9e8f";
-    public static final UUID TEST_TENANT_COMPANY_ID = UUID.fromString(
-            "2f3b1d5c-9e8f-4bca-9c56-123456789abd"); // tenant with this relation is available in db by test values
-    // insertions
+    public static final UUID TEST_TENANT_COMPANY_ID = UUID.fromString("2f3b1d5c-9e8f-4bca-9c56-123456789abd");
+    // tenant with this relation is available in db by test values insertions
 
     public static final PostgreSQLContainer<?> postgresSQLContainer = new PostgreSQLContainer<>(
                     DockerImageName.parse("postgis/postgis:16-3.4").asCompatibleSubstituteFor("postgres"))
@@ -48,6 +52,12 @@ public abstract class IntegrationTest {
 
     @Autowired
     protected MockMvc mockMvc;
+
+    @Autowired
+    protected ObjectMapper objectMapper;
+
+    @Autowired
+    protected TestRestTemplate restTemplate;
 
     @Autowired
     protected AuthAPI authAPI;
@@ -71,7 +81,10 @@ public abstract class IntegrationTest {
     private LiquibaseSchemaMigrator schemaMigrator;
 
     @Autowired
-    private TenantSchemaInitializer schemaInitializer;
+    private SchemaManager schemaInitializer;
+
+    @LocalServerPort
+    protected int port;
 
     @BeforeAll
     public static void startContainer() {
@@ -147,5 +160,9 @@ public abstract class IntegrationTest {
                 "security.properties.jwtSecret",
                 () -> "c4b7a89f3e2d1f6b8a9d0c7e1b2f4d5a7c6e8b1a3f2d9c5e6a8f1b0c3d7e2a4");
         registry.add("security.properties.jwtExpiration", () -> "300");
+    }
+
+    protected String getBaseUrl() {
+        return "http://localhost:" + port;
     }
 }

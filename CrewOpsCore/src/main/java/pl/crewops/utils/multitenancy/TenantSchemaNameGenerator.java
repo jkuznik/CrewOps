@@ -5,6 +5,8 @@ import pl.crewops.exception.multitenancy.CreateSchemaException;
 
 public class TenantSchemaNameGenerator {
 
+    private TenantSchemaNameGenerator() {}
+
     public static String generateTenantSchemaName(String name, UUID tenantId) throws CreateSchemaException {
 
         var prefix = name.toLowerCase().replaceAll("[^a-z0-9_]", "_");

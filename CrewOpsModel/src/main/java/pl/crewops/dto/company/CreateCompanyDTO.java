@@ -8,4 +8,6 @@ import lombok.Builder;
 
 @Builder
 public record CreateCompanyDTO(
-        @Size(max = 63) @NotNull @NotBlank String name, @Email @NotNull @NotBlank String email) {}
+        @Size(max = 63) @NotNull @NotBlank String name,
+        @NotNull String taxId,
+        @Email @NotNull @NotBlank String email) {}

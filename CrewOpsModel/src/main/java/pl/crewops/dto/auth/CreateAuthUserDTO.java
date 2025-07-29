@@ -1,4 +1,4 @@
-package pl.crewops.auth;
+package pl.crewops.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

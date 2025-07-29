@@ -7,4 +7,7 @@ import lombok.Builder;
 
 @Builder
 public record UpdateEmployeeDTO(
-        @NotNull UUID employeeId, @Size(max = 15) String phoneNumber, @Size(max = 50) String department) {}
+        @NotNull UUID employeeId,
+        @Size(max = 15) String phoneNumber,
+        @Size(max = 50) String department,
+        Boolean active) {}

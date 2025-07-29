@@ -2,7 +2,7 @@ package pl.crewops.domain.breakdown;
 
 import java.util.Set;
 import java.util.UUID;
-import pl.crewops.auth.RoleDTO;
+import pl.crewops.dto.auth.RoleDTO;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;

@@ -10,12 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.crewops.auth.AuthRequest;
-import pl.crewops.auth.AuthResponse;
-import pl.crewops.auth.ValidTokenRequest;
-import pl.crewops.auth.ValidTokenResponse;
+import pl.crewops.dto.auth.*;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.security.custom.permissionAnnotation.ManagerPermission;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,15 +31,17 @@ class AuthController {
     }
 
     @PostMapping(EMPLOYEES)
-    public ResponseEntity<EmployeeDTO> createEmployee(
+    @ManagerPermission
+    public ResponseEntity<CreateAuthUserResult> createAuthUserWithRelatedEmployee(
             @NotNull @Valid @RequestBody CreateEmployeeDTO createEmployeeDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(authAPI.createAuthUserWithRelatedEmployee(createEmployeeDTO));
     }
 
     @DeleteMapping(EMPLOYEES_EID)
-    public ResponseEntity<Void> deleteEmployee(@PathVariable(EMPLOYEE_ID) UUID employeeId) {
-        authAPI.deleteEmployee(employeeId);
+    @ManagerPermission
+    public ResponseEntity<Void> terminateEmployeeAuthUserAccount(@PathVariable(EMPLOYEE_ID) UUID employeeId) {
+        authAPI.terminateEmployeeAuthUserAccount(employeeId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

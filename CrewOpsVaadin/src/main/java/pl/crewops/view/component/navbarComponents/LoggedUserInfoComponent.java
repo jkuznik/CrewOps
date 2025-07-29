@@ -44,10 +44,10 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                 && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
 
             this.principal = userPrincipal;
-            add(loggedUserInfo(coreAPI, jwtService), new LanguageSelectorComponent());
+            add(loggedUserInfo(coreAPI, jwtService));
 
         } else {
-            add(new LoginForm(coreAPI, jwtService), new LanguageSelectorComponent());
+            add(new LoginForm(coreAPI, jwtService));
         }
     }
 

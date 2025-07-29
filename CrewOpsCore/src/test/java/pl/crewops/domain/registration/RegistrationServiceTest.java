@@ -1,29 +1,29 @@
 package pl.crewops.domain.registration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static pl.crewops.domain.registration.RegistrationTestFactory.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.UUID;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import pl.crewops.IntegrationTest;
-import pl.crewops.auth.RoleDTO;
-import pl.crewops.dto.CreateCustomerCommand;
-import pl.crewops.dto.address.CreateAddressDTO;
-import pl.crewops.dto.company.CreateCompanyDTO;
-import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.dto.tenant.CreateTenantDTO;
-import pl.crewops.dto.tenant.TenantDTO;
+import pl.crewops.dto.auth.CreateAuthUserDTO;
+import pl.crewops.exception.domain.registration.RegisterCustomerException;
+import pl.crewops.infrastructure.multitenancy.TenantContext;
+import pl.crewops.model.Employee;
 import pl.crewops.model.publicSchema.Tenant;
+import pl.crewops.utils.credentialsGenerator.CredentialGenerator;
 
 class RegistrationServiceTest extends IntegrationTest {
+
+    private static final Logger log = LoggerFactory.getLogger(RegistrationServiceTest.class);
 
     @Autowired
     private RegistrationService registrationService;
@@ -40,52 +40,56 @@ class RegistrationServiceTest extends IntegrationTest {
     @Test
     void registerCustomer_happyPathShouldSaveNewCustomerAndNewSchema() {
         // given
-        var companyName = "companyName";
-        var employeeFirstName = "employeeFirstName";
-        var cityName = "cityName";
-        var createTenantDTO = CreateTenantDTO.builder()
-                .createAddressDTO(CreateAddressDTO.builder()
-                        .postalCode("postalCode")
-                        .city(cityName)
-                        .street("street")
-                        .localNumber("localNumber")
-                        .build())
-                .createCompanyDTO(CreateCompanyDTO.builder()
-                        .name(companyName)
-                        .email("test@email.com")
-                        .build())
-                .build();
-        var createEmployeeDTO = CreateEmployeeDTO.builder()
-                .firstName(employeeFirstName)
-                .lastName("lastName")
-                .department("department")
-                .birthDate(LocalDate.now())
-                .companyId(UUID.randomUUID())
-                .username("username")
-                .password("password")
-                .phoneNumber("phoneNumber")
-                .roles(new HashSet<RoleDTO>())
-                .build();
-        var createCustomerCommand = CreateCustomerCommand.builder()
-                .createTenantDTO(createTenantDTO)
-                .createEmployeeDTO(createEmployeeDTO)
-                .build();
-
+        var createCustomerCommand = RegistrationTestFactory.createCustomerCommand();
         Tenant tenant = new Tenant();
+
         try {
             // when
-            TenantDTO result = registrationService.registerCustomer(createCustomerCommand);
-            tenant = tenantAPI.getByCompanyId(result.companyId());
+            var result = registrationService.registerCustomer(createCustomerCommand);
+            tenant = tenantAPI.getByCompanyId(
+                    result.authUserResult().authUserDTO().tenant().companyId());
+
+            TenantContext.setCurrentTenant(tenant.getSchemaName());
+            Employee employee = employeeAPI.getEmployeeById(
+                    result.authUserResult().authUserDTO().employeeId());
+            TenantContext.clear();
 
             boolean schemaExists = schemaExists(tenant.getSchemaName());
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.active()).isTrue();
+            assertThat(result.authUserResult().authUserDTO().tenant().active()).isTrue();
             assertThat(schemaExists).isTrue();
-            assertThat(tenant.getCompanyId()).isInstanceOf(UUID.class);
+            assertThat(tenant.getId()).isInstanceOf(UUID.class);
+            assertThat(employee.getId()).isInstanceOf(UUID.class);
         } finally {
-            //            cleanup(tenant.getSchemaName(), employeeFirstName, tenant.getId());
+            cleanup(tenant.getSchemaName(), tenant.getId());
+        }
+    }
+
+    @Test
+    void registerCustomer_shouldRollbackTenant_whenExceptionIsThrownAfterTenantAlreadyExists() {
+        // given
+        var createCustomerCommand = RegistrationTestFactory.createExistingCustomerCommand();
+        var createAuthUser = CreateAuthUserDTO.builder()
+                .username(CredentialGenerator.generateUsername("firstName", "lastName"))
+                .password(CredentialGenerator.generatePassword())
+                .roles(createCustomerCommand.createEmployeeDTO().roles())
+                .build();
+
+        Exception expectedRegisterExcpetion = null;
+        try {
+            // when
+            try {
+                registrationService.registerCustomer(createCustomerCommand);
+            } catch (RegisterCustomerException e) {
+                expectedRegisterExcpetion = e;
+            }
+
+            // then
+            assertThat(expectedRegisterExcpetion).isExactlyInstanceOf(RegisterCustomerException.class);
+        } finally {
+            cleanupAuthUser(createAuthUser.username());
         }
     }
 
@@ -102,12 +106,12 @@ class RegistrationServiceTest extends IntegrationTest {
         }
     }
 
-    private void cleanup(String schemaName, String employeeFirstName, UUID tenantId) {
-        jdbcTemplate.update("DELETE FROM public.auth_user WHERE username = ?", employeeFirstName);
+    private void cleanup(String schemaName, UUID tenantId) {
         jdbcTemplate.update("DELETE FROM public.tenant WHERE id = ?", tenantId);
         jdbcTemplate.execute("DROP SCHEMA IF EXISTS " + schemaName + " CASCADE");
     }
 
-    @Test
-    void testRegisterCustomer() {}
+    private void cleanupAuthUser(String username) {
+        jdbcTemplate.update("DELETE FROM public.auth_user WHERE username = ?", username);
+    }
 }
