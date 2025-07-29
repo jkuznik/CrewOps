@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -23,6 +24,7 @@ import pl.crewops.exception.CoreExceptionHandler;
 import pl.crewops.exception.domain.company.CompanyNotFoundException;
 import pl.crewops.security.config.TestSecuriityConfig;
 
+@ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(CompanyController.class)
 @ContextConfiguration(classes = {TestSecuriityConfig.class, CompanyController.class, CoreExceptionHandler.class})
