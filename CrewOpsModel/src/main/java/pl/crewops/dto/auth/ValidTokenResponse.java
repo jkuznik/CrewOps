@@ -1,4 +1,4 @@
-package pl.crewops.auth;
+package pl.crewops.dto.auth;
 
 import java.util.Date;
 import lombok.Builder;

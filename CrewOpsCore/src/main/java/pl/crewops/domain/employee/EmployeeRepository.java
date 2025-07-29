@@ -9,11 +9,9 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 import pl.crewops.model.Employee;
 import pl.crewops.model.joinTable.EmployeeQualification;
 
-@Repository
 interface EmployeeRepository extends JpaRepository<Employee, UUID> {
 
     @EntityGraph(attributePaths = {"qualifications", "vehicles"})
@@ -34,7 +32,6 @@ interface EmployeeRepository extends JpaRepository<Employee, UUID> {
     List<Employee> findByFirstNameAndLastName(String firstName, String lastName);
 }
 
-@Repository
 interface EmployeeQualificationRepository extends JpaRepository<EmployeeQualification, UUID> {
     @Query("SELECT eq FROM EmployeeQualification eq " + "WHERE eq.id.employeeId = :employeeId "
             + "AND eq.id.qualificationId = :qualificationId")

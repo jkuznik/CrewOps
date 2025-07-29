@@ -8,8 +8,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
-import pl.crewops.auth.RoleDTO;
 import pl.crewops.dto.address.CreateAddressDTO;
+import pl.crewops.dto.auth.RoleDTO;
 import pl.crewops.dto.company.CreateCompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.tenant.CreateTenantDTO;
@@ -38,15 +38,13 @@ public class CompanyCreatorNotification extends Notification {
     private void createNewTenant(CoreAPI coreAPI, CompanyInformation companyInformation) {
         var createTenantDTO = getCreateTenantDTO(companyInformation);
         var createEmployeeDTO = CreateEmployeeDTO.builder()
-                .companyId(UUID.randomUUID()) // This value is set only to satisfy constraints validations.
+                .companyId(UUID.randomUUID()) // TODO: fix this
+                // This value is set only to satisfy constraints validations.
                 // Proper value of companyId is set on BE side after dynamic generated
                 // value when new record is saved in Company table in persist layer.
                 .firstName(companyInformation.initialEmployeeInfo.getFirstName())
                 .lastName(companyInformation.initialEmployeeInfo.getLastName())
                 .department(companyInformation.initialEmployeeInfo.getDepartment())
-                // TODO: modify this to allow set own pass and username or implement generate mechanism (on the BE side
-                // but remind to clean DTO)
-                .username(companyInformation.initialEmployeeInfo.getFirstName())
                 .phoneNumber(companyInformation.initialEmployeeInfo.getPhoneNumber())
                 .birthDate(companyInformation.initialEmployeeInfo.getBirthDate())
                 .roles(extractRoles(companyInformation))

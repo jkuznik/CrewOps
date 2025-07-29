@@ -365,6 +365,9 @@ databaseChangeLog:
                   name: schema_name
                   value: ${tenant.schema.name}
               - column:
+                  name: tax_id
+                  value: ${tenant.tax.id}
+              - column:
                   name: active
                   valueBoolean: ${tenant.active}
               - column:

@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.validation.annotation.Validated;
-import pl.crewops.auth.*;
+import pl.crewops.dto.auth.*;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.model.publicSchema.AuthUser;

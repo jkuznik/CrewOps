@@ -3,8 +3,8 @@ package pl.crewops.domain.registration;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.UUID;
-import pl.crewops.auth.RoleDTO;
 import pl.crewops.dto.address.CreateAddressDTO;
+import pl.crewops.dto.auth.RoleDTO;
 import pl.crewops.dto.company.CreateCompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.tenant.CreateTenantDTO;
@@ -12,7 +12,7 @@ import pl.crewops.registration.CreateCustomerCommand;
 
 class RegistrationTestFactory {
 
-    static final String COMPANY_NAME = "COMPANY_NAME";
+    static final String COMPANY_NAME = "TestCompanyName";
     static final String CITY = "city";
     static final String FIRST_NAME = "firstName";
 
@@ -26,7 +26,24 @@ class RegistrationTestFactory {
                         .build())
                 .createCompanyDTO(CreateCompanyDTO.builder()
                         .name(COMPANY_NAME)
-                        .email("test@email.com")
+                        .email("company@email.com")
+                        .taxId("testTaxId2")
+                        .build())
+                .build();
+    }
+
+    static CreateTenantDTO createExistingTenantDTO() {
+        return CreateTenantDTO.builder()
+                .createAddressDTO(CreateAddressDTO.builder()
+                        .postalCode("postalCode")
+                        .city(CITY)
+                        .street("street")
+                        .localNumber("localNumber")
+                        .build())
+                .createCompanyDTO(CreateCompanyDTO.builder()
+                        .name(COMPANY_NAME)
+                        .email("company@email.com")
+                        .taxId("test_tax_id")
                         .build())
                 .build();
     }
@@ -38,8 +55,6 @@ class RegistrationTestFactory {
                 .department("department")
                 .birthDate(LocalDate.now())
                 .companyId(UUID.randomUUID())
-                .username(FIRST_NAME)
-                .password("password")
                 .phoneNumber("phoneNumber")
                 .roles(new HashSet<RoleDTO>())
                 .build();
@@ -48,6 +63,13 @@ class RegistrationTestFactory {
     static CreateCustomerCommand createCustomerCommand() {
         return CreateCustomerCommand.builder()
                 .createTenantDTO(createTenantDTO())
+                .createEmployeeDTO(createEmployeeDTO())
+                .build();
+    }
+
+    static CreateCustomerCommand createExistingCustomerCommand() {
+        return CreateCustomerCommand.builder()
+                .createTenantDTO(createExistingTenantDTO())
                 .createEmployeeDTO(createEmployeeDTO())
                 .build();
     }

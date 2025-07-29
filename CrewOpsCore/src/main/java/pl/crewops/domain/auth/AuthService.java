@@ -1,6 +1,6 @@
 package pl.crewops.domain.auth;
 
-import static pl.crewops.utils.credentialsGenerator.PasswordService.generatePassword;
+import static pl.crewops.utils.credentialsGenerator.CredentialGenerator.generatePassword;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.*;
@@ -12,9 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import pl.crewops.auth.*;
 import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.tenant.TenantAPI;
+import pl.crewops.dto.auth.*;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -26,6 +26,7 @@ import pl.crewops.model.publicSchema.Role;
 import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceCore;
+import pl.crewops.utils.credentialsGenerator.CredentialGenerator;
 
 @Service
 @Slf4j
@@ -54,22 +55,27 @@ class AuthService implements AuthAPI {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public CreateAuthUserResult createAuthUserWithRelatedEmployee(CreateEmployeeDTO createEmployeeDTO) {
         log.info("Create employee current tenant is: {}", TenantContext.getCurrentTenant());
-        if (getByUsername(createEmployeeDTO.username()).isPresent()) {
-            throw new UsernameAlreadyExistException(createEmployeeDTO.username());
-        }
+        String username;
+        do {
+            username =
+                    CredentialGenerator.generateUsername(createEmployeeDTO.firstName(), createEmployeeDTO.lastName());
+        } while (getByUsername(username).isPresent());
+
         try {
             // until createEmployee is in this same tx then hibernate handle rollback, check this some time if any
             // implementation is required
             EmployeeDTO employee = employeeAPI.createEmployee(createEmployeeDTO);
             var createAuthUser = CreateAuthUserDTO.builder()
-                    .username(createEmployeeDTO.username())
+                    .username(username)
                     .password(generatePassword())
                     .roles(createEmployeeDTO.roles())
                     .build();
-            // TODO: help line to see generated pass - remove this after implment notification service
-            System.out.println("Passgen: " + createAuthUser.password());
             AuthUserDTO authUser = createAuthUser(createAuthUser, employee.id(), createEmployeeDTO.companyId());
-            log.info("Create employee {}", createEmployeeDTO);
+            log.info(
+                    "Create employee {} \n with username {} \n password {}",
+                    createEmployeeDTO.firstName() + " " + createEmployeeDTO.lastName(),
+                    createAuthUser.username(),
+                    createAuthUser.password());
             return new CreateAuthUserResult(employee, authUser);
         } catch (Exception e) {
             log.error(e.getMessage(), e);

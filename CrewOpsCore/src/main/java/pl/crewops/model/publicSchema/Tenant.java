@@ -14,11 +14,14 @@ import pl.crewops.model.AbstractEntity;
 @AllArgsConstructor
 public class Tenant extends AbstractEntity {
 
-    @Column(name = "company_id", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private UUID companyId;
 
     @Column(nullable = false, unique = true)
     private String schemaName;
+
+    @Column(nullable = false, unique = true)
+    private String taxId;
 
     private boolean active;
 }

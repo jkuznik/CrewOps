@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.*;
-import pl.crewops.auth.RoleDTO;
+import pl.crewops.dto.auth.RoleDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -57,7 +57,6 @@ public class EmployeeFormModel {
                 .birthDate(employeeFormModel.getBirthDate())
                 .phoneNumber(employeeFormModel.getPhoneNumber())
                 .department(employeeFormModel.getDepartment())
-                .username(employeeFormModel.firstName.substring(0, 3) + employeeFormModel.lastName.substring(0, 3))
                 .roles(createRoles)
                 .companyId(companyId)
                 .build();

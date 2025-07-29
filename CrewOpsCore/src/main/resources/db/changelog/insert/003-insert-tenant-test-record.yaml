@@ -19,6 +19,9 @@ databaseChangeLog:
                   name: schema_name
                   value: "testtenant_2f3b1d5c9e8f"
               - column:
+                  name: tax_id
+                  value: "test_tax_id"
+              - column:
                   name: active
                   valueBoolean: true
               - column:

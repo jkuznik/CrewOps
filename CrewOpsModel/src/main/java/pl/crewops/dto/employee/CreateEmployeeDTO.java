@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 import lombok.Builder;
-import pl.crewops.auth.RoleDTO;
+import pl.crewops.dto.auth.RoleDTO;
 
 @Builder
 public record CreateEmployeeDTO(
@@ -16,6 +16,5 @@ public record CreateEmployeeDTO(
         @NotNull LocalDate birthDate,
         @Size(max = 15) String phoneNumber,
         @Size(max = 50) @NotNull @NotBlank String department,
-        @Size(max = 50) @NotNull @NotBlank String username,
         @NotNull UUID companyId,
         Set<RoleDTO> roles) {}

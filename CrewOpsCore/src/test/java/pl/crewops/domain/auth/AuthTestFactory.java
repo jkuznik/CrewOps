@@ -3,8 +3,8 @@ package pl.crewops.domain.auth;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
-import pl.crewops.auth.CreateAuthUserDTO;
-import pl.crewops.auth.RoleDTO;
+import pl.crewops.dto.auth.CreateAuthUserDTO;
+import pl.crewops.dto.auth.RoleDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.model.Employee;
@@ -52,8 +52,6 @@ class AuthTestFactory {
                 .birthDate(LocalDate.parse("2000-01-01"))
                 .phoneNumber("123456789")
                 .department("department")
-                .username("username")
-                .password("password")
                 .roles(Set.of())
                 .build();
     }

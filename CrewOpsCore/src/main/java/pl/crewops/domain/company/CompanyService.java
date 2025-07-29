@@ -14,7 +14,6 @@ import pl.crewops.dto.address.CreateAddressDTO;
 import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.company.CreateCompanyDTO;
 import pl.crewops.exception.domain.company.CompanyNotFoundException;
-import pl.crewops.exception.domain.company.NoUniqueCompanyEmailException;
 import pl.crewops.model.Address;
 import pl.crewops.model.Company;
 
@@ -29,11 +28,7 @@ class CompanyService implements CompanyAPI {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public CompanyDTO createCompany(
-            CreateAddressDTO createAddressDTO, CreateCompanyDTO createCompanyDTO, UUID companyId)
-            throws NoUniqueCompanyEmailException {
-        if (companyRepository.findByEmail(createCompanyDTO.email()).isPresent()) {
-            throw new NoUniqueCompanyEmailException(createCompanyDTO.email());
-        }
+            CreateAddressDTO createAddressDTO, CreateCompanyDTO createCompanyDTO, UUID companyId) {
         Address address = addressAPI.createAddress(createAddressDTO);
         var company = mapToEntity(createCompanyDTO);
         company.setId(companyId);

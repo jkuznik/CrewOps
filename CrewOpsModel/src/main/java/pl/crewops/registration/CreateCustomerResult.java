@@ -1,7 +1,7 @@
 package pl.crewops.registration;
 
 import lombok.Builder;
-import pl.crewops.auth.CreateAuthUserResult;
+import pl.crewops.dto.auth.CreateAuthUserResult;
 import pl.crewops.dto.company.CompanyDTO;
 
 @Builder

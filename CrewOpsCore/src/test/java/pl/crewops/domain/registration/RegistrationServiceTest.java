@@ -14,11 +14,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import pl.crewops.IntegrationTest;
-import pl.crewops.auth.CreateAuthUserDTO;
+import pl.crewops.dto.auth.CreateAuthUserDTO;
 import pl.crewops.exception.domain.registration.RegisterCustomerException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.Employee;
 import pl.crewops.model.publicSchema.Tenant;
+import pl.crewops.utils.credentialsGenerator.CredentialGenerator;
 
 class RegistrationServiceTest extends IntegrationTest {
 
@@ -62,23 +63,19 @@ class RegistrationServiceTest extends IntegrationTest {
             assertThat(tenant.getId()).isInstanceOf(UUID.class);
             assertThat(employee.getId()).isInstanceOf(UUID.class);
         } finally {
-            cleanup(tenant.getSchemaName(), FIRST_NAME, tenant.getId());
+            cleanup(tenant.getSchemaName(), tenant.getId());
         }
     }
 
     @Test
     void registerCustomer_shouldRollbackTenant_whenExceptionIsThrownAfterTenantAlreadyExists() {
         // given
-        var createCustomerCommand = RegistrationTestFactory.createCustomerCommand();
-        var existingCompanyId = UUID.fromString("2f3b1d5c-9e8f-4bca-9c56-123456789abd");
+        var createCustomerCommand = RegistrationTestFactory.createExistingCustomerCommand();
         var createAuthUser = CreateAuthUserDTO.builder()
-                .username(createCustomerCommand.createEmployeeDTO().username())
-                .password(createCustomerCommand.createEmployeeDTO().password())
+                .username(CredentialGenerator.generateUsername("firstName", "lastName"))
+                .password(CredentialGenerator.generatePassword())
                 .roles(createCustomerCommand.createEmployeeDTO().roles())
                 .build();
-
-        // Intentionally create an auth user row to trigger a UNIQUE constraint violation on the 'username' column
-        authAPI.createAuthUser(createAuthUser, UUID.randomUUID(), existingCompanyId);
 
         Exception expectedRegisterExcpetion = null;
         try {
@@ -92,7 +89,6 @@ class RegistrationServiceTest extends IntegrationTest {
             // then
             assertThat(expectedRegisterExcpetion).isExactlyInstanceOf(RegisterCustomerException.class);
         } finally {
-            //            cleanup(tenant.getSchemaName(), FIRST_NAME, tenant.getId());
             cleanupAuthUser(createAuthUser.username());
         }
     }
@@ -110,8 +106,7 @@ class RegistrationServiceTest extends IntegrationTest {
         }
     }
 
-    private void cleanup(String schemaName, String employeeFirstName, UUID tenantId) {
-        jdbcTemplate.update("DELETE FROM public.auth_user WHERE username = ?", employeeFirstName);
+    private void cleanup(String schemaName, UUID tenantId) {
         jdbcTemplate.update("DELETE FROM public.tenant WHERE id = ?", tenantId);
         jdbcTemplate.execute("DROP SCHEMA IF EXISTS " + schemaName + " CASCADE");
     }

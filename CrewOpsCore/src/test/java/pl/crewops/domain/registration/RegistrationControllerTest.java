@@ -21,10 +21,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
-import pl.crewops.auth.AuthUserDTO;
-import pl.crewops.auth.CreateAuthUserResult;
 import pl.crewops.dto.address.AddressDTO;
 import pl.crewops.dto.address.CreateAddressDTO;
+import pl.crewops.dto.auth.AuthUserDTO;
+import pl.crewops.dto.auth.CreateAuthUserResult;
 import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.company.CreateCompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
@@ -187,6 +187,7 @@ class RegistrationControllerTest {
                         .createCompanyDTO(CreateCompanyDTO.builder()
                                 .name("Tech Solutions")
                                 .email("info@techsolutions.com")
+                                .taxId("testTaxId")
                                 .build())
                         .createAddressDTO(CreateAddressDTO.builder()
                                 .postalCode("00-001")
@@ -201,8 +202,6 @@ class RegistrationControllerTest {
                         .birthDate(LocalDate.of(1990, 1, 1))
                         .phoneNumber("123456789")
                         .department("HR")
-                        .username("jdoe")
-                        .password("securePass123")
                         .companyId(companyId)
                         .build())
                 .build();

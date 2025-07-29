@@ -22,7 +22,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import pl.crewops.auth.*;
+import pl.crewops.dto.auth.*;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.security.config.TestSecuriityConfig;
@@ -83,8 +83,6 @@ class AuthControllerTest {
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .phoneNumber("123456789")
                 .department("HR")
-                .username("anna")
-                .password("pass123")
                 .companyId(UUID.randomUUID())
                 .roles(Set.of())
                 .build();
@@ -111,8 +109,6 @@ class AuthControllerTest {
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .phoneNumber("123456789")
                 .department("HR")
-                .username("anna")
-                .password("pass123")
                 .companyId(UUID.randomUUID())
                 .roles(Set.of())
                 .build();
@@ -133,8 +129,6 @@ class AuthControllerTest {
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .phoneNumber("123456789")
                 .department("HR")
-                .username("anna")
-                .password("pass123")
                 .companyId(UUID.randomUUID())
                 .roles(Set.of())
                 .build();

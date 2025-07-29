@@ -11,12 +11,13 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.validation.annotation.Validated;
-import pl.crewops.auth.CreateAuthUserResult;
 import pl.crewops.domain.auth.AuthAPI;
 import pl.crewops.domain.company.CompanyAPI;
 import pl.crewops.domain.tenant.TenantAPI;
+import pl.crewops.dto.auth.CreateAuthUserResult;
 import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
+import pl.crewops.exception.domain.company.NoUniqueCompanyTaxIdException;
 import pl.crewops.exception.domain.registration.RegisterCustomerException;
 import pl.crewops.exception.multitenancy.CreateSchemaException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
@@ -68,12 +69,14 @@ class RegistrationService {
             var notPersistedTenant = Tenant.builder().active(true).build();
             notPersistedTenant.setSchemaName(schemaName);
             notPersistedTenant.setCompanyId(UUID.randomUUID());
+            notPersistedTenant.setTaxId(
+                    createCustomerCommand.createTenantDTO().createCompanyDTO().taxId());
             tenant = tenantAPI.saveTenant(notPersistedTenant);
             transactionManager.commit(saveTenantStep);
 
             tenantId = tenant.getId();
             companyId = tenant.getCompanyId();
-        } catch (Exception e) {
+        } catch (NoUniqueCompanyTaxIdException e) {
             transactionManager.rollback(saveTenantStep);
             schemaManager.dropSchema(schemaName);
             throw new RegisterCustomerException("Failed to create tenant during registration");
@@ -133,7 +136,6 @@ class RegistrationService {
                 .firstName(createEmployeeDTO.firstName())
                 .lastName(createEmployeeDTO.lastName())
                 .department(createEmployeeDTO.department())
-                .username(createEmployeeDTO.firstName())
                 .phoneNumber(createEmployeeDTO.phoneNumber())
                 .birthDate(createEmployeeDTO.birthDate())
                 .roles(createEmployeeDTO.roles())
