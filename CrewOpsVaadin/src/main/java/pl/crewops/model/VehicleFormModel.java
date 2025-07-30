@@ -21,7 +21,7 @@ public class VehicleFormModel {
     private @NotNull String vehicleType;
     private @NotNull Integer year;
     private @Size(min = 2, max = 50, message = "Length required between 2-50") String vin;
-    private @Size(min = 2, max = 15, message = "Length required between 2-15") String registrationNumber;
+    private @Size(min = 2, max = 15, message = "Length required between 2-15") String registerNumber;
     private @NotNull Boolean broken;
 
     public static CreateVehicleDTO toCreateVehicleDTO(VehicleFormModel vehicleFormModel) {
@@ -33,7 +33,7 @@ public class VehicleFormModel {
                         .build())
                 .year(vehicleFormModel.getYear())
                 .vin(vehicleFormModel.getVin())
-                .registerNumber(vehicleFormModel.getRegistrationNumber())
+                .registerNumber(vehicleFormModel.getRegisterNumber())
                 .broken(vehicleFormModel.getBroken())
                 .build();
     }
@@ -46,7 +46,7 @@ public class VehicleFormModel {
                 .vehicleType(vehicleDTO.vehicleType().name())
                 .year(vehicleDTO.year())
                 .vin(vehicleDTO.vin())
-                .registrationNumber(vehicleDTO.registerNumber())
+                .registerNumber(vehicleDTO.registerNumber())
                 .broken(vehicleDTO.broken())
                 .build();
     }
@@ -54,7 +54,7 @@ public class VehicleFormModel {
     public static UpdateVehicleDTO toUpdateVehicleDTO(VehicleFormModel vehicleFormModel) {
         return UpdateVehicleDTO.builder()
                 .vehicleId(vehicleFormModel.getId())
-                .registerNumber(vehicleFormModel.getRegistrationNumber())
+                .registerNumber(vehicleFormModel.getRegisterNumber())
                 .broken(vehicleFormModel.getBroken())
                 .build();
     }
