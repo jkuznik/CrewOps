@@ -1,9 +1,7 @@
 package pl.crewops.domain.breakdown;
 
-import java.util.stream.Collectors;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.model.Breakdown;
@@ -34,29 +32,6 @@ class BreakdownMapper {
                         .id(reportedBy.getId())
                         .firstName(reportedBy.getFirstName())
                         .lastName(reportedBy.getLastName())
-                        .department(reportedBy.getDepartment())
-                        .birthDate(reportedBy.getBirthDate())
-                        .phoneNumber(reportedBy.getPhoneNumber())
-                        .qualifications(reportedBy.getQualifications().stream()
-                                .map(qualification -> QualificationDTO.builder()
-                                        .id(qualification.getId())
-                                        .description(qualification.getDescription())
-                                        .build())
-                                .collect(Collectors.toSet()))
-                        .vehicles(reportedBy.getVehicles().stream()
-                                .map(v -> VehicleDTO.builder()
-                                        .id(v.getId())
-                                        .make(v.getMake())
-                                        .model(v.getModel())
-                                        .vehicleType(VehicleTypeDTO.builder()
-                                                .id(v.getVehicleType().getId())
-                                                .name(v.getVehicleType().getName())
-                                                .build())
-                                        .year(v.getYear())
-                                        .vin(v.getVin())
-                                        .registerNumber(v.getRegisterNumber())
-                                        .build())
-                                .collect(Collectors.toSet()))
                         .build())
                 .repairedBy(
                         breakdown.getRepairedBy() != null
@@ -64,31 +39,6 @@ class BreakdownMapper {
                                         .id(repairedBy.getId())
                                         .firstName(repairedBy.getFirstName())
                                         .lastName(repairedBy.getLastName())
-                                        .department(repairedBy.getDepartment())
-                                        .birthDate(repairedBy.getBirthDate())
-                                        .phoneNumber(repairedBy.getPhoneNumber())
-                                        .qualifications(repairedBy.getQualifications().stream()
-                                                .map(qualification -> QualificationDTO.builder()
-                                                        .id(qualification.getId())
-                                                        .description(qualification.getDescription())
-                                                        .build())
-                                                .collect(Collectors.toSet()))
-                                        .vehicles(repairedBy.getVehicles().stream()
-                                                .map(v -> VehicleDTO.builder()
-                                                        .id(v.getId())
-                                                        .make(v.getMake())
-                                                        .model(v.getModel())
-                                                        .vehicleType(VehicleTypeDTO.builder()
-                                                                .id(v.getVehicleType()
-                                                                        .getId())
-                                                                .name(v.getVehicleType()
-                                                                        .getName())
-                                                                .build())
-                                                        .year(v.getYear())
-                                                        .vin(v.getVin())
-                                                        .registerNumber(v.getRegisterNumber())
-                                                        .build())
-                                                .collect(Collectors.toSet()))
                                         .build()
                                 : null)
                 .critical(breakdown.isCritical())

@@ -211,8 +211,6 @@ public class BreakdownGrid extends VerticalLayout {
                         //                                authority.equals(RoleType.MECHANIC.name())
                         );
 
-        principal.getAuthorities().forEach(authority -> System.out.println(authority.getAuthority()));
-
         if (hasPermission) {
             try {
                 Optional<BreakdownDTO> breakdownDTO =
@@ -226,6 +224,7 @@ public class BreakdownGrid extends VerticalLayout {
                 UI.getCurrent().navigate(HomeView.class);
             }
         }
+        // TODO: implement notification about not authorized message
     }
 
     private UpdateBreakdownDTO toUpdateBreakdownDTO(BreakdownFormModel breakdownFormModel) {

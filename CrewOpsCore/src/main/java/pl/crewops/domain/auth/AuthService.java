@@ -120,7 +120,7 @@ class AuthService implements AuthAPI {
             log.info("Creating auth user " + createAuthUserDTO.username() + " with roles " + roles);
             authUser.setRoles(roles);
             authUser.setEmployeeId(employeeId);
-            log.info("Auth user instantiated successfully as " + authUser.toString());
+            log.info("Auth user instantiated successfully as " + authUser);
             authUserRepository.save(authUser);
             return authUserDTO(authUser);
         } catch (Exception e) {
