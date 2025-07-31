@@ -10,10 +10,11 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 
 @SpringComponent
-// @Scope("prototype")
 @UIScope
 @CssImport("./styles/mainStyles/main-layout.css")
 public class MainLayout extends AppLayout {
+
+    // TODO: find solution to avoid displaying exceptions stackTrace on fe side
 
     protected final CoreAPI coreAPI;
     protected final JwtServiceVaadin jwtService;

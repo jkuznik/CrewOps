@@ -22,7 +22,7 @@ plugins {
         }
         implementation("com.vaadin:vaadin-spring-boot-starter")
         implementation("org.springframework.boot:spring-boot-starter-cache")
-//        implementation("org.springframework.boot:spring-boot-starter-data-redis")
+        implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
         implementation(project(":CrewOpsModel"))
         implementation(project(":CrewOpsSecurity"))
