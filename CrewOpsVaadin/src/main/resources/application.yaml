@@ -9,7 +9,7 @@ spring:
     active: dev
 
   cache:
-    cache-names: employeeCache
+    cache-names: employeesCache,qualificationsCache
 
 security:
   properties:

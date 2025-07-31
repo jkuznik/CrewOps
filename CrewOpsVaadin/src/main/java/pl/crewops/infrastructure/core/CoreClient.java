@@ -250,7 +250,7 @@ class CoreClient implements CoreAPI {
 
     // authenticated
     @Override
-    @Cacheable(cacheNames = "employeeCache")
+    @Cacheable(cacheNames = "employeesCache")
     public List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -286,6 +286,7 @@ class CoreClient implements CoreAPI {
 
     // authenticated
     @Override
+    @Cacheable(cacheNames = "qualificationsCache")
     public List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException {
         isAuthenticated();
         try {

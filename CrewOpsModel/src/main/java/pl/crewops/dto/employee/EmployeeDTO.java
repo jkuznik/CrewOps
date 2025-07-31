@@ -1,6 +1,8 @@
 package pl.crewops.dto.employee;
 
+import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import lombok.Builder;
@@ -19,4 +21,16 @@ public record EmployeeDTO(
         Set<RoleDTO> roles,
         boolean active,
         Set<QualificationDTO> qualifications,
-        Set<VehicleDTO> vehicles) {}
+        Set<VehicleDTO> vehicles)
+        implements Serializable {
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof EmployeeDTO that)) return false;
+        return Objects.equals(id(), that.id());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id());
+    }
+}
