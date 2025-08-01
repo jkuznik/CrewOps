@@ -5,9 +5,7 @@ import static pl.crewops.enums.ControllerURL.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -33,7 +31,6 @@ import pl.crewops.dto.vehicle.CreateVehicleDTO;
 import pl.crewops.dto.vehicle.UpdateVehicleDTO;
 import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.dto.vehicleType.VehicleTypeDTO;
-import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
 
@@ -44,10 +41,6 @@ class CoreClient {
     private final RestClient coreClient;
     private RestClient authorizedClient;
 
-    @Getter
-    @Setter
-    private boolean authenticated;
-
     // permit all for sure
     public AuthResponse login(AuthRequest authRequest) {
         try {
@@ -56,10 +49,9 @@ class CoreClient {
                     .uri(uriBuilder -> uriBuilder.path(LOGIN).build())
                     .body(authRequest)
                     .retrieve()
-                    .body(new ParameterizedTypeReference<AuthResponse>() {});
+                    .body(new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
-            log.error("Login failed");
-            e.printStackTrace();
+            log.error("Login failed" + e.getMessage());
             throw e;
         }
     }
@@ -68,14 +60,12 @@ class CoreClient {
 
     public Optional<ValidTokenResponse> validateToken(ValidTokenRequest validTokenRequest) {
         try {
-            log.debug("Validating token start");
             ValidTokenResponse body = coreClient
                     .post()
                     .uri(uriBuilder -> uriBuilder.path(VALIDATE).build())
                     .body(validTokenRequest)
                     .retrieve()
                     .body(new ParameterizedTypeReference<ValidTokenResponse>() {});
-            log.debug("Validated token: {}", body);
             return Optional.ofNullable(body);
         } catch (RestClientException e) {
             log.error("Validation failed");
@@ -86,8 +76,8 @@ class CoreClient {
     // manager permission
 
     @CacheEvict(value = "employeeCache", allEntries = true)
-    public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) throws NotAuthenticatedException {
-        isAuthenticated();
+    public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) {
+
         try {
             return Optional.ofNullable(authorizedClient
                     .post()
@@ -104,9 +94,8 @@ class CoreClient {
 
     // TODO: consider about implement security on fe side
 
-    public Optional<CreateCustomerResult> registerNewCustomer(CreateCustomerCommand command)
-            throws NotAuthenticatedException {
-        isAuthenticated();
+    public Optional<CreateCustomerResult> registerNewCustomer(CreateCustomerCommand command) {
+
         try {
             return Optional.ofNullable(authorizedClient
                     .post()
@@ -123,8 +112,8 @@ class CoreClient {
 
     // manager permission
 
-    public Optional<EmployeeDTO> updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) throws NotAuthenticatedException {
-        isAuthenticated();
+    public Optional<EmployeeDTO> updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) {
+
         try {
             return Optional.ofNullable(authorizedClient
                     .patch()
@@ -140,9 +129,8 @@ class CoreClient {
 
     // manager permission
 
-    public Optional<QualificationDTO> updateQualification(UpdateQualificationDTO updateQualificationDTO)
-            throws NotAuthenticatedException {
-        isAuthenticated();
+    public Optional<QualificationDTO> updateQualification(UpdateQualificationDTO updateQualificationDTO) {
+
         try {
             return Optional.ofNullable(authorizedClient
                     .patch()
@@ -159,9 +147,8 @@ class CoreClient {
 
     // manager permission
 
-    public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO)
-            throws NotAuthenticatedException {
-        isAuthenticated();
+    public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO) {
+
         try {
             return Optional.ofNullable(authorizedClient
                     .post()
@@ -178,8 +165,8 @@ class CoreClient {
 
     // manager permission or mechanic authority?
 
-    public Optional<VehicleDTO> createVehicle(CreateVehicleDTO createVehicleDTO) throws NotAuthenticatedException {
-        isAuthenticated();
+    public Optional<VehicleDTO> createVehicle(CreateVehicleDTO createVehicleDTO) {
+
         try {
             return Optional.ofNullable(authorizedClient
                     .post()
@@ -196,8 +183,8 @@ class CoreClient {
 
     // shift leader or mechanic
 
-    public Optional<VehicleDTO> updateVehicle(UpdateVehicleDTO updateVehicleDTO) throws NotAuthenticatedException {
-        isAuthenticated();
+    public Optional<VehicleDTO> updateVehicle(UpdateVehicleDTO updateVehicleDTO) {
+
         try {
             return Optional.ofNullable(authorizedClient
                     .patch()
@@ -213,9 +200,8 @@ class CoreClient {
 
     // authenticated
 
-    public Optional<BreakdownDTO> createBreakdown(CreateBreakdownDTO createBreakdownDTO)
-            throws NotAuthenticatedException {
-        isAuthenticated();
+    public Optional<BreakdownDTO> createBreakdown(CreateBreakdownDTO createBreakdownDTO) {
+
         try {
             return Optional.ofNullable(authorizedClient
                     .post()
@@ -231,9 +217,8 @@ class CoreClient {
 
     // shift leader or mechanic
 
-    public Optional<BreakdownDTO> updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO)
-            throws NotAuthenticatedException {
-        isAuthenticated();
+    public Optional<BreakdownDTO> updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO) {
+
         try {
             return Optional.ofNullable(authorizedClient
                     .patch()
@@ -249,9 +234,9 @@ class CoreClient {
 
     // authenticated
 
-    @Cacheable(cacheNames = "employeesCache")
-    public List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException {
-        isAuthenticated();
+    @Cacheable(cacheNames = "getAllEmployees")
+    public List<EmployeeDTO> getAllEmployees() {
+        log.warn("Get all employees cache missing");
         try {
             return authorizedClient
                     .get()
@@ -267,9 +252,9 @@ class CoreClient {
 
     // authenticated
 
-    public Optional<CompanyDTO> getCompanyById(UUID companyId) throws NotAuthenticatedException {
-        log.info("Call getCompanyById");
-        isAuthenticated();
+    @Cacheable("getCompanyById")
+    public Optional<CompanyDTO> getCompanyById(UUID companyId) {
+        log.warn("Get company by id cache missing");
         try {
             return authorizedClient
                     .get()
@@ -285,9 +270,9 @@ class CoreClient {
 
     // authenticated
 
-    @Cacheable(cacheNames = "qualificationsCache")
-    public List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException {
-        isAuthenticated();
+    @Cacheable(cacheNames = "getAllQualifications")
+    public List<QualificationDTO> getAllQualifications() {
+        log.warn("Get all qualifications cache missing");
         try {
             return authorizedClient
                     .get()
@@ -303,8 +288,9 @@ class CoreClient {
 
     // authenticated
 
-    public Optional<EmployeeDTO> getEmployeeById(UUID employeeId) throws NotAuthenticatedException {
-        isAuthenticated();
+    @Cacheable(cacheNames = "getEmployeeById")
+    public Optional<EmployeeDTO> getEmployeeById(UUID employeeId) {
+        log.warn("Get employee by id cache missing");
         try {
             return authorizedClient
                     .get()
@@ -320,8 +306,8 @@ class CoreClient {
 
     // authenticated
 
-    public List<VehicleDTO> getAllVehicles() throws NotAuthenticatedException {
-        isAuthenticated();
+    public List<VehicleDTO> getAllVehicles() {
+
         try {
             return authorizedClient
                     .get()
@@ -337,8 +323,8 @@ class CoreClient {
 
     // authenticated
 
-    public List<VehicleTypeDTO> getAllVehicleTypes() throws NotAuthenticatedException {
-        isAuthenticated();
+    public List<VehicleTypeDTO> getAllVehicleTypes() {
+
         try {
             return authorizedClient
                     .get()
@@ -354,8 +340,8 @@ class CoreClient {
 
     // authenticated
 
-    public List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException {
-        isAuthenticated();
+    public List<BreakdownDTO> getAllBreakdowns() {
+
         try {
             return authorizedClient
                     .get()
@@ -371,8 +357,8 @@ class CoreClient {
 
     // manager permission
 
-    public void terminateEmployeeAccount(UUID employeeId) throws NotAuthenticatedException {
-        isAuthenticated();
+    public void terminateEmployeeAccount(UUID employeeId) {
+
         try {
             authorizedClient
                     .delete()
@@ -388,8 +374,8 @@ class CoreClient {
 
     // manager permission
 
-    public void deleteQualification(UUID qualificationId) throws NotAuthenticatedException {
-        isAuthenticated();
+    public void deleteQualification(UUID qualificationId) {
+
         try {
             authorizedClient
                     .delete()
@@ -405,8 +391,8 @@ class CoreClient {
 
     // manager permission
 
-    public void deleteVehicle(UUID vehicleId) throws NotAuthenticatedException {
-        isAuthenticated();
+    public void deleteVehicle(UUID vehicleId) {
+
         try {
             authorizedClient
                     .delete()
@@ -425,15 +411,5 @@ class CoreClient {
                 .mutate()
                 .defaultHeader("Authorization", "Bearer " + token)
                 .build();
-    }
-
-    public void setAuthentication(boolean authenticated) {
-        this.authenticated = authenticated;
-    }
-
-    private void isAuthenticated() throws NotAuthenticatedException {
-        if (!authenticated) {
-            throw new NotAuthenticatedException();
-        }
     }
 }

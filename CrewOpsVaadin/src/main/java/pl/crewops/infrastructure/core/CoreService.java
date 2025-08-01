@@ -3,7 +3,9 @@ package pl.crewops.infrastructure.core;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.crewops.dto.auth.AuthRequest;
@@ -35,6 +37,10 @@ class CoreService implements CoreAPI {
 
     private final CoreClient coreClient;
 
+    @Getter
+    @Setter
+    private boolean authenticated;
+
     @Override
     public AuthResponse login(AuthRequest request) {
         log.info("Login via service proxy");
@@ -43,106 +49,130 @@ class CoreService implements CoreAPI {
 
     @Override
     public Optional<ValidTokenResponse> validateToken(ValidTokenRequest validTokenRequest) {
+        log.debug("Validate token");
         return coreClient.validateToken(validTokenRequest);
     }
 
     @Override
     public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) throws NotAuthenticatedException {
+        isAuthenticated();
         return coreClient.createEmployee(createEmployeeDTO);
     }
 
     @Override
     public Optional<EmployeeDTO> updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) throws NotAuthenticatedException {
+        isAuthenticated();
         return coreClient.updateEmployee(updateEmployeeDTO);
     }
 
     @Override
     public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO)
             throws NotAuthenticatedException {
+        isAuthenticated();
         return coreClient.createQualification(createQualificationDTO);
     }
 
     @Override
     public Optional<QualificationDTO> updateQualification(UpdateQualificationDTO updateQualificationDTO)
             throws NotAuthenticatedException {
+        isAuthenticated();
         return coreClient.updateQualification(updateQualificationDTO);
     }
 
     @Override
     public Optional<VehicleDTO> createVehicle(CreateVehicleDTO createVehicleDTO) throws NotAuthenticatedException {
+        isAuthenticated();
         return coreClient.createVehicle(createVehicleDTO);
     }
 
     @Override
     public Optional<CreateCustomerResult> registerNewCustomer(CreateCustomerCommand command)
             throws NotAuthenticatedException {
+        isAuthenticated();
         return coreClient.registerNewCustomer(command);
     }
 
     @Override
     public Optional<VehicleDTO> updateVehicle(UpdateVehicleDTO updateVehicleDTO) throws NotAuthenticatedException {
+        isAuthenticated();
         return coreClient.updateVehicle(updateVehicleDTO);
     }
 
     @Override
     public Optional<BreakdownDTO> createBreakdown(CreateBreakdownDTO createBreakdownDTO)
             throws NotAuthenticatedException {
+        isAuthenticated();
         return coreClient.createBreakdown(createBreakdownDTO);
     }
 
     @Override
     public Optional<BreakdownDTO> updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO)
             throws NotAuthenticatedException {
+        isAuthenticated();
         return coreClient.updateBreakdown(updateBreakdownDTO);
     }
 
     @Override
     public List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException {
+        log.info("Get all employees via service proxy");
+        isAuthenticated();
         return coreClient.getAllEmployees();
     }
 
     @Override
     public Optional<EmployeeDTO> getEmployeeById(UUID employeeId) throws NotAuthenticatedException {
+        log.info("Get employee by id via service proxy");
+        isAuthenticated();
         return coreClient.getEmployeeById(employeeId);
     }
 
     @Override
     public List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException {
+        log.info("Get all qualifications via service proxy");
+        isAuthenticated();
         return coreClient.getAllQualifications();
     }
 
     @Override
     public List<VehicleDTO> getAllVehicles() throws NotAuthenticatedException {
+        isAuthenticated();
         return coreClient.getAllVehicles();
     }
 
     @Override
     public List<VehicleTypeDTO> getAllVehicleTypes() throws NotAuthenticatedException {
+        isAuthenticated();
         return coreClient.getAllVehicleTypes();
     }
 
     @Override
     public List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException {
+        isAuthenticated();
         return coreClient.getAllBreakdowns();
     }
 
     @Override
     public Optional<CompanyDTO> getCompanyById(UUID companyId) throws NotAuthenticatedException {
+        log.info("Get company by id via service proxy");
+        isAuthenticated();
         return coreClient.getCompanyById(companyId);
     }
 
     @Override
     public void terminateEmployeeAccount(UUID employeeId) throws NotAuthenticatedException {
+        isAuthenticated();
         coreClient.terminateEmployeeAccount(employeeId);
     }
 
     @Override
     public void deleteQualification(UUID qualificationId) throws NotAuthenticatedException {
+        isAuthenticated();
         coreClient.deleteQualification(qualificationId);
     }
 
     @Override
     public void deleteVehicle(UUID vehicleId) throws NotAuthenticatedException {
+        isAuthenticated();
         coreClient.deleteVehicle(vehicleId);
     }
 
@@ -153,6 +183,14 @@ class CoreService implements CoreAPI {
 
     @Override
     public void setAuthentication(boolean authenticated) {
-        coreClient.setAuthentication(authenticated);
+        this.authenticated = authenticated;
+    }
+
+    private void isAuthenticated() throws NotAuthenticatedException {
+        log.debug("Checking authentication");
+        if (!authenticated) {
+            log.error("Authentication failed");
+            throw new NotAuthenticatedException();
+        }
     }
 }
