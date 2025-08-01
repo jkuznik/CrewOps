@@ -90,8 +90,8 @@ class CoreClient {
     }
 
     // manager permission
+    @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public void terminateEmployeeAccount(UUID employeeId) {
-
         try {
             authorizedClient
                     .delete()
