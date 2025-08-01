@@ -34,5 +34,5 @@ jobs:
             -e JWT_EXPIRATION_CREWOPS=$JWT_EXPIRATION_CREWOPS \
             -e TZ=Europe/Warsaw \
             -p 8081:8081 \
-            --memory=256m \
+            --memory=512m \
             jkuznik/crewops-vaadin:latest
