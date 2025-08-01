@@ -39,7 +39,7 @@ import pl.crewops.registration.CreateCustomerResult;
 
 @Slf4j
 @RequiredArgsConstructor
-class CoreClient implements CoreAPI {
+class CoreClient {
 
     private final RestClient coreClient;
     private RestClient authorizedClient;
@@ -49,7 +49,6 @@ class CoreClient implements CoreAPI {
     private boolean authenticated;
 
     // permit all for sure
-    @Override
     public AuthResponse login(AuthRequest authRequest) {
         try {
             return coreClient
@@ -66,7 +65,7 @@ class CoreClient implements CoreAPI {
     }
 
     // permit all or authenticated on fe side?
-    @Override
+
     public Optional<ValidTokenResponse> validateToken(ValidTokenRequest validTokenRequest) {
         try {
             log.debug("Validating token start");
@@ -85,7 +84,7 @@ class CoreClient implements CoreAPI {
     }
 
     // manager permission
-    @Override
+
     @CacheEvict(value = "employeeCache", allEntries = true)
     public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) throws NotAuthenticatedException {
         isAuthenticated();
@@ -104,7 +103,7 @@ class CoreClient implements CoreAPI {
     }
 
     // TODO: consider about implement security on fe side
-    @Override
+
     public Optional<CreateCustomerResult> registerNewCustomer(CreateCustomerCommand command)
             throws NotAuthenticatedException {
         isAuthenticated();
@@ -123,7 +122,7 @@ class CoreClient implements CoreAPI {
     }
 
     // manager permission
-    @Override
+
     public Optional<EmployeeDTO> updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -140,7 +139,7 @@ class CoreClient implements CoreAPI {
     }
 
     // manager permission
-    @Override
+
     public Optional<QualificationDTO> updateQualification(UpdateQualificationDTO updateQualificationDTO)
             throws NotAuthenticatedException {
         isAuthenticated();
@@ -159,7 +158,7 @@ class CoreClient implements CoreAPI {
     }
 
     // manager permission
-    @Override
+
     public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO)
             throws NotAuthenticatedException {
         isAuthenticated();
@@ -178,7 +177,7 @@ class CoreClient implements CoreAPI {
     }
 
     // manager permission or mechanic authority?
-    @Override
+
     public Optional<VehicleDTO> createVehicle(CreateVehicleDTO createVehicleDTO) throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -196,7 +195,7 @@ class CoreClient implements CoreAPI {
     }
 
     // shift leader or mechanic
-    @Override
+
     public Optional<VehicleDTO> updateVehicle(UpdateVehicleDTO updateVehicleDTO) throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -213,7 +212,7 @@ class CoreClient implements CoreAPI {
     }
 
     // authenticated
-    @Override
+
     public Optional<BreakdownDTO> createBreakdown(CreateBreakdownDTO createBreakdownDTO)
             throws NotAuthenticatedException {
         isAuthenticated();
@@ -231,7 +230,7 @@ class CoreClient implements CoreAPI {
     }
 
     // shift leader or mechanic
-    @Override
+
     public Optional<BreakdownDTO> updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO)
             throws NotAuthenticatedException {
         isAuthenticated();
@@ -249,7 +248,7 @@ class CoreClient implements CoreAPI {
     }
 
     // authenticated
-    @Override
+
     @Cacheable(cacheNames = "employeesCache")
     public List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException {
         isAuthenticated();
@@ -267,7 +266,7 @@ class CoreClient implements CoreAPI {
     }
 
     // authenticated
-    @Override
+
     public Optional<CompanyDTO> getCompanyById(UUID companyId) throws NotAuthenticatedException {
         log.info("Call getCompanyById");
         isAuthenticated();
@@ -285,7 +284,7 @@ class CoreClient implements CoreAPI {
     }
 
     // authenticated
-    @Override
+
     @Cacheable(cacheNames = "qualificationsCache")
     public List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException {
         isAuthenticated();
@@ -303,7 +302,7 @@ class CoreClient implements CoreAPI {
     }
 
     // authenticated
-    @Override
+
     public Optional<EmployeeDTO> getEmployeeById(UUID employeeId) throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -320,7 +319,7 @@ class CoreClient implements CoreAPI {
     }
 
     // authenticated
-    @Override
+
     public List<VehicleDTO> getAllVehicles() throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -337,7 +336,7 @@ class CoreClient implements CoreAPI {
     }
 
     // authenticated
-    @Override
+
     public List<VehicleTypeDTO> getAllVehicleTypes() throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -354,7 +353,7 @@ class CoreClient implements CoreAPI {
     }
 
     // authenticated
-    @Override
+
     public List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -371,7 +370,7 @@ class CoreClient implements CoreAPI {
     }
 
     // manager permission
-    @Override
+
     public void terminateEmployeeAccount(UUID employeeId) throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -388,7 +387,7 @@ class CoreClient implements CoreAPI {
     }
 
     // manager permission
-    @Override
+
     public void deleteQualification(UUID qualificationId) throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -405,7 +404,7 @@ class CoreClient implements CoreAPI {
     }
 
     // manager permission
-    @Override
+
     public void deleteVehicle(UUID vehicleId) throws NotAuthenticatedException {
         isAuthenticated();
         try {
@@ -421,7 +420,6 @@ class CoreClient implements CoreAPI {
         }
     }
 
-    @Override
     public void setToken(String token) {
         authorizedClient = coreClient
                 .mutate()
@@ -429,7 +427,6 @@ class CoreClient implements CoreAPI {
                 .build();
     }
 
-    @Override
     public void setAuthentication(boolean authenticated) {
         this.authenticated = authenticated;
     }
