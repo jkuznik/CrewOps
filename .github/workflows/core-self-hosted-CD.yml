@@ -93,5 +93,5 @@ jobs:
             -e CREW_OPS_EMPLOYEE_PHONE=$CREW_OPS_EMPLOYEE_PHONE \
             -e TZ=Europe/Warsaw \
             -p 8080:8080 \
-            --memory=600m \
+            --memory=512m \
             jkuznik/crewops-core:latest
