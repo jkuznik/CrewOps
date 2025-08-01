@@ -1,10 +1,12 @@
 package pl.crewops.util;
 
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.security.custom.UserPrincipal;
 
-public class CacheHelper {
+@Slf4j
+public class CacheResolver {
 
     public static final String GET_COMPANY_BY_ID = "getCompanyById";
     public static final String GET_EMPLOYEE_BY_ID = "getEmployeeById";
@@ -16,6 +18,7 @@ public class CacheHelper {
         if (auth != null && auth.getPrincipal() instanceof UserPrincipal userPrincipal) {
             return userPrincipal.getCompanyId();
         }
-        return UUID.fromString("00000000-0000-0000-0000-000000000000"); // fallback or throw
+        log.warn("SecurityContext missing or invalid; using fallback company ID.");
+        return UUID.fromString("00000000-0000-0000-0000-000000000000");
     }
 }
