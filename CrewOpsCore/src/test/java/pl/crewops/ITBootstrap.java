@@ -12,8 +12,8 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import pl.crewops.exception.multitenancy.CreateSchemaException;
-import pl.crewops.utils.multitenancy.LiquibaseSchemaMigrator;
-import pl.crewops.utils.multitenancy.SchemaManager;
+import pl.crewops.util.multitenancy.LiquibaseSchemaMigrator;
+import pl.crewops.util.multitenancy.SchemaManager;
 
 @Component
 @Profile(value = "test")

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.*;
 import pl.crewops.enums.CompanyStatus;
@@ -45,4 +46,15 @@ public class Company {
 
     @Column(insertable = false, updatable = false)
     private Instant updatedAt;
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Company company)) return false;
+        return Objects.equals(getId(), company.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId());
+    }
 }

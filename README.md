@@ -9,13 +9,12 @@ It offers robust features for ✅ workforce coordination, 📦 resource tracking
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen?logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
 [![Spring MVC](https://img.shields.io/badge/Spring%20MVC-Web-brightgreen?logo=spring&logoColor=white)](https://spring.io/guides/gs/serving-web-content/) [![Spring Security](https://img.shields.io/badge/Spring%20Security-Secure-green?logo=springsecurity&logoColor=white)](https://spring.io/projects/spring-security)
 
-[![Hibernate](https://img.shields.io/badge/JPA%2FHibernate-ORM-blueviolet)](https://hibernate.org/)
-
-[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.0-yellow?logo=openapiinitiative&logoColor=black)](https://www.openapis.org/)
+[![Hibernate](https://img.shields.io/badge/JPA%2FHibernate-ORM-blueviolet)](https://hibernate.org/) [![Liquibase](https://img.shields.io/badge/Liquibase-4.31.1-blue?logo=liquibase&logoColor=white)](https://www.liquibase.org/)
 
 [![Mockito](https://img.shields.io/badge/Mockito-4.11.0-8A2BE2?logo=mockito&logoColor=white)](https://site.mockito.org/)
 [![Testcontainers](https://img.shields.io/badge/Testcontainers-1.20.6-2496ED?logo=docker&logoColor=white)](https://www.testcontainers.org/)
 
+[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.0-yellow?logo=openapiinitiative&logoColor=black)](https://www.openapis.org/)
 
 ### 🎨 Frontend
 [![Vaadin](https://img.shields.io/badge/Vaadin-24+-0078D7?logo=vaadin&logoColor=white)](https://vaadin.com/)

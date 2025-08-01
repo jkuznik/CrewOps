@@ -27,9 +27,8 @@ import pl.crewops.view.component.grid.VehicleGrid;
 public class VehicleForm extends FormLayout {
     private final VehicleGrid vehicleGrid;
     private final BreakdownGrid breakdownGrid;
-    private final CoreAPI coreAPI;
 
-    TextField registrationNumber = new TextField();
+    TextField registerNumber = new TextField();
     TextField make = new TextField();
     TextField model = new TextField();
     ComboBox<Integer> year = new ComboBox<>();
@@ -56,7 +55,6 @@ public class VehicleForm extends FormLayout {
 
         this.vehicleGrid = vehicleGrid;
         this.breakdownGrid = breakdownGrid;
-        this.coreAPI = coreAPI;
 
         binder.bindInstanceFields(this);
 
@@ -81,7 +79,7 @@ public class VehicleForm extends FormLayout {
 
         vehicleTypeRow.setSizeFull();
 
-        add(broken, registrationNumber, vehicleTypeRow, make, model, year, vin, createButtonsLayout());
+        add(broken, registerNumber, vehicleTypeRow, make, model, year, vin, createButtonsLayout());
     }
 
     public void setFormModeSave() {
@@ -146,7 +144,7 @@ public class VehicleForm extends FormLayout {
     }
 
     private void localize() {
-        registrationNumber.setLabel(getTranslation("vehicleForm.registrationNumber"));
+        registerNumber.setLabel(getTranslation("vehicleForm.registrationNumber"));
         make.setLabel(getTranslation("vehicleForm.make"));
         model.setLabel(getTranslation("vehicleForm.model"));
         year.setLabel(getTranslation("vehicleForm.year"));
@@ -201,7 +199,7 @@ public class VehicleForm extends FormLayout {
                 .model(model.getValue())
                 .year(year.getValue())
                 .vin(vin.getValue())
-                .registrationNumber(registrationNumber.getValue())
+                .registerNumber(registerNumber.getValue())
                 .vehicleType(vehicleTypeName)
                 .broken(false)
                 .build();

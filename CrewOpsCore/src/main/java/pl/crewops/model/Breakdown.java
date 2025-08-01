@@ -36,17 +36,4 @@ public class Breakdown extends AbstractEntity {
     private boolean solved;
 
     private Instant solvedAt;
-
-    //    public BreakdownDTO toDTO() {
-    //        return BreakdownDTO.builder()
-    //                .id(this.getId())
-    //                .description(this.getDescription())
-    //                .vehicle(this.getVehicle().mapToDTO())
-    //                .reportedBy(this.getReportedBy().mapToDTO())
-    //                .repairedBy(this.getRepairedBy() != null ? this.getRepairedBy().mapToDTO() : null)
-    //                .critical(this.isCritical())
-    //                .solved(this.isSolved())
-    //                .solvedAt(this.getSolvedAt())
-    //                .build();
-    //    }
 }

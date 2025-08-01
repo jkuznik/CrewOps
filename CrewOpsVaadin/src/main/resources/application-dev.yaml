@@ -1,2 +1,7 @@
+logging:
+  level:
+    pl.crewops: debug
+    root: info
+
 core:
   base-url: http://localhost:8080

@@ -2,6 +2,7 @@ package pl.crewops.model.joinTable;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
@@ -32,4 +33,15 @@ public class EmployeeQualification {
 
     @Column(name = "expired_at")
     private Instant expiredAt;
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof EmployeeQualification that)) return false;
+        return Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId());
+    }
 }

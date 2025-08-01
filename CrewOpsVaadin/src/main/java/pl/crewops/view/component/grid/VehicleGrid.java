@@ -119,7 +119,7 @@ public class VehicleGrid extends VerticalLayout {
         grid.removeAllColumns();
 
         grid.addColumn(VehicleFormModel::getVehicleType).setKey("vehicleType");
-        grid.addColumn(VehicleFormModel::getRegistrationNumber).setKey("registrationNumber");
+        grid.addColumn(VehicleFormModel::getRegisterNumber).setKey("registrationNumber");
 
         grid.addColumn(new ComponentRenderer<>(vehicle -> {
                     if (vehicle.getBroken()) {
@@ -258,10 +258,10 @@ public class VehicleGrid extends VerticalLayout {
             breakdownFormModel.setVehicle(coreAPI.getAllVehicles().stream()
                     .filter(vehicleDTO -> vehicleDTO
                             .registerNumber()
-                            .equals(event.getVehicle().getRegistrationNumber()))
+                            .equals(event.getVehicle().getRegisterNumber()))
                     .findFirst()
                     .orElseThrow(() -> new NoSuchElementException("No vehicle registered with id "
-                            + event.getVehicle().getRegistrationNumber())));
+                            + event.getVehicle().getRegisterNumber())));
             breakdownFormModel.setReportedBy(EmployeeDTO.builder()
                     .id(UUID.fromString("11111111-1111-1111-1111-111111111111"))
                     .build());
@@ -283,7 +283,7 @@ public class VehicleGrid extends VerticalLayout {
         protected VehicleGridEvent(VehicleGrid source, BreakdownGrid breakdownGrid) {
             super(source, false);
             source.setVisible(false);
-            breakdownGrid.setFilter(source.getSelectedVehicle().getRegistrationNumber());
+            breakdownGrid.setFilter(source.getSelectedVehicle().getRegisterNumber());
             breakdownGrid.setVisible(true);
         }
     }

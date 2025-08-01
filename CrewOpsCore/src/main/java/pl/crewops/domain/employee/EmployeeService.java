@@ -26,7 +26,7 @@ import pl.crewops.model.Employee;
 import pl.crewops.model.Qualification;
 import pl.crewops.model.Vehicle;
 import pl.crewops.model.joinTable.EmployeeQualification;
-import pl.crewops.utils.pagination.PageRequestFactory;
+import pl.crewops.util.pagination.PageRequestFactory;
 
 @Slf4j
 @Service

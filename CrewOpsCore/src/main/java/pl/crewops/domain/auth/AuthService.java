@@ -1,6 +1,6 @@
 package pl.crewops.domain.auth;
 
-import static pl.crewops.utils.credentialsGenerator.CredentialGenerator.generatePassword;
+import static pl.crewops.util.credentialsGenerator.CredentialGenerator.generatePassword;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.*;
@@ -26,7 +26,7 @@ import pl.crewops.model.publicSchema.Role;
 import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceCore;
-import pl.crewops.utils.credentialsGenerator.CredentialGenerator;
+import pl.crewops.util.credentialsGenerator.CredentialGenerator;
 
 @Service
 @Slf4j
@@ -120,7 +120,7 @@ class AuthService implements AuthAPI {
             log.info("Creating auth user " + createAuthUserDTO.username() + " with roles " + roles);
             authUser.setRoles(roles);
             authUser.setEmployeeId(employeeId);
-            log.info("Auth user instantiated successfully as " + authUser.toString());
+            log.info("Auth user instantiated successfully as " + authUser);
             authUserRepository.save(authUser);
             return authUserDTO(authUser);
         } catch (Exception e) {

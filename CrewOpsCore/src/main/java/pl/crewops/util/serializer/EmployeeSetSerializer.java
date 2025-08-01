@@ -1,4 +1,4 @@
-package pl.crewops.utils.serializer;
+package pl.crewops.util.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;

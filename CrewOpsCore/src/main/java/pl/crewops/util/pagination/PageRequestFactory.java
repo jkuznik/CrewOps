@@ -1,4 +1,4 @@
-package pl.crewops.utils.pagination;
+package pl.crewops.util.pagination;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;

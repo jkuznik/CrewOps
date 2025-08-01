@@ -1,4 +1,4 @@
-package pl.crewops.utils.multitenancy;
+package pl.crewops.util.multitenancy;
 
 import java.util.UUID;
 import pl.crewops.exception.multitenancy.CreateSchemaException;

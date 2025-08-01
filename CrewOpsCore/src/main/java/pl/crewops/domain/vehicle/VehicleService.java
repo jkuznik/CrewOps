@@ -2,7 +2,7 @@ package pl.crewops.domain.vehicle;
 
 import static pl.crewops.domain.vehicle.VehicleMapper.mapToDTO;
 import static pl.crewops.domain.vehicle.VehicleMapper.mapToEntity;
-import static pl.crewops.utils.pagination.PageRequestFactory.createPageRequest;
+import static pl.crewops.util.pagination.PageRequestFactory.createPageRequest;
 
 import java.util.*;
 import lombok.RequiredArgsConstructor;

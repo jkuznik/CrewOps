@@ -16,6 +16,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.dto.company.CompanyDTO;
@@ -28,6 +29,7 @@ import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.LoginForm;
 import pl.crewops.view.component.notification.EndSessionNotification;
 
+@Log4j2
 public class LoggedUserInfoComponent extends HorizontalLayout {
     private static final Map<UI, Boolean> startedMap = new WeakHashMap<>();
     private final Authentication authentication;
@@ -69,7 +71,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
     }
 
     private UserInformation getInfo(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
-
+        log.info("Getting loggedUserInfo");
         String companyName = "";
         try {
             CompanyDTO companyDTO = coreAPI.getCompanyById(jwtService.extractCompanyId(principal.getToken()))
@@ -79,7 +81,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         } catch (NotAuthenticatedException e) {
             System.out.println("JWT token not authenticated during retrieve user info");
         } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
+            log.error("Error getting company name for logged user info" + e.getMessage());
         }
         try {
             var employeeDTO = coreAPI.getEmployeeById(jwtService.extractEmployeeId(principal.getToken()))
@@ -92,8 +94,8 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                             .extractExpiresAt(principal.getToken())
                             .toInstant()
                             .getEpochSecond());
-        } catch (NotAuthenticatedException e) {
-            System.out.println("Some problem occurred while retrieving employee information");
+        } catch (NotAuthenticatedException | NoSuchElementException ex) {
+            log.error("JWT token not authenticated during retrieve user info" + ex.getMessage());
             return new UserInformation(
                     companyName,
                     "system",
@@ -108,11 +110,8 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
     private Component displayUserInfo(UserInformation userInformation) {
         Span companyName = new Span(userInformation.companyName);
         Span userName = new Span(userInformation.userName + " " + userInformation.userLastname);
-        Span countdown = new Span();
-        countdown.getStyle().set("font-weight", "bold");
-        countdown.getStyle().set("margin-left", "1rem");
 
-        Div container = new Div(companyName, userName, countdown);
+        Div container = new Div(companyName, userName);
         container.getStyle().set("display", "flex");
         container.getStyle().set("align-items", "center");
         container.getStyle().set("gap", "1rem");
@@ -120,7 +119,6 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         long expiryEpoch = userInformation.expiryEpoch;
         UI ui = UI.getCurrent();
 
-        // 🔒 Zapobiegaj wielokrotnemu uruchamianiu timera dla jednej sesji
         if (startedMap.getOrDefault(ui, false)) {
             return container;
         }
@@ -135,8 +133,8 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                     if (secondsLeft <= 0 && !sessionEnded) {
                         sessionEnded = true;
                         scheduler.shutdown();
+
                         ui.access(() -> {
-                            countdown.setText(getTranslation("loggedUserInfo.tokenExpired"));
                             new EndSessionNotification(ui, () -> {
                                         authentication.setAuthenticated(false);
                                         String currentLocation = ui.getInternals()
@@ -150,12 +148,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                                     })
                                     .show();
                         });
-                        return;
                     }
-
-                    String timeFormatted = formatDuration(secondsLeft);
-                    ui.access(() ->
-                            countdown.setText(getTranslation("loggedUserInfo.tokenCountdownPrefix") + timeFormatted));
                 },
                 0,
                 1,

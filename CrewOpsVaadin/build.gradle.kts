@@ -12,17 +12,17 @@ plugins {
 
     dependencies {
 
-//        if (production) {
-//            // using vaadin-core instead of vaadin artifact should force to use only free components
-//            implementation("com.vaadin:vaadin-core:24.7.1") {
-//                exclude(group = "com.vaadin", module = "vaadin-dev")
-//            }
-//        } else {
-//            implementation("com.vaadin:vaadin-core:24.7.1")
-//        }
-        implementation("com.vaadin:vaadin-core:24.7.1")
+        if (production) {
+            // using vaadin-core instead of vaadin artifact should force to use only free components
+            implementation("com.vaadin:vaadin-core:24.7.1") {
+                exclude(group = "com.vaadin", module = "vaadin-dev")
+            }
+        } else {
+            implementation("com.vaadin:vaadin-core:24.7.1")
+        }
         implementation("com.vaadin:vaadin-spring-boot-starter")
         implementation("org.springframework.boot:spring-boot-starter-cache")
+        implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
         implementation(project(":CrewOpsModel"))
         implementation(project(":CrewOpsSecurity"))

@@ -24,9 +24,9 @@ import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
-import pl.crewops.utils.multitenancy.LiquibaseSchemaMigrator;
-import pl.crewops.utils.multitenancy.SchemaManager;
-import pl.crewops.utils.multitenancy.TenantSchemaNameGenerator;
+import pl.crewops.util.multitenancy.LiquibaseSchemaMigrator;
+import pl.crewops.util.multitenancy.SchemaManager;
+import pl.crewops.util.multitenancy.TenantSchemaNameGenerator;
 
 @Slf4j
 @Service

@@ -18,7 +18,7 @@ public class DeleteVehicleGuardian extends Notification {
         setPosition(Position.MIDDLE);
         setDuration(0);
 
-        String registrationNumber = vehicleFormModel.getRegistrationNumber();
+        String registrationNumber = vehicleFormModel.getRegisterNumber();
 
         var message = new Div();
         message.addClassName("delete-vehicle-guardian-div");

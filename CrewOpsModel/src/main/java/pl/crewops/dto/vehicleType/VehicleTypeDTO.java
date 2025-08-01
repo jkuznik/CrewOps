@@ -1,12 +1,13 @@
 package pl.crewops.dto.vehicleType;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record VehicleTypeDTO(UUID id, String name) {
+public record VehicleTypeDTO(UUID id, String name) implements Serializable {
 
     @JsonCreator
     public static VehicleTypeDTO fromString(String value) {

@@ -8,7 +8,7 @@ import java.util.Set;
 import lombok.*;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
-import pl.crewops.utils.serializer.EmployeeSetSerializer;
+import pl.crewops.util.serializer.EmployeeSetSerializer;
 
 @Getter
 @Setter
