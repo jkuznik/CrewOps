@@ -1,7 +1,6 @@
 package pl.crewops.domain.registration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static pl.crewops.domain.registration.RegistrationTestFactory.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,7 +18,7 @@ import pl.crewops.exception.domain.registration.RegisterCustomerException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.Employee;
 import pl.crewops.model.publicSchema.Tenant;
-import pl.crewops.utils.credentialsGenerator.CredentialGenerator;
+import pl.crewops.util.credentialsGenerator.CredentialGenerator;
 
 class RegistrationServiceTest extends IntegrationTest {
 

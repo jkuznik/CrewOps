@@ -1,6 +1,7 @@
 package pl.crewops.infrastructure.core;
 
 import static pl.crewops.enums.ControllerURL.*;
+import static pl.crewops.util.CacheHelper.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
@@ -75,20 +77,26 @@ class CoreClient {
 
     // manager permission
 
-    @CacheEvict(value = "employeeCache", allEntries = true)
-    public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) {
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheHelper).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS,
+                        key = "T(pl.crewops.util.CacheHelper).getCurrentCompanyId()")
+            })
+    public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
 
         try {
-            return Optional.ofNullable(authorizedClient
+            return authorizedClient
                     .post()
                     .uri(uriBuilder -> uriBuilder.path(EMPLOYEES).build())
                     .body(createEmployeeDTO)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
-                    .body(new ParameterizedTypeReference<EmployeeDTO>() {}));
+                    .body(new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
             log.error("Create new employee error");
-            return Optional.empty();
+            return null;
         }
     }
 
@@ -234,7 +242,7 @@ class CoreClient {
 
     // authenticated
 
-    @Cacheable(cacheNames = "getAllEmployees")
+    @Cacheable(cacheNames = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheHelper).getCurrentCompanyId()")
     public List<EmployeeDTO> getAllEmployees() {
         log.warn("Get all employees cache missing");
         try {
@@ -252,8 +260,8 @@ class CoreClient {
 
     // authenticated
 
-    @Cacheable("getCompanyById")
-    public Optional<CompanyDTO> getCompanyById(UUID companyId) {
+    @Cacheable(cacheNames = GET_COMPANY_BY_ID, key = "T(pl.crewops.util.CacheHelper).getCurrentCompanyId()")
+    public CompanyDTO getCompanyById(UUID companyId) {
         log.warn("Get company by id cache missing");
         try {
             return authorizedClient
@@ -261,16 +269,16 @@ class CoreClient {
                     .uri(uriBuilder -> uriBuilder.path(COMPANIES_CID).build(companyId))
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
-                    .body(new ParameterizedTypeReference<Optional<CompanyDTO>>() {});
+                    .body(new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
             log.error("Error getting company by id");
-            return Optional.empty();
+            return null;
         }
     }
 
     // authenticated
 
-    @Cacheable(cacheNames = "getAllQualifications")
+    @Cacheable(cacheNames = GET_ALL_QUALIFICATIONS, key = "T(pl.crewops.util.CacheHelper).getCurrentCompanyId()")
     public List<QualificationDTO> getAllQualifications() {
         log.warn("Get all qualifications cache missing");
         try {
@@ -288,8 +296,8 @@ class CoreClient {
 
     // authenticated
 
-    @Cacheable(cacheNames = "getEmployeeById")
-    public Optional<EmployeeDTO> getEmployeeById(UUID employeeId) {
+    @Cacheable(cacheNames = GET_EMPLOYEE_BY_ID, key = "T(pl.crewops.util.CacheHelper).getCurrentCompanyId()")
+    public EmployeeDTO getEmployeeById(UUID employeeId) {
         log.warn("Get employee by id cache missing");
         try {
             return authorizedClient
@@ -297,10 +305,10 @@ class CoreClient {
                     .uri(uriBuilder -> uriBuilder.path(EMPLOYEES_EID).build(employeeId))
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
-                    .body(new ParameterizedTypeReference<Optional<EmployeeDTO>>() {});
+                    .body(new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
             log.error("Error getting employee by id");
-            return Optional.empty();
+            return null;
         }
     }
 

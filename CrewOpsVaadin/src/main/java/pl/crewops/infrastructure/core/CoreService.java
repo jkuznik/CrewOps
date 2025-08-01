@@ -56,7 +56,7 @@ class CoreService implements CoreAPI {
     @Override
     public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) throws NotAuthenticatedException {
         isAuthenticated();
-        return coreClient.createEmployee(createEmployeeDTO);
+        return Optional.ofNullable(coreClient.createEmployee(createEmployeeDTO));
     }
 
     @Override
@@ -123,7 +123,7 @@ class CoreService implements CoreAPI {
     public Optional<EmployeeDTO> getEmployeeById(UUID employeeId) throws NotAuthenticatedException {
         log.info("Get employee by id via service proxy");
         isAuthenticated();
-        return coreClient.getEmployeeById(employeeId);
+        return Optional.ofNullable(coreClient.getEmployeeById(employeeId));
     }
 
     @Override
@@ -155,7 +155,7 @@ class CoreService implements CoreAPI {
     public Optional<CompanyDTO> getCompanyById(UUID companyId) throws NotAuthenticatedException {
         log.info("Get company by id via service proxy");
         isAuthenticated();
-        return coreClient.getCompanyById(companyId);
+        return Optional.ofNullable(coreClient.getCompanyById(companyId));
     }
 
     @Override

@@ -2,7 +2,7 @@ package pl.crewops.domain.qualification;
 
 import static pl.crewops.domain.qualification.QualificationMapper.mapToDTO;
 import static pl.crewops.domain.qualification.QualificationMapper.mapToEntity;
-import static pl.crewops.utils.pagination.PageRequestFactory.createPageRequest;
+import static pl.crewops.util.pagination.PageRequestFactory.createPageRequest;
 
 import java.util.List;
 import java.util.Set;

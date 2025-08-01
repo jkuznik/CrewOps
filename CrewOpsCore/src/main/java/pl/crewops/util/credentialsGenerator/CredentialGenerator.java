@@ -1,4 +1,4 @@
-package pl.crewops.utils.credentialsGenerator;
+package pl.crewops.util.credentialsGenerator;
 
 import java.security.SecureRandom;
 import java.util.List;

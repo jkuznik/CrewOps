@@ -10,6 +10,8 @@ spring:
 
   cache:
     cache-names: getAllEmployees, getAllQualifications, getCompanyById, getEmployeeById
+    redis:
+      time-to-live: 3600000
 
 security:
   properties:

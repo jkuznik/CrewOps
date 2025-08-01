@@ -1,6 +1,6 @@
 package pl.crewops.domain.auth;
 
-import static pl.crewops.utils.credentialsGenerator.CredentialGenerator.generatePassword;
+import static pl.crewops.util.credentialsGenerator.CredentialGenerator.generatePassword;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.*;
@@ -26,7 +26,7 @@ import pl.crewops.model.publicSchema.Role;
 import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceCore;
-import pl.crewops.utils.credentialsGenerator.CredentialGenerator;
+import pl.crewops.util.credentialsGenerator.CredentialGenerator;
 
 @Service
 @Slf4j

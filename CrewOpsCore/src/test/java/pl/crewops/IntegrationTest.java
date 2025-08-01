@@ -25,8 +25,8 @@ import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.domain.vehicle.VehicleAPI;
 import pl.crewops.domain.vehicleType.VehicleTypeAPI;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
-import pl.crewops.utils.multitenancy.LiquibaseSchemaMigrator;
-import pl.crewops.utils.multitenancy.SchemaManager;
+import pl.crewops.util.multitenancy.LiquibaseSchemaMigrator;
+import pl.crewops.util.multitenancy.SchemaManager;
 
 @ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc

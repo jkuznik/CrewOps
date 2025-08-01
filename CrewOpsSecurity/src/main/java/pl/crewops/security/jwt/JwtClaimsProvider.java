@@ -22,6 +22,7 @@ import pl.crewops.security.custom.CustomUserPrincipal;
 @Component
 public abstract class JwtClaimsProvider {
 
+    // TODO: change this om to streamAPI usage
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final SecurityConfigProperties securityConfigProperties;
     private final long expirationTime;
