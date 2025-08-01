@@ -62,54 +62,54 @@ class CoreService implements CoreAPI {
     @Override
     public Optional<EmployeeDTO> updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) throws NotAuthenticatedException {
         isAuthenticated();
-        return coreClient.updateEmployee(updateEmployeeDTO);
+        return Optional.ofNullable(coreClient.updateEmployee(updateEmployeeDTO));
     }
 
     @Override
     public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO)
             throws NotAuthenticatedException {
         isAuthenticated();
-        return coreClient.createQualification(createQualificationDTO);
+        return Optional.ofNullable(coreClient.createQualification(createQualificationDTO));
     }
 
     @Override
     public Optional<QualificationDTO> updateQualification(UpdateQualificationDTO updateQualificationDTO)
             throws NotAuthenticatedException {
         isAuthenticated();
-        return coreClient.updateQualification(updateQualificationDTO);
+        return Optional.ofNullable(coreClient.updateQualification(updateQualificationDTO));
     }
 
     @Override
     public Optional<VehicleDTO> createVehicle(CreateVehicleDTO createVehicleDTO) throws NotAuthenticatedException {
         isAuthenticated();
-        return coreClient.createVehicle(createVehicleDTO);
+        return Optional.ofNullable(coreClient.createVehicle(createVehicleDTO));
     }
 
     @Override
     public Optional<CreateCustomerResult> registerNewCustomer(CreateCustomerCommand command)
             throws NotAuthenticatedException {
         isAuthenticated();
-        return coreClient.registerNewCustomer(command);
+        return Optional.ofNullable(coreClient.registerNewCustomer(command));
     }
 
     @Override
     public Optional<VehicleDTO> updateVehicle(UpdateVehicleDTO updateVehicleDTO) throws NotAuthenticatedException {
         isAuthenticated();
-        return coreClient.updateVehicle(updateVehicleDTO);
+        return Optional.ofNullable(coreClient.updateVehicle(updateVehicleDTO));
     }
 
     @Override
     public Optional<BreakdownDTO> createBreakdown(CreateBreakdownDTO createBreakdownDTO)
             throws NotAuthenticatedException {
         isAuthenticated();
-        return coreClient.createBreakdown(createBreakdownDTO);
+        return Optional.ofNullable(coreClient.createBreakdown(createBreakdownDTO));
     }
 
     @Override
     public Optional<BreakdownDTO> updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO)
             throws NotAuthenticatedException {
         isAuthenticated();
-        return coreClient.updateBreakdown(updateBreakdownDTO);
+        return Optional.ofNullable(coreClient.updateBreakdown(updateBreakdownDTO));
     }
 
     @Override
