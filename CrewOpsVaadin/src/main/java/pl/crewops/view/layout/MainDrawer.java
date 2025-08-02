@@ -1,5 +1,7 @@
 package pl.crewops.view.layout;
 
+import static pl.crewops.model.auth.RoleType.*;
+
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.Span;
@@ -7,8 +9,10 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import java.util.Set;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import pl.crewops.model.auth.RoleGrantedAuthority;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.view.EmployeeView;
@@ -21,7 +25,6 @@ import pl.crewops.view.VehicleView;
 public class MainDrawer extends VerticalLayout {
 
     private final JwtServiceVaadin jwtService;
-    private UserPrincipal principal;
 
     private final RouterLink homeLink = new RouterLink(HomeView.class);
     private final RouterLink employeeLink = new RouterLink(EmployeeView.class);
@@ -38,13 +41,6 @@ public class MainDrawer extends VerticalLayout {
 
         localize();
 
-        if (authentication != null
-                && authentication.isAuthenticated()
-                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
-
-            this.principal = userPrincipal;
-        }
-
         setSizeFull();
         setSpacing(true);
         setPadding(true);
@@ -58,7 +54,14 @@ public class MainDrawer extends VerticalLayout {
         add(linksLayout, createDrawerFooter());
         setFlexGrow(1, linksLayout);
 
-        checkDrawer(employeeLink, vehicleLink);
+        if (authentication != null
+                && authentication.isAuthenticated()
+                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
+
+            customizeDrawerDependsOnRoles(userPrincipal, employeeLink, vehicleLink);
+        } else {
+            customizeDrawerDependsOnRoles(null, employeeLink, vehicleLink);
+        }
     }
 
     private void localize() {
@@ -80,13 +83,34 @@ public class MainDrawer extends VerticalLayout {
         return footer;
     }
 
-    private void checkDrawer(RouterLink employeeLink, RouterLink vehicleLink) {
-        if (principal == null || !jwtService.validToken(principal.getToken())) {
-            employeeLink.setVisible(false);
-            vehicleLink.setVisible(false);
+    private void customizeDrawerDependsOnRoles(
+            UserPrincipal principal, RouterLink employeeLink, RouterLink vehicleLink) {
+        if (isRequestAuthenticated(principal)) {
+            displayLinksDependsOnRoles(principal, employeeLink, vehicleLink);
         } else {
+            hideLinksRequiredAuthentication(employeeLink, vehicleLink);
+        }
+    }
+
+    private static void hideLinksRequiredAuthentication(RouterLink employeeLink, RouterLink vehicleLink) {
+        employeeLink.setVisible(false);
+        vehicleLink.setVisible(false);
+    }
+
+    private void displayLinksDependsOnRoles(UserPrincipal principal, RouterLink employeeLink, RouterLink vehicleLink) {
+        Set<RoleGrantedAuthority> roleGrantedAuthorities = jwtService.extractAuthorities(principal.getToken());
+        if (roleGrantedAuthorities.contains(new RoleGrantedAuthority(MANAGER))
+                || roleGrantedAuthorities.contains(new RoleGrantedAuthority(COMPANY_ADMIN))
+                || roleGrantedAuthorities.contains(new RoleGrantedAuthority(SYSTEM_ADMIN))) {
             employeeLink.setVisible(true);
             vehicleLink.setVisible(true);
+        } else {
+            employeeLink.setVisible(false);
+            vehicleLink.setVisible(true);
         }
+    }
+
+    private boolean isRequestAuthenticated(UserPrincipal principal) {
+        return principal != null && jwtService.validToken(principal.getToken());
     }
 }

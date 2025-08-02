@@ -24,19 +24,9 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
     private final VehicleGrid vehicleGrid;
     private final BreakdownGrid breakdownGrid;
 
-    private UserPrincipal principal;
-
     public VehicleView(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
         super(coreAPI, jwtService);
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null
-                && authentication.isAuthenticated()
-                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
-
-            this.principal = userPrincipal;
-        }
         breakdownGrid = new BreakdownGrid(coreAPI);
         breakdownGrid.setSizeFull();
         breakdownGrid.setVisible(false);
@@ -83,9 +73,20 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (principal == null || !jwtService.validToken(principal.getToken())) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (notAuthenticated(authentication) || tokenNotValid(authentication)) {
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");
         }
+    }
+
+    private boolean tokenNotValid(Authentication authentication) {
+        return authentication.getPrincipal() instanceof UserPrincipal userPrincipal
+                && !jwtService.validToken(userPrincipal.getToken());
+    }
+
+    private boolean notAuthenticated(Authentication authentication) {
+        return authentication == null || !authentication.isAuthenticated();
     }
 }

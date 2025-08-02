@@ -1,5 +1,7 @@
 package pl.crewops.view;
 
+import static pl.crewops.model.auth.RoleType.*;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -7,9 +9,11 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import java.util.Set;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.model.auth.RoleGrantedAuthority;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.view.component.grid.EmployeeGrid;
@@ -22,18 +26,8 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
     private final EmployeeGrid employeeGrid;
     private final QualificationGrid qualificationGrid;
 
-    private UserPrincipal principal;
-
     public EmployeeView(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
         super(coreAPI, jwtService);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null
-                && authentication.isAuthenticated()
-                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
-
-            this.principal = userPrincipal;
-        }
 
         employeeGrid = new EmployeeGrid(coreAPI);
         qualificationGrid = new QualificationGrid(coreAPI);
@@ -78,9 +72,32 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (principal == null || !jwtService.validToken(principal.getToken())) {
-            event.forwardTo(HomeView.class);
-            UI.getCurrent().getPage().setLocation("/");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (isAuthenticated(authentication)
+                && authentication.getPrincipal() instanceof UserPrincipal principal
+                && tokenIsValid(principal)) {
+
+            Set<RoleGrantedAuthority> roleGrantedAuthorities = jwtService.extractAuthorities(principal.getToken());
+            if (requestHasRequiredPermission(roleGrantedAuthorities)) {
+                return;
+            }
         }
+
+        event.forwardTo(HomeView.class);
+        UI.getCurrent().getPage().setLocation("/");
+    }
+
+    private boolean requestHasRequiredPermission(Set<RoleGrantedAuthority> roleGrantedAuthorities) {
+        return roleGrantedAuthorities.contains(new RoleGrantedAuthority(MANAGER))
+                || roleGrantedAuthorities.contains(new RoleGrantedAuthority(COMPANY_ADMIN))
+                || roleGrantedAuthorities.contains(new RoleGrantedAuthority(SYSTEM_ADMIN));
+    }
+
+    private boolean tokenIsValid(UserPrincipal principal) {
+        return jwtService.validToken(principal.getToken());
+    }
+
+    private boolean isAuthenticated(Authentication authentication) {
+        return authentication != null && authentication.isAuthenticated();
     }
 }
