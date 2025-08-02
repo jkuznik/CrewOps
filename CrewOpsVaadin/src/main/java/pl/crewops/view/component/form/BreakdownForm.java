@@ -19,6 +19,7 @@ import pl.crewops.model.BreakdownFormModel;
 
 public class BreakdownForm extends FormLayout {
 
+    // TODO: not allow to update breakdown (solve breakdown) if user has no at least mechanic permission
     private final TextField vehicle = new TextField();
     private final TextArea description = new TextArea();
     private final Checkbox solved = new Checkbox();

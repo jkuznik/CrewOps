@@ -25,6 +25,7 @@ import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.BreakdownFormModel;
 import pl.crewops.model.VehicleFormModel;
+import pl.crewops.util.RoleResolver;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.BreakdownForm;
 import pl.crewops.view.component.form.VehicleForm;
@@ -36,6 +37,7 @@ import pl.crewops.view.component.notification.UpdateVehicleNotification;
 @Slf4j
 public class VehicleGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
+    private final RoleResolver roleResolver;
 
     private final Grid<VehicleFormModel> grid = new Grid<>(VehicleFormModel.class);
     private final TextField filter = new TextField();
@@ -44,8 +46,9 @@ public class VehicleGrid extends VerticalLayout {
     private final BreakdownForm breakdownForm = new BreakdownForm();
     private VehicleFormModel selectedModel;
 
-    public VehicleGrid(CoreAPI coreAPI, BreakdownGrid breakdownGrid) {
+    public VehicleGrid(CoreAPI coreAPI, BreakdownGrid breakdownGrid, RoleResolver roleResolver) {
         this.coreAPI = coreAPI;
+        this.roleResolver = roleResolver;
         this.vehicleForm = new VehicleForm(this, breakdownGrid, coreAPI);
 
         configureGrid();
@@ -110,7 +113,12 @@ public class VehicleGrid extends VerticalLayout {
 
         addVehicle.addClickListener(event -> addVehicle());
 
-        toolbar.add(filter, addVehicle);
+        if (roleResolver.principalHasAtLeastManagerRole()) {
+            toolbar.add(filter, addVehicle);
+        } else {
+            toolbar.add(filter);
+        }
+
         return toolbar;
     }
 
@@ -186,7 +194,11 @@ public class VehicleGrid extends VerticalLayout {
             closeEditor();
         } else {
             vehicleForm.setVehicle(vehicleFormModel);
-            vehicleForm.setFormModeUpdate();
+            if (roleResolver.principalHasAtLeastManagerRole()) {
+                vehicleForm.setFormModeUpdate();
+            } else {
+                vehicleForm.setFormModeEmployeePermission();
+            }
             vehicleForm.setVisible(true);
         }
     }

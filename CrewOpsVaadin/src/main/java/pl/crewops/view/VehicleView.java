@@ -8,11 +8,9 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceVaadin;
+import pl.crewops.util.RoleResolver;
 import pl.crewops.view.component.grid.BreakdownGrid;
 import pl.crewops.view.component.grid.VehicleGrid;
 import pl.crewops.view.layout.MainLayout;
@@ -24,14 +22,14 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
     private final VehicleGrid vehicleGrid;
     private final BreakdownGrid breakdownGrid;
 
-    public VehicleView(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
-        super(coreAPI, jwtService);
+    public VehicleView(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
+        super(coreAPI, jwtService, roleResolver);
 
         breakdownGrid = new BreakdownGrid(coreAPI);
         breakdownGrid.setSizeFull();
         breakdownGrid.setVisible(false);
 
-        vehicleGrid = new VehicleGrid(coreAPI, breakdownGrid);
+        vehicleGrid = new VehicleGrid(coreAPI, breakdownGrid, roleResolver);
         vehicleGrid.setSizeFull();
 
         addClassName("vehicle-view");
@@ -73,20 +71,9 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (notAuthenticated(authentication) || tokenNotValid(authentication)) {
+        if (!roleResolver.principalHasEmployeeRole()) {
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");
         }
-    }
-
-    private boolean tokenNotValid(Authentication authentication) {
-        return authentication.getPrincipal() instanceof UserPrincipal userPrincipal
-                && !jwtService.validToken(userPrincipal.getToken());
-    }
-
-    private boolean notAuthenticated(Authentication authentication) {
-        return authentication == null || !authentication.isAuthenticated();
     }
 }
