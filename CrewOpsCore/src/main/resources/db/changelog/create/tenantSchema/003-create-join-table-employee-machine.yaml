@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-table-employee-machine
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: employee_machine
+            columns:
+              - column:
+                  name: employee_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: machine_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+
+        - addPrimaryKey:
+            tableName: employee_machine
+            columnNames: employee_id, machine_id
+            constraintName: pk_employee_machine
+
+        - addForeignKeyConstraint:
+            baseTableName: employee_machine
+            baseColumnNames: employee_id
+            constraintName: fk_employee_machine_employee
+            referencedTableName: employee
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: employee_machine
+            baseColumnNames: machine_id
+            constraintName: fk_employee_machine_machine
+            referencedTableName: machine
+            referencedColumnNames: id
+            onDelete: CASCADE

@@ -104,8 +104,8 @@ class EmployeeAPITest extends IntegrationTest {
         Employee employeeById = employeeAPI.getEmployeeById(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 
         assertThat(employeeById.getQualifications().isEmpty()).isFalse();
-        assertThat(employeeById.getVehicles().isEmpty()).isFalse();
-        assertThat(employeeById.getVehicles().stream().findFirst().get().getVehicleType())
+        assertThat(employeeById.getMachines().isEmpty()).isFalse();
+        assertThat(employeeById.getMachines().stream().findFirst().get().getMachineType())
                 .isNotNull();
     }
 }

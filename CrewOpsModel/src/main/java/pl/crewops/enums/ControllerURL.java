@@ -16,10 +16,10 @@ public class ControllerURL {
     public static final String EMPLOYEE_ID = "employeeId";
     public static final String QUALIFICATIONS = "/qualifications";
     public static final String QUALIFICATION_ID = "qualificationId";
-    public static final String VEHICLES = "/vehicles";
-    public static final String VEHICLE_ID = "vehicleId";
-    public static final String VEHICLE_TYPES = "/vehicleTypes";
-    public static final String VEHICLE_TYPE_ID = "vehicleTypeId";
+    public static final String MACHINES = "/machines";
+    public static final String MACHINE_ID = "machineId";
+    public static final String MACHINE_TYPES = "/machineTypes";
+    public static final String MACHINE_TYPE_ID = "machineTypeId";
     public static final String BREAKDOWNS = "/breakdowns";
     public static final String BREAKDOWN_ID = "breakdownId";
     public static final String COMPANIES = "/companies";
@@ -34,16 +34,16 @@ public class ControllerURL {
             QUALIFICATIONS + "/{" + QUALIFICATION_ID + "}" + EMPLOYEES;
     public static final String QUALIFICATIONS_QIDS = QUALIFICATIONS + "/collection";
 
-    public static final String VEHICLES_VID = VEHICLES + "/{" + VEHICLE_ID + "}";
-    public static final String VEHICLES_VID_EMPLOYEES = VEHICLES + "/{" + VEHICLE_ID + "}" + EMPLOYEES;
-    public static final String VEHICLES_RN = VEHICLES + "/{registrationNumber}";
-    public static final String VEHICLES_VIDS = VEHICLES + "/collection";
+    public static final String MACHINES_VID = MACHINES + "/{" + MACHINE_ID + "}";
+    public static final String MACHINES_VID_EMPLOYEES = MACHINES + "/{" + MACHINE_ID + "}" + EMPLOYEES;
+    public static final String MACHINES_RN = MACHINES + "/{registrationNumber}";
+    public static final String MACHINES_VIDS = MACHINES + "/collection";
 
     public static final String EMPLOYEES_EID_PHONE = EMPLOYEES_EID + "/phone";
     public static final String EMPLOYEES_EID_QUALIFICATIONS_QID = EMPLOYEES_EID + QUALIFICATIONS_QID;
     public static final String EMPLOYEES_EID_QUALIFICATIONS_QID_EXPIRED = EMPLOYEES_EID_QUALIFICATIONS_QID + "/expired";
 
-    public static final String EMPLOYEES_EID_VEHICLES_VID = EMPLOYEES_EID + VEHICLES_VID;
+    public static final String EMPLOYEES_EID_MACHINES_VID = EMPLOYEES_EID + MACHINES_VID;
 
     public static String[] publicUrl() {
         return new String[] {

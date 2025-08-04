@@ -14,12 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.domain.employee.EmployeeAPI;
-import pl.crewops.domain.vehicle.VehicleAPI;
+import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.model.Breakdown;
 
-@SpringJUnitConfig(classes = {BreakdownService.class, BreakdownRepository.class, VehicleAPI.class, EmployeeAPI.class})
+@SpringJUnitConfig(classes = {BreakdownService.class, BreakdownRepository.class, MachineAPI.class, EmployeeAPI.class})
 class BreakdownServiceTest {
 
     @Autowired
@@ -29,7 +29,7 @@ class BreakdownServiceTest {
     private BreakdownRepository breakdownRepository;
 
     @MockitoBean
-    private VehicleAPI vehicleAPI;
+    private MachineAPI machineAPI;
 
     @MockitoBean
     private EmployeeAPI employeeAPI;
@@ -39,7 +39,7 @@ class BreakdownServiceTest {
     @Test
     void createBreakdown_shouldReturnBreakdownDTO_WhenCreateDTOIsValid() {
         // when
-        when(vehicleAPI.getVehicle(any(UUID.class))).thenReturn(getVehicle());
+        when(machineAPI.getMachine(any(UUID.class))).thenReturn(getMachine());
         when(employeeAPI.getEmployeeById(any(UUID.class))).thenReturn(getEmployee());
         when(breakdownRepository.save(any(Breakdown.class))).thenReturn(getBreakdown());
 
@@ -80,7 +80,7 @@ class BreakdownServiceTest {
         // when
         when(breakdownRepository.findById(any())).thenReturn(Optional.of(getBreakdown()));
         when(employeeAPI.getEmployeeById(any(UUID.class))).thenReturn(getEmployee());
-        when(vehicleAPI.getVehicle(any())).thenReturn(getVehicle());
+        when(machineAPI.getMachine(any())).thenReturn(getMachine());
         when(breakdownRepository.save(any(Breakdown.class))).thenReturn(getBreakdown());
 
         // then

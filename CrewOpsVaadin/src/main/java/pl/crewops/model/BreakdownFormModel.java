@@ -8,7 +8,7 @@ import lombok.*;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.vehicle.VehicleDTO;
+import pl.crewops.dto.machine.MachineDTO;
 
 @Getter
 @Setter
@@ -19,7 +19,7 @@ public class BreakdownFormModel {
     private UUID id;
 
     @NotNull
-    private VehicleDTO vehicle;
+    private MachineDTO machine;
 
     @NotNull
     @Size(min = 5, max = 2047, message = "Description have to match between 5 and 2047 characters length")
@@ -35,7 +35,7 @@ public class BreakdownFormModel {
         return BreakdownFormModel.builder()
                 .id(breakdown.id())
                 .description(breakdown.description())
-                .vehicle(breakdown.vehicle())
+                .machine(breakdown.machine())
                 .reportedBy(breakdown.reportedBy())
                 .repairedBy(breakdown.repairedBy())
                 .critical(breakdown.critical())
@@ -47,7 +47,7 @@ public class BreakdownFormModel {
     public static CreateBreakdownDTO toCreateBreakdownDTO(BreakdownFormModel breakdownFormModel) {
         return CreateBreakdownDTO.builder()
                 .description(breakdownFormModel.getDescription())
-                .vehicleId(breakdownFormModel.getVehicle().id())
+                .machineId(breakdownFormModel.getMachine().id())
                 .reportedByEmployeeId(breakdownFormModel.getReportedBy().id())
                 .critical(breakdownFormModel.isCritical())
                 .build();

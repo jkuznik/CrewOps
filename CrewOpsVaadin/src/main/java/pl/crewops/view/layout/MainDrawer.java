@@ -17,7 +17,7 @@ import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.view.EmployeeView;
 import pl.crewops.view.HomeView;
-import pl.crewops.view.VehicleView;
+import pl.crewops.view.MachineView;
 
 @SpringComponent
 @UIScope
@@ -28,7 +28,7 @@ public class MainDrawer extends VerticalLayout {
 
     private final RouterLink homeLink = new RouterLink(HomeView.class);
     private final RouterLink employeeLink = new RouterLink(EmployeeView.class);
-    private final RouterLink vehicleLink = new RouterLink(VehicleView.class);
+    private final RouterLink machineLink = new RouterLink(MachineView.class);
 
     private final Span footerText = new Span();
 
@@ -49,7 +49,7 @@ public class MainDrawer extends VerticalLayout {
         linksLayout.setSizeFull();
         linksLayout.setPadding(true);
         linksLayout.setSpacing(true);
-        linksLayout.add(homeLink, employeeLink, vehicleLink);
+        linksLayout.add(homeLink, employeeLink, machineLink);
 
         add(linksLayout, createDrawerFooter());
         setFlexGrow(1, linksLayout);
@@ -58,16 +58,16 @@ public class MainDrawer extends VerticalLayout {
                 && authentication.isAuthenticated()
                 && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
 
-            customizeDrawerDependsOnRoles(userPrincipal, employeeLink, vehicleLink);
+            customizeDrawerDependsOnRoles(userPrincipal, employeeLink, machineLink);
         } else {
-            customizeDrawerDependsOnRoles(null, employeeLink, vehicleLink);
+            customizeDrawerDependsOnRoles(null, employeeLink, machineLink);
         }
     }
 
     private void localize() {
         homeLink.setText(getTranslation("mainDrawer.link.home"));
         employeeLink.setText(getTranslation("mainDrawer.link.employee"));
-        vehicleLink.setText(getTranslation("mainDrawer.link.vehicle"));
+        machineLink.setText(getTranslation("mainDrawer.link.machine"));
 
         footerText.setText(getTranslation("mainDrawer.footer.text"));
     }
@@ -84,29 +84,29 @@ public class MainDrawer extends VerticalLayout {
     }
 
     private void customizeDrawerDependsOnRoles(
-            UserPrincipal principal, RouterLink employeeLink, RouterLink vehicleLink) {
+            UserPrincipal principal, RouterLink employeeLink, RouterLink machineLink) {
         if (isRequestAuthenticated(principal)) {
-            displayLinksDependsOnRoles(principal, employeeLink, vehicleLink);
+            displayLinksDependsOnRoles(principal, employeeLink, machineLink);
         } else {
-            hideLinksRequiredAuthentication(employeeLink, vehicleLink);
+            hideLinksRequiredAuthentication(employeeLink, machineLink);
         }
     }
 
-    private static void hideLinksRequiredAuthentication(RouterLink employeeLink, RouterLink vehicleLink) {
+    private static void hideLinksRequiredAuthentication(RouterLink employeeLink, RouterLink machineLink) {
         employeeLink.setVisible(false);
-        vehicleLink.setVisible(false);
+        machineLink.setVisible(false);
     }
 
-    private void displayLinksDependsOnRoles(UserPrincipal principal, RouterLink employeeLink, RouterLink vehicleLink) {
+    private void displayLinksDependsOnRoles(UserPrincipal principal, RouterLink employeeLink, RouterLink machineLink) {
         Set<RoleGrantedAuthority> roleGrantedAuthorities = jwtService.extractAuthorities(principal.getToken());
         if (roleGrantedAuthorities.contains(new RoleGrantedAuthority(MANAGER))
                 || roleGrantedAuthorities.contains(new RoleGrantedAuthority(COMPANY_ADMIN))
                 || roleGrantedAuthorities.contains(new RoleGrantedAuthority(SYSTEM_ADMIN))) {
             employeeLink.setVisible(true);
-            vehicleLink.setVisible(true);
+            machineLink.setVisible(true);
         } else {
             employeeLink.setVisible(false);
-            vehicleLink.setVisible(true);
+            machineLink.setVisible(true);
         }
     }
 

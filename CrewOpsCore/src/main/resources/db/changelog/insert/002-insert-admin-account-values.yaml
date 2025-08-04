@@ -39,12 +39,12 @@ databaseChangeLog:
               EXECUTE FUNCTION public.update_updated_at();
 
   - changeSet:
-      id: 004-create-table-vehicle
+      id: 004-create-table-machine
       author: jkuznik
       changes:
         - createTable:
             schemaName: ${tenant.schema.name}
-            tableName: vehicle
+            tableName: machine
             columns:
               - column: { name: id, type: uuid, defaultValueComputed: gen_random_uuid(), constraints: { primaryKey: true, nullable: false, unique: true } }
               - column: { name: version, type: integer, defaultValue: 0, constraints: { nullable: false } }
@@ -53,46 +53,46 @@ databaseChangeLog:
               - column: { name: model, type: varchar(31), constraints: { nullable: false } }
               - column: { name: year, type: int, constraints: { nullable: false } }
               - column: { name: register_number, type: varchar(15), constraints: { nullable: true } }
-              - column: { name: vehicle_type_id, type: uuid }
+              - column: { name: machine_type_id, type: uuid }
               - column: { name: broken, type: boolean, constraints: { nullable: false } }
               - column: { name: created_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
               - column: { name: updated_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
 
   - changeSet:
-      id: 005-create-vehicle-updated_at-trigger
+      id: 005-create-machine-updated_at-trigger
       author: jkuznik
       changes:
         - sql:
             dbms: postgresql
             sql: |
-              DROP TRIGGER IF EXISTS vehicle_updated_at_trigger ON ${tenant.schema.name}.vehicle;
-              CREATE TRIGGER vehicle_updated_at_trigger
-              BEFORE UPDATE ON ${tenant.schema.name}.vehicle
+              DROP TRIGGER IF EXISTS machine_updated_at_trigger ON ${tenant.schema.name}.machine;
+              CREATE TRIGGER machine_updated_at_trigger
+              BEFORE UPDATE ON ${tenant.schema.name}.machine
               FOR EACH ROW
               EXECUTE FUNCTION public.update_updated_at();
               
   - changeSet:
-      id: 006-create-table-employee-vehicle
+      id: 006-create-table-employee-machine
       author: jkuznik
       changes:
         - createTable:
             schemaName: ${tenant.schema.name}
-            tableName: employee_vehicle
+            tableName: employee_machine
             columns:
               - column: { name: employee_id, type: uuid, constraints: { nullable: false } }
-              - column: { name: vehicle_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: machine_id, type: uuid, constraints: { nullable: false } }
 
         - addPrimaryKey:
             schemaName: ${tenant.schema.name}
-            tableName: employee_vehicle
-            columnNames: employee_id, vehicle_id
-            constraintName: pk_employee_vehicle
+            tableName: employee_machine
+            columnNames: employee_id, machine_id
+            constraintName: pk_employee_machine
 
         - addForeignKeyConstraint:
             baseTableSchemaName: ${tenant.schema.name}
-            baseTableName: employee_vehicle
+            baseTableName: employee_machine
             baseColumnNames: employee_id
-            constraintName: fk_employee_vehicle_employee
+            constraintName: fk_employee_machine_employee
             referencedTableSchemaName: ${tenant.schema.name}
             referencedTableName: employee
             referencedColumnNames: id
@@ -100,11 +100,11 @@ databaseChangeLog:
 
         - addForeignKeyConstraint:
             baseTableSchemaName: ${tenant.schema.name}
-            baseTableName: employee_vehicle
-            baseColumnNames: vehicle_id
-            constraintName: fk_employee_vehicle_vehicle
+            baseTableName: employee_machine
+            baseColumnNames: machine_id
+            constraintName: fk_employee_machine_machine
             referencedTableSchemaName: ${tenant.schema.name}
-            referencedTableName: vehicle
+            referencedTableName: machine
             referencedColumnNames: id
             onDelete: CASCADE
 
@@ -184,7 +184,7 @@ databaseChangeLog:
               - column: { name: id, type: uuid, defaultValueComputed: gen_random_uuid(), constraints: { primaryKey: true, nullable: false, unique: true } }
               - column: { name: version, type: integer, defaultValue: 0, constraints: { nullable: false } }
               - column: { name: description, type: varchar(2047), constraints: { nullable: false } }
-              - column: { name: vehicle_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: machine_id, type: uuid, constraints: { nullable: false } }
               - column: { name: reported_by_id, type: uuid, constraints: { nullable: false } }
               - column: { name: repaired_by_id, type: uuid, constraints: { nullable: true } }
               - column: { name: solved, type: boolean, constraints: { nullable: false } }
@@ -196,11 +196,11 @@ databaseChangeLog:
         - addForeignKeyConstraint:
             baseTableSchemaName: ${tenant.schema.name}
             baseTableName: breakdown
-            baseColumnNames: vehicle_id
+            baseColumnNames: machine_id
             referencedTableSchemaName: ${tenant.schema.name}
-            referencedTableName: vehicle
+            referencedTableName: machine
             referencedColumnNames: id
-            constraintName: fk_breakdown_vehicle
+            constraintName: fk_breakdown_machine
             onDelete: CASCADE
 
         - addForeignKeyConstraint:
@@ -237,12 +237,12 @@ databaseChangeLog:
               EXECUTE FUNCTION public.update_updated_at();
               
   - changeSet:
-      id: 012-create-table-vehicle-type
+      id: 012-create-table-machine-type
       author: jkuznik
       changes:
         - createTable:
             schemaName: ${tenant.schema.name}
-            tableName: vehicle_type
+            tableName: machine_type
             columns:
               - column: { name: id, type: uuid, defaultValueComputed: gen_random_uuid(), constraints: { primaryKey: true, nullable: false, unique: true } }
               - column: { name: version, type: integer, defaultValue: 0, constraints: { nullable: false } }
@@ -252,24 +252,24 @@ databaseChangeLog:
 
         - addForeignKeyConstraint:
             baseTableSchemaName: ${tenant.schema.name}
-            baseTableName: vehicle
-            baseColumnNames: vehicle_type_id
+            baseTableName: machine
+            baseColumnNames: machine_type_id
             referencedTableSchemaName: ${tenant.schema.name}
-            referencedTableName: vehicle_type
+            referencedTableName: machine_type
             referencedColumnNames: id
-            constraintName: fk_vehicle_vehicle_type_id
+            constraintName: fk_machine_machine_type_id
             onDelete: SET NULL
 
   - changeSet:
-      id: 013-create-vehicle-type-updated_at-trigger
+      id: 013-create-machine-type-updated_at-trigger
       author: jkuznik
       changes:
         - sql:
             dbms: postgresql
             sql: |
-              DROP TRIGGER IF EXISTS vehicle_type_updated_at_trigger ON ${tenant.schema.name}.vehicle_type;
-              CREATE TRIGGER vehicle_type_updated_at_trigger
-              BEFORE UPDATE ON ${tenant.schema.name}.vehicle_type
+              DROP TRIGGER IF EXISTS machine_type_updated_at_trigger ON ${tenant.schema.name}.machine_type;
+              CREATE TRIGGER machine_type_updated_at_trigger
+              BEFORE UPDATE ON ${tenant.schema.name}.machine_type
               FOR EACH ROW
               EXECUTE FUNCTION public.update_updated_at();
               

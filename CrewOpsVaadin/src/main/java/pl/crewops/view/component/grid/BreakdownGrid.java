@@ -104,7 +104,7 @@ public class BreakdownGrid extends VerticalLayout {
     private void configureGrid() {
         grid.setSizeFull();
 
-        grid.addColumn(model -> model.getVehicle() != null ? model.getVehicle().registerNumber() : "-")
+        grid.addColumn(model -> model.getMachine() != null ? model.getMachine().registerNumber() : "-")
                 .setKey("registrationNumber");
 
         grid.addColumn(BreakdownFormModel::getDescription).setKey("description");
@@ -177,9 +177,9 @@ public class BreakdownGrid extends VerticalLayout {
                     : "";
 
             grid.setItems(breakdowns.stream()
-                    .filter(breakdown -> breakdown.getVehicle() != null
+                    .filter(breakdown -> breakdown.getMachine() != null
                             && breakdown
-                                    .getVehicle()
+                                    .getMachine()
                                     .registerNumber()
                                     .toLowerCase()
                                     .contains(regFilter))

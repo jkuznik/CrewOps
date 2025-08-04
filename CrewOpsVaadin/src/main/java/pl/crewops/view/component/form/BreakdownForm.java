@@ -20,7 +20,7 @@ import pl.crewops.model.BreakdownFormModel;
 public class BreakdownForm extends FormLayout {
 
     // TODO: not allow to update breakdown (solve breakdown) if user has no at least mechanic permission
-    private final TextField vehicle = new TextField();
+    private final TextField machine = new TextField();
     private final TextArea description = new TextArea();
     private final Checkbox solved = new Checkbox();
     private final Checkbox critical = new Checkbox();
@@ -37,11 +37,11 @@ public class BreakdownForm extends FormLayout {
         localize();
         configDescriptionField();
         configureStaticBindings();
-        add(vehicle, description, solved, critical, createButtonsLayout());
+        add(machine, description, solved, critical, createButtonsLayout());
     }
 
     private void localize() {
-        vehicle.setLabel(getTranslation("breakdownForm.vehicle"));
+        machine.setLabel(getTranslation("breakdownForm.machine"));
         description.setLabel(getTranslation("breakdownForm.description"));
         solved.setLabel(getTranslation("breakdownForm.solved"));
         critical.setLabel(getTranslation("breakdownForm.critical"));
@@ -59,7 +59,7 @@ public class BreakdownForm extends FormLayout {
     }
 
     private void configureStaticBindings() {
-        binder.forField(vehicle).bindReadOnly(model -> model.getVehicle().registerNumber());
+        binder.forField(machine).bindReadOnly(model -> model.getMachine().registerNumber());
     }
 
     private HorizontalLayout createButtonsLayout() {
@@ -128,7 +128,7 @@ public class BreakdownForm extends FormLayout {
         BreakdownFormModel model = new BreakdownFormModel();
         try {
             binder.writeBean(model);
-            model.setVehicle(binder.getBean().getVehicle());
+            model.setMachine(binder.getBean().getMachine());
             model.setReportedBy(binder.getBean().getReportedBy());
             fireEvent(new SaveEvent(this, model));
         } catch (ValidationException e) {

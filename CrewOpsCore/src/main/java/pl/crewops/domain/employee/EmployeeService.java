@@ -13,8 +13,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
-import pl.crewops.domain.vehicle.VehicleAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -23,8 +23,8 @@ import pl.crewops.exception.domain.employee.EmployeeQualificationNotFoundExcepti
 import pl.crewops.exception.domain.employee.ExpireAtException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.Employee;
+import pl.crewops.model.Machine;
 import pl.crewops.model.Qualification;
-import pl.crewops.model.Vehicle;
 import pl.crewops.model.joinTable.EmployeeQualification;
 import pl.crewops.util.pagination.PageRequestFactory;
 
@@ -36,7 +36,7 @@ class EmployeeService implements EmployeeAPI {
     private final EmployeeRepository employeeRepository;
     private final EmployeeQualificationRepository employeeQualificationRepository;
     private final QualificationAPI qualificationAPI;
-    private final VehicleAPI vehicleAPI;
+    private final MachineAPI machineAPI;
 
     @Transactional
     public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
@@ -87,9 +87,9 @@ class EmployeeService implements EmployeeAPI {
     }
 
     @Transactional(readOnly = true)
-    public List<EmployeeDTO> getEmployeesByVehicles(UUID vehicleId, int page, int size) {
-        log.info("Get employees by vehicles");
-        return employeeRepository.findByVehiclesId(vehicleId, getPageRequest(page, size)).stream()
+    public List<EmployeeDTO> getEmployeesByMachines(UUID machineId, int page, int size) {
+        log.info("Get employees by machines");
+        return employeeRepository.findByMachinesId(machineId, getPageRequest(page, size)).stream()
                 .map(EmployeeMapper::mapToDTO)
                 .toList();
     }
@@ -176,27 +176,27 @@ class EmployeeService implements EmployeeAPI {
     }
 
     @Transactional
-    public EmployeeDTO addVehicle(UUID employeeId, UUID vehicleId) {
+    public EmployeeDTO addMachine(UUID employeeId, UUID machineId) {
         Employee employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
 
-        Vehicle vehicle = vehicleAPI.getVehicle(vehicleId);
+        Machine machine = machineAPI.getMachine(machineId);
 
-        employee.getVehicles().add(vehicle);
+        employee.getMachines().add(machine);
 
-        log.info("Add vehicle {} to employee {}", vehicleId, employeeId);
+        log.info("Add machine {} to employee {}", machineId, employeeId);
         return mapToDTO(employee);
     }
 
     @Transactional
-    public void removeVehicle(UUID employeeId, UUID vehicleId) {
+    public void removeMachine(UUID employeeId, UUID machineId) {
         Employee employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
 
-        Vehicle vehicle = vehicleAPI.getVehicle(vehicleId);
+        Machine machine = machineAPI.getMachine(machineId);
 
-        log.info("Remove vehicle {} from employee {}", vehicleId, employeeId);
-        employee.getVehicles().remove(vehicle);
+        log.info("Remove machine {} from employee {}", machineId, employeeId);
+        employee.getMachines().remove(machine);
     }
 
     private void expireDateValidator(Instant expiredAt) {

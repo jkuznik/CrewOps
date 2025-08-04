@@ -8,15 +8,15 @@ import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.model.Employee;
+import pl.crewops.model.Machine;
+import pl.crewops.model.MachineType;
 import pl.crewops.model.Qualification;
-import pl.crewops.model.Vehicle;
-import pl.crewops.model.VehicleType;
 
 class EmployeeTestFactory {
 
     static final UUID employeeId = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
-    static Employee employeeWithQualificationsAndVehicles() {
+    static Employee employeeWithQualificationsAndMachines() {
         return Employee.builder()
                 .firstName("firstName")
                 .lastName("lastName")
@@ -24,12 +24,12 @@ class EmployeeTestFactory {
                 .phoneNumber("123456789")
                 .department("department")
                 .qualifications(getQualifications())
-                .vehicles(getVehicles())
+                .machines(getMachines())
                 .active(true)
                 .build();
     }
 
-    static Employee employeeWithoutQualificationsAndVehicles() {
+    static Employee employeeWithoutQualificationsAndMachines() {
         return Employee.builder()
                 .firstName("firstName")
                 .lastName("lastName")
@@ -93,9 +93,9 @@ class EmployeeTestFactory {
         return Qualification.builder().description("description").build();
     }
 
-    static Vehicle vehicle() {
-        return Vehicle.builder()
-                .vehicleType(VehicleType.builder().name("ImplementThis").build())
+    static Machine machine() {
+        return Machine.builder()
+                .machineType(MachineType.builder().name("ImplementThis").build())
                 .make("make")
                 .model("model")
                 .year(2020)
@@ -109,11 +109,11 @@ class EmployeeTestFactory {
                 Qualification.builder().description("bar").build());
     }
 
-    private static Set<Vehicle> getVehicles() {
+    private static Set<Machine> getMachines() {
         return Set.of(
-                vehicle(),
-                Vehicle.builder()
-                        .vehicleType(VehicleType.builder().name("ImplementThis").build())
+                machine(),
+                Machine.builder()
+                        .machineType(MachineType.builder().name("ImplementThis").build())
                         .make("make")
                         .model("model")
                         .year(2020)

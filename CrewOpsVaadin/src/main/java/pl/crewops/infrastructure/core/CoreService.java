@@ -19,13 +19,13 @@ import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.dto.machine.CreateMachineDTO;
+import pl.crewops.dto.machine.MachineDTO;
+import pl.crewops.dto.machine.UpdateMachineDTO;
+import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
-import pl.crewops.dto.vehicle.CreateVehicleDTO;
-import pl.crewops.dto.vehicle.UpdateVehicleDTO;
-import pl.crewops.dto.vehicle.VehicleDTO;
-import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
@@ -80,9 +80,9 @@ class CoreService implements CoreAPI {
     }
 
     @Override
-    public Optional<VehicleDTO> createVehicle(CreateVehicleDTO createVehicleDTO) throws NotAuthenticatedException {
+    public Optional<MachineDTO> createMachine(CreateMachineDTO createMachineDTO) throws NotAuthenticatedException {
         isAuthenticated();
-        return Optional.ofNullable(coreClient.createVehicle(createVehicleDTO));
+        return Optional.ofNullable(coreClient.createMachine(createMachineDTO));
     }
 
     @Override
@@ -93,9 +93,9 @@ class CoreService implements CoreAPI {
     }
 
     @Override
-    public Optional<VehicleDTO> updateVehicle(UpdateVehicleDTO updateVehicleDTO) throws NotAuthenticatedException {
+    public Optional<MachineDTO> updateMachine(UpdateMachineDTO updateMachineDTO) throws NotAuthenticatedException {
         isAuthenticated();
-        return Optional.ofNullable(coreClient.updateVehicle(updateVehicleDTO));
+        return Optional.ofNullable(coreClient.updateMachine(updateMachineDTO));
     }
 
     @Override
@@ -134,15 +134,15 @@ class CoreService implements CoreAPI {
     }
 
     @Override
-    public List<VehicleDTO> getAllVehicles() throws NotAuthenticatedException {
+    public List<MachineDTO> getAllMachines() throws NotAuthenticatedException {
         isAuthenticated();
-        return coreClient.getAllVehicles();
+        return coreClient.getAllMachines();
     }
 
     @Override
-    public List<VehicleTypeDTO> getAllVehicleTypes() throws NotAuthenticatedException {
+    public List<MachineTypeDTO> getAllMachineTypes() throws NotAuthenticatedException {
         isAuthenticated();
-        return coreClient.getAllVehicleTypes();
+        return coreClient.getAllMachineTypes();
     }
 
     @Override
@@ -171,9 +171,9 @@ class CoreService implements CoreAPI {
     }
 
     @Override
-    public void deleteVehicle(UUID vehicleId) throws NotAuthenticatedException {
+    public void deleteMachine(UUID vehicleId) throws NotAuthenticatedException {
         isAuthenticated();
-        coreClient.deleteVehicle(vehicleId);
+        coreClient.deleteMachine(vehicleId);
     }
 
     @Override

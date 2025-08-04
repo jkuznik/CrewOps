@@ -1,5 +1,5 @@
 /* Styl samego pola tekstowego ComboBox (zamyka się, nie lista) */
-.vehicle-form-year-combobox::part(text-field) {
+.machine-form-year-combobox::part(text-field) {
     background-color: #1e1e1e; /* ciemne tło */
     color: #f0f0f0; /* jasny tekst */
     border-radius: 6px;
@@ -22,14 +22,14 @@ vaadin-combo-box-item:hover::part(content) {
 }
 
 /* Styl pola tekstowego dla dostępnych typów pojazdu */
-.vehicle-form-vehicle-type-combobox::part(text-field) {
+.machine-form-machine-type-combobox::part(text-field) {
     background-color: #1e1e1e;
     color: #f0f0f0;
     border-radius: 6px;
 }
 
 /* Styl rozwijanej listy */
-vaadin-combo-box-overlay[theme~="vehicle-type-combo"]::part(content) {
+vaadin-combo-box-overlay[theme~="machine-type-combo"]::part(content) {
     background-color: #2a2a2a;
 }
 

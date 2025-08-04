@@ -19,15 +19,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.domain.auth.AuthAPI;
+import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
-import pl.crewops.domain.vehicle.VehicleAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.exception.domain.employee.ExpireAtException;
 import pl.crewops.model.Employee;
+import pl.crewops.model.Machine;
 import pl.crewops.model.Qualification;
-import pl.crewops.model.Vehicle;
 import pl.crewops.model.joinTable.EmployeeQualification;
 import pl.crewops.model.publicSchema.AuthUser;
 
@@ -37,7 +37,7 @@ import pl.crewops.model.publicSchema.AuthUser;
             EmployeeRepository.class,
             EmployeeQualificationRepository.class,
             QualificationAPI.class,
-            VehicleAPI.class,
+            MachineAPI.class,
             AuthAPI.class
         })
 class EmployeeServiceTest {
@@ -55,7 +55,7 @@ class EmployeeServiceTest {
     QualificationAPI qualificationAPI;
 
     @MockitoBean
-    VehicleAPI vehicleAPI;
+    MachineAPI machineAPI;
 
     @MockitoBean
     AuthAPI authAPI;
@@ -65,23 +65,23 @@ class EmployeeServiceTest {
     private Employee employeeWithQAndV;
     private Employee employeeWithEmptyQAndEmptyV;
     private Qualification qualification;
-    private Vehicle vehicle;
+    private Machine machine;
     private final UUID employeeId = UUID.randomUUID();
     private final UUID qualificationId = UUID.randomUUID();
-    private final UUID vehicleId = UUID.randomUUID();
+    private final UUID machineId = UUID.randomUUID();
 
     @BeforeEach
     void setUp() {
         createEmployeeWithEmptyQAndEmptyV = EmployeeTestFactory.createEmployeeDTO();
         updateEmployeeDTO = updateEmployeeDTO();
-        employeeWithQAndV = employeeWithQualificationsAndVehicles();
-        employeeWithEmptyQAndEmptyV = employeeWithoutQualificationsAndVehicles();
+        employeeWithQAndV = employeeWithQualificationsAndMachines();
+        employeeWithEmptyQAndEmptyV = employeeWithoutQualificationsAndMachines();
         qualification = qualification();
-        vehicle = vehicle();
+        machine = machine();
     }
 
     @Test
-    void createEmployee_ShouldReturnEmployeeDTO_whenCreateEmployeeDTOHaveNoQualificationsAndNoVehicles() {
+    void createEmployee_ShouldReturnEmployeeDTO_whenCreateEmployeeDTOHaveNoQualificationsAndNoMachines() {
         // when
         when(employeeRepository.save(any(Employee.class))).thenReturn(employeeWithEmptyQAndEmptyV);
         EmployeeDTO result = employeeService.createEmployee(createEmployeeWithEmptyQAndEmptyV);
@@ -92,7 +92,7 @@ class EmployeeServiceTest {
     }
 
     @Test
-    void shouldReturnEmployeeDTO_whenUpdateEmployeeDTOHaveNoQualificationsAndNoVehicles() {
+    void shouldReturnEmployeeDTO_whenUpdateEmployeeDTOHaveNoQualificationsAndNoMachines() {
         // when
         when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithEmptyQAndEmptyV));
         EmployeeDTO result = employeeService.updateEmployee(updateEmployeeDTO);
@@ -134,14 +134,14 @@ class EmployeeServiceTest {
     }
 
     @Test
-    void shouldReturnEmployeeDTOWithRequiredVehicles_whenEmployeesExist() {
+    void shouldReturnEmployeeDTOWithRequiredMachines_whenEmployeesExist() {
         // given
         Page<Employee> employees = new PageImpl<>(List.of(employeeWithQAndV));
 
         // when
-        when(employeeRepository.findByVehiclesId(any(UUID.class), any(Pageable.class)))
+        when(employeeRepository.findByMachinesId(any(UUID.class), any(Pageable.class)))
                 .thenReturn(employees);
-        List<EmployeeDTO> result = employeeService.getEmployeesByVehicles(qualificationId, 0, 5);
+        List<EmployeeDTO> result = employeeService.getEmployeesByMachines(qualificationId, 0, 5);
 
         // then
         assertThat(result).isNotNull();
@@ -257,35 +257,35 @@ class EmployeeServiceTest {
     }
 
     @Test
-    void shouldReturnEmployeeDTO_afterSuccessfulAddVehicle() {
+    void shouldReturnEmployeeDTO_afterSuccessfulAddMachine() {
         // given
-        vehicle.setId(vehicleId);
+        machine.setId(machineId);
 
         // when
         when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithEmptyQAndEmptyV));
-        when(vehicleAPI.getVehicle(any(UUID.class))).thenReturn(vehicle);
-        employeeService.addVehicle(employeeId, vehicleId);
-        EmployeeDTO result = employeeService.addVehicle(employeeId, vehicleId);
+        when(machineAPI.getMachine(any(UUID.class))).thenReturn(machine);
+        employeeService.addMachine(employeeId, machineId);
+        EmployeeDTO result = employeeService.addMachine(employeeId, machineId);
 
         // then
         assertThat(result).isNotNull();
-        assertThat(result.vehicles().size()).isEqualTo(1);
-        assertThat(result.vehicles().stream().findFirst().get().id()).isEqualTo(vehicleId);
+        assertThat(result.machines().size()).isEqualTo(1);
+        assertThat(result.machines().stream().findFirst().get().id()).isEqualTo(machineId);
     }
 
     @Test
-    void shouldRemoveVehicleFromEmployee_whenEmployeeAndVehicleExist() {
+    void shouldRemoveMachineFromEmployee_whenEmployeeAndMachineExist() {
         // given
-        employeeWithEmptyQAndEmptyV.getVehicles().add(vehicle);
-        int before = employeeWithEmptyQAndEmptyV.getVehicles().size();
+        employeeWithEmptyQAndEmptyV.getMachines().add(machine);
+        int before = employeeWithEmptyQAndEmptyV.getMachines().size();
 
         // when
         when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithEmptyQAndEmptyV));
-        when(vehicleAPI.getVehicle(vehicleId)).thenReturn(vehicle);
+        when(machineAPI.getMachine(machineId)).thenReturn(machine);
 
         // then
-        employeeService.removeVehicle(employeeId, vehicleId);
-        int after = employeeWithEmptyQAndEmptyV.getVehicles().size();
+        employeeService.removeMachine(employeeId, machineId);
+        int after = employeeWithEmptyQAndEmptyV.getMachines().size();
         assertThat(before).isEqualTo(1);
         assertThat(after).isEqualTo(0);
     }

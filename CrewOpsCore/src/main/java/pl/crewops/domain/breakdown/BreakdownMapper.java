@@ -2,31 +2,31 @@ package pl.crewops.domain.breakdown;
 
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.vehicle.VehicleDTO;
-import pl.crewops.dto.vehicleType.VehicleTypeDTO;
+import pl.crewops.dto.machine.MachineDTO;
+import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.Breakdown;
 
 class BreakdownMapper {
 
     public static BreakdownDTO toDTO(Breakdown breakdown) {
-        var vehicle = breakdown.getVehicle();
+        var machine = breakdown.getMachine();
         var reportedBy = breakdown.getReportedBy();
         var repairedBy = breakdown.getRepairedBy();
 
         return BreakdownDTO.builder()
                 .id(breakdown.getId())
                 .description(breakdown.getDescription())
-                .vehicle(VehicleDTO.builder()
-                        .id(vehicle.getId())
-                        .make(vehicle.getMake())
-                        .model(vehicle.getModel())
-                        .vehicleType(VehicleTypeDTO.builder()
-                                .id(vehicle.getVehicleType().getId())
-                                .name(vehicle.getVehicleType().getName())
+                .machine(MachineDTO.builder()
+                        .id(machine.getId())
+                        .make(machine.getMake())
+                        .model(machine.getModel())
+                        .machineType(MachineTypeDTO.builder()
+                                .id(machine.getMachineType().getId())
+                                .name(machine.getMachineType().getName())
                                 .build())
-                        .year(vehicle.getYear())
-                        .vin(vehicle.getVin())
-                        .registerNumber(vehicle.getRegisterNumber())
+                        .year(machine.getYear())
+                        .vin(machine.getVin())
+                        .registerNumber(machine.getRegisterNumber())
                         .build())
                 .reportedBy(EmployeeDTO.builder()
                         .id(reportedBy.getId())

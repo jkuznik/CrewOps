@@ -25,7 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
-import pl.crewops.dto.vehicle.VehicleDTO;
+import pl.crewops.dto.machine.MachineDTO;
 import pl.crewops.security.config.TestSecuriityConfig;
 
 @ActiveProfiles("test")
@@ -54,7 +54,7 @@ class BreakdownControllerTest {
                 .id(UUID.randomUUID())
                 .description("Engine failure")
                 .critical(true)
-                .vehicle(VehicleDTO.builder().build())
+                .machine(MachineDTO.builder().build())
                 .repairedBy(null)
                 .reportedBy(null)
                 .solved(false)
@@ -100,7 +100,7 @@ class BreakdownControllerTest {
                 .id(UUID.randomUUID())
                 .description("Flat tire")
                 .critical(false)
-                .vehicle(VehicleDTO.builder().build())
+                .machine(MachineDTO.builder().build())
                 .repairedBy(null)
                 .reportedBy(null)
                 .solved(false)
@@ -218,7 +218,7 @@ class BreakdownControllerTest {
                 .description("Updated by allowed role")
                 .critical(false)
                 .solved(true)
-                .vehicle(VehicleDTO.builder().build())
+                .machine(MachineDTO.builder().build())
                 .repairedBy(null)
                 .reportedBy(null)
                 .build();

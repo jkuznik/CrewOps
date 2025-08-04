@@ -18,8 +18,8 @@ public class Breakdown extends AbstractEntity {
     private String description;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "vehicle_id")
-    private Vehicle vehicle;
+    @JoinColumn(name = "machine_id")
+    private Machine machine;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "reported_by_id", nullable = false)

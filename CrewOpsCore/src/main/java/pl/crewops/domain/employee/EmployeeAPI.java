@@ -25,7 +25,7 @@ public interface EmployeeAPI {
 
     List<EmployeeDTO> getEmployeesByQualification(@NotNull UUID qualificationId, int page, int size);
 
-    List<EmployeeDTO> getEmployeesByVehicles(@NotNull UUID vehicleId, int page, int size);
+    List<EmployeeDTO> getEmployeesByMachines(@NotNull UUID machineId, int page, int size);
 
     EmployeeDTO updateEmployee(@NotNull @Valid UpdateEmployeeDTO updateEmployeeDTO) throws EmployeeNotFoundException;
 
@@ -42,9 +42,9 @@ public interface EmployeeAPI {
 
     void removeQualification(@NotNull UUID employeeId, @NotNull UUID qualificationId) throws EmployeeNotFoundException;
 
-    EmployeeDTO addVehicle(@NotNull UUID employeeId, @NotNull UUID vehicleId) throws EmployeeNotFoundException;
+    EmployeeDTO addMachine(@NotNull UUID employeeId, @NotNull UUID machineId) throws EmployeeNotFoundException;
 
-    void removeVehicle(@NotNull UUID employeeId, @NotNull UUID vehicleId) throws EmployeeNotFoundException;
+    void removeMachine(@NotNull UUID employeeId, @NotNull UUID machineId) throws EmployeeNotFoundException;
 
     List<EmployeeDTO> getAllActiveEmployees(int page, int size);
 }
