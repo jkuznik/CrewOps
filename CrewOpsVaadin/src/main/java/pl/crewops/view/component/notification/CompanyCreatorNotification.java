@@ -1,13 +1,10 @@
-package pl.crewops.view.component.notification.formNotification;
+package pl.crewops.view.component.notification;
 
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
-import com.vaadin.flow.component.textfield.TextField;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
 import pl.crewops.dto.address.CreateAddressDTO;
 import pl.crewops.dto.auth.RoleDTO;
 import pl.crewops.dto.company.CreateCompanyDTO;
@@ -17,7 +14,7 @@ import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.registration.CreateCustomerCommand;
-import pl.crewops.view.component.form.EmployeeForm;
+import pl.crewops.view.component.form.CompanyCreatorForm;
 
 public class CompanyCreatorNotification extends Notification {
 
@@ -87,74 +84,7 @@ public class CompanyCreatorNotification extends Notification {
                 .build();
     }
 
-    private static class CompanyCreatorForm extends FormLayout {
-        // company
-        private final TextField companyName = new TextField();
-        private final TextField companyEmail = new TextField();
-        private final TextField companyTaxId = new TextField();
-        // address
-        private final TextField postalCode = new TextField();
-        private final TextField city = new TextField();
-        private final TextField street = new TextField();
-        private final TextField localNumber = new TextField();
-        // employee
-        private final EmployeeForm employeeForm = new EmployeeForm();
-
-        private Consumer<CompanyInformation> saveButtonListener;
-        private Consumer<Void> closeButtonListener;
-
-        public CompanyCreatorForm() {
-            addClassName("company-creator-form");
-
-            localize();
-
-            employeeForm.setFormModeSave();
-            employeeForm.addSaveListener(this::saveEmployee);
-            employeeForm.addCloseListener(this::closeButton);
-            add(companyName, companyEmail, companyTaxId, postalCode, city, street, localNumber, employeeForm);
-        }
-
-        private void localize() {
-            companyName.setLabel(getTranslation("companyCreatorForm.companyName"));
-            companyEmail.setLabel(getTranslation("companyCreatorForm.companyEmail"));
-            companyTaxId.setLabel(getTranslation("TODOTODOTODOTODOTODO"));
-            postalCode.setLabel(getTranslation("companyCreatorForm.postalCode"));
-            city.setLabel(getTranslation("companyCreatorForm.city"));
-            street.setLabel(getTranslation("companyCreatorForm.street"));
-            localNumber.setLabel(getTranslation("companyCreatorForm.localNumber"));
-        }
-
-        private void saveEmployee(EmployeeForm.SaveEvent event) {
-            if (saveButtonListener != null) {
-
-                saveButtonListener.accept(new CompanyInformation(
-                        companyName.getValue(),
-                        companyEmail.getValue(),
-                        companyTaxId.getValue(),
-                        postalCode.getValue(),
-                        city.getValue(),
-                        street.getValue(),
-                        localNumber.getValue(),
-                        event.getEmployee()));
-            }
-        }
-
-        private void closeButton(EmployeeForm.CloseEvent event) {
-            if (closeButtonListener != null) {
-                closeButtonListener.accept(null);
-            }
-        }
-
-        public void addCloseButtonListener(Consumer<Void> closeButtonListener) {
-            this.closeButtonListener = closeButtonListener;
-        }
-
-        public void addSaveButtonListener(Consumer<CompanyInformation> listener) {
-            this.saveButtonListener = listener;
-        }
-    }
-
-    private record CompanyInformation(
+    public record CompanyInformation(
             String companyName,
             String companyEmail,
             String companyTaxId,
