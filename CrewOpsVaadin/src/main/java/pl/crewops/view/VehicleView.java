@@ -25,7 +25,7 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
     public VehicleView(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
         super(coreAPI, jwtService, roleResolver);
 
-        breakdownGrid = new BreakdownGrid(coreAPI);
+        breakdownGrid = new BreakdownGrid(coreAPI, roleResolver);
         breakdownGrid.setSizeFull();
         breakdownGrid.setVisible(false);
 
@@ -71,7 +71,7 @@ public class VehicleView extends MainLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (!roleResolver.principalHasEmployeeRole()) {
+        if (!roleResolver.principalIsAuthenticated()) {
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");
         }

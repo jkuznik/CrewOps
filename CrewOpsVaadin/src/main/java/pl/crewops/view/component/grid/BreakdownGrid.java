@@ -21,12 +21,14 @@ import pl.crewops.model.BreakdownFormModel;
 import pl.crewops.model.auth.RoleGrantedAuthority;
 import pl.crewops.model.auth.RoleType;
 import pl.crewops.security.custom.UserPrincipal;
+import pl.crewops.util.RoleResolver;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.BreakdownForm;
 import pl.crewops.view.component.notification.UpdateBreakdownNotification;
 
 public class BreakdownGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
+    private final RoleResolver roleResolver;
 
     private final Grid<BreakdownFormModel> grid = new Grid<>();
     private final TextField filter = new TextField();
@@ -34,8 +36,9 @@ public class BreakdownGrid extends VerticalLayout {
 
     private final BreakdownForm form;
 
-    public BreakdownGrid(CoreAPI coreAPI) {
+    public BreakdownGrid(CoreAPI coreAPI, RoleResolver roleResolver) {
         this.coreAPI = coreAPI;
+        this.roleResolver = roleResolver;
         this.form = new BreakdownForm();
 
         configureGrid();
@@ -194,7 +197,11 @@ public class BreakdownGrid extends VerticalLayout {
             closeEditor();
         } else {
             form.setBreakdown(breakdownFormModel);
-            form.setFormModeUpdate();
+            if (roleResolver.principalHasOnlyEmployeeRole()) {
+                form.setFormModeEmployeePermission();
+            } else {
+                form.setFormModeUpdate();
+            }
             form.setVisible(true);
         }
     }

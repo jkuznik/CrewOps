@@ -112,10 +112,18 @@ public class BreakdownForm extends FormLayout {
         update.setVisible(true);
         save.setVisible(false);
         solved.setVisible(true);
+        solved.setReadOnly(false);
         critical.setVisible(false);
         description.setReadOnly(true);
     }
 
+    public void setFormModeEmployeePermission() {
+        setFormModeUpdate();
+        solved.setReadOnly(true);
+        update.setVisible(false);
+    }
+
+    // TODO: save doesnt work for lid permission
     private void validateAndSave() {
         BreakdownFormModel model = new BreakdownFormModel();
         try {

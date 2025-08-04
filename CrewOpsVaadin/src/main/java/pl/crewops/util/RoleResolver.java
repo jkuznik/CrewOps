@@ -17,7 +17,12 @@ public class RoleResolver {
 
     private final JwtServiceVaadin jwtService;
 
-    public boolean principalHasEmployeeRole() {
+    public boolean principalIsAuthenticated() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && authentication.isAuthenticated();
+    }
+
+    public boolean principalHasOnlyEmployeeRole() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (isAuthenticated(authentication)
                 && authentication.getPrincipal() instanceof UserPrincipal principal
@@ -25,7 +30,8 @@ public class RoleResolver {
 
             Set<RoleGrantedAuthority> roleGrantedAuthorities = jwtService.extractAuthorities(principal.getToken());
 
-            return roleGrantedAuthorities.contains(new RoleGrantedAuthority(EMPLOYEE));
+            return roleGrantedAuthorities.size() == 1
+                    && roleGrantedAuthorities.contains(new RoleGrantedAuthority(EMPLOYEE));
         } else {
             return false;
         }
