@@ -18,13 +18,13 @@ import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.dto.machine.CreateMachineDTO;
+import pl.crewops.dto.machine.MachineDTO;
+import pl.crewops.dto.machine.UpdateMachineDTO;
+import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
-import pl.crewops.dto.vehicle.CreateVehicleDTO;
-import pl.crewops.dto.vehicle.UpdateVehicleDTO;
-import pl.crewops.dto.vehicle.VehicleDTO;
-import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
@@ -48,13 +48,13 @@ public interface CoreAPI {
     Optional<QualificationDTO> updateQualification(@Valid @NotNull UpdateQualificationDTO updateQualificationDTO)
             throws NotAuthenticatedException;
 
-    Optional<VehicleDTO> createVehicle(@Valid @NotNull CreateVehicleDTO createVehicleDTO)
+    Optional<MachineDTO> createMachine(@Valid @NotNull CreateMachineDTO createMachineDTO)
             throws NotAuthenticatedException;
 
     Optional<CreateCustomerResult> registerNewCustomer(@Valid @NotNull CreateCustomerCommand command)
             throws NotAuthenticatedException;
 
-    Optional<VehicleDTO> updateVehicle(@Valid @NotNull UpdateVehicleDTO updateVehicleDTO)
+    Optional<MachineDTO> updateMachine(@Valid @NotNull UpdateMachineDTO updateMachineDTO)
             throws NotAuthenticatedException;
 
     Optional<BreakdownDTO> createBreakdown(@Valid @NotNull CreateBreakdownDTO createBreakdownDTO)
@@ -69,9 +69,9 @@ public interface CoreAPI {
 
     List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException;
 
-    List<VehicleDTO> getAllVehicles() throws NotAuthenticatedException;
+    List<MachineDTO> getAllMachines() throws NotAuthenticatedException;
 
-    List<VehicleTypeDTO> getAllVehicleTypes() throws NotAuthenticatedException;
+    List<MachineTypeDTO> getAllMachineTypes() throws NotAuthenticatedException;
 
     List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException;
 
@@ -81,7 +81,7 @@ public interface CoreAPI {
 
     void deleteQualification(@NotNull UUID qualificationId) throws NotAuthenticatedException;
 
-    void deleteVehicle(@NotNull UUID vehicleId) throws NotAuthenticatedException;
+    void deleteMachine(@NotNull UUID machineId) throws NotAuthenticatedException;
 
     void setToken(@NotNull String token);
 

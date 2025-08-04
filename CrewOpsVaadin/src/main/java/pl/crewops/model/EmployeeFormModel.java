@@ -11,8 +11,8 @@ import pl.crewops.dto.auth.RoleDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.dto.machine.MachineDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
-import pl.crewops.dto.vehicle.VehicleDTO;
 import pl.crewops.model.auth.RoleType;
 
 @Getter
@@ -29,7 +29,7 @@ public class EmployeeFormModel {
     private @NotNull @Size(min = 2, max = 50, message = "Minimal length is 2") String department;
     private Set<RoleType> roles;
     private Set<QualificationDTO> qualificationsSet;
-    private Set<VehicleDTO> vehiclesSet;
+    private Set<MachineDTO> machinesSet;
 
     public static EmployeeFormModel toEmployeeFormModel(EmployeeDTO employeeDTO) {
         return EmployeeFormModel.builder()
@@ -40,7 +40,7 @@ public class EmployeeFormModel {
                 .phoneNumber(employeeDTO.phoneNumber())
                 .department(employeeDTO.department())
                 .qualificationsSet(employeeDTO.qualifications())
-                .vehiclesSet(employeeDTO.vehicles())
+                .machinesSet(employeeDTO.machines())
                 .build();
     }
 

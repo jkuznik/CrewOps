@@ -13,8 +13,8 @@ import pl.crewops.exception.domain.company.CompanyNotFoundException;
 import pl.crewops.exception.domain.employee.EmployeeNotFoundException;
 import pl.crewops.exception.domain.employee.EmployeeQualificationNotFoundException;
 import pl.crewops.exception.domain.employee.ExpireAtException;
+import pl.crewops.exception.domain.machine.MachineNotFoundException;
 import pl.crewops.exception.domain.qualification.QualificationNotFoundException;
-import pl.crewops.exception.domain.vehicle.VehicleNotFoundException;
 
 @Slf4j
 @RestControllerAdvice
@@ -63,8 +63,8 @@ public class CoreExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Resource not found: " + ex.getMessage());
     }
 
-    @ExceptionHandler(VehicleNotFoundException.class)
-    public ResponseEntity<String> handleVehicleNotFoundException(VehicleNotFoundException ex) {
+    @ExceptionHandler(MachineNotFoundException.class)
+    public ResponseEntity<String> handleVehicleNotFoundException(MachineNotFoundException ex) {
         log.error("VehicleNotFoundException: Message={}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Resource not found: " + ex.getMessage());
     }

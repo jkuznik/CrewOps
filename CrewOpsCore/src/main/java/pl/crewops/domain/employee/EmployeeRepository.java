@@ -14,20 +14,20 @@ import pl.crewops.model.joinTable.EmployeeQualification;
 
 interface EmployeeRepository extends JpaRepository<Employee, UUID> {
 
-    @EntityGraph(attributePaths = {"qualifications", "vehicles"})
+    @EntityGraph(attributePaths = {"qualifications", "machines"})
     Page<Employee> findAll(Pageable pageable);
 
-    @EntityGraph(attributePaths = {"qualifications", "vehicles"})
+    @EntityGraph(attributePaths = {"qualifications", "machines"})
     Page<Employee> findAllByActiveIsTrue(Pageable pageable);
 
-    @EntityGraph(attributePaths = {"qualifications", "vehicles"})
+    @EntityGraph(attributePaths = {"qualifications", "machines"})
     Optional<Employee> findById(UUID id);
 
     @Query("SELECT e FROM Employee e JOIN e.qualifications q WHERE q.id = :qualificationId")
     Page<Employee> findByQualificationId(@Param("qualificationId") UUID qualificationId, Pageable pageable);
 
-    @Query("SELECT e FROM Employee e JOIN e.vehicles v WHERE v.id = :vehiclesId")
-    Page<Employee> findByVehiclesId(@Param("vehiclesId") UUID vehicleId, Pageable pageable);
+    @Query("SELECT e FROM Employee e JOIN e.machines v WHERE v.id = :machinesId")
+    Page<Employee> findByMachinesId(@Param("machinesId") UUID machineId, Pageable pageable);
 
     List<Employee> findByFirstNameAndLastName(String firstName, String lastName);
 }

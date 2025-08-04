@@ -16,7 +16,7 @@ public class AddBreakdownNotification extends Notification {
         var div = new Div();
         div.addClassName("add-breakdown-notification-div");
         div.setText(getTranslation("addBreakdownNotification.successAddBreakdown") + " "
-                + breakdownDTO.vehicle().registerNumber());
+                + breakdownDTO.machine().registerNumber());
 
         add(div);
         open();

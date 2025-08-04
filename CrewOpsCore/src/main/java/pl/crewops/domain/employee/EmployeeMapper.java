@@ -4,9 +4,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.machine.MachineDTO;
+import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
-import pl.crewops.dto.vehicle.VehicleDTO;
-import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.model.Employee;
 
 class EmployeeMapper {
@@ -32,24 +32,24 @@ class EmployeeMapper {
                 .department(employee.getDepartment())
                 .active(employee.isActive())
                 .qualifications(getQualifications(employee))
-                .vehicles(getVehicles(employee))
+                .machines(getMachines(employee))
                 .build();
     }
 
-    private static Set<VehicleDTO> getVehicles(Employee employee) {
-        return employee.getVehicles().stream()
-                .map(vehicle -> VehicleDTO.builder()
-                        .id(vehicle.getId())
-                        .make(vehicle.getMake())
-                        .model(vehicle.getModel())
-                        .vehicleType(VehicleTypeDTO.builder()
-                                .id(vehicle.getVehicleType().getId())
-                                .name(vehicle.getVehicleType().getName())
+    private static Set<MachineDTO> getMachines(Employee employee) {
+        return employee.getMachines().stream()
+                .map(machine -> MachineDTO.builder()
+                        .id(machine.getId())
+                        .make(machine.getMake())
+                        .model(machine.getModel())
+                        .machineType(MachineTypeDTO.builder()
+                                .id(machine.getMachineType().getId())
+                                .name(machine.getMachineType().getName())
                                 .build())
-                        .year(vehicle.getYear())
-                        .vin(vehicle.getVin())
-                        .registerNumber(vehicle.getRegisterNumber())
-                        .broken(vehicle.getBroken())
+                        .year(machine.getYear())
+                        .vin(machine.getVin())
+                        .registerNumber(machine.getRegisterNumber())
+                        .broken(machine.getBroken())
                         .build())
                 .collect(Collectors.toSet());
     }

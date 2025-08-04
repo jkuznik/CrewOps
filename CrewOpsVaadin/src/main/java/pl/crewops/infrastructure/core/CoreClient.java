@@ -26,13 +26,13 @@ import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.dto.machine.CreateMachineDTO;
+import pl.crewops.dto.machine.MachineDTO;
+import pl.crewops.dto.machine.UpdateMachineDTO;
+import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
-import pl.crewops.dto.vehicle.CreateVehicleDTO;
-import pl.crewops.dto.vehicle.UpdateVehicleDTO;
-import pl.crewops.dto.vehicle.VehicleDTO;
-import pl.crewops.dto.vehicleType.VehicleTypeDTO;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
 
@@ -252,12 +252,12 @@ class CoreClient {
                         value = GET_ALL_VEHICLE_TYPES,
                         key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
             })
-    public VehicleDTO createVehicle(CreateVehicleDTO createVehicleDTO) {
+    public MachineDTO createMachine(CreateMachineDTO createMachineDTO) {
         try {
             return authorizedClient
                     .post()
                     .uri(uriBuilder -> uriBuilder.path(VEHICLES).build())
-                    .body(createVehicleDTO)
+                    .body(createMachineDTO)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .body(new ParameterizedTypeReference<>() {});
@@ -276,12 +276,12 @@ class CoreClient {
                         value = GET_ALL_VEHICLE_TYPES,
                         key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
             })
-    public VehicleDTO updateVehicle(UpdateVehicleDTO updateVehicleDTO) {
+    public MachineDTO updateMachine(UpdateMachineDTO updateMachineDTO) {
         try {
             return authorizedClient
                     .patch()
-                    .uri(uriBuilder -> uriBuilder.path(VEHICLES_VID).build(updateVehicleDTO.vehicleId()))
-                    .body(updateVehicleDTO)
+                    .uri(uriBuilder -> uriBuilder.path(VEHICLES_VID).build(updateMachineDTO.machineId()))
+                    .body(updateMachineDTO)
                     .retrieve()
                     .body(new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
@@ -292,50 +292,50 @@ class CoreClient {
 
     // authenticated
     @Cacheable(cacheNames = GET_ALL_VEHICLES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    public List<VehicleDTO> getAllVehicles() {
-        log.warn("Get all vehicles cache missing");
+    public List<MachineDTO> getAllMachines() {
+        log.warn("Get all machines cache missing");
         try {
             return authorizedClient
                     .get()
                     .uri(uriBuilder -> uriBuilder.path(VEHICLES).build())
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
-                    .body(new ParameterizedTypeReference<List<VehicleDTO>>() {});
+                    .body(new ParameterizedTypeReference<List<MachineDTO>>() {});
         } catch (RestClientException e) {
-            log.error("Error getting vehicles");
+            log.error("Error getting machines");
             return List.of();
         }
     }
 
     // authenticated
     @Cacheable(cacheNames = GET_ALL_VEHICLE_TYPES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    public List<VehicleTypeDTO> getAllVehicleTypes() {
+    public List<MachineTypeDTO> getAllMachineTypes() {
         try {
             return authorizedClient
                     .get()
                     .uri(uriBuilder -> uriBuilder.path(VEHICLE_TYPES).build())
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
-                    .body(new ParameterizedTypeReference<List<VehicleTypeDTO>>() {});
+                    .body(new ParameterizedTypeReference<List<MachineTypeDTO>>() {});
         } catch (RestClientException e) {
-            log.error("Error getting vehicle types");
+            log.error("Error getting machine types");
             return List.of();
         }
     }
 
     // manager permission
     @CacheEvict(value = GET_ALL_VEHICLES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    public void deleteVehicle(UUID vehicleId) {
+    public void deleteMachine(UUID machineId) {
         try {
             authorizedClient
                     .delete()
                     .uri(uriBuilder -> uriBuilder
-                            .path(VEHICLES_VID.replace("{" + VEHICLE_ID + "}", vehicleId.toString()))
+                            .path(VEHICLES_VID.replace("{" + VEHICLE_ID + "}", machineId.toString()))
                             .build())
                     .retrieve()
                     .toBodilessEntity();
         } catch (RestClientException e) {
-            log.error("Error deleting vehicle", e);
+            log.error("Error deleting machine", e);
         }
     }
 

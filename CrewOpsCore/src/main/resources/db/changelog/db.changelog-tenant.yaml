@@ -23,9 +23,9 @@
     - include:
         file: db/changelog/create/tenantSchema/001-create-table-employee.yaml
     - include:
-        file: db/changelog/create/tenantSchema/002-create-table-vehicle.yaml
+        file: db/changelog/create/tenantSchema/002-create-table-machine.yaml
     - include:
-        file: db/changelog/create/tenantSchema/003-create-join-table-employee-vehicle.yaml
+        file: db/changelog/create/tenantSchema/003-create-join-table-employee-machine.yaml
     - include:
         file: db/changelog/create/tenantSchema/004-create-table-qualification.yaml
     - include:
@@ -33,7 +33,7 @@
     - include:
         file: db/changelog/create/tenantSchema/006-create-table-breakdown.yaml
     - include:
-        file: db/changelog/create/tenantSchema/007-create-table-vehicle-type.yaml
+        file: db/changelog/create/tenantSchema/007-create-table-machine-type.yaml
     - include:
         file: db/changelog/create/tenantSchema/008-create-table-address.yaml
     - include:

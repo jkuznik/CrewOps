@@ -52,10 +52,10 @@ public class Employee extends AbstractEntity {
     @Builder.Default
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JoinTable(
-            name = "employee_vehicle",
+            name = "employee_machine",
             joinColumns = @JoinColumn(name = "employee_id"),
-            inverseJoinColumns = @JoinColumn(name = "vehicle_id"))
-    private Set<Vehicle> vehicles = new LinkedHashSet<>();
+            inverseJoinColumns = @JoinColumn(name = "machine_id"))
+    private Set<Machine> machines = new LinkedHashSet<>();
 
     public Employee mapToEntity(CreateEmployeeDTO createEmployeeDTO) {
         return Employee.builder()

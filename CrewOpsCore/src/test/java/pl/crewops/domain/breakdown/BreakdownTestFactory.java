@@ -7,12 +7,12 @@ import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.vehicle.VehicleDTO;
-import pl.crewops.dto.vehicleType.VehicleTypeDTO;
+import pl.crewops.dto.machine.MachineDTO;
+import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.Breakdown;
 import pl.crewops.model.Employee;
-import pl.crewops.model.Vehicle;
-import pl.crewops.model.VehicleType;
+import pl.crewops.model.Machine;
+import pl.crewops.model.MachineType;
 
 class BreakdownTestFactory {
 
@@ -21,14 +21,14 @@ class BreakdownTestFactory {
     static final UUID reportedByEmployeeId = UUID.fromString("11111111-1111-1111-1111-111111111111");
     static final UUID repairedByEmployeeId = UUID.fromString("11111111-1111-1111-1111-111111111111");
     static final UUID roleId = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    static final VehicleDTO vehicleDTO = getVehicleDTO();
+    static final MachineDTO MACHINE_DTO = getVehicleDTO();
     static final EmployeeDTO reportedByEmployee = getReporetdByEmployeeDTO();
     static final EmployeeDTO repairedByEmployee = getRepairedByEmployeeDTO();
     static final Set<RoleDTO> roles = roleDTOSet();
 
     static Breakdown getBreakdown() {
         return Breakdown.builder()
-                .vehicle(getVehicle())
+                .machine(getVehicle())
                 .reportedBy(getEmployee())
                 .repairedBy(getEmployee())
                 .description("description")
@@ -41,7 +41,7 @@ class BreakdownTestFactory {
     static BreakdownDTO getBreakdownDTO() {
         return BreakdownDTO.builder()
                 .id(breakdownId)
-                .vehicle(vehicleDTO)
+                .vehicle(MACHINE_DTO)
                 .reportedBy(reportedByEmployee)
                 .repairedBy(repairedByEmployee)
                 .critical(true)
@@ -67,11 +67,11 @@ class BreakdownTestFactory {
                 .build();
     }
 
-    static Vehicle getVehicle() {
-        return Vehicle.builder()
+    static Machine getVehicle() {
+        return Machine.builder()
                 .make("make")
                 .model("model")
-                .vehicleType(VehicleType.builder().name("ImplementThis").build())
+                .machineType(MachineType.builder().name("ImplementThis").build())
                 .registerNumber("registerNumber")
                 .year(2025)
                 .vin("vin")
@@ -87,12 +87,12 @@ class BreakdownTestFactory {
                 .build();
     }
 
-    private static VehicleDTO getVehicleDTO() {
-        return VehicleDTO.builder()
+    private static MachineDTO getVehicleDTO() {
+        return MachineDTO.builder()
                 .id(vehicleId)
                 .make("make")
                 .model("model")
-                .vehicleType(VehicleTypeDTO.builder().name("LOADER").build())
+                .vehicleType(MachineTypeDTO.builder().name("LOADER").build())
                 .registerNumber("registerNumber")
                 .vin("vin")
                 .broken(false)

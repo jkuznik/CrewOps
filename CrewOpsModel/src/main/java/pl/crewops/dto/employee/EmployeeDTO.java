@@ -7,8 +7,8 @@ import java.util.Set;
 import java.util.UUID;
 import lombok.Builder;
 import pl.crewops.dto.auth.RoleDTO;
+import pl.crewops.dto.machine.MachineDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
-import pl.crewops.dto.vehicle.VehicleDTO;
 
 @Builder
 public record EmployeeDTO(
@@ -21,7 +21,7 @@ public record EmployeeDTO(
         Set<RoleDTO> roles,
         boolean active,
         Set<QualificationDTO> qualifications,
-        Set<VehicleDTO> vehicles)
+        Set<MachineDTO> machines)
         implements Serializable {
     @Override
     public boolean equals(Object o) {

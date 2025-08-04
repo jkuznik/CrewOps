@@ -20,10 +20,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import pl.crewops.domain.auth.AuthAPI;
 import pl.crewops.domain.employee.EmployeeAPI;
+import pl.crewops.domain.machine.MachineAPI;
+import pl.crewops.domain.machineType.MachineTypeAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
 import pl.crewops.domain.tenant.TenantAPI;
-import pl.crewops.domain.vehicle.VehicleAPI;
-import pl.crewops.domain.vehicleType.VehicleTypeAPI;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.util.multitenancy.LiquibaseSchemaMigrator;
 import pl.crewops.util.multitenancy.SchemaManager;
@@ -72,10 +72,10 @@ public abstract class IntegrationTest {
     protected TenantAPI tenantAPI;
 
     @Autowired
-    protected VehicleAPI vehicleAPI;
+    protected MachineAPI machineAPI;
 
     @Autowired
-    protected VehicleTypeAPI vehicleTypeAPI;
+    protected MachineTypeAPI machineTypeAPI;
 
     @Autowired
     private LiquibaseSchemaMigrator schemaMigrator;

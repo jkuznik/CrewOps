@@ -24,8 +24,8 @@ import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.auth.RoleGrantedAuthority;
 import pl.crewops.model.auth.RoleType;
 import pl.crewops.security.custom.UserPrincipal;
+import pl.crewops.view.component.accordion.MachineAccordion;
 import pl.crewops.view.component.accordion.QualificationAccordion;
-import pl.crewops.view.component.accordion.VehicleAccordion;
 
 public class EmployeeForm extends FormLayout {
     private final TextField firstName = new TextField("First name");
@@ -35,7 +35,7 @@ public class EmployeeForm extends FormLayout {
     private final TextField department = new TextField("Department");
     private final CheckboxGroup<RoleType> roles = new CheckboxGroup<>("Roles");
     private final QualificationAccordion qualifications = new QualificationAccordion();
-    private final VehicleAccordion vehicles = new VehicleAccordion();
+    private final MachineAccordion machines = new MachineAccordion();
 
     private final Button save = new Button("Save");
     private final Button update = new Button("Update");
@@ -60,7 +60,7 @@ public class EmployeeForm extends FormLayout {
                 department,
                 roles,
                 qualifications,
-                vehicles,
+                machines,
                 createButtonsLayout());
     }
 
@@ -118,7 +118,7 @@ public class EmployeeForm extends FormLayout {
         update.setVisible(false);
         delete.setVisible(false);
         qualifications.setVisible(false);
-        vehicles.setVisible(false);
+        machines.setVisible(false);
 
         firstName.setReadOnly(false);
         firstName.setEnabled(true);
@@ -133,7 +133,7 @@ public class EmployeeForm extends FormLayout {
         update.setVisible(true);
         delete.setVisible(true);
         qualifications.setVisible(true);
-        vehicles.setVisible(true);
+        machines.setVisible(true);
 
         firstName.setReadOnly(true);
         firstName.setEnabled(false);
@@ -168,7 +168,7 @@ public class EmployeeForm extends FormLayout {
         binder.setBean(employeeFormModel);
         if (employeeFormModel != null) {
             qualifications.getValues(employeeFormModel.getQualificationsSet());
-            vehicles.getValues(employeeFormModel.getVehiclesSet());
+            machines.getValues(employeeFormModel.getMachinesSet());
         }
     }
 

@@ -11,17 +11,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.domain.employee.EmployeeAPI;
-import pl.crewops.domain.vehicle.VehicleAPI;
+import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
-import pl.crewops.dto.vehicle.UpdateVehicleDTO;
+import pl.crewops.dto.machine.UpdateMachineDTO;
 import pl.crewops.exception.domain.breakdown.BreakdownNotFoundException;
 import pl.crewops.exception.domain.employee.EmployeeNotFoundException;
-import pl.crewops.exception.domain.vehicle.VehicleNotFoundException;
+import pl.crewops.exception.domain.machine.MachineNotFoundException;
 import pl.crewops.model.Breakdown;
 import pl.crewops.model.Employee;
-import pl.crewops.model.Vehicle;
+import pl.crewops.model.Machine;
 
 @Slf4j
 @Service
@@ -29,17 +29,17 @@ import pl.crewops.model.Vehicle;
 class BreakdownService {
 
     private final BreakdownRepository breakdownRepository;
-    private final VehicleAPI vehicleAPI;
+    private final MachineAPI machineAPI;
     private final EmployeeAPI employeeAPI;
 
     @Transactional
     public BreakdownDTO createBreakdown(CreateBreakdownDTO createBreakdownDTO) {
-        Vehicle vehicle;
+        Machine machine;
         try {
-            vehicle = vehicleAPI.getVehicle(createBreakdownDTO.vehicleId());
-        } catch (VehicleNotFoundException e) {
-            log.error("Not found vehicle during create breakdown: {}", e.getMessage());
-            throw new VehicleNotFoundException(createBreakdownDTO.vehicleId());
+            machine = machineAPI.getMachine(createBreakdownDTO.machineId());
+        } catch (MachineNotFoundException e) {
+            log.error("Not found machine during create breakdown: {}", e.getMessage());
+            throw new MachineNotFoundException(createBreakdownDTO.machineId());
         }
         Employee employee;
         try {
@@ -51,7 +51,7 @@ class BreakdownService {
 
         var breakdown = Breakdown.builder()
                 .description(createBreakdownDTO.description())
-                .vehicle(vehicle)
+                .machine(machine)
                 .reportedBy(employee)
                 .critical(createBreakdownDTO.critical())
                 .build();
@@ -59,12 +59,12 @@ class BreakdownService {
         log.info("Created breakdown: {}", breakdown);
 
         if (createBreakdownDTO.critical()) {
-            var updateVehicle = UpdateVehicleDTO.builder()
-                    .vehicleId(vehicle.getId())
+            var updateMachine = UpdateMachineDTO.builder()
+                    .machineId(machine.getId())
                     .broken(true)
                     .build();
 
-            vehicleAPI.updateVehicle(updateVehicle);
+            machineAPI.updateMachine(updateMachine);
         }
 
         return toDTO(breakdownRepository.save(breakdown));
@@ -91,14 +91,14 @@ class BreakdownService {
 
         if (updateBreakdownDTO.solved()) {
             Employee employee = employeeAPI.getEmployeeById(updateBreakdownDTO.repairedByEmployeeId());
-            Vehicle vehicle = vehicleAPI.getVehicle(breakdown.getVehicle().getId());
+            Machine machine = machineAPI.getMachine(breakdown.getMachine().getId());
             breakdown.setSolved(true);
             breakdown.setRepairedBy(employee);
             breakdown.setSolvedAt(Instant.now());
             var updatedBreakdown = toDTO(breakdownRepository.save(breakdown));
 
-            if (breakdownRepository.findFirstByVehicleAndSolvedIsFalse(vehicle).isEmpty()) {
-                vehicle.setBroken(false);
+            if (breakdownRepository.findFirstByMachineAndSolvedIsFalse(machine).isEmpty()) {
+                machine.setBroken(false);
             }
 
             log.info("Updated breakdown: {}", breakdown);

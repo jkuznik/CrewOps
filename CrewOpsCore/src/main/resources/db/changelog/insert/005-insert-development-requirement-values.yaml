@@ -58,7 +58,7 @@ databaseChangeLog:
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
 
         - insert:
-            tableName: vehicle
+            tableName: machine
             columns:
               - column: { name: id, value: "33333333-3333-3333-3333-333333333333" }
               - column: { name: version, value: 0 }
@@ -67,13 +67,13 @@ databaseChangeLog:
               - column: { name: model, value: "D8" }
               - column: { name: year, value: 2019 }
               - column: { name: register_number, value: "REG123" }
-#              - column: { name: vehicle_type, value: "BULLDOZER" }
+#              - column: { name: machine_type, value: "BULLDOZER" }
               - column: { name: broken, valueBoolean: false }
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
 
         - insert:
-            tableName: vehicle
+            tableName: machine
             columns:
               - column: { name: id, value: "44444444-4444-4444-4444-444444444444" }
               - column: { name: version, value: 0 }
@@ -82,7 +82,7 @@ databaseChangeLog:
               - column: { name: model, value: "PC210" }
               - column: { name: year, value: 2021 }
               - column: { name: register_number, value: "REG456" }
-#              - column: { name: vehicle_type, value: "EXCAVATOR" }
+#              - column: { name: machine_type, value: "EXCAVATOR" }
               - column: { name: broken, valueBoolean: false }
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
@@ -106,16 +106,16 @@ databaseChangeLog:
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
 
         - insert:
-            tableName: employee_vehicle
+            tableName: employee_machine
             columns:
               - column: { name: employee_id, value: "11111111-1111-1111-1111-111111111111" }
-              - column: { name: vehicle_id, value: "33333333-3333-3333-3333-333333333333" }
+              - column: { name: machine_id, value: "33333333-3333-3333-3333-333333333333" }
 
         - insert:
-            tableName: employee_vehicle
+            tableName: employee_machine
             columns:
               - column: { name: employee_id, value: "22222222-2222-2222-2222-222222222222" }
-              - column: { name: vehicle_id, value: "44444444-4444-4444-4444-444444444444" }
+              - column: { name: machine_id, value: "44444444-4444-4444-4444-444444444444" }
 
         - insert:
             tableName: employee_qualification
@@ -170,9 +170,9 @@ databaseChangeLog:
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
 
-        # --- VEHICLES ---
+        # --- machineS ---
         - insert:
-            tableName: vehicle
+            tableName: machine
             columns:
               - column: { name: id, value: "55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
               - column: { name: version, value: 0 }
@@ -181,13 +181,13 @@ databaseChangeLog:
               - column: { name: model, value: "EC950F" }
               - column: { name: year, value: 2022 }
               - column: { name: register_number, value: "VOL123" }
-#              - column: { name: vehicle_type, value: "EXCAVATOR" }
+#              - column: { name: machine_type, value: "EXCAVATOR" }
               - column: { name: broken, valueBoolean: false }
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
 
         - insert:
-            tableName: vehicle
+            tableName: machine
             columns:
               - column: { name: id, value: "66666666-bbbb-bbbb-bbbb-bbbbbbbbbbbb" }
               - column: { name: version, value: 0 }
@@ -196,7 +196,7 @@ databaseChangeLog:
               - column: { name: model, value: "ZX470LC-6" }
               - column: { name: year, value: 2023 }
               - column: { name: register_number, value: "HIT456" }
-#              - column: { name: vehicle_type, value: "BULLDOZER" }
+#              - column: { name: machine_type, value: "BULLDOZER" }
               - column: { name: broken, valueBoolean: false }
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
@@ -220,18 +220,18 @@ databaseChangeLog:
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
 
-        # --- EMPLOYEE-VEHICLE RELATIONS ---
+        # --- EMPLOYEE-machine RELATIONS ---
         - insert:
-            tableName: employee_vehicle
+            tableName: employee_machine
             columns:
               - column: { name: employee_id, value: "77777777-7777-7777-7777-777777777777" }
-              - column: { name: vehicle_id, value: "55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
+              - column: { name: machine_id, value: "55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
 
         - insert:
-            tableName: employee_vehicle
+            tableName: employee_machine
             columns:
               - column: { name: employee_id, value: "88888888-8888-8888-8888-888888888888" }
-              - column: { name: vehicle_id, value: "66666666-bbbb-bbbb-bbbb-bbbbbbbbbbbb" }
+              - column: { name: machine_id, value: "66666666-bbbb-bbbb-bbbb-bbbbbbbbbbbb" }
 
         # --- EMPLOYEE-QUALIFICATION RELATIONS ---
         - insert:
@@ -277,7 +277,7 @@ databaseChangeLog:
 
         # --- DODATKOWE POJAZDY ---
         - insert:
-            tableName: vehicle
+            tableName: machine
             columns:
               - column: { name: id, value: "77777777-cccc-cccc-cccc-cccccccccccc" }
               - column: { name: version, value: 0 }
@@ -286,13 +286,13 @@ databaseChangeLog:
               - column: { name: model, value: "JS130" }
               - column: { name: year, value: 2020 }
               - column: { name: register_number, value: "JCB123" }
-#              - column: { name: vehicle_type, value: "EXCAVATOR" }
+#              - column: { name: machine_type, value: "EXCAVATOR" }
               - column: { name: broken, valueBoolean: false }
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
 
         - insert:
-            tableName: vehicle
+            tableName: machine
             columns:
               - column: { name: id, value: "88888888-dddd-dddd-dddd-dddddddddddd" }
               - column: { name: version, value: 0 }
@@ -301,7 +301,7 @@ databaseChangeLog:
               - column: { name: model, value: "R944C" }
               - column: { name: year, value: 2023 }
               - column: { name: register_number, value: "LIE456" }
-#              - column: { name: vehicle_type, value: "BULLDOZER" }
+#              - column: { name: machine_type, value: "BULLDOZER" }
               - column: { name: broken, valueBoolean: true }
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
@@ -325,18 +325,18 @@ databaseChangeLog:
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
 
-        # --- EMPLOYEE-VEHICLE RELATIONS ---
+        # --- EMPLOYEE-machine RELATIONS ---
         - insert:
-            tableName: employee_vehicle
+            tableName: employee_machine
             columns:
               - column: { name: employee_id, value: "10101010-1010-1010-1010-101010101010" }
-              - column: { name: vehicle_id, value: "77777777-cccc-cccc-cccc-cccccccccccc" }
+              - column: { name: machine_id, value: "77777777-cccc-cccc-cccc-cccccccccccc" }
 
         - insert:
-            tableName: employee_vehicle
+            tableName: employee_machine
             columns:
               - column: { name: employee_id, value: "20202020-2020-2020-2020-202020202020" }
-              - column: { name: vehicle_id, value: "88888888-dddd-dddd-dddd-dddddddddddd" }
+              - column: { name: machine_id, value: "88888888-dddd-dddd-dddd-dddddddddddd" }
 
         # --- EMPLOYEE-QUALIFICATION RELATIONS ---
         - insert:
@@ -352,36 +352,36 @@ databaseChangeLog:
               - column: { name: employee_id, value: "20202020-2020-2020-2020-202020202020" }
               - column: { name: qualification_id, value: "10101010-ffff-ffff-ffff-ffffffffffff" }
               - column: { name: expired_at, value: "2027-12-31T00:00:00" }
-        # --- ADDITIONAL EMPLOYEE-VEHICLE RELATIONS ---
+        # --- ADDITIONAL EMPLOYEE-machine RELATIONS ---
         - insert:
-            tableName: employee_vehicle
+            tableName: employee_machine
             columns:
               - column: { name: employee_id, value: "11111111-1111-1111-1111-111111111111" }
-              - column: { name: vehicle_id, value: "44444444-4444-4444-4444-444444444444" }
+              - column: { name: machine_id, value: "44444444-4444-4444-4444-444444444444" }
 
         - insert:
-            tableName: employee_vehicle
+            tableName: employee_machine
             columns:
               - column: { name: employee_id, value: "22222222-2222-2222-2222-222222222222" }
-              - column: { name: vehicle_id, value: "55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
+              - column: { name: machine_id, value: "55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
 
         - insert:
-            tableName: employee_vehicle
+            tableName: employee_machine
             columns:
               - column: { name: employee_id, value: "77777777-7777-7777-7777-777777777777" }
-              - column: { name: vehicle_id, value: "66666666-bbbb-bbbb-bbbb-bbbbbbbbbbbb" }
+              - column: { name: machine_id, value: "66666666-bbbb-bbbb-bbbb-bbbbbbbbbbbb" }
 
         - insert:
-            tableName: employee_vehicle
+            tableName: employee_machine
             columns:
               - column: { name: employee_id, value: "88888888-8888-8888-8888-888888888888" }
-              - column: { name: vehicle_id, value: "55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
+              - column: { name: machine_id, value: "55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
 
         - insert:
-            tableName: employee_vehicle
+            tableName: employee_machine
             columns:
               - column: { name: employee_id, value: "99999999-9999-9999-9999-999999999999" }
-              - column: { name: vehicle_id, value: "66666666-bbbb-bbbb-bbbb-bbbbbbbbbbbb" }
+              - column: { name: machine_id, value: "66666666-bbbb-bbbb-bbbb-bbbbbbbbbbbb" }
 
         # --- ADDITIONAL EMPLOYEE-QUALIFICATION RELATIONS ---
         - insert:
@@ -424,7 +424,7 @@ databaseChangeLog:
               - column: { name: id, value: "aaaabbbb-0000-0000-0000-000000000001" }
               - column: { name: version, value: 0 }
               - column: { name: description, value: "Wycieki oleju z układu hydraulicznego" }
-              - column: { name: vehicle_id, value: "77777777-cccc-cccc-cccc-cccccccccccc" }
+              - column: { name: machine_id, value: "77777777-cccc-cccc-cccc-cccccccccccc" }
               - column: { name: reported_by_id, value: "11111111-1111-1111-1111-111111111111" }
               - column: { name: repaired_by_id, value: null }
               - column: { name: solved, valueBoolean: false }
@@ -439,7 +439,7 @@ databaseChangeLog:
               - column: { name: id, value: "aaaabbbb-0000-0000-0000-000000000002" }
               - column: { name: version, value: 0 }
               - column: { name: description, value: "Uszkodzenie gąsienicy – pojazd unieruchomiony" }
-              - column: { name: vehicle_id, value: "88888888-dddd-dddd-dddd-dddddddddddd" }
+              - column: { name: machine_id, value: "88888888-dddd-dddd-dddd-dddddddddddd" }
               - column: { name: reported_by_id, value: "22222222-2222-2222-2222-222222222222" }
               - column: { name: repaired_by_id, value: null }
               - column: { name: solved, valueBoolean: false }
@@ -454,7 +454,7 @@ databaseChangeLog:
               - column: { name: id, value: "aaaabbbb-0000-0000-0000-000000000003" }
               - column: { name: version, value: 0 }
               - column: { name: description, value: "Problemy z rozruchem silnika" }
-              - column: { name: vehicle_id, value: "33333333-3333-3333-3333-333333333333" }
+              - column: { name: machine_id, value: "33333333-3333-3333-3333-333333333333" }
               - column: { name: reported_by_id, value: "99999999-9999-9999-9999-999999999999" }
               - column: { name: repaired_by_id, value: null }
               - column: { name: solved, valueBoolean: false }
@@ -464,73 +464,73 @@ databaseChangeLog:
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
 
   - changeSet:
-      id: 004-insert-vehicle-types
+      id: 004-insert-machine-types
       author: jkuznik
       changes:
         - insert:
-            tableName: vehicle_type
+            tableName: machine_type
             columns:
               - column: { name: id, value: '00000000-0000-0000-0000-000000000001' }
               - column: { name: version, valueNumeric: 0 }
               - column: { name: name, value: 'EXCAVATOR' }
 
         - insert:
-            tableName: vehicle_type
+            tableName: machine_type
             columns:
               - column: { name: id, value: '00000000-0000-0000-0000-000000000002' }
               - column: { name: version, valueNumeric: 0 }
               - column: { name: name, value: 'BULLDOZER' }
 
         - insert:
-            tableName: vehicle_type
+            tableName: machine_type
             columns:
               - column: { name: id, value: '00000000-0000-0000-0000-000000000003' }
               - column: { name: version, valueNumeric: 0 }
               - column: { name: name, value: 'CRANE' }
 
         - insert:
-            tableName: vehicle_type
+            tableName: machine_type
             columns:
               - column: { name: id, value: '00000000-0000-0000-0000-000000000004' }
               - column: { name: version, valueNumeric: 0 }
               - column: { name: name, value: 'LOADER' }
 
   - changeSet:
-      id: 005-assign-vehicle-types
+      id: 005-assign-machine-types
       author: jkuznik
       changes:
         - update:
-            tableName: vehicle
+            tableName: machine
             where: id = '33333333-3333-3333-3333-333333333333'
             columns:
-              - column: { name: vehicle_type_id, value: '00000000-0000-0000-0000-000000000002' }  # BULLDOZER
+              - column: { name: machine_type_id, value: '00000000-0000-0000-0000-000000000002' }  # BULLDOZER
 
         - update:
-            tableName: vehicle
+            tableName: machine
             where: id = '44444444-4444-4444-4444-444444444444'
             columns:
-              - column: { name: vehicle_type_id, value: '00000000-0000-0000-0000-000000000001' }  # EXCAVATOR
+              - column: { name: machine_type_id, value: '00000000-0000-0000-0000-000000000001' }  # EXCAVATOR
 
         - update:
-            tableName: vehicle
+            tableName: machine
             where: id = '55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
             columns:
-              - column: { name: vehicle_type_id, value: '00000000-0000-0000-0000-000000000001' }  # EXCAVATOR
+              - column: { name: machine_type_id, value: '00000000-0000-0000-0000-000000000001' }  # EXCAVATOR
 
         - update:
-            tableName: vehicle
+            tableName: machine
             where: id = '66666666-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
             columns:
-              - column: { name: vehicle_type_id, value: '00000000-0000-0000-0000-000000000002' }  # BULLDOZER
+              - column: { name: machine_type_id, value: '00000000-0000-0000-0000-000000000002' }  # BULLDOZER
 
         - update:
-            tableName: vehicle
+            tableName: machine
             where: id = '77777777-cccc-cccc-cccc-cccccccccccc'
             columns:
-              - column: { name: vehicle_type_id, value: '00000000-0000-0000-0000-000000000004' }  # LOADER
+              - column: { name: machine_type_id, value: '00000000-0000-0000-0000-000000000004' }  # LOADER
 
         - update:
-            tableName: vehicle
+            tableName: machine
             where: id = '88888888-dddd-dddd-dddd-dddddddddddd'
             columns:
-              - column: { name: vehicle_type_id, value: '00000000-0000-0000-0000-000000000003' }  # CRANE
+              - column: { name: machine_type_id, value: '00000000-0000-0000-0000-000000000003' }  # CRANE

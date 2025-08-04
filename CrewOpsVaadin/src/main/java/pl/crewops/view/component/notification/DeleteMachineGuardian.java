@@ -1,0 +1,59 @@
+package pl.crewops.view.component.notification;
+
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
+import pl.crewops.model.MachineFormModel;
+
+public class DeleteMachineGuardian extends Notification {
+
+    public DeleteMachineGuardian(MachineFormModel machineFormModel, Runnable onDeleteConfirmed) {
+        addClassName("delete-machine-guardian");
+        addThemeVariants(NotificationVariant.LUMO_ERROR);
+        setPosition(Position.MIDDLE);
+        setDuration(0);
+
+        String registrationNumber = machineFormModel.getRegisterNumber();
+
+        var message = new Div();
+        message.addClassName("delete-machine-guardian-div");
+        message.setText(getTranslation("deleteMachineGuardian.warningMessage") + " " + registrationNumber);
+
+        var confirmTextField = new TextField(getTranslation("deleteMachineGuardian.confirmTextField"));
+        confirmTextField.setWidthFull();
+        confirmTextField.setValueChangeMode(ValueChangeMode.EAGER);
+
+        var deleteButton = new Button(getTranslation("deleteMachineGuardian.deleteButton"));
+        deleteButton.setEnabled(false);
+        deleteButton.addClickListener(e -> {
+            onDeleteConfirmed.run();
+            close();
+        });
+
+        var cancelButton = new Button(getTranslation("deleteMachineGuardian.cancelButton"));
+        cancelButton.addClickListener(e -> {
+            close();
+        });
+
+        confirmTextField.addValueChangeListener(e -> {
+            String value = e.getValue() != null ? e.getValue().trim() : "";
+            deleteButton.setEnabled(value.equalsIgnoreCase(registrationNumber));
+        });
+
+        var buttons = new HorizontalLayout(deleteButton, cancelButton);
+        buttons.setSpacing(true);
+
+        var layout = new VerticalLayout(message, confirmTextField, buttons);
+        layout.setPadding(false);
+        layout.setSpacing(true);
+        layout.setWidth("400px");
+
+        add(layout);
+        open();
+    }
+}

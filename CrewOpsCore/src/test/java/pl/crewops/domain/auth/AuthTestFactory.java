@@ -8,9 +8,9 @@ import pl.crewops.dto.auth.RoleDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.model.Employee;
+import pl.crewops.model.Machine;
+import pl.crewops.model.MachineType;
 import pl.crewops.model.Qualification;
-import pl.crewops.model.Vehicle;
-import pl.crewops.model.VehicleType;
 import pl.crewops.model.auth.RoleType;
 
 class AuthTestFactory {
@@ -31,7 +31,7 @@ class AuthTestFactory {
                 .phoneNumber("123456789")
                 .department("department")
                 .qualifications(getQualifications())
-                .vehicles(getVehicles())
+                .machines(getVehicles())
                 .build();
     }
 
@@ -86,9 +86,9 @@ class AuthTestFactory {
         return Qualification.builder().description("description").build();
     }
 
-    public static Vehicle vehicle() {
-        return Vehicle.builder()
-                .vehicleType(VehicleType.builder().name("ImplementThis").build())
+    public static Machine vehicle() {
+        return Machine.builder()
+                .machineType(MachineType.builder().name("ImplementThis").build())
                 .make("make")
                 .model("model")
                 .year(2020)
@@ -102,11 +102,11 @@ class AuthTestFactory {
                 Qualification.builder().description("bar").build());
     }
 
-    private static Set<Vehicle> getVehicles() {
+    private static Set<Machine> getVehicles() {
         return Set.of(
                 vehicle(),
-                Vehicle.builder()
-                        .vehicleType(VehicleType.builder().name("ImplementThis").build())
+                Machine.builder()
+                        .machineType(MachineType.builder().name("ImplementThis").build())
                         .make("make")
                         .model("model")
                         .year(2020)
