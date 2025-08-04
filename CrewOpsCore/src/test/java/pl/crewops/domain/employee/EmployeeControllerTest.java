@@ -195,29 +195,29 @@ class EmployeeControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("PATCH /employees/{eid}/vehicles/{vid} should return 200")
-    void addVehicleToEmployee_ShouldReturn200() throws Exception {
+    @DisplayName("PATCH /employees/{eid}/machines/{vid} should return 200")
+    void addMachineToEmployee_ShouldReturn200() throws Exception {
         UUID eid = UUID.randomUUID();
         UUID vid = UUID.randomUUID();
 
-        when(employeeAPI.addVehicle(eid, vid))
+        when(employeeAPI.addMachine(eid, vid))
                 .thenReturn(EmployeeDTO.builder().id(eid).build());
 
-        mockMvc.perform(patch("/employees/" + eid + "/vehicles/" + vid))
+        mockMvc.perform(patch("/employees/" + eid + "/machines/" + vid))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(eid.toString()));
     }
 
     @Test
     @WithMockUser
-    @DisplayName("DELETE /employees/{eid}/vehicles/{vid} should return 204")
-    void removeVehicleFromEmployee_ShouldReturn204() throws Exception {
+    @DisplayName("DELETE /employees/{eid}/machines/{vid} should return 204")
+    void removeMachineFromEmployee_ShouldReturn204() throws Exception {
         UUID eid = UUID.randomUUID();
         UUID vid = UUID.randomUUID();
 
-        doNothing().when(employeeAPI).removeVehicle(eid, vid);
+        doNothing().when(employeeAPI).removeMachine(eid, vid);
 
-        mockMvc.perform(delete("/employees/" + eid + "/vehicles/" + vid)).andExpect(status().isNoContent());
+        mockMvc.perform(delete("/employees/" + eid + "/machines/" + vid)).andExpect(status().isNoContent());
     }
 
     private void testUpdateSuccess() throws Exception {

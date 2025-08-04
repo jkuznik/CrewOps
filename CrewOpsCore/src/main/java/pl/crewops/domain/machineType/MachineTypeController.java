@@ -15,7 +15,7 @@ class MachineTypeController {
 
     private final MachineTypeAPI machineTypeAPI;
 
-    @GetMapping(ControllerURL.VEHICLE_TYPES)
+    @GetMapping(ControllerURL.MACHINE_TYPES)
     public ResponseEntity<List<MachineTypeDTO>> getAllMachineTypes() {
         return ResponseEntity.status(HttpStatus.OK).body(machineTypeAPI.getAllMachineTypes());
     }

@@ -39,7 +39,7 @@ class BreakdownServiceTest {
     @Test
     void createBreakdown_shouldReturnBreakdownDTO_WhenCreateDTOIsValid() {
         // when
-        when(machineAPI.getVehicle(any(UUID.class))).thenReturn(getVehicle());
+        when(machineAPI.getMachine(any(UUID.class))).thenReturn(getMachine());
         when(employeeAPI.getEmployeeById(any(UUID.class))).thenReturn(getEmployee());
         when(breakdownRepository.save(any(Breakdown.class))).thenReturn(getBreakdown());
 
@@ -80,7 +80,7 @@ class BreakdownServiceTest {
         // when
         when(breakdownRepository.findById(any())).thenReturn(Optional.of(getBreakdown()));
         when(employeeAPI.getEmployeeById(any(UUID.class))).thenReturn(getEmployee());
-        when(machineAPI.getVehicle(any())).thenReturn(getVehicle());
+        when(machineAPI.getMachine(any())).thenReturn(getMachine());
         when(breakdownRepository.save(any(Breakdown.class))).thenReturn(getBreakdown());
 
         // then

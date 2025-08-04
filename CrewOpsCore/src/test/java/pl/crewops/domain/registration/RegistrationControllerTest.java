@@ -232,7 +232,7 @@ class RegistrationControllerTest {
                                 .department("HR")
                                 .roles(Set.of())
                                 .qualifications(Set.of())
-                                .vehicles(Set.of())
+                                .machines(Set.of())
                                 .active(true)
                                 .build())
                         .authUserDTO(AuthUserDTO.builder()

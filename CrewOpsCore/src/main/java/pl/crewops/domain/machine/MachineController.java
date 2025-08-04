@@ -24,32 +24,32 @@ class MachineController {
 
     private final MachineAPI machineAPI;
 
-    @PostMapping(VEHICLES)
+    @PostMapping(MACHINES)
     @ManagerPermission
     public ResponseEntity<MachineDTO> createMachine(@NotNull @Valid @RequestBody CreateMachineDTO createMachineDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(machineAPI.createMachine(createMachineDTO));
     }
 
-    @GetMapping(VEHICLES)
+    @GetMapping(MACHINES)
     public ResponseEntity<List<MachineDTO>> getAllMachines(
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "15") int size) {
         return ResponseEntity.status(HttpStatus.OK).body(machineAPI.getAllMachines(page, size));
     }
 
-    @GetMapping(VEHICLES_RN)
+    @GetMapping(MACHINES_RN)
     public ResponseEntity<MachineDTO> getMachineByRegistrationNumber(@PathVariable String registrationNumber) {
         return ResponseEntity.status(HttpStatus.OK).body(machineAPI.getMachineByRegistrationNumber(registrationNumber));
     }
 
-    @PostMapping(VEHICLES_VIDS)
+    @PostMapping(MACHINES_VIDS)
     public ResponseEntity<List<MachineDTO>> getMachinesByIds(@RequestBody @NotNull Set<UUID> machineIds) {
         return ResponseEntity.status(HttpStatus.OK).body(machineAPI.getMachinesIn(machineIds));
     }
 
-    @PatchMapping(VEHICLES_VID)
+    @PatchMapping(MACHINES_VID)
     @MechanicPermission
     public ResponseEntity<MachineDTO> updateMachine(
-            @PathVariable(VEHICLE_ID) UUID machineId, @RequestBody @Valid @NotNull UpdateMachineDTO updateRequest) {
+            @PathVariable(MACHINE_ID) UUID machineId, @RequestBody @Valid @NotNull UpdateMachineDTO updateRequest) {
 
         if (!updateRequest.machineId().equals(machineId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Path ID and body ID must match");
@@ -64,9 +64,9 @@ class MachineController {
         return ResponseEntity.status(HttpStatus.OK).body(machineAPI.updateMachine(updateMachineDTO));
     }
 
-    @DeleteMapping(VEHICLES_VID)
+    @DeleteMapping(MACHINES_VID)
     @ManagerPermission
-    public ResponseEntity<MachineDTO> deleteMachine(@PathVariable(VEHICLE_ID) UUID machineId) {
+    public ResponseEntity<MachineDTO> deleteMachine(@PathVariable(MACHINE_ID) UUID machineId) {
         machineAPI.deleteMachine(machineId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }

@@ -46,9 +46,9 @@ class EmployeeController {
                 .body(employeeAPI.getEmployeesByQualification(qualificationId, page, size));
     }
 
-    @GetMapping(VEHICLES_VID_EMPLOYEES)
+    @GetMapping(MACHINES_VID_EMPLOYEES)
     public ResponseEntity<List<EmployeeDTO>> getEmployeesByMachineId(
-            @PathVariable(VEHICLE_ID) UUID machineId,
+            @PathVariable(MACHINE_ID) UUID machineId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size) {
         return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.getEmployeesByMachines(machineId, page, size));
@@ -99,15 +99,15 @@ class EmployeeController {
                 .body(employeeAPI.updateQualificationExpiredAt(employeeId, qualificationId, expireAt));
     }
 
-    @PatchMapping(EMPLOYEES_EID_VEHICLES_VID)
+    @PatchMapping(EMPLOYEES_EID_MACHINES_VID)
     public ResponseEntity<EmployeeDTO> addEmployeeMachines(
-            @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(VEHICLE_ID) UUID machineId) {
+            @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(MACHINE_ID) UUID machineId) {
         return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.addMachine(employeeId, machineId));
     }
 
-    @DeleteMapping(EMPLOYEES_EID_VEHICLES_VID)
+    @DeleteMapping(EMPLOYEES_EID_MACHINES_VID)
     public ResponseEntity<Void> removeEmployeeMachines(
-            @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(VEHICLE_ID) UUID machineId) {
+            @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(MACHINE_ID) UUID machineId) {
         employeeAPI.removeMachine(employeeId, machineId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

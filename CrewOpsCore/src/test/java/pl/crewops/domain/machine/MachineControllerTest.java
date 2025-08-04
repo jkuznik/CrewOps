@@ -165,7 +165,7 @@ class MachineControllerTest {
                 .thenReturn(Collections.singletonList(
                         MachineDTO.builder().id(ids.iterator().next()).build()));
 
-        mockMvc.perform(post(ControllerURL.VEHICLES_VIDS)
+        mockMvc.perform(post(ControllerURL.MACHINES_VIDS)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(ids)))
                 .andExpect(status().isOk())
