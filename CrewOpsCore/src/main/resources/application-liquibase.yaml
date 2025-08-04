@@ -29,7 +29,7 @@ spring:
       auth.user.username: ${CREW_OPS_AUTH_USER_USERNAME}
       auth.user.password: ${CREW_OPS_AUTH_USER_PASSWORD}
       auth.user.tenant.id: ${CREW_OPS_AUTH_USER_TENANT_ID}
-      auth.user.employee.id: ${CREW_OPS_AUTH_USER_EMPLOYEE_ID}
+      auth.user.employee.id: ${CREW_OPS_EMPLOYEE_ID}
 
       auth.user.role.auth.user.id: ${CREW_OPS_AUTH_USER_ROLE_USER_ID}
       auth.user.role.role.id: ${CREW_OPS_AUTH_USER_ROLE_ROLE_ID}

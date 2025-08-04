@@ -9,7 +9,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
@@ -145,7 +144,7 @@ class CoreClient {
     }
 
     // authenticated
-    @Cacheable(cacheNames = GET_EMPLOYEE_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    //    @Cacheable(cacheNames = GET_EMPLOYEE_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public EmployeeDTO getEmployeeById(UUID employeeId) {
         log.warn("Get employee by id cache missing");
         try {
@@ -162,7 +161,7 @@ class CoreClient {
     }
 
     // authenticated
-    @Cacheable(cacheNames = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    //    @Cacheable(cacheNames = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<EmployeeDTO> getAllEmployees() {
         log.warn("Get all employees cache missing");
         try {
@@ -213,7 +212,8 @@ class CoreClient {
     }
 
     // authenticated
-    @Cacheable(cacheNames = GET_ALL_QUALIFICATIONS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    //    @Cacheable(cacheNames = GET_ALL_QUALIFICATIONS, key =
+    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<QualificationDTO> getAllQualifications() {
         log.warn("Get all qualifications cache missing");
         try {
@@ -291,7 +291,7 @@ class CoreClient {
     }
 
     // authenticated
-    @Cacheable(cacheNames = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    //    @Cacheable(cacheNames = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<MachineDTO> getAllMachines() {
         log.warn("Get all machines cache missing");
         try {
@@ -308,7 +308,7 @@ class CoreClient {
     }
 
     // authenticated
-    @Cacheable(cacheNames = GET_ALL_MACHINE_TYPES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    //    @Cacheable(cacheNames = GET_ALL_MACHINE_TYPES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<MachineTypeDTO> getAllMachineTypes() {
         try {
             return authorizedClient
@@ -372,7 +372,7 @@ class CoreClient {
     }
 
     // authenticated
-    @Cacheable(cacheNames = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    //    @Cacheable(cacheNames = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<BreakdownDTO> getAllBreakdowns() {
         try {
             return authorizedClient
@@ -389,7 +389,7 @@ class CoreClient {
 
     // authenticated
     // TODO: consider remove caching of this value or implement different logic
-    @Cacheable(cacheNames = GET_COMPANY_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    //    @Cacheable(cacheNames = GET_COMPANY_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public CompanyDTO getCompanyById(UUID companyId) {
         log.warn("Get company by id cache missing");
         try {
