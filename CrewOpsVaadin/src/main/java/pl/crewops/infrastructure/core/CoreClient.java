@@ -59,6 +59,11 @@ class CoreClient {
     }
 
     // permit all for sure
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_EMPLOYEE_BY_ID, allEntries = true),
+                @CacheEvict(value = GET_COMPANY_BY_ID, allEntries = true)
+            })
     public AuthResponse login(AuthRequest authRequest) {
         try {
             return coreClient
@@ -90,8 +95,8 @@ class CoreClient {
     }
 
     // manager permission
+    @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public void terminateEmployeeAccount(UUID employeeId) {
-
         try {
             authorizedClient
                     .delete()

@@ -8,6 +8,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
+import pl.crewops.util.RoleResolver;
 
 @SpringComponent
 @UIScope
@@ -18,15 +19,17 @@ public class MainLayout extends AppLayout {
 
     protected final CoreAPI coreAPI;
     protected final JwtServiceVaadin jwtService;
+    protected final RoleResolver roleResolver;
 
     protected final VerticalLayout mainContent = new VerticalLayout();
     protected final Footer mainFooter = new MainFooter();
 
-    public MainLayout(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
+    public MainLayout(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
         addClassName("main-layout");
 
         this.coreAPI = coreAPI;
         this.jwtService = jwtService;
+        this.roleResolver = roleResolver;
 
         mainContent.setSizeFull();
         mainContent.setSpacing(true);

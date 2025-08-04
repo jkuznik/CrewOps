@@ -7,11 +7,9 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceVaadin;
+import pl.crewops.util.RoleResolver;
 import pl.crewops.view.component.grid.EmployeeGrid;
 import pl.crewops.view.component.grid.QualificationGrid;
 import pl.crewops.view.layout.MainLayout;
@@ -22,18 +20,8 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
     private final EmployeeGrid employeeGrid;
     private final QualificationGrid qualificationGrid;
 
-    private UserPrincipal principal;
-
-    public EmployeeView(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
-        super(coreAPI, jwtService);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null
-                && authentication.isAuthenticated()
-                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
-
-            this.principal = userPrincipal;
-        }
+    public EmployeeView(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
+        super(coreAPI, jwtService, roleResolver);
 
         employeeGrid = new EmployeeGrid(coreAPI);
         qualificationGrid = new QualificationGrid(coreAPI);
@@ -78,7 +66,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (principal == null || !jwtService.validToken(principal.getToken())) {
+        if (!roleResolver.principalHasAtLeastManagerRole()) {
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");
         }

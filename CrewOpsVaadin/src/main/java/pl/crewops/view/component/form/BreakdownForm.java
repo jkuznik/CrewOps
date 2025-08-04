@@ -19,6 +19,7 @@ import pl.crewops.model.BreakdownFormModel;
 
 public class BreakdownForm extends FormLayout {
 
+    // TODO: not allow to update breakdown (solve breakdown) if user has no at least mechanic permission
     private final TextField vehicle = new TextField();
     private final TextArea description = new TextArea();
     private final Checkbox solved = new Checkbox();
@@ -111,10 +112,18 @@ public class BreakdownForm extends FormLayout {
         update.setVisible(true);
         save.setVisible(false);
         solved.setVisible(true);
+        solved.setReadOnly(false);
         critical.setVisible(false);
         description.setReadOnly(true);
     }
 
+    public void setFormModeEmployeePermission() {
+        setFormModeUpdate();
+        solved.setReadOnly(true);
+        update.setVisible(false);
+    }
+
+    // TODO: save doesnt work for lid permission
     private void validateAndSave() {
         BreakdownFormModel model = new BreakdownFormModel();
         try {

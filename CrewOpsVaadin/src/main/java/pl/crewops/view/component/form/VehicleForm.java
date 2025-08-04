@@ -83,6 +83,7 @@ public class VehicleForm extends FormLayout {
     }
 
     public void setFormModeSave() {
+        registerNumber.setEnabled(true);
         availableVehicleTypes.setEnabled(true);
         newVehicleTypeField.setEnabled(true);
         make.setEnabled(true);
@@ -99,6 +100,7 @@ public class VehicleForm extends FormLayout {
     }
 
     public void setFormModeUpdate() {
+        registerNumber.setEnabled(true);
         availableVehicleTypes.setEnabled(false);
         newVehicleTypeField.setEnabled(false);
         make.setEnabled(false);
@@ -108,9 +110,27 @@ public class VehicleForm extends FormLayout {
 
         save.setVisible(false);
         update.setVisible(true);
+        delete.setVisible(true);
+
         reportBreakdown.setVisible(true);
         breakdownsList.setVisible(true);
-        delete.setVisible(true);
+    }
+
+    public void setFormModeEmployeePermission() {
+        registerNumber.setEnabled(false);
+        availableVehicleTypes.setEnabled(false);
+        newVehicleTypeField.setEnabled(false);
+        make.setEnabled(false);
+        model.setEnabled(false);
+        year.setEnabled(false);
+        vin.setEnabled(false);
+
+        save.setVisible(false);
+        update.setVisible(false);
+        delete.setVisible(false);
+
+        reportBreakdown.setVisible(true);
+        breakdownsList.setVisible(true);
     }
 
     public void setVehicle(VehicleFormModel vehicleFormModel) {
