@@ -18,8 +18,6 @@ import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.BreakdownFormModel;
-import pl.crewops.model.auth.RoleGrantedAuthority;
-import pl.crewops.model.auth.RoleType;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.util.RoleResolver;
 import pl.crewops.view.HomeView;
@@ -166,7 +164,6 @@ public class BreakdownGrid extends VerticalLayout {
 
     public void updateBreakdownGrid() {
         try {
-            // TODO: implement cache
             List<BreakdownFormModel> breakdowns = coreAPI.getAllBreakdowns().stream()
                     .map(BreakdownFormModel::toBreakdownFormModel)
                     .toList();
@@ -207,18 +204,7 @@ public class BreakdownGrid extends VerticalLayout {
     }
 
     private void updateBreakdown(BreakdownForm.UpdateEvent event) {
-        var principal = (UserPrincipal)
-                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        boolean hasPermission = principal.getAuthorities().stream()
-                .map(RoleGrantedAuthority::getAuthority)
-                .anyMatch(
-                        authority -> authority.equals("ROLE_" + RoleType.SHIFT_LEADER.name())
-                                || authority.equals("ROLE_" + RoleType.MANAGER.name())
-                        //                                authority.equals(RoleType.MECHANIC.name())
-                        );
-
-        if (hasPermission) {
+        if (roleResolver.principalHasManagerRole()) {
             try {
                 Optional<BreakdownDTO> breakdownDTO =
                         coreAPI.updateBreakdown(toUpdateBreakdownDTO(event.getBreakdown()));
