@@ -1,4 +1,4 @@
-package pl.crewops.view.component.notification;
+package pl.crewops.view.component.notification.info;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;

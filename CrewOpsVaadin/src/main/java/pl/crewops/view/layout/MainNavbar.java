@@ -11,8 +11,8 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.RoleResolver;
 import pl.crewops.view.component.form.LoginForm;
-import pl.crewops.view.component.navbarComponents.LanguageSelectorComponent;
-import pl.crewops.view.component.navbarComponents.LoggedUserInfoComponent;
+import pl.crewops.view.layout.navbarComponents.LanguageSelectorComponent;
+import pl.crewops.view.layout.navbarComponents.LoggedUserInfoComponent;
 
 @SpringComponent
 @UIScope

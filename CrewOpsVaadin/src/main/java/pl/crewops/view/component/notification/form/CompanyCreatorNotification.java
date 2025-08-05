@@ -1,4 +1,4 @@
-package pl.crewops.view.component.notification;
+package pl.crewops.view.component.notification.form;
 
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;

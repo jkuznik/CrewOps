@@ -1,6 +1,4 @@
-package pl.crewops.view.component.navbarComponents;
-
-import static pl.crewops.model.auth.RoleType.*;
+package pl.crewops.view.layout.navbarComponents;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -23,7 +21,7 @@ import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.RoleResolver;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.LoginForm;
-import pl.crewops.view.component.notification.EndSessionNotification;
+import pl.crewops.view.component.notification.info.EndSessionNotification;
 
 @Log4j2
 public class LoggedUserInfoComponent extends HorizontalLayout {

@@ -4,7 +4,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import java.util.function.Consumer;
 import pl.crewops.util.RoleResolver;
-import pl.crewops.view.component.notification.CompanyCreatorNotification;
+import pl.crewops.view.component.notification.form.CompanyCreatorNotification;
 
 public class CompanyCreatorForm extends FormLayout {
     // company

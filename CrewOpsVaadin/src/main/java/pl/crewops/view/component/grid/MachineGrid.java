@@ -29,10 +29,10 @@ import pl.crewops.util.RoleResolver;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.BreakdownForm;
 import pl.crewops.view.component.form.MachineForm;
-import pl.crewops.view.component.notification.AddBreakdownNotification;
-import pl.crewops.view.component.notification.AddMachineNotification;
-import pl.crewops.view.component.notification.DeleteMachineGuardian;
-import pl.crewops.view.component.notification.UpdateMachineNotification;
+import pl.crewops.view.component.notification.guardian.DeleteMachineGuardian;
+import pl.crewops.view.component.notification.info.AddBreakdownNotification;
+import pl.crewops.view.component.notification.info.AddMachineNotification;
+import pl.crewops.view.component.notification.info.UpdateMachineNotification;
 
 @Slf4j
 public class MachineGrid extends VerticalLayout {

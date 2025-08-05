@@ -1,10 +1,10 @@
-package pl.crewops.view.component.navbarComponents;
+package pl.crewops.view.layout.navbarComponents;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.util.RoleResolver;
-import pl.crewops.view.component.notification.CompanyCreatorNotification;
+import pl.crewops.view.component.notification.form.CompanyCreatorNotification;
 
 public class CustomerRegistryButton extends Div {
 

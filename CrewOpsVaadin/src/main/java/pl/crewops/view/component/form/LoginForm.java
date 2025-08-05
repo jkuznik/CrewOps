@@ -31,7 +31,7 @@ import pl.crewops.dto.auth.AuthRequest;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceVaadin;
-import pl.crewops.view.component.notification.LoginFailNotification;
+import pl.crewops.view.component.notification.info.LoginFailNotification;
 
 @SpringComponent
 @CssImport("./styles/component/login-form.css")

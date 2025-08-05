@@ -18,10 +18,10 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.QualificationFormModel;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.QualificationForm;
-import pl.crewops.view.component.notification.AddQualificationNotification;
-import pl.crewops.view.component.notification.DeleteQualificationGuardian;
-import pl.crewops.view.component.notification.QualificationAlreadyExistNotification;
-import pl.crewops.view.component.notification.UpdateQualificationNotification;
+import pl.crewops.view.component.notification.guardian.DeleteQualificationGuardian;
+import pl.crewops.view.component.notification.info.AddQualificationNotification;
+import pl.crewops.view.component.notification.info.QualificationAlreadyExistNotification;
+import pl.crewops.view.component.notification.info.UpdateQualificationNotification;
 
 @Getter
 @Setter
