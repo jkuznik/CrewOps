@@ -1,7 +1,6 @@
-package pl.crewops.view.component.notification;
+package pl.crewops.view.component.dialog;
 
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -14,22 +13,20 @@ import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.registration.CreateCustomerCommand;
+import pl.crewops.util.RoleResolver;
 import pl.crewops.view.component.form.CompanyCreatorForm;
 
-public class CompanyCreatorNotification extends Notification {
+public class CompanyCreatorDialog extends Dialog {
 
-    public CompanyCreatorNotification(CoreAPI coreAPI) {
+    public CompanyCreatorDialog(CoreAPI coreAPI, RoleResolver roleResolver) {
         addClassName("company-creator-notification");
-        open();
-        addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-        setPosition(Notification.Position.MIDDLE);
-        setDuration(0);
 
-        var companyCreatorForm = new CompanyCreatorForm();
-
+        var companyCreatorForm = new CompanyCreatorForm(roleResolver);
         companyCreatorForm.addSaveButtonListener(companyInformation -> createNewTenant(coreAPI, companyInformation));
         companyCreatorForm.addCloseButtonListener(event -> close());
+
         add(companyCreatorForm);
+        open();
     }
 
     private void createNewTenant(CoreAPI coreAPI, CompanyInformation companyInformation) {

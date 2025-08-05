@@ -1,6 +1,4 @@
-package pl.crewops.view.component.navbarComponents;
-
-import static pl.crewops.model.auth.RoleType.*;
+package pl.crewops.view.layout.navbarComponents;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -9,7 +7,6 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.server.VaadinSession;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.WeakHashMap;
@@ -17,97 +14,76 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.model.auth.RoleGrantedAuthority;
-import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceVaadin;
+import pl.crewops.util.RoleResolver;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.LoginForm;
-import pl.crewops.view.component.notification.EndSessionNotification;
+import pl.crewops.view.component.notification.auth.EndSessionNotification;
 
 @Log4j2
 public class LoggedUserInfoComponent extends HorizontalLayout {
     private static final Map<UI, Boolean> startedMap = new WeakHashMap<>();
-    private final Authentication authentication;
     private boolean sessionEnded = false;
-    private UserPrincipal principal;
 
-    public LoggedUserInfoComponent(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
+    public LoggedUserInfoComponent(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
         addClassName("logged-user-info");
 
-        this.authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null
-                && authentication.isAuthenticated()
-                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
-
-            this.principal = userPrincipal;
-            add(loggedUserInfo(coreAPI, jwtService));
-
+        System.out.println();
+        if (roleResolver.principalIsAuthenticated()) {
+            add(loggedUserInfo(coreAPI, jwtService, roleResolver));
         } else {
             add(new LoginForm(coreAPI, jwtService));
         }
     }
 
-    private Component loggedUserInfo(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
+    private Component loggedUserInfo(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
         var infoLayout = new HorizontalLayout();
         infoLayout.setWidthFull();
         infoLayout.setSpacing(true);
 
+        if (roleResolver.principalHasSystemAdminRole()) {
+            infoLayout.add(new CustomerRegistryButton(coreAPI, roleResolver));
+        }
+
         Button logoutButton = new Button(getTranslation("loggedUserInfo.logout"));
-        logoutButton.addClickListener(event -> logout(coreAPI));
+        logoutButton.addClickListener(event -> logout(coreAPI, roleResolver));
         logoutButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
-        UserInformation userInformation = getInfo(coreAPI, jwtService);
-        if (principal.getAuthorities().contains(new RoleGrantedAuthority(SYSTEM_ADMIN))) {
-            infoLayout.add(new CustomerRegistryButton(coreAPI));
-        }
-        infoLayout.add(displayUserInfo(userInformation), logoutButton);
+        final var token = roleResolver.getPrincipal().getToken();
+        UserInformation userInformation = getInfo(coreAPI, jwtService, token);
+        infoLayout.add(displayUserInfo(coreAPI, userInformation, roleResolver), logoutButton);
         return infoLayout;
     }
 
-    private UserInformation getInfo(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
+    private UserInformation getInfo(CoreAPI coreAPI, JwtServiceVaadin jwtService, String token) {
         log.info("Getting loggedUserInfo");
-        String companyName = "";
-        try {
-            CompanyDTO companyDTO = coreAPI.getCompanyById(jwtService.extractCompanyId(principal.getToken()))
-                    .orElseThrow(() -> new RuntimeException("Can't retrieve company name for logged user info"));
-            companyName = companyDTO.name();
 
-        } catch (NotAuthenticatedException e) {
-            System.out.println("JWT token not authenticated during retrieve user info");
-        } catch (RuntimeException e) {
-            log.error("Error getting company name for logged user info" + e.getMessage());
-        }
         try {
-            var employeeDTO = coreAPI.getEmployeeById(jwtService.extractEmployeeId(principal.getToken()))
+            CompanyDTO companyDTO = coreAPI.getCompanyById(jwtService.extractCompanyId(token))
+                    .orElseThrow(() -> new RuntimeException("Can't retrieve company name for logged user info"));
+            var companyName = companyDTO.name();
+
+            var employeeDTO = coreAPI.getEmployeeById(jwtService.extractEmployeeId(token))
                     .orElseThrow(NoSuchElementException::new);
             return new UserInformation(
                     companyName,
                     employeeDTO.firstName(),
                     employeeDTO.lastName(),
-                    jwtService
-                            .extractExpiresAt(principal.getToken())
-                            .toInstant()
-                            .getEpochSecond());
+                    jwtService.extractExpiresAt(token).toInstant().getEpochSecond());
         } catch (NotAuthenticatedException | NoSuchElementException ex) {
             log.error("JWT token not authenticated during retrieve user info" + ex.getMessage());
             return new UserInformation(
-                    companyName,
+                    null,
                     "system",
                     "issue",
-                    jwtService
-                            .extractExpiresAt(principal.getToken())
-                            .toInstant()
-                            .getEpochSecond());
+                    jwtService.extractExpiresAt(token).toInstant().getEpochSecond());
         }
     }
 
-    private Component displayUserInfo(UserInformation userInformation) {
+    private Component displayUserInfo(CoreAPI coreAPI, UserInformation userInformation, RoleResolver roleResolver) {
         Span companyName = new Span(userInformation.companyName);
         Span userName = new Span(userInformation.userName + " " + userInformation.userLastname);
 
@@ -136,11 +112,12 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
 
                         ui.access(() -> {
                             new EndSessionNotification(ui, () -> {
-                                        authentication.setAuthenticated(false);
+                                        roleResolver.unauthenticatePrincipal();
+                                        coreAPI.setAuthentication(false);
                                         String currentLocation = ui.getInternals()
                                                 .getActiveViewLocation()
                                                 .getPath();
-                                        if (currentLocation.equals("")) {
+                                        if (currentLocation.isEmpty()) {
                                             ui.getPage().reload();
                                         } else {
                                             ui.navigate(HomeView.class);
@@ -157,21 +134,16 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         return container;
     }
 
-    private String formatDuration(long seconds) {
-        long mins = seconds / 60;
-        long secs = seconds % 60;
-        return String.format("%02d:%02d", mins, secs);
-    }
-
-    private void logout(CoreAPI coreAPI) {
-        authentication.setAuthenticated(false);
-        coreAPI.setAuthentication(false);
+    private void logout(CoreAPI coreAPI, RoleResolver roleResolver) {
         UI ui = UI.getCurrent();
-        ui.access(() -> {
-            SecurityContextHolder.clearContext();
-            VaadinSession.getCurrent().close();
+        roleResolver.unauthenticatePrincipal();
+        coreAPI.setAuthentication(false);
+        String currentLocation = ui.getInternals().getActiveViewLocation().getPath();
+        if (currentLocation.isEmpty()) {
             ui.getPage().reload();
-        });
+        } else {
+            ui.navigate(HomeView.class);
+        }
     }
 
     private record UserInformation(String companyName, String userName, String userLastname, long expiryEpoch) {}

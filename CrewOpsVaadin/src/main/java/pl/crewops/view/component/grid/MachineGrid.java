@@ -31,8 +31,8 @@ import pl.crewops.view.component.form.BreakdownForm;
 import pl.crewops.view.component.form.MachineForm;
 import pl.crewops.view.component.notification.AddBreakdownNotification;
 import pl.crewops.view.component.notification.AddMachineNotification;
-import pl.crewops.view.component.notification.DeleteMachineGuardian;
 import pl.crewops.view.component.notification.UpdateMachineNotification;
+import pl.crewops.view.component.notification.guardian.DeleteMachineGuardian;
 
 @Slf4j
 public class MachineGrid extends VerticalLayout {
@@ -113,7 +113,7 @@ public class MachineGrid extends VerticalLayout {
 
         addMachine.addClickListener(event -> addMachine());
 
-        if (roleResolver.principalHasAtLeastManagerRole()) {
+        if (roleResolver.principalHasManagerRole()) {
             toolbar.add(filter, addMachine);
         } else {
             toolbar.add(filter);
@@ -194,7 +194,7 @@ public class MachineGrid extends VerticalLayout {
             closeEditor();
         } else {
             machineForm.setMachine(machineFormModel);
-            if (roleResolver.principalHasAtLeastManagerRole()) {
+            if (roleResolver.principalHasManagerRole()) {
                 machineForm.setFormModeUpdate();
             } else {
                 machineForm.setFormModeEmployeePermission();

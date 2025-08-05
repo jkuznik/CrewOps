@@ -15,7 +15,7 @@ import pl.crewops.util.RoleResolver;
 @CssImport("./styles/mainStyles/main-layout.css")
 public class MainLayout extends AppLayout {
 
-    // TODO: find solution to avoid displaying exceptions stackTrace on fe side
+    // TODO: find risky methods and handle exceptions to avoid displaying stackTrace on fe side
 
     protected final CoreAPI coreAPI;
     protected final JwtServiceVaadin jwtService;
@@ -37,7 +37,7 @@ public class MainLayout extends AppLayout {
         mainContent.setVisible(true);
         setContent(mainContent);
 
-        addToNavbar(new MainNavbar(coreAPI, jwtService));
+        addToNavbar(new MainNavbar(coreAPI, jwtService, roleResolver));
         addToDrawer(new MainDrawer(jwtService));
     }
 }

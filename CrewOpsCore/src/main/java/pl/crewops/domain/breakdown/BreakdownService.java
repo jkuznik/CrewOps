@@ -45,7 +45,7 @@ class BreakdownService {
         try {
             employee = employeeAPI.getEmployeeById(createBreakdownDTO.reportedByEmployeeId());
         } catch (EmployeeNotFoundException e) {
-            log.error("Not found 'reportedBy' employee during create breakdown: {}", e.getMessage());
+            log.error("Failed to fetch info about 'reportedBy' employee during create breakdown: {}", e.getMessage());
             throw new EmployeeNotFoundException(createBreakdownDTO.reportedByEmployeeId());
         }
 

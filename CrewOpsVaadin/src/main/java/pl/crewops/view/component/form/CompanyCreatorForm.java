@@ -3,10 +3,10 @@ package pl.crewops.view.component.form;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import java.util.function.Consumer;
-import pl.crewops.view.component.notification.CompanyCreatorNotification;
+import pl.crewops.util.RoleResolver;
+import pl.crewops.view.component.dialog.CompanyCreatorDialog;
 
 public class CompanyCreatorForm extends FormLayout {
-
     // company
     private final TextField companyName = new TextField();
     private final TextField companyEmail = new TextField();
@@ -16,15 +16,15 @@ public class CompanyCreatorForm extends FormLayout {
     private final TextField city = new TextField();
     private final TextField street = new TextField();
     private final TextField localNumber = new TextField();
-    // employee
-    private final EmployeeForm employeeForm = new EmployeeForm();
 
-    private Consumer<CompanyCreatorNotification.CompanyInformation> saveButtonListener;
+    private Consumer<CompanyCreatorDialog.CompanyInformation> saveButtonListener;
     private Consumer<Void> closeButtonListener;
 
-    public CompanyCreatorForm() {
+    public CompanyCreatorForm(RoleResolver roleResolver) {
         addClassName("company-creator-form");
 
+        // employee
+        EmployeeForm employeeForm = new EmployeeForm(roleResolver);
         localize();
 
         employeeForm.setFormModeSave();
@@ -46,7 +46,7 @@ public class CompanyCreatorForm extends FormLayout {
     private void saveEmployee(EmployeeForm.SaveEvent event) {
         if (saveButtonListener != null) {
 
-            saveButtonListener.accept(new CompanyCreatorNotification.CompanyInformation(
+            saveButtonListener.accept(new CompanyCreatorDialog.CompanyInformation(
                     companyName.getValue(),
                     companyEmail.getValue(),
                     companyTaxId.getValue(),
@@ -68,7 +68,7 @@ public class CompanyCreatorForm extends FormLayout {
         this.closeButtonListener = closeButtonListener;
     }
 
-    public void addSaveButtonListener(Consumer<CompanyCreatorNotification.CompanyInformation> listener) {
+    public void addSaveButtonListener(Consumer<CompanyCreatorDialog.CompanyInformation> listener) {
         this.saveButtonListener = listener;
     }
 }

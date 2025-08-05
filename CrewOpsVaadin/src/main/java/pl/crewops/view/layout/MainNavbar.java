@@ -7,14 +7,12 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceVaadin;
+import pl.crewops.util.RoleResolver;
 import pl.crewops.view.component.form.LoginForm;
-import pl.crewops.view.component.navbarComponents.LanguageSelectorComponent;
-import pl.crewops.view.component.navbarComponents.LoggedUserInfoComponent;
+import pl.crewops.view.layout.navbarComponents.LanguageSelectorComponent;
+import pl.crewops.view.layout.navbarComponents.LoggedUserInfoComponent;
 
 @SpringComponent
 @UIScope
@@ -23,44 +21,35 @@ public class MainNavbar extends HorizontalLayout {
 
     private final CoreAPI coreAPI;
     private final JwtServiceVaadin jwtService;
-    private UserPrincipal principal;
 
-    public MainNavbar(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
+    public MainNavbar(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
         addClassName("main-navbar");
 
         this.coreAPI = coreAPI;
         this.jwtService = jwtService;
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null
-                && authentication.isAuthenticated()
-                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
-
-            this.principal = userPrincipal;
-        }
-
         setSizeFull();
         setSpacing(true);
         setPadding(true);
-        add(createNavbarLeftSide(), createNavbarRightSide());
+        HorizontalLayout navbarRightSide = createNavbarRightSide(roleResolver);
+        add(createNavbarLeftSide(), navbarRightSide);
         setFlexGrow(1, createNavbarLeftSide());
-        setFlexGrow(1, createNavbarRightSide());
+        setFlexGrow(1, navbarRightSide);
     }
 
-    private HorizontalLayout createNavbarRightSide() {
+    private HorizontalLayout createNavbarRightSide(RoleResolver roleResolver) {
         var rightSide = new HorizontalLayout();
         rightSide.setWidthFull();
         rightSide.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         rightSide.getStyle().set("padding-right", "20px");
 
-        if (principal != null && jwtService.validToken(principal.getToken())) {
-            var loggedUserInfoComponent = new LoggedUserInfoComponent(coreAPI, jwtService);
-            rightSide.add(loggedUserInfoComponent, new LanguageSelectorComponent());
+        if (roleResolver.getPrincipal() != null
+                && jwtService.validToken(roleResolver.getPrincipal().getToken())) {
+            rightSide.add(new LoggedUserInfoComponent(coreAPI, jwtService, roleResolver));
         } else {
-            LoginForm loginForm = new LoginForm(coreAPI, jwtService);
-            rightSide.add(loginForm, new LanguageSelectorComponent());
+            rightSide.add(new LoginForm(coreAPI, jwtService));
         }
+        rightSide.add(new LanguageSelectorComponent());
 
         return rightSide;
     }

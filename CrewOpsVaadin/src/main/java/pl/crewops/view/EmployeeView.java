@@ -23,7 +23,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
     public EmployeeView(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
         super(coreAPI, jwtService, roleResolver);
 
-        employeeGrid = new EmployeeGrid(coreAPI);
+        employeeGrid = new EmployeeGrid(coreAPI, roleResolver);
         qualificationGrid = new QualificationGrid(coreAPI);
         employeeGrid.setQualificationGrid(qualificationGrid);
         qualificationGrid.setEmployeeGrid(employeeGrid);
@@ -66,7 +66,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (!roleResolver.principalHasAtLeastManagerRole()) {
+        if (!roleResolver.principalHasManagerRole()) {
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");
         }

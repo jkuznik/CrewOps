@@ -1,4 +1,4 @@
-package pl.crewops.view.component.notification;
+package pl.crewops.view.component.notification.guardian;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
