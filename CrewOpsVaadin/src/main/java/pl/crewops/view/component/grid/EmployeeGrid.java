@@ -12,13 +12,11 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
-import pl.crewops.security.custom.UserPrincipal;
+import pl.crewops.util.RoleResolver;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.EmployeeForm;
 import pl.crewops.view.component.notification.AddEmployeeNotification;
@@ -29,17 +27,18 @@ import pl.crewops.view.component.notification.UpdateEmployeeNotification;
 @Setter
 public class EmployeeGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
+    private final RoleResolver roleResolver;
 
     private final Grid<EmployeeFormModel> grid = new Grid<>();
     private final TextField filter = new TextField();
-    private final EmployeeForm form = new EmployeeForm();
+    private final EmployeeForm form;
     private final Button addEmployee = new Button();
-    private final Authentication authentication;
     private QualificationGrid qualificationGrid;
 
-    public EmployeeGrid(CoreAPI coreAPI) {
+    public EmployeeGrid(CoreAPI coreAPI, RoleResolver roleResolver) {
         this.coreAPI = coreAPI;
-        this.authentication = SecurityContextHolder.getContext().getAuthentication();
+        this.roleResolver = roleResolver;
+        form = new EmployeeForm(roleResolver);
 
         configureGrid();
         configureForm();
@@ -155,7 +154,7 @@ public class EmployeeGrid extends VerticalLayout {
 
     private void saveEmployee(EmployeeForm.SaveEvent event) {
         try {
-            UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+            var principal = roleResolver.getPrincipal();
             UUID companyId = principal.getCompanyId();
 
             Optional<EmployeeDTO> employeeDTO =

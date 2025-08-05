@@ -113,7 +113,7 @@ public class MachineGrid extends VerticalLayout {
 
         addMachine.addClickListener(event -> addMachine());
 
-        if (roleResolver.principalHasAtLeastManagerRole()) {
+        if (roleResolver.principalHasManagerRole()) {
             toolbar.add(filter, addMachine);
         } else {
             toolbar.add(filter);
@@ -194,7 +194,7 @@ public class MachineGrid extends VerticalLayout {
             closeEditor();
         } else {
             machineForm.setMachine(machineFormModel);
-            if (roleResolver.principalHasAtLeastManagerRole()) {
+            if (roleResolver.principalHasManagerRole()) {
                 machineForm.setFormModeUpdate();
             } else {
                 machineForm.setFormModeEmployeePermission();

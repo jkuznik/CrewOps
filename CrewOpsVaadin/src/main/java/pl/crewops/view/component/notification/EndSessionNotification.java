@@ -23,10 +23,7 @@ public class EndSessionNotification extends VerticalLayout {
 
         Div message = new Div();
         message.setText(message.getTranslation("endSessionNotification.message"));
-        message.getStyle()
-                .set("color", "white")
-                .set("white-space", "pre-line") // zachowaj \n jako nową linię
-                .set("text-align", "center");
+        message.getStyle().set("color", "white").set("white-space", "pre-line").set("text-align", "center");
 
         Button accept = new Button();
         accept.setText(accept.getTranslation("endSessionNotification.accept"));

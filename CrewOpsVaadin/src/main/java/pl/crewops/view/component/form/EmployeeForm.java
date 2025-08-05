@@ -18,22 +18,20 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.shared.Registration;
 import java.util.Arrays;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.model.EmployeeFormModel;
-import pl.crewops.model.auth.RoleGrantedAuthority;
 import pl.crewops.model.auth.RoleType;
-import pl.crewops.security.custom.UserPrincipal;
+import pl.crewops.util.RoleResolver;
 import pl.crewops.view.component.accordion.MachineAccordion;
 import pl.crewops.view.component.accordion.QualificationAccordion;
 
 public class EmployeeForm extends FormLayout {
-    private final TextField firstName = new TextField("First name");
-    private final TextField lastName = new TextField("Last name");
-    private final DatePicker birthDate = new DatePicker("Birth date");
-    private final TextField phoneNumber = new TextField("Phone number");
-    private final TextField department = new TextField("Department");
-    private final CheckboxGroup<RoleType> roles = new CheckboxGroup<>("Roles");
+    private final TextField firstName = new TextField();
+    private final TextField lastName = new TextField();
+    private final DatePicker birthDate = new DatePicker();
+    private final TextField phoneNumber = new TextField();
+    private final TextField department = new TextField();
+    //    TODO: modify i18n message for this field into 'functions' instead of 'roles'
+    private final CheckboxGroup<RoleType> roles = new CheckboxGroup<>();
     private final QualificationAccordion qualifications = new QualificationAccordion();
     private final MachineAccordion machines = new MachineAccordion();
 
@@ -44,11 +42,11 @@ public class EmployeeForm extends FormLayout {
 
     private final Binder<EmployeeFormModel> binder = new BeanValidationBinder<>(EmployeeFormModel.class);
 
-    public EmployeeForm() {
+    public EmployeeForm(RoleResolver roleResolver) {
         addClassName("employee-form");
 
         localize();
-        configureRolesCheckbox();
+        configureRolesCheckbox(roleResolver);
 
         binder.bindInstanceFields(this);
 
@@ -64,11 +62,8 @@ public class EmployeeForm extends FormLayout {
                 createButtonsLayout());
     }
 
-    private void configureRolesCheckbox() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        var principal = (UserPrincipal) authentication.getPrincipal();
-
-        if (principal.getAuthorities().contains(new RoleGrantedAuthority(COMPANY_ADMIN))) {
+    private void configureRolesCheckbox(RoleResolver roleResolver) {
+        if (roleResolver.principalHasCompanyAdminRole()) {
             roles.setItems(Arrays.stream(values())
                     .filter(role -> role != SYSTEM_ADMIN && role != EMPLOYEE)
                     .toList());

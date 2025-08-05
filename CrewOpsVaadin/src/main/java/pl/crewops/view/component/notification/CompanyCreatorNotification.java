@@ -14,18 +14,20 @@ import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.registration.CreateCustomerCommand;
+import pl.crewops.util.RoleResolver;
 import pl.crewops.view.component.form.CompanyCreatorForm;
 
 public class CompanyCreatorNotification extends Notification {
 
-    public CompanyCreatorNotification(CoreAPI coreAPI) {
+    public CompanyCreatorNotification(CoreAPI coreAPI, RoleResolver roleResolver) {
         addClassName("company-creator-notification");
+
         open();
         addThemeVariants(NotificationVariant.LUMO_SUCCESS);
         setPosition(Notification.Position.MIDDLE);
         setDuration(0);
 
-        var companyCreatorForm = new CompanyCreatorForm();
+        var companyCreatorForm = new CompanyCreatorForm(roleResolver);
 
         companyCreatorForm.addSaveButtonListener(companyInformation -> createNewTenant(coreAPI, companyInformation));
         companyCreatorForm.addCloseButtonListener(event -> close());

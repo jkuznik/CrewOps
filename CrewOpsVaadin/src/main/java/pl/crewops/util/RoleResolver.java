@@ -37,7 +37,7 @@ public class RoleResolver {
         }
     }
 
-    public boolean principalHasAtLeastManagerRole() {
+    public boolean principalHasManagerRole() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (isAuthenticated(authentication)
                 && authentication.getPrincipal() instanceof UserPrincipal principal
@@ -51,6 +51,47 @@ public class RoleResolver {
         } else {
             return false;
         }
+    }
+
+    public boolean principalHasCompanyAdminRole() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (isAuthenticated(authentication)
+                && authentication.getPrincipal() instanceof UserPrincipal principal
+                && tokenIsValid(principal)) {
+            Set<RoleGrantedAuthority> roleGrantedAuthorities = jwtService.extractAuthorities(principal.getToken());
+
+            return roleGrantedAuthorities.contains(new RoleGrantedAuthority(COMPANY_ADMIN))
+                    || roleGrantedAuthorities.contains(new RoleGrantedAuthority(SYSTEM_ADMIN));
+        } else {
+            return false;
+        }
+    }
+
+    public boolean principalHasSystemAdminRole() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (isAuthenticated(authentication)
+                && authentication.getPrincipal() instanceof UserPrincipal principal
+                && tokenIsValid(principal)) {
+
+            Set<RoleGrantedAuthority> roleGrantedAuthorities = jwtService.extractAuthorities(principal.getToken());
+
+            return roleGrantedAuthorities.size() == 1
+                    && roleGrantedAuthorities.contains(new RoleGrantedAuthority(SYSTEM_ADMIN));
+        } else {
+            return false;
+        }
+    }
+
+    public UserPrincipal getPrincipal() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (isAuthenticated(authentication) && authentication.getPrincipal() instanceof UserPrincipal principal) {
+            return principal;
+        }
+        return null;
+    }
+
+    public void unauthenticatePrincipal() {
+        SecurityContextHolder.clearContext();
     }
 
     private boolean tokenIsValid(UserPrincipal principal) {
