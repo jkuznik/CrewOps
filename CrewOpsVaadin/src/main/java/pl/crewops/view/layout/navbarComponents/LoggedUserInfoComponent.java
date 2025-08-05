@@ -21,7 +21,7 @@ import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.RoleResolver;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.LoginForm;
-import pl.crewops.view.component.notification.info.EndSessionNotification;
+import pl.crewops.view.component.notification.auth.EndSessionNotification;
 
 @Log4j2
 public class LoggedUserInfoComponent extends HorizontalLayout {

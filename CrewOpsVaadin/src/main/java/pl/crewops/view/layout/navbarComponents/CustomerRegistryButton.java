@@ -4,14 +4,14 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.util.RoleResolver;
-import pl.crewops.view.component.notification.form.CompanyCreatorNotification;
+import pl.crewops.view.component.dialog.CompanyCreatorDialog;
 
 public class CustomerRegistryButton extends Div {
 
     public CustomerRegistryButton(CoreAPI coreAPI, RoleResolver roleResolver) {
         var registry = new Button(getTranslation("customerRegistryButton.registry"));
         registry.addClickListener(e -> {
-            new CompanyCreatorNotification(coreAPI, roleResolver);
+            new CompanyCreatorDialog(coreAPI, roleResolver);
         });
         add(registry);
     }

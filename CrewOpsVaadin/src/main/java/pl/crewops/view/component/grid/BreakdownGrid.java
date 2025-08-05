@@ -24,7 +24,7 @@ import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.util.RoleResolver;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.BreakdownForm;
-import pl.crewops.view.component.notification.info.UpdateBreakdownNotification;
+import pl.crewops.view.component.notification.UpdateBreakdownNotification;
 
 public class BreakdownGrid extends VerticalLayout {
     private final CoreAPI coreAPI;

@@ -19,9 +19,9 @@ import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.util.RoleResolver;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.component.form.EmployeeForm;
+import pl.crewops.view.component.notification.AddEmployeeNotification;
+import pl.crewops.view.component.notification.UpdateEmployeeNotification;
 import pl.crewops.view.component.notification.guardian.DeleteEmployeeGuardian;
-import pl.crewops.view.component.notification.info.AddEmployeeNotification;
-import pl.crewops.view.component.notification.info.UpdateEmployeeNotification;
 
 @Getter
 @Setter

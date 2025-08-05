@@ -32,7 +32,7 @@ public class EmployeeForm extends FormLayout {
     private final TextField department = new TextField();
     //    TODO: modify i18n message for this field into 'functions' instead of 'roles'
     private final CheckboxGroup<RoleType> roles = new CheckboxGroup<>();
-    private final QualificationAccordion qualifications = new QualificationAccordion();
+    private final QualificationAccordion qualifications;
     private final MachineAccordion machines = new MachineAccordion();
 
     private final Button save = new Button("Save");
@@ -44,6 +44,8 @@ public class EmployeeForm extends FormLayout {
 
     public EmployeeForm(RoleResolver roleResolver) {
         addClassName("employee-form");
+
+        this.qualifications = new QualificationAccordion();
 
         localize();
         configureRolesCheckbox(roleResolver);
@@ -162,7 +164,7 @@ public class EmployeeForm extends FormLayout {
     public void setEmployee(EmployeeFormModel employeeFormModel) {
         binder.setBean(employeeFormModel);
         if (employeeFormModel != null) {
-            qualifications.getValues(employeeFormModel.getQualificationsSet());
+            qualifications.getValues(employeeFormModel);
             machines.getValues(employeeFormModel.getMachinesSet());
         }
     }

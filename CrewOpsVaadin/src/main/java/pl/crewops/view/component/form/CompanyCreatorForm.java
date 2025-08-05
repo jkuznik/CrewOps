@@ -4,7 +4,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import java.util.function.Consumer;
 import pl.crewops.util.RoleResolver;
-import pl.crewops.view.component.notification.form.CompanyCreatorNotification;
+import pl.crewops.view.component.dialog.CompanyCreatorDialog;
 
 public class CompanyCreatorForm extends FormLayout {
     // company
@@ -17,7 +17,7 @@ public class CompanyCreatorForm extends FormLayout {
     private final TextField street = new TextField();
     private final TextField localNumber = new TextField();
 
-    private Consumer<CompanyCreatorNotification.CompanyInformation> saveButtonListener;
+    private Consumer<CompanyCreatorDialog.CompanyInformation> saveButtonListener;
     private Consumer<Void> closeButtonListener;
 
     public CompanyCreatorForm(RoleResolver roleResolver) {
@@ -46,7 +46,7 @@ public class CompanyCreatorForm extends FormLayout {
     private void saveEmployee(EmployeeForm.SaveEvent event) {
         if (saveButtonListener != null) {
 
-            saveButtonListener.accept(new CompanyCreatorNotification.CompanyInformation(
+            saveButtonListener.accept(new CompanyCreatorDialog.CompanyInformation(
                     companyName.getValue(),
                     companyEmail.getValue(),
                     companyTaxId.getValue(),
@@ -68,7 +68,7 @@ public class CompanyCreatorForm extends FormLayout {
         this.closeButtonListener = closeButtonListener;
     }
 
-    public void addSaveButtonListener(Consumer<CompanyCreatorNotification.CompanyInformation> listener) {
+    public void addSaveButtonListener(Consumer<CompanyCreatorDialog.CompanyInformation> listener) {
         this.saveButtonListener = listener;
     }
 }
