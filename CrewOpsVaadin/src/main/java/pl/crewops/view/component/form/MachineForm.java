@@ -33,7 +33,6 @@ public class MachineForm extends FormLayout {
     TextField model = new TextField();
     ComboBox<Integer> year = new ComboBox<>();
     ComboBox<String> machineType = new ComboBox<>();
-    HorizontalLayout machineTypeRow = new HorizontalLayout(year, machineType);
     TextField serialNumber = new TextField();
     Span broken = new Span();
 
@@ -80,14 +79,12 @@ public class MachineForm extends FormLayout {
                 .sorted(Comparator.reverseOrder())
                 .toList());
 
-        machineTypeRow.setSizeFull();
-
-        add(broken, registerNumber, machineTypeRow, make, model, year, serialNumber, createButtonsLayout());
+        add(broken, registerNumber, machineType, make, model, year, serialNumber, createButtonsLayout());
     }
 
     public void setFormModeSave() {
         registerNumber.setEnabled(true);
-        machineType.setVisible(true);
+        machineType.setEnabled(true);
         make.setEnabled(true);
         model.setEnabled(true);
         year.setEnabled(true);
@@ -103,7 +100,7 @@ public class MachineForm extends FormLayout {
 
     public void setFormModeUpdate() {
         registerNumber.setEnabled(true);
-        machineType.setVisible(false);
+        machineType.setEnabled(false);
         make.setEnabled(false);
         model.setEnabled(false);
         year.setEnabled(false);
