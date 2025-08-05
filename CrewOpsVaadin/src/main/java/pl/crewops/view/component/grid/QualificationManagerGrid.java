@@ -23,7 +23,9 @@ public class QualificationManagerGrid extends VerticalLayout {
 
         updateGrid(employeeFormModel);
 
-        employeeNameHolder.setText(employeeFormModel.getFirstName() + " " + employeeFormModel.getLastName());
+        // TODO: i18n
+        employeeNameHolder.setText(employeeFormModel.getFirstName() + " " + employeeFormModel.getLastName() + " - "
+                + "kwalifikacje i uprawnienia");
         add(employeeNameHolder, grid);
     }
 

@@ -18,7 +18,7 @@ public class MachineFormModel {
     private UUID id;
     private @NotNull @Size(min = 2, max = 31, message = "Length required between 2-31") String make;
     private @NotNull @Size(min = 2, max = 31, message = "Length required between 2-31") String model;
-    private @NotNull String machineType;
+    private @NotNull @Size(min = 2, max = 31, message = "Length required between 2-31") String machineType;
     private @NotNull Integer year;
     private @Size(min = 2, max = 50, message = "Length required between 2-50") String vin;
     private @Size(min = 2, max = 15, message = "Length required between 2-15") String registerNumber;

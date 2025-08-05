@@ -32,9 +32,8 @@ public class MachineForm extends FormLayout {
     TextField make = new TextField();
     TextField model = new TextField();
     ComboBox<Integer> year = new ComboBox<>();
-    ComboBox<String> availableMachineTypes = new ComboBox<>();
-    TextField newMachineTypeField = new TextField();
-    HorizontalLayout machineTypeRow = new HorizontalLayout(newMachineTypeField, year, availableMachineTypes);
+    ComboBox<String> machineType = new ComboBox<>();
+    HorizontalLayout machineTypeRow = new HorizontalLayout(year, machineType);
     TextField serialNumber = new TextField();
     Span broken = new Span();
 
@@ -58,16 +57,20 @@ public class MachineForm extends FormLayout {
 
         binder.bindInstanceFields(this);
 
-        onlyOneMachineTypeSelectorGuardian();
-
         try {
             updateAvailableMachineTypes(coreAPI);
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
 
-        availableMachineTypes.addClassName("machine-form-machine-type-combobox");
-        availableMachineTypes.getElement().setAttribute("theme", "machine-type-combo");
+        machineType.addClassName("machine-form-machine-type-combobox");
+        machineType.getElement().setAttribute("theme", "machine-type-combo");
+        machineType.setAllowCustomValue(true);
+
+        machineType.addCustomValueSetListener(event -> {
+            String customValue = event.getDetail();
+            machineType.setValue(customValue);
+        });
 
         year.addClassName("machine-form-year-combobox");
         year.getElement().setAttribute("theme", "year-combo");
@@ -84,14 +87,13 @@ public class MachineForm extends FormLayout {
 
     public void setFormModeSave() {
         registerNumber.setEnabled(true);
-        availableMachineTypes.setEnabled(true);
-        newMachineTypeField.setEnabled(true);
+        machineType.setVisible(true);
         make.setEnabled(true);
         model.setEnabled(true);
         year.setEnabled(true);
         serialNumber.setEnabled(true);
 
-        availableMachineTypes.setValue(null);
+        machineType.setValue(null);
         save.setVisible(true);
         update.setVisible(false);
         reportBreakdown.setVisible(false);
@@ -101,8 +103,7 @@ public class MachineForm extends FormLayout {
 
     public void setFormModeUpdate() {
         registerNumber.setEnabled(true);
-        availableMachineTypes.setEnabled(false);
-        newMachineTypeField.setEnabled(false);
+        machineType.setVisible(false);
         make.setEnabled(false);
         model.setEnabled(false);
         year.setEnabled(false);
@@ -118,8 +119,7 @@ public class MachineForm extends FormLayout {
 
     public void setFormModeEmployeePermission() {
         registerNumber.setEnabled(false);
-        availableMachineTypes.setEnabled(false);
-        newMachineTypeField.setEnabled(false);
+        machineType.setEnabled(false);
         make.setEnabled(false);
         model.setEnabled(false);
         year.setEnabled(false);
@@ -138,7 +138,7 @@ public class MachineForm extends FormLayout {
         if (machineFormModel != null) {
             broken.setVisible(true);
 
-            availableMachineTypes.setValue(machineFormModel.getMachineType());
+            machineType.setValue(machineFormModel.getMachineType());
 
             if (machineFormModel.getBroken()) {
                 broken.setText(getTranslation("machineForm.broken.true"));
@@ -157,7 +157,7 @@ public class MachineForm extends FormLayout {
     }
 
     public void updateAvailableMachineTypes(CoreAPI coreAPI) throws NotAuthenticatedException {
-        availableMachineTypes.setItems(coreAPI.getAllMachineTypes().stream()
+        machineType.setItems(coreAPI.getAllMachineTypes().stream()
                 .map(MachineTypeDTO::name)
                 .sorted()
                 .toList());
@@ -169,8 +169,7 @@ public class MachineForm extends FormLayout {
         model.setLabel(getTranslation("machineForm.model"));
         year.setLabel(getTranslation("machineForm.year"));
         serialNumber.setLabel(getTranslation("machineForm.vin"));
-        availableMachineTypes.setLabel(getTranslation("machineForm.availableMachineTypes.label"));
-        newMachineTypeField.setLabel(getTranslation("machineForm.newMachineTypeField.label"));
+        machineType.setLabel(getTranslation("machineForm.availableMachineTypes.label"));
 
         save.setText(getTranslation("machineForm.save"));
         update.setText(getTranslation("machineForm.update"));
@@ -207,20 +206,13 @@ public class MachineForm extends FormLayout {
     }
 
     private void validateAndSave() {
-        String machineTypeName;
-        if (availableMachineTypes.getValue() != null) {
-            machineTypeName = availableMachineTypes.getValue();
-        } else {
-            machineTypeName = newMachineTypeField.getValue();
-        }
-
         var machineFormModel = MachineFormModel.builder()
                 .make(make.getValue())
                 .model(model.getValue())
                 .year(year.getValue())
                 .vin(serialNumber.getValue())
                 .registerNumber(registerNumber.getValue())
-                .machineType(machineTypeName)
+                .machineType(machineType.getValue())
                 .broken(false)
                 .build();
         binder.setBean(machineFormModel);
@@ -233,20 +225,6 @@ public class MachineForm extends FormLayout {
         if (binder.isValid()) {
             fireEvent(new UpdateEvent(this, binder.getBean()));
         }
-    }
-
-    private void onlyOneMachineTypeSelectorGuardian() {
-        availableMachineTypes.addValueChangeListener(event -> {
-            newMachineTypeField.clear();
-        });
-
-        newMachineTypeField.addValueChangeListener(event -> {
-            availableMachineTypes.clear();
-        });
-
-        newMachineTypeField.getElement().addEventListener("input", e -> {
-            availableMachineTypes.clear();
-        });
     }
 
     public abstract static class MachineFormEvent extends ComponentEvent<MachineForm> {

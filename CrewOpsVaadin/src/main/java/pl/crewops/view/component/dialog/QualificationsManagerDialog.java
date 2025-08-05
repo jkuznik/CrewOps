@@ -23,6 +23,7 @@ public class QualificationsManagerDialog extends Dialog {
         QualificationManagerGrid grid = new QualificationManagerGrid(employeeFormModel);
         grid.setSizeFull();
 
+        // TODO: i18n
         Button closeButton = new Button("Close", event -> close());
 
         VerticalLayout layout = new VerticalLayout(grid, closeButton);
