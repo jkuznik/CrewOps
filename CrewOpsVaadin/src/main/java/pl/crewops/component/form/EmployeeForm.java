@@ -45,7 +45,7 @@ public class EmployeeForm extends FormLayout {
     public EmployeeForm(RoleResolver roleResolver) {
         addClassName("employee-form");
 
-        this.qualifications = new QualificationAccordion();
+        this.qualifications = getConfiguredQualificationsAccordion();
 
         localize();
         configureRolesCheckbox(roleResolver);
@@ -62,6 +62,18 @@ public class EmployeeForm extends FormLayout {
                 qualifications,
                 machines,
                 createButtonsLayout());
+    }
+
+    private QualificationAccordion getConfiguredQualificationsAccordion() {
+        var qualificationAccordion = new QualificationAccordion();
+
+        qualificationAccordion.addUpdateQualificationsListener(event -> {
+            var employeeFormModel = EmployeeFormModel.toEmployeeFormModel(event.getEmployeeDTO());
+            setEmployee(employeeFormModel);
+            validateAndUpdate();
+        });
+
+        return qualificationAccordion;
     }
 
     private void configureRolesCheckbox(RoleResolver roleResolver) {

@@ -25,7 +25,7 @@ public class QualificationManagerGrid extends VerticalLayout {
 
         populateGrid(employeeFormModel);
 
-        employeeQualificationForm.addAssignQualificationListener(e -> {
+        employeeQualificationForm.addUpdateQualificationsListener(e -> {
             updateGrid(e.getEmployeeDTO());
         });
 
@@ -55,9 +55,9 @@ public class QualificationManagerGrid extends VerticalLayout {
                 }))
                 .setHeader("Description")
                 .setKey("description")
-                .setFlexGrow(3) // Fill available space
-                .setAutoWidth(false) // Allow wrapping
-                .setResizable(true); // Optional
+                .setFlexGrow(3)
+                .setAutoWidth(false)
+                .setResizable(true);
 
         grid.addColumn(QualificationFormModel::getExpiredAt)
                 .setHeader("Expires")

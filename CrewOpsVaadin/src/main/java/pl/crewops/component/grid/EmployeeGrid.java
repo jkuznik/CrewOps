@@ -108,7 +108,10 @@ public class EmployeeGrid extends VerticalLayout {
         form.setWidth("25em");
 
         form.addSaveListener(this::saveEmployee);
-        form.addUpdateListener(this::updateEmployee);
+        form.addUpdateListener(event -> {
+            updateEmployee(event);
+            qualificationGrid.updateGrid();
+        });
         form.addDeleteListener(this::deleteEmployee);
         form.addCloseListener(event -> closeEditor());
     }

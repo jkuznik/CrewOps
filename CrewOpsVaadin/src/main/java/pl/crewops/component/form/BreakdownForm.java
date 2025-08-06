@@ -128,7 +128,6 @@ public class BreakdownForm extends FormLayout {
         update.setVisible(false);
     }
 
-    // TODO: save doesnt work for lid permission
     private void validateAndSave() {
         BreakdownFormModel model = new BreakdownFormModel();
         try {
