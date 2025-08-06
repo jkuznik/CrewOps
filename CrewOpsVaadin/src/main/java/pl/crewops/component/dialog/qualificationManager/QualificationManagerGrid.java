@@ -1,4 +1,4 @@
-package pl.crewops.component.grid;
+package pl.crewops.component.dialog.qualificationManager;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -6,7 +6,6 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import lombok.extern.slf4j.Slf4j;
-import pl.crewops.component.form.EmployeeQualificationForm;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.QualificationFormModel;
@@ -15,17 +14,16 @@ import pl.crewops.model.QualificationFormModel;
 public class QualificationManagerGrid extends VerticalLayout {
     private final Grid<QualificationFormModel> grid = new Grid<>();
 
-    public QualificationManagerGrid(
-            EmployeeFormModel employeeFormModel, EmployeeQualificationForm employeeQualificationForm) {
+    public QualificationManagerGrid(EmployeeFormModel employeeFormModel, AddQualificationForm addQualificationForm) {
         addClassName("qualification-manager-grid");
 
         setSizeFull();
 
-        configureGrid();
+        configureGrid(employeeFormModel);
 
         populateGrid(employeeFormModel);
 
-        employeeQualificationForm.addUpdateQualificationsListener(e -> {
+        addQualificationForm.addUpdateQualificationsListener(e -> {
             updateGrid(e.getEmployeeDTO());
         });
 
@@ -37,7 +35,7 @@ public class QualificationManagerGrid extends VerticalLayout {
         add(employeeNameHolder, grid);
     }
 
-    private void configureGrid() {
+    private void configureGrid(EmployeeFormModel employeeFormModel) {
         grid.setSizeFull();
         grid.setMinWidth("300px");
         grid.setMaxWidth("100%");
@@ -65,6 +63,10 @@ public class QualificationManagerGrid extends VerticalLayout {
                 .setAutoWidth(true)
                 .setFlexGrow(1)
                 .setResizable(true);
+
+        grid.asSingleSelect().addValueChangeListener(e -> {
+            new EditQualificationDialog(employeeFormModel, e.getValue());
+        });
     }
 
     private void populateGrid(EmployeeFormModel employeeFormModel) {

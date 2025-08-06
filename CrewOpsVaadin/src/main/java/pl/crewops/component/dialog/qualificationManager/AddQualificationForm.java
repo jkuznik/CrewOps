@@ -1,4 +1,4 @@
-package pl.crewops.component.form;
+package pl.crewops.component.dialog.qualificationManager;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -18,13 +18,13 @@ import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.util.SpringContextBridge;
 import pl.crewops.view.HomeView;
 
-public class EmployeeQualificationForm extends FormLayout {
+public class AddQualificationForm extends FormLayout {
 
     // TODO: i18n , comboBox style
     private final ComboBox<QualificationDTO> qualifications = new ComboBox<>();
     private final Button add = new Button("Dodaj");
 
-    public EmployeeQualificationForm(EmployeeFormModel employeeFormModel) {
+    public AddQualificationForm(EmployeeFormModel employeeFormModel) {
         addClassName("employee-qualification-form");
 
         var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
@@ -75,8 +75,8 @@ public class EmployeeQualificationForm extends FormLayout {
         }
     }
 
-    public abstract static class EmployeeQualificationFormEvent extends ComponentEvent<EmployeeQualificationForm> {
-        public EmployeeQualificationFormEvent(EmployeeQualificationForm source) {
+    public abstract static class EmployeeQualificationFormEvent extends ComponentEvent<AddQualificationForm> {
+        public EmployeeQualificationFormEvent(AddQualificationForm source) {
             super(source, false);
         }
     }
@@ -85,7 +85,7 @@ public class EmployeeQualificationForm extends FormLayout {
         @Getter
         private final EmployeeDTO employeeDTO;
 
-        UpdateQualificationsEvent(EmployeeQualificationForm source, EmployeeDTO employeeDTO) {
+        UpdateQualificationsEvent(AddQualificationForm source, EmployeeDTO employeeDTO) {
             super(source);
             this.employeeDTO = employeeDTO;
         }

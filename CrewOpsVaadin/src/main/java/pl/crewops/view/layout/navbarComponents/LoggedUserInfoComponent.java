@@ -110,6 +110,8 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                         sessionEnded = true;
                         scheduler.shutdown();
 
+                        // TODO: fix this logic to enforce redirect user to HomeView in case if currently user use
+                        // dialog component
                         ui.access(() -> {
                             new EndSessionNotification(ui, () -> {
                                         roleResolver.unauthenticatePrincipal();

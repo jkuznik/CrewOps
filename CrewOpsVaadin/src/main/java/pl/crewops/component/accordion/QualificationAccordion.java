@@ -11,7 +11,7 @@ import com.vaadin.flow.shared.Registration;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
-import pl.crewops.component.dialog.QualificationsManagerDialog;
+import pl.crewops.component.dialog.qualificationManager.QualificationsManagerDialog;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.model.EmployeeFormModel;
 
