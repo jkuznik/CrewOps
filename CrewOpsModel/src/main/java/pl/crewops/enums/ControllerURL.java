@@ -3,9 +3,9 @@ package pl.crewops.enums;
 import java.util.Arrays;
 import org.springframework.util.AntPathMatcher;
 
-public class ControllerURL {
+public interface ControllerURL {
 
-    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
+    static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     public static final String LOGIN = "/login";
     public static final String REGISTER = "/register";

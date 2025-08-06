@@ -6,10 +6,10 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import pl.crewops.component.content.HomeContent;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.RoleResolver;
-import pl.crewops.view.component.content.HomeContent;
 import pl.crewops.view.layout.MainLayout;
 
 @Route(value = "")

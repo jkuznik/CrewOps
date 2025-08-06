@@ -42,6 +42,9 @@ public interface CoreAPI {
 
     Optional<EmployeeDTO> updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) throws NotAuthenticatedException;
 
+    Optional<EmployeeDTO> addEmployeeQualification(@NotNull UUID employeeId, @NotNull UUID qualificationId)
+            throws NotAuthenticatedException;
+
     Optional<QualificationDTO> createQualification(@Valid @NotNull CreateQualificationDTO createQualificationDTO)
             throws NotAuthenticatedException;
 

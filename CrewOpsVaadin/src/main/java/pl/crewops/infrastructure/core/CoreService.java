@@ -66,6 +66,13 @@ class CoreService implements CoreAPI {
     }
 
     @Override
+    public Optional<EmployeeDTO> addEmployeeQualification(UUID employeeId, UUID qualificationId)
+            throws NotAuthenticatedException {
+        isAuthenticated();
+        return Optional.ofNullable(coreClient.addEmployeeQualification(employeeId, qualificationId));
+    }
+
+    @Override
     public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO)
             throws NotAuthenticatedException {
         isAuthenticated();

@@ -7,10 +7,10 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import pl.crewops.component.form.LoginForm;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.RoleResolver;
-import pl.crewops.view.component.form.LoginForm;
 import pl.crewops.view.layout.navbarComponents.LanguageSelectorComponent;
 import pl.crewops.view.layout.navbarComponents.LoggedUserInfoComponent;
 

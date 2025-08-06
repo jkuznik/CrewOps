@@ -7,11 +7,11 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import pl.crewops.component.grid.EmployeeGrid;
+import pl.crewops.component.grid.QualificationGrid;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.RoleResolver;
-import pl.crewops.view.component.grid.EmployeeGrid;
-import pl.crewops.view.component.grid.QualificationGrid;
 import pl.crewops.view.layout.MainLayout;
 
 @Route(value = "employees")

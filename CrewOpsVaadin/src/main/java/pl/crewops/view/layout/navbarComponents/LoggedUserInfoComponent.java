@@ -14,14 +14,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.log4j.Log4j2;
+import pl.crewops.component.form.LoginForm;
+import pl.crewops.component.notification.auth.EndSessionNotification;
 import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.RoleResolver;
 import pl.crewops.view.HomeView;
-import pl.crewops.view.component.form.LoginForm;
-import pl.crewops.view.component.notification.auth.EndSessionNotification;
 
 @Log4j2
 public class LoggedUserInfoComponent extends HorizontalLayout {

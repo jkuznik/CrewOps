@@ -107,6 +107,21 @@ class CoreClient {
         }
     }
 
+    public EmployeeDTO addEmployeeQualification(UUID employeeId, UUID qualificationId) {
+        try {
+            return authorizedClient
+                    .patch()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(EMPLOYEES_EID_QUALIFICATIONS_QID)
+                            .build(employeeId.toString(), qualificationId.toString()))
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Add employee qualification failed");
+            return null;
+        }
+    }
+
     // manager permission
     //    @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {

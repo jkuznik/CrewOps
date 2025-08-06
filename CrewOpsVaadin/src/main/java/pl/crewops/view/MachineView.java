@@ -8,11 +8,11 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
+import pl.crewops.component.grid.BreakdownGrid;
+import pl.crewops.component.grid.MachineGrid;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.RoleResolver;
-import pl.crewops.view.component.grid.BreakdownGrid;
-import pl.crewops.view.component.grid.MachineGrid;
 import pl.crewops.view.layout.MainLayout;
 
 @Slf4j
