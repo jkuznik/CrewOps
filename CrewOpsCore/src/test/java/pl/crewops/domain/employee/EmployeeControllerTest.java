@@ -187,7 +187,7 @@ class EmployeeControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "MANAGER")
     @DisplayName("DELETE /employees/{eid}/qualifications/{qid} should return 204")
     void removeQualification_ShouldReturn204() throws Exception {
         UUID eid = UUID.randomUUID();
