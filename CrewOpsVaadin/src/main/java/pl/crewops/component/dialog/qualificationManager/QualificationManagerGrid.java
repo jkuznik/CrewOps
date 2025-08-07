@@ -29,6 +29,9 @@ public class QualificationManagerGrid extends VerticalLayout {
 
         populateGrid(employeeFormModel, coreAPI);
 
+        editQualificationDialog.addUpdateEventListener(event -> {
+            updateGrid(event.getEmployeeDTO(), coreAPI);
+        });
         addQualificationForm.addUpdateQualificationsListener(e -> {
             updateGrid(e.getEmployeeDTO(), coreAPI);
         });

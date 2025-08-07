@@ -4,13 +4,13 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.shared.Registration;
+import lombok.Getter;
+import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.QualificationFormModel;
 
 public class EditQualificationDialog extends Dialog {
     private final EditQualificationForm editQualificationForm = new EditQualificationForm();
-    private EmployeeFormModel employeeFormModel;
-    private QualificationFormModel qualificationFormModel;
 
     public EditQualificationDialog() {
         addClassName("edit-qualification-dialog");
@@ -21,23 +21,28 @@ public class EditQualificationDialog extends Dialog {
         setCloseOnEsc(true);
         setCloseOnOutsideClick(false);
 
-        configureEditQualificationForm(employeeFormModel, qualificationFormModel);
+        configureEditQualificationForm();
 
         add(editQualificationForm);
     }
 
+    // this setters has responsibility to pass values from parent component to child component
+    // this approach is chosen instead of creating each time new object to handle required operations
     public void setEmployeeFormModel(EmployeeFormModel employeeFormModel) {
-        this.employeeFormModel = employeeFormModel;
         editQualificationForm.setEmployeeFormModel(employeeFormModel);
     }
 
+    // this setters has responsibility to pass values from parent component to child component
+    // this approach is chosen instead of creating each time new object to handle required operations
     public void setQualificationFormModel(QualificationFormModel qualificationFormModel) {
-        this.qualificationFormModel = qualificationFormModel;
         editQualificationForm.setQualificationFormModel(qualificationFormModel);
     }
 
-    private EditQualificationForm configureEditQualificationForm(
-            EmployeeFormModel employeeFormModel, QualificationFormModel qualificationFormModel) {
+    private EditQualificationForm configureEditQualificationForm() {
+        editQualificationForm.addUpdateEventListener(event -> {
+            fireEvent(new UpdateEvent(this, event.getEmployeeDTO()));
+            close();
+        });
         editQualificationForm.addCancelEventListener(event -> {
             close();
         });
@@ -52,8 +57,12 @@ public class EditQualificationDialog extends Dialog {
     }
 
     public static class UpdateEvent extends EditQualificationDialogEvent {
-        public UpdateEvent(EditQualificationDialog source) {
+        @Getter
+        private final EmployeeDTO employeeDTO;
+
+        public UpdateEvent(EditQualificationDialog source, EmployeeDTO employeeDTO) {
             super(source);
+            this.employeeDTO = employeeDTO;
         }
     }
 

@@ -12,7 +12,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.shared.Registration;
 import java.time.Instant;
 import java.time.ZoneId;
+import lombok.Getter;
 import lombok.Setter;
+import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
@@ -77,9 +79,12 @@ public class EditQualificationForm extends FormLayout {
                 var date = expireAt.getValue();
                 ZoneId zone = ZoneId.systemDefault();
                 Instant instantExpireAt = date.atStartOfDay(zone).toInstant();
-                coreAPI.updateQualificationExpireAt(new UpdateQualificationExpiredAtDTO(
-                        employeeFormModel.getId(), qualificationFormModel.getId(), instantExpireAt));
+                var employeeDTO = coreAPI.updateQualificationExpireAt(new UpdateQualificationExpiredAtDTO(
+                                employeeFormModel.getId(), qualificationFormModel.getId(), instantExpireAt))
+                        // TODO: custom exception
+                        .orElseThrow(RuntimeException::new);
                 expireAt.setValue(null);
+                fireEvent(new UpdateEvent(this, employeeDTO));
             } catch (NotAuthenticatedException e) {
                 // TODO: implement notification + event to update parent components
             }
@@ -108,8 +113,12 @@ public class EditQualificationForm extends FormLayout {
     }
 
     public static class UpdateEvent extends EditQualificationFormEvent {
-        public UpdateEvent(EditQualificationForm source) {
+        @Getter
+        private final EmployeeDTO employeeDTO;
+
+        public UpdateEvent(EditQualificationForm source, EmployeeDTO employeeDTO) {
             super(source);
+            this.employeeDTO = employeeDTO;
         }
     }
 
