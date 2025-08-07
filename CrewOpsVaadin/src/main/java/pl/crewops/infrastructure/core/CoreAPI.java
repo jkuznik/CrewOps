@@ -56,6 +56,9 @@ public interface CoreAPI {
             @Valid @NotNull UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO)
             throws NotAuthenticatedException;
 
+    List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(@NotNull UUID employeeId)
+            throws NotAuthenticatedException;
+
     Optional<MachineDTO> createMachine(@Valid @NotNull CreateMachineDTO createMachineDTO)
             throws NotAuthenticatedException;
 

@@ -2,8 +2,8 @@ package pl.crewops.model;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.UUID;
 import lombok.*;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
@@ -22,20 +22,17 @@ public class QualificationFormModel {
     private LocalDate expiredAt;
 
     public static QualificationFormModel toQualificationFormModel(QualificationDTO qualificationDTO) {
-        return QualificationFormModel.builder()
-                .id(qualificationDTO.id())
-                .description(qualificationDTO.description())
-                .employeesAmount(qualificationDTO.employeesAmount())
-                .build();
-    }
+        LocalDate expiredAt = null;
+        if (qualificationDTO.expiredAt() != null) {
+            expiredAt =
+                    qualificationDTO.expiredAt().atZone(ZoneId.systemDefault()).toLocalDate();
+        }
 
-    public static QualificationFormModel toQualificationFormModel(
-            QualificationDTO qualificationDTO, Instant expiredAt) {
         return QualificationFormModel.builder()
                 .id(qualificationDTO.id())
                 .description(qualificationDTO.description())
+                .expiredAt(expiredAt)
                 .employeesAmount(qualificationDTO.employeesAmount())
-                .expiredAt(LocalDate.from(expiredAt))
                 .build();
     }
 

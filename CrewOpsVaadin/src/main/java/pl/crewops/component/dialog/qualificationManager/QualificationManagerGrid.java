@@ -7,24 +7,30 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import lombok.extern.slf4j.Slf4j;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.exceptions.NotAuthenticatedException;
+import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.QualificationFormModel;
+import pl.crewops.util.SpringContextBridge;
 
 @Slf4j
 public class QualificationManagerGrid extends VerticalLayout {
     private final Grid<QualificationFormModel> grid = new Grid<>();
+    private final EditQualificationDialog editQualificationDialog = new EditQualificationDialog();
 
     public QualificationManagerGrid(EmployeeFormModel employeeFormModel, AddQualificationForm addQualificationForm) {
         addClassName("qualification-manager-grid");
 
         setSizeFull();
 
+        var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
+
         configureGrid(employeeFormModel);
 
-        populateGrid(employeeFormModel);
+        populateGrid(employeeFormModel, coreAPI);
 
         addQualificationForm.addUpdateQualificationsListener(e -> {
-            updateGrid(e.getEmployeeDTO());
+            updateGrid(e.getEmployeeDTO(), coreAPI);
         });
 
         // TODO: i18n
@@ -65,23 +71,36 @@ public class QualificationManagerGrid extends VerticalLayout {
                 .setResizable(true);
 
         grid.asSingleSelect().addValueChangeListener(e -> {
-            new EditQualificationDialog(employeeFormModel, e.getValue());
+            if (e.getValue() != null && e.isFromClient()) {
+                editQualificationDialog.setEmployeeFormModel(employeeFormModel);
+                editQualificationDialog.setQualificationFormModel(e.getValue());
+                editQualificationDialog.open();
+            }
         });
     }
 
-    private void populateGrid(EmployeeFormModel employeeFormModel) {
-        var qualifications = employeeFormModel.getQualificationsSet().stream()
-                .map(QualificationFormModel::toQualificationFormModel)
-                .toList();
+    private void populateGrid(EmployeeFormModel employeeFormModel, CoreAPI coreAPI) {
+        try {
+            var qualifications =
+                    coreAPI.getAllQualificationsWithExpirationTimeByEmployeeId(employeeFormModel.getId()).stream()
+                            .map(QualificationFormModel::toQualificationFormModel)
+                            .toList();
+            grid.setItems(qualifications);
 
-        grid.setItems(qualifications);
+        } catch (NotAuthenticatedException e) {
+            log.info("Not authenticated");
+            // TODO: implement
+        }
     }
 
-    private void updateGrid(EmployeeDTO employeeDTO) {
-        var qualifications = employeeDTO.qualifications().stream()
-                .map(QualificationFormModel::toQualificationFormModel)
-                .toList();
-
-        grid.setItems(qualifications);
+    private void updateGrid(EmployeeDTO employeeDTO, CoreAPI coreAPI) {
+        try {
+            var qualifications = coreAPI.getAllQualificationsWithExpirationTimeByEmployeeId(employeeDTO.id()).stream()
+                    .map(QualificationFormModel::toQualificationFormModel)
+                    .toList();
+            grid.setItems(qualifications);
+        } catch (NotAuthenticatedException e) {
+            log.info("Not authenticated");
+        }
     }
 }

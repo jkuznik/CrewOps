@@ -58,7 +58,7 @@ public class AddQualificationForm extends FormLayout {
                                 qualifications.getValue().id())
                         // TODO: consider about custom exception
                         .orElseThrow(() -> new RuntimeException("Error during adding qualification to employee"));
-                fireEvent(new UpdateQualificationsEvent(this, employeeDTO));
+                fireEvent(new AddQualificationsEvent(this, employeeDTO));
             } catch (NotAuthenticatedException e) {
                 UI.getCurrent().navigate(HomeView.class);
             }
@@ -75,23 +75,23 @@ public class AddQualificationForm extends FormLayout {
         }
     }
 
-    public abstract static class EmployeeQualificationFormEvent extends ComponentEvent<AddQualificationForm> {
-        public EmployeeQualificationFormEvent(AddQualificationForm source) {
+    public abstract static class AddQualificationFormEvent extends ComponentEvent<AddQualificationForm> {
+        public AddQualificationFormEvent(AddQualificationForm source) {
             super(source, false);
         }
     }
 
-    public static class UpdateQualificationsEvent extends EmployeeQualificationFormEvent {
+    public static class AddQualificationsEvent extends AddQualificationFormEvent {
         @Getter
         private final EmployeeDTO employeeDTO;
 
-        UpdateQualificationsEvent(AddQualificationForm source, EmployeeDTO employeeDTO) {
+        AddQualificationsEvent(AddQualificationForm source, EmployeeDTO employeeDTO) {
             super(source);
             this.employeeDTO = employeeDTO;
         }
     }
 
-    public Registration addUpdateQualificationsListener(ComponentEventListener<UpdateQualificationsEvent> listener) {
-        return addListener(UpdateQualificationsEvent.class, listener);
+    public Registration addUpdateQualificationsListener(ComponentEventListener<AddQualificationsEvent> listener) {
+        return addListener(AddQualificationsEvent.class, listener);
     }
 }

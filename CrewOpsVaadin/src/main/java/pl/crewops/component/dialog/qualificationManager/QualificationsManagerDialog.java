@@ -41,13 +41,13 @@ public class QualificationsManagerDialog extends Dialog {
     }
 
     private AddQualificationForm getConfiguredEmployeeQualificationForm(EmployeeFormModel employeeFormModel) {
-        var employeeQualificationForm = new AddQualificationForm(employeeFormModel);
+        var addQualificationForm = new AddQualificationForm(employeeFormModel);
 
-        employeeQualificationForm.addUpdateQualificationsListener(event -> {
+        addQualificationForm.addUpdateQualificationsListener(event -> {
             fireEvent(new UpdateQualificationsEvent(this, event.getEmployeeDTO()));
         });
 
-        return employeeQualificationForm;
+        return addQualificationForm;
     }
 
     public abstract static class QualificationsManagerDialogEvent extends ComponentEvent<QualificationsManagerDialog> {

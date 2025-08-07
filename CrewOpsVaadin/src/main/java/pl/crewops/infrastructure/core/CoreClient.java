@@ -256,6 +256,20 @@ class CoreClient {
         }
     }
 
+    public List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(UUID employeeId) {
+        try {
+            return authorizedClient
+                    .get()
+                    .uri(uriBuilder ->
+                            uriBuilder.path(QUALIFICATIONS_EID_EXPIRED).build(employeeId))
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Get all qualifications with expiration time by employee id error");
+            return List.of();
+        }
+    }
+
     // authenticated
     //        @Cacheable(cacheNames = GET_ALL_QUALIFICATIONS, key =
     // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")

@@ -25,5 +25,7 @@ public interface QualificationAPI {
 
     List<QualificationDTO> getQualificationsIn(@NotNull Set<UUID> qualificationIds);
 
+    List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(@NotNull UUID employeeId);
+
     void deleteQualification(@NotNull UUID qualificationId);
 }

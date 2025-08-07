@@ -95,6 +95,13 @@ class CoreService implements CoreAPI {
     }
 
     @Override
+    public List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(UUID employeeId)
+            throws NotAuthenticatedException {
+        isAuthenticated();
+        return coreClient.getAllQualificationsWithExpirationTimeByEmployeeId(employeeId);
+    }
+
+    @Override
     public Optional<MachineDTO> createMachine(CreateMachineDTO createMachineDTO) throws NotAuthenticatedException {
         isAuthenticated();
         return Optional.ofNullable(coreClient.createMachine(createMachineDTO));

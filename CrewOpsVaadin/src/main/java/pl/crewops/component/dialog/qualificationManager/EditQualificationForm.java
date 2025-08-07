@@ -12,6 +12,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.shared.Registration;
 import java.time.Instant;
 import java.time.ZoneId;
+import lombok.Setter;
 import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
@@ -21,8 +22,6 @@ import pl.crewops.util.SpringContextBridge;
 
 public class EditQualificationForm extends FormLayout {
 
-    private final EmployeeFormModel employeeFormModel;
-    private final QualificationFormModel qualificationFormModel;
     private final CoreAPI coreAPI;
     // TODO: i18n
     private final TextField qualification = new TextField("Qualification");
@@ -33,14 +32,17 @@ public class EditQualificationForm extends FormLayout {
     private final Button unset = new Button("Unset"); // ustaw
     private final Button cancel = new Button("Esc");
 
-    public EditQualificationForm(EmployeeFormModel employeeFormModel, QualificationFormModel qualificationFormModel) {
+    @Setter
+    private EmployeeFormModel employeeFormModel;
+
+    private QualificationFormModel qualificationFormModel;
+
+    public EditQualificationForm() {
         addClassName("edit-qualification-form");
 
-        this.employeeFormModel = employeeFormModel;
-        this.qualificationFormModel = qualificationFormModel;
         this.coreAPI = SpringContextBridge.getBean(CoreAPI.class);
 
-        configureFields(qualificationFormModel);
+        qualification.setEnabled(false);
         configureButtons();
 
         var fields = new HorizontalLayout();
@@ -60,10 +62,12 @@ public class EditQualificationForm extends FormLayout {
         add(verticalLayout);
     }
 
-    private void configureFields(QualificationFormModel qualificationFormModel) {
-        qualification.setEnabled(false);
-        qualification.setValue(qualificationFormModel.getDescription());
-        expireAt.setValue(qualificationFormModel.getExpiredAt());
+    public void setQualificationFormModel(QualificationFormModel qualificationFormModel) {
+        this.qualificationFormModel = qualificationFormModel;
+        if (qualificationFormModel != null) {
+            qualification.setValue(qualificationFormModel.getDescription());
+            expireAt.setValue(qualificationFormModel.getExpiredAt());
+        }
     }
 
     private void configureButtons() {
@@ -80,6 +84,7 @@ public class EditQualificationForm extends FormLayout {
                 // TODO: implement notification + event to update parent components
             }
         });
+        // TODO: implement delete action
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
         unset.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         unset.addClickListener(event -> {
@@ -102,13 +107,23 @@ public class EditQualificationForm extends FormLayout {
         }
     }
 
+    public static class UpdateEvent extends EditQualificationFormEvent {
+        public UpdateEvent(EditQualificationForm source) {
+            super(source);
+        }
+    }
+
     public static class CancelEvent extends EditQualificationFormEvent {
         public CancelEvent(EditQualificationForm source) {
             super(source);
         }
     }
 
-    public Registration addCancelListener(ComponentEventListener<CancelEvent> listener) {
+    public Registration addUpdateEventListener(ComponentEventListener<UpdateEvent> listener) {
+        return addListener(UpdateEvent.class, listener);
+    }
+
+    public Registration addCancelEventListener(ComponentEventListener<CancelEvent> listener) {
         return addListener(CancelEvent.class, listener);
     }
 }
