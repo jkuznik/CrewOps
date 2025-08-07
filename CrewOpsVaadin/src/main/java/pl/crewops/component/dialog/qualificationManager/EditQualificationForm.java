@@ -75,6 +75,7 @@ public class EditQualificationForm extends FormLayout {
     private void configureButtons() {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         save.addClickListener(event -> {
+            // TODO: add date validator !!!!!!!!!! cant be before now !!!!!!
             try {
                 var date = expireAt.getValue();
                 ZoneId zone = ZoneId.systemDefault();
@@ -91,6 +92,14 @@ public class EditQualificationForm extends FormLayout {
         });
         // TODO: implement delete action
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        delete.addClickListener(event -> {
+            try {
+                coreAPI.removeEmployeeQualification(employeeFormModel.getId(), qualificationFormModel.getId());
+                fireEvent(new UpdateEvent(this, null));
+            } catch (NotAuthenticatedException e) {
+                // TODO: impl
+            }
+        });
         unset.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         unset.addClickListener(event -> {
             try {

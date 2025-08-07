@@ -5,6 +5,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
@@ -17,6 +18,7 @@ import pl.crewops.util.SpringContextBridge;
 public class QualificationManagerGrid extends VerticalLayout {
     private final Grid<QualificationFormModel> grid = new Grid<>();
     private final EditQualificationDialog editQualificationDialog = new EditQualificationDialog();
+    private UUID employeeId;
 
     public QualificationManagerGrid(EmployeeFormModel employeeFormModel, AddQualificationForm addQualificationForm) {
         addClassName("qualification-manager-grid");
@@ -24,6 +26,7 @@ public class QualificationManagerGrid extends VerticalLayout {
         setSizeFull();
 
         var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
+        employeeId = employeeFormModel.getId();
 
         configureGrid(employeeFormModel);
 
@@ -98,7 +101,10 @@ public class QualificationManagerGrid extends VerticalLayout {
 
     private void updateGrid(EmployeeDTO employeeDTO, CoreAPI coreAPI) {
         try {
-            var qualifications = coreAPI.getAllQualificationsWithExpirationTimeByEmployeeId(employeeDTO.id()).stream()
+            if (employeeDTO != null) {
+                employeeId = employeeDTO.id();
+            }
+            var qualifications = coreAPI.getAllQualificationsWithExpirationTimeByEmployeeId(employeeId).stream()
                     .map(QualificationFormModel::toQualificationFormModel)
                     .toList();
             grid.setItems(qualifications);

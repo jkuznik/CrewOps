@@ -80,6 +80,7 @@ class EmployeeController {
 
     // todo: consider to remove this
     @GetMapping(EMPLOYEES_EID_QUALIFICATIONS_EXPIRED)
+    @ManagerPermission
     public ResponseEntity<List<EmployeeQualificationDTO>> getEmployeeQualificationWithExpirationTime(
             @PathVariable(EMPLOYEE_ID) UUID employeeId) {
         return ResponseEntity.status(HttpStatus.OK)
@@ -93,6 +94,7 @@ class EmployeeController {
     }
 
     @DeleteMapping(EMPLOYEES_EID_QUALIFICATIONS_QID)
+    @ManagerPermission
     public ResponseEntity<Void> removeEmployeeQualification(
             @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(QUALIFICATION_ID) UUID qualificationId) {
         employeeAPI.removeQualification(employeeId, qualificationId);

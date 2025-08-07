@@ -256,6 +256,19 @@ class CoreClient {
         }
     }
 
+    public void removeEmployeeQualification(UUID employeeId, UUID qualificationId) {
+        try {
+            authorizedClient
+                    .delete()
+                    .uri(uriBuilder ->
+                            uriBuilder.path(EMPLOYEES_EID_QUALIFICATIONS_QID).build(employeeId, qualificationId))
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientException e) {
+            log.error("Remove employee qualification error");
+        }
+    }
+
     public List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(UUID employeeId) {
         try {
             return authorizedClient
@@ -300,9 +313,7 @@ class CoreClient {
         try {
             authorizedClient
                     .delete()
-                    .uri(uriBuilder -> uriBuilder
-                            .path(QUALIFICATIONS_QID.replace("{" + QUALIFICATION_ID + "}", qualificationId.toString()))
-                            .build())
+                    .uri(uriBuilder -> uriBuilder.path(QUALIFICATIONS_QID).build(qualificationId))
                     .retrieve()
                     .toBodilessEntity();
         } catch (RestClientException e) {

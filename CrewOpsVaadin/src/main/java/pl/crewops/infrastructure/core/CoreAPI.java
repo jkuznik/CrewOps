@@ -90,6 +90,9 @@ public interface CoreAPI {
 
     void terminateEmployeeAccount(@NotNull UUID employeeId) throws NotAuthenticatedException;
 
+    void removeEmployeeQualification(@NotNull UUID employeeId, @NotNull UUID qualificationId)
+            throws NotAuthenticatedException;
+
     void deleteQualification(@NotNull UUID qualificationId) throws NotAuthenticatedException;
 
     void deleteMachine(@NotNull UUID machineId) throws NotAuthenticatedException;

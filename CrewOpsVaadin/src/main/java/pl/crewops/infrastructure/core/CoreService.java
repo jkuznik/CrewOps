@@ -187,6 +187,12 @@ class CoreService implements CoreAPI {
     }
 
     @Override
+    public void removeEmployeeQualification(UUID employeeId, UUID qualificationId) throws NotAuthenticatedException {
+        isAuthenticated();
+        coreClient.removeEmployeeQualification(employeeId, qualificationId);
+    }
+
+    @Override
     public void deleteQualification(UUID qualificationId) throws NotAuthenticatedException {
         isAuthenticated();
         coreClient.deleteQualification(qualificationId);
