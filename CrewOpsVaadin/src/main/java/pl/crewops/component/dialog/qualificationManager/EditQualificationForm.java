@@ -10,6 +10,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.shared.Registration;
+import java.time.Instant;
+import java.time.ZoneId;
+import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
+import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.QualificationFormModel;
@@ -47,7 +51,7 @@ public class EditQualificationForm extends FormLayout {
         var buttons = new HorizontalLayout();
         buttons.setSizeFull();
         buttons.setSpacing(true);
-        buttons.add(save, delete, cancel);
+        buttons.add(save, unset, delete, cancel);
 
         var verticalLayout = new VerticalLayout();
         verticalLayout.setSizeFull();
@@ -64,11 +68,29 @@ public class EditQualificationForm extends FormLayout {
 
     private void configureButtons() {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        save.addClickListener(event -> {
+            try {
+                var date = expireAt.getValue();
+                ZoneId zone = ZoneId.systemDefault();
+                Instant instantExpireAt = date.atStartOfDay(zone).toInstant();
+                coreAPI.updateQualificationExpireAt(new UpdateQualificationExpiredAtDTO(
+                        employeeFormModel.getId(), qualificationFormModel.getId(), instantExpireAt));
+                expireAt.setValue(null);
+            } catch (NotAuthenticatedException e) {
+                // TODO: implement notification + event to update parent components
+            }
+        });
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
         unset.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        unset.addClickListener(event ->
-                // TODO: implement action to set/unset expireAt for employee qualification
-                expireAt.setValue(null));
+        unset.addClickListener(event -> {
+            try {
+                coreAPI.updateQualificationExpireAt(new UpdateQualificationExpiredAtDTO(
+                        employeeFormModel.getId(), qualificationFormModel.getId(), null));
+                expireAt.setValue(null);
+            } catch (NotAuthenticatedException e) {
+                // TODO: implement notification + event to update parent components
+            }
+        });
         cancel.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         cancel.addClickListener(event -> fireEvent(new CancelEvent(this)));
     }

@@ -25,6 +25,7 @@ import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
+import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
@@ -49,6 +50,10 @@ public interface CoreAPI {
             throws NotAuthenticatedException;
 
     Optional<QualificationDTO> updateQualification(@Valid @NotNull UpdateQualificationDTO updateQualificationDTO)
+            throws NotAuthenticatedException;
+
+    Optional<EmployeeDTO> updateQualificationExpireAt(
+            @Valid @NotNull UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO)
             throws NotAuthenticatedException;
 
     Optional<MachineDTO> createMachine(@Valid @NotNull CreateMachineDTO createMachineDTO)

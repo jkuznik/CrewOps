@@ -26,6 +26,7 @@ import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
+import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
@@ -84,6 +85,13 @@ class CoreService implements CoreAPI {
             throws NotAuthenticatedException {
         isAuthenticated();
         return Optional.ofNullable(coreClient.updateQualification(updateQualificationDTO));
+    }
+
+    @Override
+    public Optional<EmployeeDTO> updateQualificationExpireAt(
+            UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO) throws NotAuthenticatedException {
+        isAuthenticated();
+        return Optional.ofNullable(coreClient.updateQualificationExpireAt(updateQualificationExpiredAtDTO));
     }
 
     @Override

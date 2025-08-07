@@ -24,6 +24,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.security.config.TestSecuriityConfig;
 
 @ActiveProfiles("test")
@@ -169,14 +170,18 @@ class EmployeeControllerTest {
     void updateQualificationExpire_ShouldReturn200() throws Exception {
         UUID eid = UUID.randomUUID();
         UUID qid = UUID.randomUUID();
-        Instant newDate = Instant.now().plusSeconds(3600);
+        var updateQualificationExpireAtDTO = UpdateQualificationExpiredAtDTO.builder()
+                .employeeId(eid)
+                .qualificationId(qid)
+                .expiredAt(Instant.now().plusSeconds(3600))
+                .build();
 
-        when(employeeAPI.updateQualificationExpiredAt(eid, qid, newDate))
+        when(employeeAPI.updateQualificationExpiredAt(eid, qid, updateQualificationExpireAtDTO))
                 .thenReturn(EmployeeDTO.builder().id(eid).build());
 
         mockMvc.perform(patch("/employees/" + eid + "/qualifications/" + qid + "/expired")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(newDate)))
+                        .content(objectMapper.writeValueAsString(updateQualificationExpireAtDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(eid.toString()));
     }

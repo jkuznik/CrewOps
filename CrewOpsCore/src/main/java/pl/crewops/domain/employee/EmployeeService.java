@@ -17,7 +17,9 @@ import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.employee.EmployeeQualificationDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.exception.domain.employee.EmployeeNotFoundException;
 import pl.crewops.exception.domain.employee.EmployeeQualificationNotFoundException;
 import pl.crewops.exception.domain.employee.ExpireAtException;
@@ -150,11 +152,21 @@ class EmployeeService implements EmployeeAPI {
     }
 
     @Transactional
-    public EmployeeDTO updateQualificationExpiredAt(UUID employeeId, UUID qualificationId, Instant expiredAt) {
+    @Override
+    public List<EmployeeQualificationDTO> getAllEmployeeQualificationsWithExpirationTime(UUID employeeId) {
+        return employeeQualificationRepository.findAllByEmployeeIdAndExpiredAtIsNotNull(employeeId).stream()
+                .map(EmployeeMapper::mapToEMDTO)
+                .toList();
+    }
+
+    @Transactional
+    public EmployeeDTO updateQualificationExpiredAt(
+            UUID employeeId, UUID qualificationId, UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO) {
         EmployeeQualification employeeQualification = employeeQualificationRepository
                 .findByEmployeeQualificationId(employeeId, qualificationId)
                 .orElseThrow(() -> new EmployeeQualificationNotFoundException(employeeId, qualificationId));
 
+        var expiredAt = updateQualificationExpiredAtDTO.expiredAt();
         expireDateValidator(expiredAt);
 
         employeeQualification.setExpiredAt(expiredAt);
@@ -200,10 +212,7 @@ class EmployeeService implements EmployeeAPI {
     }
 
     private void expireDateValidator(Instant expiredAt) {
-        if (expiredAt == null) {
-            throw new ExpireAtException("Expire date is null");
-        }
-        if (expiredAt.isBefore(Instant.now())) {
+        if (expiredAt != null && expiredAt.isBefore(Instant.now())) {
             throw new ExpireAtException("Expire date can't be in the past");
         }
     }

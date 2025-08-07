@@ -1,7 +1,6 @@
 package pl.crewops.infrastructure.core;
 
 import static pl.crewops.enums.ControllerURL.*;
-import static pl.crewops.util.CacheResolver.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +29,7 @@ import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
+import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
 
@@ -233,6 +233,25 @@ class CoreClient {
                     .body(new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
             log.error("Update qualification error");
+            return null;
+        }
+    }
+
+    // manager permission
+    public EmployeeDTO updateQualificationExpireAt(UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO) {
+        try {
+            return authorizedClient
+                    .patch()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(EMPLOYEES_EID_QUALIFICATIONS_QID_EXPIRED)
+                            .build(
+                                    updateQualificationExpiredAtDTO.employeeId(),
+                                    updateQualificationExpiredAtDTO.qualificationId()))
+                    .body(updateQualificationExpiredAtDTO)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Update qualification expired at error");
             return null;
         }
     }

@@ -1,13 +1,16 @@
 package pl.crewops.domain.employee;
 
+import java.time.LocalDate;
 import java.util.Set;
 import java.util.stream.Collectors;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.employee.EmployeeQualificationDTO;
 import pl.crewops.dto.machine.MachineDTO;
 import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.model.Employee;
+import pl.crewops.model.joinTable.EmployeeQualification;
 
 class EmployeeMapper {
 
@@ -33,6 +36,14 @@ class EmployeeMapper {
                 .active(employee.isActive())
                 .qualifications(getQualifications(employee))
                 .machines(getMachines(employee))
+                .build();
+    }
+
+    static EmployeeQualificationDTO mapToEMDTO(EmployeeQualification employeeQualification) {
+        return EmployeeQualificationDTO.builder()
+                .employeeId(employeeQualification.getId().getEmployeeId())
+                .qualificationId(employeeQualification.getId().getQualificationId())
+                .expiredAt(LocalDate.from(employeeQualification.getExpiredAt()))
                 .build();
     }
 

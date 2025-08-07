@@ -2,6 +2,7 @@ package pl.crewops.domain.employee;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,4 +38,12 @@ interface EmployeeQualificationRepository extends JpaRepository<EmployeeQualific
             + "AND eq.id.qualificationId = :qualificationId")
     Optional<EmployeeQualification> findByEmployeeQualificationId(
             @Param("employeeId") UUID employeeId, @Param("qualificationId") UUID qualificationId);
+
+    @Query(
+            """
+    SELECT eq FROM EmployeeQualification eq
+    WHERE eq.employee.id = :employeeId
+      AND eq.expiredAt IS NOT NULL
+""")
+    Set<EmployeeQualification> findAllByEmployeeIdAndExpiredAtIsNotNull(@Param("employeeId") UUID employeeId);
 }
