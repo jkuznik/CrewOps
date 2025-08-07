@@ -24,8 +24,7 @@ public class QualificationAccordion extends FormLayout {
         removeAll();
 
         var accordion = new Accordion();
-        // TODO: i18n
-        var edit = new Button("edit");
+        var edit = new Button(getTranslation("qualificationAccordion.editButton"));
         var qualificationsManagerDialog = getConfiguredQualificationManagerDialog(employeeFormModel);
 
         edit.addClickListener(event -> {
@@ -43,6 +42,7 @@ public class QualificationAccordion extends FormLayout {
         qualificationDisplay.add(edit);
 
         accordion.setVisible(true);
+        accordion.close();
         add(accordion);
         accordion.add(getTranslation("qualificationAccordion.title"), qualificationDisplay);
     }

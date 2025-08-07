@@ -11,6 +11,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.shared.Registration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,6 +46,7 @@ public class EditQualificationForm extends FormLayout {
         this.coreAPI = SpringContextBridge.getBean(CoreAPI.class);
 
         qualification.setEnabled(false);
+        expireAt.setMin(LocalDate.now());
         configureButtons();
 
         var fields = new HorizontalLayout();
@@ -75,22 +77,24 @@ public class EditQualificationForm extends FormLayout {
     private void configureButtons() {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         save.addClickListener(event -> {
-            // TODO: add date validator !!!!!!!!!! cant be before now !!!!!!
             try {
                 var date = expireAt.getValue();
-                ZoneId zone = ZoneId.systemDefault();
-                Instant instantExpireAt = date.atStartOfDay(zone).toInstant();
-                var employeeDTO = coreAPI.updateQualificationExpireAt(new UpdateQualificationExpiredAtDTO(
-                                employeeFormModel.getId(), qualificationFormModel.getId(), instantExpireAt))
-                        // TODO: custom exception
-                        .orElseThrow(RuntimeException::new);
-                expireAt.setValue(null);
-                fireEvent(new UpdateEvent(this, employeeDTO));
+                if (date.isBefore(LocalDate.now())) {
+                    // TODO: implement notification
+                } else {
+                    ZoneId zone = ZoneId.systemDefault();
+                    Instant instantExpireAt = date.atStartOfDay(zone).toInstant();
+                    var employeeDTO = coreAPI.updateQualificationExpireAt(new UpdateQualificationExpiredAtDTO(
+                                    employeeFormModel.getId(), qualificationFormModel.getId(), instantExpireAt))
+                            // TODO: custom exception
+                            .orElseThrow(RuntimeException::new);
+                    expireAt.setValue(null);
+                    fireEvent(new UpdateEvent(this, employeeDTO));
+                }
             } catch (NotAuthenticatedException e) {
                 // TODO: implement notification + event to update parent components
             }
         });
-        // TODO: implement delete action
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
         delete.addClickListener(event -> {
             try {

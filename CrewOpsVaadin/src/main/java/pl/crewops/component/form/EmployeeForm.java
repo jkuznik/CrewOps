@@ -30,8 +30,8 @@ public class EmployeeForm extends FormLayout {
     private final DatePicker birthDate = new DatePicker();
     private final TextField phoneNumber = new TextField();
     private final TextField department = new TextField();
-    //    TODO: modify i18n message for this field into 'functions' instead of 'roles'
     private final CheckboxGroup<RoleType> roles = new CheckboxGroup<>();
+
     private final QualificationAccordion qualifications;
     private final MachineAccordion machines = new MachineAccordion();
 

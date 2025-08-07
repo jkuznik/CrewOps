@@ -20,6 +20,8 @@ It offers robust features for ✅ workforce coordination, 📦 resource tracking
 [![Vaadin](https://img.shields.io/badge/Vaadin-24+-0078D7?logo=vaadin&logoColor=white)](https://vaadin.com/)
 
 [![Spring Cache](https://img.shields.io/badge/Spring%20Cache-Caching-brightgreen)](https://docs.spring.io/spring-framework/reference/integration/cache.html)
+[![Redis](https://img.shields.io/badge/Redis-Cache%20Store-red)](https://redis.io/docs/)
+
 
 ### Database
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql&logoColor=white)](https://www.postgresql.org/)

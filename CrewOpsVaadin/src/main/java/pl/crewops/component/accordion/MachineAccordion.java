@@ -33,6 +33,8 @@ public class MachineAccordion extends FormLayout {
         machinesDisplay.setPadding(false);
 
         accordion.setVisible(true);
+        accordion.close();
+
         add(accordion);
         accordion.add(getTranslation("machineAccordion.title"), machinesDisplay);
     }
