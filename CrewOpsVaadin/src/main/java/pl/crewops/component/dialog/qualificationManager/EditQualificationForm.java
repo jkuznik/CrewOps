@@ -94,9 +94,12 @@ public class EditQualificationForm extends FormLayout {
         unset.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         unset.addClickListener(event -> {
             try {
-                coreAPI.updateQualificationExpireAt(new UpdateQualificationExpiredAtDTO(
-                        employeeFormModel.getId(), qualificationFormModel.getId(), null));
+                var employeeDTO = coreAPI.updateQualificationExpireAt(new UpdateQualificationExpiredAtDTO(
+                                employeeFormModel.getId(), qualificationFormModel.getId(), null))
+                        // TODO: custom exception
+                        .orElseThrow(RuntimeException::new);
                 expireAt.setValue(null);
+                fireEvent(new UpdateEvent(this, employeeDTO));
             } catch (NotAuthenticatedException e) {
                 // TODO: implement notification + event to update parent components
             }
