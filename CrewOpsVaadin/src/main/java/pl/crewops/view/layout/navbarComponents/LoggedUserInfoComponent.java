@@ -116,14 +116,8 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                             new EndSessionNotification(ui, () -> {
                                         roleResolver.unauthenticatePrincipal();
                                         coreAPI.setAuthentication(false);
-                                        String currentLocation = ui.getInternals()
-                                                .getActiveViewLocation()
-                                                .getPath();
-                                        if (currentLocation.isEmpty()) {
-                                            ui.getPage().reload();
-                                        } else {
-                                            ui.navigate(HomeView.class);
-                                        }
+                                        ui.navigate(HomeView.class);
+                                        ui.getPage().reload();
                                     })
                                     .show();
                         });

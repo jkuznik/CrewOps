@@ -50,7 +50,6 @@ public class QualificationAccordion extends FormLayout {
     private QualificationsManagerDialog getConfiguredQualificationManagerDialog(EmployeeFormModel employeeFormModel) {
         QualificationsManagerDialog qualificationsManagerDialog = new QualificationsManagerDialog(employeeFormModel);
         qualificationsManagerDialog.addUpdateQualificationsListener(event -> {
-            System.out.println("QualificationAccordion is triggered by update");
             fireEvent(new UpdateQualificationsEvent(this, event.getEmployeeDTO()));
         });
         return qualificationsManagerDialog;

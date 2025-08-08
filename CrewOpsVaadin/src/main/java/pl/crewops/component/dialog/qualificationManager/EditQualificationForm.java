@@ -2,6 +2,8 @@ package pl.crewops.component.dialog.qualificationManager;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -13,11 +15,17 @@ import com.vaadin.flow.shared.Registration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
+import pl.crewops.component.notification.FailNotification;
+import pl.crewops.dto.auth.RoleDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
+import pl.crewops.exceptions.UpdateQualificationException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.QualificationFormModel;
@@ -26,14 +34,13 @@ import pl.crewops.util.SpringContextBridge;
 public class EditQualificationForm extends FormLayout {
 
     private final CoreAPI coreAPI;
-    // TODO: i18n
-    private final TextField qualification = new TextField("Qualification");
-    private final DatePicker expireAt = new DatePicker("Expiration date");
+    private final TextField qualification = new TextField();
+    private final DatePicker expireAt = new DatePicker();
 
-    private final Button save = new Button("Save");
-    private final Button delete = new Button("Del");
-    private final Button unset = new Button("Unset"); // ustaw
-    private final Button cancel = new Button("Esc");
+    private final Button save = new Button();
+    private final Button delete = new Button();
+    private final Button unset = new Button();
+    private final Button cancel = new Button();
 
     @Setter
     private EmployeeFormModel employeeFormModel;
@@ -44,6 +51,8 @@ public class EditQualificationForm extends FormLayout {
         addClassName("edit-qualification-form");
 
         this.coreAPI = SpringContextBridge.getBean(CoreAPI.class);
+
+        localize();
 
         qualification.setEnabled(false);
         expireAt.setMin(LocalDate.now());
@@ -57,13 +66,22 @@ public class EditQualificationForm extends FormLayout {
         var buttons = new HorizontalLayout();
         buttons.setSizeFull();
         buttons.setSpacing(true);
-        buttons.add(save, unset, delete, cancel);
+        buttons.add(save, unset, cancel, delete);
 
         var verticalLayout = new VerticalLayout();
         verticalLayout.setSizeFull();
         verticalLayout.add(fields, buttons);
 
         add(verticalLayout);
+    }
+
+    private void localize() {
+        qualification.setLabel(getTranslation("editQualificationForm.qualification"));
+        expireAt.setLabel(getTranslation("editQualificationForm.expireAt"));
+        save.setText(getTranslation("editQualificationForm.save"));
+        delete.setText(getTranslation("editQualificationForm.delete"));
+        unset.setText(getTranslation("editQualificationForm.unset"));
+        cancel.setText(getTranslation("editQualificationForm.cancel"));
     }
 
     public void setQualificationFormModel(QualificationFormModel qualificationFormModel) {
@@ -76,32 +94,37 @@ public class EditQualificationForm extends FormLayout {
 
     private void configureButtons() {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        save.addClickShortcut(Key.ENTER);
         save.addClickListener(event -> {
             try {
                 var date = expireAt.getValue();
                 if (date.isBefore(LocalDate.now())) {
-                    // TODO: implement notification
+                    throw new RuntimeException(getTranslation("editQualificationForm.errorDateBefore"));
                 } else {
                     ZoneId zone = ZoneId.systemDefault();
                     Instant instantExpireAt = date.atStartOfDay(zone).toInstant();
                     var employeeDTO = coreAPI.updateQualificationExpireAt(new UpdateQualificationExpiredAtDTO(
                                     employeeFormModel.getId(), qualificationFormModel.getId(), instantExpireAt))
-                            // TODO: custom exception
-                            .orElseThrow(RuntimeException::new);
+                            .orElseThrow(UpdateQualificationException::new);
                     expireAt.setValue(null);
                     fireEvent(new UpdateEvent(this, employeeDTO));
                 }
+            } catch (UpdateQualificationException e) {
+                new FailNotification(e.getMessage());
             } catch (NotAuthenticatedException e) {
-                // TODO: implement notification + event to update parent components
+                new FailNotification(e.getMessage());
+                UI.getCurrent().getPage().setLocation("/");
             }
         });
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
         delete.addClickListener(event -> {
             try {
                 coreAPI.removeEmployeeQualification(employeeFormModel.getId(), qualificationFormModel.getId());
-                fireEvent(new UpdateEvent(this, null));
+
+                fireEvent(new UpdateEvent(this, processedEmployeeDTO(employeeFormModel, qualificationFormModel)));
             } catch (NotAuthenticatedException e) {
-                // TODO: impl
+                new FailNotification(e.getMessage());
+                UI.getCurrent().getPage().setLocation("/");
             }
         });
         unset.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
@@ -109,16 +132,44 @@ public class EditQualificationForm extends FormLayout {
             try {
                 var employeeDTO = coreAPI.updateQualificationExpireAt(new UpdateQualificationExpiredAtDTO(
                                 employeeFormModel.getId(), qualificationFormModel.getId(), null))
-                        // TODO: custom exception
-                        .orElseThrow(RuntimeException::new);
+                        .orElseThrow(UpdateQualificationException::new);
                 expireAt.setValue(null);
                 fireEvent(new UpdateEvent(this, employeeDTO));
+            } catch (UpdateQualificationException e) {
+                new FailNotification(e.getMessage());
             } catch (NotAuthenticatedException e) {
-                // TODO: implement notification + event to update parent components
+                new FailNotification(e.getMessage());
+                UI.getCurrent().getPage().setLocation("/");
             }
         });
         cancel.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+        cancel.addClickShortcut(Key.ESCAPE);
         cancel.addClickListener(event -> fireEvent(new CancelEvent(this)));
+    }
+
+    private EmployeeDTO processedEmployeeDTO(
+            EmployeeFormModel employeeFormModel, QualificationFormModel qualificationFormModel) {
+
+        var employeeQualifications = employeeFormModel.getQualificationsSet();
+        var qulificationToRemove = qualificationFormModel.getId();
+        Set<QualificationDTO> processedQualifications = employeeQualifications.stream()
+                .filter(qualificationDTO -> qualificationDTO.id() != qulificationToRemove)
+                .collect(Collectors.toSet());
+
+        // this complete object builder is required to satisfy binder in EmployeeForm
+        return EmployeeDTO.builder()
+                .id(employeeFormModel.getId())
+                .firstName(employeeFormModel.getFirstName())
+                .lastName(employeeFormModel.getLastName())
+                .birthDate(employeeFormModel.getBirthDate())
+                .department(employeeFormModel.getDepartment())
+                .phoneNumber(employeeFormModel.getPhoneNumber())
+                .roles(employeeFormModel.getRoles().stream()
+                        .map(r -> new RoleDTO(r.name()))
+                        .collect(Collectors.toSet()))
+                .qualifications(processedQualifications)
+                .machines(employeeFormModel.getMachinesSet())
+                .build();
     }
 
     public abstract static class EditQualificationFormEvent extends ComponentEvent<EditQualificationForm> {

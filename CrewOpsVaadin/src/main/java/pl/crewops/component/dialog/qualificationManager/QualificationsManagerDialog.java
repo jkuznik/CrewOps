@@ -2,6 +2,7 @@ package pl.crewops.component.dialog.qualificationManager;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -24,20 +25,31 @@ public class QualificationsManagerDialog extends Dialog {
         setWidth("95vw");
         setHeight("85vh");
 
-        var employeeQualificationForm = getConfiguredEmployeeQualificationForm(employeeFormModel);
-        var qualificationManagerGrid = new QualificationManagerGrid(employeeFormModel, employeeQualificationForm);
+        var addQualificationForm = getConfiguredEmployeeQualificationForm(employeeFormModel);
+        var qualificationManagerGrid = getConfiguredQualificationManagerGrid(employeeFormModel, addQualificationForm);
 
         qualificationManagerGrid.setSizeFull();
 
-        // TODO: i18n
-        Button closeButton = new Button("Close", event -> close());
+        Button closeButton = new Button(getTranslation("qualificationManagerDialog.closeButton"), event -> close());
+        closeButton.addClickShortcut(Key.ESCAPE);
 
-        VerticalLayout layout = new VerticalLayout(qualificationManagerGrid, employeeQualificationForm, closeButton);
+        VerticalLayout layout = new VerticalLayout(qualificationManagerGrid, addQualificationForm, closeButton);
         layout.setSizeFull();
         layout.setSpacing(true);
         layout.setPadding(true);
 
         add(layout);
+    }
+
+    private QualificationManagerGrid getConfiguredQualificationManagerGrid(
+            EmployeeFormModel employeeFormModel, AddQualificationForm addQualificationForm) {
+        var qualificationManagerGrid = new QualificationManagerGrid(employeeFormModel, addQualificationForm);
+        qualificationManagerGrid.addUpdateQualificationListener(event -> {
+            System.out.println("this is new");
+            fireEvent(new UpdateQualificationsEvent(this, event.getEmployeeDTO()));
+        });
+
+        return qualificationManagerGrid;
     }
 
     private AddQualificationForm getConfiguredEmployeeQualificationForm(EmployeeFormModel employeeFormModel) {

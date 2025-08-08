@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.component.form.BreakdownForm;
+import pl.crewops.component.notification.FailNotification;
 import pl.crewops.component.notification.UpdateBreakdownNotification;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
@@ -185,7 +186,7 @@ public class BreakdownGrid extends VerticalLayout {
                     .toList());
 
         } catch (NotAuthenticatedException e) {
-            UI.getCurrent().navigate(HomeView.class);
+            notAuthenticatedAction(e);
         }
     }
 
@@ -214,10 +215,14 @@ public class BreakdownGrid extends VerticalLayout {
                     new UpdateBreakdownNotification();
                 }
             } catch (NotAuthenticatedException e) {
-                UI.getCurrent().navigate(HomeView.class);
+                notAuthenticatedAction(e);
             }
         }
-        // TODO: implement notification about not authorized message
+    }
+
+    private static void notAuthenticatedAction(NotAuthenticatedException e) {
+        UI.getCurrent().navigate(HomeView.class);
+        new FailNotification(e.getMessage());
     }
 
     private UpdateBreakdownDTO toUpdateBreakdownDTO(BreakdownFormModel breakdownFormModel) {

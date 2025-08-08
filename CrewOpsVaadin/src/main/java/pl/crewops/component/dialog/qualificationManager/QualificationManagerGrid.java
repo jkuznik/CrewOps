@@ -1,12 +1,17 @@
 package pl.crewops.component.dialog.qualificationManager;
 
+import com.vaadin.flow.component.ComponentEvent;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.shared.Registration;
 import java.util.UUID;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import pl.crewops.component.notification.FailNotification;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
@@ -34,15 +39,16 @@ public class QualificationManagerGrid extends VerticalLayout {
 
         editQualificationDialog.addUpdateEventListener(event -> {
             updateGrid(event.getEmployeeDTO(), coreAPI);
+            fireEvent(new UpdateEvent(this, event.getEmployeeDTO()));
         });
+
         addQualificationForm.addUpdateQualificationsListener(e -> {
             updateGrid(e.getEmployeeDTO(), coreAPI);
         });
 
-        // TODO: i18n
         H1 employeeNameHolder = new H1();
         employeeNameHolder.setText(employeeFormModel.getFirstName() + " " + employeeFormModel.getLastName() + " - "
-                + "kwalifikacje i uprawnienia");
+                + getTranslation("qualificationManagerGrid.employeeNameHolder"));
 
         add(employeeNameHolder, grid);
     }
@@ -92,10 +98,8 @@ public class QualificationManagerGrid extends VerticalLayout {
                             .map(QualificationFormModel::toQualificationFormModel)
                             .toList();
             grid.setItems(qualifications);
-
         } catch (NotAuthenticatedException e) {
-            log.info("Not authenticated");
-            // TODO: implement
+            new FailNotification(e.getMessage());
         }
     }
 
@@ -109,7 +113,27 @@ public class QualificationManagerGrid extends VerticalLayout {
                     .toList();
             grid.setItems(qualifications);
         } catch (NotAuthenticatedException e) {
-            log.info("Not authenticated");
+            new FailNotification(e.getMessage());
         }
+    }
+
+    public abstract static class QualificationManagerGridEvent extends ComponentEvent<QualificationManagerGrid> {
+        public QualificationManagerGridEvent(QualificationManagerGrid source) {
+            super(source, false);
+        }
+    }
+
+    public static class UpdateEvent extends QualificationManagerGridEvent {
+        @Getter
+        private final EmployeeDTO employeeDTO;
+
+        UpdateEvent(QualificationManagerGrid qualificationManagerGrid, EmployeeDTO employeeDTO) {
+            super(qualificationManagerGrid);
+            this.employeeDTO = employeeDTO;
+        }
+    }
+
+    public Registration addUpdateQualificationListener(ComponentEventListener<UpdateEvent> listener) {
+        return addListener(UpdateEvent.class, listener);
     }
 }

@@ -24,7 +24,8 @@ import pl.crewops.security.custom.UserPrincipal;
 
 public class BreakdownForm extends FormLayout {
 
-    // TODO: not allow to update breakdown (solve breakdown) if user has no at least mechanic permission
+    // TODO: not allow to update breakdown (solve breakdown) if user has no at least mechanic permission - i think its
+    // done but let this comment to remember take consideration about permissions
     private final TextField machine = new TextField();
     private final TextArea description = new TextArea();
     private final Checkbox solved = new Checkbox();

@@ -78,7 +78,6 @@ class EmployeeController {
         return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.removePhoneNumber(employeeId));
     }
 
-    // todo: consider to remove this
     @GetMapping(EMPLOYEES_EID_QUALIFICATIONS_EXPIRED)
     @ManagerPermission
     public ResponseEntity<List<EmployeeQualificationDTO>> getEmployeeQualificationWithExpirationTime(

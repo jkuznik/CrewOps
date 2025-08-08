@@ -6,26 +6,32 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.shared.Registration;
 import java.util.Comparator;
 import lombok.Getter;
+import pl.crewops.component.notification.FailNotification;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
+import pl.crewops.exceptions.UpdateQualificationException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.util.SpringContextBridge;
 import pl.crewops.view.HomeView;
 
+@CssImport("./styles/component/global-combo-box.css")
 public class AddQualificationForm extends FormLayout {
 
-    // TODO: i18n , comboBox style
     private final ComboBox<QualificationDTO> qualifications = new ComboBox<>();
-    private final Button add = new Button("Dodaj");
+    private final Button add = new Button(getTranslation("addQualificationForm.addButton"));
 
     public AddQualificationForm(EmployeeFormModel employeeFormModel) {
         addClassName("employee-qualification-form");
+
+        qualifications.addClassName("dark-combo");
+        qualifications.getElement().setAttribute("theme", "dark-combo");
 
         var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
 
@@ -56,10 +62,12 @@ public class AddQualificationForm extends FormLayout {
                 EmployeeDTO employeeDTO = coreAPI.addEmployeeQualification(
                                 employeeFormModel.getId(),
                                 qualifications.getValue().id())
-                        // TODO: consider about custom exception
-                        .orElseThrow(() -> new RuntimeException("Error during adding qualification to employee"));
+                        .orElseThrow(UpdateQualificationException::new);
                 fireEvent(new AddQualificationsEvent(this, employeeDTO));
+            } catch (UpdateQualificationException e) {
+                new FailNotification(e.getMessage());
             } catch (NotAuthenticatedException e) {
+                new FailNotification(e.getMessage());
                 UI.getCurrent().navigate(HomeView.class);
             }
         });
