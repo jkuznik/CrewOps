@@ -1,0 +1,4 @@
+1. currently postrgres dedicated to core module are not handled by ci/cd, necessary to run it before core try to start - do not automate this process until very first development process caused of liquibase maintain at this stage
+2. this same with redis but it seems to be easy to automated because there is no requirements of 'clean' restart
+
+3. ci/cd looks configured fine for present requirements so just use gh actions to deploy/restart each service
