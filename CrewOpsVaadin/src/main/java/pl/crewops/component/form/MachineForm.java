@@ -180,10 +180,10 @@ public class MachineForm extends FormLayout {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         update.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        close.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
-        reportBreakdown.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        close.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        reportBreakdown.addThemeVariants(ButtonVariant.LUMO_WARNING);
         reportBreakdown.setSizeFull();
-        breakdownsList.addThemeVariants(ButtonVariant.LUMO_WARNING);
+        breakdownsList.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         breakdownsList.setSizeFull();
 
         save.addClickShortcut(Key.ENTER);

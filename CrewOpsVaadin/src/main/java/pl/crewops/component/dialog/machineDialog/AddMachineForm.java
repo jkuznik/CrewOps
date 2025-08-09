@@ -14,6 +14,7 @@ import pl.crewops.component.notification.FailNotification;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.machine.MachineDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
+import pl.crewops.exceptions.UpdateMachineException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.util.SpringContextBridge;
@@ -40,8 +41,8 @@ public class AddMachineForm extends FormLayout {
     }
 
     private void configureMachines(CoreAPI coreAPI) {
-        // TODO: check if this label have to be customized and i18n implemented
         machines.setItemLabelGenerator(MachineDTO::registerNumber);
+        machines.setPlaceholder(getTranslation("addMachineForm.machinesPlaceholder"));
 
         machines.addValueChangeListener(event -> {
             if (event.getValue() != null) {
@@ -60,10 +61,9 @@ public class AddMachineForm extends FormLayout {
             try {
                 EmployeeDTO employeeDTO = coreAPI.addEmployeeMachine(
                                 employeeFormModel.getId(), machines.getValue().id())
-                        // TODO: custom exception
-                        .orElseThrow(() -> new RuntimeException());
+                        .orElseThrow(UpdateMachineException::new);
                 fireEvent(new AddMachineEvent(this, employeeDTO));
-            } catch (RuntimeException e) {
+            } catch (UpdateMachineException e) {
                 new FailNotification(e.getMessage());
             } catch (NotAuthenticatedException e) {
                 new FailNotification(e.getMessage());

@@ -70,7 +70,7 @@ public class HomeContent extends VerticalLayout {
 
         textLayout.add(title, intro, features, loginInfo, credentials);
 
-        mainLayout.add(imageContainer, textLayout);
+        mainLayout.add(textLayout);
         add(mainLayout);
     }
 }

@@ -43,6 +43,7 @@ public class AddQualificationForm extends FormLayout {
 
     private void configureQualifications(CoreAPI coreAPI) {
         qualifications.setItemLabelGenerator(QualificationDTO::description);
+        qualifications.setPlaceholder(getTranslation("addQualificationForm.qualificationPlaceholder"));
 
         qualifications.addValueChangeListener(event -> {
             if (event.getValue() != null) {
