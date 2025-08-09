@@ -2,7 +2,6 @@ package pl.crewops.view.layout;
 
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -11,7 +10,6 @@ import pl.crewops.component.form.LoginForm;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.RoleResolver;
-import pl.crewops.view.layout.navbarComponents.LanguageSelectorComponent;
 import pl.crewops.view.layout.navbarComponents.LoggedUserInfoComponent;
 
 @SpringComponent
@@ -33,8 +31,7 @@ public class MainNavbar extends HorizontalLayout {
         setPadding(true);
         HorizontalLayout navbarRightSide = createNavbarRightSide(roleResolver);
         add(createNavbarLeftSide(), navbarRightSide);
-        setFlexGrow(1, createNavbarLeftSide());
-        setFlexGrow(1, navbarRightSide);
+        add(navbarRightSide);
     }
 
     private HorizontalLayout createNavbarRightSide(RoleResolver roleResolver) {
@@ -49,19 +46,15 @@ public class MainNavbar extends HorizontalLayout {
         } else {
             rightSide.add(new LoginForm(coreAPI, jwtService));
         }
-        rightSide.add(new LanguageSelectorComponent());
 
         return rightSide;
     }
 
     private static HorizontalLayout createNavbarLeftSide() {
         var leftSide = new HorizontalLayout();
-        H1 title = new H1();
-        title.setText(title.getTranslation("mainNavbar.title"));
-        title.addClassName("main-navbar-title");
         leftSide.setWidthFull();
         leftSide.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        leftSide.add(new DrawerToggle(), title);
+        leftSide.add(new DrawerToggle());
         return leftSide;
     }
 }

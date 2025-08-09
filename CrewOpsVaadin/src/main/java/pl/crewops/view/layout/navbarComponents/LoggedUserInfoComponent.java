@@ -4,9 +4,10 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.WeakHashMap;
@@ -21,6 +22,7 @@ import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.RoleResolver;
+import pl.crewops.view.EmployeeView;
 import pl.crewops.view.HomeView;
 
 @Log4j2
@@ -31,7 +33,6 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
     public LoggedUserInfoComponent(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
         addClassName("logged-user-info");
 
-        System.out.println();
         if (roleResolver.principalIsAuthenticated()) {
             add(loggedUserInfo(coreAPI, jwtService, roleResolver));
         } else {
@@ -40,9 +41,10 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
     }
 
     private Component loggedUserInfo(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
-        var infoLayout = new HorizontalLayout();
+        var infoLayout = new VerticalLayout();
         infoLayout.setWidthFull();
         infoLayout.setSpacing(true);
+        infoLayout.setAlignItems(FlexComponent.Alignment.END);
 
         if (roleResolver.principalHasSystemAdminRole()) {
             infoLayout.add(new CustomerRegistryButton(coreAPI, roleResolver));
@@ -52,9 +54,13 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         logoutButton.addClickListener(event -> logout(coreAPI, roleResolver));
         logoutButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
+        var buttonAndLanguageSelector = new HorizontalLayout();
+        buttonAndLanguageSelector.setSpacing(true);
+        buttonAndLanguageSelector.add(logoutButton, new LanguageSelectorComponent());
+
         final var token = roleResolver.getPrincipal().getToken();
         UserInformation userInformation = getInfo(coreAPI, jwtService, token);
-        infoLayout.add(displayUserInfo(coreAPI, userInformation, roleResolver), logoutButton);
+        infoLayout.add(displayUserInfo(coreAPI, userInformation, roleResolver), buttonAndLanguageSelector);
         return infoLayout;
     }
 
@@ -73,8 +79,18 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                     employeeDTO.firstName(),
                     employeeDTO.lastName(),
                     jwtService.extractExpiresAt(token).toInstant().getEpochSecond());
-        } catch (NotAuthenticatedException | NoSuchElementException ex) {
-            log.error("JWT token not authenticated during retrieve user info" + ex.getMessage());
+
+        } catch (NoSuchElementException e) {
+            log.error("JWT token not authenticated during retrieve user info" + e.getMessage());
+            return new UserInformation(
+                    null,
+                    "system",
+                    "issue",
+                    jwtService.extractExpiresAt(token).toInstant().getEpochSecond());
+        } catch (NotAuthenticatedException e) {
+            log.error("JWT token not authenticated during retrieve user info" + e.getMessage());
+            UI.getCurrent().navigate(EmployeeView.class);
+
             return new UserInformation(
                     null,
                     "system",
@@ -83,11 +99,12 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         }
     }
 
-    private Component displayUserInfo(CoreAPI coreAPI, UserInformation userInformation, RoleResolver roleResolver) {
+    private VerticalLayout displayUserInfo(
+            CoreAPI coreAPI, UserInformation userInformation, RoleResolver roleResolver) {
         Span companyName = new Span(userInformation.companyName);
         Span userName = new Span(userInformation.userName + " " + userInformation.userLastname);
 
-        Div container = new Div(companyName, userName);
+        var container = new VerticalLayout(companyName, userName);
         container.getStyle().set("display", "flex");
         container.getStyle().set("align-items", "center");
         container.getStyle().set("gap", "1rem");

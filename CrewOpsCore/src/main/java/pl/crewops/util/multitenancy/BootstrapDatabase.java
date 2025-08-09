@@ -17,7 +17,7 @@ import pl.crewops.exception.multitenancy.CreateSchemaException;
 
 @Slf4j
 @Component
-@Profile(value = {"dev", "integration"})
+@Profile(value = {"dev", "integration", "prod"})
 public class BootstrapDatabase {
 
     private final SchemaManager schemaManager;
