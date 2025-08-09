@@ -28,7 +28,7 @@ public class AddQualificationForm extends FormLayout {
     private final Button add = new Button(getTranslation("addQualificationForm.addButton"));
 
     public AddQualificationForm(EmployeeFormModel employeeFormModel) {
-        addClassName("employee-qualification-form");
+        addClassName("add-qualification-form");
 
         qualifications.addClassName("dark-combo");
         qualifications.getElement().setAttribute("theme", "dark-combo");

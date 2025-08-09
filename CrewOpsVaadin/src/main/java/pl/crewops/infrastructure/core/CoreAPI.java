@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
@@ -82,7 +83,12 @@ public interface CoreAPI {
 
     List<MachineDTO> getAllMachines() throws NotAuthenticatedException;
 
+    List<MachineDTO> getAllEmployeeMachinesByIds(@NotNull Set<UUID> ids) throws NotAuthenticatedException;
+
     List<MachineTypeDTO> getAllMachineTypes() throws NotAuthenticatedException;
+
+    Optional<EmployeeDTO> addEmployeeMachine(@NotNull UUID employeeId, @NotNull UUID machineId)
+            throws NotAuthenticatedException;
 
     List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException;
 
@@ -92,6 +98,8 @@ public interface CoreAPI {
 
     void removeEmployeeQualification(@NotNull UUID employeeId, @NotNull UUID qualificationId)
             throws NotAuthenticatedException;
+
+    void removeEmployeeMachine(@NotNull UUID employeId, @NotNull UUID machineId) throws NotAuthenticatedException;
 
     void deleteQualification(@NotNull UUID qualificationId) throws NotAuthenticatedException;
 

@@ -25,7 +25,7 @@ public class QualificationsManagerDialog extends Dialog {
         setWidth("95vw");
         setHeight("85vh");
 
-        var addQualificationForm = getConfiguredEmployeeQualificationForm(employeeFormModel);
+        var addQualificationForm = getConfiguredAddQualificationForm(employeeFormModel);
         var qualificationManagerGrid = getConfiguredQualificationManagerGrid(employeeFormModel, addQualificationForm);
 
         qualificationManagerGrid.setSizeFull();
@@ -33,7 +33,7 @@ public class QualificationsManagerDialog extends Dialog {
         Button closeButton = new Button(getTranslation("qualificationManagerDialog.closeButton"), event -> close());
         closeButton.addClickShortcut(Key.ESCAPE);
 
-        VerticalLayout layout = new VerticalLayout(qualificationManagerGrid, addQualificationForm, closeButton);
+        var layout = new VerticalLayout(qualificationManagerGrid, addQualificationForm, closeButton);
         layout.setSizeFull();
         layout.setSpacing(true);
         layout.setPadding(true);
@@ -41,18 +41,7 @@ public class QualificationsManagerDialog extends Dialog {
         add(layout);
     }
 
-    private QualificationManagerGrid getConfiguredQualificationManagerGrid(
-            EmployeeFormModel employeeFormModel, AddQualificationForm addQualificationForm) {
-        var qualificationManagerGrid = new QualificationManagerGrid(employeeFormModel, addQualificationForm);
-        qualificationManagerGrid.addUpdateQualificationListener(event -> {
-            System.out.println("this is new");
-            fireEvent(new UpdateQualificationsEvent(this, event.getEmployeeDTO()));
-        });
-
-        return qualificationManagerGrid;
-    }
-
-    private AddQualificationForm getConfiguredEmployeeQualificationForm(EmployeeFormModel employeeFormModel) {
+    private AddQualificationForm getConfiguredAddQualificationForm(EmployeeFormModel employeeFormModel) {
         var addQualificationForm = new AddQualificationForm(employeeFormModel);
 
         addQualificationForm.addUpdateQualificationsListener(event -> {
@@ -62,19 +51,29 @@ public class QualificationsManagerDialog extends Dialog {
         return addQualificationForm;
     }
 
-    public abstract static class QualificationsManagerDialogEvent extends ComponentEvent<QualificationsManagerDialog> {
-        @Getter
-        private final EmployeeDTO employeeDTO;
+    private QualificationManagerGrid getConfiguredQualificationManagerGrid(
+            EmployeeFormModel employeeFormModel, AddQualificationForm addQualificationForm) {
+        var qualificationManagerGrid = new QualificationManagerGrid(employeeFormModel, addQualificationForm);
+        qualificationManagerGrid.addUpdateQualificationListener(event -> {
+            fireEvent(new UpdateQualificationsEvent(this, event.getEmployeeDTO()));
+        });
 
-        public QualificationsManagerDialogEvent(QualificationsManagerDialog source, EmployeeDTO employeeDTO) {
+        return qualificationManagerGrid;
+    }
+
+    public abstract static class QualificationsManagerDialogEvent extends ComponentEvent<QualificationsManagerDialog> {
+        public QualificationsManagerDialogEvent(QualificationsManagerDialog source) {
             super(source, false);
-            this.employeeDTO = employeeDTO;
         }
     }
 
     public static class UpdateQualificationsEvent extends QualificationsManagerDialogEvent {
+        @Getter
+        private final EmployeeDTO employeeDTO;
+
         public UpdateQualificationsEvent(QualificationsManagerDialog source, EmployeeDTO employeeDTO) {
-            super(source, employeeDTO);
+            super(source);
+            this.employeeDTO = employeeDTO;
         }
     }
 

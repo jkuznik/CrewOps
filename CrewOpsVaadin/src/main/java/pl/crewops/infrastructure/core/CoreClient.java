@@ -4,6 +4,7 @@ import static pl.crewops.enums.ControllerURL.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -269,6 +270,20 @@ class CoreClient {
         }
     }
 
+    // manager permission
+    public void removeEmployeeMachine(UUID employeeId, UUID machineId) {
+        try {
+            authorizedClient
+                    .delete()
+                    .uri(uriBuilder ->
+                            uriBuilder.path(EMPLOYEES_EID_MACHINES_VID).build(employeeId, machineId))
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientException e) {
+            log.error("Remove employee machine error");
+        }
+    }
+
     public List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(UUID employeeId) {
         try {
             return authorizedClient
@@ -390,6 +405,21 @@ class CoreClient {
         }
     }
 
+    // manager permission
+    public List<MachineDTO> getAllEmployeeMachinesByIds(Set<UUID> ids) {
+        try {
+            return authorizedClient
+                    .post()
+                    .uri(uriBuilder -> uriBuilder.path(MACHINES_VIDS).build())
+                    .body(ids)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Get all employee machine ids error");
+            return List.of();
+        }
+    }
+
     // authenticated
     //        @Cacheable(cacheNames = GET_ALL_MACHINE_TYPES, key =
     // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
@@ -404,6 +434,21 @@ class CoreClient {
         } catch (RestClientException e) {
             log.error("Error getting machine types");
             return List.of();
+        }
+    }
+
+    // manager permission
+    public EmployeeDTO addEmployeeMachine(UUID employeeId, UUID machineId) {
+        try {
+            return authorizedClient
+                    .patch()
+                    .uri(uriBuilder ->
+                            uriBuilder.path(EMPLOYEES_EID_MACHINES_VID).build(employeeId, machineId))
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Add employee machine error", e);
+            return null;
         }
     }
 

@@ -69,6 +69,7 @@ public class QualificationManagerGrid extends VerticalLayout {
                             .set("font-size", "0.9rem");
                     return descriptionDiv;
                 }))
+                // TODO: i18n
                 .setHeader("Description")
                 .setKey("description")
                 .setFlexGrow(3)

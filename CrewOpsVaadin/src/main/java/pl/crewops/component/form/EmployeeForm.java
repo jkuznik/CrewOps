@@ -33,7 +33,7 @@ public class EmployeeForm extends FormLayout {
     private final CheckboxGroup<RoleType> roles = new CheckboxGroup<>();
 
     private final QualificationAccordion qualifications;
-    private final MachineAccordion machines = new MachineAccordion();
+    private final MachineAccordion machines;
 
     private final Button save = new Button("Save");
     private final Button update = new Button("Update");
@@ -46,6 +46,7 @@ public class EmployeeForm extends FormLayout {
         addClassName("employee-form");
 
         this.qualifications = getConfiguredQualificationsAccordion();
+        this.machines = getConfiguredMachinesAccordion();
 
         localize();
         configureRolesCheckbox(roleResolver);
@@ -74,6 +75,17 @@ public class EmployeeForm extends FormLayout {
         });
 
         return qualificationAccordion;
+    }
+
+    private MachineAccordion getConfiguredMachinesAccordion() {
+        var machineAccordion = new MachineAccordion();
+        machineAccordion.addUpdateMachineListener(event -> {
+            var employeeFormModel = EmployeeFormModel.toEmployeeFormModel(event.getEmployeeDTO());
+            setEmployee(employeeFormModel);
+            validateAndUpdate();
+        });
+
+        return machineAccordion;
     }
 
     private void configureRolesCheckbox(RoleResolver roleResolver) {
@@ -177,7 +189,7 @@ public class EmployeeForm extends FormLayout {
         binder.setBean(employeeFormModel);
         if (employeeFormModel != null) {
             qualifications.getValues(employeeFormModel);
-            machines.getValues(employeeFormModel.getMachinesSet());
+            machines.getValues(employeeFormModel);
         }
     }
 

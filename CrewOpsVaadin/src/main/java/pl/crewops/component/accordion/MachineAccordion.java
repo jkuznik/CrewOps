@@ -1,13 +1,20 @@
 package pl.crewops.component.accordion;
 
+import com.vaadin.flow.component.ComponentEvent;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.accordion.Accordion;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.shared.Registration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import pl.crewops.dto.machine.MachineDTO;
+import lombok.Getter;
+import pl.crewops.component.dialog.machineDialog.MachineManagerDialog;
+import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.model.EmployeeFormModel;
 
 public class MachineAccordion extends FormLayout {
 
@@ -15,12 +22,20 @@ public class MachineAccordion extends FormLayout {
         addClassName("qualification-accordion");
     }
 
-    public void getValues(Set<MachineDTO> machines) {
+    public void getValues(EmployeeFormModel employeeFormModel) {
         removeAll();
         Accordion accordion = new Accordion();
-        List<Span> items = new ArrayList<>();
+        // same i18n key like qualification accordion, update if needed
+        var edit = new Button(getTranslation("qualificationAccordion.editButton"));
+        var machineManagerDialog = getConfiguredMachineManagerDialog(employeeFormModel);
 
-        machines.forEach(machine -> {
+        edit.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        edit.addClickListener(event -> {
+            machineManagerDialog.open();
+        });
+
+        List<Span> items = new ArrayList<>();
+        employeeFormModel.getMachinesSet().forEach(machine -> {
             String formatted = String.format("%-15s%s", machine.machineType().name(), machine.registerNumber());
             Span span = new Span(formatted);
             span.getStyle().set("font-family", "monospace");
@@ -28,14 +43,44 @@ public class MachineAccordion extends FormLayout {
             items.add(span);
         });
 
-        VerticalLayout machinesDisplay = new VerticalLayout(items.toArray(new Span[items.size()]));
+        var machinesDisplay = new VerticalLayout(items.toArray(new Span[items.size()]));
         machinesDisplay.setSpacing(false);
         machinesDisplay.setPadding(false);
+        machinesDisplay.add(edit);
 
         accordion.setVisible(true);
         accordion.close();
 
         add(accordion);
         accordion.add(getTranslation("machineAccordion.title"), machinesDisplay);
+    }
+
+    private MachineManagerDialog getConfiguredMachineManagerDialog(EmployeeFormModel employeeFormModel) {
+        var machineManagerDialog = new MachineManagerDialog(employeeFormModel);
+        machineManagerDialog.addUpdateMachineListener(event -> {
+            fireEvent(new UpdateMachineEvent(this, event.getEmployeeDTO()));
+        });
+
+        return machineManagerDialog;
+    }
+
+    public abstract static class MachineAccordionEvent extends ComponentEvent<MachineAccordion> {
+        public MachineAccordionEvent(MachineAccordion source) {
+            super(source, false);
+        }
+    }
+
+    public static class UpdateMachineEvent extends MachineAccordionEvent {
+        @Getter
+        private final EmployeeDTO employeeDTO;
+
+        public UpdateMachineEvent(MachineAccordion source, EmployeeDTO employeeDTO) {
+            super(source);
+            this.employeeDTO = employeeDTO;
+        }
+    }
+
+    public Registration addUpdateMachineListener(ComponentEventListener<UpdateMachineEvent> listener) {
+        return addListener(UpdateMachineEvent.class, listener);
     }
 }

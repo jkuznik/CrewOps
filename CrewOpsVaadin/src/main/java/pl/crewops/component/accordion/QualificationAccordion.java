@@ -4,6 +4,7 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -27,6 +28,7 @@ public class QualificationAccordion extends FormLayout {
         var edit = new Button(getTranslation("qualificationAccordion.editButton"));
         var qualificationsManagerDialog = getConfiguredQualificationManagerDialog(employeeFormModel);
 
+        edit.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         edit.addClickListener(event -> {
             qualificationsManagerDialog.open();
         });
@@ -43,12 +45,13 @@ public class QualificationAccordion extends FormLayout {
 
         accordion.setVisible(true);
         accordion.close();
+
         add(accordion);
         accordion.add(getTranslation("qualificationAccordion.title"), qualificationDisplay);
     }
 
     private QualificationsManagerDialog getConfiguredQualificationManagerDialog(EmployeeFormModel employeeFormModel) {
-        QualificationsManagerDialog qualificationsManagerDialog = new QualificationsManagerDialog(employeeFormModel);
+        var qualificationsManagerDialog = new QualificationsManagerDialog(employeeFormModel);
         qualificationsManagerDialog.addUpdateQualificationsListener(event -> {
             fireEvent(new UpdateQualificationsEvent(this, event.getEmployeeDTO()));
         });
