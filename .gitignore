@@ -15,6 +15,7 @@ CrewOpsVaadin/node_modules
 CrewOpsVaadin/.DS_Store
 CrewOpsVaadin/src/.DS_Store
 CrewOpsVaadin/src/main/.DS_Store
+CrewOpsVaadin/src/main/bundles/dev.bundle
 package-lock.json
 package.json
 src/main/frontend
