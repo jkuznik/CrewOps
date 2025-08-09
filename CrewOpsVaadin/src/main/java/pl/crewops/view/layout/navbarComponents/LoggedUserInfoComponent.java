@@ -14,14 +14,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.log4j.Log4j2;
+import pl.crewops.component.form.LoginForm;
+import pl.crewops.component.notification.auth.EndSessionNotification;
 import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.RoleResolver;
 import pl.crewops.view.HomeView;
-import pl.crewops.view.component.form.LoginForm;
-import pl.crewops.view.component.notification.auth.EndSessionNotification;
 
 @Log4j2
 public class LoggedUserInfoComponent extends HorizontalLayout {
@@ -110,18 +110,14 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                         sessionEnded = true;
                         scheduler.shutdown();
 
+                        // TODO: fix this logic to enforce redirect user to HomeView in case if currently user use
+                        // dialog component
                         ui.access(() -> {
                             new EndSessionNotification(ui, () -> {
                                         roleResolver.unauthenticatePrincipal();
                                         coreAPI.setAuthentication(false);
-                                        String currentLocation = ui.getInternals()
-                                                .getActiveViewLocation()
-                                                .getPath();
-                                        if (currentLocation.isEmpty()) {
-                                            ui.getPage().reload();
-                                        } else {
-                                            ui.navigate(HomeView.class);
-                                        }
+                                        ui.navigate(HomeView.class);
+                                        ui.getPage().reload();
                                     })
                                     .show();
                         });

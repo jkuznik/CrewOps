@@ -2,6 +2,7 @@ package pl.crewops.infrastructure.core;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
+import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
@@ -66,6 +68,13 @@ class CoreService implements CoreAPI {
     }
 
     @Override
+    public Optional<EmployeeDTO> addEmployeeQualification(UUID employeeId, UUID qualificationId)
+            throws NotAuthenticatedException {
+        isAuthenticated();
+        return Optional.ofNullable(coreClient.addEmployeeQualification(employeeId, qualificationId));
+    }
+
+    @Override
     public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO)
             throws NotAuthenticatedException {
         isAuthenticated();
@@ -77,6 +86,20 @@ class CoreService implements CoreAPI {
             throws NotAuthenticatedException {
         isAuthenticated();
         return Optional.ofNullable(coreClient.updateQualification(updateQualificationDTO));
+    }
+
+    @Override
+    public Optional<EmployeeDTO> updateQualificationExpireAt(
+            UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO) throws NotAuthenticatedException {
+        isAuthenticated();
+        return Optional.ofNullable(coreClient.updateQualificationExpireAt(updateQualificationExpiredAtDTO));
+    }
+
+    @Override
+    public List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(UUID employeeId)
+            throws NotAuthenticatedException {
+        isAuthenticated();
+        return coreClient.getAllQualificationsWithExpirationTimeByEmployeeId(employeeId);
     }
 
     @Override
@@ -140,9 +163,21 @@ class CoreService implements CoreAPI {
     }
 
     @Override
+    public List<MachineDTO> getAllEmployeeMachinesByIds(Set<UUID> ids) throws NotAuthenticatedException {
+        isAuthenticated();
+        return coreClient.getAllEmployeeMachinesByIds(ids);
+    }
+
+    @Override
     public List<MachineTypeDTO> getAllMachineTypes() throws NotAuthenticatedException {
         isAuthenticated();
         return coreClient.getAllMachineTypes();
+    }
+
+    @Override
+    public Optional<EmployeeDTO> addEmployeeMachine(UUID employeeId, UUID machineId) throws NotAuthenticatedException {
+        isAuthenticated();
+        return Optional.ofNullable(coreClient.addEmployeeMachine(employeeId, machineId));
     }
 
     @Override
@@ -162,6 +197,18 @@ class CoreService implements CoreAPI {
     public void terminateEmployeeAccount(UUID employeeId) throws NotAuthenticatedException {
         isAuthenticated();
         coreClient.terminateEmployeeAccount(employeeId);
+    }
+
+    @Override
+    public void removeEmployeeQualification(UUID employeeId, UUID qualificationId) throws NotAuthenticatedException {
+        isAuthenticated();
+        coreClient.removeEmployeeQualification(employeeId, qualificationId);
+    }
+
+    @Override
+    public void removeEmployeeMachine(UUID employeeId, UUID machineId) throws NotAuthenticatedException {
+        isAuthenticated();
+        coreClient.removeEmployeeMachine(employeeId, machineId);
     }
 
     @Override

@@ -42,6 +42,7 @@ class MachineController {
     }
 
     @PostMapping(MACHINES_VIDS)
+    @ManagerPermission
     public ResponseEntity<List<MachineDTO>> getMachinesByIds(@RequestBody @NotNull Set<UUID> machineIds) {
         return ResponseEntity.status(HttpStatus.OK).body(machineAPI.getMachinesIn(machineIds));
     }

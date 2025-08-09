@@ -38,6 +38,13 @@ class QualificationController {
         return ResponseEntity.status(HttpStatus.OK).body(qualificationAPI.getAllQualifications(page, size));
     }
 
+    @GetMapping(QUALIFICATIONS_EID_EXPIRED)
+    public ResponseEntity<List<QualificationDTO>> getQualificationsWithExpirationTime(
+            @PathVariable(EMPLOYEE_ID) UUID employeeId) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(qualificationAPI.getAllQualificationsWithExpirationTimeByEmployeeId(employeeId));
+    }
+
     @PostMapping(QUALIFICATIONS_QIDS)
     public ResponseEntity<List<QualificationDTO>> getQualificationsByIds(
             @RequestBody @NotNull Set<UUID> qualificationIds) {

@@ -4,7 +4,6 @@ import static pl.crewops.enums.ControllerURL.*;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.employee.EmployeeQualificationDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.security.custom.permissionAnnotation.ManagerPermission;
 
 @ActiveProfiles("test")
@@ -77,6 +78,14 @@ class EmployeeController {
         return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.removePhoneNumber(employeeId));
     }
 
+    @GetMapping(EMPLOYEES_EID_QUALIFICATIONS_EXPIRED)
+    @ManagerPermission
+    public ResponseEntity<List<EmployeeQualificationDTO>> getEmployeeQualificationWithExpirationTime(
+            @PathVariable(EMPLOYEE_ID) UUID employeeId) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(employeeAPI.getAllEmployeeQualificationsWithExpirationTime(employeeId));
+    }
+
     @PatchMapping(EMPLOYEES_EID_QUALIFICATIONS_QID)
     public ResponseEntity<EmployeeDTO> addEmployeeQualification(
             @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(QUALIFICATION_ID) UUID qualificationId) {
@@ -84,6 +93,7 @@ class EmployeeController {
     }
 
     @DeleteMapping(EMPLOYEES_EID_QUALIFICATIONS_QID)
+    @ManagerPermission
     public ResponseEntity<Void> removeEmployeeQualification(
             @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(QUALIFICATION_ID) UUID qualificationId) {
         employeeAPI.removeQualification(employeeId, qualificationId);
@@ -94,9 +104,10 @@ class EmployeeController {
     public ResponseEntity<EmployeeDTO> updateEmployeeQualification(
             @PathVariable(EMPLOYEE_ID) UUID employeeId,
             @PathVariable(QUALIFICATION_ID) UUID qualificationId,
-            @NotNull @RequestBody Instant expireAt) {
+            @RequestBody UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(employeeAPI.updateQualificationExpiredAt(employeeId, qualificationId, expireAt));
+                .body(employeeAPI.updateQualificationExpiredAt(
+                        employeeId, qualificationId, updateQualificationExpiredAtDTO));
     }
 
     @PatchMapping(EMPLOYEES_EID_MACHINES_VID)

@@ -1,10 +1,10 @@
 package pl.crewops.infrastructure.core;
 
 import static pl.crewops.enums.ControllerURL.*;
-import static pl.crewops.util.CacheResolver.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +30,7 @@ import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
+import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
 
@@ -104,6 +105,21 @@ class CoreClient {
                     .toBodilessEntity();
         } catch (RestClientException e) {
             log.error("Error deleting employee", e);
+        }
+    }
+
+    public EmployeeDTO addEmployeeQualification(UUID employeeId, UUID qualificationId) {
+        try {
+            return authorizedClient
+                    .patch()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(EMPLOYEES_EID_QUALIFICATIONS_QID)
+                            .build(employeeId.toString(), qualificationId.toString()))
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Add employee qualification failed");
+            return null;
         }
     }
 
@@ -222,6 +238,66 @@ class CoreClient {
         }
     }
 
+    // manager permission
+    public EmployeeDTO updateQualificationExpireAt(UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO) {
+        try {
+            return authorizedClient
+                    .patch()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(EMPLOYEES_EID_QUALIFICATIONS_QID_EXPIRED)
+                            .build(
+                                    updateQualificationExpiredAtDTO.employeeId(),
+                                    updateQualificationExpiredAtDTO.qualificationId()))
+                    .body(updateQualificationExpiredAtDTO)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Update qualification expired at error");
+            return null;
+        }
+    }
+
+    public void removeEmployeeQualification(UUID employeeId, UUID qualificationId) {
+        try {
+            authorizedClient
+                    .delete()
+                    .uri(uriBuilder ->
+                            uriBuilder.path(EMPLOYEES_EID_QUALIFICATIONS_QID).build(employeeId, qualificationId))
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientException e) {
+            log.error("Remove employee qualification error");
+        }
+    }
+
+    // manager permission
+    public void removeEmployeeMachine(UUID employeeId, UUID machineId) {
+        try {
+            authorizedClient
+                    .delete()
+                    .uri(uriBuilder ->
+                            uriBuilder.path(EMPLOYEES_EID_MACHINES_VID).build(employeeId, machineId))
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientException e) {
+            log.error("Remove employee machine error");
+        }
+    }
+
+    public List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(UUID employeeId) {
+        try {
+            return authorizedClient
+                    .get()
+                    .uri(uriBuilder ->
+                            uriBuilder.path(QUALIFICATIONS_EID_EXPIRED).build(employeeId))
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Get all qualifications with expiration time by employee id error");
+            return List.of();
+        }
+    }
+
     // authenticated
     //        @Cacheable(cacheNames = GET_ALL_QUALIFICATIONS, key =
     // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
@@ -252,9 +328,7 @@ class CoreClient {
         try {
             authorizedClient
                     .delete()
-                    .uri(uriBuilder -> uriBuilder
-                            .path(QUALIFICATIONS_QID.replace("{" + QUALIFICATION_ID + "}", qualificationId.toString()))
-                            .build())
+                    .uri(uriBuilder -> uriBuilder.path(QUALIFICATIONS_QID).build(qualificationId))
                     .retrieve()
                     .toBodilessEntity();
         } catch (RestClientException e) {
@@ -331,6 +405,21 @@ class CoreClient {
         }
     }
 
+    // manager permission
+    public List<MachineDTO> getAllEmployeeMachinesByIds(Set<UUID> ids) {
+        try {
+            return authorizedClient
+                    .post()
+                    .uri(uriBuilder -> uriBuilder.path(MACHINES_VIDS).build())
+                    .body(ids)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Get all employee machine ids error");
+            return List.of();
+        }
+    }
+
     // authenticated
     //        @Cacheable(cacheNames = GET_ALL_MACHINE_TYPES, key =
     // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
@@ -345,6 +434,21 @@ class CoreClient {
         } catch (RestClientException e) {
             log.error("Error getting machine types");
             return List.of();
+        }
+    }
+
+    // manager permission
+    public EmployeeDTO addEmployeeMachine(UUID employeeId, UUID machineId) {
+        try {
+            return authorizedClient
+                    .patch()
+                    .uri(uriBuilder ->
+                            uriBuilder.path(EMPLOYEES_EID_MACHINES_VID).build(employeeId, machineId))
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Add employee machine error", e);
+            return null;
         }
     }
 

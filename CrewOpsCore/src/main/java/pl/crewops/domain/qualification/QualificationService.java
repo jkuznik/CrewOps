@@ -58,6 +58,12 @@ class QualificationService implements QualificationAPI {
                 .toList();
     }
 
+    @Override
+    public List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(UUID employeeId) {
+        return qualificationRepository.findAllQualificationsWithExpiredAtByEmployeeId(employeeId).stream()
+                .toList();
+    }
+
     @Transactional
     public QualificationDTO updateQualification(UpdateQualificationDTO updateQualificationDTO) {
         Qualification qualification = getQualification(updateQualificationDTO.qualificationId());

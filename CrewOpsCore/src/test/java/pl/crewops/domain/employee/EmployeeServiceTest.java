@@ -24,6 +24,7 @@ import pl.crewops.domain.qualification.QualificationAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.exception.domain.employee.ExpireAtException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Machine;
@@ -194,14 +195,19 @@ class EmployeeServiceTest {
     @Test
     void shouldReturnEmployeeDTO_whenUpdateQualificationExpiredAtIsValid() {
         // given
-        var expireAt = Instant.now().plusSeconds(3600);
+        var updateQualificationExpireAt = UpdateQualificationExpiredAtDTO.builder()
+                .employeeId(employeeId)
+                .qualificationId(qualificationId)
+                .expiredAt(Instant.now().plusSeconds(3600))
+                .build();
         var eq = new EmployeeQualification();
 
         // when
         when(employeeQualificationRepository.findByEmployeeQualificationId(any(UUID.class), any(UUID.class)))
                 .thenReturn(Optional.of(eq));
         when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithQAndV));
-        EmployeeDTO result = employeeService.updateQualificationExpiredAt(employeeId, qualificationId, expireAt);
+        EmployeeDTO result =
+                employeeService.updateQualificationExpiredAt(employeeId, qualificationId, updateQualificationExpireAt);
 
         // then
         assertThat(result).isNotNull();
@@ -210,30 +216,18 @@ class EmployeeServiceTest {
     @Test
     void shouldThrowException_whenUpdateQualificationExpiredAtIsInThePast() {
         // given
-        var expireAt = Instant.now().minusSeconds(3600);
+        var updateQualificationExpireAt = UpdateQualificationExpiredAtDTO.builder()
+                .employeeId(employeeId)
+                .qualificationId(qualificationId)
+                .expiredAt(Instant.now().minusSeconds(3600))
+                .build();
         var eq = new EmployeeQualification();
 
         // when
         when(employeeQualificationRepository.findByEmployeeQualificationId(any(UUID.class), any(UUID.class)))
                 .thenReturn(Optional.of(eq));
-        Exception result = catchException(
-                () -> employeeService.updateQualificationExpiredAt(employeeId, qualificationId, expireAt));
-
-        // then
-        assertThat(result).isExactlyInstanceOf(ExpireAtException.class);
-    }
-
-    @Test
-    void shouldThrowException_whenUpdateQualificationExpiredAtIsNull() {
-        // given
-        var expireAt = Instant.now().minusSeconds(3600);
-        var eq = new EmployeeQualification();
-
-        // when
-        when(employeeQualificationRepository.findByEmployeeQualificationId(any(UUID.class), any(UUID.class)))
-                .thenReturn(Optional.of(eq));
-        Exception result =
-                catchException(() -> employeeService.updateQualificationExpiredAt(employeeId, qualificationId, null));
+        Exception result = catchException(() ->
+                employeeService.updateQualificationExpiredAt(employeeId, qualificationId, updateQualificationExpireAt));
 
         // then
         assertThat(result).isExactlyInstanceOf(ExpireAtException.class);

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
@@ -25,6 +26,7 @@ import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
+import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
@@ -42,10 +44,20 @@ public interface CoreAPI {
 
     Optional<EmployeeDTO> updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) throws NotAuthenticatedException;
 
+    Optional<EmployeeDTO> addEmployeeQualification(@NotNull UUID employeeId, @NotNull UUID qualificationId)
+            throws NotAuthenticatedException;
+
     Optional<QualificationDTO> createQualification(@Valid @NotNull CreateQualificationDTO createQualificationDTO)
             throws NotAuthenticatedException;
 
     Optional<QualificationDTO> updateQualification(@Valid @NotNull UpdateQualificationDTO updateQualificationDTO)
+            throws NotAuthenticatedException;
+
+    Optional<EmployeeDTO> updateQualificationExpireAt(
+            @Valid @NotNull UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO)
+            throws NotAuthenticatedException;
+
+    List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(@NotNull UUID employeeId)
             throws NotAuthenticatedException;
 
     Optional<MachineDTO> createMachine(@Valid @NotNull CreateMachineDTO createMachineDTO)
@@ -71,13 +83,23 @@ public interface CoreAPI {
 
     List<MachineDTO> getAllMachines() throws NotAuthenticatedException;
 
+    List<MachineDTO> getAllEmployeeMachinesByIds(@NotNull Set<UUID> ids) throws NotAuthenticatedException;
+
     List<MachineTypeDTO> getAllMachineTypes() throws NotAuthenticatedException;
+
+    Optional<EmployeeDTO> addEmployeeMachine(@NotNull UUID employeeId, @NotNull UUID machineId)
+            throws NotAuthenticatedException;
 
     List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException;
 
     Optional<CompanyDTO> getCompanyById(@NotNull UUID companyId) throws NotAuthenticatedException;
 
     void terminateEmployeeAccount(@NotNull UUID employeeId) throws NotAuthenticatedException;
+
+    void removeEmployeeQualification(@NotNull UUID employeeId, @NotNull UUID qualificationId)
+            throws NotAuthenticatedException;
+
+    void removeEmployeeMachine(@NotNull UUID employeId, @NotNull UUID machineId) throws NotAuthenticatedException;
 
     void deleteQualification(@NotNull UUID qualificationId) throws NotAuthenticatedException;
 

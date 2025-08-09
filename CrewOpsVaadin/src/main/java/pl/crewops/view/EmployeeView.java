@@ -7,11 +7,11 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import pl.crewops.component.grid.EmployeeGrid;
+import pl.crewops.component.grid.QualificationGrid;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.RoleResolver;
-import pl.crewops.view.component.grid.EmployeeGrid;
-import pl.crewops.view.component.grid.QualificationGrid;
 import pl.crewops.view.layout.MainLayout;
 
 @Route(value = "employees")
@@ -32,7 +32,9 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         addClassName("employee-view");
 
         mainContent.removeAll();
-        mainContent.add(getToolbar(), employeeGrid, qualificationGrid, mainFooter);
+        // TODO: temporary remove footer from this view, there is te way to add it again
+        //        mainContent.add(getToolbar(), employeeGrid, qualificationGrid, mainFooter);
+        mainContent.add(getToolbar(), employeeGrid, qualificationGrid);
         mainContent.setFlexGrow(1, employeeGrid);
         mainContent.setFlexGrow(1, qualificationGrid);
     }

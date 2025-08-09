@@ -2,13 +2,14 @@ package pl.crewops.domain.employee;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.employee.EmployeeQualificationDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.exception.domain.employee.EmployeeNotFoundException;
 import pl.crewops.model.Employee;
 
@@ -36,8 +37,12 @@ public interface EmployeeAPI {
     EmployeeDTO addQualification(@NotNull UUID employeeId, @NotNull UUID qualificationId)
             throws EmployeeNotFoundException;
 
+    List<EmployeeQualificationDTO> getAllEmployeeQualificationsWithExpirationTime(@NotNull UUID employeeId);
+
     EmployeeDTO updateQualificationExpiredAt(
-            @NotNull UUID employeeId, @NotNull UUID qualificationId, @NotNull Instant expireAt)
+            @NotNull UUID employeeId,
+            @NotNull UUID qualificationId,
+            UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO)
             throws EmployeeNotFoundException;
 
     void removeQualification(@NotNull UUID employeeId, @NotNull UUID qualificationId) throws EmployeeNotFoundException;
