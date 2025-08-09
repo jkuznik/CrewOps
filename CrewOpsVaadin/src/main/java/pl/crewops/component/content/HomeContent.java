@@ -27,6 +27,7 @@ public class HomeContent extends VerticalLayout {
                 .set("box-sizing", "border-box")
                 .set("max-width", "100vw");
 
+        // this component is removed from content, add this again to display image
         Div imageContainer = new Div();
         imageContainer.setWidth("50%");
         imageContainer
@@ -68,7 +69,9 @@ public class HomeContent extends VerticalLayout {
         Paragraph credentials = new Paragraph();
         credentials.getElement().setProperty("innerHTML", getTranslation("homeContent.credentials"));
 
-        textLayout.add(title, intro, features, loginInfo, credentials);
+        // login info temporary removed from information, this is the way to add this again
+        //        textLayout.add(title, intro, features, loginInfo, credentials);
+        textLayout.add(title, intro, features);
 
         mainLayout.add(textLayout);
         add(mainLayout);
