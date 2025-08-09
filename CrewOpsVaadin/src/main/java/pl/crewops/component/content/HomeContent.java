@@ -20,22 +20,23 @@ public class HomeContent extends VerticalLayout {
         mainLayout.setWidthFull();
         mainLayout
                 .getStyle()
-                .set("gap", "40px")
+                .set("gap", "20px")
                 .set("align-items", "start")
                 .set("padding", "20px")
                 .set("overflow-x", "hidden")
                 .set("box-sizing", "border-box")
+                .set("flex-wrap", "wrap")
                 .set("max-width", "100vw");
 
-        // this component is removed from content, add this again to display image
         Div imageContainer = new Div();
-        imageContainer.setWidth("50%");
+        imageContainer.setWidth("100%");
         imageContainer
                 .getStyle()
                 .set("display", "flex")
                 .set("justify-content", "center")
                 .set("align-items", "center")
-                .set("overflow", "hidden");
+                .set("overflow", "hidden")
+                .set("flex", "1 1 300px");
 
         Image headerImage = new Image("images/home-view-pic.png", "home view");
         headerImage
@@ -47,14 +48,16 @@ public class HomeContent extends VerticalLayout {
 
         imageContainer.add(headerImage);
 
+        // Text content
         VerticalLayout textLayout = new VerticalLayout();
         textLayout.setPadding(false);
         textLayout.setSpacing(true);
-        textLayout.getStyle().set("flex-grow", "1").set("max-width", "600px").set("min-width", "600px");
+        textLayout.getStyle().set("flex", "1 1 300px").set("max-width", "100%").set("overflow-wrap", "break-word");
 
         H2 title = new H2(getTranslation("homeContent.title"));
 
         Paragraph intro = new Paragraph(getTranslation("homeContent.intro"));
+        intro.getStyle().set("overflow-wrap", "break-word");
 
         UnorderedList features = new UnorderedList(
                 new ListItem(getTranslation("homeContent.feature1")),
@@ -69,11 +72,10 @@ public class HomeContent extends VerticalLayout {
         Paragraph credentials = new Paragraph();
         credentials.getElement().setProperty("innerHTML", getTranslation("homeContent.credentials"));
 
-        // login info temporary removed from information, this is the way to add this again
-        //        textLayout.add(title, intro, features, loginInfo, credentials);
         textLayout.add(title, intro, features);
 
         mainLayout.add(textLayout);
+
         add(mainLayout);
     }
 }
