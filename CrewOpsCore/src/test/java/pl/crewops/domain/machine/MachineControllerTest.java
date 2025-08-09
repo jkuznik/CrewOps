@@ -157,7 +157,7 @@ class MachineControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "MANAGER")
     @DisplayName("POST /machines/ids should return 200 and list")
     void getMachinesByIds_ShouldReturn200() throws Exception {
         Set<UUID> ids = Set.of(UUID.randomUUID());

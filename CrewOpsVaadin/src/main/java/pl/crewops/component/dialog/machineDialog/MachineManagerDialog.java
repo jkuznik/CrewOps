@@ -55,6 +55,9 @@ public class MachineManagerDialog extends Dialog {
     private MachineMangerGrid getConfiguredMachineManagerGrid(
             EmployeeFormModel employeeFormModel, AddMachineForm addMachineForm) {
         var machineManagerGrid = new MachineMangerGrid(employeeFormModel, addMachineForm);
+        machineManagerGrid.addUpdateMachineEvent(event -> {
+            fireEvent(new UpdateMachineEvent(this, event.getEmployeeDTO()));
+        });
 
         return machineManagerGrid;
     }

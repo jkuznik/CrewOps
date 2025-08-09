@@ -101,8 +101,8 @@ public class MachineMangerGrid extends VerticalLayout {
             unassignButton.addClickListener(event -> {
                 try {
                     coreAPI.removeEmployeeMachine(employeeFormModel.getId(), machine.getId());
+                    updateGrid(processedEmployeeDTO(employeeFormModel, machine), coreAPI);
                     fireEvent(new UpdateMachineEvent(this, processedEmployeeDTO(employeeFormModel, machine)));
-
                 } catch (NotAuthenticatedException e) {
                     new FailNotification(e.getMessage());
                     UI.getCurrent().getPage().setLocation("/");
@@ -110,14 +110,12 @@ public class MachineMangerGrid extends VerticalLayout {
             });
 
             unassignedDiv.add(unassignButton);
-
             return unassignedDiv;
         }));
 
         // TODO: consider to add column with button to allow open list of others employee assignment to current machine
     }
 
-    // TODO: get all machine by employeeid
     private void populateGrid(EmployeeFormModel employeeFormModel, CoreAPI coreAPI) {
         try {
             var machines = coreAPI
@@ -155,7 +153,7 @@ public class MachineMangerGrid extends VerticalLayout {
         var employeeMachines = employeeFormModel.getMachinesSet();
         var machineToRemove = machineFormModel.getId();
         Set<MachineDTO> processedMachines = employeeMachines.stream()
-                .filter(machineDTO -> machineDTO.id() != machineToRemove)
+                .filter(machineDTO -> !machineDTO.id().equals(machineToRemove))
                 .collect(Collectors.toSet());
 
         // this complete object builder is required to satisfy binder in EmployeeForm

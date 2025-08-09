@@ -153,7 +153,7 @@ public class EditQualificationForm extends FormLayout {
         var employeeQualifications = employeeFormModel.getQualificationsSet();
         var qulificationToRemove = qualificationFormModel.getId();
         Set<QualificationDTO> processedQualifications = employeeQualifications.stream()
-                .filter(qualificationDTO -> qualificationDTO.id() != qulificationToRemove)
+                .filter(qualificationDTO -> !qualificationDTO.id().equals(qulificationToRemove))
                 .collect(Collectors.toSet());
 
         // this complete object builder is required to satisfy binder in EmployeeForm
