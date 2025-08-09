@@ -2,6 +2,7 @@ HELP.md
 .env
 .env-compose
 .gradle
+.github/workflows/run-instruction
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
