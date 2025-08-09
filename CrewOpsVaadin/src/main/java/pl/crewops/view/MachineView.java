@@ -35,7 +35,10 @@ public class MachineView extends MainLayout implements BeforeEnterObserver {
         addClassName("machine-view");
 
         mainContent.removeAll();
-        mainContent.add(getToolbar(), machineGrid, breakdownGrid, mainFooter);
+
+        // TODO: temporary remove footer from this view, there is te way to add it again
+        //        mainContent.add(getToolbar(), machineGrid, breakdownGrid, mainFooter);
+        mainContent.add(getToolbar(), machineGrid, breakdownGrid);
         mainContent.setFlexGrow(1, machineGrid);
     }
 

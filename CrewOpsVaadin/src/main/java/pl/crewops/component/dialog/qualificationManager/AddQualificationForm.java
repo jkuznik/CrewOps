@@ -57,6 +57,8 @@ public class AddQualificationForm extends FormLayout {
     private void configureAddButtonClickListener(EmployeeFormModel employeeFormModel, CoreAPI coreAPI) {
         add.setEnabled(false);
         add.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        add.setMaxWidth("200px");
+        add.setWidth("100%");
 
         add.addClickListener(event -> {
             try {

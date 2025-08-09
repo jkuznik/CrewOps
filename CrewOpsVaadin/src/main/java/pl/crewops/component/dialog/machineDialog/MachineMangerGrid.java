@@ -50,7 +50,7 @@ public class MachineMangerGrid extends VerticalLayout {
         H1 employeeNameHolder = new H1();
         // TODO i18n for sure to update 'kwalifikacjei uprawnienia' change to machines info
         employeeNameHolder.setText(employeeFormModel.getFirstName() + " " + employeeFormModel.getLastName() + " - "
-                + getTranslation("qualificationManagerGrid.employeeNameHolder"));
+                + getTranslation("machineManagerGrid.employeeNameHolder"));
 
         add(employeeNameHolder, grid);
     }
@@ -74,7 +74,7 @@ public class MachineMangerGrid extends VerticalLayout {
                     return registerNumberDiv;
                 }))
                 // TODO i18n
-                .setHeader("RegisterNumber")
+                .setHeader(getTranslation("machineManagerGrid.registerNumber"))
                 .setKey("registerNumber")
                 .setFlexGrow(1)
                 .setAutoWidth(false)

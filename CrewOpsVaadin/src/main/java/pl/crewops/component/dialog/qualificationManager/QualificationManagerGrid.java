@@ -69,15 +69,14 @@ public class QualificationManagerGrid extends VerticalLayout {
                             .set("font-size", "0.9rem");
                     return descriptionDiv;
                 }))
-                // TODO: i18n
-                .setHeader("Description")
+                .setHeader(getTranslation("qualificationManagerGrid.description"))
                 .setKey("description")
                 .setFlexGrow(3)
                 .setAutoWidth(false)
                 .setResizable(true);
 
         grid.addColumn(QualificationFormModel::getExpiredAt)
-                .setHeader("Expires")
+                .setHeader(getTranslation("qualificationManagerGrid.expires"))
                 .setKey("expiredAt")
                 .setAutoWidth(true)
                 .setFlexGrow(1)
