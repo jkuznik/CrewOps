@@ -29,12 +29,6 @@
     z-index: 0;
 }
 
-
-.main-drawer > * {
-    position: relative;
-    z-index: 1;
-}
-
 .main-drawer vaadin-router-link,
 .main-drawer a {
     color: #B0B0B0;
