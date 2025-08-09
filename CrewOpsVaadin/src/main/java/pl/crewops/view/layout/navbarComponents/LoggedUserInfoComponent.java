@@ -16,6 +16,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.log4j.Log4j2;
 import pl.crewops.component.form.LoginForm;
+import pl.crewops.component.notification.FailNotification;
 import pl.crewops.component.notification.auth.EndSessionNotification;
 import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
@@ -79,14 +80,20 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                     employeeDTO.firstName(),
                     employeeDTO.lastName(),
                     jwtService.extractExpiresAt(token).toInstant().getEpochSecond());
-
-        } catch (NoSuchElementException e) {
-            log.error("JWT token not authenticated during retrieve user info" + e.getMessage());
+        } catch (RuntimeException e) {
+            new FailNotification(e.getMessage());
             return new UserInformation(
                     null,
                     "system",
                     "issue",
                     jwtService.extractExpiresAt(token).toInstant().getEpochSecond());
+            //        } catch (NoSuchElementException e) {
+            //            log.error("JWT token not authenticated during retrieve user info" + e.getMessage());
+            //            return new UserInformation(
+            //                    null,
+            //                    "system",
+            //                    "issue",
+            //                    jwtService.extractExpiresAt(token).toInstant().getEpochSecond());
         } catch (NotAuthenticatedException e) {
             log.error("JWT token not authenticated during retrieve user info" + e.getMessage());
             UI.getCurrent().navigate(EmployeeView.class);
