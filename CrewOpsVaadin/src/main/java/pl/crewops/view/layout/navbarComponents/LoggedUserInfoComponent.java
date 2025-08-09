@@ -87,13 +87,6 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                     "system",
                     "issue",
                     jwtService.extractExpiresAt(token).toInstant().getEpochSecond());
-            //        } catch (NoSuchElementException e) {
-            //            log.error("JWT token not authenticated during retrieve user info" + e.getMessage());
-            //            return new UserInformation(
-            //                    null,
-            //                    "system",
-            //                    "issue",
-            //                    jwtService.extractExpiresAt(token).toInstant().getEpochSecond());
         } catch (NotAuthenticatedException e) {
             log.error("JWT token not authenticated during retrieve user info" + e.getMessage());
             UI.getCurrent().navigate(EmployeeView.class);
