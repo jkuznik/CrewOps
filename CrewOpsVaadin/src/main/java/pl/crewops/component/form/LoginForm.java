@@ -10,6 +10,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.server.VaadinService;
@@ -32,6 +33,7 @@ import pl.crewops.dto.auth.AuthRequest;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceVaadin;
+import pl.crewops.view.layout.navbarComponents.LanguageSelectorComponent;
 
 @SpringComponent
 @CssImport("./styles/component/login-form.css")
@@ -60,12 +62,16 @@ public class LoginForm extends FormLayout {
     }
 
     private Component createLoginForm(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
-        var layout = new HorizontalLayout();
+        var layout = new VerticalLayout();
         layout.setSpacing(true);
         layout.addClassName("login-form-layout");
 
+        var buttonAndLanguageSelector = new HorizontalLayout();
+        buttonAndLanguageSelector.setSpacing(true);
+        buttonAndLanguageSelector.add(login, new LanguageSelectorComponent());
+
         configureLoginButton(coreAPI, jwtService);
-        layout.add(username, password, login);
+        layout.add(username, password, buttonAndLanguageSelector);
         layout.setAlignSelf(FlexComponent.Alignment.END, login);
         return layout;
     }

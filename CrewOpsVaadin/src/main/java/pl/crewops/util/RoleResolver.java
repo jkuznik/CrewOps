@@ -91,6 +91,7 @@ public class RoleResolver {
     }
 
     public void unauthenticatePrincipal() {
+        SecurityContextHolder.getContext().setAuthentication(null);
         SecurityContextHolder.clearContext();
     }
 
