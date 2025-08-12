@@ -18,6 +18,10 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.shared.Registration;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import lombok.Getter;
 import pl.crewops.component.accordion.MachineAccordion;
 import pl.crewops.component.accordion.QualificationAccordion;
 import pl.crewops.model.EmployeeFormModel;
@@ -41,6 +45,9 @@ public class EmployeeForm extends FormLayout {
     private final Button close = new Button("Cancel");
 
     private final Binder<EmployeeFormModel> binder = new BeanValidationBinder<>(EmployeeFormModel.class);
+
+    @Getter
+    private List<RoleType> rolesToDisplay;
 
     public EmployeeForm(RoleResolver roleResolver) {
         addClassName("employee-form");
@@ -90,14 +97,17 @@ public class EmployeeForm extends FormLayout {
 
     private void configureRolesCheckbox(RoleResolver roleResolver) {
         if (roleResolver.principalHasCompanyAdminRole()) {
-            roles.setItems(Arrays.stream(values())
-                    .filter(role -> role != SYSTEM_ADMIN && role != EMPLOYEE)
-                    .toList());
+            rolesToDisplay = Arrays.stream(values())
+                    .filter(role -> role != EMPLOYEE && role != SYSTEM_ADMIN)
+                    .toList();
         } else {
-            roles.setItems(Arrays.stream(values())
-                    .filter(role -> role != EMPLOYEE && role != COMPANY_ADMIN && role != SYSTEM_ADMIN)
-                    .toList());
+            rolesToDisplay = Arrays.stream(values())
+                    .filter(role ->
+                            role != EMPLOYEE && role != MANAGER && role != COMPANY_ADMIN && role != SYSTEM_ADMIN)
+                    .toList();
         }
+
+        roles.setItems(rolesToDisplay);
         roles.setRenderer(
                 new TextRenderer<>(role -> role.name().replace("_", " ").toLowerCase()));
     }
@@ -134,6 +144,15 @@ public class EmployeeForm extends FormLayout {
         return new HorizontalLayout(save, update, delete, close);
     }
 
+    private void setRolesValues() {
+        if (binder.getBean() != null) {
+            Set<RoleType> selectedRoles = binder.getBean().getRoles().stream()
+                    .filter(rolesToDisplay::contains)
+                    .collect(Collectors.toSet());
+            roles.setValue(selectedRoles);
+        }
+    }
+
     public void setFormModeSave() {
         save.setVisible(true);
         update.setVisible(false);
@@ -147,6 +166,8 @@ public class EmployeeForm extends FormLayout {
         lastName.setEnabled(true);
         birthDate.setReadOnly(false);
         birthDate.setEnabled(true);
+
+        setRolesValues();
     }
 
     public void setFormModeUpdate() {
@@ -162,6 +183,8 @@ public class EmployeeForm extends FormLayout {
         lastName.setEnabled(false);
         birthDate.setReadOnly(true);
         birthDate.setEnabled(false);
+
+        setRolesValues();
     }
 
     private void validateAndSave() {

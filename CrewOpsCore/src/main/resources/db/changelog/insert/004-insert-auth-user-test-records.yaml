@@ -108,7 +108,7 @@ databaseChangeLog:
             tableName: auth_user_role
             columns:
               - column: { name: auth_user_id, value: "ffffffff-ffff-ffff-ffff-ffffffffffff" } # test/admin
-              - column: { name: role_id, value: "5f3a5ee4-1e2c-4f6a-861b-4cb860ff2a13" }  # MANAGER
+              - column: { name: role_id, value: "d3c27d55-7421-41f3-8bc2-7f8c2c712a85" }  # COMPANY_ADMIN
 
         - insert:
             tableName: auth_user_role
