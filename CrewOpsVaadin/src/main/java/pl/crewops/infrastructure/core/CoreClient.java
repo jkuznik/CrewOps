@@ -3,7 +3,6 @@ package pl.crewops.infrastructure.core;
 import static pl.crewops.enums.ControllerURL.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -12,10 +11,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-import pl.crewops.dto.auth.AuthRequest;
-import pl.crewops.dto.auth.AuthResponse;
-import pl.crewops.dto.auth.ValidTokenRequest;
-import pl.crewops.dto.auth.ValidTokenResponse;
+import pl.crewops.dto.auth.*;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
@@ -76,19 +72,34 @@ class CoreClient {
         }
     }
 
-    // permit all or authenticated on fe side?
-    public Optional<ValidTokenResponse> validateToken(ValidTokenRequest validTokenRequest) {
+    // manager permission
+
+    public AuthUserDTO updateAuthUserRoles(UpdateAuthUserDTO updateAuthUserDTO) {
         try {
-            ValidTokenResponse body = coreClient
+            return authorizedClient
+                    .patch()
+                    .uri(uriBuilder -> uriBuilder.path(UPDATE_ROLES).build())
+                    .body(updateAuthUserDTO)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Update auth user failed");
+            return null;
+        }
+    }
+
+    // permit all or authenticated on fe side?
+    public ValidTokenResponse validateToken(ValidTokenRequest validTokenRequest) {
+        try {
+            return coreClient
                     .post()
                     .uri(uriBuilder -> uriBuilder.path(VALIDATE).build())
                     .body(validTokenRequest)
                     .retrieve()
-                    .body(new ParameterizedTypeReference<ValidTokenResponse>() {});
-            return Optional.ofNullable(body);
+                    .body(new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
             log.error("Validation failed");
-            return Optional.empty();
+            return null;
         }
     }
 

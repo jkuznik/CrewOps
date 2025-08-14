@@ -22,7 +22,7 @@ public class MachineAccordion extends FormLayout {
         addClassName("qualification-accordion");
     }
 
-    public void getValues(EmployeeFormModel employeeFormModel) {
+    public void setValues(EmployeeFormModel employeeFormModel) {
         removeAll();
         Accordion accordion = new Accordion();
         // same i18n key like qualification accordion, update if needed

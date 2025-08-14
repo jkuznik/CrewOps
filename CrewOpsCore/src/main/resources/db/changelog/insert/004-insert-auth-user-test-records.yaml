@@ -7,6 +7,7 @@ databaseChangeLog:
             tableName: auth_user
             columns:
               - column: { name: id, value: "cccccccc-cccc-cccc-cccc-cccccccccccc" }
+              - column: { name: version, value: 0}
               - column: { name: username, value: "manager" }
               - column: { name: password, value: "$2a$10$njg7g8ZWIxIpGEap4x7XQ.RGShM6ti/kLZ6402ZvnmqyeTtFlcseK" }  # bcrypt hash
               - column: { name: tenant_id, value: "2f3b1d5c-9e8f-4bca-9c56-123456789abc" }
@@ -18,6 +19,7 @@ databaseChangeLog:
             tableName: auth_user
             columns:
               - column: { name: id, value: "dddddddd-dddd-dddd-dddd-dddddddddddd" }
+              - column: { name: version, value: 0}
               - column: { name: username, value: "user" }
               - column: { name: password, value: "$2a$10$DmojJF9kuAagam17R46BTet9kujoGPS9RORXsFxNrtEnVB2qkDdcK" }  # bcrypt hash
               - column: { name: tenant_id, value: "2f3b1d5c-9e8f-4bca-9c56-123456789abc" }
@@ -29,6 +31,7 @@ databaseChangeLog:
             tableName: auth_user
             columns:
               - column: { name: id, value: "ffffffff-ffff-ffff-ffff-ffffffffffff" }
+              - column: { name: version, value: 0}
               - column: { name: username, value: "test" }
               - column: { name: password, value: "$2a$10$njg7g8ZWIxIpGEap4x7XQ.RGShM6ti/kLZ6402ZvnmqyeTtFlcseK" }  # bcrypt hash 'admin'
               - column: { name: tenant_id, value: "2f3b1d5c-9e8f-4bca-9c56-123456789abc" }
@@ -40,6 +43,7 @@ databaseChangeLog:
             tableName: auth_user
             columns:
               - column: { name: id, value: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee" }
+              - column: { name: version, value: 0}
               - column: { name: username, value: "lid" }
               - column: { name: password, value: "$2a$10$vSpEyb9I7ZHpQnze1ViufeZr3666vOnEtEGWSsobXO2LvhXhJehzu" }
               - column: { name: tenant_id, value: "2f3b1d5c-9e8f-4bca-9c56-123456789abc" }
@@ -51,6 +55,7 @@ databaseChangeLog:
             tableName: auth_user
             columns:
               - column: { name: id, value: "99999999-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
+              - column: { name: version, value: 0}
               - column: { name: username, value: "man" }
               - column: { name: password, value: "$2a$10$qXw4jdCfu76ER4RVC19ba.MTzKCTMBlB19EEwCHUUH1n/ey.dN/RO" }
               - column: { name: tenant_id, value: "2f3b1d5c-9e8f-4bca-9c56-123456789abc" }
@@ -62,6 +67,7 @@ databaseChangeLog:
             tableName: auth_user
             columns:
               - column: { name: id, value: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" }
+              - column: { name: version, value: 0}
               - column: { name: username, value: "emp" }
               - column: { name: password, value: "$2a$10$WN9qoSLICDobK0XPzJgkkujN4v/Z9n9mc37DekK9b6EIrfEnQg3.e" }
               - column: { name: tenant_id, value: "2f3b1d5c-9e8f-4bca-9c56-123456789abc" }
@@ -73,6 +79,7 @@ databaseChangeLog:
             tableName: auth_user
             columns:
               - column: { name: id, value: "bbbbbbbb-cccc-dddd-eeee-ffffffffffff" }
+              - column: { name: version, value: 0}
               - column: { name: username, value: "emp2" }
               - column: { name: password, value: "$2a$10$WN9qoSLICDobK0XPzJgkkujN4v/Z9n9mc37DekK9b6EIrfEnQg3.e" }
               - column: { name: tenant_id, value: "2f3b1d5c-9e8f-4bca-9c56-123456789abc" }

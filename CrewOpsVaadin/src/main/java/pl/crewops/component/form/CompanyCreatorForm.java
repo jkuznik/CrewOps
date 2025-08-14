@@ -4,7 +4,6 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import java.util.function.Consumer;
 import pl.crewops.component.dialog.CompanyCreatorDialog;
-import pl.crewops.util.RoleResolver;
 
 public class CompanyCreatorForm extends FormLayout {
     // company
@@ -20,11 +19,11 @@ public class CompanyCreatorForm extends FormLayout {
     private Consumer<CompanyCreatorDialog.CompanyInformation> saveButtonListener;
     private Consumer<Void> closeButtonListener;
 
-    public CompanyCreatorForm(RoleResolver roleResolver) {
+    public CompanyCreatorForm() {
         addClassName("company-creator-form");
 
         // employee
-        EmployeeForm employeeForm = new EmployeeForm(roleResolver);
+        var employeeForm = new EmployeeForm();
         localize();
 
         employeeForm.setFormModeSave();

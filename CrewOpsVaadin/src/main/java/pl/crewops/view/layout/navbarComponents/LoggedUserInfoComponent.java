@@ -48,7 +48,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         infoLayout.setAlignItems(FlexComponent.Alignment.END);
 
         if (roleResolver.principalHasSystemAdminRole()) {
-            infoLayout.add(new CustomerRegistryButton(coreAPI, roleResolver));
+            infoLayout.add(new CustomerRegistryButton(coreAPI));
         }
 
         Button logoutButton = new Button(getTranslation("loggedUserInfo.logout"));

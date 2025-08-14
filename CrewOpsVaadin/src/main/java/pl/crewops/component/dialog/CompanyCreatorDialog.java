@@ -14,14 +14,13 @@ import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.registration.CreateCustomerCommand;
-import pl.crewops.util.RoleResolver;
 
 public class CompanyCreatorDialog extends Dialog {
 
-    public CompanyCreatorDialog(CoreAPI coreAPI, RoleResolver roleResolver) {
+    public CompanyCreatorDialog(CoreAPI coreAPI) {
         addClassName("company-creator-notification");
 
-        var companyCreatorForm = new CompanyCreatorForm(roleResolver);
+        var companyCreatorForm = new CompanyCreatorForm();
         companyCreatorForm.addSaveButtonListener(companyInformation -> createNewTenant(coreAPI, companyInformation));
         companyCreatorForm.addCloseButtonListener(event -> close());
 

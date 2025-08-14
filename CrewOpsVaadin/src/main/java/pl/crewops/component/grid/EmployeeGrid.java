@@ -38,7 +38,7 @@ public class EmployeeGrid extends VerticalLayout {
     public EmployeeGrid(CoreAPI coreAPI, RoleResolver roleResolver) {
         this.coreAPI = coreAPI;
         this.roleResolver = roleResolver;
-        form = new EmployeeForm(roleResolver);
+        form = new EmployeeForm();
 
         configureGrid();
         configureForm();

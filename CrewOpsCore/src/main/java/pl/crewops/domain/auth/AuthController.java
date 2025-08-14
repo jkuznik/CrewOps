@@ -25,6 +25,11 @@ class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(authAPI.login(authRequest, response));
     }
 
+    @PatchMapping(UPDATE_ROLES)
+    public ResponseEntity<AuthUserDTO> updateRoles(@Valid @RequestBody UpdateAuthUserDTO updateAuthUserDTO) {
+        return ResponseEntity.status(HttpStatus.OK).body(authAPI.updateAuthUser(updateAuthUserDTO));
+    }
+
     @PostMapping(VALIDATE)
     public ResponseEntity<ValidTokenResponse> validate(@Valid @RequestBody ValidTokenRequest validTokenRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(authAPI.validateToken(validTokenRequest));

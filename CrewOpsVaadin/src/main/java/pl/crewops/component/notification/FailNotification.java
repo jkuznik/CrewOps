@@ -13,7 +13,6 @@ public class FailNotification extends Notification {
         setDuration(5000);
 
         var div = new Div();
-        div.addClassName("add-breakdown-notification-div");
         div.setText(exceptionMessage);
 
         add(div);

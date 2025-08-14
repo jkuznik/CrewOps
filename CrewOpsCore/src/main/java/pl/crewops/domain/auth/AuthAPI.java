@@ -23,6 +23,8 @@ public interface AuthAPI {
 
     AuthResponse login(@NotNull @Valid AuthRequest authRequest, HttpServletResponse response);
 
+    AuthUserDTO updateAuthUser(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO);
+
     ValidTokenResponse validateToken(@NotNull @Valid ValidTokenRequest validTokenRequest);
 
     CreateAuthUserResult createAuthUserWithRelatedEmployee(@NotNull @Valid CreateEmployeeDTO createEmployeeDTO);

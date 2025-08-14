@@ -76,6 +76,9 @@ public class EmployeeFormModel {
                 .employeeId(employeeFormModel.getId())
                 .phoneNumber(employeeFormModel.getPhoneNumber())
                 .department(employeeFormModel.getDepartment())
+                .roles(employeeFormModel.getRoles().stream()
+                        .map(roleType -> RoleDTO.builder().name(roleType.name()).build())
+                        .collect(Collectors.toSet()))
                 .build();
     }
 }

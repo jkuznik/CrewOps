@@ -9,10 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import pl.crewops.dto.auth.AuthRequest;
-import pl.crewops.dto.auth.AuthResponse;
-import pl.crewops.dto.auth.ValidTokenRequest;
-import pl.crewops.dto.auth.ValidTokenResponse;
+import pl.crewops.dto.auth.*;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
@@ -44,15 +41,20 @@ class CoreService implements CoreAPI {
     private boolean authenticated;
 
     @Override
-    public AuthResponse login(AuthRequest request) {
+    public Optional<AuthResponse> login(AuthRequest request) {
         log.info("Login via service proxy");
-        return coreClient.login(request);
+        return Optional.ofNullable(coreClient.login(request));
+    }
+
+    @Override
+    public Optional<AuthUserDTO> updateAuthUserRoles(UpdateAuthUserDTO updateAuthUserDTO) {
+        return Optional.ofNullable(coreClient.updateAuthUserRoles(updateAuthUserDTO));
     }
 
     @Override
     public Optional<ValidTokenResponse> validateToken(ValidTokenRequest validTokenRequest) {
         log.debug("Validate token");
-        return coreClient.validateToken(validTokenRequest);
+        return Optional.ofNullable(coreClient.validateToken(validTokenRequest));
     }
 
     @Override
