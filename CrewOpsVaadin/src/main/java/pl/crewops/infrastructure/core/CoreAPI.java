@@ -8,10 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
-import pl.crewops.dto.auth.AuthRequest;
-import pl.crewops.dto.auth.AuthResponse;
-import pl.crewops.dto.auth.ValidTokenRequest;
-import pl.crewops.dto.auth.ValidTokenResponse;
+import pl.crewops.dto.auth.*;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
@@ -35,7 +32,9 @@ import pl.crewops.registration.CreateCustomerResult;
 @Validated
 public interface CoreAPI {
 
-    AuthResponse login(@Valid @NotNull AuthRequest request);
+    Optional<AuthResponse> login(@Valid @NotNull AuthRequest request);
+
+    Optional<AuthUserDTO> updateAuthUserRoles(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO);
 
     Optional<ValidTokenResponse> validateToken(@Valid @NotNull ValidTokenRequest validTokenRequest);
 

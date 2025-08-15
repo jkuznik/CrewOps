@@ -42,12 +42,11 @@ class EmployeeService implements EmployeeAPI {
 
     @Transactional
     public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
-        log.info("Im in");
         log.info(TenantContext.getCurrentTenant());
         try {
             Employee employee = employeeRepository.save(mapToEntity(createEmployeeDTO));
             log.info("Create employee {}", createEmployeeDTO);
-            return mapToDTO(employee);
+            return mapToDTO(employee, true);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);

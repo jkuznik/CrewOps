@@ -1,15 +1,18 @@
 package pl.crewops.component.grid;
 
+import static pl.crewops.model.auth.RoleType.*;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import pl.crewops.component.form.EmployeeForm;
@@ -20,17 +23,21 @@ import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
+import pl.crewops.model.auth.RoleType;
 import pl.crewops.util.RoleResolver;
 import pl.crewops.view.HomeView;
 
 @Getter
 @Setter
+@CssImport("./styles/component/combo-box.css")
 public class EmployeeGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
     private final RoleResolver roleResolver;
 
     private final Grid<EmployeeFormModel> grid = new Grid<>();
-    private final TextField filter = new TextField();
+    private final TextField nameFilter = new TextField();
+    private final TextField departmentFilter = new TextField();
+    private ComboBox<RoleType> roleFilter = new ComboBox<>();
     private final EmployeeForm form;
     private final Button addEmployee = new Button();
     private QualificationGrid qualificationGrid;
@@ -38,7 +45,7 @@ public class EmployeeGrid extends VerticalLayout {
     public EmployeeGrid(CoreAPI coreAPI, RoleResolver roleResolver) {
         this.coreAPI = coreAPI;
         this.roleResolver = roleResolver;
-        form = new EmployeeForm(roleResolver);
+        form = new EmployeeForm();
 
         configureGrid();
         configureForm();
@@ -53,13 +60,15 @@ public class EmployeeGrid extends VerticalLayout {
     }
 
     private void localize() {
-        filter.setPlaceholder(getTranslation("employeeGrid.filter.placeholder"));
+        nameFilter.setPlaceholder(getTranslation("employeeGrid.nameFilter.placeholder"));
+        departmentFilter.setPlaceholder(getTranslation("employeeGrid.departmentFilter.placeholder"));
+        roleFilter.setPlaceholder(getTranslation("employeeGrid.roleFilter.placeholder"));
 
         addEmployee.setText(getTranslation("employeeGrid.button.addEmployee"));
 
         grid.getColumnByKey("firstName").setHeader(getTranslation("employeeGrid.column.firstName"));
         grid.getColumnByKey("lastName").setHeader(getTranslation("employeeGrid.column.lastName"));
-        grid.getColumnByKey("birthDate").setHeader(getTranslation("employeeGrid.column.birthDate"));
+        grid.getColumnByKey("roles").setHeader(getTranslation("employeeGrid.column.roles"));
         grid.getColumnByKey("phoneNumber").setHeader(getTranslation("employeeGrid.column.phoneNumber"));
         grid.getColumnByKey("department").setHeader(getTranslation("employeeGrid.column.department"));
     }
@@ -80,14 +89,40 @@ public class EmployeeGrid extends VerticalLayout {
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        filter.setClearButtonVisible(true);
-        filter.setValueChangeMode(ValueChangeMode.LAZY);
-        filter.addValueChangeListener(event -> updateGrid());
+        nameFilter.setClearButtonVisible(true);
+        nameFilter.setValueChangeMode(ValueChangeMode.LAZY);
+        nameFilter.addValueChangeListener(event -> updateGrid());
+
+        roleFilter.setClearButtonVisible(true);
+        roleFilter.setItems(Arrays.stream(values())
+                .filter(roleType -> roleType != RoleType.EMPLOYEE)
+                .toList());
+        roleFilter.setItemLabelGenerator(this::getRoleTranslation);
+        roleFilter.addClassName("employee-grid-role-combobox");
+        roleFilter.getElement().setAttribute("theme", "role-combo");
+        roleFilter.addValueChangeListener(event -> updateGrid());
+
+        departmentFilter.setClearButtonVisible(true);
+        departmentFilter.setValueChangeMode(ValueChangeMode.LAZY);
+        departmentFilter.addValueChangeListener(event -> updateGrid());
 
         addEmployee.addClickListener(event -> addEmployee());
 
-        toolbar.add(filter, addEmployee);
+        toolbar.add(nameFilter, departmentFilter, roleFilter, addEmployee);
         return toolbar;
+    }
+
+    private String getRoleTranslation(RoleType roleType) {
+        Map<RoleType, String> collect = Arrays.stream(values())
+                .collect(Collectors.toMap(role -> role, role -> switch (role) {
+                    case MECHANIC -> getTranslation("roleType.mechanic");
+                    case SHIFT_LEADER -> getTranslation("roleType.shiftLeader");
+                    case MANAGER -> getTranslation("roleType.manager");
+                    case COMPANY_ADMIN -> getTranslation("roleType.companyAdmin");
+                    case SYSTEM_ADMIN -> getTranslation("roleType.systemAdmin");
+                    default -> "";
+                }));
+        return collect.get(roleType);
     }
 
     private void configureGrid() {
@@ -95,9 +130,16 @@ public class EmployeeGrid extends VerticalLayout {
 
         grid.addColumn(EmployeeFormModel::getFirstName).setKey("firstName");
         grid.addColumn(EmployeeFormModel::getLastName).setKey("lastName");
-        grid.addColumn(EmployeeFormModel::getBirthDate).setKey("birthDate");
-        grid.addColumn(EmployeeFormModel::getPhoneNumber).setKey("phoneNumber");
         grid.addColumn(EmployeeFormModel::getDepartment).setKey("department");
+        grid.addColumn(employee -> employee.getRoles().stream()
+                        .filter(role -> role != RoleType.EMPLOYEE)
+                        .map(this::getRoleTranslation)
+                        .filter(name -> !name.isBlank())
+                        .sorted(String::compareToIgnoreCase)
+                        .collect(Collectors.joining(", ")))
+                .setHeader(getTranslation("roles"))
+                .setKey("roles");
+        grid.addColumn(EmployeeFormModel::getPhoneNumber).setKey("phoneNumber");
 
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 
@@ -122,18 +164,29 @@ public class EmployeeGrid extends VerticalLayout {
                     .map(EmployeeFormModel::toEmployeeFormModel)
                     .toList();
 
-            if (filter.getValue() == null || filter.getValue().isBlank()) {
-                grid.setItems(employees);
-            } else {
-                grid.setItems(employees.stream()
-                        .filter(employee -> employee.getFirstName()
-                                        .toLowerCase()
-                                        .contains(filter.getValue().toLowerCase())
-                                || employee.getLastName()
-                                        .toLowerCase()
-                                        .contains(filter.getValue().toLowerCase()))
-                        .toList());
-            }
+            String nameFilterValue =
+                    nameFilter.getValue() != null ? nameFilter.getValue().toLowerCase() : "";
+            RoleType selectedRole = roleFilter.getValue();
+            String selectedDepartment = departmentFilter.getValue();
+
+            grid.setItems(employees.stream()
+                    .filter(employee -> {
+                        boolean nameMatches = nameFilterValue.isBlank()
+                                || employee.getFirstName().toLowerCase().contains(nameFilterValue)
+                                || employee.getLastName().toLowerCase().contains(nameFilterValue);
+
+                        boolean roleMatches =
+                                (selectedRole == null) || employee.getRoles().contains(selectedRole);
+
+                        boolean departmentMatches = (selectedDepartment == null || selectedDepartment.isBlank())
+                                || (employee.getDepartment() != null
+                                        && employee.getDepartment()
+                                                .toLowerCase()
+                                                .contains(selectedDepartment));
+
+                        return nameMatches && roleMatches && departmentMatches;
+                    })
+                    .toList());
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }

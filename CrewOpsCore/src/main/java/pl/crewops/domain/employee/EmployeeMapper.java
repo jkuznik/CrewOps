@@ -1,8 +1,12 @@
 package pl.crewops.domain.employee;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import pl.crewops.domain.auth.AuthAPI;
+import pl.crewops.dto.auth.RoleDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.EmployeeQualificationDTO;
@@ -11,6 +15,8 @@ import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.model.Employee;
 import pl.crewops.model.joinTable.EmployeeQualification;
+import pl.crewops.model.publicSchema.AuthUser;
+import pl.crewops.util.spring.SpringContextBridge;
 
 class EmployeeMapper {
 
@@ -25,7 +31,7 @@ class EmployeeMapper {
                 .build();
     }
 
-    static EmployeeDTO mapToDTO(Employee employee) {
+    static EmployeeDTO mapToDTO(Employee employee, boolean create) {
         return EmployeeDTO.builder()
                 .id(employee.getId())
                 .firstName(employee.getFirstName())
@@ -36,6 +42,32 @@ class EmployeeMapper {
                 .active(employee.isActive())
                 .qualifications(getQualifications(employee))
                 .machines(getMachines(employee))
+                .build();
+    }
+
+    static EmployeeDTO mapToDTO(Employee employee) {
+        Set<RoleDTO> roles = new HashSet<>();
+
+        AuthAPI authAPI = SpringContextBridge.getBean(AuthAPI.class);
+        Optional<AuthUser> byEmployeeId = authAPI.getByEmployeeId(employee.getId());
+
+        if (byEmployeeId.isPresent()) {
+            roles = byEmployeeId.get().getRoles().stream()
+                    .map(role -> RoleDTO.builder().name(role.getName()).build())
+                    .collect(Collectors.toSet());
+        }
+
+        return EmployeeDTO.builder()
+                .id(employee.getId())
+                .firstName(employee.getFirstName())
+                .lastName(employee.getLastName())
+                .birthDate(employee.getBirthDate())
+                .phoneNumber(employee.getPhoneNumber())
+                .department(employee.getDepartment())
+                .active(employee.isActive())
+                .qualifications(getQualifications(employee))
+                .machines(getMachines(employee))
+                .roles(roles)
                 .build();
     }
 

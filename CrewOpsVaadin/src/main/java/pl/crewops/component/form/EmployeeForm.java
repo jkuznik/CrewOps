@@ -1,28 +1,23 @@
 package pl.crewops.component.form;
 
-import static pl.crewops.model.auth.RoleType.*;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.shared.Registration;
-import java.util.Arrays;
+import java.util.Set;
 import pl.crewops.component.accordion.MachineAccordion;
 import pl.crewops.component.accordion.QualificationAccordion;
+import pl.crewops.component.accordion.RoleAccordion;
 import pl.crewops.model.EmployeeFormModel;
-import pl.crewops.model.auth.RoleType;
-import pl.crewops.util.RoleResolver;
 
 public class EmployeeForm extends FormLayout {
     private final TextField firstName = new TextField();
@@ -30,10 +25,10 @@ public class EmployeeForm extends FormLayout {
     private final DatePicker birthDate = new DatePicker();
     private final TextField phoneNumber = new TextField();
     private final TextField department = new TextField();
-    private final CheckboxGroup<RoleType> roles = new CheckboxGroup<>();
 
     private final QualificationAccordion qualifications;
     private final MachineAccordion machines;
+    private final RoleAccordion roleAccordion;
 
     private final Button save = new Button("Save");
     private final Button update = new Button("Update");
@@ -42,14 +37,14 @@ public class EmployeeForm extends FormLayout {
 
     private final Binder<EmployeeFormModel> binder = new BeanValidationBinder<>(EmployeeFormModel.class);
 
-    public EmployeeForm(RoleResolver roleResolver) {
+    public EmployeeForm() {
         addClassName("employee-form");
 
         this.qualifications = getConfiguredQualificationsAccordion();
         this.machines = getConfiguredMachinesAccordion();
+        this.roleAccordion = getConfiguredRoleAccordion();
 
         localize();
-        configureRolesCheckbox(roleResolver);
 
         binder.bindInstanceFields(this);
 
@@ -59,10 +54,10 @@ public class EmployeeForm extends FormLayout {
                 birthDate,
                 phoneNumber,
                 department,
-                roles,
+                createButtonsLayout(),
                 qualifications,
                 machines,
-                createButtonsLayout());
+                roleAccordion);
     }
 
     private QualificationAccordion getConfiguredQualificationsAccordion() {
@@ -88,18 +83,15 @@ public class EmployeeForm extends FormLayout {
         return machineAccordion;
     }
 
-    private void configureRolesCheckbox(RoleResolver roleResolver) {
-        if (roleResolver.principalHasCompanyAdminRole()) {
-            roles.setItems(Arrays.stream(values())
-                    .filter(role -> role != SYSTEM_ADMIN && role != EMPLOYEE)
-                    .toList());
-        } else {
-            roles.setItems(Arrays.stream(values())
-                    .filter(role -> role != EMPLOYEE && role != COMPANY_ADMIN && role != SYSTEM_ADMIN)
-                    .toList());
-        }
-        roles.setRenderer(
-                new TextRenderer<>(role -> role.name().replace("_", " ").toLowerCase()));
+    private RoleAccordion getConfiguredRoleAccordion() {
+        var roleAccordion = new RoleAccordion();
+
+        roleAccordion.addUpdateEvenListener(event -> {
+            setEmployee(event.getEmployeeFormModel());
+            validateAndUpdate();
+        });
+
+        return roleAccordion;
     }
 
     private void localize() {
@@ -108,7 +100,6 @@ public class EmployeeForm extends FormLayout {
         birthDate.setLabel(getTranslation("employeeForm.birthDate"));
         phoneNumber.setLabel(getTranslation("employeeForm.phoneNumber"));
         department.setLabel(getTranslation("employeeForm.department"));
-        roles.setLabel(getTranslation("employeeForm.roles"));
 
         save.setText(getTranslation("employeeForm.save"));
         update.setText(getTranslation("employeeForm.update"));
@@ -140,6 +131,7 @@ public class EmployeeForm extends FormLayout {
         delete.setVisible(false);
         qualifications.setVisible(false);
         machines.setVisible(false);
+        roleAccordion.setVisible(false);
 
         firstName.setReadOnly(false);
         firstName.setEnabled(true);
@@ -155,6 +147,7 @@ public class EmployeeForm extends FormLayout {
         delete.setVisible(true);
         qualifications.setVisible(true);
         machines.setVisible(true);
+        roleAccordion.setVisible(true);
 
         firstName.setReadOnly(true);
         firstName.setEnabled(false);
@@ -171,7 +164,9 @@ public class EmployeeForm extends FormLayout {
                 .birthDate(birthDate.getValue())
                 .phoneNumber(phoneNumber.getValue())
                 .department(department.getValue())
-                .roles(roles.getValue())
+                .machinesSet(Set.of())
+                .qualificationsSet(Set.of())
+                .roles(Set.of())
                 .build();
 
         if (binder.writeBeanIfValid(employeeFormModel)) {
@@ -188,8 +183,9 @@ public class EmployeeForm extends FormLayout {
     public void setEmployee(EmployeeFormModel employeeFormModel) {
         binder.setBean(employeeFormModel);
         if (employeeFormModel != null) {
-            qualifications.getValues(employeeFormModel);
-            machines.getValues(employeeFormModel);
+            qualifications.setValues(employeeFormModel);
+            machines.setValues(employeeFormModel);
+            roleAccordion.setValues(employeeFormModel);
         }
     }
 

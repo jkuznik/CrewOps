@@ -12,6 +12,8 @@ public interface ControllerURL {
     String LOGOUT = "/logout";
     String VALIDATE = "/validate";
 
+    String UPDATE_ROLES = "/updateRoles";
+
     String EMPLOYEES = "/employees";
     String EMPLOYEE_ID = "employeeId";
     String QUALIFICATIONS = "/qualifications";

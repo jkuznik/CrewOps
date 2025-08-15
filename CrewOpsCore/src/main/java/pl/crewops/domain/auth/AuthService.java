@@ -4,6 +4,7 @@ import static pl.crewops.util.credentialsGenerator.CredentialGenerator.generateP
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.management.relation.RoleNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -185,6 +186,41 @@ class AuthService implements AuthAPI {
         } catch (IllegalArgumentException e) {
             log.error("Login failed, {}", e.getMessage());
             throw e;
+        }
+    }
+
+    @Override
+    @Transactional
+    public AuthUserDTO updateAuthUser(UpdateAuthUserDTO updateAuthUserDTO) {
+        try {
+            AuthUser authUser = getByEmployeeId(updateAuthUserDTO.employeeId())
+                    .orElseThrow(() -> new UsernameNotFoundException("Employee Id " + updateAuthUserDTO.employeeId()));
+
+            if (updateAuthUserDTO.password() != null) {
+                // todo: implement this logic
+            }
+
+            if (!updateAuthUserDTO.roles().isEmpty()) {
+                Set<Role> updatedRoles = updateAuthUserDTO.roles().stream()
+                        .map(role -> roleRepository
+                                .findByName(role.name())
+                                .orElseThrow(() -> new NoSuchElementException("Role " + role.name() + " not found")))
+                        .collect(Collectors.toSet());
+
+                authUser.setRoles(updatedRoles);
+            }
+
+            AuthUser saved = authUserRepository.save(authUser);
+
+            return AuthUserDTO.builder()
+                    .employeeId(saved.getEmployeeId())
+                    .roles(saved.getRoles().stream()
+                            .map(role -> RoleDTO.builder().name(role.getName()).build())
+                            .collect(Collectors.toSet()))
+                    .build();
+        } catch (NoSuchElementException e) {
+            log.error("Update auth user failed, {}", e.getMessage());
+            return null;
         }
     }
 

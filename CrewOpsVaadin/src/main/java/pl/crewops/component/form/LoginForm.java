@@ -30,6 +30,8 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.client.RestClientException;
 import pl.crewops.component.notification.auth.LoginFailNotification;
 import pl.crewops.dto.auth.AuthRequest;
+import pl.crewops.dto.auth.AuthResponse;
+import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceVaadin;
@@ -86,7 +88,11 @@ public class LoginForm extends FormLayout {
 
         try {
             log.info("Try login");
-            String token = coreAPI.login(authRequest).token();
+
+            AuthResponse authResponse = coreAPI.login(authRequest).orElseThrow(NotAuthenticatedException::new);
+
+            String token = authResponse.token();
+
             log.info("Successfully logged in, token: {}", token);
 
             UUID companyId = jwtService.extractCompanyId(token);
@@ -115,9 +121,8 @@ public class LoginForm extends FormLayout {
             repo.saveContext(context, request, response);
 
             UI.getCurrent().getPage().reload();
-
-        } catch (RestClientException e) {
-            log.info("Login failed: {}", e.getMessage());
+        } catch (NotAuthenticatedException | RestClientException e) {
+            log.error("Login failed: {}", e.getMessage());
             new LoginFailNotification();
         }
     }

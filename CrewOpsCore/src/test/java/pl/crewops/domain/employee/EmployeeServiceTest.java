@@ -13,6 +13,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,7 @@ import pl.crewops.model.Machine;
 import pl.crewops.model.Qualification;
 import pl.crewops.model.joinTable.EmployeeQualification;
 import pl.crewops.model.publicSchema.AuthUser;
+import pl.crewops.util.spring.SpringContextBridge;
 
 @SpringJUnitConfig(
         classes = {
@@ -42,6 +44,9 @@ import pl.crewops.model.publicSchema.AuthUser;
             AuthAPI.class
         })
 class EmployeeServiceTest {
+
+    @Autowired
+    ApplicationContext applicationContext;
 
     @Autowired
     EmployeeService employeeService;
@@ -79,6 +84,7 @@ class EmployeeServiceTest {
         employeeWithEmptyQAndEmptyV = employeeWithoutQualificationsAndMachines();
         qualification = qualification();
         machine = machine();
+        SpringContextBridge.setApplicationContext(applicationContext);
     }
 
     @Test
@@ -95,7 +101,7 @@ class EmployeeServiceTest {
     @Test
     void shouldReturnEmployeeDTO_whenUpdateEmployeeDTOHaveNoQualificationsAndNoMachines() {
         // when
-        when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithEmptyQAndEmptyV));
+        when(employeeRepository.findById(any())).thenReturn(Optional.of(employeeWithEmptyQAndEmptyV));
         EmployeeDTO result = employeeService.updateEmployee(updateEmployeeDTO);
 
         // then

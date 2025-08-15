@@ -3,6 +3,7 @@ package pl.crewops.model;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -32,6 +33,13 @@ public class EmployeeFormModel {
     private Set<MachineDTO> machinesSet;
 
     public static EmployeeFormModel toEmployeeFormModel(EmployeeDTO employeeDTO) {
+        Set<RoleType> roles = new HashSet<>();
+        if (employeeDTO != null && employeeDTO.roles() != null) {
+            roles = employeeDTO.roles().stream()
+                    .map(roleDTO -> RoleType.valueOf(roleDTO.name()))
+                    .collect(Collectors.toSet());
+        }
+
         return EmployeeFormModel.builder()
                 .id(employeeDTO.id())
                 .firstName(employeeDTO.firstName())
@@ -41,6 +49,7 @@ public class EmployeeFormModel {
                 .department(employeeDTO.department())
                 .qualificationsSet(employeeDTO.qualifications())
                 .machinesSet(employeeDTO.machines())
+                .roles(Set.copyOf(roles))
                 .build();
     }
 
@@ -67,6 +76,9 @@ public class EmployeeFormModel {
                 .employeeId(employeeFormModel.getId())
                 .phoneNumber(employeeFormModel.getPhoneNumber())
                 .department(employeeFormModel.getDepartment())
+                .roles(employeeFormModel.getRoles().stream()
+                        .map(roleType -> RoleDTO.builder().name(roleType.name()).build())
+                        .collect(Collectors.toSet()))
                 .build();
     }
 }

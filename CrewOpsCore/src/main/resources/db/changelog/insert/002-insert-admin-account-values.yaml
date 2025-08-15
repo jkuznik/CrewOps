@@ -385,6 +385,9 @@ databaseChangeLog:
                   name: id
                   value: ${auth.user.id}
               - column:
+                  name: version
+                  value: 0
+              - column:
                   name: username
                   value: ${auth.user.username}
               - column:

@@ -30,7 +30,8 @@ public class InfoContent extends VerticalLayout {
         var finalGallery = finalGallery();
         finalGallery.getStyle().set("margin-top", "60px");
 
-        contentWrapper.add(noticeGallery(), topGallery, middleGallery, bottomGallery, finalGallery);
+        //        contentWrapper.add(noticeGallery(), topGallery, middleGallery, bottomGallery, finalGallery);
+        contentWrapper.add(topGallery, middleGallery, bottomGallery, finalGallery);
         add(contentWrapper);
     }
 

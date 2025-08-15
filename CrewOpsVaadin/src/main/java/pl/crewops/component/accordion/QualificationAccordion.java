@@ -21,7 +21,7 @@ public class QualificationAccordion extends FormLayout {
         addClassName("qualification-accordion");
     }
 
-    public void getValues(EmployeeFormModel employeeFormModel) {
+    public void setValues(EmployeeFormModel employeeFormModel) {
         removeAll();
 
         var accordion = new Accordion();
