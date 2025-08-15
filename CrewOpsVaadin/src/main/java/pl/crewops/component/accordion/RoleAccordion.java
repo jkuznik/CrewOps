@@ -99,18 +99,18 @@ public class RoleAccordion extends FormLayout {
 
         checkboxGroup.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
 
-        if (roleResolver.principalHasManagerRole()) {
+        if (roleResolver.principalHasCompanyAdminRole()) {
+            checkboxGroup.setItems(Arrays.stream(allRoles)
+                    .filter(roleType -> !roleType.equals(EMPLOYEE) && !roleType.equals(SYSTEM_ADMIN))
+                    .collect(Collectors.toSet()));
+        } else {
             checkboxGroup.setItems(Arrays.stream(allRoles)
                     .filter(roleType -> !roleType.equals(EMPLOYEE)
                             && !roleType.equals(COMPANY_ADMIN)
                             && !roleType.equals(SYSTEM_ADMIN))
                     .collect(Collectors.toSet()));
-        } else {
-            checkboxGroup.setItems(Arrays.stream(allRoles)
-                    .filter(roleType -> !roleType.equals(EMPLOYEE) && !roleType.equals(SYSTEM_ADMIN))
-                    .collect(Collectors.toSet()));
         }
-        // todo: i18n
+
         checkboxGroup.setItemLabelGenerator(role -> {
             var translatedRoleName = "";
 

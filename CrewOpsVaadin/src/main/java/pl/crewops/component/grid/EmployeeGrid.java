@@ -10,6 +10,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import pl.crewops.component.form.EmployeeForm;
@@ -20,6 +21,7 @@ import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
+import pl.crewops.model.auth.RoleType;
 import pl.crewops.util.RoleResolver;
 import pl.crewops.view.HomeView;
 
@@ -59,7 +61,7 @@ public class EmployeeGrid extends VerticalLayout {
 
         grid.getColumnByKey("firstName").setHeader(getTranslation("employeeGrid.column.firstName"));
         grid.getColumnByKey("lastName").setHeader(getTranslation("employeeGrid.column.lastName"));
-        grid.getColumnByKey("birthDate").setHeader(getTranslation("employeeGrid.column.birthDate"));
+        grid.getColumnByKey("roles").setHeader(getTranslation("employeeGrid.column.roles"));
         grid.getColumnByKey("phoneNumber").setHeader(getTranslation("employeeGrid.column.phoneNumber"));
         grid.getColumnByKey("department").setHeader(getTranslation("employeeGrid.column.department"));
     }
@@ -95,7 +97,21 @@ public class EmployeeGrid extends VerticalLayout {
 
         grid.addColumn(EmployeeFormModel::getFirstName).setKey("firstName");
         grid.addColumn(EmployeeFormModel::getLastName).setKey("lastName");
-        grid.addColumn(EmployeeFormModel::getBirthDate).setKey("birthDate");
+        grid.addColumn(employee -> employee.getRoles().stream()
+                        .filter(role -> role != RoleType.EMPLOYEE)
+                        .map(role -> switch (role) {
+                            case MECHANIC -> getTranslation("roleType.mechanic");
+                            case SHIFT_LEADER -> getTranslation("roleType.shiftLeader");
+                            case MANAGER -> getTranslation("roleType.manager");
+                            case COMPANY_ADMIN -> getTranslation("roleType.companyAdmin");
+                            case SYSTEM_ADMIN -> getTranslation("roleType.systemAdmin");
+                            default -> "";
+                        })
+                        .filter(name -> !name.isBlank())
+                        .sorted(String::compareToIgnoreCase)
+                        .collect(Collectors.joining(", ")))
+                .setHeader(getTranslation("roles"))
+                .setKey("roles");
         grid.addColumn(EmployeeFormModel::getPhoneNumber).setKey("phoneNumber");
         grid.addColumn(EmployeeFormModel::getDepartment).setKey("department");
 
