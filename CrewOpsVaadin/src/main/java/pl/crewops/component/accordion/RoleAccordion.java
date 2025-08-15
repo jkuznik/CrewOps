@@ -111,8 +111,19 @@ public class RoleAccordion extends FormLayout {
                     .collect(Collectors.toSet()));
         }
         // todo: i18n
-        checkboxGroup.setItemLabelGenerator(
-                role -> role.name().replace("_", " ").toLowerCase());
+        checkboxGroup.setItemLabelGenerator(role -> {
+            var translatedRoleName = "";
+
+            switch (role) {
+                case EMPLOYEE -> translatedRoleName = getTranslation("roleType.employee");
+                case MECHANIC -> translatedRoleName = getTranslation("roleType.mechanic");
+                case SHIFT_LEADER -> translatedRoleName = getTranslation("roleType.shiftLeader");
+                case MANAGER -> translatedRoleName = getTranslation("roleType.manager");
+                case COMPANY_ADMIN -> translatedRoleName = getTranslation("roleType.companyAdmin");
+                case SYSTEM_ADMIN -> translatedRoleName = getTranslation("roleType.systemAdmin");
+            }
+            return translatedRoleName;
+        });
 
         if (employeeFormModel.getRoles() != null) {
             checkboxGroup.setValue(employeeFormModel.getRoles());
