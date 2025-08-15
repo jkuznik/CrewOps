@@ -41,7 +41,7 @@ public class EmployeeForm extends FormLayout {
 
         this.qualifications = getConfiguredQualificationsAccordion();
         this.machines = getConfiguredMachinesAccordion();
-        this.roleAccordion = new RoleAccordion();
+        this.roleAccordion = getConfiguredRoleAccordion();
 
         localize();
 
@@ -80,6 +80,17 @@ public class EmployeeForm extends FormLayout {
         });
 
         return machineAccordion;
+    }
+
+    private RoleAccordion getConfiguredRoleAccordion() {
+        var roleAccordion = new RoleAccordion();
+
+        roleAccordion.addUpdateEvenListener(event -> {
+            setEmployee(event.getEmployeeFormModel());
+            validateAndUpdate();
+        });
+
+        return roleAccordion;
     }
 
     private void localize() {
