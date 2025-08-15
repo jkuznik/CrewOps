@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -27,6 +28,7 @@ import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.util.multitenancy.LiquibaseSchemaMigrator;
 import pl.crewops.util.multitenancy.SchemaManager;
+import pl.crewops.util.spring.SpringContextBridge;
 
 @ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
@@ -58,6 +60,9 @@ public abstract class IntegrationTest {
 
     @Autowired
     protected TestRestTemplate restTemplate;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Autowired
     protected AuthAPI authAPI;
@@ -96,6 +101,8 @@ public abstract class IntegrationTest {
         TenantContext.setCurrentTenant(TEST_SCHEMA_NAME);
         schemaInitializer.createSchemaIfNotExists(TEST_SCHEMA_NAME);
         schemaMigrator.runMigrations(TEST_SCHEMA_NAME);
+
+        SpringContextBridge.setApplicationContext(applicationContext);
     }
 
     @BeforeTransaction

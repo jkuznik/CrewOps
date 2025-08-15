@@ -1,6 +1,8 @@
 package pl.crewops.domain.employee;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import pl.crewops.domain.auth.AuthAPI;
@@ -11,7 +13,6 @@ import pl.crewops.dto.employee.EmployeeQualificationDTO;
 import pl.crewops.dto.machine.MachineDTO;
 import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
-import pl.crewops.exception.domain.employee.EmployeeNotFoundException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.joinTable.EmployeeQualification;
 import pl.crewops.model.publicSchema.AuthUser;
@@ -45,9 +46,16 @@ class EmployeeMapper {
     }
 
     static EmployeeDTO mapToDTO(Employee employee) {
+        Set<RoleDTO> roles = new HashSet<>();
+
         AuthAPI authAPI = SpringContextBridge.getBean(AuthAPI.class);
-        AuthUser authUser = authAPI.getByEmployeeId(employee.getId())
-                .orElseThrow(() -> new EmployeeNotFoundException(employee.getId()));
+        Optional<AuthUser> byEmployeeId = authAPI.getByEmployeeId(employee.getId());
+
+        if (byEmployeeId.isPresent()) {
+            roles = byEmployeeId.get().getRoles().stream()
+                    .map(role -> RoleDTO.builder().name(role.getName()).build())
+                    .collect(Collectors.toSet());
+        }
 
         return EmployeeDTO.builder()
                 .id(employee.getId())
@@ -59,9 +67,7 @@ class EmployeeMapper {
                 .active(employee.isActive())
                 .qualifications(getQualifications(employee))
                 .machines(getMachines(employee))
-                .roles(authUser.getRoles().stream()
-                        .map(role -> RoleDTO.builder().name(role.getName()).build())
-                        .collect(Collectors.toSet()))
+                .roles(roles)
                 .build();
     }
 
