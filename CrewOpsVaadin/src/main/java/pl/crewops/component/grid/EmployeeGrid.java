@@ -1,16 +1,17 @@
 package pl.crewops.component.grid;
 
+import static pl.crewops.model.auth.RoleType.*;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,7 @@ import pl.crewops.view.HomeView;
 
 @Getter
 @Setter
+@CssImport("./styles/component/combo-box.css")
 public class EmployeeGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
     private final RoleResolver roleResolver;
@@ -92,7 +94,12 @@ public class EmployeeGrid extends VerticalLayout {
         nameFilter.addValueChangeListener(event -> updateGrid());
 
         roleFilter.setClearButtonVisible(true);
-        roleFilter.setItems(RoleType.values());
+        roleFilter.setItems(Arrays.stream(values())
+                .filter(roleType -> roleType != RoleType.EMPLOYEE)
+                .toList());
+        roleFilter.setItemLabelGenerator(this::getRoleTranslation);
+        roleFilter.addClassName("employee-grid-role-combobox");
+        roleFilter.getElement().setAttribute("theme", "role-combo");
         roleFilter.addValueChangeListener(event -> updateGrid());
 
         departmentFilter.setClearButtonVisible(true);
@@ -105,6 +112,19 @@ public class EmployeeGrid extends VerticalLayout {
         return toolbar;
     }
 
+    private String getRoleTranslation(RoleType roleType) {
+        Map<RoleType, String> collect = Arrays.stream(values())
+                .collect(Collectors.toMap(role -> role, role -> switch (role) {
+                    case MECHANIC -> getTranslation("roleType.mechanic");
+                    case SHIFT_LEADER -> getTranslation("roleType.shiftLeader");
+                    case MANAGER -> getTranslation("roleType.manager");
+                    case COMPANY_ADMIN -> getTranslation("roleType.companyAdmin");
+                    case SYSTEM_ADMIN -> getTranslation("roleType.systemAdmin");
+                    default -> "";
+                }));
+        return collect.get(roleType);
+    }
+
     private void configureGrid() {
         grid.setSizeFull();
 
@@ -113,14 +133,7 @@ public class EmployeeGrid extends VerticalLayout {
         grid.addColumn(EmployeeFormModel::getDepartment).setKey("department");
         grid.addColumn(employee -> employee.getRoles().stream()
                         .filter(role -> role != RoleType.EMPLOYEE)
-                        .map(role -> switch (role) {
-                            case MECHANIC -> getTranslation("roleType.mechanic");
-                            case SHIFT_LEADER -> getTranslation("roleType.shiftLeader");
-                            case MANAGER -> getTranslation("roleType.manager");
-                            case COMPANY_ADMIN -> getTranslation("roleType.companyAdmin");
-                            case SYSTEM_ADMIN -> getTranslation("roleType.systemAdmin");
-                            default -> "";
-                        })
+                        .map(this::getRoleTranslation)
                         .filter(name -> !name.isBlank())
                         .sorted(String::compareToIgnoreCase)
                         .collect(Collectors.joining(", ")))

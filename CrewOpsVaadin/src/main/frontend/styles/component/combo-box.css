@@ -33,6 +33,29 @@ vaadin-combo-box-overlay[theme~="machine-type-combo"]::part(content) {
     background-color: #2a2a2a;
 }
 
+/* ComboBox input field style */
+.employee-grid-role-combobox::part(text-field) {
+    background-color: #1e1e1e; /* dark background */
+    color: #f0f0f0; /* light text */
+    border-radius: 6px;
+}
+
+/* Overlay (dropdown) background */
+vaadin-combo-box-overlay[theme~="role-combo"]::part(content) {
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+}
+
+/* Items in dropdown */
+vaadin-combo-box-overlay[theme~="role-combo"]::part(item) {
+    color: #f0f0f0;
+}
+
+/* Hover effect */
+vaadin-combo-box-overlay[theme~="role-combo"]::part(item):hover {
+    background-color: #3a3a3a;
+}
+
 /* Styl pozycji listy */
 vaadin-combo-box-item::part(content) {
     background-color: #2a2a2a;
