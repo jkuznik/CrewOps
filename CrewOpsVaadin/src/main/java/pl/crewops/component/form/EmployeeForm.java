@@ -13,6 +13,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
+import java.util.Set;
 import pl.crewops.component.accordion.MachineAccordion;
 import pl.crewops.component.accordion.QualificationAccordion;
 import pl.crewops.component.accordion.RoleAccordion;
@@ -130,6 +131,7 @@ public class EmployeeForm extends FormLayout {
         delete.setVisible(false);
         qualifications.setVisible(false);
         machines.setVisible(false);
+        roleAccordion.setVisible(false);
 
         firstName.setReadOnly(false);
         firstName.setEnabled(true);
@@ -145,6 +147,7 @@ public class EmployeeForm extends FormLayout {
         delete.setVisible(true);
         qualifications.setVisible(true);
         machines.setVisible(true);
+        roleAccordion.setVisible(true);
 
         firstName.setReadOnly(true);
         firstName.setEnabled(false);
@@ -161,6 +164,9 @@ public class EmployeeForm extends FormLayout {
                 .birthDate(birthDate.getValue())
                 .phoneNumber(phoneNumber.getValue())
                 .department(department.getValue())
+                .machinesSet(Set.of())
+                .qualificationsSet(Set.of())
+                .roles(Set.of())
                 .build();
 
         if (binder.writeBeanIfValid(employeeFormModel)) {

@@ -30,6 +30,20 @@ class EmployeeMapper {
                 .build();
     }
 
+    static EmployeeDTO mapToDTO(Employee employee, boolean create) {
+        return EmployeeDTO.builder()
+                .id(employee.getId())
+                .firstName(employee.getFirstName())
+                .lastName(employee.getLastName())
+                .birthDate(employee.getBirthDate())
+                .phoneNumber(employee.getPhoneNumber())
+                .department(employee.getDepartment())
+                .active(employee.isActive())
+                .qualifications(getQualifications(employee))
+                .machines(getMachines(employee))
+                .build();
+    }
+
     static EmployeeDTO mapToDTO(Employee employee) {
         AuthAPI authAPI = SpringContextBridge.getBean(AuthAPI.class);
         AuthUser authUser = authAPI.getByEmployeeId(employee.getId())
