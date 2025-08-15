@@ -165,6 +165,7 @@ public class MachineGrid extends VerticalLayout {
         machineForm.addCloseListener(event -> closeEditor());
         machineForm.addReportBreakdownListener(this::reportBreakdown);
         breakdownForm.addSaveListener(this::saveBreakdown);
+        breakdownForm.addCloseListener(event -> closeEditor());
     }
 
     public void updateMachineGrid() {
