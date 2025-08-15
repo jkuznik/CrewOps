@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import pl.crewops.exception.domain.auth.AuthUserNotFoundException;
 import pl.crewops.security.custom.CustomAuthentication;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtExceptionResolver;
@@ -43,11 +44,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 if (jwtService.validToken(token, userPrincipal)) {
                     SecurityContextHolder.getContext().setAuthentication(new CustomAuthentication(userPrincipal));
                 }
+            } else {
+                throw new AuthUserNotFoundException(employeeId);
             }
-            filterChain.doFilter(request, response);
         } catch (Exception e) {
             log.error("Jwt Auth Filter - error", e);
             jwtExceptionResolver.resolveException(request, response, null, e);
         }
+        filterChain.doFilter(request, response);
     }
 }

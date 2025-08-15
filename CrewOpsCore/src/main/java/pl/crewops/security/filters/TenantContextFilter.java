@@ -50,6 +50,7 @@ public class TenantContextFilter extends OncePerRequestFilter {
                 authenticationManager.authenticate(
                         authentication); // authentication set true only once in whole filter chain in this place
             } else {
+                authentication.setAuthenticated(false);
                 response.setStatus(HttpStatus.FORBIDDEN.value());
                 return;
             }
