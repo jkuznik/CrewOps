@@ -38,16 +38,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             log.info("Jwt filter authentication starting for {}", request.getRequestURI());
             final String token = jwtService.extractTokenFromRequest(request);
             final String employeeId = jwtService.extractEmployeeId(token).toString();
-            if (employeeId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (employeeId != null) {
+                if (SecurityContextHolder.getContext().getAuthentication() != null) {
+                    SecurityContextHolder.getContext().setAuthentication(null);
+                    SecurityContextHolder.clearContext();
+                }
                 UserPrincipal userPrincipal = (UserPrincipal) userDetailsService.loadUserByUsername(employeeId);
                 if (jwtService.validToken(token, userPrincipal)) {
                     SecurityContextHolder.getContext().setAuthentication(new CustomAuthentication(userPrincipal));
                 }
             }
-            filterChain.doFilter(request, response);
         } catch (Exception e) {
             log.error("Jwt Auth Filter - error", e);
             jwtExceptionResolver.resolveException(request, response, null, e);
         }
+        filterChain.doFilter(request, response);
     }
 }
