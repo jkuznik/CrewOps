@@ -1,12 +1,16 @@
 package pl.crewops.infrastructure.core;
 
 import static pl.crewops.enums.ControllerURL.*;
+import static pl.crewops.util.CacheResolver.*;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
@@ -54,12 +58,17 @@ class CoreClient {
         }
     }
 
-    // permit all for sure
-    //    @Caching(
-    //            evict = {
-    //                @CacheEvict(value = GET_EMPLOYEE_BY_ID, allEntries = true),
-    //                @CacheEvict(value = GET_COMPANY_BY_ID, allEntries = true)
-    //            })
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_EMPLOYEE_BY_ID, allEntries = true),
+                @CacheEvict(value = GET_COMPANY_BY_ID, allEntries = true),
+                @CacheEvict(value = GET_ALL_EMPLOYEES, allEntries = true),
+                @CacheEvict(value = GET_ALL_QUALIFICATIONS, allEntries = true),
+                @CacheEvict(value = GET_ALL_QUALIFICATIONS_WITH_EXPIRATION_TIME, allEntries = true),
+                @CacheEvict(value = GET_ALL_BREAKDOWNS, allEntries = true),
+                @CacheEvict(value = GET_ALL_MACHINES, allEntries = true),
+                @CacheEvict(value = GET_ALL_MACHINE_TYPES, allEntries = true),
+            })
     public AuthResponse login(AuthRequest authRequest) {
         try {
             return coreClient
@@ -73,9 +82,14 @@ class CoreClient {
             throw e;
         }
     }
+    // permit all for sure
 
     // manager permission
-
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_EMPLOYEE_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_COMPANY_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     public AuthUserDTO updateAuthUserRoles(UpdateAuthUserDTO updateAuthUserDTO) throws NotAuthenticatedException {
         try {
             return authorizedClient()
@@ -106,7 +120,11 @@ class CoreClient {
     }
 
     // manager permission
-    //    @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_EMPLOYEE_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_COMPANY_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     public void terminateEmployeeAccount(UUID employeeId) throws NotAuthenticatedException {
         try {
             authorizedClient()
@@ -121,6 +139,16 @@ class CoreClient {
         }
     }
 
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_EMPLOYEE_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS_WITH_EXPIRATION_TIME,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     public EmployeeDTO addEmployeeQualification(UUID employeeId, UUID qualificationId)
             throws NotAuthenticatedException {
         try {
@@ -138,7 +166,12 @@ class CoreClient {
     }
 
     // manager permission
-    //    @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_EMPLOYEE_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) throws NotAuthenticatedException {
         try {
             return authorizedClient()
@@ -156,13 +189,17 @@ class CoreClient {
 
     // TODO: consider about implement security on fe side
     // manager permission
-    //    @Caching(
-    //            evict = {
-    //                    @CacheEvict(value = GET_ALL_QUALIFICATIONS, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
-    //                    @CacheEvict(value = GET_ALL_EMPLOYEES, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    //            })
+    // authenticated
+    @Caching(
+            evict = {
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS_WITH_EXPIRATION_TIME,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     public EmployeeDTO updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) throws NotAuthenticatedException {
         try {
             return authorizedClient()
@@ -178,8 +215,7 @@ class CoreClient {
     }
 
     // authenticated
-    //        @Cacheable(cacheNames = GET_EMPLOYEE_BY_ID, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    @Cacheable(cacheNames = GET_EMPLOYEE_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public EmployeeDTO getEmployeeById(UUID employeeId) throws NotAuthenticatedException {
         log.warn("Get employee by id cache missing");
         try {
@@ -196,7 +232,7 @@ class CoreClient {
     }
 
     // authenticated
-    //        @Cacheable(cacheNames = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    @Cacheable(cacheNames = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException {
         log.warn("Get all employees cache missing");
         try {
@@ -213,7 +249,16 @@ class CoreClient {
     }
 
     // manager permission
-    //    @CacheEvict(value = GET_ALL_QUALIFICATIONS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    @Caching(
+            evict = {
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS_WITH_EXPIRATION_TIME,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     public QualificationDTO createQualification(CreateQualificationDTO createQualificationDTO)
             throws NotAuthenticatedException {
         try {
@@ -231,13 +276,16 @@ class CoreClient {
     }
 
     // manager permission
-    //    @Caching(
-    //            evict = {
-    //                    @CacheEvict(value = GET_ALL_QUALIFICATIONS, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
-    //                    @CacheEvict(value = GET_ALL_EMPLOYEES, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    //            })
+    @Caching(
+            evict = {
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS_WITH_EXPIRATION_TIME,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     public QualificationDTO updateQualification(UpdateQualificationDTO updateQualificationDTO)
             throws NotAuthenticatedException {
         try {
@@ -255,6 +303,16 @@ class CoreClient {
     }
 
     // manager permission
+    @Caching(
+            evict = {
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS_WITH_EXPIRATION_TIME,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     public EmployeeDTO updateQualificationExpireAt(UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO)
             throws NotAuthenticatedException {
         try {
@@ -274,6 +332,17 @@ class CoreClient {
         }
     }
 
+    // manager permission
+    @Caching(
+            evict = {
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS_WITH_EXPIRATION_TIME,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     public void removeEmployeeQualification(UUID employeeId, UUID qualificationId) throws NotAuthenticatedException {
         try {
             authorizedClient()
@@ -288,6 +357,11 @@ class CoreClient {
     }
 
     // manager permission
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     public void removeEmployeeMachine(UUID employeeId, UUID machineId) throws NotAuthenticatedException {
         try {
             authorizedClient()
@@ -301,6 +375,8 @@ class CoreClient {
         }
     }
 
+    // manager permission
+    // todo: consider cache by employee id
     public List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(UUID employeeId)
             throws NotAuthenticatedException {
         try {
@@ -317,8 +393,7 @@ class CoreClient {
     }
 
     // authenticated
-    //        @Cacheable(cacheNames = GET_ALL_QUALIFICATIONS, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    @Cacheable(cacheNames = GET_ALL_QUALIFICATIONS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException {
         log.warn("Get all qualifications cache missing");
         try {
@@ -335,13 +410,16 @@ class CoreClient {
     }
 
     // manager permission
-    //    @Caching(
-    //            evict = {
-    //                    @CacheEvict(value = GET_ALL_QUALIFICATIONS, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
-    //                    @CacheEvict(value = GET_ALL_EMPLOYEES, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    //            })
+    @Caching(
+            evict = {
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS_WITH_EXPIRATION_TIME,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     public void deleteQualification(UUID qualificationId) throws NotAuthenticatedException {
         try {
             authorizedClient()
@@ -354,16 +432,18 @@ class CoreClient {
         }
     }
 
-    //    @Caching(
-    //            evict = {
-    //                    @CacheEvict(value = GET_ALL_BREAKDOWNS, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
-    //                @CacheEvict(value = GET_ALL_MACHINES, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
-    //                @CacheEvict(
-    //                        value = GET_ALL_MACHINE_TYPES,
-    //                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    //            })
+    // manager permission
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINES_BY_IDS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINE_TYPES,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     public MachineDTO createMachine(CreateMachineDTO createMachineDTO) throws NotAuthenticatedException {
         try {
             return authorizedClient()
@@ -381,17 +461,17 @@ class CoreClient {
     // manager permission or mechanic authority?
 
     // shift leader or mechanic
-    //    @Caching(
-    //            evict = {
-    //                    @CacheEvict(value = GET_ALL_BREAKDOWNS, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
-    //                @CacheEvict(value = GET_ALL_MACHINES, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
-    //                @CacheEvict(
-    //                        value = GET_ALL_MACHINE_TYPES,
-    //                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
-    //
-    //            })
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINES_BY_IDS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINE_TYPES,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     public MachineDTO updateMachine(UpdateMachineDTO updateMachineDTO) throws NotAuthenticatedException {
         try {
             return authorizedClient()
@@ -407,7 +487,7 @@ class CoreClient {
     }
 
     // authenticated
-    //        @Cacheable(cacheNames = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    @Cacheable(cacheNames = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<MachineDTO> getAllMachines() throws NotAuthenticatedException {
         log.warn("Get all machines cache missing");
         try {
@@ -424,6 +504,9 @@ class CoreClient {
     }
 
     // manager permission
+    //    @Cacheable(cacheNames = GET_ALL_MACHINES_BY_IDS, key =
+    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    //    todo: consider cache by ids
     public List<MachineDTO> getAllEmployeeMachinesByIds(Set<UUID> ids) throws NotAuthenticatedException {
         try {
             return authorizedClient()
@@ -439,8 +522,7 @@ class CoreClient {
     }
 
     // authenticated
-    //        @Cacheable(cacheNames = GET_ALL_MACHINE_TYPES, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    @Cacheable(cacheNames = GET_ALL_MACHINE_TYPES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<MachineTypeDTO> getAllMachineTypes() throws NotAuthenticatedException {
         try {
             return authorizedClient()
@@ -456,6 +538,17 @@ class CoreClient {
     }
 
     // manager permission
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINES_BY_IDS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINE_TYPES,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     public EmployeeDTO addEmployeeMachine(UUID employeeId, UUID machineId) throws NotAuthenticatedException {
         try {
             return authorizedClient()
@@ -471,14 +564,17 @@ class CoreClient {
     }
 
     // manager permission
-    //    @Caching(
-    //            evict = {
-    //                    @CacheEvict(value = GET_ALL_MACHINES, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
-    //                    @CacheEvict(value = GET_ALL_MACHINE_TYPES, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    //            }
-    //    )
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINES_BY_IDS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINE_TYPES,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     public void deleteMachine(UUID machineId) throws NotAuthenticatedException {
         try {
             authorizedClient()
@@ -494,16 +590,17 @@ class CoreClient {
     }
 
     // authenticated
-    //    @Caching(
-    //            evict = {
-    //                    @CacheEvict(value = GET_ALL_BREAKDOWNS, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
-    //                    @CacheEvict(value = GET_ALL_MACHINES, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
-    //                    @CacheEvict(value = GET_ALL_MACHINE_TYPES, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    //            }
-    //    )
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINES_BY_IDS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINE_TYPES,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     public BreakdownDTO createBreakdown(CreateBreakdownDTO createBreakdownDTO) throws NotAuthenticatedException {
         try {
             return authorizedClient()
@@ -519,16 +616,17 @@ class CoreClient {
     }
 
     // shift leader or mechanic
-    //    @Caching(
-    //            evict = {
-    //                    @CacheEvict(value = GET_ALL_BREAKDOWNS, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
-    //                    @CacheEvict(value = GET_ALL_MACHINES, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
-    //                    @CacheEvict(value = GET_ALL_MACHINE_TYPES, key =
-    // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    //            })
-
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINES_BY_IDS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINE_TYPES,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     public BreakdownDTO updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO) throws NotAuthenticatedException {
         try {
             return authorizedClient()
@@ -544,7 +642,7 @@ class CoreClient {
     }
 
     // authenticated
-    //    @Cacheable(cacheNames = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    @Cacheable(cacheNames = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException {
         try {
             return authorizedClient()
@@ -561,7 +659,7 @@ class CoreClient {
 
     // authenticated
     // TODO: consider remove caching of this value or implement different logic
-    //        @Cacheable(cacheNames = GET_COMPANY_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    @Cacheable(cacheNames = GET_COMPANY_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public CompanyDTO getCompanyById(UUID companyId) throws NotAuthenticatedException {
         log.warn("Get company by id cache missing");
         try {
