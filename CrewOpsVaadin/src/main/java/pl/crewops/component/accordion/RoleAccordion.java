@@ -16,9 +16,11 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import pl.crewops.component.notification.FailNotification;
 import pl.crewops.dto.auth.AuthUserDTO;
 import pl.crewops.dto.auth.RoleDTO;
 import pl.crewops.dto.auth.UpdateAuthUserDTO;
+import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.exceptions.UpdateQualificationException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
@@ -66,29 +68,34 @@ public class RoleAccordion extends FormLayout {
             Set<RoleType> selectedRoles = checkboxGroup.getValue();
             selectedRoles.add(EMPLOYEE);
 
-            AuthUserDTO authUserDTO = coreAPI.updateAuthUserRoles(UpdateAuthUserDTO.builder()
-                            .employeeId(employeeFormModel.getId())
-                            .roles(selectedRoles.stream()
-                                    .map(role ->
-                                            RoleDTO.builder().name(role.name()).build())
-                                    .collect(Collectors.toSet()))
-                            .build())
-                    .orElseThrow(UpdateQualificationException::new);
-            var updatedEmployeeFormModel = EmployeeFormModel.builder()
-                    .id(employeeFormModel.getId())
-                    .firstName(employeeFormModel.getFirstName())
-                    .lastName(employeeFormModel.getLastName())
-                    .department(employeeFormModel.getDepartment())
-                    .birthDate(employeeFormModel.getBirthDate())
-                    .phoneNumber(employeeFormModel.getPhoneNumber())
-                    .qualificationsSet(employeeFormModel.getQualificationsSet())
-                    .machinesSet(employeeFormModel.getMachinesSet())
-                    .roles(authUserDTO.roles().stream()
-                            .map(role -> RoleType.valueOf(role.name()))
-                            .collect(Collectors.toSet()))
-                    .build();
+            try {
+                AuthUserDTO authUserDTO = coreAPI.updateAuthUserRoles(UpdateAuthUserDTO.builder()
+                                .employeeId(employeeFormModel.getId())
+                                .roles(selectedRoles.stream()
+                                        .map(role -> RoleDTO.builder()
+                                                .name(role.name())
+                                                .build())
+                                        .collect(Collectors.toSet()))
+                                .build())
+                        .orElseThrow(UpdateQualificationException::new);
+                var updatedEmployeeFormModel = EmployeeFormModel.builder()
+                        .id(employeeFormModel.getId())
+                        .firstName(employeeFormModel.getFirstName())
+                        .lastName(employeeFormModel.getLastName())
+                        .department(employeeFormModel.getDepartment())
+                        .birthDate(employeeFormModel.getBirthDate())
+                        .phoneNumber(employeeFormModel.getPhoneNumber())
+                        .qualificationsSet(employeeFormModel.getQualificationsSet())
+                        .machinesSet(employeeFormModel.getMachinesSet())
+                        .roles(authUserDTO.roles().stream()
+                                .map(role -> RoleType.valueOf(role.name()))
+                                .collect(Collectors.toSet()))
+                        .build();
 
-            fireEvent(new UpdateEvent(this, updatedEmployeeFormModel));
+                fireEvent(new UpdateEvent(this, updatedEmployeeFormModel));
+            } catch (NotAuthenticatedException e) {
+                new FailNotification(e.getMessage());
+            }
         });
     }
 
