@@ -13,8 +13,10 @@ public class CacheResolver {
     public static final String GET_ALL_EMPLOYEES = "getAllEmployees";
     public static final String GET_ALL_BREAKDOWNS = "getAllBreakdowns";
     public static final String GET_ALL_MACHINES = "getAllMachines";
+    public static final String GET_ALL_MACHINES_BY_IDS = "getAllMachinesByIds";
     public static final String GET_ALL_MACHINE_TYPES = "getAllMachinesTypes";
     public static final String GET_ALL_QUALIFICATIONS = "getAllQualifications";
+    public static final String GET_ALL_QUALIFICATIONS_WITH_EXPIRATION_TIME = "getAllQualificationsWithExpirationTime";
 
     public static UUID getCurrentCompanyId() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
