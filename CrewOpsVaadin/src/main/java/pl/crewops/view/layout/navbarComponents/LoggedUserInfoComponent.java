@@ -52,7 +52,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         }
 
         Button logoutButton = new Button(getTranslation("loggedUserInfo.logout"));
-        logoutButton.addClickListener(event -> logout(coreAPI, roleResolver));
+        logoutButton.addClickListener(event -> logout(roleResolver));
         logoutButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
         var buttonAndLanguageSelector = new HorizontalLayout();
@@ -61,7 +61,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
 
         final var token = roleResolver.getPrincipal().getToken();
         UserInformation userInformation = getInfo(coreAPI, jwtService, token);
-        infoLayout.add(displayUserInfo(coreAPI, userInformation, roleResolver), buttonAndLanguageSelector);
+        infoLayout.add(displayUserInfo(userInformation, roleResolver), buttonAndLanguageSelector);
         return infoLayout;
     }
 
@@ -106,8 +106,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         }
     }
 
-    private VerticalLayout displayUserInfo(
-            CoreAPI coreAPI, UserInformation userInformation, RoleResolver roleResolver) {
+    private VerticalLayout displayUserInfo(UserInformation userInformation, RoleResolver roleResolver) {
         Span companyName = new Span(userInformation.companyName);
         Span userName = new Span(userInformation.userName + " " + userInformation.userLastname);
 
@@ -139,7 +138,6 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                         ui.access(() -> {
                             new EndSessionNotification(ui, () -> {
                                         roleResolver.unauthenticatePrincipal();
-                                        coreAPI.setAuthentication(false);
                                         ui.navigate(HomeView.class);
                                         ui.getPage().reload();
                                     })
@@ -154,10 +152,9 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         return container;
     }
 
-    private void logout(CoreAPI coreAPI, RoleResolver roleResolver) {
+    private void logout(RoleResolver roleResolver) {
         UI ui = UI.getCurrent();
         roleResolver.unauthenticatePrincipal();
-        coreAPI.setAuthentication(false);
         String currentLocation = ui.getInternals().getActiveViewLocation().getPath();
         if (currentLocation.isEmpty()) {
             ui.getPage().reload();

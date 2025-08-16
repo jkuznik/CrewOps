@@ -29,17 +29,18 @@ import pl.crewops.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
+import pl.crewops.util.RoleResolver;
 
 @Slf4j
 @RequiredArgsConstructor
 class CoreClient {
 
     private final RestClient coreClient;
-    private RestClient authorizedClient;
+    private final RoleResolver roleResolver;
 
     public CreateCustomerResult registerNewCustomer(CreateCustomerCommand command) {
         try {
-            return authorizedClient
+            return authorizedClient()
                     .post()
                     .uri(uriBuilder -> uriBuilder.path(REGISTER).build())
                     .body(command)
@@ -76,7 +77,7 @@ class CoreClient {
 
     public AuthUserDTO updateAuthUserRoles(UpdateAuthUserDTO updateAuthUserDTO) {
         try {
-            return authorizedClient
+            return authorizedClient()
                     .patch()
                     .uri(uriBuilder -> uriBuilder.path(UPDATE_ROLES).build())
                     .body(updateAuthUserDTO)
@@ -107,7 +108,7 @@ class CoreClient {
     //    @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public void terminateEmployeeAccount(UUID employeeId) {
         try {
-            authorizedClient
+            authorizedClient()
                     .delete()
                     .uri(uriBuilder -> uriBuilder
                             .path(EMPLOYEES_EID.replace("{" + EMPLOYEE_ID + "}", employeeId.toString()))
@@ -121,7 +122,7 @@ class CoreClient {
 
     public EmployeeDTO addEmployeeQualification(UUID employeeId, UUID qualificationId) {
         try {
-            return authorizedClient
+            return authorizedClient()
                     .patch()
                     .uri(uriBuilder -> uriBuilder
                             .path(EMPLOYEES_EID_QUALIFICATIONS_QID)
@@ -138,7 +139,7 @@ class CoreClient {
     //    @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
         try {
-            return authorizedClient
+            return authorizedClient()
                     .post()
                     .uri(uriBuilder -> uriBuilder.path(EMPLOYEES).build())
                     .body(createEmployeeDTO)
@@ -162,7 +163,7 @@ class CoreClient {
     //            })
     public EmployeeDTO updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) {
         try {
-            return authorizedClient
+            return authorizedClient()
                     .patch()
                     .uri(uriBuilder -> uriBuilder.path(EMPLOYEES_EID).build(updateEmployeeDTO.employeeId()))
                     .body(updateEmployeeDTO)
@@ -180,7 +181,7 @@ class CoreClient {
     public EmployeeDTO getEmployeeById(UUID employeeId) {
         log.warn("Get employee by id cache missing");
         try {
-            return authorizedClient
+            return authorizedClient()
                     .get()
                     .uri(uriBuilder -> uriBuilder.path(EMPLOYEES_EID).build(employeeId))
                     .accept(MediaType.APPLICATION_JSON)
@@ -197,7 +198,7 @@ class CoreClient {
     public List<EmployeeDTO> getAllEmployees() {
         log.warn("Get all employees cache missing");
         try {
-            return authorizedClient
+            return authorizedClient()
                     .get()
                     .uri(uriBuilder -> uriBuilder.path(EMPLOYEES).build())
                     .accept(MediaType.APPLICATION_JSON)
@@ -213,7 +214,7 @@ class CoreClient {
     //    @CacheEvict(value = GET_ALL_QUALIFICATIONS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public QualificationDTO createQualification(CreateQualificationDTO createQualificationDTO) {
         try {
-            return authorizedClient
+            return authorizedClient()
                     .post()
                     .uri(uriBuilder -> uriBuilder.path(QUALIFICATIONS).build())
                     .body(createQualificationDTO)
@@ -236,7 +237,7 @@ class CoreClient {
     //            })
     public QualificationDTO updateQualification(UpdateQualificationDTO updateQualificationDTO) {
         try {
-            return authorizedClient
+            return authorizedClient()
                     .patch()
                     .uri(uriBuilder ->
                             uriBuilder.path(QUALIFICATIONS_QID).build(updateQualificationDTO.qualificationId()))
@@ -252,7 +253,7 @@ class CoreClient {
     // manager permission
     public EmployeeDTO updateQualificationExpireAt(UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO) {
         try {
-            return authorizedClient
+            return authorizedClient()
                     .patch()
                     .uri(uriBuilder -> uriBuilder
                             .path(EMPLOYEES_EID_QUALIFICATIONS_QID_EXPIRED)
@@ -270,7 +271,7 @@ class CoreClient {
 
     public void removeEmployeeQualification(UUID employeeId, UUID qualificationId) {
         try {
-            authorizedClient
+            authorizedClient()
                     .delete()
                     .uri(uriBuilder ->
                             uriBuilder.path(EMPLOYEES_EID_QUALIFICATIONS_QID).build(employeeId, qualificationId))
@@ -284,7 +285,7 @@ class CoreClient {
     // manager permission
     public void removeEmployeeMachine(UUID employeeId, UUID machineId) {
         try {
-            authorizedClient
+            authorizedClient()
                     .delete()
                     .uri(uriBuilder ->
                             uriBuilder.path(EMPLOYEES_EID_MACHINES_VID).build(employeeId, machineId))
@@ -297,7 +298,7 @@ class CoreClient {
 
     public List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(UUID employeeId) {
         try {
-            return authorizedClient
+            return authorizedClient()
                     .get()
                     .uri(uriBuilder ->
                             uriBuilder.path(QUALIFICATIONS_EID_EXPIRED).build(employeeId))
@@ -315,7 +316,7 @@ class CoreClient {
     public List<QualificationDTO> getAllQualifications() {
         log.warn("Get all qualifications cache missing");
         try {
-            return authorizedClient
+            return authorizedClient()
                     .get()
                     .uri(uriBuilder -> uriBuilder.path(QUALIFICATIONS).build())
                     .accept(MediaType.APPLICATION_JSON)
@@ -337,7 +338,7 @@ class CoreClient {
     //            })
     public void deleteQualification(UUID qualificationId) {
         try {
-            authorizedClient
+            authorizedClient()
                     .delete()
                     .uri(uriBuilder -> uriBuilder.path(QUALIFICATIONS_QID).build(qualificationId))
                     .retrieve()
@@ -359,7 +360,7 @@ class CoreClient {
     //            })
     public MachineDTO createMachine(CreateMachineDTO createMachineDTO) {
         try {
-            return authorizedClient
+            return authorizedClient()
                     .post()
                     .uri(uriBuilder -> uriBuilder.path(MACHINES).build())
                     .body(createMachineDTO)
@@ -387,7 +388,7 @@ class CoreClient {
     //            })
     public MachineDTO updateMachine(UpdateMachineDTO updateMachineDTO) {
         try {
-            return authorizedClient
+            return authorizedClient()
                     .patch()
                     .uri(uriBuilder -> uriBuilder.path(MACHINES_VID).build(updateMachineDTO.machineId()))
                     .body(updateMachineDTO)
@@ -404,7 +405,7 @@ class CoreClient {
     public List<MachineDTO> getAllMachines() {
         log.warn("Get all machines cache missing");
         try {
-            return authorizedClient
+            return authorizedClient()
                     .get()
                     .uri(uriBuilder -> uriBuilder.path(MACHINES).build())
                     .accept(MediaType.APPLICATION_JSON)
@@ -419,7 +420,7 @@ class CoreClient {
     // manager permission
     public List<MachineDTO> getAllEmployeeMachinesByIds(Set<UUID> ids) {
         try {
-            return authorizedClient
+            return authorizedClient()
                     .post()
                     .uri(uriBuilder -> uriBuilder.path(MACHINES_VIDS).build())
                     .body(ids)
@@ -436,7 +437,7 @@ class CoreClient {
     // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<MachineTypeDTO> getAllMachineTypes() {
         try {
-            return authorizedClient
+            return authorizedClient()
                     .get()
                     .uri(uriBuilder -> uriBuilder.path(MACHINE_TYPES).build())
                     .accept(MediaType.APPLICATION_JSON)
@@ -451,7 +452,7 @@ class CoreClient {
     // manager permission
     public EmployeeDTO addEmployeeMachine(UUID employeeId, UUID machineId) {
         try {
-            return authorizedClient
+            return authorizedClient()
                     .patch()
                     .uri(uriBuilder ->
                             uriBuilder.path(EMPLOYEES_EID_MACHINES_VID).build(employeeId, machineId))
@@ -474,7 +475,7 @@ class CoreClient {
     //    )
     public void deleteMachine(UUID machineId) {
         try {
-            authorizedClient
+            authorizedClient()
                     .delete()
                     .uri(uriBuilder -> uriBuilder
                             .path(MACHINES_VID.replace("{" + MACHINE_ID + "}", machineId.toString()))
@@ -499,7 +500,7 @@ class CoreClient {
     //    )
     public BreakdownDTO createBreakdown(CreateBreakdownDTO createBreakdownDTO) {
         try {
-            return authorizedClient
+            return authorizedClient()
                     .post()
                     .uri(uriBuilder -> uriBuilder.path(BREAKDOWNS).build())
                     .body(createBreakdownDTO)
@@ -524,7 +525,7 @@ class CoreClient {
 
     public BreakdownDTO updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO) {
         try {
-            return authorizedClient
+            return authorizedClient()
                     .patch()
                     .uri(uriBuilder -> uriBuilder.path(BREAKDOWNS_BID).build((updateBreakdownDTO.breakdownId())))
                     .body(updateBreakdownDTO)
@@ -540,7 +541,7 @@ class CoreClient {
     //    @Cacheable(cacheNames = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<BreakdownDTO> getAllBreakdowns() {
         try {
-            return authorizedClient
+            return authorizedClient()
                     .get()
                     .uri(uriBuilder -> uriBuilder.path(BREAKDOWNS).build())
                     .accept(MediaType.APPLICATION_JSON)
@@ -558,7 +559,7 @@ class CoreClient {
     public CompanyDTO getCompanyById(UUID companyId) {
         log.warn("Get company by id cache missing");
         try {
-            return authorizedClient
+            return authorizedClient()
                     .get()
                     .uri(uriBuilder -> uriBuilder.path(COMPANIES_CID).build(companyId))
                     .accept(MediaType.APPLICATION_JSON)
@@ -570,10 +571,11 @@ class CoreClient {
         }
     }
 
-    public void setToken(String token) {
-        authorizedClient = coreClient
+    private RestClient authorizedClient() {
+        return coreClient
                 .mutate()
-                .defaultHeader("Authorization", "Bearer " + token)
+                .defaultHeader(
+                        "Authorization", "Bearer " + roleResolver.getPrincipal().getAuthorities())
                 .build();
     }
 }

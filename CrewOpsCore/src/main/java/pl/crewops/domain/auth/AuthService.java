@@ -229,6 +229,7 @@ class AuthService implements AuthAPI {
             var userPrincipal = new UserPrincipal(authUser);
             String token = jwtService.generateToken(userPrincipal);
             log.info("Login successful for user: {}", authUser.getUsername());
+            TenantContext.clear();
             return new AuthResponse(token);
         } finally {
             TenantContext.clear();

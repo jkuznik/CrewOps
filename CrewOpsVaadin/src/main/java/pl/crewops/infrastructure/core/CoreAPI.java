@@ -103,8 +103,4 @@ public interface CoreAPI {
     void deleteQualification(@NotNull UUID qualificationId) throws NotAuthenticatedException;
 
     void deleteMachine(@NotNull UUID machineId) throws NotAuthenticatedException;
-
-    void setToken(@NotNull String token);
-
-    void setAuthentication(boolean authenticated);
 }
