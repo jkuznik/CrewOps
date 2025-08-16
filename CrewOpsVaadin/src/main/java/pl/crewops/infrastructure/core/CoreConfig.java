@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 import pl.crewops.security.config.SecurityConfigProperties;
-import pl.crewops.util.RoleResolver;
 
 @Configuration
 @EnableConfigurationProperties(CoreProperties.class)
@@ -14,7 +13,6 @@ import pl.crewops.util.RoleResolver;
 class CoreConfig {
 
     private final SecurityConfigProperties securityConfigProperties;
-    private final RoleResolver roleResolver;
 
     @Bean
     public CoreClient coreClient(CoreProperties coreProperties) {
@@ -23,6 +21,6 @@ class CoreConfig {
                 .defaultHeader("Client-Id", securityConfigProperties.getClientIdInput())
                 .build();
 
-        return new CoreClient(restClient, roleResolver);
+        return new CoreClient(restClient);
     }
 }

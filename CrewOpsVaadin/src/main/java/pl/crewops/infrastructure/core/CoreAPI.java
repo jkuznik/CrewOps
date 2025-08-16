@@ -34,7 +34,8 @@ public interface CoreAPI {
 
     Optional<AuthResponse> login(@Valid @NotNull AuthRequest request);
 
-    Optional<AuthUserDTO> updateAuthUserRoles(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO);
+    Optional<AuthUserDTO> updateAuthUserRoles(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO)
+            throws NotAuthenticatedException;
 
     Optional<ValidTokenResponse> validateToken(@Valid @NotNull ValidTokenRequest validTokenRequest);
 

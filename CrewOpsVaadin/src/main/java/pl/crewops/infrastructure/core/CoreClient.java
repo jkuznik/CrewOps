@@ -27,18 +27,19 @@ import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
+import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
 import pl.crewops.util.RoleResolver;
+import pl.crewops.util.SpringContextBridge;
 
 @Slf4j
 @RequiredArgsConstructor
 class CoreClient {
 
     private final RestClient coreClient;
-    private final RoleResolver roleResolver;
 
-    public CreateCustomerResult registerNewCustomer(CreateCustomerCommand command) {
+    public CreateCustomerResult registerNewCustomer(CreateCustomerCommand command) throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .post()
@@ -75,7 +76,7 @@ class CoreClient {
 
     // manager permission
 
-    public AuthUserDTO updateAuthUserRoles(UpdateAuthUserDTO updateAuthUserDTO) {
+    public AuthUserDTO updateAuthUserRoles(UpdateAuthUserDTO updateAuthUserDTO) throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .patch()
@@ -106,7 +107,7 @@ class CoreClient {
 
     // manager permission
     //    @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    public void terminateEmployeeAccount(UUID employeeId) {
+    public void terminateEmployeeAccount(UUID employeeId) throws NotAuthenticatedException {
         try {
             authorizedClient()
                     .delete()
@@ -120,7 +121,8 @@ class CoreClient {
         }
     }
 
-    public EmployeeDTO addEmployeeQualification(UUID employeeId, UUID qualificationId) {
+    public EmployeeDTO addEmployeeQualification(UUID employeeId, UUID qualificationId)
+            throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .patch()
@@ -137,7 +139,7 @@ class CoreClient {
 
     // manager permission
     //    @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
+    public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .post()
@@ -161,7 +163,7 @@ class CoreClient {
     //                    @CacheEvict(value = GET_ALL_EMPLOYEES, key =
     // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     //            })
-    public EmployeeDTO updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) {
+    public EmployeeDTO updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .patch()
@@ -178,7 +180,7 @@ class CoreClient {
     // authenticated
     //        @Cacheable(cacheNames = GET_EMPLOYEE_BY_ID, key =
     // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    public EmployeeDTO getEmployeeById(UUID employeeId) {
+    public EmployeeDTO getEmployeeById(UUID employeeId) throws NotAuthenticatedException {
         log.warn("Get employee by id cache missing");
         try {
             return authorizedClient()
@@ -195,7 +197,7 @@ class CoreClient {
 
     // authenticated
     //        @Cacheable(cacheNames = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    public List<EmployeeDTO> getAllEmployees() {
+    public List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException {
         log.warn("Get all employees cache missing");
         try {
             return authorizedClient()
@@ -212,7 +214,8 @@ class CoreClient {
 
     // manager permission
     //    @CacheEvict(value = GET_ALL_QUALIFICATIONS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    public QualificationDTO createQualification(CreateQualificationDTO createQualificationDTO) {
+    public QualificationDTO createQualification(CreateQualificationDTO createQualificationDTO)
+            throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .post()
@@ -235,7 +238,8 @@ class CoreClient {
     //                    @CacheEvict(value = GET_ALL_EMPLOYEES, key =
     // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     //            })
-    public QualificationDTO updateQualification(UpdateQualificationDTO updateQualificationDTO) {
+    public QualificationDTO updateQualification(UpdateQualificationDTO updateQualificationDTO)
+            throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .patch()
@@ -251,7 +255,8 @@ class CoreClient {
     }
 
     // manager permission
-    public EmployeeDTO updateQualificationExpireAt(UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO) {
+    public EmployeeDTO updateQualificationExpireAt(UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO)
+            throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .patch()
@@ -269,7 +274,7 @@ class CoreClient {
         }
     }
 
-    public void removeEmployeeQualification(UUID employeeId, UUID qualificationId) {
+    public void removeEmployeeQualification(UUID employeeId, UUID qualificationId) throws NotAuthenticatedException {
         try {
             authorizedClient()
                     .delete()
@@ -283,7 +288,7 @@ class CoreClient {
     }
 
     // manager permission
-    public void removeEmployeeMachine(UUID employeeId, UUID machineId) {
+    public void removeEmployeeMachine(UUID employeeId, UUID machineId) throws NotAuthenticatedException {
         try {
             authorizedClient()
                     .delete()
@@ -296,7 +301,8 @@ class CoreClient {
         }
     }
 
-    public List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(UUID employeeId) {
+    public List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(UUID employeeId)
+            throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .get()
@@ -313,7 +319,7 @@ class CoreClient {
     // authenticated
     //        @Cacheable(cacheNames = GET_ALL_QUALIFICATIONS, key =
     // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    public List<QualificationDTO> getAllQualifications() {
+    public List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException {
         log.warn("Get all qualifications cache missing");
         try {
             return authorizedClient()
@@ -336,7 +342,7 @@ class CoreClient {
     //                    @CacheEvict(value = GET_ALL_EMPLOYEES, key =
     // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     //            })
-    public void deleteQualification(UUID qualificationId) {
+    public void deleteQualification(UUID qualificationId) throws NotAuthenticatedException {
         try {
             authorizedClient()
                     .delete()
@@ -358,7 +364,7 @@ class CoreClient {
     //                        value = GET_ALL_MACHINE_TYPES,
     //                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     //            })
-    public MachineDTO createMachine(CreateMachineDTO createMachineDTO) {
+    public MachineDTO createMachine(CreateMachineDTO createMachineDTO) throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .post()
@@ -386,7 +392,7 @@ class CoreClient {
     //                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
     //
     //            })
-    public MachineDTO updateMachine(UpdateMachineDTO updateMachineDTO) {
+    public MachineDTO updateMachine(UpdateMachineDTO updateMachineDTO) throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .patch()
@@ -402,7 +408,7 @@ class CoreClient {
 
     // authenticated
     //        @Cacheable(cacheNames = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    public List<MachineDTO> getAllMachines() {
+    public List<MachineDTO> getAllMachines() throws NotAuthenticatedException {
         log.warn("Get all machines cache missing");
         try {
             return authorizedClient()
@@ -418,7 +424,7 @@ class CoreClient {
     }
 
     // manager permission
-    public List<MachineDTO> getAllEmployeeMachinesByIds(Set<UUID> ids) {
+    public List<MachineDTO> getAllEmployeeMachinesByIds(Set<UUID> ids) throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .post()
@@ -435,7 +441,7 @@ class CoreClient {
     // authenticated
     //        @Cacheable(cacheNames = GET_ALL_MACHINE_TYPES, key =
     // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    public List<MachineTypeDTO> getAllMachineTypes() {
+    public List<MachineTypeDTO> getAllMachineTypes() throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .get()
@@ -450,7 +456,7 @@ class CoreClient {
     }
 
     // manager permission
-    public EmployeeDTO addEmployeeMachine(UUID employeeId, UUID machineId) {
+    public EmployeeDTO addEmployeeMachine(UUID employeeId, UUID machineId) throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .patch()
@@ -473,7 +479,7 @@ class CoreClient {
     // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     //            }
     //    )
-    public void deleteMachine(UUID machineId) {
+    public void deleteMachine(UUID machineId) throws NotAuthenticatedException {
         try {
             authorizedClient()
                     .delete()
@@ -498,7 +504,7 @@ class CoreClient {
     // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     //            }
     //    )
-    public BreakdownDTO createBreakdown(CreateBreakdownDTO createBreakdownDTO) {
+    public BreakdownDTO createBreakdown(CreateBreakdownDTO createBreakdownDTO) throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .post()
@@ -523,7 +529,7 @@ class CoreClient {
     // "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     //            })
 
-    public BreakdownDTO updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO) {
+    public BreakdownDTO updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO) throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .patch()
@@ -539,7 +545,7 @@ class CoreClient {
 
     // authenticated
     //    @Cacheable(cacheNames = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    public List<BreakdownDTO> getAllBreakdowns() {
+    public List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .get()
@@ -556,7 +562,7 @@ class CoreClient {
     // authenticated
     // TODO: consider remove caching of this value or implement different logic
     //        @Cacheable(cacheNames = GET_COMPANY_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
-    public CompanyDTO getCompanyById(UUID companyId) {
+    public CompanyDTO getCompanyById(UUID companyId) throws NotAuthenticatedException {
         log.warn("Get company by id cache missing");
         try {
             return authorizedClient()
@@ -571,11 +577,17 @@ class CoreClient {
         }
     }
 
-    private RestClient authorizedClient() {
-        return coreClient
-                .mutate()
-                .defaultHeader(
-                        "Authorization", "Bearer " + roleResolver.getPrincipal().getAuthorities())
-                .build();
+    private RestClient authorizedClient() throws NotAuthenticatedException {
+        RoleResolver roleResolver = SpringContextBridge.getBean(RoleResolver.class);
+        if (roleResolver.getPrincipal() != null) {
+            return coreClient
+                    .mutate()
+                    .defaultHeader(
+                            "Authorization",
+                            "Bearer " + roleResolver.getPrincipal().getToken())
+                    .build();
+        } else {
+            throw new NotAuthenticatedException();
+        }
     }
 }
