@@ -34,7 +34,8 @@ public interface CoreAPI {
 
     Optional<AuthResponse> login(@Valid @NotNull AuthRequest request);
 
-    Optional<AuthUserDTO> updateAuthUserRoles(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO);
+    Optional<AuthUserDTO> updateAuthUserRoles(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO)
+            throws NotAuthenticatedException;
 
     Optional<ValidTokenResponse> validateToken(@Valid @NotNull ValidTokenRequest validTokenRequest);
 
@@ -103,8 +104,4 @@ public interface CoreAPI {
     void deleteQualification(@NotNull UUID qualificationId) throws NotAuthenticatedException;
 
     void deleteMachine(@NotNull UUID machineId) throws NotAuthenticatedException;
-
-    void setToken(@NotNull String token);
-
-    void setAuthentication(boolean authenticated);
 }

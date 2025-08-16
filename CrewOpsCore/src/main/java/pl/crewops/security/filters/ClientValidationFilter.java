@@ -9,10 +9,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.security.config.SecurityConfigProperties;
 
 @Slf4j
@@ -26,7 +26,9 @@ public class ClientValidationFilter extends OncePerRequestFilter {
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        TenantContext.clear();
+        SecurityContextHolder.getContext().setAuthentication(null);
+        SecurityContextHolder.clearContext();
+
         if (isPublicUrl(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             return;

@@ -1,7 +1,7 @@
 package pl.crewops.infrastructure.multitenancy;
 
 public class TenantContext {
-    private static final ThreadLocal<String> CURRENT_TENANT = new InheritableThreadLocal<>();
+    private static final ThreadLocal<String> CURRENT_TENANT = new ThreadLocal<>();
 
     public static void setCurrentTenant(String tenantId) {
         CURRENT_TENANT.set(tenantId);

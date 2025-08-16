@@ -93,8 +93,6 @@ public class LoginForm extends FormLayout {
 
             String token = authResponse.token();
 
-            log.info("Successfully logged in, token: {}", token);
-
             UUID companyId = jwtService.extractCompanyId(token);
             UUID employeeId = jwtService.extractEmployeeId(token);
             var authorities = jwtService.extractAuthorities(token);
@@ -109,9 +107,6 @@ public class LoginForm extends FormLayout {
             context.setAuthentication(auth);
             SecurityContextHolder.setContext(context);
 
-            coreAPI.setAuthentication(true);
-            coreAPI.setToken(token);
-
             HttpServletRequest request =
                     ((VaadinServletRequest) VaadinService.getCurrentRequest()).getHttpServletRequest();
             HttpServletResponse response =
@@ -120,6 +115,7 @@ public class LoginForm extends FormLayout {
             SecurityContextRepository repo = new HttpSessionSecurityContextRepository();
             repo.saveContext(context, request, response);
 
+            log.info("Successfully logged in, token: {}", token);
             UI.getCurrent().getPage().reload();
         } catch (NotAuthenticatedException | RestClientException e) {
             log.error("Login failed: {}", e.getMessage());
