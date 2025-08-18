@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.UUID;
 import pl.crewops.dto.address.CreateAddressDTO;
-import pl.crewops.dto.auth.RoleDTO;
 import pl.crewops.dto.company.CreateCompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.tenant.CreateTenantDTO;
@@ -32,7 +31,7 @@ class RegistrationTestFactory {
                 .build();
     }
 
-    static CreateTenantDTO createExistingTenantDTO() {
+    static CreateTenantDTO createTenantDTOWithAlreadyExistTenantValues() {
         return CreateTenantDTO.builder()
                 .createAddressDTO(CreateAddressDTO.builder()
                         .postalCode("postalCode")
@@ -56,7 +55,7 @@ class RegistrationTestFactory {
                 .birthDate(LocalDate.now())
                 .companyId(UUID.randomUUID())
                 .phoneNumber("phoneNumber")
-                .roles(new HashSet<RoleDTO>())
+                .roles(new HashSet<>())
                 .build();
     }
 
@@ -67,9 +66,9 @@ class RegistrationTestFactory {
                 .build();
     }
 
-    static CreateCustomerCommand createExistingCustomerCommand() {
+    static CreateCustomerCommand createCustomerCommandThatBreakUniqueConstraints() {
         return CreateCustomerCommand.builder()
-                .createTenantDTO(createExistingTenantDTO())
+                .createTenantDTO(createTenantDTOWithAlreadyExistTenantValues())
                 .createEmployeeDTO(createEmployeeDTO())
                 .build();
     }

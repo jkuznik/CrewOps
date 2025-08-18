@@ -46,10 +46,10 @@ class MachineServiceTest {
 
     @BeforeEach
     void setUp() {
-        machine = createMachine();
+        machine = machine();
         createMachineDTO = createMachineDTO();
         updateMachineDTOValid = updateMachineDTO();
-        machineType = createMachineType();
+        machineType = machineType();
     }
 
     @Test

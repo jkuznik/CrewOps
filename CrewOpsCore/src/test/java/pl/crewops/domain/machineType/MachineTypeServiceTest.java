@@ -32,9 +32,9 @@ class MachineTypeServiceTest {
 
     @BeforeEach
     void setUp() {
-        machineType = createMachineType();
-        machineTypeDTO = createMachineTypeDTO();
-        createMachineTypeDTO = createCreateMachineTypeDTO();
+        machineType = machineType();
+        machineTypeDTO = machineTypeDTO();
+        createMachineTypeDTO = createMachineTypeDTO();
     }
 
     @Test

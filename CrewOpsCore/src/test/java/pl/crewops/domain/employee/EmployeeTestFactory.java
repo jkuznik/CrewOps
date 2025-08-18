@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.UUID;
 import pl.crewops.IntegrationTest;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Machine;
@@ -37,17 +36,6 @@ class EmployeeTestFactory {
                 .phoneNumber("123456789")
                 .department("department")
                 .active(true)
-                .build();
-    }
-
-    static EmployeeDTO employeeDTO() {
-        return EmployeeDTO.builder()
-                .id(employeeId)
-                .firstName("firstName")
-                .lastName("lastName")
-                .birthDate(LocalDate.parse("2000-01-01"))
-                .phoneNumber("123456789")
-                .department("department")
                 .build();
     }
 

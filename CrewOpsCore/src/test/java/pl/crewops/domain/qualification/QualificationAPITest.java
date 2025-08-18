@@ -2,8 +2,8 @@ package pl.crewops.domain.qualification;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchException;
-import static pl.crewops.domain.qualification.QualificationTestFactory.createCreateQualificationDTOWithoutDescription;
-import static pl.crewops.domain.qualification.QualificationTestFactory.createUpdateQualificationDTOWithoutDescription;
+import static pl.crewops.domain.qualification.QualificationTestFactory.createQualificationDTOWithoutDescription;
+import static pl.crewops.domain.qualification.QualificationTestFactory.updateQualificationDTOWithoutDescription;
 
 import jakarta.validation.ConstraintViolationException;
 import java.util.UUID;
@@ -32,7 +32,7 @@ class QualificationAPITest extends IntegrationTest {
     @Test
     void shouldThrowException_whenCreatedQualificationDTOIsNotValid() {
         // given
-        var createQualificationDTOWithoutDescription = createCreateQualificationDTOWithoutDescription();
+        var createQualificationDTOWithoutDescription = createQualificationDTOWithoutDescription();
 
         // when
         Exception result =
@@ -54,7 +54,7 @@ class QualificationAPITest extends IntegrationTest {
     @Test
     void shouldThrowException_whenUpdatedQualificationDTOIsNotValid() {
         // given
-        var updateQualificationDTOWithoutDescription = createUpdateQualificationDTOWithoutDescription();
+        var updateQualificationDTOWithoutDescription = updateQualificationDTOWithoutDescription();
 
         // when
         Exception result =

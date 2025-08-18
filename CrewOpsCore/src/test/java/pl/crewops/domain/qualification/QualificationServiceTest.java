@@ -38,9 +38,9 @@ class QualificationServiceTest {
 
     @BeforeEach
     void setUp() {
-        qualification = createQualification();
-        createQualificationDTO = createCreateQualificationDTOWithDescription();
-        updateQualificationDTOWithDescription = createUpdateQualificationDTOWithDescription();
+        qualification = qualification();
+        createQualificationDTO = createQualificationDTOWithDescription();
+        updateQualificationDTOWithDescription = updateQualificationDTOWithDescription();
     }
 
     @Test
