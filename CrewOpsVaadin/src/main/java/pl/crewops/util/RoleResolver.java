@@ -75,8 +75,7 @@ public class RoleResolver {
 
             Set<RoleGrantedAuthority> roleGrantedAuthorities = jwtService.extractAuthorities(principal.getToken());
 
-            return roleGrantedAuthorities.size() == 1
-                    && roleGrantedAuthorities.contains(new RoleGrantedAuthority(SYSTEM_ADMIN));
+            return roleGrantedAuthorities.contains(new RoleGrantedAuthority(SYSTEM_ADMIN));
         } else {
             return false;
         }

@@ -15,7 +15,6 @@ import pl.crewops.dto.employee.CreateEmployeeDTO;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "employee")
 public class Employee extends AbstractEntity {
 
     @Size(max = 31)

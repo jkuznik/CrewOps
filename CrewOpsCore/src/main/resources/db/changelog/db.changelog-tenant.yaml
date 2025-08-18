@@ -38,3 +38,5 @@
         file: db/changelog/create/tenantSchema/008-create-table-address.yaml
     - include:
         file: db/changelog/create/tenantSchema/009-create-table-company.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/010-create-table-message.yaml

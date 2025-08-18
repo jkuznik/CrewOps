@@ -11,7 +11,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "breakdown")
 public class Breakdown extends AbstractEntity {
 
     @NotNull
