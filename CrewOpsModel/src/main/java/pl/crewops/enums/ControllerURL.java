@@ -26,6 +26,8 @@ public interface ControllerURL {
     String BREAKDOWN_ID = "breakdownId";
     String COMPANIES = "/companies";
     String COMPANY_ID = "companyId";
+    String MESSAGES = "/messages";
+    String MESSAGE_ID = "messageId";
 
     String EMPLOYEES_EID = EMPLOYEES + "/{" + EMPLOYEE_ID + "}";
     String BREAKDOWNS_BID = BREAKDOWNS + "/{" + BREAKDOWN_ID + "}";
@@ -40,6 +42,8 @@ public interface ControllerURL {
     String MACHINES_VID_EMPLOYEES = MACHINES + "/{" + MACHINE_ID + "}" + EMPLOYEES;
     String MACHINES_RN = MACHINES + "/{registrationNumber}";
     String MACHINES_VIDS = MACHINES + "/collection";
+
+    String MESSAGES_EID = MESSAGES + "/{" + EMPLOYEE_ID + "}";
 
     String EMPLOYEES_EID_PHONE = EMPLOYEES_EID + "/phone";
     String EMPLOYEES_EID_QUALIFICATIONS_EXPIRED = EMPLOYEES_EID + QUALIFICATIONS + "/expired";

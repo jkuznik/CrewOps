@@ -25,18 +25,18 @@ import pl.crewops.exceptions.UpdateQualificationException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.auth.RoleType;
-import pl.crewops.util.RoleResolver;
+import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.SpringContextBridge;
 
 public class RoleAccordion extends FormLayout {
     private final CoreAPI coreAPI;
-    private final RoleResolver roleResolver;
+    private final AuthenticationResolver authenticationResolver;
 
     public RoleAccordion() {
         addClassName("roles-accordion");
 
         this.coreAPI = SpringContextBridge.getBean(CoreAPI.class);
-        this.roleResolver = SpringContextBridge.getBean(RoleResolver.class);
+        this.authenticationResolver = SpringContextBridge.getBean(AuthenticationResolver.class);
     }
 
     public void setValues(EmployeeFormModel employeeFormModel) {
@@ -106,7 +106,7 @@ public class RoleAccordion extends FormLayout {
 
         checkboxGroup.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
 
-        if (roleResolver.principalHasCompanyAdminRole()) {
+        if (authenticationResolver.principalHasCompanyAdminPermission()) {
             checkboxGroup.setItems(Arrays.stream(allRoles)
                     .filter(roleType -> !roleType.equals(EMPLOYEE) && !roleType.equals(SYSTEM_ADMIN))
                     .collect(Collectors.toSet()));

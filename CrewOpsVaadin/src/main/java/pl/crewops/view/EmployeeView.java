@@ -11,7 +11,7 @@ import pl.crewops.component.grid.EmployeeGrid;
 import pl.crewops.component.grid.QualificationGrid;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
-import pl.crewops.util.RoleResolver;
+import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.layout.MainLayout;
 
 @Route(value = "employees")
@@ -20,10 +20,10 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
     private final EmployeeGrid employeeGrid;
     private final QualificationGrid qualificationGrid;
 
-    public EmployeeView(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
-        super(coreAPI, jwtService, roleResolver);
+    public EmployeeView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
+        super(coreAPI, jwtService, authenticationResolver);
 
-        employeeGrid = new EmployeeGrid(coreAPI, roleResolver);
+        employeeGrid = new EmployeeGrid(coreAPI, authenticationResolver);
         qualificationGrid = new QualificationGrid(coreAPI);
         employeeGrid.setQualificationGrid(qualificationGrid);
         qualificationGrid.setEmployeeGrid(employeeGrid);
@@ -68,7 +68,7 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (!roleResolver.principalHasManagerRole()) {
+        if (!authenticationResolver.principalHasManagerPermission()) {
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");
         }

@@ -8,7 +8,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
-import pl.crewops.util.RoleResolver;
+import pl.crewops.util.AuthenticationResolver;
 
 @SpringComponent
 @UIScope
@@ -19,17 +19,17 @@ public class MainLayout extends AppLayout {
 
     protected final CoreAPI coreAPI;
     protected final JwtServiceVaadin jwtService;
-    protected final RoleResolver roleResolver;
+    protected final AuthenticationResolver authenticationResolver;
 
     protected final VerticalLayout mainContent = new VerticalLayout();
     protected final Footer mainFooter = new MainFooter();
 
-    public MainLayout(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
+    public MainLayout(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         addClassName("main-layout");
 
         this.coreAPI = coreAPI;
         this.jwtService = jwtService;
-        this.roleResolver = roleResolver;
+        this.authenticationResolver = authenticationResolver;
 
         mainContent.setSizeFull();
         mainContent.setSpacing(true);
@@ -37,7 +37,7 @@ public class MainLayout extends AppLayout {
         mainContent.setVisible(true);
         setContent(mainContent);
 
-        addToNavbar(new MainNavbar(coreAPI, jwtService, roleResolver));
-        addToDrawer(new MainDrawer(jwtService));
+        addToNavbar(new MainNavbar(coreAPI, jwtService, authenticationResolver));
+        addToDrawer(new MainDrawer(authenticationResolver));
     }
 }

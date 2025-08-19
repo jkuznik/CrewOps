@@ -34,7 +34,7 @@ import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
-import pl.crewops.util.RoleResolver;
+import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.SpringContextBridge;
 
 @Slf4j
@@ -676,13 +676,13 @@ class CoreClient {
     }
 
     private RestClient authorizedClient() throws NotAuthenticatedException {
-        RoleResolver roleResolver = SpringContextBridge.getBean(RoleResolver.class);
-        if (roleResolver.getPrincipal() != null) {
+        AuthenticationResolver authenticationResolver = SpringContextBridge.getBean(AuthenticationResolver.class);
+        if (authenticationResolver.getPrincipal() != null) {
             return coreClient
                     .mutate()
                     .defaultHeader(
                             "Authorization",
-                            "Bearer " + roleResolver.getPrincipal().getToken())
+                            "Bearer " + authenticationResolver.getPrincipal().getToken())
                     .build();
         } else {
             throw new NotAuthenticatedException();

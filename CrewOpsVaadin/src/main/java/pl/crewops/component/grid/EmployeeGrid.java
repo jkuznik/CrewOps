@@ -24,7 +24,7 @@ import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.auth.RoleType;
-import pl.crewops.util.RoleResolver;
+import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.HomeView;
 
 @Getter
@@ -32,7 +32,7 @@ import pl.crewops.view.HomeView;
 @CssImport("./styles/component/combo-box.css")
 public class EmployeeGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
-    private final RoleResolver roleResolver;
+    private final AuthenticationResolver authenticationResolver;
 
     private final Grid<EmployeeFormModel> grid = new Grid<>();
     private final TextField nameFilter = new TextField();
@@ -42,9 +42,9 @@ public class EmployeeGrid extends VerticalLayout {
     private final Button addEmployee = new Button();
     private QualificationGrid qualificationGrid;
 
-    public EmployeeGrid(CoreAPI coreAPI, RoleResolver roleResolver) {
+    public EmployeeGrid(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
         this.coreAPI = coreAPI;
-        this.roleResolver = roleResolver;
+        this.authenticationResolver = authenticationResolver;
         form = new EmployeeForm();
 
         configureGrid();
@@ -210,7 +210,7 @@ public class EmployeeGrid extends VerticalLayout {
 
     private void saveEmployee(EmployeeForm.SaveEvent event) {
         try {
-            var principal = roleResolver.getPrincipal();
+            var principal = authenticationResolver.getPrincipal();
             UUID companyId = principal.getCompanyId();
 
             Optional<EmployeeDTO> employeeDTO =

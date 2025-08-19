@@ -23,6 +23,7 @@ import pl.crewops.domain.auth.AuthAPI;
 import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.domain.machineType.MachineTypeAPI;
+import pl.crewops.domain.message.MessageAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
 import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
@@ -78,6 +79,9 @@ public abstract class IntegrationTest {
 
     @Autowired
     protected MachineAPI machineAPI;
+
+    @Autowired
+    protected MessageAPI messageAPI;
 
     @Autowired
     protected MachineTypeAPI machineTypeAPI;

@@ -9,15 +9,15 @@ import com.vaadin.flow.router.Route;
 import pl.crewops.component.content.HomeContent;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
-import pl.crewops.util.RoleResolver;
+import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.layout.MainLayout;
 
 @Route(value = "")
 @PageTitle("Crew Ops")
 public class HomeView extends MainLayout {
 
-    public HomeView(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
-        super(coreAPI, jwtService, roleResolver);
+    public HomeView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
+        super(coreAPI, jwtService, authenticationResolver);
         addClassName("home-view");
 
         mainContent.removeAll();

@@ -12,7 +12,7 @@ import pl.crewops.component.grid.BreakdownGrid;
 import pl.crewops.component.grid.MachineGrid;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
-import pl.crewops.util.RoleResolver;
+import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.layout.MainLayout;
 
 @Slf4j
@@ -22,14 +22,14 @@ public class MachineView extends MainLayout implements BeforeEnterObserver {
     private final MachineGrid machineGrid;
     private final BreakdownGrid breakdownGrid;
 
-    public MachineView(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
-        super(coreAPI, jwtService, roleResolver);
+    public MachineView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
+        super(coreAPI, jwtService, authenticationResolver);
 
-        breakdownGrid = new BreakdownGrid(coreAPI, roleResolver);
+        breakdownGrid = new BreakdownGrid(coreAPI, authenticationResolver);
         breakdownGrid.setSizeFull();
         breakdownGrid.setVisible(false);
 
-        machineGrid = new MachineGrid(coreAPI, breakdownGrid, roleResolver);
+        machineGrid = new MachineGrid(coreAPI, breakdownGrid, authenticationResolver);
         machineGrid.setSizeFull();
 
         addClassName("machine-view");
@@ -74,7 +74,7 @@ public class MachineView extends MainLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (!roleResolver.principalIsAuthenticated()) {
+        if (!authenticationResolver.principalIsAuthenticated()) {
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");
         }

@@ -22,12 +22,12 @@ import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.BreakdownFormModel;
 import pl.crewops.security.custom.UserPrincipal;
-import pl.crewops.util.RoleResolver;
+import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.HomeView;
 
 public class BreakdownGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
-    private final RoleResolver roleResolver;
+    private final AuthenticationResolver authenticationResolver;
 
     private final Grid<BreakdownFormModel> grid = new Grid<>();
     private final TextField filter = new TextField();
@@ -35,9 +35,9 @@ public class BreakdownGrid extends VerticalLayout {
 
     private final BreakdownForm form;
 
-    public BreakdownGrid(CoreAPI coreAPI, RoleResolver roleResolver) {
+    public BreakdownGrid(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
         this.coreAPI = coreAPI;
-        this.roleResolver = roleResolver;
+        this.authenticationResolver = authenticationResolver;
         this.form = new BreakdownForm();
 
         configureGrid();
@@ -195,7 +195,7 @@ public class BreakdownGrid extends VerticalLayout {
             closeEditor();
         } else {
             form.setBreakdown(breakdownFormModel);
-            if (roleResolver.principalHasOnlyEmployeeRole()) {
+            if (authenticationResolver.principalHasOnlyEmployeePermission()) {
                 form.setFormModeEmployeePermission();
             } else {
                 form.setFormModeUpdate();
@@ -205,7 +205,7 @@ public class BreakdownGrid extends VerticalLayout {
     }
 
     private void updateBreakdown(BreakdownForm.UpdateEvent event) {
-        if (roleResolver.principalHasManagerRole()) {
+        if (authenticationResolver.principalHasManagerPermission()) {
             try {
                 Optional<BreakdownDTO> breakdownDTO =
                         coreAPI.updateBreakdown(toUpdateBreakdownDTO(event.getBreakdown()));

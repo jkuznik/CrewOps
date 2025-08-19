@@ -1,7 +1,5 @@
 package pl.crewops.view.layout;
 
-import static pl.crewops.model.auth.RoleType.*;
-
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.Span;
@@ -9,12 +7,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import java.util.Set;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import pl.crewops.model.auth.RoleGrantedAuthority;
-import pl.crewops.security.custom.UserPrincipal;
-import pl.crewops.security.jwt.JwtServiceVaadin;
+import pl.crewops.component.navbarComponents.CustomerRegistryButton;
+import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.EmployeeView;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.MachineView;
@@ -23,8 +17,7 @@ import pl.crewops.view.MachineView;
 @UIScope
 @CssImport("./styles/mainStyles/main-drawer.css")
 public class MainDrawer extends VerticalLayout {
-
-    private final JwtServiceVaadin jwtService;
+    private final AuthenticationResolver authenticationResolver;
 
     private final RouterLink homeLink = new RouterLink(HomeView.class);
     private final RouterLink employeeLink = new RouterLink(EmployeeView.class);
@@ -32,12 +25,10 @@ public class MainDrawer extends VerticalLayout {
 
     private final Span footerText = new Span();
 
-    public MainDrawer(JwtServiceVaadin jwtService) {
+    public MainDrawer(AuthenticationResolver authenticationResolver) {
         addClassName("main-drawer");
 
-        this.jwtService = jwtService;
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        this.authenticationResolver = authenticationResolver;
 
         localize();
 
@@ -51,16 +42,17 @@ public class MainDrawer extends VerticalLayout {
         linksLayout.setSpacing(true);
         linksLayout.add(homeLink, employeeLink, machineLink);
 
+        if (authenticationResolver.principalHasSystemAdminPermission()) {
+            linksLayout.add(new CustomerRegistryButton());
+        }
+
         add(linksLayout, createDrawerFooter());
         setFlexGrow(1, linksLayout);
 
-        if (authentication != null
-                && authentication.isAuthenticated()
-                && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
-
-            customizeDrawerDependsOnRoles(userPrincipal, employeeLink, machineLink);
+        if (authenticationResolver.principalIsAuthenticated()) {
+            displayLinksDependsOnRoles(employeeLink, machineLink);
         } else {
-            customizeDrawerDependsOnRoles(null, employeeLink, machineLink);
+            hideLinksRequiredAuthentication(employeeLink, machineLink);
         }
     }
 
@@ -79,17 +71,7 @@ public class MainDrawer extends VerticalLayout {
         footerText.addClassName("drawer-footer-text");
 
         footer.add(footerText);
-
         return footer;
-    }
-
-    private void customizeDrawerDependsOnRoles(
-            UserPrincipal principal, RouterLink employeeLink, RouterLink machineLink) {
-        if (isRequestAuthenticated(principal)) {
-            displayLinksDependsOnRoles(principal, employeeLink, machineLink);
-        } else {
-            hideLinksRequiredAuthentication(employeeLink, machineLink);
-        }
     }
 
     private static void hideLinksRequiredAuthentication(RouterLink employeeLink, RouterLink machineLink) {
@@ -97,20 +79,13 @@ public class MainDrawer extends VerticalLayout {
         machineLink.setVisible(false);
     }
 
-    private void displayLinksDependsOnRoles(UserPrincipal principal, RouterLink employeeLink, RouterLink machineLink) {
-        Set<RoleGrantedAuthority> roleGrantedAuthorities = jwtService.extractAuthorities(principal.getToken());
-        if (roleGrantedAuthorities.contains(new RoleGrantedAuthority(MANAGER))
-                || roleGrantedAuthorities.contains(new RoleGrantedAuthority(COMPANY_ADMIN))
-                || roleGrantedAuthorities.contains(new RoleGrantedAuthority(SYSTEM_ADMIN))) {
+    private void displayLinksDependsOnRoles(RouterLink employeeLink, RouterLink machineLink) {
+        if (authenticationResolver.principalHasManagerPermission()) {
             employeeLink.setVisible(true);
             machineLink.setVisible(true);
         } else {
             employeeLink.setVisible(false);
             machineLink.setVisible(true);
         }
-    }
-
-    private boolean isRequestAuthenticated(UserPrincipal principal) {
-        return principal != null && jwtService.validToken(principal.getToken());
     }
 }

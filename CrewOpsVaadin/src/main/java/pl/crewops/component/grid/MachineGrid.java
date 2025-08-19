@@ -31,13 +31,13 @@ import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.BreakdownFormModel;
 import pl.crewops.model.MachineFormModel;
-import pl.crewops.util.RoleResolver;
+import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.HomeView;
 
 @Slf4j
 public class MachineGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
-    private final RoleResolver roleResolver;
+    private final AuthenticationResolver authenticationResolver;
 
     private final Grid<MachineFormModel> grid = new Grid<>(MachineFormModel.class);
     private final TextField filter = new TextField();
@@ -46,9 +46,9 @@ public class MachineGrid extends VerticalLayout {
     private final BreakdownForm breakdownForm = new BreakdownForm();
     private MachineFormModel selectedModel;
 
-    public MachineGrid(CoreAPI coreAPI, BreakdownGrid breakdownGrid, RoleResolver roleResolver) {
+    public MachineGrid(CoreAPI coreAPI, BreakdownGrid breakdownGrid, AuthenticationResolver authenticationResolver) {
         this.coreAPI = coreAPI;
-        this.roleResolver = roleResolver;
+        this.authenticationResolver = authenticationResolver;
         this.machineForm = new MachineForm(this, breakdownGrid, coreAPI);
 
         configureGrid();
@@ -113,7 +113,7 @@ public class MachineGrid extends VerticalLayout {
 
         addMachine.addClickListener(event -> addMachine());
 
-        if (roleResolver.principalHasManagerRole()) {
+        if (authenticationResolver.principalHasManagerPermission()) {
             toolbar.add(filter, addMachine);
         } else {
             toolbar.add(filter);
@@ -195,7 +195,7 @@ public class MachineGrid extends VerticalLayout {
             closeEditor();
         } else {
             machineForm.setMachine(machineFormModel);
-            if (roleResolver.principalHasManagerRole()) {
+            if (authenticationResolver.principalHasManagerPermission()) {
                 machineForm.setFormModeUpdate();
             } else {
                 machineForm.setFormModeEmployeePermission();

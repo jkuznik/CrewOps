@@ -1,10 +1,12 @@
-package pl.crewops.view.layout.navbarComponents;
+package pl.crewops.component.navbarComponents;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -22,7 +24,7 @@ import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
-import pl.crewops.util.RoleResolver;
+import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.EmployeeView;
 import pl.crewops.view.HomeView;
 
@@ -31,37 +33,35 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
     private static final Map<UI, Boolean> startedMap = new WeakHashMap<>();
     private boolean sessionEnded = false;
 
-    public LoggedUserInfoComponent(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
+    public LoggedUserInfoComponent(
+            CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         addClassName("logged-user-info");
 
-        if (roleResolver.principalIsAuthenticated()) {
-            add(loggedUserInfo(coreAPI, jwtService, roleResolver));
+        if (authenticationResolver.principalIsAuthenticated()) {
+            add(loggedUserInfo(coreAPI, jwtService, authenticationResolver));
         } else {
             add(new LoginForm(coreAPI, jwtService));
         }
     }
 
-    private Component loggedUserInfo(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
+    private Component loggedUserInfo(
+            CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         var infoLayout = new VerticalLayout();
         infoLayout.setWidthFull();
         infoLayout.setSpacing(true);
         infoLayout.setAlignItems(FlexComponent.Alignment.END);
 
-        if (roleResolver.principalHasSystemAdminRole()) {
-            infoLayout.add(new CustomerRegistryButton(coreAPI));
-        }
-
         Button logoutButton = new Button(getTranslation("loggedUserInfo.logout"));
-        logoutButton.addClickListener(event -> logout(roleResolver));
+        logoutButton.addClickListener(event -> logout(authenticationResolver));
         logoutButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
-        var buttonAndLanguageSelector = new HorizontalLayout();
-        buttonAndLanguageSelector.setSpacing(true);
-        buttonAndLanguageSelector.add(logoutButton, new LanguageSelectorComponent());
+        var logoutButtonAndLanguageSelector = new HorizontalLayout();
+        logoutButtonAndLanguageSelector.setSpacing(true);
+        logoutButtonAndLanguageSelector.add(logoutButton, new LanguageSelectorComponent());
 
-        final var token = roleResolver.getPrincipal().getToken();
+        final var token = authenticationResolver.getPrincipal().getToken();
         UserInformation userInformation = getInfo(coreAPI, jwtService, token);
-        infoLayout.add(displayUserInfo(userInformation, roleResolver), buttonAndLanguageSelector);
+        infoLayout.add(displayUserInfo(userInformation, authenticationResolver), logoutButtonAndLanguageSelector);
         return infoLayout;
     }
 
@@ -106,20 +106,25 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         }
     }
 
-    private VerticalLayout displayUserInfo(UserInformation userInformation, RoleResolver roleResolver) {
-        Span companyName = new Span(userInformation.companyName);
-        Span userName = new Span(userInformation.userName + " " + userInformation.userLastname);
+    private Component displayUserInfo(UserInformation userInformation, AuthenticationResolver authenticationResolver) {
+        Button messageButton = new Button();
+        messageButton.setIcon(VaadinIcon.ENVELOPE.create());
+        messageButton.getStyle().set("margin-right", "0.5rem");
 
-        var container = new VerticalLayout(companyName, userName);
-        container.getStyle().set("display", "flex");
-        container.getStyle().set("align-items", "center");
-        container.getStyle().set("gap", "1rem");
+        messageButton.addClickListener(event -> {
+            Notification.show("Message button clicked!");
+        });
+
+        Span userName = new Span(userInformation.userName + " " + userInformation.userLastname);
+        HorizontalLayout userLayout = new HorizontalLayout(messageButton, userName);
+        userLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        userLayout.setSpacing(true);
 
         long expiryEpoch = userInformation.expiryEpoch;
         UI ui = UI.getCurrent();
 
         if (startedMap.getOrDefault(ui, false)) {
-            return container;
+            return userLayout;
         }
         startedMap.put(ui, true);
 
@@ -133,11 +138,9 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                         sessionEnded = true;
                         scheduler.shutdown();
 
-                        // TODO: fix this logic to enforce redirect user to HomeView in case if currently user use
-                        // dialog component
                         ui.access(() -> {
                             new EndSessionNotification(ui, () -> {
-                                        roleResolver.unauthenticatePrincipal();
+                                        authenticationResolver.unauthenticatePrincipal();
                                         ui.navigate(HomeView.class);
                                         ui.getPage().reload();
                                     })
@@ -149,12 +152,12 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                 1,
                 TimeUnit.SECONDS);
 
-        return container;
+        return userLayout;
     }
 
-    private void logout(RoleResolver roleResolver) {
+    private void logout(AuthenticationResolver authenticationResolver) {
         UI ui = UI.getCurrent();
-        roleResolver.unauthenticatePrincipal();
+        authenticationResolver.unauthenticatePrincipal();
         String currentLocation = ui.getInternals().getActiveViewLocation().getPath();
         if (currentLocation.isEmpty()) {
             ui.getPage().reload();
