@@ -163,9 +163,9 @@ public class MachineGrid extends VerticalLayout {
         boolean isMobile = browser.isAndroid() || browser.isIPhone() || browser.isWindowsPhone();
 
         if (isMobile) {
-            machineForm.setWidthFull(); // Full width on mobile
+            machineForm.setWidthFull();
         } else {
-            machineForm.setWidth("25em"); // Fixed width on desktop
+            machineForm.setWidth("25em");
         }
 
         machineForm.addSaveListener(this::saveMachine);

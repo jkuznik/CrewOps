@@ -104,9 +104,9 @@ public class QualificationGrid extends VerticalLayout {
         boolean isMobile = browser.isAndroid() || browser.isIPhone() || browser.isWindowsPhone();
 
         if (isMobile) {
-            form.setWidthFull(); // Full width on mobile
+            form.setWidthFull();
         } else {
-            form.setWidth("25em"); // Fixed width on desktop
+            form.setWidth("25em");
         }
 
         form.addSaveListener(this::saveQualification);
