@@ -18,7 +18,7 @@ public class AuthenticationResolver {
     private final JwtServiceVaadin jwtService;
 
     public boolean principalIsAuthenticated() {
-        return SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof UserPrincipal;
+        return getAuthenticationPrincipal() instanceof UserPrincipal;
     }
 
     public boolean principalHasOnlyEmployeePermission() {
@@ -86,6 +86,6 @@ public class AuthenticationResolver {
 
     private Object getAuthenticationPrincipal() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getPrincipal();
+        return authentication == null ? new Object() : authentication.getPrincipal();
     }
 }

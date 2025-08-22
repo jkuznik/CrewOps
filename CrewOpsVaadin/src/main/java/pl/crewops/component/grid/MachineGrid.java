@@ -12,6 +12,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WebBrowser;
 import com.vaadin.flow.shared.Registration;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -157,7 +159,14 @@ public class MachineGrid extends VerticalLayout {
     }
 
     private void configureForm() {
-        machineForm.setWidth("25em");
+        WebBrowser browser = VaadinSession.getCurrent().getBrowser();
+        boolean isMobile = browser.isAndroid() || browser.isIPhone() || browser.isWindowsPhone();
+
+        if (isMobile) {
+            machineForm.setWidthFull(); // Full width on mobile
+        } else {
+            machineForm.setWidth("25em"); // Fixed width on desktop
+        }
 
         machineForm.addSaveListener(this::saveMachine);
         machineForm.addUpdateListener(this::updateMachine);

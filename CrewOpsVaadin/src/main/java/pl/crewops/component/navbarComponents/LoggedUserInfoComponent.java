@@ -6,7 +6,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -27,6 +26,7 @@ import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.EmployeeView;
 import pl.crewops.view.HomeView;
+import pl.crewops.view.MessageView;
 
 @Log4j2
 public class LoggedUserInfoComponent extends HorizontalLayout {
@@ -112,7 +112,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         messageButton.getStyle().set("margin-right", "0.5rem");
 
         messageButton.addClickListener(event -> {
-            Notification.show("Message button clicked!");
+            UI.getCurrent().navigate(MessageView.class);
         });
 
         Span userName = new Span(userInformation.userName + " " + userInformation.userLastname);

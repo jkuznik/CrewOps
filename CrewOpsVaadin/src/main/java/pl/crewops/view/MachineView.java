@@ -19,11 +19,25 @@ import pl.crewops.view.layout.MainLayout;
 @Route(value = "machines")
 @PageTitle("Machine view")
 public class MachineView extends MainLayout implements BeforeEnterObserver {
-    private final MachineGrid machineGrid;
-    private final BreakdownGrid breakdownGrid;
+    private MachineGrid machineGrid;
+    private BreakdownGrid breakdownGrid;
 
     public MachineView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         super(coreAPI, jwtService, authenticationResolver);
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        if (authenticationResolver.principalIsAuthenticated()) {
+            buildContent();
+        } else {
+            event.forwardTo(HomeView.class);
+            UI.getCurrent().getPage().setLocation("/");
+        }
+    }
+
+    private void buildContent() {
+        addClassName("machine-view");
 
         breakdownGrid = new BreakdownGrid(coreAPI, authenticationResolver);
         breakdownGrid.setSizeFull();
@@ -31,8 +45,6 @@ public class MachineView extends MainLayout implements BeforeEnterObserver {
 
         machineGrid = new MachineGrid(coreAPI, breakdownGrid, authenticationResolver);
         machineGrid.setSizeFull();
-
-        addClassName("machine-view");
 
         mainContent.removeAll();
 
@@ -70,13 +82,5 @@ public class MachineView extends MainLayout implements BeforeEnterObserver {
         breakdownGrid.setFilter("");
         breakdownGrid.updateBreakdownGrid();
         breakdownGrid.setVisible(true);
-    }
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        if (!authenticationResolver.principalIsAuthenticated()) {
-            event.forwardTo(HomeView.class);
-            UI.getCurrent().getPage().setLocation("/");
-        }
     }
 }

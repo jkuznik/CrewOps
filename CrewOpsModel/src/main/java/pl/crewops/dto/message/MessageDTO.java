@@ -1,6 +1,7 @@
 package pl.crewops.dto.message;
 
 import jakarta.validation.constraints.NotNull;
+import java.time.Instant;
 import java.util.UUID;
 import lombok.Builder;
 
@@ -11,4 +12,5 @@ public record MessageDTO(
         @NotNull String description,
         @NotNull UUID recipientEmployeeId,
         UUID senderEmployeeId,
+        Instant createdAt,
         boolean isRead) {}

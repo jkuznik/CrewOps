@@ -17,11 +17,25 @@ import pl.crewops.view.layout.MainLayout;
 @Route(value = "employees")
 @PageTitle("Employee management")
 public class EmployeeView extends MainLayout implements BeforeEnterObserver {
-    private final EmployeeGrid employeeGrid;
-    private final QualificationGrid qualificationGrid;
+    private EmployeeGrid employeeGrid;
+    private QualificationGrid qualificationGrid;
 
     public EmployeeView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         super(coreAPI, jwtService, authenticationResolver);
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        if (authenticationResolver.principalIsAuthenticated()) {
+            buildContent();
+        } else {
+            event.forwardTo(HomeView.class);
+            UI.getCurrent().getPage().setLocation("/");
+        }
+    }
+
+    private void buildContent() {
+        addClassName("employee-view");
 
         employeeGrid = new EmployeeGrid(coreAPI, authenticationResolver);
         qualificationGrid = new QualificationGrid(coreAPI);
@@ -29,7 +43,6 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         qualificationGrid.setEmployeeGrid(employeeGrid);
 
         qualificationGrid.setVisible(false);
-        addClassName("employee-view");
 
         mainContent.removeAll();
         // TODO: temporary remove footer from this view, there is te way to add it again
@@ -64,13 +77,5 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
 
         qualificationGrid.closeEditor();
         qualificationGrid.setVisible(true);
-    }
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        if (!authenticationResolver.principalHasManagerPermission()) {
-            event.forwardTo(HomeView.class);
-            UI.getCurrent().getPage().setLocation("/");
-        }
     }
 }

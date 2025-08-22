@@ -7,6 +7,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WebBrowser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -98,7 +100,14 @@ public class QualificationGrid extends VerticalLayout {
     }
 
     private void configureForm() {
-        form.setWidth("25em");
+        WebBrowser browser = VaadinSession.getCurrent().getBrowser();
+        boolean isMobile = browser.isAndroid() || browser.isIPhone() || browser.isWindowsPhone();
+
+        if (isMobile) {
+            form.setWidthFull(); // Full width on mobile
+        } else {
+            form.setWidth("25em"); // Fixed width on desktop
+        }
 
         form.addSaveListener(this::saveQualification);
         form.addUpdateListener(this::updateQualification);

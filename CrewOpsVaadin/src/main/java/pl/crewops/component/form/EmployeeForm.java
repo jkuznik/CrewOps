@@ -30,10 +30,10 @@ public class EmployeeForm extends FormLayout {
     private final MachineAccordion machines;
     private final RoleAccordion roleAccordion;
 
-    private final Button save = new Button("Save");
-    private final Button update = new Button("Update");
-    private final Button delete = new Button("Delete");
-    private final Button close = new Button("Cancel");
+    private final Button save = new Button();
+    private final Button update = new Button();
+    private final Button delete = new Button();
+    private final Button close = new Button();
 
     private final Binder<EmployeeFormModel> binder = new BeanValidationBinder<>(EmployeeFormModel.class);
 

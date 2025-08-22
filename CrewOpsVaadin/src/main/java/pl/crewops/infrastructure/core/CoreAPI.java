@@ -20,6 +20,7 @@ import pl.crewops.dto.machine.CreateMachineDTO;
 import pl.crewops.dto.machine.MachineDTO;
 import pl.crewops.dto.machine.UpdateMachineDTO;
 import pl.crewops.dto.machineType.MachineTypeDTO;
+import pl.crewops.dto.message.MessageDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
@@ -93,6 +94,8 @@ public interface CoreAPI {
     List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException;
 
     Optional<CompanyDTO> getCompanyById(@NotNull UUID companyId) throws NotAuthenticatedException;
+
+    List<MessageDTO> getMessagesByRecipientEmployeeId(@NotNull UUID employeeId) throws NotAuthenticatedException;
 
     void terminateEmployeeAccount(@NotNull UUID employeeId) throws NotAuthenticatedException;
 

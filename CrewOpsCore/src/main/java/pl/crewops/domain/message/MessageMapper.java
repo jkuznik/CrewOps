@@ -23,6 +23,7 @@ class MessageMapper {
                 .recipientEmployeeId(message.getRecipientEmployeeId())
                 .senderEmployeeId(message.getSenderEmployeeId())
                 .isRead(message.isRead())
+                .createdAt(message.getCreatedAt())
                 .build();
     }
 }
