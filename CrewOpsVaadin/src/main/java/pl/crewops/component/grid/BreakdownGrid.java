@@ -10,8 +10,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.server.WebBrowser;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +23,7 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.BreakdownFormModel;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.util.AuthenticationResolver;
+import pl.crewops.util.BrowserResolver;
 import pl.crewops.view.HomeView;
 
 public class BreakdownGrid extends VerticalLayout {
@@ -159,10 +158,7 @@ public class BreakdownGrid extends VerticalLayout {
     }
 
     private void configureForm() {
-        WebBrowser browser = VaadinSession.getCurrent().getBrowser();
-        boolean isMobile = browser.isAndroid() || browser.isIPhone() || browser.isWindowsPhone();
-
-        if (isMobile) {
+        if (BrowserResolver.isMobile()) {
             form.setWidthFull();
         } else {
             form.setWidth("25em");

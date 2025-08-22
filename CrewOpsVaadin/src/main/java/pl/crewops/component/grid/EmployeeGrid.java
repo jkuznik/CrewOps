@@ -11,8 +11,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.server.WebBrowser;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -27,6 +25,7 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.auth.RoleType;
 import pl.crewops.util.AuthenticationResolver;
+import pl.crewops.util.BrowserResolver;
 import pl.crewops.view.HomeView;
 
 @Getter
@@ -149,10 +148,7 @@ public class EmployeeGrid extends VerticalLayout {
     }
 
     private void configureForm() {
-        WebBrowser browser = VaadinSession.getCurrent().getBrowser();
-        boolean isMobile = browser.isAndroid() || browser.isIPhone() || browser.isWindowsPhone();
-
-        if (isMobile) {
+        if (BrowserResolver.isMobile()) {
             form.setWidthFull();
         } else {
             form.setWidth("25em");

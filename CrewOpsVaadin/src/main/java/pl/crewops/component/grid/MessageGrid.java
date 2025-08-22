@@ -1,11 +1,11 @@
 package pl.crewops.component.grid;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.server.WebBrowser;
 import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +17,7 @@ import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.MessageFormModel;
 import pl.crewops.util.AuthenticationResolver;
+import pl.crewops.util.BrowserResolver;
 
 @Slf4j
 @Getter
@@ -39,7 +40,7 @@ public class MessageGrid extends VerticalLayout {
 
         updateGrid();
 
-        add(getToolbar(), grid, messageForm);
+        add(getToolbar(), getContent());
     }
 
     private void configureGrid() {
@@ -71,14 +72,26 @@ public class MessageGrid extends VerticalLayout {
     }
 
     private void configureForm() {
-        WebBrowser browser = VaadinSession.getCurrent().getBrowser();
-        boolean isMobile = browser.isAndroid() || browser.isIPhone() || browser.isWindowsPhone();
-
-        if (isMobile) {
+        if (BrowserResolver.isMobile()) {
             messageForm.setWidthFull();
         } else {
             messageForm.setWidth("25em");
         }
+
+        messageForm.setVisible(false);
+        messageForm.addSendListener(event -> {
+            new Notification("send message clicek").open();
+        });
+
+        messageForm.addCloseListener(event -> messageForm.setVisible(false));
+    }
+
+    private Component getContent() {
+        var content = new HorizontalLayout(grid, messageForm);
+        content.setSizeFull();
+        content.setFlexGrow(2, grid);
+        content.setFlexGrow(1, grid);
+        return content;
     }
 
     private void updateGrid() {

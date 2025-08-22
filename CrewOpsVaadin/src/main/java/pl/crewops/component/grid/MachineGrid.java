@@ -12,8 +12,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.server.WebBrowser;
 import com.vaadin.flow.shared.Registration;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -34,6 +32,7 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.BreakdownFormModel;
 import pl.crewops.model.MachineFormModel;
 import pl.crewops.util.AuthenticationResolver;
+import pl.crewops.util.BrowserResolver;
 import pl.crewops.view.HomeView;
 
 @Slf4j
@@ -159,10 +158,7 @@ public class MachineGrid extends VerticalLayout {
     }
 
     private void configureForm() {
-        WebBrowser browser = VaadinSession.getCurrent().getBrowser();
-        boolean isMobile = browser.isAndroid() || browser.isIPhone() || browser.isWindowsPhone();
-
-        if (isMobile) {
+        if (BrowserResolver.isMobile()) {
             machineForm.setWidthFull();
         } else {
             machineForm.setWidth("25em");
