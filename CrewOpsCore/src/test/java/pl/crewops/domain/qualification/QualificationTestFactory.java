@@ -7,26 +7,26 @@ import pl.crewops.model.Qualification;
 
 class QualificationTestFactory {
 
-    public static Qualification createQualification() {
+    public static Qualification qualification() {
         return Qualification.builder().description("description").build();
     }
 
-    public static CreateQualificationDTO createCreateQualificationDTOWithDescription() {
+    public static CreateQualificationDTO createQualificationDTOWithDescription() {
         return CreateQualificationDTO.builder().description("description").build();
     }
 
-    public static CreateQualificationDTO createCreateQualificationDTOWithoutDescription() {
+    public static CreateQualificationDTO createQualificationDTOWithoutDescription() {
         return CreateQualificationDTO.builder().build();
     }
 
-    public static UpdateQualificationDTO createUpdateQualificationDTOWithDescription() {
+    public static UpdateQualificationDTO updateQualificationDTOWithDescription() {
         return UpdateQualificationDTO.builder()
                 .qualificationId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
                 .description("description")
                 .build();
     }
 
-    public static UpdateQualificationDTO createUpdateQualificationDTOWithoutDescription() {
+    public static UpdateQualificationDTO updateQualificationDTOWithoutDescription() {
         return UpdateQualificationDTO.builder().build();
     }
 }

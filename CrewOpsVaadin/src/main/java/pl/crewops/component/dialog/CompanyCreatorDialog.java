@@ -1,7 +1,6 @@
 package pl.crewops.component.dialog;
 
 import com.vaadin.flow.component.dialog.Dialog;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import pl.crewops.component.form.CompanyCreatorForm;
@@ -13,6 +12,7 @@ import pl.crewops.dto.tenant.CreateTenantDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
+import pl.crewops.model.auth.RoleType;
 import pl.crewops.registration.CreateCustomerCommand;
 
 public class CompanyCreatorDialog extends Dialog {
@@ -42,7 +42,7 @@ public class CompanyCreatorDialog extends Dialog {
                 .department(companyInformation.initialEmployeeInfo.getDepartment())
                 .phoneNumber(companyInformation.initialEmployeeInfo.getPhoneNumber())
                 .birthDate(companyInformation.initialEmployeeInfo.getBirthDate())
-                .roles(extractRoles(companyInformation))
+                .roles(companyAdminRoles())
                 .build();
         var createCustomerCommand = CreateCustomerCommand.builder()
                 .createTenantDTO(createTenantDTO)
@@ -55,13 +55,10 @@ public class CompanyCreatorDialog extends Dialog {
         }
     }
 
-    private Set<RoleDTO> extractRoles(CompanyInformation companyInformation) {
-        var roles = new HashSet<RoleDTO>();
-        companyInformation.initialEmployeeInfo.getRoles().forEach(role -> {
-            roles.add(new RoleDTO(role.name()));
-        });
-
-        return roles;
+    private Set<RoleDTO> companyAdminRoles() {
+        return Set.of(
+                RoleDTO.builder().name(RoleType.COMPANY_ADMIN.name()).build(),
+                RoleDTO.builder().name(RoleType.EMPLOYEE.name()).build());
     }
 
     private CreateTenantDTO getCreateTenantDTO(CompanyInformation companyInformation) {

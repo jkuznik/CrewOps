@@ -28,6 +28,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.client.RestClientException;
+import pl.crewops.component.navbarComponents.LanguageSelectorComponent;
 import pl.crewops.component.notification.auth.LoginFailNotification;
 import pl.crewops.dto.auth.AuthRequest;
 import pl.crewops.dto.auth.AuthResponse;
@@ -35,7 +36,6 @@ import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceVaadin;
-import pl.crewops.view.layout.navbarComponents.LanguageSelectorComponent;
 
 @SpringComponent
 @CssImport("./styles/component/login-form.css")

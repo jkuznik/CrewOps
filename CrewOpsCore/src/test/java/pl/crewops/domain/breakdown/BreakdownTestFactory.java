@@ -3,12 +3,8 @@ package pl.crewops.domain.breakdown;
 import java.util.Set;
 import java.util.UUID;
 import pl.crewops.dto.auth.RoleDTO;
-import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.machine.MachineDTO;
-import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.Breakdown;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Machine;
@@ -18,34 +14,16 @@ class BreakdownTestFactory {
 
     static final UUID breakdownId = UUID.fromString("11111111-1111-1111-1111-111111111111");
     static final UUID machineId = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    static final UUID reportedByEmployeeId = UUID.fromString("11111111-1111-1111-1111-111111111111");
     static final UUID repairedByEmployeeId = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    static final UUID roleId = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    static final MachineDTO MACHINE_DTO = getMachineDTO();
-    static final EmployeeDTO reportedByEmployee = getReporetdByEmployeeDTO();
-    static final EmployeeDTO repairedByEmployee = getRepairedByEmployeeDTO();
-    static final Set<RoleDTO> roles = roleDTOSet();
 
-    static Breakdown getBreakdown() {
+    static Breakdown breakdown() {
         return Breakdown.builder()
-                .machine(getMachine())
-                .reportedBy(getEmployee())
-                .repairedBy(getEmployee())
+                .machine(machine())
+                .reportedBy(employee())
+                .repairedBy(employee())
                 .description("description")
                 .critical(true)
                 .solved(true)
-                .solvedAt(null)
-                .build();
-    }
-
-    static BreakdownDTO getBreakdownDTO() {
-        return BreakdownDTO.builder()
-                .id(breakdownId)
-                .machine(MACHINE_DTO)
-                .reportedBy(reportedByEmployee)
-                .repairedBy(repairedByEmployee)
-                .critical(true)
-                .solved(false)
                 .solvedAt(null)
                 .build();
     }
@@ -59,7 +37,7 @@ class BreakdownTestFactory {
                 .build();
     }
 
-    static UpdateBreakdownDTO getUpdateBreakdownDTO() {
+    static UpdateBreakdownDTO updateBreakdownDTO() {
         return UpdateBreakdownDTO.builder()
                 .breakdownId(breakdownId)
                 .repairedByEmployeeId(repairedByEmployeeId)
@@ -67,7 +45,7 @@ class BreakdownTestFactory {
                 .build();
     }
 
-    static Machine getMachine() {
+    static Machine machine() {
         return Machine.builder()
                 .make("make")
                 .model("model")
@@ -79,38 +57,10 @@ class BreakdownTestFactory {
                 .build();
     }
 
-    static Employee getEmployee() {
+    static Employee employee() {
         return Employee.builder()
                 .firstName("firstName")
                 .lastName("lastName")
-                .department("department")
-                .build();
-    }
-
-    private static MachineDTO getMachineDTO() {
-        return MachineDTO.builder()
-                .id(machineId)
-                .make("make")
-                .model("model")
-                .machineType(MachineTypeDTO.builder().name("LOADER").build())
-                .registerNumber("registerNumber")
-                .vin("vin")
-                .broken(false)
-                .build();
-    }
-
-    private static EmployeeDTO getReporetdByEmployeeDTO() {
-        return EmployeeDTO.builder()
-                .id(reportedByEmployeeId)
-                .roles(roles)
-                .department("department")
-                .build();
-    }
-
-    private static EmployeeDTO getRepairedByEmployeeDTO() {
-        return EmployeeDTO.builder()
-                .id(repairedByEmployeeId)
-                .roles(roles)
                 .department("department")
                 .build();
     }

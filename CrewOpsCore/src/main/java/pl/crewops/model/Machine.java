@@ -15,7 +15,6 @@ import pl.crewops.util.serializer.EmployeeSetSerializer;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "machine")
 public class Machine extends AbstractEntity {
     @Size(max = 31)
     @NotNull

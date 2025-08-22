@@ -11,25 +11,38 @@ import pl.crewops.component.grid.EmployeeGrid;
 import pl.crewops.component.grid.QualificationGrid;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
-import pl.crewops.util.RoleResolver;
+import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.layout.MainLayout;
 
 @Route(value = "employees")
 @PageTitle("Employee management")
 public class EmployeeView extends MainLayout implements BeforeEnterObserver {
-    private final EmployeeGrid employeeGrid;
-    private final QualificationGrid qualificationGrid;
+    private EmployeeGrid employeeGrid;
+    private QualificationGrid qualificationGrid;
 
-    public EmployeeView(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
-        super(coreAPI, jwtService, roleResolver);
+    public EmployeeView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
+        super(coreAPI, jwtService, authenticationResolver);
+    }
 
-        employeeGrid = new EmployeeGrid(coreAPI, roleResolver);
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        if (authenticationResolver.principalIsAuthenticated()) {
+            buildContent();
+        } else {
+            event.forwardTo(HomeView.class);
+            UI.getCurrent().getPage().setLocation("/");
+        }
+    }
+
+    private void buildContent() {
+        addClassName("employee-view");
+
+        employeeGrid = new EmployeeGrid(coreAPI, authenticationResolver);
         qualificationGrid = new QualificationGrid(coreAPI);
         employeeGrid.setQualificationGrid(qualificationGrid);
         qualificationGrid.setEmployeeGrid(employeeGrid);
 
         qualificationGrid.setVisible(false);
-        addClassName("employee-view");
 
         mainContent.removeAll();
         // TODO: temporary remove footer from this view, there is te way to add it again
@@ -64,13 +77,5 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
 
         qualificationGrid.closeEditor();
         qualificationGrid.setVisible(true);
-    }
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        if (!roleResolver.principalHasManagerRole()) {
-            event.forwardTo(HomeView.class);
-            UI.getCurrent().getPage().setLocation("/");
-        }
     }
 }

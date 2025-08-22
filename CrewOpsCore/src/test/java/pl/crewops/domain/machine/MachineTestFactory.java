@@ -9,7 +9,7 @@ import pl.crewops.model.MachineType;
 
 class MachineTestFactory {
 
-    public static Machine createMachine() {
+    public static Machine machine() {
         return Machine.builder()
                 .machineType(MachineType.builder().name("name").build())
                 .make("make")
@@ -61,7 +61,7 @@ class MachineTestFactory {
                 .build();
     }
 
-    public static MachineType createMachineType() {
+    public static MachineType machineType() {
         return MachineType.builder().name("name").build();
     }
 }

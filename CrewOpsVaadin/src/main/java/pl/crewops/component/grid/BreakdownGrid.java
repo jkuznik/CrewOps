@@ -10,6 +10,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WebBrowser;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,12 +24,12 @@ import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.BreakdownFormModel;
 import pl.crewops.security.custom.UserPrincipal;
-import pl.crewops.util.RoleResolver;
+import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.HomeView;
 
 public class BreakdownGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
-    private final RoleResolver roleResolver;
+    private final AuthenticationResolver authenticationResolver;
 
     private final Grid<BreakdownFormModel> grid = new Grid<>();
     private final TextField filter = new TextField();
@@ -35,9 +37,9 @@ public class BreakdownGrid extends VerticalLayout {
 
     private final BreakdownForm form;
 
-    public BreakdownGrid(CoreAPI coreAPI, RoleResolver roleResolver) {
+    public BreakdownGrid(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
         this.coreAPI = coreAPI;
-        this.roleResolver = roleResolver;
+        this.authenticationResolver = authenticationResolver;
         this.form = new BreakdownForm();
 
         configureGrid();
@@ -157,7 +159,14 @@ public class BreakdownGrid extends VerticalLayout {
     }
 
     private void configureForm() {
-        form.setWidth("25em");
+        WebBrowser browser = VaadinSession.getCurrent().getBrowser();
+        boolean isMobile = browser.isAndroid() || browser.isIPhone() || browser.isWindowsPhone();
+
+        if (isMobile) {
+            form.setWidthFull(); // Full width on mobile
+        } else {
+            form.setWidth("25em"); // Fixed width on desktop
+        }
 
         form.addUpdateListener(this::updateBreakdown);
         form.addCloseListener(event -> closeEditor());
@@ -195,7 +204,7 @@ public class BreakdownGrid extends VerticalLayout {
             closeEditor();
         } else {
             form.setBreakdown(breakdownFormModel);
-            if (roleResolver.principalHasOnlyEmployeeRole()) {
+            if (authenticationResolver.principalHasOnlyEmployeePermission()) {
                 form.setFormModeEmployeePermission();
             } else {
                 form.setFormModeUpdate();
@@ -205,7 +214,7 @@ public class BreakdownGrid extends VerticalLayout {
     }
 
     private void updateBreakdown(BreakdownForm.UpdateEvent event) {
-        if (roleResolver.principalHasManagerRole()) {
+        if (authenticationResolver.principalHasManagerPermission()) {
             try {
                 Optional<BreakdownDTO> breakdownDTO =
                         coreAPI.updateBreakdown(toUpdateBreakdownDTO(event.getBreakdown()));

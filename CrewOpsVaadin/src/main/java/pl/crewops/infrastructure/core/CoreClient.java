@@ -27,6 +27,7 @@ import pl.crewops.dto.machine.CreateMachineDTO;
 import pl.crewops.dto.machine.MachineDTO;
 import pl.crewops.dto.machine.UpdateMachineDTO;
 import pl.crewops.dto.machineType.MachineTypeDTO;
+import pl.crewops.dto.message.MessageDTO;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
@@ -34,7 +35,7 @@ import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
-import pl.crewops.util.RoleResolver;
+import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.SpringContextBridge;
 
 @Slf4j
@@ -217,7 +218,7 @@ class CoreClient {
     // authenticated
     @Cacheable(cacheNames = GET_EMPLOYEE_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public EmployeeDTO getEmployeeById(UUID employeeId) throws NotAuthenticatedException {
-        log.warn("Get employee by id cache missing");
+        log.info("Get employee by id cache missed");
         try {
             return authorizedClient()
                     .get()
@@ -234,7 +235,7 @@ class CoreClient {
     // authenticated
     @Cacheable(cacheNames = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException {
-        log.warn("Get all employees cache missing");
+        log.info("Get all employees cache missed");
         try {
             return authorizedClient()
                     .get()
@@ -395,7 +396,7 @@ class CoreClient {
     // authenticated
     @Cacheable(cacheNames = GET_ALL_QUALIFICATIONS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException {
-        log.warn("Get all qualifications cache missing");
+        log.info("Get all qualifications cache missed");
         try {
             return authorizedClient()
                     .get()
@@ -489,7 +490,7 @@ class CoreClient {
     // authenticated
     @Cacheable(cacheNames = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<MachineDTO> getAllMachines() throws NotAuthenticatedException {
-        log.warn("Get all machines cache missing");
+        log.info("Get all machines cache missed");
         try {
             return authorizedClient()
                     .get()
@@ -524,6 +525,7 @@ class CoreClient {
     // authenticated
     @Cacheable(cacheNames = GET_ALL_MACHINE_TYPES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<MachineTypeDTO> getAllMachineTypes() throws NotAuthenticatedException {
+        log.info("Get all machine types cache missed");
         try {
             return authorizedClient()
                     .get()
@@ -644,6 +646,7 @@ class CoreClient {
     // authenticated
     @Cacheable(cacheNames = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException {
+        log.info("Get all breakdowns cache missed");
         try {
             return authorizedClient()
                     .get()
@@ -661,7 +664,7 @@ class CoreClient {
     // TODO: consider remove caching of this value or implement different logic
     @Cacheable(cacheNames = GET_COMPANY_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public CompanyDTO getCompanyById(UUID companyId) throws NotAuthenticatedException {
-        log.warn("Get company by id cache missing");
+        log.info("Get company by id cache missed");
         try {
             return authorizedClient()
                     .get()
@@ -675,14 +678,27 @@ class CoreClient {
         }
     }
 
+    public List<MessageDTO> getMessagesByRecipientEmployeeId(UUID employeeId) throws NotAuthenticatedException {
+        try {
+            return authorizedClient()
+                    .get()
+                    .uri(uriBuilder -> uriBuilder.path(MESSAGES_EID).build(employeeId))
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Error getting messages by recipient employee");
+            return List.of();
+        }
+    }
+
     private RestClient authorizedClient() throws NotAuthenticatedException {
-        RoleResolver roleResolver = SpringContextBridge.getBean(RoleResolver.class);
-        if (roleResolver.getPrincipal() != null) {
+        AuthenticationResolver authenticationResolver = SpringContextBridge.getBean(AuthenticationResolver.class);
+        if (authenticationResolver.getPrincipal() != null) {
             return coreClient
                     .mutate()
                     .defaultHeader(
                             "Authorization",
-                            "Bearer " + roleResolver.getPrincipal().getToken())
+                            "Bearer " + authenticationResolver.getPrincipal().getToken())
                     .build();
         } else {
             throw new NotAuthenticatedException();

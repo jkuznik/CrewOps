@@ -13,20 +13,16 @@ import pl.crewops.security.jwt.JwtServiceVaadin;
 
 @Component
 @RequiredArgsConstructor
-public class RoleResolver {
+public class AuthenticationResolver {
 
     private final JwtServiceVaadin jwtService;
 
     public boolean principalIsAuthenticated() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication != null && authentication.isAuthenticated();
+        return getAuthenticationPrincipal() instanceof UserPrincipal;
     }
 
-    public boolean principalHasOnlyEmployeeRole() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (isAuthenticated(authentication)
-                && authentication.getPrincipal() instanceof UserPrincipal principal
-                && tokenIsValid(principal)) {
+    public boolean principalHasOnlyEmployeePermission() {
+        if (getAuthenticationPrincipal() instanceof UserPrincipal principal && tokenIsValid(principal)) {
 
             Set<RoleGrantedAuthority> roleGrantedAuthorities = jwtService.extractAuthorities(principal.getToken());
 
@@ -37,11 +33,8 @@ public class RoleResolver {
         }
     }
 
-    public boolean principalHasManagerRole() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (isAuthenticated(authentication)
-                && authentication.getPrincipal() instanceof UserPrincipal principal
-                && tokenIsValid(principal)) {
+    public boolean principalHasManagerPermission() {
+        if (getAuthenticationPrincipal() instanceof UserPrincipal principal && tokenIsValid(principal)) {
 
             Set<RoleGrantedAuthority> roleGrantedAuthorities = jwtService.extractAuthorities(principal.getToken());
 
@@ -53,11 +46,8 @@ public class RoleResolver {
         }
     }
 
-    public boolean principalHasCompanyAdminRole() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (isAuthenticated(authentication)
-                && authentication.getPrincipal() instanceof UserPrincipal principal
-                && tokenIsValid(principal)) {
+    public boolean principalHasCompanyAdminPermission() {
+        if (getAuthenticationPrincipal() instanceof UserPrincipal principal && tokenIsValid(principal)) {
             Set<RoleGrantedAuthority> roleGrantedAuthorities = jwtService.extractAuthorities(principal.getToken());
 
             return roleGrantedAuthorities.contains(new RoleGrantedAuthority(COMPANY_ADMIN))
@@ -67,24 +57,19 @@ public class RoleResolver {
         }
     }
 
-    public boolean principalHasSystemAdminRole() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (isAuthenticated(authentication)
-                && authentication.getPrincipal() instanceof UserPrincipal principal
-                && tokenIsValid(principal)) {
+    public boolean principalHasSystemAdminPermission() {
+        if (getAuthenticationPrincipal() instanceof UserPrincipal principal && tokenIsValid(principal)) {
 
             Set<RoleGrantedAuthority> roleGrantedAuthorities = jwtService.extractAuthorities(principal.getToken());
 
-            return roleGrantedAuthorities.size() == 1
-                    && roleGrantedAuthorities.contains(new RoleGrantedAuthority(SYSTEM_ADMIN));
+            return roleGrantedAuthorities.contains(new RoleGrantedAuthority(SYSTEM_ADMIN));
         } else {
             return false;
         }
     }
 
     public UserPrincipal getPrincipal() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (isAuthenticated(authentication) && authentication.getPrincipal() instanceof UserPrincipal principal) {
+        if (getAuthenticationPrincipal() instanceof UserPrincipal principal) {
             return principal;
         }
         return null;
@@ -99,7 +84,8 @@ public class RoleResolver {
         return jwtService.validToken(principal.getToken());
     }
 
-    private boolean isAuthenticated(Authentication authentication) {
-        return authentication != null && authentication.isAuthenticated();
+    private Object getAuthenticationPrincipal() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication == null ? new Object() : authentication.getPrincipal();
     }
 }

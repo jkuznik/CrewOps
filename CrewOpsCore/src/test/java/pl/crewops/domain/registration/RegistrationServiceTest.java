@@ -69,7 +69,7 @@ class RegistrationServiceTest extends IntegrationTest {
     @Test
     void registerCustomer_shouldRollbackTenant_whenExceptionIsThrownAfterTenantAlreadyExists() {
         // given
-        var createCustomerCommand = RegistrationTestFactory.createExistingCustomerCommand();
+        var createCustomerCommand = RegistrationTestFactory.createCustomerCommandThatBreakUniqueConstraints();
         var createAuthUser = CreateAuthUserDTO.builder()
                 .username(CredentialGenerator.generateUsername("firstName", "lastName"))
                 .password(CredentialGenerator.generatePassword())

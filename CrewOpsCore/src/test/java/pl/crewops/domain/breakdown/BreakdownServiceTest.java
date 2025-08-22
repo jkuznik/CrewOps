@@ -39,9 +39,9 @@ class BreakdownServiceTest {
     @Test
     void createBreakdown_shouldReturnBreakdownDTO_WhenCreateDTOIsValid() {
         // when
-        when(machineAPI.getMachine(any(UUID.class))).thenReturn(getMachine());
-        when(employeeAPI.getEmployeeById(any(UUID.class))).thenReturn(getEmployee());
-        when(breakdownRepository.save(any(Breakdown.class))).thenReturn(getBreakdown());
+        when(machineAPI.getMachine(any(UUID.class))).thenReturn(machine());
+        when(employeeAPI.getEmployeeById(any(UUID.class))).thenReturn(employee());
+        when(breakdownRepository.save(any(Breakdown.class))).thenReturn(breakdown());
 
         // then
         BreakdownDTO result = breakdownService.createBreakdown(createBreakdownDTO());
@@ -53,7 +53,7 @@ class BreakdownServiceTest {
     @Test
     void shouldReturnBreakdownEntity_WhenBreakdownExists() {
         // when
-        when(breakdownRepository.findById(any())).thenReturn(Optional.of(getBreakdown()));
+        when(breakdownRepository.findById(any())).thenReturn(Optional.of(breakdown()));
 
         // then
         Breakdown result = breakdownService.getBreakdown(UUID.randomUUID());
@@ -65,7 +65,7 @@ class BreakdownServiceTest {
     @Test
     void shouldReturnListOfBreakdownsDTO_WhenAnyBreakdownExist() {
         // when
-        when(breakdownRepository.findAll()).thenReturn(List.of(getBreakdown()));
+        when(breakdownRepository.findAll()).thenReturn(List.of(breakdown()));
 
         // then
         List<BreakdownDTO> result = breakdownService.getAllBreakdowns();
@@ -78,13 +78,13 @@ class BreakdownServiceTest {
     @Test
     void shouldReturnBreakdownDTO_WhenUpdateDTOIsValid() {
         // when
-        when(breakdownRepository.findById(any())).thenReturn(Optional.of(getBreakdown()));
-        when(employeeAPI.getEmployeeById(any(UUID.class))).thenReturn(getEmployee());
-        when(machineAPI.getMachine(any())).thenReturn(getMachine());
-        when(breakdownRepository.save(any(Breakdown.class))).thenReturn(getBreakdown());
+        when(breakdownRepository.findById(any())).thenReturn(Optional.of(breakdown()));
+        when(employeeAPI.getEmployeeById(any(UUID.class))).thenReturn(employee());
+        when(machineAPI.getMachine(any())).thenReturn(machine());
+        when(breakdownRepository.save(any(Breakdown.class))).thenReturn(breakdown());
 
         // then
-        BreakdownDTO result = breakdownService.updateBreakdown(getUpdateBreakdownDTO());
+        BreakdownDTO result = breakdownService.updateBreakdown(updateBreakdownDTO());
 
         assertThat(result).isNotNull();
         assertThat(result.description()).isEqualTo("description");
@@ -97,7 +97,7 @@ class BreakdownServiceTest {
         var updateCommand = UpdateBreakdownDTO.builder().solved(false).build();
 
         // when
-        when(breakdownRepository.findById(any())).thenReturn(Optional.of(getBreakdown()));
+        when(breakdownRepository.findById(any())).thenReturn(Optional.of(breakdown()));
         Exception result = catchException(() -> breakdownService.updateBreakdown(updateCommand));
 
         // then

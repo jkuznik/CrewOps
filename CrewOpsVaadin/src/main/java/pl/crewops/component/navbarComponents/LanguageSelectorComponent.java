@@ -1,4 +1,4 @@
-package pl.crewops.view.layout.navbarComponents;
+package pl.crewops.component.navbarComponents;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;

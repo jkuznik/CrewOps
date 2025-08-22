@@ -345,6 +345,24 @@ databaseChangeLog:
               EXECUTE FUNCTION public.update_updated_at();
 
   - changeSet:
+      id: 18-create-table-message
+      author: jkuznik
+      changes:
+        - createTable:
+            schemaName: ${tenant.schema.name}
+            tableName: message
+            columns:
+              - column: { name: id, type: uuid, defaultValueComputed: gen_random_uuid(), constraints: { primaryKey: true, nullable: false, unique: true } }
+              - column: { name: version, type: integer, defaultValue: 0, constraints: { nullable: false } }
+              - column: { name: title, type: varchar(255) }
+              - column: { name: description, type: varchar(32767), constraints: { nullable: false } }
+              - column: { name: recipient_employee_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: sender_employee_id, type: uuid }
+              - column: { name: is_read, type: boolean, defaultValueBoolean: false }
+              - column: { name: created_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+
+  - changeSet:
       id: 018-insert-admin-account-values
       author: jkuznik
       changes:

@@ -7,10 +7,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import pl.crewops.component.form.LoginForm;
+import pl.crewops.component.navbarComponents.LoggedUserInfoComponent;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
-import pl.crewops.util.RoleResolver;
-import pl.crewops.view.layout.navbarComponents.LoggedUserInfoComponent;
+import pl.crewops.util.AuthenticationResolver;
 
 @SpringComponent
 @UIScope
@@ -19,30 +19,33 @@ public class MainNavbar extends HorizontalLayout {
 
     private final CoreAPI coreAPI;
     private final JwtServiceVaadin jwtService;
+    private final AuthenticationResolver authenticationResolver;
 
-    public MainNavbar(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
+    public MainNavbar(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         addClassName("main-navbar");
 
         this.coreAPI = coreAPI;
         this.jwtService = jwtService;
+        this.authenticationResolver = authenticationResolver;
 
         setSizeFull();
         setSpacing(true);
         setPadding(true);
-        HorizontalLayout navbarRightSide = createNavbarRightSide(roleResolver);
+        HorizontalLayout navbarRightSide = createNavbarRightSide();
         add(createNavbarLeftSide(), navbarRightSide);
         add(navbarRightSide);
     }
 
-    private HorizontalLayout createNavbarRightSide(RoleResolver roleResolver) {
+    private HorizontalLayout createNavbarRightSide() {
         var rightSide = new HorizontalLayout();
         rightSide.setWidthFull();
         rightSide.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         rightSide.getStyle().set("padding-right", "20px");
 
-        if (roleResolver.getPrincipal() != null
-                && jwtService.validToken(roleResolver.getPrincipal().getToken())) {
-            rightSide.add(new LoggedUserInfoComponent(coreAPI, jwtService, roleResolver));
+        var principal = authenticationResolver.getPrincipal();
+
+        if (principal != null && jwtService.validToken(principal.getToken())) {
+            rightSide.add(new LoggedUserInfoComponent(coreAPI, jwtService, authenticationResolver));
         } else {
             rightSide.add(new LoginForm(coreAPI, jwtService));
         }

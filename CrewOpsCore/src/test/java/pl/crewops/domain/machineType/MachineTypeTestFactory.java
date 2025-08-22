@@ -6,15 +6,15 @@ import pl.crewops.model.MachineType;
 
 class MachineTypeTestFactory {
 
-    public static CreateMachineTypeDTO createCreateMachineTypeDTO() {
+    public static CreateMachineTypeDTO createMachineTypeDTO() {
         return CreateMachineTypeDTO.builder().name("name").build();
     }
 
-    public static MachineType createMachineType() {
+    public static MachineType machineType() {
         return MachineType.builder().name("name").build();
     }
 
-    public static MachineTypeDTO createMachineTypeDTO() {
+    public static MachineTypeDTO machineTypeDTO() {
         return MachineTypeDTO.builder().name("name").build();
     }
 }

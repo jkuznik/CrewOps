@@ -9,15 +9,15 @@ import com.vaadin.flow.router.Route;
 import pl.crewops.component.content.InfoContent;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
-import pl.crewops.util.RoleResolver;
+import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.layout.MainLayout;
 
 @Route(value = "info")
 @PageTitle("Information")
 public class InfoView extends MainLayout {
 
-    public InfoView(CoreAPI coreAPI, JwtServiceVaadin jwtService, RoleResolver roleResolver) {
-        super(coreAPI, jwtService, roleResolver);
+    public InfoView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
+        super(coreAPI, jwtService, authenticationResolver);
         addClassName("info-view");
 
         mainContent.removeAll();

@@ -16,7 +16,6 @@ import pl.crewops.util.serializer.EmployeeSetSerializer;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "qualification")
 public class Qualification extends AbstractEntity {
 
     @NotNull
