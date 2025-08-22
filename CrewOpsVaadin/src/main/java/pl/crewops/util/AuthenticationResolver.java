@@ -22,7 +22,7 @@ public class AuthenticationResolver {
     }
 
     public boolean principalHasOnlyEmployeePermission() {
-        if (getAuthenticationPrincipal() instanceof UserPrincipal principal && tokenIsValid(principal)) {
+        if (getAuthenticationPrincipal() instanceof UserPrincipal principal) {
 
             Set<RoleGrantedAuthority> roleGrantedAuthorities = jwtService.extractAuthorities(principal.getToken());
 
@@ -34,7 +34,7 @@ public class AuthenticationResolver {
     }
 
     public boolean principalHasManagerPermission() {
-        if (getAuthenticationPrincipal() instanceof UserPrincipal principal && tokenIsValid(principal)) {
+        if (getAuthenticationPrincipal() instanceof UserPrincipal principal) {
 
             Set<RoleGrantedAuthority> roleGrantedAuthorities = jwtService.extractAuthorities(principal.getToken());
 
@@ -47,7 +47,7 @@ public class AuthenticationResolver {
     }
 
     public boolean principalHasCompanyAdminPermission() {
-        if (getAuthenticationPrincipal() instanceof UserPrincipal principal && tokenIsValid(principal)) {
+        if (getAuthenticationPrincipal() instanceof UserPrincipal principal) {
             Set<RoleGrantedAuthority> roleGrantedAuthorities = jwtService.extractAuthorities(principal.getToken());
 
             return roleGrantedAuthorities.contains(new RoleGrantedAuthority(COMPANY_ADMIN))
@@ -58,7 +58,7 @@ public class AuthenticationResolver {
     }
 
     public boolean principalHasSystemAdminPermission() {
-        if (getAuthenticationPrincipal() instanceof UserPrincipal principal && tokenIsValid(principal)) {
+        if (getAuthenticationPrincipal() instanceof UserPrincipal principal) {
 
             Set<RoleGrantedAuthority> roleGrantedAuthorities = jwtService.extractAuthorities(principal.getToken());
 
@@ -78,10 +78,6 @@ public class AuthenticationResolver {
     public void unauthenticatePrincipal() {
         SecurityContextHolder.getContext().setAuthentication(null);
         SecurityContextHolder.clearContext();
-    }
-
-    private boolean tokenIsValid(UserPrincipal principal) {
-        return jwtService.validToken(principal.getToken());
     }
 
     private Object getAuthenticationPrincipal() {

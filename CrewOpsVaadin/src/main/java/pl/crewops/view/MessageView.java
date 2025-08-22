@@ -31,6 +31,8 @@ public class MessageView extends MainLayout implements BeforeEnterObserver {
     }
 
     private void buildContent() {
+        mainContent.removeAll();
+
         messageGrid = new MessageGrid(coreAPI, authenticationResolver);
         messageGrid.setSizeFull();
 
