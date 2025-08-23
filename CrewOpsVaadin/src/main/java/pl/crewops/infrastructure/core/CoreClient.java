@@ -28,6 +28,7 @@ import pl.crewops.dto.machine.MachineDTO;
 import pl.crewops.dto.machine.UpdateMachineDTO;
 import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.message.MessageDTO;
+import pl.crewops.dto.message.SendMessageCommand;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
@@ -330,6 +331,19 @@ class CoreClient {
         } catch (RestClientException e) {
             log.error("Update qualification expired at error");
             return null;
+        }
+    }
+
+    public void sendMessage(SendMessageCommand sendMessageCommand) throws NotAuthenticatedException {
+        try {
+            authorizedClient()
+                    .post()
+                    .uri(uriBuilder -> uriBuilder.path(MESSAGES).build())
+                    .body(sendMessageCommand)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientException e) {
+            log.error("Update qualification expired at error");
         }
     }
 

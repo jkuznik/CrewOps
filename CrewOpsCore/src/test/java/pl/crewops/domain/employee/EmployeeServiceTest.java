@@ -130,7 +130,7 @@ class EmployeeServiceTest {
         Page<Employee> employees = new PageImpl<>(List.of(employeeWithQAndV));
 
         // when
-        when(employeeRepository.findByQualificationId(any(UUID.class), any(Pageable.class)))
+        when(employeeRepository.findByQualificationIdAndActiveIsTrue(any(UUID.class), any(Pageable.class)))
                 .thenReturn(employees);
         List<EmployeeDTO> result = employeeService.getEmployeesByQualification(qualificationId, 0, 5);
 
@@ -146,7 +146,7 @@ class EmployeeServiceTest {
         Page<Employee> employees = new PageImpl<>(List.of(employeeWithQAndV));
 
         // when
-        when(employeeRepository.findByMachinesId(any(UUID.class), any(Pageable.class)))
+        when(employeeRepository.findByMachinesIdAndActiveIsTrue(any(UUID.class), any(Pageable.class)))
                 .thenReturn(employees);
         List<EmployeeDTO> result = employeeService.getEmployeesByMachines(qualificationId, 0, 5);
 

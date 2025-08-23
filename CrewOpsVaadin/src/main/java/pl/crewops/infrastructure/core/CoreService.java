@@ -22,6 +22,7 @@ import pl.crewops.dto.machine.MachineDTO;
 import pl.crewops.dto.machine.UpdateMachineDTO;
 import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.message.MessageDTO;
+import pl.crewops.dto.message.SendMessageCommand;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
@@ -200,6 +201,11 @@ class CoreService implements CoreAPI {
     @Override
     public List<MessageDTO> getMessagesByRecipientEmployeeId(UUID employeeId) throws NotAuthenticatedException {
         return coreClient.getMessagesByRecipientEmployeeId(employeeId);
+    }
+
+    @Override
+    public void sendMessage(SendMessageCommand sendMessageCommand) throws NotAuthenticatedException {
+        coreClient.sendMessage(sendMessageCommand);
     }
 
     @Override

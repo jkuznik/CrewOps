@@ -12,11 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.dto.message.CreateMessageDTO;
 import pl.crewops.dto.message.MessageDTO;
 import pl.crewops.model.Message;
 
-@SpringJUnitConfig(classes = {MessageService.class, MessageRepository.class})
+@SpringJUnitConfig(classes = {MessageService.class, MessageRepository.class, EmployeeAPI.class})
 class MessageServiceTest {
 
     @Autowired
@@ -24,6 +25,9 @@ class MessageServiceTest {
 
     @MockitoBean
     private MessageRepository messageRepository;
+
+    @MockitoBean
+    private EmployeeAPI employeeAPI;
 
     private CreateMessageDTO createMessageDTO;
     private Message message;

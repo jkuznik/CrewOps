@@ -35,12 +35,18 @@ public class MessageGrid extends VerticalLayout {
         this.coreAPI = coreAPI;
         this.authenticationResolver = authenticationResolver;
 
+        localize();
+
         configureGrid();
         configureForm();
 
         updateGrid();
 
         add(getToolbar(), getContent());
+    }
+
+    private void localize() {
+        sendButton.setText(getTranslation("messageGrid.sendButton"));
     }
 
     private void configureGrid() {

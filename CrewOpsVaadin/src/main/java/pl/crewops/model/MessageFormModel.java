@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.*;
 import pl.crewops.dto.message.MessageDTO;
+import pl.crewops.dto.message.RecipientSelection;
 
 @Getter
 @Setter
@@ -16,7 +17,9 @@ public class MessageFormModel {
     private UUID id;
     private String title;
     private @NotNull @Size(max = 32767, message = "Message can not be longer than 32767 characters") String description;
-    private @NotNull UUID recipientEmployeeId;
+    // TODO: create addition wrapper class to store recipient chose option (by department, by related machine, by
+    // employeeId)
+    private @NotNull RecipientSelection recipientSelection;
     private UUID senderEmployeeId;
     private @NotNull LocalDateTime createdAt;
     private boolean read;
@@ -26,7 +29,9 @@ public class MessageFormModel {
                 .id(messageDTO.id())
                 .title(messageDTO.title())
                 .description(messageDTO.description())
-                .recipientEmployeeId(messageDTO.recipientEmployeeId())
+                .recipientSelection(new RecipientSelection(
+                        RecipientSelection.RecipientOptionType.EMPLOYEE,
+                        messageDTO.recipientEmployeeId().toString()))
                 .senderEmployeeId(messageDTO.senderEmployeeId())
                 .createdAt(LocalDateTime.now())
                 .read(messageDTO.isRead())

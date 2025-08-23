@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import pl.crewops.dto.message.CreateMessageDTO;
 import pl.crewops.dto.message.MessageDTO;
+import pl.crewops.dto.message.SendMessageCommand;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,8 +21,9 @@ class MessageController {
     private final MessageAPI messageAPI;
 
     @PostMapping(MESSAGES)
-    public ResponseEntity<MessageDTO> createMessage(@RequestBody @Valid @NotNull CreateMessageDTO createMessageDTO) {
-        return ResponseEntity.ok(messageAPI.createMessage(createMessageDTO));
+    public ResponseEntity<Void> sendMessage(@RequestBody @Valid @NotNull SendMessageCommand sendMessageCommand) {
+        messageAPI.sendMessage(sendMessageCommand);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping(MESSAGES_EID)

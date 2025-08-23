@@ -69,6 +69,13 @@ class EmployeeService implements EmployeeAPI {
                 .toList();
     }
 
+    @Override
+    public List<EmployeeDTO> getAllActiveEmployees() {
+        return employeeRepository.findAllByActiveIsTrue().stream()
+                .map(EmployeeMapper::mapToDTO)
+                .toList();
+    }
+
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     public Employee getEmployeeById(UUID id) {
         return employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
@@ -82,7 +89,9 @@ class EmployeeService implements EmployeeAPI {
     @Transactional(readOnly = true)
     public List<EmployeeDTO> getEmployeesByQualification(UUID qualificationId, int page, int size) {
         log.info("Get employees by qualification");
-        return employeeRepository.findByQualificationId(qualificationId, getPageRequest(page, size)).stream()
+        return employeeRepository
+                .findByQualificationIdAndActiveIsTrue(qualificationId, getPageRequest(page, size))
+                .stream()
                 .map(EmployeeMapper::mapToDTO)
                 .toList();
     }
@@ -90,7 +99,7 @@ class EmployeeService implements EmployeeAPI {
     @Transactional(readOnly = true)
     public List<EmployeeDTO> getEmployeesByMachines(UUID machineId, int page, int size) {
         log.info("Get employees by machines");
-        return employeeRepository.findByMachinesId(machineId, getPageRequest(page, size)).stream()
+        return employeeRepository.findByMachinesIdAndActiveIsTrue(machineId, getPageRequest(page, size)).stream()
                 .map(EmployeeMapper::mapToDTO)
                 .toList();
     }
