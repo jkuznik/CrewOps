@@ -3,6 +3,8 @@ package pl.crewops.model;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.UUID;
 import lombok.*;
 import pl.crewops.dto.message.MessageDTO;
@@ -33,12 +35,26 @@ public class MessageFormModel {
                         RecipientSelection.RecipientOptionType.EMPLOYEE,
                         messageDTO.recipientEmployeeId().toString()))
                 .senderEmployeeId(messageDTO.senderEmployeeId())
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.ofInstant(messageDTO.createdAt(), ZoneId.systemDefault()))
                 .read(messageDTO.isRead())
                 .build();
     }
 
     public UUID getSenderEmployeeId() {
         return senderEmployeeId;
+    }
+
+    public class MessageFormModelComparator implements Comparator<MessageFormModel> {
+
+        @Override
+        public int compare(MessageFormModel m1, MessageFormModel m2) {
+            // First, compare read status: unread (false) should come before read (true)
+            if (m1.isRead() != m2.isRead()) {
+                return m1.isRead() ? 1 : -1; // unread first
+            }
+
+            // If both have the same read status, compare createdAt (newest first)
+            return m2.getCreatedAt().compareTo(m1.getCreatedAt());
+        }
     }
 }

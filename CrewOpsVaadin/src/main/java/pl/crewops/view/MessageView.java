@@ -30,7 +30,7 @@ public class MessageView extends MainLayout implements BeforeEnterObserver {
         }
     }
 
-    private void buildContent() {
+    protected void buildContent() {
         mainContent.removeAll();
 
         messageGrid = new MessageGrid(coreAPI, authenticationResolver);

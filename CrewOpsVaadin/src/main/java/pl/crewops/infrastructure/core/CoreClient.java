@@ -234,6 +234,22 @@ class CoreClient {
     }
 
     // authenticated
+    public EmployeeDTO getEmployeeByIdNoCache(UUID employeeId) throws NotAuthenticatedException {
+        log.info("Get employee by id cache missed");
+        try {
+            return authorizedClient()
+                    .get()
+                    .uri(uriBuilder -> uriBuilder.path(EMPLOYEES_EID).build(employeeId))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Error getting employee by id");
+            return null;
+        }
+    }
+
+    // authenticated
     @Cacheable(cacheNames = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException {
         log.info("Get all employees cache missed");
@@ -344,6 +360,20 @@ class CoreClient {
                     .toBodilessEntity();
         } catch (RestClientException e) {
             log.error("Update qualification expired at error");
+        }
+    }
+
+    public MessageDTO setMessageReadStatus(UUID messageId, boolean status) throws NotAuthenticatedException {
+        try {
+            return authorizedClient()
+                    .patch()
+                    .uri(uriBuilder -> uriBuilder.path(MESSAGES_MID).build(messageId))
+                    .body(status)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Update message read status error");
+            return null;
         }
     }
 

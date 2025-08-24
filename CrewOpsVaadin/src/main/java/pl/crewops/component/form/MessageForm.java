@@ -32,17 +32,21 @@ import pl.crewops.util.SpringContextBridge;
 
 public class MessageForm extends FormLayout {
 
+    private final CoreAPI coreAPI;
+
+    private final Span currentModeDescription = new Span();
+    private final RecipientSelectionField recipientSelectionField = new RecipientSelectionField();
+    private final TextField sender = new TextField();
     private final TextField title = new TextField();
     private final TextArea description = new TextArea();
     private final Button sendButton = new Button();
     private final Button closeButton = new Button();
-    private final RecipientSelectionField recipientSelectionField = new RecipientSelectionField();
 
     private final Binder<MessageFormModel> binder = new BeanValidationBinder<>(MessageFormModel.class);
 
     public MessageForm() {
         addClassName("message-form");
-        var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
+        this.coreAPI = SpringContextBridge.getBean(CoreAPI.class);
         var authenticationResolver = SpringContextBridge.getBean(AuthenticationResolver.class);
 
         localize();
@@ -52,11 +56,47 @@ public class MessageForm extends FormLayout {
         description.setHeight("10em");
 
         add(
-                sendByContainer(),
+                currentModeDescription,
                 recipientSelectionField,
+                sender,
                 title,
                 description,
                 createButtonLayout(coreAPI, authenticationResolver));
+    }
+
+    public void setSendMessageMode() {
+        currentModeDescription.setText((getTranslation("messageForm.sendMode")));
+        sender.setVisible(false);
+        recipientSelectionField.setVisible(true);
+
+        title.setEnabled(true);
+        description.setEnabled(true);
+
+        sendButton.setVisible(true);
+    }
+
+    public void setReadMessageMode() {
+        currentModeDescription.setText((getTranslation("messageForm.readMode")));
+        sender.setVisible(true);
+        recipientSelectionField.setVisible(false);
+
+        title.setEnabled(false);
+        description.setEnabled(false);
+
+        sendButton.setVisible(false);
+    }
+
+    public void setBinderValue(MessageFormModel model, String senderName) {
+        if (model != null) {
+            binder.setBean(model);
+            sender.setValue(senderName);
+            title.setValue(model.getTitle());
+            description.setValue(model.getDescription());
+        }
+    }
+
+    public void clearBinderValue() {
+        binder.setBean(null);
     }
 
     private void configureBinder(RecipientSelectionField recipientSelectionField) {
@@ -74,19 +114,6 @@ public class MessageForm extends FormLayout {
 
         sendButton.setText(getTranslation("messageForm.sendButton"));
         closeButton.setText(getTranslation("messageForm.closeButton"));
-    }
-
-    private Component sendByContainer() {
-        var containerDescription = new Span(getTranslation("messageForm.sendByContainer"));
-        containerDescription.getStyle().set("font-weight", "bold");
-
-        var layout = new VerticalLayout(containerDescription);
-        layout.setPadding(false);
-        layout.setSpacing(true);
-        layout.setWidthFull();
-        layout.getStyle().set("align-items", "start");
-
-        return layout;
     }
 
     private Component createButtonLayout(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {

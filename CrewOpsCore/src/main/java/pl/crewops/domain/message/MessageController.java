@@ -27,11 +27,16 @@ class MessageController {
     }
 
     @GetMapping(MESSAGES_EID)
-    public ResponseEntity<List<MessageDTO>> getMessage(
+    public ResponseEntity<List<MessageDTO>> getMessagesByRecipientEmployeeId(
             @PathVariable(EMPLOYEE_ID) UUID recipientEmployeeId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size) {
-        return ResponseEntity.ok(
-                messageAPI.getAllMessagesByRecipientEmployeeIdAndReadIsFalse(recipientEmployeeId, page, size));
+        return ResponseEntity.ok(messageAPI.getAllMessagesByRecipientEmployeeId(recipientEmployeeId, page, size));
+    }
+
+    @PatchMapping(MESSAGES_MID)
+    public ResponseEntity<MessageDTO> setMessageReadStatus(
+            @PathVariable(MESSAGE_ID) UUID messageId, @RequestBody boolean status) {
+        return ResponseEntity.ok(messageAPI.setMessageReadStatus(messageId, status));
     }
 }

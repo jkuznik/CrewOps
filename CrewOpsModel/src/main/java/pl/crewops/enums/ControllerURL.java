@@ -44,6 +44,7 @@ public interface ControllerURL {
     String MACHINES_VIDS = MACHINES + "/collection";
 
     String MESSAGES_EID = MESSAGES + "/{" + EMPLOYEE_ID + "}";
+    String MESSAGES_MID = MESSAGES + "/{" + MESSAGE_ID + "}";
 
     String EMPLOYEES_EID_PHONE = EMPLOYEES_EID + "/phone";
     String EMPLOYEES_EID_QUALIFICATIONS_EXPIRED = EMPLOYEES_EID + QUALIFICATIONS + "/expired";

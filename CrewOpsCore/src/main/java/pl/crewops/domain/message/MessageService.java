@@ -4,6 +4,7 @@ import static pl.crewops.domain.message.MessageMapper.mapToDTO;
 import static pl.crewops.domain.message.MessageMapper.mapToEntity;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -109,6 +110,25 @@ class MessageService implements MessageAPI {
         return allByRecipientEmployeeIdAndRead.stream()
                 .map(MessageMapper::mapToDTO)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public List<MessageDTO> getAllMessagesByRecipientEmployeeId(UUID recipientEmployeeId, int page, int size) {
+        Page<Message> allByRecipientEmployeeIdAndRead =
+                messageRepository.findAllByRecipientEmployeeId(recipientEmployeeId, getPageRequest(page, size));
+        return allByRecipientEmployeeIdAndRead.stream()
+                .map(MessageMapper::mapToDTO)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public MessageDTO setMessageReadStatus(UUID messageId, boolean read) {
+        // TODO: custom exception
+        Message message = messageRepository.findById(messageId).orElseThrow(() -> new NoSuchElementException());
+        message.setRead(read);
+        return mapToDTO(messageRepository.save(message));
     }
 
     private static PageRequest getPageRequest(int page, int size) {

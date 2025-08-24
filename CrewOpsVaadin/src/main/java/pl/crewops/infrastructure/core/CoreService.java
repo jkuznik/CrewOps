@@ -150,8 +150,13 @@ class CoreService implements CoreAPI {
     @Override
     public Optional<EmployeeDTO> getEmployeeById(UUID employeeId) throws NotAuthenticatedException {
         log.info("Get employee by id via service proxy");
-
         return Optional.ofNullable(coreClient.getEmployeeById(employeeId));
+    }
+
+    @Override
+    public Optional<EmployeeDTO> getEmployeeByIdNoCache(UUID employeeId) throws NotAuthenticatedException {
+        log.info("Get employee by id using no cache method");
+        return Optional.ofNullable(coreClient.getEmployeeByIdNoCache(employeeId));
     }
 
     @Override
@@ -201,6 +206,11 @@ class CoreService implements CoreAPI {
     @Override
     public List<MessageDTO> getMessagesByRecipientEmployeeId(UUID employeeId) throws NotAuthenticatedException {
         return coreClient.getMessagesByRecipientEmployeeId(employeeId);
+    }
+
+    @Override
+    public Optional<MessageDTO> setMessageReadStatus(UUID messageId, boolean status) throws NotAuthenticatedException {
+        return Optional.ofNullable(coreClient.setMessageReadStatus(messageId, status));
     }
 
     @Override

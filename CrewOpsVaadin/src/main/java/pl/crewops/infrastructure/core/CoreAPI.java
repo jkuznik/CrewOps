@@ -81,6 +81,8 @@ public interface CoreAPI {
 
     Optional<EmployeeDTO> getEmployeeById(UUID employeeId) throws NotAuthenticatedException;
 
+    Optional<EmployeeDTO> getEmployeeByIdNoCache(UUID employeeId) throws NotAuthenticatedException;
+
     List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException;
 
     List<MachineDTO> getAllMachines() throws NotAuthenticatedException;
@@ -97,6 +99,8 @@ public interface CoreAPI {
     Optional<CompanyDTO> getCompanyById(@NotNull UUID companyId) throws NotAuthenticatedException;
 
     List<MessageDTO> getMessagesByRecipientEmployeeId(@NotNull UUID employeeId) throws NotAuthenticatedException;
+
+    Optional<MessageDTO> setMessageReadStatus(@NotNull UUID messageId, boolean status) throws NotAuthenticatedException;
 
     void sendMessage(@NotNull SendMessageCommand sendMessageCommand) throws NotAuthenticatedException;
 
