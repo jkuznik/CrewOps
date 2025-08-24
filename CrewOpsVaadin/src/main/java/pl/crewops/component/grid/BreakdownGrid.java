@@ -210,7 +210,7 @@ public class BreakdownGrid extends VerticalLayout {
     }
 
     private void updateBreakdown(BreakdownForm.UpdateEvent event) {
-        if (authenticationResolver.principalHasManagerPermission()) {
+        if (authenticationResolver.principalHasMechanicPermission()) {
             try {
                 Optional<BreakdownDTO> breakdownDTO =
                         coreAPI.updateBreakdown(toUpdateBreakdownDTO(event.getBreakdown()));

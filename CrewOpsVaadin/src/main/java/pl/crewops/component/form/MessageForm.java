@@ -68,6 +68,7 @@ public class MessageForm extends FormLayout {
     public void setSendMessageMode() {
         currentModeDescription.setText((getTranslation("messageForm.sendMode")));
         sender.setVisible(false);
+        recipientSelectionField.displayOptionsByPermissions();
         recipientSelectionField.setVisible(true);
 
         title.setEnabled(true);
@@ -213,13 +214,20 @@ public class MessageForm extends FormLayout {
             add(layout);
         }
 
+        public void displayOptionsByPermissions() {
+            var authenticationResolver = SpringContextBridge.getBean(AuthenticationResolver.class);
+            recipientDepartment.setVisible(authenticationResolver.principalHasManagerPermission());
+            recipientMachineOperators.setVisible(authenticationResolver.principalHasManagerPermission());
+        }
+
         private void configureSendByOptions() {
             var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
             try {
 
                 // all those listeners are required to ensure which RecipientSelection type will be selected in
                 // generateModelValue() method
-                // todo: implement this. current implementation is just a PoC for send to all operation
+                // todo: implement this after department domain. current implementation is just a PoC for send to all
+                // operation
                 recipientDepartment.setItems(List.of("ALL"));
                 recipientDepartment.addValueChangeListener(event -> {
                     if (event.getValue() != null) {
@@ -299,7 +307,7 @@ public class MessageForm extends FormLayout {
 
         /**
          * Use those method instead of Vaadin .setPresentationValue from CustomField class if RecipientSelection type
-         * is EMPLOYEE
+         * is MACHINE or EMPLOYEE
          * */
         public void setPresentationValue(MachineDTO machineDTO) {
             recipientDepartment.clear();

@@ -200,7 +200,7 @@ public class MachineGrid extends VerticalLayout {
             closeEditor();
         } else {
             machineForm.setMachine(machineFormModel);
-            if (authenticationResolver.principalHasManagerPermission()) {
+            if (authenticationResolver.principalHasMechanicPermission()) {
                 machineForm.setFormModeUpdate();
             } else {
                 machineForm.setFormModeEmployeePermission();
