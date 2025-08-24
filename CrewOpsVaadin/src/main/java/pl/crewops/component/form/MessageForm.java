@@ -8,6 +8,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -96,7 +97,12 @@ public class MessageForm extends FormLayout {
     }
 
     public void clearBinderValue() {
-        binder.setBean(null);
+        var model = MessageFormModel.builder()
+                .title(null)
+                .description(null)
+                .senderEmployeeId(null)
+                .build();
+        binder.setBean(model);
     }
 
     private void configureBinder(RecipientSelectionField recipientSelectionField) {
@@ -176,12 +182,22 @@ public class MessageForm extends FormLayout {
     /**
      * Custom field that combines three ComboBoxes to produce a RecipientSelection value.
      */
+    @CssImport("./styles/component/combo-box.css")
     private class RecipientSelectionField extends CustomField<RecipientSelection> {
         private final ComboBox<String> recipientDepartment = new ComboBox<>();
         private final ComboBox<MachineDTO> recipientMachineOperators = new ComboBox<>();
         private final ComboBox<EmployeeDTO> recipientEmployeeId = new ComboBox<>();
 
         RecipientSelectionField() {
+            recipientDepartment.addClassName("recipient-department-combobox");
+            recipientDepartment.getElement().setAttribute("theme", "recipient-department");
+
+            recipientMachineOperators.addClassName("recipient-machine-combobox");
+            recipientMachineOperators.getElement().setAttribute("theme", "recipient-machine");
+
+            recipientEmployeeId.addClassName("recipient-employee-combobox");
+            recipientEmployeeId.getElement().setAttribute("theme", "recipient-employee");
+
             recipientDepartment.setPlaceholder(getTranslation("messageForm.recipientDepartment"));
             recipientMachineOperators.setPlaceholder(getTranslation("messageForm.recipientMachineOperators"));
             recipientEmployeeId.setPlaceholder(getTranslation("messageForm.recipientEmployeeId"));

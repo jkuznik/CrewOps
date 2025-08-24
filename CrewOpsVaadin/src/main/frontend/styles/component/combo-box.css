@@ -66,3 +66,40 @@ vaadin-combo-box-item::part(content) {
 vaadin-combo-box-item:hover::part(content) {
     background-color: #3a3a3a;
 }
+
+/* Recipient department ComboBox */
+.recipient-department-combobox::part(text-field) {
+    background-color: #1e1e1e;
+    color: #f0f0f0;
+    border-radius: 6px;
+}
+vaadin-combo-box-overlay[theme~="recipient-department"]::part(content) {
+    background-color: #2a2a2a;
+}
+vaadin-combo-box-item::part(content) {
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+}
+vaadin-combo-box-item:hover::part(content) {
+    background-color: #3a3a3a;
+}
+
+/* Recipient machine ComboBox */
+.recipient-machine-combobox::part(text-field) {
+    background-color: #1e1e1e;
+    color: #f0f0f0;
+    border-radius: 6px;
+}
+vaadin-combo-box-overlay[theme~="recipient-machine"]::part(content) {
+    background-color: #2a2a2a;
+}
+
+/* Recipient employee ComboBox */
+.recipient-employee-combobox::part(text-field) {
+    background-color: #1e1e1e;
+    color: #f0f0f0;
+    border-radius: 6px;
+}
+vaadin-combo-box-overlay[theme~="recipient-employee"]::part(content) {
+    background-color: #2a2a2a;
+}
