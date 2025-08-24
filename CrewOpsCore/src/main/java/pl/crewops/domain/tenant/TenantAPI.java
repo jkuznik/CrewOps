@@ -12,5 +12,5 @@ public interface TenantAPI {
 
     Tenant saveTenant(@NotNull Tenant tenant);
 
-    void delete(@NotNull UUID tenantId);
+    String delete(@NotNull UUID tenantId);
 }

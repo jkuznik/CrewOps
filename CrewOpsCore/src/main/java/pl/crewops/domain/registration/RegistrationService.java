@@ -13,10 +13,13 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.domain.auth.AuthAPI;
 import pl.crewops.domain.company.CompanyAPI;
+import pl.crewops.domain.message.MessageAPI;
 import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.dto.auth.CreateAuthUserResult;
 import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
+import pl.crewops.dto.message.RecipientSelection;
+import pl.crewops.dto.message.SendMessageCommand;
 import pl.crewops.exception.domain.company.NoUniqueCompanyTaxIdException;
 import pl.crewops.exception.domain.registration.RegisterCustomerException;
 import pl.crewops.exception.multitenancy.CreateSchemaException;
@@ -39,6 +42,7 @@ class RegistrationService {
     private final AuthAPI authAPI;
     private final TenantAPI tenantAPI;
     private final CompanyAPI companyAPI;
+    private final MessageAPI messageAPI;
     private final PlatformTransactionManager transactionManager;
 
     CreateCustomerResult registerCustomer(@Valid @NotNull CreateCustomerCommand createCustomerCommand) {
@@ -94,8 +98,8 @@ class RegistrationService {
             transactionManager.commit(saveCompanyStep);
 
         } catch (Exception e) {
-            transactionManager.rollback(saveCompanyStep);
             cleanTenant(tenantId);
+            transactionManager.rollback(saveCompanyStep);
             TenantContext.clear();
             schemaManager.dropSchema(schemaName);
             throw new RegisterCustomerException("Failed to create company during registration");
@@ -105,13 +109,28 @@ class RegistrationService {
 
         var updatedCreateEmployeeDto = updateCompanyId(createCustomerCommand.createEmployeeDTO(), companyDTO.id());
         try {
-            authUserWithRelatedEmployee = authAPI.createAuthUserWithRelatedEmployee(updatedCreateEmployeeDto);
-            transactionManager.commit(saveAuthUserWithRelatedEmployee);
+            authUserWithRelatedEmployee =
+                    authAPI.createAuthUserWithRelatedEmployeeForRegisterCustomer(updatedCreateEmployeeDto);
 
+            var sendMessageCommand = SendMessageCommand.builder()
+                    // todo: modify this to department option with value of system admin department will be
+                    .recipientSelection(new RecipientSelection(RecipientSelection.RecipientOptionType.ALL, null))
+                    .title(createCustomerCommand
+                            .createTenantDTO()
+                            .createCompanyDTO()
+                            .name())
+                    .description("Login: "
+                            + authUserWithRelatedEmployee.authUserDTO().username() + " Pass: "
+                            + authUserWithRelatedEmployee.plainPassword())
+                    .senderEmployeeId(null)
+                    .build();
+
+            messageAPI.sendMessage(sendMessageCommand);
+            transactionManager.commit(saveAuthUserWithRelatedEmployee);
         } catch (Exception e) {
-            transactionManager.rollback(saveAuthUserWithRelatedEmployee);
-            cleanCompany(companyId);
+            cleanCompany(companyId, schemaName);
             cleanTenant(tenantId);
+            transactionManager.rollback(saveAuthUserWithRelatedEmployee);
             TenantContext.clear();
             schemaManager.dropSchema(schemaName);
             throw new RegisterCustomerException("Failed to create employee during registration");
@@ -122,12 +141,13 @@ class RegistrationService {
         return new CreateCustomerResult(authUserWithRelatedEmployee, companyDTO);
     }
 
-    private void cleanCompany(UUID companyId) {
-        companyAPI.delete(companyId);
+    private void cleanCompany(UUID companyId, String schemaName) {
+        companyAPI.deleteAfterFailedCustomerRegister(companyId, schemaName);
     }
 
     private void cleanTenant(UUID tenantId) {
-        tenantAPI.delete(tenantId);
+        String schemaName = tenantAPI.delete(tenantId);
+        schemaManager.dropSchema(schemaName);
     }
 
     private CreateEmployeeDTO updateCompanyId(CreateEmployeeDTO createEmployeeDTO, UUID companyId) {

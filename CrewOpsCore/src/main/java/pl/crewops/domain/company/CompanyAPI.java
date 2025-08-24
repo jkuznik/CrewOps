@@ -16,5 +16,5 @@ public interface CompanyAPI {
             @NotNull @Valid CreateCompanyDTO createCompanyDTO,
             @NotNull UUID companyId);
 
-    void delete(@NotNull UUID companyId);
+    void deleteAfterFailedCustomerRegister(@NotNull UUID companyId, @NotNull String schemaName);
 }

@@ -14,11 +14,13 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.auth.RoleType;
 import pl.crewops.registration.CreateCustomerCommand;
+import pl.crewops.util.SpringContextBridge;
 
 public class CompanyCreatorDialog extends Dialog {
 
-    public CompanyCreatorDialog(CoreAPI coreAPI) {
+    public CompanyCreatorDialog() {
         addClassName("company-creator-notification");
+        var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
 
         var companyCreatorForm = new CompanyCreatorForm();
         companyCreatorForm.addSaveButtonListener(companyInformation -> createNewTenant(coreAPI, companyInformation));
