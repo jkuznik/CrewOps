@@ -4,6 +4,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import java.util.Set;
 import java.util.UUID;
 import pl.crewops.component.form.CompanyCreatorForm;
+import pl.crewops.component.notification.SuccessNotification;
 import pl.crewops.dto.address.CreateAddressDTO;
 import pl.crewops.dto.auth.RoleDTO;
 import pl.crewops.dto.company.CreateCompanyDTO;
@@ -14,6 +15,7 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.auth.RoleType;
 import pl.crewops.registration.CreateCustomerCommand;
+import pl.crewops.registration.CreateCustomerResult;
 import pl.crewops.util.SpringContextBridge;
 
 public class CompanyCreatorDialog extends Dialog {
@@ -23,8 +25,8 @@ public class CompanyCreatorDialog extends Dialog {
         var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
 
         var companyCreatorForm = new CompanyCreatorForm();
-        companyCreatorForm.addSaveButtonListener(companyInformation -> createNewTenant(coreAPI, companyInformation));
-        companyCreatorForm.addCloseButtonListener(event -> close());
+        companyCreatorForm.addSaveListener(event -> createNewTenant(coreAPI, event.getCompanyInformation()));
+        companyCreatorForm.addCloseListener(event -> close());
 
         add(companyCreatorForm);
         open();
@@ -51,7 +53,10 @@ public class CompanyCreatorDialog extends Dialog {
                 .createEmployeeDTO(createEmployeeDTO)
                 .build();
         try {
-            coreAPI.registerNewCustomer(createCustomerCommand);
+            CreateCustomerResult createCustomerResult =
+                    coreAPI.registerNewCustomer(createCustomerCommand).orElseThrow(NotAuthenticatedException::new);
+            new SuccessNotification(getTranslation("companyCreatorDialog.success") + " "
+                    + createCustomerResult.companyDTO().name());
         } catch (NotAuthenticatedException e) {
             System.out.println("Error creating new customer with initial employee");
         }

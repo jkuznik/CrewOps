@@ -174,7 +174,7 @@ class CoreClient {
                 @CacheEvict(value = GET_EMPLOYEE_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
                 @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
             })
-    public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) throws NotAuthenticatedException {
+    public CreateAuthUserResult createEmployee(CreateEmployeeDTO createEmployeeDTO) throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .post()

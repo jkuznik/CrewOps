@@ -146,8 +146,7 @@ class RegistrationService {
     }
 
     private void cleanTenant(UUID tenantId) {
-        String schemaName = tenantAPI.delete(tenantId);
-        schemaManager.dropSchema(schemaName);
+        tenantAPI.delete(tenantId);
     }
 
     private CreateEmployeeDTO updateCompanyId(CreateEmployeeDTO createEmployeeDTO, UUID companyId) {

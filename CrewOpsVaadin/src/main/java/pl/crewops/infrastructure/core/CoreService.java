@@ -61,7 +61,8 @@ class CoreService implements CoreAPI {
     }
 
     @Override
-    public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) throws NotAuthenticatedException {
+    public Optional<CreateAuthUserResult> createEmployee(CreateEmployeeDTO createEmployeeDTO)
+            throws NotAuthenticatedException {
 
         return Optional.ofNullable(coreClient.createEmployee(createEmployeeDTO));
     }

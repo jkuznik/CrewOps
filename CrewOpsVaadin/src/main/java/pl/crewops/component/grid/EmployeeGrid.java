@@ -19,6 +19,7 @@ import pl.crewops.component.form.EmployeeForm;
 import pl.crewops.component.notification.AddEmployeeNotification;
 import pl.crewops.component.notification.UpdateEmployeeNotification;
 import pl.crewops.component.notification.guardian.DeleteEmployeeGuardian;
+import pl.crewops.dto.auth.CreateAuthUserResult;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
@@ -218,11 +219,11 @@ public class EmployeeGrid extends VerticalLayout {
             var principal = authenticationResolver.getPrincipal();
             UUID companyId = principal.getCompanyId();
 
-            Optional<EmployeeDTO> employeeDTO =
+            Optional<CreateAuthUserResult> createAuthUserResult =
                     coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee(), companyId));
             updateGrid();
             closeEditor();
-            employeeDTO.ifPresent(AddEmployeeNotification::new);
+            createAuthUserResult.ifPresent(value -> new AddEmployeeNotification(value.employeeDTO()));
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }

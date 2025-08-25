@@ -1,8 +1,11 @@
 package pl.crewops.component.form;
 
+import com.vaadin.flow.component.ComponentEvent;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import java.util.function.Consumer;
+import com.vaadin.flow.shared.Registration;
+import lombok.Getter;
 import pl.crewops.component.dialog.CompanyCreatorDialog;
 
 public class CompanyCreatorForm extends FormLayout {
@@ -16,19 +19,15 @@ public class CompanyCreatorForm extends FormLayout {
     private final TextField street = new TextField();
     private final TextField localNumber = new TextField();
 
-    private Consumer<CompanyCreatorDialog.CompanyInformation> saveButtonListener;
-    private Consumer<Void> closeButtonListener;
-
     public CompanyCreatorForm() {
         addClassName("company-creator-form");
 
-        // employee
         var employeeForm = new EmployeeForm();
         localize();
 
         employeeForm.setFormModeSave();
-        employeeForm.addSaveListener(this::saveEmployee);
-        employeeForm.addCloseListener(this::closeButton);
+        employeeForm.addSaveListener(event -> fireEvent(new SaveEvent(this, getCompanyInformationFromEvent(event))));
+        employeeForm.addCloseListener(event -> fireEvent(new CloseEvent(this)));
         add(companyName, companyEmail, companyTaxId, postalCode, city, street, localNumber, employeeForm);
     }
 
@@ -42,32 +41,45 @@ public class CompanyCreatorForm extends FormLayout {
         localNumber.setLabel(getTranslation("companyCreatorForm.localNumber"));
     }
 
-    private void saveEmployee(EmployeeForm.SaveEvent event) {
-        if (saveButtonListener != null) {
+    private CompanyCreatorDialog.CompanyInformation getCompanyInformationFromEvent(EmployeeForm.SaveEvent event) {
+        return new CompanyCreatorDialog.CompanyInformation(
+                companyName.getValue(),
+                companyEmail.getValue(),
+                companyTaxId.getValue(),
+                postalCode.getValue(),
+                city.getValue(),
+                street.getValue(),
+                localNumber.getValue(),
+                event.getEmployee());
+    }
 
-            saveButtonListener.accept(new CompanyCreatorDialog.CompanyInformation(
-                    companyName.getValue(),
-                    companyEmail.getValue(),
-                    companyTaxId.getValue(),
-                    postalCode.getValue(),
-                    city.getValue(),
-                    street.getValue(),
-                    localNumber.getValue(),
-                    event.getEmployee()));
+    public abstract static class CompanyCreatorFormEvent extends ComponentEvent<CompanyCreatorForm> {
+        public CompanyCreatorFormEvent(CompanyCreatorForm source) {
+            super(source, false);
         }
     }
 
-    private void closeButton(EmployeeForm.CloseEvent event) {
-        if (closeButtonListener != null) {
-            closeButtonListener.accept(null);
+    public static class SaveEvent extends CompanyCreatorFormEvent {
+        @Getter
+        private final CompanyCreatorDialog.CompanyInformation companyInformation;
+
+        public SaveEvent(CompanyCreatorForm source, CompanyCreatorDialog.CompanyInformation companyInformation) {
+            super(source);
+            this.companyInformation = companyInformation;
         }
     }
 
-    public void addCloseButtonListener(Consumer<Void> closeButtonListener) {
-        this.closeButtonListener = closeButtonListener;
+    public static class CloseEvent extends CompanyCreatorFormEvent {
+        public CloseEvent(CompanyCreatorForm source) {
+            super(source);
+        }
     }
 
-    public void addSaveButtonListener(Consumer<CompanyCreatorDialog.CompanyInformation> listener) {
-        this.saveButtonListener = listener;
+    public Registration addSaveListener(ComponentEventListener<SaveEvent> listener) {
+        return addListener(SaveEvent.class, listener);
+    }
+
+    public Registration addCloseListener(ComponentEventListener<CloseEvent> listener) {
+        return addListener(CloseEvent.class, listener);
     }
 }
