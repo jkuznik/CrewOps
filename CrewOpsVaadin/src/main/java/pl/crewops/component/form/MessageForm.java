@@ -190,8 +190,8 @@ public class MessageForm extends FormLayout {
         private final ComboBox<EmployeeDTO> recipientEmployeeId = new ComboBox<>();
 
         RecipientSelectionField() {
-            recipientDepartment.addClassName("recipient-department-combobox");
-            recipientDepartment.getElement().setAttribute("theme", "recipient-department");
+            recipientDepartment.addClassName("recipient-departments-combobox");
+            recipientDepartment.getElement().setAttribute("theme", "recipient-departments");
 
             recipientMachineOperators.addClassName("recipient-machine-combobox");
             recipientMachineOperators.getElement().setAttribute("theme", "recipient-machine");
@@ -226,7 +226,7 @@ public class MessageForm extends FormLayout {
 
                 // all those listeners are required to ensure which RecipientSelection type will be selected in
                 // generateModelValue() method
-                // todo: implement this after department domain. current implementation is just a PoC for send to all
+                // todo: implement this after departments domain. current implementation is just a PoC for send to all
                 // operation
                 recipientDepartment.setItems(List.of("ALL"));
                 recipientDepartment.addValueChangeListener(event -> {

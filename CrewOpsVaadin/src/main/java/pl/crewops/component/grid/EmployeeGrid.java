@@ -20,6 +20,7 @@ import pl.crewops.component.notification.AddEmployeeNotification;
 import pl.crewops.component.notification.UpdateEmployeeNotification;
 import pl.crewops.component.notification.guardian.DeleteEmployeeGuardian;
 import pl.crewops.dto.auth.CreateAuthUserResult;
+import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
@@ -72,7 +73,7 @@ public class EmployeeGrid extends VerticalLayout {
         grid.getColumnByKey("lastName").setHeader(getTranslation("employeeGrid.column.lastName"));
         grid.getColumnByKey("roles").setHeader(getTranslation("employeeGrid.column.roles"));
         grid.getColumnByKey("phoneNumber").setHeader(getTranslation("employeeGrid.column.phoneNumber"));
-        grid.getColumnByKey("department").setHeader(getTranslation("employeeGrid.column.department"));
+        grid.getColumnByKey("departments").setHeader(getTranslation("employeeGrid.column.department"));
     }
 
     public void closeEditor() {
@@ -132,7 +133,11 @@ public class EmployeeGrid extends VerticalLayout {
 
         grid.addColumn(EmployeeFormModel::getFirstName).setKey("firstName");
         grid.addColumn(EmployeeFormModel::getLastName).setKey("lastName");
-        grid.addColumn(EmployeeFormModel::getDepartment).setKey("department");
+        grid.addColumn(employee -> employee.getDepartments().stream()
+                        .map(DepartmentDTO::name)
+                        .sorted(String::compareToIgnoreCase)
+                        .collect(Collectors.joining(", ")))
+                .setKey("departments");
         grid.addColumn(employee -> employee.getRoles().stream()
                         .filter(role -> role != RoleType.EMPLOYEE)
                         .map(this::getRoleTranslation)
@@ -185,10 +190,11 @@ public class EmployeeGrid extends VerticalLayout {
                                 (selectedRole == null) || employee.getRoles().contains(selectedRole);
 
                         boolean departmentMatches = (selectedDepartment == null || selectedDepartment.isBlank())
-                                || (employee.getDepartment() != null
-                                        && employee.getDepartment()
-                                                .toLowerCase()
-                                                .contains(selectedDepartment));
+                                || (employee.getDepartments() != null
+                                        && employee.getDepartments()
+                                                .contains(DepartmentDTO.builder()
+                                                        .name(selectedDepartment)
+                                                        .build()));
 
                         return nameMatches && roleMatches && departmentMatches;
                     })

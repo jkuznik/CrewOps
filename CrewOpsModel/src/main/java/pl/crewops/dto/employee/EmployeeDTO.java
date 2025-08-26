@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 import lombok.Builder;
 import pl.crewops.dto.auth.RoleDTO;
+import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.machine.MachineDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 
@@ -17,8 +18,8 @@ public record EmployeeDTO(
         String lastName,
         LocalDate birthDate,
         String phoneNumber,
-        String department,
         Set<RoleDTO> roles,
+        Set<DepartmentDTO> departments,
         boolean active,
         Set<QualificationDTO> qualifications,
         Set<MachineDTO> machines)

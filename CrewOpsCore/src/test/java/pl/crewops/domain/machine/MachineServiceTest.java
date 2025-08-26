@@ -6,10 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static pl.crewops.domain.machine.MachineTestFactory.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,5 +123,34 @@ class MachineServiceTest {
         machineService.deleteMachine(machineId);
 
         verify(machineRepository, times(1)).deleteById(machineId);
+    }
+
+    @Test
+    void shouldReturnMachineDTO_whenMachineExistsByRegistrationNumber() {
+        when(machineRepository.findByRegisterNumber("registerNumber")).thenReturn(Optional.of(machine));
+
+        MachineDTO result = machineService.getMachineByRegistrationNumber("registerNumber");
+
+        assertThat(result).isNotNull();
+        assertThat(result.registerNumber()).isEqualTo("registerNumber");
+    }
+
+    @Test
+    void shouldReturnListOfMachines_whenMachinesExistInIds() {
+        UUID id1 = UUID.randomUUID();
+        UUID id2 = UUID.randomUUID();
+
+        Machine machine1 = machine();
+        machine1.setId(id1);
+
+        Machine machine2 = machine();
+        machine2.setId(id2);
+
+        when(machineRepository.findAllByIdIn(Set.of(id1, id2))).thenReturn(Set.of(machine1, machine2));
+
+        List<MachineDTO> result = machineService.getMachinesIn(Set.of(id1, id2));
+
+        assertThat(result).hasSize(2);
+        assertThat(result.stream().map(MachineDTO::id)).containsExactlyInAnyOrder(id1, id2);
     }
 }

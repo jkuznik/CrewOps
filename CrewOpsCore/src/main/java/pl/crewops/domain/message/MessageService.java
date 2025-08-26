@@ -43,7 +43,8 @@ class MessageService implements MessageAPI {
 
         switch (sendMessageCommand.recipientSelection().type()) {
             case ALL -> sendToAllEmployeesAsync(sendMessageCommand, employeeAPI.getAllActiveEmployees());
-            case DEPARTMENT -> {} // TODO: implement this feature but earlier department has to figure as separate table
+            case DEPARTMENT -> {} // TODO: implement this feature but earlier departments has to figure as separate
+                // table
                 // in db..
             case MACHINE -> sendToAllByMachine(
                     sendMessageCommand,

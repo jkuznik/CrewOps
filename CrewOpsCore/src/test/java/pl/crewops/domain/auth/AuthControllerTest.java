@@ -24,6 +24,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import pl.crewops.dto.auth.*;
+import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.security.config.TestSecuriityConfig;
@@ -84,7 +85,7 @@ class AuthControllerTest {
                 .lastName("Smith")
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .phoneNumber("123456789")
-                .department("HR")
+                .departments(departmentsDTOs())
                 .companyId(UUID.randomUUID())
                 .roles(Set.of())
                 .build();
@@ -110,7 +111,7 @@ class AuthControllerTest {
                 .lastName("Smith")
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .phoneNumber("123456789")
-                .department("HR")
+                .departments(departmentsDTOs())
                 .companyId(UUID.randomUUID())
                 .roles(Set.of())
                 .build();
@@ -130,7 +131,7 @@ class AuthControllerTest {
                 .lastName("Smith")
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .phoneNumber("123456789")
-                .department("HR")
+                .departments(departmentsDTOs())
                 .companyId(UUID.randomUUID())
                 .roles(Set.of())
                 .build();
@@ -171,5 +172,9 @@ class AuthControllerTest {
 
         mockMvc.perform(delete(EMPLOYEES_EID.replace("{" + EMPLOYEE_ID + "}", employeeId.toString())))
                 .andExpect(status().isForbidden());
+    }
+
+    Set<DepartmentDTO> departmentsDTOs() {
+        return Set.of(DepartmentDTO.builder().name("department").build());
     }
 }

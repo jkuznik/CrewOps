@@ -19,7 +19,7 @@ public class MessageFormModel {
     private UUID id;
     private String title;
     private @NotNull @Size(max = 32767, message = "Message can not be longer than 32767 characters") String description;
-    // TODO: create addition wrapper class to store recipient chose option (by department, by related machine, by
+    // TODO: create addition wrapper class to store recipient chose option (by departments, by related machine, by
     // employeeId)
     private @NotNull RecipientSelection recipientSelection;
     private UUID senderEmployeeId;

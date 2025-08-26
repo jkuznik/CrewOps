@@ -113,7 +113,7 @@ class RegistrationService {
                     authAPI.createAuthUserWithRelatedEmployeeForRegisterCustomer(updatedCreateEmployeeDto);
 
             var sendMessageCommand = SendMessageCommand.builder()
-                    // todo: modify this to department option with value of system admin department will be
+                    // todo: modify this to departments option with value of system admin departments will be
                     .recipientSelection(new RecipientSelection(RecipientSelection.RecipientOptionType.ALL, null))
                     .title(createCustomerCommand
                             .createTenantDTO()
@@ -154,7 +154,7 @@ class RegistrationService {
                 .companyId(companyId)
                 .firstName(createEmployeeDTO.firstName())
                 .lastName(createEmployeeDTO.lastName())
-                .department(createEmployeeDTO.department())
+                .departments(createEmployeeDTO.departments())
                 .phoneNumber(createEmployeeDTO.phoneNumber())
                 .birthDate(createEmployeeDTO.birthDate())
                 .roles(createEmployeeDTO.roles())

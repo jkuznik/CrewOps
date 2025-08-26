@@ -5,9 +5,11 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static pl.crewops.domain.employee.EmployeeTestFactory.departmentsDTOs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +25,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.employee.EmployeeQualificationDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.security.config.TestSecuriityConfig;
@@ -52,8 +55,10 @@ class EmployeeControllerTest {
     @DisplayName("PATCH /employees/{id} should return 401 when unauthenticated")
     void updateEmployee_ShouldReturn401() throws Exception {
         UUID id = UUID.randomUUID();
-        UpdateEmployeeDTO update =
-                UpdateEmployeeDTO.builder().employeeId(id).department("HR").build();
+        UpdateEmployeeDTO update = UpdateEmployeeDTO.builder()
+                .employeeId(id)
+                .departments(departmentsDTOs())
+                .build();
 
         mockMvc.perform(patch("/employees/" + id)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -66,8 +71,10 @@ class EmployeeControllerTest {
     @WithMockUser(roles = "MECHANIC")
     void updateEmployee_ShouldReturn403ForInsufficientRole() throws Exception {
         UUID id = UUID.randomUUID();
-        UpdateEmployeeDTO update =
-                UpdateEmployeeDTO.builder().employeeId(id).department("Tech").build();
+        UpdateEmployeeDTO update = UpdateEmployeeDTO.builder()
+                .employeeId(id)
+                .departments(departmentsDTOs())
+                .build();
 
         mockMvc.perform(patch("/employees/" + id)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -81,8 +88,10 @@ class EmployeeControllerTest {
     void updateEmployee_ShouldReturn400OnIdMismatch() throws Exception {
         UUID pathId = UUID.randomUUID();
         UUID bodyId = UUID.randomUUID(); // mismatch
-        UpdateEmployeeDTO update =
-                UpdateEmployeeDTO.builder().employeeId(bodyId).department("QA").build();
+        UpdateEmployeeDTO update = UpdateEmployeeDTO.builder()
+                .employeeId(bodyId)
+                .departments(departmentsDTOs())
+                .build();
 
         mockMvc.perform(patch("/employees/" + pathId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -230,11 +239,11 @@ class EmployeeControllerTest {
 
         UpdateEmployeeDTO update = UpdateEmployeeDTO.builder()
                 .employeeId(id)
-                .department("Operations")
+                .departments(departmentsDTOs())
                 .build();
 
         EmployeeDTO response =
-                EmployeeDTO.builder().id(id).department("Operations").build();
+                EmployeeDTO.builder().id(id).departments(departmentsDTOs()).build();
 
         when(employeeAPI.updateEmployee(any(UpdateEmployeeDTO.class))).thenReturn(response);
 
@@ -242,6 +251,28 @@ class EmployeeControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(update)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.department").value("Operations"));
+                .andExpect(jsonPath("$.departments[0].name").value("department"));
+    }
+
+    @Test
+    @WithMockUser(roles = "MANAGER")
+    @DisplayName("GET /employees/{eid}/qualifications/expired should return 200 with qualification data")
+    void getEmployeeQualificationWithExpirationTime_ShouldReturn200() throws Exception {
+        UUID eid = UUID.randomUUID();
+        UUID qid = UUID.randomUUID();
+
+        var eqDto = EmployeeQualificationDTO.builder()
+                .employeeId(eid)
+                .qualificationId(qid)
+                .expiredAt(LocalDate.now().plusDays(1))
+                .build();
+
+        when(employeeAPI.getAllEmployeeQualificationsWithExpirationTime(eid)).thenReturn(List.of(eqDto));
+
+        mockMvc.perform(get("/employees/" + eid + "/qualifications/expired"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].employeeId").value(eid.toString()))
+                .andExpect(jsonPath("$[0].qualificationId").value(qid.toString()))
+                .andExpect(jsonPath("$[0].expiredAt").isNotEmpty());
     }
 }

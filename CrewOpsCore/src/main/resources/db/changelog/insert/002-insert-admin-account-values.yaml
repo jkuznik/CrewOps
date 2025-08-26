@@ -20,7 +20,6 @@ databaseChangeLog:
               - column: { name: last_name, type: varchar(31), constraints: { nullable: false } }
               - column: { name: birth_date, type: date, constraints: { nullable: false } }
               - column: { name: phone_number, type: varchar(15), constraints: { nullable: true } }
-              - column: { name: department, type: varchar(63), constraints: { nullable: false } }
               - column: { name: active, type: boolean, defaultValueBoolean: true, constraints: { nullable: false } }
               - column: { name: created_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
               - column: { name: updated_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
@@ -345,7 +344,7 @@ databaseChangeLog:
               EXECUTE FUNCTION public.update_updated_at();
 
   - changeSet:
-      id: 18-create-table-message
+      id: 018-create-table-message
       author: jkuznik
       changes:
         - createTable:
@@ -363,7 +362,84 @@ databaseChangeLog:
               - column: { name: updated_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
 
   - changeSet:
-      id: 018-insert-admin-account-values
+      id: 019-create-message-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS message_updated_at_trigger ON ${tenant.schema.name}.message;
+              CREATE TRIGGER message_updated_at_trigger
+              BEFORE UPDATE ON ${tenant.schema.name}.message
+              FOR EACH ROW
+              EXECUTE FUNCTION public.update_updated_at();
+
+  - changeSet:
+      id: 020-create-table-departments
+      author: jkuznik
+      changes:
+        - createTable:
+            schemaName: ${tenant.schema.name}
+            tableName: department
+            columns:
+              - column: { name: id, type: uuid, defaultValueComputed: gen_random_uuid(), constraints: { primaryKey: true, nullable: false, unique: false } }
+              - column: { name: version, type: integer, defaultValue: 0, constraints: { nullable: false } }
+              - column: { name: name, type: varchar(63) }
+              - column: { name: created_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+
+  - changeSet:
+      id: 021-create-departments-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS department_updated_at_trigger ON ${tenant.schema.name}.department;
+              CREATE TRIGGER department_updated_at_trigger
+              BEFORE UPDATE ON ${tenant.schema.name}.department
+              FOR EACH ROW
+              EXECUTE FUNCTION public.update_updated_at();
+
+  - changeSet:
+      id: 022-create-table-employee-departments
+      author: jkuznik
+      changes:
+        - createTable:
+            schemaName: ${tenant.schema.name}
+            tableName: employee_department
+            columns:
+              - column: { name: employee_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: department_id, type: uuid, constraints: { nullable: false } }
+
+        - addPrimaryKey:
+            schemaName: ${tenant.schema.name}
+            tableName: employee_department
+            columnNames: employee_id, department_id
+            constraintName: pk_employee_department
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${tenant.schema.name}
+            baseTableName: employee_department
+            baseColumnNames: employee_id
+            constraintName: fk_employee_department_employee
+            referencedTableSchemaName: ${tenant.schema.name}
+            referencedTableName: employee
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${tenant.schema.name}
+            baseTableName: employee_department
+            baseColumnNames: department_id
+            constraintName: fk_employee_department_department
+            referencedTableSchemaName: ${tenant.schema.name}
+            referencedTableName: department
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+  - changeSet:
+      id: 023-insert-admin-account-values
       author: jkuznik
       changes:
         - insert:
@@ -516,9 +592,6 @@ databaseChangeLog:
                   name: phone_number
                   value: ${employee.phone.number}
               - column:
-                  name: department
-                  value: admin
-              - column:
                   name: active
                   value: true
               - column:
@@ -527,3 +600,34 @@ databaseChangeLog:
               - column:
                   name: updated_at
                   valueComputed: "CURRENT_TIMESTAMP"
+
+        - insert:
+            schemaName: ${tenant.schema.name}
+            tableName: department
+            columns:
+              - column:
+                  name: id
+                  value: ${department.id}
+              - column:
+                  name: version
+                  valueNumeric: 0
+              - column:
+                  name: name
+                  value: ${department.name}
+              - column:
+                  name: created_at
+                  valueComputed: "CURRENT_TIMESTAMP"
+              - column:
+                  name: updated_at
+                  valueComputed: "CURRENT_TIMESTAMP"
+
+        - insert:
+            schemaName: ${tenant.schema.name}
+            tableName: employee_department
+            columns:
+              - column:
+                  name: employee_id
+                  value: ${employee.id}
+              - column:
+                  name: department_id
+                  value: ${department.id}

@@ -141,6 +141,10 @@ public abstract class IntegrationTest {
         registry.add("spring.liquibase.parameters.employee.birth.date", () -> "2000-01-01");
         registry.add("spring.liquibase.parameters.employee.phone.number", () -> "123456789");
 
+        // liquibase parameters for department
+        registry.add("spring.liquibase.parameters.department.id", () -> "d0000000-0000-0000-0000-000000000001");
+        registry.add("spring.liquibase.parameters.department.name", () -> "department");
+
         // liquibase parameters for tenant
         registry.add("spring.liquibase.parameters.tenant.id", () -> "2b3b7d5c-9e8f-4bca-9c56-123456789abc");
         registry.add("spring.liquibase.parameters.tenant.company.id", () -> "2b3b7d5c-9e8f-4bca-9c56-123456789abd");

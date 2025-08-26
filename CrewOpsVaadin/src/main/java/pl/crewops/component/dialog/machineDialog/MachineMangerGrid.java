@@ -162,7 +162,7 @@ public class MachineMangerGrid extends VerticalLayout {
                 .firstName(employeeFormModel.getFirstName())
                 .lastName(employeeFormModel.getLastName())
                 .birthDate(employeeFormModel.getBirthDate())
-                .department(employeeFormModel.getDepartment())
+                .departments(employeeFormModel.getDepartments())
                 .phoneNumber(employeeFormModel.getPhoneNumber())
                 .roles(employeeFormModel.getRoles().stream()
                         .map(r -> new RoleDTO(r.name()))

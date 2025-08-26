@@ -113,9 +113,10 @@ class EmployeeService implements EmployeeAPI {
         if (updateEmployeeDTO.phoneNumber() != null) {
             employee.setPhoneNumber(updateEmployeeDTO.phoneNumber());
         }
-        if (updateEmployeeDTO.department() != null) {
-            employee.setDepartment(updateEmployeeDTO.department());
-        }
+        // todo
+        //        if (updateEmployeeDTO.departments() != null) {
+        //            employee.setDepartments(updateEmployeeDTO.departments());
+        //        }
 
         if (updateEmployeeDTO.active() != null) {
             employee.setActive(updateEmployeeDTO.active());
@@ -163,7 +164,7 @@ class EmployeeService implements EmployeeAPI {
     @Override
     public List<EmployeeQualificationDTO> getAllEmployeeQualificationsWithExpirationTime(UUID employeeId) {
         return employeeQualificationRepository.findAllByEmployeeIdAndExpiredAtIsNotNull(employeeId).stream()
-                .map(EmployeeMapper::mapToEMDTO)
+                .map(EmployeeMapper::mapToEQDTO)
                 .toList();
     }
 

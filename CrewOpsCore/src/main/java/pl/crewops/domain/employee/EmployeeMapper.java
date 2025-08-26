@@ -1,12 +1,14 @@
 package pl.crewops.domain.employee;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import pl.crewops.domain.auth.AuthAPI;
 import pl.crewops.dto.auth.RoleDTO;
+import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.EmployeeQualificationDTO;
@@ -26,7 +28,6 @@ class EmployeeMapper {
                 .lastName(createEmployeeDTO.lastName())
                 .birthDate(createEmployeeDTO.birthDate())
                 .phoneNumber(createEmployeeDTO.phoneNumber())
-                .department(createEmployeeDTO.department())
                 .active(true)
                 .build();
     }
@@ -38,7 +39,7 @@ class EmployeeMapper {
                 .lastName(employee.getLastName())
                 .birthDate(employee.getBirthDate())
                 .phoneNumber(employee.getPhoneNumber())
-                .department(employee.getDepartment())
+                .departments(getDepartments(employee))
                 .active(employee.isActive())
                 .qualifications(getQualifications(employee))
                 .machines(getMachines(employee))
@@ -63,7 +64,7 @@ class EmployeeMapper {
                 .lastName(employee.getLastName())
                 .birthDate(employee.getBirthDate())
                 .phoneNumber(employee.getPhoneNumber())
-                .department(employee.getDepartment())
+                .departments(getDepartments(employee))
                 .active(employee.isActive())
                 .qualifications(getQualifications(employee))
                 .machines(getMachines(employee))
@@ -71,12 +72,21 @@ class EmployeeMapper {
                 .build();
     }
 
-    static EmployeeQualificationDTO mapToEMDTO(EmployeeQualification employeeQualification) {
+    static EmployeeQualificationDTO mapToEQDTO(EmployeeQualification employeeQualification) {
         return EmployeeQualificationDTO.builder()
                 .employeeId(employeeQualification.getId().getEmployeeId())
                 .qualificationId(employeeQualification.getId().getQualificationId())
-                .expiredAt(LocalDate.from(employeeQualification.getExpiredAt()))
+                .expiredAt(LocalDate.ofInstant(employeeQualification.getExpiredAt(), ZoneId.systemDefault()))
                 .build();
+    }
+
+    private static Set<DepartmentDTO> getDepartments(Employee employee) {
+        return employee.getDepartments().stream()
+                .map(department -> DepartmentDTO.builder()
+                        .id(department.getId())
+                        .name(department.getName())
+                        .build())
+                .collect(Collectors.toSet());
     }
 
     private static Set<MachineDTO> getMachines(Employee employee) {

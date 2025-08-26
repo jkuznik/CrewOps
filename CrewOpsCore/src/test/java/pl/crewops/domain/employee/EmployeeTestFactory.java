@@ -4,12 +4,10 @@ import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 import pl.crewops.IntegrationTest;
+import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.model.Employee;
-import pl.crewops.model.Machine;
-import pl.crewops.model.MachineType;
-import pl.crewops.model.Qualification;
+import pl.crewops.model.*;
 
 class EmployeeTestFactory {
 
@@ -21,7 +19,7 @@ class EmployeeTestFactory {
                 .lastName("lastName")
                 .birthDate(LocalDate.parse("2000-01-01"))
                 .phoneNumber("123456789")
-                .department("department")
+                .departments(departments())
                 .qualifications(getQualifications())
                 .machines(getMachines())
                 .active(true)
@@ -34,7 +32,7 @@ class EmployeeTestFactory {
                 .lastName("lastName")
                 .birthDate(LocalDate.parse("2000-01-01"))
                 .phoneNumber("123456789")
-                .department("department")
+                .departments(departments())
                 .active(true)
                 .build();
     }
@@ -45,7 +43,7 @@ class EmployeeTestFactory {
                 .lastName("lastName")
                 .birthDate(LocalDate.parse("2000-01-01"))
                 .phoneNumber("123456789")
-                .department("department")
+                .departments(departmentsDTOs())
                 .roles(Set.of())
                 .companyId(IntegrationTest.TEST_TENANT_COMPANY_ID)
                 .build();
@@ -57,7 +55,7 @@ class EmployeeTestFactory {
                 .lastName("lastName")
                 .birthDate(LocalDate.parse("2000-01-01"))
                 .phoneNumber("123456789")
-                .department("department")
+                .departments(departmentsDTOs())
                 .build();
     }
 
@@ -65,7 +63,7 @@ class EmployeeTestFactory {
         return UpdateEmployeeDTO.builder()
                 .employeeId(employeeId)
                 .phoneNumber("123456789")
-                .department("department")
+                .departments(departmentsDTOs())
                 .build();
     }
 
@@ -73,7 +71,7 @@ class EmployeeTestFactory {
         return UpdateEmployeeDTO.builder()
                 .employeeId(employeeId)
                 .phoneNumber("123456789andThenMoreChar")
-                .department("department")
+                .departments(departmentsDTOs())
                 .build();
     }
 
@@ -89,6 +87,14 @@ class EmployeeTestFactory {
                 .year(2020)
                 .broken(false)
                 .build();
+    }
+
+    static Set<Department> departments() {
+        return Set.of(Department.builder().name("departments").build());
+    }
+
+    static Set<DepartmentDTO> departmentsDTOs() {
+        return Set.of(DepartmentDTO.builder().name("department").build());
     }
 
     private static Set<Qualification> getQualifications() {

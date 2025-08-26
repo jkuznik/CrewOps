@@ -67,7 +67,7 @@ vaadin-combo-box-item:hover::part(content) {
     background-color: #3a3a3a;
 }
 
-/* Recipient department ComboBox */
+/* Recipient departments ComboBox */
 .recipient-department-combobox::part(text-field) {
     background-color: #1e1e1e;
     color: #f0f0f0;

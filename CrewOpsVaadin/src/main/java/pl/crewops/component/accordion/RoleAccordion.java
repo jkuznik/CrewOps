@@ -82,7 +82,7 @@ public class RoleAccordion extends FormLayout {
                         .id(employeeFormModel.getId())
                         .firstName(employeeFormModel.getFirstName())
                         .lastName(employeeFormModel.getLastName())
-                        .department(employeeFormModel.getDepartment())
+                        .departments(employeeFormModel.getDepartments())
                         .birthDate(employeeFormModel.getBirthDate())
                         .phoneNumber(employeeFormModel.getPhoneNumber())
                         .qualificationsSet(employeeFormModel.getQualificationsSet())

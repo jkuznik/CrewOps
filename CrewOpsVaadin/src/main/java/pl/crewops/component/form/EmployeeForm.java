@@ -163,7 +163,8 @@ public class EmployeeForm extends FormLayout {
                 .lastName(lastName.getValue())
                 .birthDate(birthDate.getValue())
                 .phoneNumber(phoneNumber.getValue())
-                .department(department.getValue())
+                //                todo
+                //                .departments(departments.getValue())
                 .machinesSet(Set.of())
                 .qualificationsSet(Set.of())
                 .roles(Set.of())

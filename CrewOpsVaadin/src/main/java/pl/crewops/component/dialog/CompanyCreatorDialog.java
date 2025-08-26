@@ -43,7 +43,7 @@ public class CompanyCreatorDialog extends Dialog {
                 // value when new record is saved in Company table in persist layer.
                 .firstName(companyInformation.initialEmployeeInfo.getFirstName())
                 .lastName(companyInformation.initialEmployeeInfo.getLastName())
-                .department(companyInformation.initialEmployeeInfo.getDepartment())
+                .departments(companyInformation.initialEmployeeInfo.getDepartments())
                 .phoneNumber(companyInformation.initialEmployeeInfo.getPhoneNumber())
                 .birthDate(companyInformation.initialEmployeeInfo.getBirthDate())
                 .roles(companyAdminRoles())
