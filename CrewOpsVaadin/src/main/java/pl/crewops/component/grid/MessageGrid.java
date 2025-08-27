@@ -35,7 +35,6 @@ public class MessageGrid extends VerticalLayout {
 
     private final Grid<MessageFormModel> grid = new Grid<>();
     private final MessageForm messageForm = new MessageForm();
-    // todo: i18n
     private final Button sendButton = new Button();
 
     public MessageGrid(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
@@ -190,8 +189,6 @@ public class MessageGrid extends VerticalLayout {
     }
 
     private void updateGrid() {
-        // todo: implement logic to put unread messages on the top of the list and after
-        //  read move to read collection but sorted by createdAt
         try {
             var employeeId = authenticationResolver.getPrincipal().getEmployeeId();
             // todo: implement loop to fetch messages partially

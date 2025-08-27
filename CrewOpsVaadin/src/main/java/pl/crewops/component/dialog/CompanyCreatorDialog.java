@@ -1,5 +1,7 @@
 package pl.crewops.component.dialog;
 
+import static pl.crewops.model.DepartmentFormModel.mapToDepartmentDTOs;
+
 import com.vaadin.flow.component.dialog.Dialog;
 import java.util.Set;
 import java.util.UUID;
@@ -43,7 +45,7 @@ public class CompanyCreatorDialog extends Dialog {
                 // value when new record is saved in Company table in persist layer.
                 .firstName(companyInformation.initialEmployeeInfo.getFirstName())
                 .lastName(companyInformation.initialEmployeeInfo.getLastName())
-                .departments(companyInformation.initialEmployeeInfo.getDepartments())
+                .departments(mapToDepartmentDTOs(companyInformation.initialEmployeeInfo.getDepartments()))
                 .phoneNumber(companyInformation.initialEmployeeInfo.getPhoneNumber())
                 .birthDate(companyInformation.initialEmployeeInfo.getBirthDate())
                 .roles(companyAdminRoles())

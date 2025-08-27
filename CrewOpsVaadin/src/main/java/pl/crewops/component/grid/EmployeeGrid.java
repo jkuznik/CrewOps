@@ -24,6 +24,7 @@ import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.model.DepartmentFormModel;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.auth.RoleType;
 import pl.crewops.util.AuthenticationResolver;
@@ -134,7 +135,7 @@ public class EmployeeGrid extends VerticalLayout {
         grid.addColumn(EmployeeFormModel::getFirstName).setKey("firstName");
         grid.addColumn(EmployeeFormModel::getLastName).setKey("lastName");
         grid.addColumn(employee -> employee.getDepartments().stream()
-                        .map(DepartmentDTO::name)
+                        .map(DepartmentFormModel::getName)
                         .sorted(String::compareToIgnoreCase)
                         .collect(Collectors.joining(", ")))
                 .setKey("departments");

@@ -13,6 +13,7 @@ import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.dto.company.CompanyDTO;
+import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -95,6 +96,8 @@ public interface CoreAPI {
             throws NotAuthenticatedException;
 
     List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException;
+
+    List<DepartmentDTO> getAllDepartments() throws NotAuthenticatedException;
 
     Optional<CompanyDTO> getCompanyById(@NotNull UUID companyId) throws NotAuthenticatedException;
 

@@ -231,7 +231,7 @@ class AuthService implements AuthAPI {
                     .orElseThrow(() -> new UsernameNotFoundException("Employee Id " + updateAuthUserDTO.employeeId()));
 
             if (updateAuthUserDTO.password() != null) {
-                // todo: implement this logic
+                // todo: implement this logic; edit: todo after profile console is ready
             }
 
             if (!updateAuthUserDTO.roles().isEmpty()) {

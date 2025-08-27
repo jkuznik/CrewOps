@@ -1,5 +1,7 @@
 package pl.crewops.component.dialog.qualificationManager;
 
+import static pl.crewops.model.DepartmentFormModel.mapToDepartmentDTOs;
+
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
@@ -162,7 +164,7 @@ public class EditQualificationForm extends FormLayout {
                 .firstName(employeeFormModel.getFirstName())
                 .lastName(employeeFormModel.getLastName())
                 .birthDate(employeeFormModel.getBirthDate())
-                .departments(employeeFormModel.getDepartments())
+                .departments(mapToDepartmentDTOs(employeeFormModel.getDepartments()))
                 .phoneNumber(employeeFormModel.getPhoneNumber())
                 .roles(employeeFormModel.getRoles().stream()
                         .map(r -> new RoleDTO(r.name()))

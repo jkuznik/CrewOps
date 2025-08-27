@@ -5,7 +5,9 @@ import static pl.crewops.domain.employee.EmployeeMapper.mapToEntity;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -13,8 +15,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import pl.crewops.domain.department.DepartmentAPI;
 import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
+import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.EmployeeQualificationDTO;
@@ -24,6 +28,7 @@ import pl.crewops.exception.domain.employee.EmployeeNotFoundException;
 import pl.crewops.exception.domain.employee.EmployeeQualificationNotFoundException;
 import pl.crewops.exception.domain.employee.ExpireAtException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
+import pl.crewops.model.Department;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Machine;
 import pl.crewops.model.Qualification;
@@ -37,6 +42,7 @@ class EmployeeService implements EmployeeAPI {
 
     private final EmployeeRepository employeeRepository;
     private final EmployeeQualificationRepository employeeQualificationRepository;
+    private final DepartmentAPI departmentAPI;
     private final QualificationAPI qualificationAPI;
     private final MachineAPI machineAPI;
 
@@ -113,10 +119,13 @@ class EmployeeService implements EmployeeAPI {
         if (updateEmployeeDTO.phoneNumber() != null) {
             employee.setPhoneNumber(updateEmployeeDTO.phoneNumber());
         }
-        // todo
-        //        if (updateEmployeeDTO.departments() != null) {
-        //            employee.setDepartments(updateEmployeeDTO.departments());
-        //        }
+
+        if (updateEmployeeDTO.departments() != null) {
+            Set<Department> departments = departmentAPI.getDepartmentsIn(updateEmployeeDTO.departments().stream()
+                    .map(DepartmentDTO::id)
+                    .collect(Collectors.toSet()));
+            employee.setDepartments(departments);
+        }
 
         if (updateEmployeeDTO.active() != null) {
             employee.setActive(updateEmployeeDTO.active());
@@ -197,7 +206,7 @@ class EmployeeService implements EmployeeAPI {
     }
 
     @Transactional
-    // TODO: consider to refactor code and introduce object like AddMachineCommand, AddQualificationCOmmand, Remove..
+    // TODO: consider to refactor code and introduce object like AddMachineCommand, AddQualificationCommand, Remove..
     // etc.
     public EmployeeDTO addMachine(UUID employeeId, UUID machineId) {
         Employee employee =

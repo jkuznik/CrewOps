@@ -26,6 +26,8 @@ public interface ControllerURL {
     String BREAKDOWN_ID = "breakdownId";
     String COMPANIES = "/companies";
     String COMPANY_ID = "companyId";
+    String DEPARTMENTS = "/departments";
+    String DEPARTMENT_ID = "departmentId";
     String MESSAGES = "/messages";
     String MESSAGE_ID = "messageId";
 

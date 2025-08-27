@@ -295,12 +295,6 @@ public class MessageForm extends FormLayout {
             if (recipientSelection != null) {
                 switch (recipientSelection.type()) {
                     case ALL, DEPARTMENT -> recipientDepartment.setValue(recipientSelection.value());
-                        // TODO: implement custom method to set recipientMachineOperators and recipientEmployeeId
-                        //  for feature send to employee what will be available in the future from employee grid lv
-                        //                    case MACHINE ->
-                        // recipientMachineOperators.setValue(recipientSelection.value());
-                        //                    case EMPLOYEE ->
-                        // recipientEmployeeId.setValue(recipientSelection.value().toString());
                 }
             }
         }

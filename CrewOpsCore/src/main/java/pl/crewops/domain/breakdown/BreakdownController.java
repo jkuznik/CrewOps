@@ -8,6 +8,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.dto.breakdown.BreakdownDTO;
@@ -17,6 +18,7 @@ import pl.crewops.security.custom.permissionAnnotation.ShiftLeaderPermission;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 class BreakdownController {
     private final BreakdownService breakdownService;
 

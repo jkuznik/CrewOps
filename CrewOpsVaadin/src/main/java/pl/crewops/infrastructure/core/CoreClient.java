@@ -20,6 +20,7 @@ import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.dto.company.CompanyDTO;
+import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -700,6 +701,22 @@ class CoreClient {
                     .body(new ParameterizedTypeReference<List<BreakdownDTO>>() {});
         } catch (RestClientException e) {
             log.error("Error getting breakdowns");
+            return List.of();
+        }
+    }
+
+    // TODO: implement cache
+    public List<DepartmentDTO> getAllDepartments() throws NotAuthenticatedException {
+        log.info("Get all departments cache missed");
+        try {
+            return authorizedClient()
+                    .get()
+                    .uri(uriBuilder -> uriBuilder.path(DEPARTMENTS).build())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Error getting departments");
             return List.of();
         }
     }

@@ -1,9 +1,6 @@
 package pl.crewops.infrastructure.core;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -14,6 +11,7 @@ import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.dto.company.CompanyDTO;
+import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -195,6 +193,11 @@ class CoreService implements CoreAPI {
     public List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException {
 
         return coreClient.getAllBreakdowns();
+    }
+
+    @Override
+    public List<DepartmentDTO> getAllDepartments() throws NotAuthenticatedException {
+        return coreClient.getAllDepartments();
     }
 
     @Override
