@@ -18,15 +18,17 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
-import java.util.List;
+import java.util.ArrayList;
 import lombok.Getter;
 import pl.crewops.component.notification.FailNotification;
+import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.machine.MachineDTO;
 import pl.crewops.dto.message.RecipientSelection;
 import pl.crewops.dto.message.SendMessageCommand;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.model.DepartmentFormModel;
 import pl.crewops.model.MessageFormModel;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.SpringContextBridge;
@@ -185,13 +187,15 @@ public class MessageForm extends FormLayout {
      */
     @CssImport("./styles/component/combo-box.css")
     private class RecipientSelectionField extends CustomField<RecipientSelection> {
-        private final ComboBox<String> recipientDepartment = new ComboBox<>();
+        static final String ALL = "ALL"; // todo: make this i18n supported
+
+        private final ComboBox<DepartmentFormModel> recipientDepartment = new ComboBox<>();
         private final ComboBox<MachineDTO> recipientMachineOperators = new ComboBox<>();
         private final ComboBox<EmployeeDTO> recipientEmployeeId = new ComboBox<>();
 
         RecipientSelectionField() {
             recipientDepartment.addClassName("recipient-departments-combobox");
-            recipientDepartment.getElement().setAttribute("theme", "recipient-departments");
+            recipientDepartment.getElement().setAttribute("theme", "recipient-department");
 
             recipientMachineOperators.addClassName("recipient-machine-combobox");
             recipientMachineOperators.getElement().setAttribute("theme", "recipient-machine");
@@ -223,12 +227,13 @@ public class MessageForm extends FormLayout {
         private void configureSendByOptions() {
             var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
             try {
+                var allOptionLabel = getTranslation("messageForm.allOptionLabel");
 
-                // all those listeners are required to ensure which RecipientSelection type will be selected in
-                // generateModelValue() method
-                // todo: implement this after departments domain. current implementation is just a PoC for send to all
-                // operation
-                recipientDepartment.setItems(List.of("ALL"));
+                var allDepartments = new ArrayList<DepartmentDTO>();
+                allDepartments.add(DepartmentDTO.builder().name(allOptionLabel).build());
+                allDepartments.addAll(coreAPI.getAllDepartments());
+                recipientDepartment.setItems(DepartmentFormModel.orderedMapToDepartmentForms(allDepartments));
+                recipientDepartment.setItemLabelGenerator(DepartmentFormModel::getName);
                 recipientDepartment.addValueChangeListener(event -> {
                     if (event.getValue() != null) {
                         recipientMachineOperators.clear();
@@ -240,6 +245,10 @@ public class MessageForm extends FormLayout {
                 // todo: prepare method that allow to fetch all machines without pagination
                 recipientMachineOperators.setItems(coreAPI.getAllMachines());
                 recipientMachineOperators.setItemLabelGenerator(MachineDTO::registerNumber);
+
+                // all those listeners are required to ensure which RecipientSelection type will be selected in
+                // generateModelValue() method
+
                 recipientMachineOperators.addValueChangeListener(event -> {
                     if (event.getValue() != null) {
                         recipientDepartment.clear();
@@ -265,12 +274,16 @@ public class MessageForm extends FormLayout {
         @Override
         protected RecipientSelection generateModelValue() {
             if (recipientDepartment.getValue() != null) {
-                if ("ALL".equalsIgnoreCase(recipientDepartment.getValue())) {
+                var allOptionLabel = getTranslation("messageForm.allOptionLabel");
+                if (allOptionLabel.equalsIgnoreCase(
+                        recipientDepartment.getValue().getName())) {
                     return new RecipientSelection(
-                            RecipientSelection.RecipientOptionType.ALL, recipientDepartment.getValue());
+                            RecipientSelection.RecipientOptionType.ALL,
+                            recipientDepartment.getValue().getName());
                 } else {
                     return new RecipientSelection(
-                            RecipientSelection.RecipientOptionType.DEPARTMENT, recipientDepartment.getValue());
+                            RecipientSelection.RecipientOptionType.DEPARTMENT,
+                            recipientDepartment.getValue().getName());
                 }
             }
             if (recipientMachineOperators.getValue() != null) {
@@ -294,11 +307,21 @@ public class MessageForm extends FormLayout {
 
             if (recipientSelection != null) {
                 switch (recipientSelection.type()) {
-                    case ALL, DEPARTMENT -> recipientDepartment.setValue(recipientSelection.value());
+                    case ALL -> {
+                        recipientDepartment.setValue(
+                                DepartmentFormModel.builder().name(ALL).build());
+                    }
+                    case DEPARTMENT -> {
+                        recipientDepartment.setValue(DepartmentFormModel.builder()
+                                .name(recipientSelection.value())
+                                .build());
+                    }
                 }
             }
         }
 
+        // TODO: i should refactor this class and RecipientSelectionField extends CustomField< MyNewWrapperClass> where
+        //  new wrapper storage RecipientSelection, MachineDTO, EmployeeDTO
         /**
          * Use those method instead of Vaadin .setPresentationValue from CustomField class if RecipientSelection type
          * is MACHINE or EMPLOYEE

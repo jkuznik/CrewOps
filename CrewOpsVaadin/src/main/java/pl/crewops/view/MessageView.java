@@ -15,7 +15,6 @@ import pl.crewops.view.layout.MainLayout;
 @PageTitle("CrewOps messages")
 public class MessageView extends MainLayout implements BeforeEnterObserver {
 
-    // todo : implement all todos depends on department table
     private MessageGrid messageGrid;
 
     public MessageView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
