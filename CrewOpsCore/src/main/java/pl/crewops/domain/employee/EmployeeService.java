@@ -82,6 +82,13 @@ class EmployeeService implements EmployeeAPI {
                 .toList();
     }
 
+    @Override
+    public List<EmployeeDTO> getAllActiveEmployeesByDepartment(UUID departmentId) {
+        return employeeRepository.findAllByDepartmentIdAndActiveIsTrue(departmentId).stream()
+                .map(EmployeeMapper::mapToDTO)
+                .toList();
+    }
+
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     public Employee getEmployeeById(UUID id) {
         return employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));

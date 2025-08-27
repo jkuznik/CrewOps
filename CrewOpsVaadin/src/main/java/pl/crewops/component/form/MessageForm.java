@@ -283,7 +283,7 @@ public class MessageForm extends FormLayout {
                 } else {
                     return new RecipientSelection(
                             RecipientSelection.RecipientOptionType.DEPARTMENT,
-                            recipientDepartment.getValue().getName());
+                            recipientDepartment.getValue().getId().toString());
                 }
             }
             if (recipientMachineOperators.getValue() != null) {

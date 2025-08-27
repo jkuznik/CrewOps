@@ -43,16 +43,18 @@ class MessageService implements MessageAPI {
 
         switch (sendMessageCommand.recipientSelection().type()) {
             case ALL -> sendToAllEmployeesAsync(sendMessageCommand, employeeAPI.getAllActiveEmployees());
-            case DEPARTMENT -> {} // TODO: implement this feature but earlier departments has to figure as separate
-                // table
-                // in db..
+            case DEPARTMENT -> sendToAllEmployeesAsync(
+                    sendMessageCommand,
+                    employeeAPI.getAllActiveEmployeesByDepartment(UUID.fromString(
+                            sendMessageCommand.recipientSelection().value())));
             case MACHINE -> sendToAllByMachine(
                     sendMessageCommand,
                     employeeAPI.getEmployeesByMachines(
                             UUID.fromString(
                                     sendMessageCommand.recipientSelection().value()),
                             0,
-                            100));
+                            // TODO: implement non pagination sensitive solution
+                            1000));
             case EMPLOYEE -> sendToRecipientEmployee(sendMessageCommand);
         }
     }

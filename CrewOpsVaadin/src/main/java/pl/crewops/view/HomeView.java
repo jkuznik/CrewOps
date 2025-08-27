@@ -4,12 +4,10 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import pl.crewops.component.content.HomeContent;
-import pl.crewops.component.form.LoginForm;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
@@ -26,8 +24,7 @@ public class HomeView extends MainLayout {
         mainContent.removeAll();
 
         if (!authenticationResolver.principalIsAuthenticated()) {
-            remove(navbar);
-            remove(drawer);
+            setDrawerOpened(false);
         }
 
         var currentContent = getCurrentContent();
@@ -38,37 +35,37 @@ public class HomeView extends MainLayout {
 
     private Component getCurrentContent() {
         Component currentContent;
-        if (authenticationResolver.principalIsAuthenticated()) {
-            VerticalLayout layout = new VerticalLayout();
-            layout.setId("view-content");
+        //        if (authenticationResolver.principalIsAuthenticated()) {
+        VerticalLayout layout = new VerticalLayout();
+        layout.setId("view-content");
 
-            layout.setWidthFull();
-            layout.setPadding(true);
-            layout.setSpacing(true);
-            layout.getStyle().set("overflow", "auto");
+        layout.setWidthFull();
+        layout.setPadding(true);
+        layout.setSpacing(true);
+        layout.getStyle().set("overflow", "auto");
 
-            HomeContent homeContent = new HomeContent();
-            homeContent.setSizeFull();
+        HomeContent homeContent = new HomeContent();
+        homeContent.setSizeFull();
 
-            layout.add(homeContent);
-            currentContent = layout;
-        } else {
-            Div container = new Div();
-            container.setId("view-content");
-            container.setSizeFull();
-            container
-                    .getStyle()
-                    .set("display", "flex")
-                    .set("align-items", "center")
-                    .set("justify-content", "center");
-
-            var loginForm = new LoginForm(coreAPI, jwtService);
-            loginForm.setWidth("400px");
-            loginForm.getStyle().set("max-width", "90%");
-
-            container.add(loginForm);
-            currentContent = container;
-        }
+        layout.add(homeContent);
+        currentContent = layout;
+        //        } else {                                  all commented code has change homepage for not logged users
+        //            Div container = new Div();
+        //            container.setId("view-content");
+        //            container.setSizeFull();
+        //            container
+        //                    .getStyle()
+        //                    .set("display", "flex")
+        //                    .set("align-items", "center")
+        //                    .set("justify-content", "center");
+        //
+        //            var loginForm = new LoginForm(coreAPI, jwtService);
+        //            loginForm.setWidth("400px");
+        //            loginForm.getStyle().set("max-width", "90%");
+        //
+        //            container.add(loginForm);
+        //            currentContent = container;
+        //        }
         return currentContent;
     }
 

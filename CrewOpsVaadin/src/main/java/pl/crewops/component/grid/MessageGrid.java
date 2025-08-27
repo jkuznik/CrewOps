@@ -112,7 +112,7 @@ public class MessageGrid extends VerticalLayout {
         grid.addComponentColumn(message -> {
                     if (!message.isRead()) {
                         Icon icon = VaadinIcon.ENVELOPE.create();
-                        icon.setColor("blue");
+                        icon.setColor("#00adb5");
                         return icon;
                     }
                     return null;

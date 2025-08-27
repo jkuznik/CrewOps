@@ -54,4 +54,6 @@ public interface EmployeeAPI {
     List<EmployeeDTO> getAllActiveEmployees(int page, int size);
 
     List<EmployeeDTO> getAllActiveEmployees();
+
+    List<EmployeeDTO> getAllActiveEmployeesByDepartment(@NotNull UUID departmentId);
 }

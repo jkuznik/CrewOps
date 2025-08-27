@@ -35,6 +35,7 @@ public class EmployeeForm extends FormLayout {
     private final DatePicker birthDate = new DatePicker();
     private final TextField phoneNumber = new TextField();
 
+    // TODO: multiselect css configuration match with all comopnents
     private final MultiSelectComboBox<DepartmentFormModel> departments;
     private final QualificationAccordion qualifications;
     private final MachineAccordion machines;

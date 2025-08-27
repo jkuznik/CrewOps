@@ -17,6 +17,9 @@ interface EmployeeRepository extends JpaRepository<Employee, UUID> {
 
     List<Employee> findAllByActiveIsTrue();
 
+    @Query("SELECT e FROM Employee e JOIN e.departments d WHERE d.id = :departmentId AND e.active = true")
+    List<Employee> findAllByDepartmentIdAndActiveIsTrue(@Param("departmentId") UUID departmentId);
+
     @EntityGraph(attributePaths = {"qualifications", "machines"})
     Page<Employee> findAllByActiveIsTrue(Pageable pageable);
 
