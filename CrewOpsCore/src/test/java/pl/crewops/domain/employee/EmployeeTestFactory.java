@@ -94,7 +94,10 @@ class EmployeeTestFactory {
     }
 
     static Set<DepartmentDTO> departmentsDTOs() {
-        return Set.of(DepartmentDTO.builder().name("department").build());
+        return Set.of(DepartmentDTO.builder()
+                .id(UUID.fromString("d0000000-0000-0000-0000-000000000002"))
+                .name("BHP")
+                .build());
     }
 
     private static Set<Qualification> getQualifications() {

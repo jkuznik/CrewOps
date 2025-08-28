@@ -705,7 +705,8 @@ class CoreClient {
         }
     }
 
-    // TODO: implement cache
+    // authenticated
+    @Cacheable(cacheNames = GET_ALL_DEPARTMENTS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public List<DepartmentDTO> getAllDepartments() throws NotAuthenticatedException {
         log.info("Get all departments cache missed");
         try {

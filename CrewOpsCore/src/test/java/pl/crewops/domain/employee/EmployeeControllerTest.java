@@ -251,7 +251,7 @@ class EmployeeControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(update)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.departments[0].name").value("department"));
+                .andExpect(jsonPath("$.departments[0].name").value("BHP"));
     }
 
     @Test

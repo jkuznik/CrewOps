@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.domain.auth.AuthAPI;
+import pl.crewops.domain.department.DepartmentAPI;
 import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
@@ -62,6 +63,9 @@ class EmployeeServiceTest {
 
     @MockitoBean
     QualificationAPI qualificationAPI;
+
+    @MockitoBean
+    DepartmentAPI departmentAPI;
 
     @MockitoBean
     MachineAPI machineAPI;

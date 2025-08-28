@@ -97,7 +97,7 @@ class EmployeeAPITest extends IntegrationTest {
         assertThat(result.lastName()).isEqualTo("Kowalski");
         assertThat(result.phoneNumber()).isEqualTo("987654321");
         assertThat(result.departments()
-                        .contains(DepartmentDTO.builder().name("Eksploatacja").build()))
+                        .contains(DepartmentDTO.builder().name("BHP").build()))
                 .isTrue();
     }
 

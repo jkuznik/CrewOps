@@ -12,6 +12,7 @@ public class CacheResolver {
     public static final String GET_EMPLOYEE_BY_ID = "getEmployeeById";
     public static final String GET_ALL_EMPLOYEES = "getAllEmployees";
     public static final String GET_ALL_BREAKDOWNS = "getAllBreakdowns";
+    public static final String GET_ALL_DEPARTMENTS = "getAllDepartments";
     public static final String GET_ALL_MACHINES = "getAllMachines";
     public static final String GET_ALL_MACHINES_BY_IDS = "getAllMachinesByIds";
     public static final String GET_ALL_MACHINE_TYPES = "getAllMachinesTypes";

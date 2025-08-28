@@ -1,5 +1,7 @@
 # Generate by GPT
 
+# This script looks useless
+
 databaseChangeLog:
   - changeSet:
       id: 001-insert-test-data
@@ -14,7 +16,6 @@ databaseChangeLog:
               - column: { name: last_name, value: "Doe" }
               - column: { name: birth_date, value: "1985-06-15" }
               - column: { name: phone_number, value: "123456789" }
-              - column: { name: department, value: "Engineering" }
               - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
               - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
 
@@ -104,3 +105,12 @@ databaseChangeLog:
               - column: { name: employee_id, value: "22222222-2222-2222-2222-222222222222" }
               - column: { name: qualification_id, value: "66666666-6666-6666-6666-666666666666" }
               - column: { name: expired_at, value: "2025-12-31T00:00:00" }
+
+        - insert:
+            tableName: department
+            columns:
+              - column: { name: id, value: "77777777-7777-7777-7777-777777777777" }
+              - column: { name: version, value: 0 }
+              - column: { name: name, value: "Engineering" }
+              - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }

@@ -17,6 +17,14 @@ import pl.crewops.view.layout.MainLayout;
 @PageTitle("Crew Ops")
 public class HomeView extends MainLayout {
 
+    // TODO:
+    //  rebuild register customer feature in a way that option will be available on homepage - during new customer
+    //  registration only required data should be company information - that create new tenant, company and initial
+    //  company admin user but with that difference this initial user has empty values what should be updated after
+    // first
+    //  login action. Username of this initial user should be related to company name -
+    //  only system admin can modified username <- add admin console for that.
+
     public HomeView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         super(coreAPI, jwtService, authenticationResolver);
         addClassName("home-view");

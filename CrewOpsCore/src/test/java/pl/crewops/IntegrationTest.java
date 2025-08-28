@@ -20,6 +20,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import pl.crewops.domain.auth.AuthAPI;
+import pl.crewops.domain.department.DepartmentAPI;
 import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.domain.machineType.MachineTypeAPI;
@@ -85,6 +86,9 @@ public abstract class IntegrationTest {
 
     @Autowired
     protected MachineTypeAPI machineTypeAPI;
+
+    @Autowired
+    protected DepartmentAPI departmentAPI;
 
     @Autowired
     private LiquibaseSchemaMigrator schemaMigrator;
