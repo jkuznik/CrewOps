@@ -1,6 +1,6 @@
 package pl.crewops.component.form;
 
-import static pl.crewops.model.DepartmentFormModel.orderedMapToDepartmentForms;
+import static pl.crewops.model.DepartmentFormModel.mapToDepartmentFormsOrderedResult;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
@@ -10,6 +10,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -29,6 +30,7 @@ import pl.crewops.model.DepartmentFormModel;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.util.SpringContextBridge;
 
+@CssImport("./styles/component/combo-box.css")
 public class EmployeeForm extends FormLayout {
     private final TextField firstName = new TextField();
     private final TextField lastName = new TextField();
@@ -76,6 +78,11 @@ public class EmployeeForm extends FormLayout {
     private MultiSelectComboBox<DepartmentFormModel> getConfiguredDepartmentsMultiSelectedComboBox() {
         MultiSelectComboBox<DepartmentFormModel> departments = new MultiSelectComboBox<>();
         departments.setItemLabelGenerator(DepartmentFormModel::getName);
+
+        departments.addClassName("recipient-department-combobox");
+
+        departments.getElement().setAttribute("theme", "recipient-department");
+
         return departments;
     }
 
@@ -84,7 +91,7 @@ public class EmployeeForm extends FormLayout {
 
         qualificationAccordion.addUpdateQualificationsListener(event -> {
             var employeeFormModel = EmployeeFormModel.toEmployeeFormModel(event.getEmployeeDTO());
-            setEmployee(employeeFormModel);
+            setBinderValue(employeeFormModel);
             validateAndUpdate();
         });
 
@@ -95,7 +102,7 @@ public class EmployeeForm extends FormLayout {
         final var machineAccordion = new MachineAccordion();
         machineAccordion.addUpdateMachineListener(event -> {
             var employeeFormModel = EmployeeFormModel.toEmployeeFormModel(event.getEmployeeDTO());
-            setEmployee(employeeFormModel);
+            setBinderValue(employeeFormModel);
             validateAndUpdate();
         });
 
@@ -106,7 +113,7 @@ public class EmployeeForm extends FormLayout {
         final var roleAccordion = new RoleAccordion();
 
         roleAccordion.addUpdateEvenListener(event -> {
-            setEmployee(event.getEmployeeFormModel());
+            setBinderValue(event.getEmployeeFormModel());
             validateAndUpdate();
         });
 
@@ -200,10 +207,10 @@ public class EmployeeForm extends FormLayout {
         }
     }
 
-    // TODO: consider rename this method in a way like 'setBinderBean' because its starts being confusing even for me
-    public void setEmployee(EmployeeFormModel employeeFormModel) {
+    public void setBinderValue(EmployeeFormModel employeeFormModel) {
         // this method is aimed to configure items of 'departments' component in a way to displaying preselected items
         // on the top of selector and above rest of possible options
+        EmployeeFormModel copiedModel = new EmployeeFormModel();
         List<DepartmentFormModel> allItems = List.of();
         Set<DepartmentFormModel> selectedFormModels = Set.of();
 
@@ -211,9 +218,21 @@ public class EmployeeForm extends FormLayout {
             var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
             List<DepartmentDTO> allDepartments = coreAPI.getAllDepartments();
 
-            allItems = orderedMapToDepartmentForms(allDepartments);
+            allItems = mapToDepartmentFormsOrderedResult(allDepartments);
 
             if (employeeFormModel != null && employeeFormModel.getDepartments() != null) {
+                copiedModel = EmployeeFormModel.builder()
+                        .id(employeeFormModel.getId())
+                        .firstName(employeeFormModel.getFirstName())
+                        .lastName(employeeFormModel.getLastName())
+                        .birthDate(employeeFormModel.getBirthDate())
+                        .phoneNumber(employeeFormModel.getPhoneNumber())
+                        .departments(employeeFormModel.getDepartments())
+                        .machinesSet(employeeFormModel.getMachinesSet())
+                        .qualificationsSet(employeeFormModel.getQualificationsSet())
+                        .roles(employeeFormModel.getRoles())
+                        .build();
+
                 selectedFormModels = employeeFormModel.getDepartments();
 
                 var byId = allItems.stream().collect(Collectors.toMap(DepartmentFormModel::getId, d -> d));
@@ -239,7 +258,8 @@ public class EmployeeForm extends FormLayout {
                 .toList();
 
         departments.setItems(sorted);
-        binder.setBean(employeeFormModel);
+
+        binder.setBean(copiedModel);
 
         if (!selectedFormModels.isEmpty()) {
             departments.setValue(selectedFormModels);

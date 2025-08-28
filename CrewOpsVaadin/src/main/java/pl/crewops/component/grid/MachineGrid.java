@@ -87,7 +87,7 @@ public class MachineGrid extends VerticalLayout {
     }
 
     public void closeEditor() {
-        machineForm.setMachine(null);
+        machineForm.setBinderValue(null);
         machineForm.setVisible(false);
         breakdownForm.setVisible(false);
     }
@@ -199,7 +199,7 @@ public class MachineGrid extends VerticalLayout {
         if (machineFormModel == null) {
             closeEditor();
         } else {
-            machineForm.setMachine(machineFormModel);
+            machineForm.setBinderValue(machineFormModel);
             if (authenticationResolver.principalHasMechanicPermission()) {
                 machineForm.setFormModeUpdate();
             } else {

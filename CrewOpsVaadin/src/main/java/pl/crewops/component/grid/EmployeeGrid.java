@@ -20,7 +20,6 @@ import pl.crewops.component.notification.AddEmployeeNotification;
 import pl.crewops.component.notification.UpdateEmployeeNotification;
 import pl.crewops.component.notification.guardian.DeleteEmployeeGuardian;
 import pl.crewops.dto.auth.CreateAuthUserResult;
-import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
@@ -78,7 +77,7 @@ public class EmployeeGrid extends VerticalLayout {
     }
 
     public void closeEditor() {
-        form.setEmployee(null);
+        form.setBinderValue(null);
         form.setVisible(false);
     }
 
@@ -190,10 +189,11 @@ public class EmployeeGrid extends VerticalLayout {
                         boolean roleMatches =
                                 (selectedRole == null) || employee.getRoles().contains(selectedRole);
 
+                        // TODO: reimplement this to multiselector
                         boolean departmentMatches = (selectedDepartment == null || selectedDepartment.isBlank())
                                 || (employee.getDepartments() != null
                                         && employee.getDepartments()
-                                                .contains(DepartmentDTO.builder()
+                                                .contains(DepartmentFormModel.builder()
                                                         .name(selectedDepartment)
                                                         .build()));
 
@@ -209,7 +209,7 @@ public class EmployeeGrid extends VerticalLayout {
         if (employeeFormModel == null) {
             closeEditor();
         } else {
-            form.setEmployee(employeeFormModel);
+            form.setBinderValue(employeeFormModel);
             form.setFormModeUpdate();
             form.setVisible(true);
         }

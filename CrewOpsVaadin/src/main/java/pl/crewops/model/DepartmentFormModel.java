@@ -3,6 +3,7 @@ package pl.crewops.model;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -34,9 +35,20 @@ public class DepartmentFormModel {
                 .collect(Collectors.toSet());
     }
 
-    public static List<DepartmentFormModel> orderedMapToDepartmentForms(List<DepartmentDTO> dtoDepartments) {
+    public static List<DepartmentFormModel> mapToDepartmentFormsOrderedResult(List<DepartmentDTO> dtoDepartments) {
         return dtoDepartments.stream()
                 .map(dep -> new DepartmentFormModel(dep.id(), dep.name()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof DepartmentFormModel that)) return false;
+        return Objects.equals(getName(), that.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getName());
     }
 }

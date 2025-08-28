@@ -232,7 +232,7 @@ public class MessageForm extends FormLayout {
                 var allDepartments = new ArrayList<DepartmentDTO>();
                 allDepartments.add(DepartmentDTO.builder().name(allOptionLabel).build());
                 allDepartments.addAll(coreAPI.getAllDepartments());
-                recipientDepartment.setItems(DepartmentFormModel.orderedMapToDepartmentForms(allDepartments));
+                recipientDepartment.setItems(DepartmentFormModel.mapToDepartmentFormsOrderedResult(allDepartments));
                 recipientDepartment.setItemLabelGenerator(DepartmentFormModel::getName);
                 recipientDepartment.addValueChangeListener(event -> {
                     if (event.getValue() != null) {
