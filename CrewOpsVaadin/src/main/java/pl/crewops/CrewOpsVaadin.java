@@ -19,5 +19,7 @@ public class CrewOpsVaadin implements AppShellConfigurator {
         SpringContextBridge.setApplicationContext(context);
 
         // TODO: find why getCompanyById is calling twice on each UI navigation action
+
+        // TODO: modify localdate and localdatetime display way in grids
     }
 }

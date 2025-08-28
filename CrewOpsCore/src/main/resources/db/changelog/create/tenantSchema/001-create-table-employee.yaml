@@ -41,11 +41,6 @@ databaseChangeLog:
                   constraints:
                       nullable: true
               - column:
-                  name: department
-                  type: varchar(63)
-                  constraints:
-                    nullable: false
-              - column:
                   name: active
                   type: boolean
                   defaultValueBoolean: true

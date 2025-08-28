@@ -11,8 +11,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.server.WebBrowser;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -21,12 +19,15 @@ import pl.crewops.component.form.EmployeeForm;
 import pl.crewops.component.notification.AddEmployeeNotification;
 import pl.crewops.component.notification.UpdateEmployeeNotification;
 import pl.crewops.component.notification.guardian.DeleteEmployeeGuardian;
+import pl.crewops.dto.auth.CreateAuthUserResult;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.model.DepartmentFormModel;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.auth.RoleType;
 import pl.crewops.util.AuthenticationResolver;
+import pl.crewops.util.BrowserResolver;
 import pl.crewops.view.HomeView;
 
 @Getter
@@ -72,11 +73,11 @@ public class EmployeeGrid extends VerticalLayout {
         grid.getColumnByKey("lastName").setHeader(getTranslation("employeeGrid.column.lastName"));
         grid.getColumnByKey("roles").setHeader(getTranslation("employeeGrid.column.roles"));
         grid.getColumnByKey("phoneNumber").setHeader(getTranslation("employeeGrid.column.phoneNumber"));
-        grid.getColumnByKey("department").setHeader(getTranslation("employeeGrid.column.department"));
+        grid.getColumnByKey("departments").setHeader(getTranslation("employeeGrid.column.department"));
     }
 
     public void closeEditor() {
-        form.setEmployee(null);
+        form.setBinderValue(null);
         form.setVisible(false);
     }
 
@@ -132,7 +133,11 @@ public class EmployeeGrid extends VerticalLayout {
 
         grid.addColumn(EmployeeFormModel::getFirstName).setKey("firstName");
         grid.addColumn(EmployeeFormModel::getLastName).setKey("lastName");
-        grid.addColumn(EmployeeFormModel::getDepartment).setKey("department");
+        grid.addColumn(employee -> employee.getDepartments().stream()
+                        .map(DepartmentFormModel::getName)
+                        .sorted(String::compareToIgnoreCase)
+                        .collect(Collectors.joining(", ")))
+                .setKey("departments");
         grid.addColumn(employee -> employee.getRoles().stream()
                         .filter(role -> role != RoleType.EMPLOYEE)
                         .map(this::getRoleTranslation)
@@ -149,10 +154,7 @@ public class EmployeeGrid extends VerticalLayout {
     }
 
     private void configureForm() {
-        WebBrowser browser = VaadinSession.getCurrent().getBrowser();
-        boolean isMobile = browser.isAndroid() || browser.isIPhone() || browser.isWindowsPhone();
-
-        if (isMobile) {
+        if (BrowserResolver.isMobile()) {
             form.setWidthFull();
         } else {
             form.setWidth("25em");
@@ -187,11 +189,13 @@ public class EmployeeGrid extends VerticalLayout {
                         boolean roleMatches =
                                 (selectedRole == null) || employee.getRoles().contains(selectedRole);
 
+                        // TODO: reimplement this to multiselector
                         boolean departmentMatches = (selectedDepartment == null || selectedDepartment.isBlank())
-                                || (employee.getDepartment() != null
-                                        && employee.getDepartment()
-                                                .toLowerCase()
-                                                .contains(selectedDepartment));
+                                || (employee.getDepartments() != null
+                                        && employee.getDepartments()
+                                                .contains(DepartmentFormModel.builder()
+                                                        .name(selectedDepartment)
+                                                        .build()));
 
                         return nameMatches && roleMatches && departmentMatches;
                     })
@@ -205,7 +209,7 @@ public class EmployeeGrid extends VerticalLayout {
         if (employeeFormModel == null) {
             closeEditor();
         } else {
-            form.setEmployee(employeeFormModel);
+            form.setBinderValue(employeeFormModel);
             form.setFormModeUpdate();
             form.setVisible(true);
         }
@@ -222,11 +226,11 @@ public class EmployeeGrid extends VerticalLayout {
             var principal = authenticationResolver.getPrincipal();
             UUID companyId = principal.getCompanyId();
 
-            Optional<EmployeeDTO> employeeDTO =
+            Optional<CreateAuthUserResult> createAuthUserResult =
                     coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee(), companyId));
             updateGrid();
             closeEditor();
-            employeeDTO.ifPresent(AddEmployeeNotification::new);
+            createAuthUserResult.ifPresent(value -> new AddEmployeeNotification(value.employeeDTO()));
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }

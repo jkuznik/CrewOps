@@ -20,6 +20,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import pl.crewops.domain.auth.AuthAPI;
+import pl.crewops.domain.department.DepartmentAPI;
 import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.domain.machineType.MachineTypeAPI;
@@ -87,6 +88,9 @@ public abstract class IntegrationTest {
     protected MachineTypeAPI machineTypeAPI;
 
     @Autowired
+    protected DepartmentAPI departmentAPI;
+
+    @Autowired
     private LiquibaseSchemaMigrator schemaMigrator;
 
     @Autowired
@@ -140,6 +144,10 @@ public abstract class IntegrationTest {
         registry.add("spring.liquibase.parameters.employee.last.name", () -> "User");
         registry.add("spring.liquibase.parameters.employee.birth.date", () -> "2000-01-01");
         registry.add("spring.liquibase.parameters.employee.phone.number", () -> "123456789");
+
+        // liquibase parameters for department
+        registry.add("spring.liquibase.parameters.department.id", () -> "d0000000-0000-0000-0000-000000000001");
+        registry.add("spring.liquibase.parameters.department.name", () -> "department");
 
         // liquibase parameters for tenant
         registry.add("spring.liquibase.parameters.tenant.id", () -> "2b3b7d5c-9e8f-4bca-9c56-123456789abc");

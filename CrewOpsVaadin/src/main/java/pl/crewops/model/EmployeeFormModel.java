@@ -1,5 +1,7 @@
 package pl.crewops.model;
 
+import static pl.crewops.model.DepartmentFormModel.mapToDepartmentDTOs;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
@@ -27,7 +29,7 @@ public class EmployeeFormModel {
     private @NotNull @Size(min = 2, max = 50, message = "Minimal length is 2") String lastName;
     private @NotNull(message = "This field can't be empty") LocalDate birthDate;
     private @Size(max = 15, message = "Max length is 15") String phoneNumber;
-    private @NotNull @Size(min = 2, max = 50, message = "Minimal length is 2") String department;
+    private Set<DepartmentFormModel> departments;
     private Set<RoleType> roles;
     private Set<QualificationDTO> qualificationsSet;
     private Set<MachineDTO> machinesSet;
@@ -46,7 +48,7 @@ public class EmployeeFormModel {
                 .lastName(employeeDTO.lastName())
                 .birthDate(employeeDTO.birthDate())
                 .phoneNumber(employeeDTO.phoneNumber())
-                .department(employeeDTO.department())
+                .departments(DepartmentFormModel.mapToDepartmentForms(employeeDTO.departments()))
                 .qualificationsSet(employeeDTO.qualifications())
                 .machinesSet(employeeDTO.machines())
                 .roles(Set.copyOf(roles))
@@ -65,7 +67,7 @@ public class EmployeeFormModel {
                 .lastName(employeeFormModel.getLastName())
                 .birthDate(employeeFormModel.getBirthDate())
                 .phoneNumber(employeeFormModel.getPhoneNumber())
-                .department(employeeFormModel.getDepartment())
+                .departments(mapToDepartmentDTOs(employeeFormModel.getDepartments()))
                 .roles(createRoles)
                 .companyId(companyId)
                 .build();
@@ -75,7 +77,7 @@ public class EmployeeFormModel {
         return UpdateEmployeeDTO.builder()
                 .employeeId(employeeFormModel.getId())
                 .phoneNumber(employeeFormModel.getPhoneNumber())
-                .department(employeeFormModel.getDepartment())
+                .departments(mapToDepartmentDTOs(employeeFormModel.getDepartments()))
                 .roles(employeeFormModel.getRoles().stream()
                         .map(roleType -> RoleDTO.builder().name(roleType.name()).build())
                         .collect(Collectors.toSet()))

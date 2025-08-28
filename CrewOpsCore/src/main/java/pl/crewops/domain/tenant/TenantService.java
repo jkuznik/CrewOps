@@ -37,6 +37,7 @@ class TenantService implements TenantAPI {
     @Override
     @Transactional
     public void delete(UUID tenantId) {
-        tenantRepository.deleteById(tenantId);
+        Tenant tenant = tenantRepository.findById(tenantId).orElseThrow(() -> new TenantNotExistException(tenantId));
+        tenantRepository.delete(tenant);
     }
 }

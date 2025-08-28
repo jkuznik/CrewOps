@@ -28,6 +28,7 @@ import pl.crewops.dto.auth.AuthUserDTO;
 import pl.crewops.dto.auth.CreateAuthUserResult;
 import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.company.CreateCompanyDTO;
+import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.tenant.CreateTenantDTO;
@@ -203,7 +204,7 @@ class RegistrationControllerTest {
                         .lastName("Doe")
                         .birthDate(LocalDate.of(1990, 1, 1))
                         .phoneNumber("123456789")
-                        .department("HR")
+                        .departments(departmentsDTOs())
                         .companyId(companyId)
                         .build())
                 .build();
@@ -229,7 +230,7 @@ class RegistrationControllerTest {
                                 .lastName("Doe")
                                 .birthDate(LocalDate.of(1990, 1, 1))
                                 .phoneNumber("123456789")
-                                .department("HR")
+                                .departments(departmentsDTOs())
                                 .roles(Set.of())
                                 .qualifications(Set.of())
                                 .machines(Set.of())
@@ -256,5 +257,9 @@ class RegistrationControllerTest {
                 .andExpect(jsonPath("$.companyDTO.email").value("info@techsolutions.com"))
                 .andExpect(jsonPath("$.authUserResult.employeeDTO.firstName").value("John"))
                 .andExpect(jsonPath("$.authUserResult.authUserDTO.username").value("jdoe"));
+    }
+
+    private Set<DepartmentDTO> departmentsDTOs() {
+        return Set.of(DepartmentDTO.builder().name("department").build());
     }
 }

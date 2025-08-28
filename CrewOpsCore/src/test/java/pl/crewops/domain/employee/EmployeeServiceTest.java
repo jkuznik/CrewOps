@@ -9,6 +9,7 @@ import static pl.crewops.domain.employee.EmployeeTestFactory.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,16 +21,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.domain.auth.AuthAPI;
+import pl.crewops.domain.department.DepartmentAPI;
 import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.employee.EmployeeQualificationDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.exception.domain.employee.ExpireAtException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.Machine;
 import pl.crewops.model.Qualification;
+import pl.crewops.model.compositePK.EmployeeQualificationId;
 import pl.crewops.model.joinTable.EmployeeQualification;
 import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.util.spring.SpringContextBridge;
@@ -59,6 +63,9 @@ class EmployeeServiceTest {
 
     @MockitoBean
     QualificationAPI qualificationAPI;
+
+    @MockitoBean
+    DepartmentAPI departmentAPI;
 
     @MockitoBean
     MachineAPI machineAPI;
@@ -130,7 +137,7 @@ class EmployeeServiceTest {
         Page<Employee> employees = new PageImpl<>(List.of(employeeWithQAndV));
 
         // when
-        when(employeeRepository.findByQualificationId(any(UUID.class), any(Pageable.class)))
+        when(employeeRepository.findByQualificationIdAndActiveIsTrue(any(UUID.class), any(Pageable.class)))
                 .thenReturn(employees);
         List<EmployeeDTO> result = employeeService.getEmployeesByQualification(qualificationId, 0, 5);
 
@@ -146,7 +153,7 @@ class EmployeeServiceTest {
         Page<Employee> employees = new PageImpl<>(List.of(employeeWithQAndV));
 
         // when
-        when(employeeRepository.findByMachinesId(any(UUID.class), any(Pageable.class)))
+        when(employeeRepository.findByMachinesIdAndActiveIsTrue(any(UUID.class), any(Pageable.class)))
                 .thenReturn(employees);
         List<EmployeeDTO> result = employeeService.getEmployeesByMachines(qualificationId, 0, 5);
 
@@ -288,5 +295,43 @@ class EmployeeServiceTest {
         int after = employeeWithEmptyQAndEmptyV.getMachines().size();
         assertThat(before).isEqualTo(1);
         assertThat(after).isEqualTo(0);
+    }
+
+    @Test
+    void shouldReturnEmployeeQualificationsWithExpirationTime_whenEmployeeHasQualifications() {
+        // given
+        var employee = employeeWithQAndV; // reuse from test factory
+        var qualification = qualification(); // reuse from test factory
+
+        var eq = new EmployeeQualification();
+        eq.setId(new EmployeeQualificationId(employeeId, qualificationId));
+        eq.setEmployee(employee);
+        eq.setQualification(qualification);
+        eq.setExpiredAt(Instant.now().plusSeconds(3600)); // not null
+
+        // when
+        when(employeeQualificationRepository.findAllByEmployeeIdAndExpiredAtIsNotNull(any(UUID.class)))
+                .thenReturn(Set.of(eq));
+        List<EmployeeQualificationDTO> result =
+                employeeService.getAllEmployeeQualificationsWithExpirationTime(employeeId);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).qualificationId()).isEqualTo(qualificationId);
+        assertThat(result.get(0).expiredAt()).isNotNull();
+    }
+
+    @Test
+    void shouldReturnEmptyList_whenEmployeeHasNoQualificationsWithExpirationTime() {
+        // when
+        when(employeeQualificationRepository.findAllByEmployeeIdAndExpiredAtIsNotNull(any(UUID.class)))
+                .thenReturn(Set.of());
+        List<EmployeeQualificationDTO> result =
+                employeeService.getAllEmployeeQualificationsWithExpirationTime(employeeId);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result).isEmpty();
     }
 }

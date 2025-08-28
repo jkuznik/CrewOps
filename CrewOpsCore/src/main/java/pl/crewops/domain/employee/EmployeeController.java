@@ -67,7 +67,7 @@ class EmployeeController {
         var updateEmployeeDTO = UpdateEmployeeDTO.builder()
                 .employeeId(employeeId)
                 .phoneNumber(updateRequest.phoneNumber())
-                .department(updateRequest.department())
+                .departments(updateRequest.departments())
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.updateEmployee(updateEmployeeDTO));

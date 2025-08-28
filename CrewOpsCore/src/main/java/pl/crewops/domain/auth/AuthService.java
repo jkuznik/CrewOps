@@ -66,9 +66,10 @@ class AuthService implements AuthAPI {
             // until createEmployee is in this same tx then hibernate handle rollback, check this some time if any
             // implementation is required
             EmployeeDTO employee = employeeAPI.createEmployee(createEmployeeDTO);
+            String generatePassword = generatePassword();
             var createAuthUser = CreateAuthUserDTO.builder()
                     .username(username)
-                    .password(generatePassword())
+                    .password(generatePassword)
                     .roles(createEmployeeDTO.roles())
                     .build();
             AuthUserDTO authUser = createAuthUser(createAuthUser, employee.id(), createEmployeeDTO.companyId());
@@ -77,7 +78,40 @@ class AuthService implements AuthAPI {
                     createEmployeeDTO.firstName() + " " + createEmployeeDTO.lastName(),
                     createAuthUser.username(),
                     createAuthUser.password());
-            return new CreateAuthUserResult(employee, authUser);
+            return new CreateAuthUserResult(employee, authUser, null);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public CreateAuthUserResult createAuthUserWithRelatedEmployeeForRegisterCustomer(
+            CreateEmployeeDTO createEmployeeDTO) {
+        log.info("Create employee current tenant is: {}", TenantContext.getCurrentTenant());
+        String username;
+        do {
+            username =
+                    CredentialGenerator.generateUsername(createEmployeeDTO.firstName(), createEmployeeDTO.lastName());
+        } while (getByUsername(username).isPresent());
+
+        try {
+            // until createEmployee is in this same tx then hibernate handle rollback, check this some time if any
+            // implementation is required
+            EmployeeDTO employee = employeeAPI.createEmployee(createEmployeeDTO);
+            String generatePassword = generatePassword();
+            var createAuthUser = CreateAuthUserDTO.builder()
+                    .username(username)
+                    .password(generatePassword)
+                    .roles(createEmployeeDTO.roles())
+                    .build();
+            AuthUserDTO authUser = createAuthUser(createAuthUser, employee.id(), createEmployeeDTO.companyId());
+            log.info(
+                    "Create employee {} \n with username {} \n password {}",
+                    createEmployeeDTO.firstName() + " " + createEmployeeDTO.lastName(),
+                    createAuthUser.username(),
+                    createAuthUser.password());
+            return new CreateAuthUserResult(employee, authUser, generatePassword);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
@@ -197,7 +231,7 @@ class AuthService implements AuthAPI {
                     .orElseThrow(() -> new UsernameNotFoundException("Employee Id " + updateAuthUserDTO.employeeId()));
 
             if (updateAuthUserDTO.password() != null) {
-                // todo: implement this logic
+                // todo: implement this logic; edit: todo after profile console is ready
             }
 
             if (!updateAuthUserDTO.roles().isEmpty()) {

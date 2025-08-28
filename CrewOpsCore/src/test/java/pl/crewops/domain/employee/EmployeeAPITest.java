@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.IntegrationTest;
+import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.model.Employee;
@@ -85,7 +86,7 @@ class EmployeeAPITest extends IntegrationTest {
         var updateEmployeeDTO = UpdateEmployeeDTO.builder()
                 .employeeId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
                 .phoneNumber("987654321")
-                .department("foo")
+                .departments(departmentsDTOs())
                 .build();
 
         // when
@@ -95,7 +96,9 @@ class EmployeeAPITest extends IntegrationTest {
         assertThat(result.firstName()).isEqualTo("Jan");
         assertThat(result.lastName()).isEqualTo("Kowalski");
         assertThat(result.phoneNumber()).isEqualTo("987654321");
-        assertThat(result.department()).isEqualTo("foo");
+        assertThat(result.departments()
+                        .contains(DepartmentDTO.builder().name("BHP").build()))
+                .isTrue();
     }
 
     @Test

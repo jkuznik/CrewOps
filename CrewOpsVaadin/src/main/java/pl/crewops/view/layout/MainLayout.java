@@ -23,6 +23,8 @@ public class MainLayout extends AppLayout {
 
     protected final VerticalLayout mainContent = new VerticalLayout();
     protected final Footer mainFooter = new MainFooter();
+    protected final MainNavbar navbar;
+    protected final MainDrawer drawer;
 
     public MainLayout(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         addClassName("main-layout");
@@ -30,14 +32,18 @@ public class MainLayout extends AppLayout {
         this.coreAPI = coreAPI;
         this.jwtService = jwtService;
         this.authenticationResolver = authenticationResolver;
+        this.navbar = new MainNavbar(coreAPI, jwtService, authenticationResolver);
+        this.drawer = new MainDrawer(authenticationResolver);
 
         mainContent.setSizeFull();
         mainContent.setSpacing(true);
         mainContent.setPadding(true);
         mainContent.setVisible(true);
+        // TODO: consider if token validation for view display component rules could be in this one place
+        //  and left validation for each operation to BE responsibility
         setContent(mainContent);
 
-        addToNavbar(new MainNavbar(coreAPI, jwtService, authenticationResolver));
-        addToDrawer(new MainDrawer(authenticationResolver));
+        addToNavbar(navbar);
+        addToDrawer(drawer);
     }
 }

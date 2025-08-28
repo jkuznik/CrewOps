@@ -5,10 +5,7 @@ import java.util.UUID;
 import pl.crewops.dto.auth.RoleDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
-import pl.crewops.model.Breakdown;
-import pl.crewops.model.Employee;
-import pl.crewops.model.Machine;
-import pl.crewops.model.MachineType;
+import pl.crewops.model.*;
 
 class BreakdownTestFactory {
 
@@ -61,11 +58,15 @@ class BreakdownTestFactory {
         return Employee.builder()
                 .firstName("firstName")
                 .lastName("lastName")
-                .department("department")
+                .departments(departments())
                 .build();
     }
 
     private static Set<RoleDTO> roleDTOSet() {
         return Set.of(RoleDTO.builder().name("name").build());
+    }
+
+    static Set<Department> departments() {
+        return Set.of(Department.builder().name("departments").build());
     }
 }

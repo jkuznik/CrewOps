@@ -7,14 +7,21 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.Hibernate;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Embeddable
 public class EmployeeQualificationId implements Serializable {
     private static final long serialVersionUID = 1758502992767958280L;
+
+    public EmployeeQualificationId(UUID employeeId, UUID qualificationId) {
+        this.employeeId = employeeId;
+        this.qualificationId = qualificationId;
+    }
 
     @NotNull
     @Column(name = "employee_id", nullable = false)

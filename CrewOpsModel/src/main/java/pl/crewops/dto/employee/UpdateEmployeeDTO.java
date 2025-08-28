@@ -6,11 +6,12 @@ import java.util.Set;
 import java.util.UUID;
 import lombok.Builder;
 import pl.crewops.dto.auth.RoleDTO;
+import pl.crewops.dto.department.DepartmentDTO;
 
 @Builder
 public record UpdateEmployeeDTO(
         @NotNull UUID employeeId,
         @Size(max = 15) String phoneNumber,
-        @Size(max = 50) String department,
+        Set<DepartmentDTO> departments,
         Set<RoleDTO> roles,
         Boolean active) {}

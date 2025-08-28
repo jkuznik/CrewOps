@@ -1,5 +1,7 @@
 package pl.crewops.component.dialog.qualificationManager;
 
+import static pl.crewops.model.DepartmentFormModel.mapToDepartmentDTOs;
+
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
@@ -151,9 +153,9 @@ public class EditQualificationForm extends FormLayout {
             EmployeeFormModel employeeFormModel, QualificationFormModel qualificationFormModel) {
 
         var employeeQualifications = employeeFormModel.getQualificationsSet();
-        var qulificationToRemove = qualificationFormModel.getId();
+        var qualificationToRemove = qualificationFormModel.getId();
         Set<QualificationDTO> processedQualifications = employeeQualifications.stream()
-                .filter(qualificationDTO -> !qualificationDTO.id().equals(qulificationToRemove))
+                .filter(qualificationDTO -> !qualificationDTO.id().equals(qualificationToRemove))
                 .collect(Collectors.toSet());
 
         // this complete object builder is required to satisfy binder in EmployeeForm
@@ -162,7 +164,7 @@ public class EditQualificationForm extends FormLayout {
                 .firstName(employeeFormModel.getFirstName())
                 .lastName(employeeFormModel.getLastName())
                 .birthDate(employeeFormModel.getBirthDate())
-                .department(employeeFormModel.getDepartment())
+                .departments(mapToDepartmentDTOs(employeeFormModel.getDepartments()))
                 .phoneNumber(employeeFormModel.getPhoneNumber())
                 .roles(employeeFormModel.getRoles().stream()
                         .map(r -> new RoleDTO(r.name()))

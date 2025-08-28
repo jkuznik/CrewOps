@@ -1,9 +1,6 @@
 package pl.crewops.infrastructure.core;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -14,6 +11,7 @@ import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.dto.company.CompanyDTO;
+import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -22,6 +20,7 @@ import pl.crewops.dto.machine.MachineDTO;
 import pl.crewops.dto.machine.UpdateMachineDTO;
 import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.message.MessageDTO;
+import pl.crewops.dto.message.SendMessageCommand;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
@@ -60,7 +59,8 @@ class CoreService implements CoreAPI {
     }
 
     @Override
-    public Optional<EmployeeDTO> createEmployee(CreateEmployeeDTO createEmployeeDTO) throws NotAuthenticatedException {
+    public Optional<CreateAuthUserResult> createEmployee(CreateEmployeeDTO createEmployeeDTO)
+            throws NotAuthenticatedException {
 
         return Optional.ofNullable(coreClient.createEmployee(createEmployeeDTO));
     }
@@ -149,8 +149,13 @@ class CoreService implements CoreAPI {
     @Override
     public Optional<EmployeeDTO> getEmployeeById(UUID employeeId) throws NotAuthenticatedException {
         log.info("Get employee by id via service proxy");
-
         return Optional.ofNullable(coreClient.getEmployeeById(employeeId));
+    }
+
+    @Override
+    public Optional<EmployeeDTO> getEmployeeByIdNoCache(UUID employeeId) throws NotAuthenticatedException {
+        log.info("Get employee by id using no cache method");
+        return Optional.ofNullable(coreClient.getEmployeeByIdNoCache(employeeId));
     }
 
     @Override
@@ -191,6 +196,11 @@ class CoreService implements CoreAPI {
     }
 
     @Override
+    public List<DepartmentDTO> getAllDepartments() throws NotAuthenticatedException {
+        return coreClient.getAllDepartments();
+    }
+
+    @Override
     public Optional<CompanyDTO> getCompanyById(UUID companyId) throws NotAuthenticatedException {
         log.info("Get company by id via service proxy");
 
@@ -200,6 +210,16 @@ class CoreService implements CoreAPI {
     @Override
     public List<MessageDTO> getMessagesByRecipientEmployeeId(UUID employeeId) throws NotAuthenticatedException {
         return coreClient.getMessagesByRecipientEmployeeId(employeeId);
+    }
+
+    @Override
+    public Optional<MessageDTO> setMessageReadStatus(UUID messageId, boolean status) throws NotAuthenticatedException {
+        return Optional.ofNullable(coreClient.setMessageReadStatus(messageId, status));
+    }
+
+    @Override
+    public void sendMessage(SendMessageCommand sendMessageCommand) throws NotAuthenticatedException {
+        coreClient.sendMessage(sendMessageCommand);
     }
 
     @Override

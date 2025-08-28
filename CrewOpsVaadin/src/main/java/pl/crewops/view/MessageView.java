@@ -14,6 +14,7 @@ import pl.crewops.view.layout.MainLayout;
 @Route(value = "messages")
 @PageTitle("CrewOps messages")
 public class MessageView extends MainLayout implements BeforeEnterObserver {
+
     private MessageGrid messageGrid;
 
     public MessageView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
@@ -30,7 +31,9 @@ public class MessageView extends MainLayout implements BeforeEnterObserver {
         }
     }
 
-    private void buildContent() {
+    protected void buildContent() {
+        mainContent.removeAll();
+
         messageGrid = new MessageGrid(coreAPI, authenticationResolver);
         messageGrid.setSizeFull();
 

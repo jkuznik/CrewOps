@@ -25,7 +25,7 @@ public interface MachineAPI {
 
     MachineDTO getMachineByRegistrationNumber(@NotNull String registrationNumber);
 
-    List<MachineDTO> getMachinesIn(@NotNull Set<UUID> vachineIds);
+    List<MachineDTO> getMachinesIn(@NotNull Set<UUID> machineIds);
 
     void deleteMachine(@NotNull UUID vachineId);
 }

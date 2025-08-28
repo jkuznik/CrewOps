@@ -5,6 +5,8 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import pl.crewops.dto.message.CreateMessageDTO;
+import pl.crewops.dto.message.RecipientSelection;
+import pl.crewops.dto.message.SendMessageCommand;
 import pl.crewops.model.Message;
 
 class MessageTestFactory {
@@ -12,6 +14,32 @@ class MessageTestFactory {
     public static final UUID messageId = UUID.fromString("11111111-1111-1111-1111-111111111111");
     public static final UUID recipientEmployeeId = UUID.fromString("21111111-1111-1111-1111-111111111111");
     public static final UUID senderEmployeeId = UUID.fromString("31111111-1111-1111-1111-111111111111");
+
+    public static SendMessageCommand sendMessageCommandAll() {
+        return new SendMessageCommand(
+                "title",
+                "description",
+                new RecipientSelection(RecipientSelection.RecipientOptionType.ALL, null),
+                UUID.randomUUID());
+    }
+
+    public static SendMessageCommand sendMessageCommandMachine() {
+        return new SendMessageCommand(
+                "title",
+                "description",
+                new RecipientSelection(
+                        RecipientSelection.RecipientOptionType.MACHINE,
+                        UUID.randomUUID().toString()),
+                UUID.randomUUID());
+    }
+
+    public static SendMessageCommand sendMessageCommandEmployee() {
+        return new SendMessageCommand(
+                "title",
+                "description",
+                new RecipientSelection(RecipientSelection.RecipientOptionType.EMPLOYEE, recipientEmployeeId.toString()),
+                UUID.randomUUID());
+    }
 
     public static CreateMessageDTO createMessageDTO() {
         return CreateMessageDTO.builder()

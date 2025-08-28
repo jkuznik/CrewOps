@@ -13,6 +13,7 @@ import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.dto.company.CompanyDTO;
+import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -21,6 +22,7 @@ import pl.crewops.dto.machine.MachineDTO;
 import pl.crewops.dto.machine.UpdateMachineDTO;
 import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.message.MessageDTO;
+import pl.crewops.dto.message.SendMessageCommand;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
@@ -40,7 +42,7 @@ public interface CoreAPI {
 
     Optional<ValidTokenResponse> validateToken(@Valid @NotNull ValidTokenRequest validTokenRequest);
 
-    Optional<EmployeeDTO> createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO)
+    Optional<CreateAuthUserResult> createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO)
             throws NotAuthenticatedException;
 
     Optional<EmployeeDTO> updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) throws NotAuthenticatedException;
@@ -80,6 +82,8 @@ public interface CoreAPI {
 
     Optional<EmployeeDTO> getEmployeeById(UUID employeeId) throws NotAuthenticatedException;
 
+    Optional<EmployeeDTO> getEmployeeByIdNoCache(UUID employeeId) throws NotAuthenticatedException;
+
     List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException;
 
     List<MachineDTO> getAllMachines() throws NotAuthenticatedException;
@@ -93,9 +97,15 @@ public interface CoreAPI {
 
     List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException;
 
+    List<DepartmentDTO> getAllDepartments() throws NotAuthenticatedException;
+
     Optional<CompanyDTO> getCompanyById(@NotNull UUID companyId) throws NotAuthenticatedException;
 
     List<MessageDTO> getMessagesByRecipientEmployeeId(@NotNull UUID employeeId) throws NotAuthenticatedException;
+
+    Optional<MessageDTO> setMessageReadStatus(@NotNull UUID messageId, boolean status) throws NotAuthenticatedException;
+
+    void sendMessage(@NotNull SendMessageCommand sendMessageCommand) throws NotAuthenticatedException;
 
     void terminateEmployeeAccount(@NotNull UUID employeeId) throws NotAuthenticatedException;
 

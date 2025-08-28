@@ -14,6 +14,7 @@ import pl.crewops.dto.address.CreateAddressDTO;
 import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.company.CreateCompanyDTO;
 import pl.crewops.exception.domain.company.CompanyNotFoundException;
+import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.Address;
 import pl.crewops.model.Company;
 
@@ -46,7 +47,12 @@ class CompanyService implements CompanyAPI {
 
     @Override
     @Transactional
-    public void delete(UUID companyId) {
-        companyRepository.deleteById(companyId);
+    public void deleteAfterFailedCustomerRegister(UUID companyId, String schemaName) {
+        String currentTenant = TenantContext.getCurrentTenant();
+        TenantContext.setCurrentTenant(schemaName);
+        Company company =
+                companyRepository.findById(companyId).orElseThrow(() -> new CompanyNotFoundException(companyId));
+        companyRepository.delete(company);
+        TenantContext.setCurrentTenant(currentTenant);
     }
 }

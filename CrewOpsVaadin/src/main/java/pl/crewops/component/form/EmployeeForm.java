@@ -1,31 +1,43 @@
 package pl.crewops.component.form;
 
+import static pl.crewops.model.DepartmentFormModel.mapToDepartmentFormsOrderedResult;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 import pl.crewops.component.accordion.MachineAccordion;
 import pl.crewops.component.accordion.QualificationAccordion;
 import pl.crewops.component.accordion.RoleAccordion;
+import pl.crewops.component.notification.FailNotification;
+import pl.crewops.dto.department.DepartmentDTO;
+import pl.crewops.exceptions.NotAuthenticatedException;
+import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.model.DepartmentFormModel;
 import pl.crewops.model.EmployeeFormModel;
+import pl.crewops.util.SpringContextBridge;
 
+@CssImport("./styles/component/combo-box.css")
 public class EmployeeForm extends FormLayout {
     private final TextField firstName = new TextField();
     private final TextField lastName = new TextField();
     private final DatePicker birthDate = new DatePicker();
     private final TextField phoneNumber = new TextField();
-    private final TextField department = new TextField();
 
+    private final MultiSelectComboBox<DepartmentFormModel> departments;
     private final QualificationAccordion qualifications;
     private final MachineAccordion machines;
     private final RoleAccordion roleAccordion;
@@ -40,6 +52,7 @@ public class EmployeeForm extends FormLayout {
     public EmployeeForm() {
         addClassName("employee-form");
 
+        this.departments = getConfiguredDepartmentsMultiSelectedComboBox();
         this.qualifications = getConfiguredQualificationsAccordion();
         this.machines = getConfiguredMachinesAccordion();
         this.roleAccordion = getConfiguredRoleAccordion();
@@ -47,25 +60,37 @@ public class EmployeeForm extends FormLayout {
         localize();
 
         binder.bindInstanceFields(this);
+        binder.forField(departments).bind(EmployeeFormModel::getDepartments, EmployeeFormModel::setDepartments);
 
         add(
                 firstName,
                 lastName,
                 birthDate,
                 phoneNumber,
-                department,
+                departments,
                 createButtonsLayout(),
                 qualifications,
                 machines,
                 roleAccordion);
     }
 
+    private MultiSelectComboBox<DepartmentFormModel> getConfiguredDepartmentsMultiSelectedComboBox() {
+        MultiSelectComboBox<DepartmentFormModel> departments = new MultiSelectComboBox<>();
+        departments.setItemLabelGenerator(DepartmentFormModel::getName);
+
+        departments.addClassName("recipient-department-combobox");
+
+        departments.getElement().setAttribute("theme", "recipient-department");
+
+        return departments;
+    }
+
     private QualificationAccordion getConfiguredQualificationsAccordion() {
-        var qualificationAccordion = new QualificationAccordion();
+        final var qualificationAccordion = new QualificationAccordion();
 
         qualificationAccordion.addUpdateQualificationsListener(event -> {
             var employeeFormModel = EmployeeFormModel.toEmployeeFormModel(event.getEmployeeDTO());
-            setEmployee(employeeFormModel);
+            setBinderValue(employeeFormModel);
             validateAndUpdate();
         });
 
@@ -73,10 +98,10 @@ public class EmployeeForm extends FormLayout {
     }
 
     private MachineAccordion getConfiguredMachinesAccordion() {
-        var machineAccordion = new MachineAccordion();
+        final var machineAccordion = new MachineAccordion();
         machineAccordion.addUpdateMachineListener(event -> {
             var employeeFormModel = EmployeeFormModel.toEmployeeFormModel(event.getEmployeeDTO());
-            setEmployee(employeeFormModel);
+            setBinderValue(employeeFormModel);
             validateAndUpdate();
         });
 
@@ -84,10 +109,10 @@ public class EmployeeForm extends FormLayout {
     }
 
     private RoleAccordion getConfiguredRoleAccordion() {
-        var roleAccordion = new RoleAccordion();
+        final var roleAccordion = new RoleAccordion();
 
         roleAccordion.addUpdateEvenListener(event -> {
-            setEmployee(event.getEmployeeFormModel());
+            setBinderValue(event.getEmployeeFormModel());
             validateAndUpdate();
         });
 
@@ -99,7 +124,7 @@ public class EmployeeForm extends FormLayout {
         lastName.setLabel(getTranslation("employeeForm.lastName"));
         birthDate.setLabel(getTranslation("employeeForm.birthDate"));
         phoneNumber.setLabel(getTranslation("employeeForm.phoneNumber"));
-        department.setLabel(getTranslation("employeeForm.department"));
+        departments.setLabel(getTranslation("employeeForm.department"));
 
         save.setText(getTranslation("employeeForm.save"));
         update.setText(getTranslation("employeeForm.update"));
@@ -163,7 +188,7 @@ public class EmployeeForm extends FormLayout {
                 .lastName(lastName.getValue())
                 .birthDate(birthDate.getValue())
                 .phoneNumber(phoneNumber.getValue())
-                .department(department.getValue())
+                .departments(departments.getValue())
                 .machinesSet(Set.of())
                 .qualificationsSet(Set.of())
                 .roles(Set.of())
@@ -180,8 +205,67 @@ public class EmployeeForm extends FormLayout {
         }
     }
 
-    public void setEmployee(EmployeeFormModel employeeFormModel) {
-        binder.setBean(employeeFormModel);
+    public void setBinderValue(EmployeeFormModel employeeFormModel) {
+        // This method is aimed to configure items of 'departments' component in a way to displaying preselected items
+        // on the top of selector and above rest of possible options. Part where values of multi selector are sorting
+        // and mark as preselect depending on employee departments belongs was generated by AI. Keep attention before
+        // modify that.
+        EmployeeFormModel copiedModel = new EmployeeFormModel();
+        List<DepartmentFormModel> allItems = List.of();
+        Set<DepartmentFormModel> selectedFormModels = Set.of();
+
+        try {
+            var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
+            List<DepartmentDTO> allDepartments = coreAPI.getAllDepartments();
+
+            allItems = mapToDepartmentFormsOrderedResult(allDepartments);
+
+            if (employeeFormModel != null && employeeFormModel.getDepartments() != null) {
+                copiedModel = EmployeeFormModel.builder()
+                        .id(employeeFormModel.getId())
+                        .firstName(employeeFormModel.getFirstName())
+                        .lastName(employeeFormModel.getLastName())
+                        .birthDate(employeeFormModel.getBirthDate())
+                        .phoneNumber(employeeFormModel.getPhoneNumber())
+                        .departments(employeeFormModel.getDepartments())
+                        .machinesSet(employeeFormModel.getMachinesSet())
+                        .qualificationsSet(employeeFormModel.getQualificationsSet())
+                        .roles(employeeFormModel.getRoles())
+                        .build();
+
+                selectedFormModels = employeeFormModel.getDepartments();
+
+                var byId = allItems.stream().collect(Collectors.toMap(DepartmentFormModel::getId, d -> d));
+
+                selectedFormModels = selectedFormModels.stream()
+                        .map(s -> byId.getOrDefault(s.getId(), s))
+                        .collect(Collectors.toCollection(LinkedHashSet::new));
+            }
+        } catch (NotAuthenticatedException e) {
+            new FailNotification(e.getMessage());
+        }
+
+        Set<DepartmentFormModel> finalSelectedFormModels = selectedFormModels;
+        List<DepartmentFormModel> sorted = allItems.stream()
+                .sorted((d1, d2) -> {
+                    boolean s1 = finalSelectedFormModels.contains(d1);
+                    boolean s2 = finalSelectedFormModels.contains(d2);
+                    if (s1 && !s2) return -1;
+                    if (!s1 && s2) return 1;
+                    return d1.getName().compareToIgnoreCase(d2.getName());
+                })
+                .toList();
+
+        departments.setItems(sorted);
+
+        binder.setBean(copiedModel);
+
+        if (!selectedFormModels.isEmpty()) {
+            departments.setValue(selectedFormModels);
+        } else {
+            departments.clear();
+        }
+
         if (employeeFormModel != null) {
             qualifications.setValues(employeeFormModel);
             machines.setValues(employeeFormModel);

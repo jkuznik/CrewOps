@@ -1,9 +1,12 @@
 package pl.crewops.component.dialog;
 
+import static pl.crewops.model.DepartmentFormModel.mapToDepartmentDTOs;
+
 import com.vaadin.flow.component.dialog.Dialog;
 import java.util.Set;
 import java.util.UUID;
 import pl.crewops.component.form.CompanyCreatorForm;
+import pl.crewops.component.notification.SuccessNotification;
 import pl.crewops.dto.address.CreateAddressDTO;
 import pl.crewops.dto.auth.RoleDTO;
 import pl.crewops.dto.company.CreateCompanyDTO;
@@ -14,15 +17,18 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.auth.RoleType;
 import pl.crewops.registration.CreateCustomerCommand;
+import pl.crewops.registration.CreateCustomerResult;
+import pl.crewops.util.SpringContextBridge;
 
 public class CompanyCreatorDialog extends Dialog {
 
-    public CompanyCreatorDialog(CoreAPI coreAPI) {
+    public CompanyCreatorDialog() {
         addClassName("company-creator-notification");
+        var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
 
         var companyCreatorForm = new CompanyCreatorForm();
-        companyCreatorForm.addSaveButtonListener(companyInformation -> createNewTenant(coreAPI, companyInformation));
-        companyCreatorForm.addCloseButtonListener(event -> close());
+        companyCreatorForm.addSaveListener(event -> createNewTenant(coreAPI, event.getCompanyInformation()));
+        companyCreatorForm.addCloseListener(event -> close());
 
         add(companyCreatorForm);
         open();
@@ -39,7 +45,7 @@ public class CompanyCreatorDialog extends Dialog {
                 // value when new record is saved in Company table in persist layer.
                 .firstName(companyInformation.initialEmployeeInfo.getFirstName())
                 .lastName(companyInformation.initialEmployeeInfo.getLastName())
-                .department(companyInformation.initialEmployeeInfo.getDepartment())
+                .departments(mapToDepartmentDTOs(companyInformation.initialEmployeeInfo.getDepartments()))
                 .phoneNumber(companyInformation.initialEmployeeInfo.getPhoneNumber())
                 .birthDate(companyInformation.initialEmployeeInfo.getBirthDate())
                 .roles(companyAdminRoles())
@@ -49,7 +55,10 @@ public class CompanyCreatorDialog extends Dialog {
                 .createEmployeeDTO(createEmployeeDTO)
                 .build();
         try {
-            coreAPI.registerNewCustomer(createCustomerCommand);
+            CreateCustomerResult createCustomerResult =
+                    coreAPI.registerNewCustomer(createCustomerCommand).orElseThrow(NotAuthenticatedException::new);
+            new SuccessNotification(getTranslation("companyCreatorDialog.success") + " "
+                    + createCustomerResult.companyDTO().name());
         } catch (NotAuthenticatedException e) {
             System.out.println("Error creating new customer with initial employee");
         }

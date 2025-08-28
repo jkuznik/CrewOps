@@ -2,9 +2,11 @@ package pl.crewops.domain.registration;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import pl.crewops.dto.address.CreateAddressDTO;
 import pl.crewops.dto.company.CreateCompanyDTO;
+import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.tenant.CreateTenantDTO;
 import pl.crewops.registration.CreateCustomerCommand;
@@ -51,7 +53,7 @@ class RegistrationTestFactory {
         return CreateEmployeeDTO.builder()
                 .firstName(FIRST_NAME)
                 .lastName("lastName")
-                .department("department")
+                .departments(departmentsDTOs())
                 .birthDate(LocalDate.now())
                 .companyId(UUID.randomUUID())
                 .phoneNumber("phoneNumber")
@@ -71,5 +73,9 @@ class RegistrationTestFactory {
                 .createTenantDTO(createTenantDTOWithAlreadyExistTenantValues())
                 .createEmployeeDTO(createEmployeeDTO())
                 .build();
+    }
+
+    static Set<DepartmentDTO> departmentsDTOs() {
+        return Set.of(DepartmentDTO.builder().name("department").build());
     }
 }

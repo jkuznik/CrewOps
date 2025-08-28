@@ -42,9 +42,7 @@ public class MainNavbar extends HorizontalLayout {
         rightSide.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         rightSide.getStyle().set("padding-right", "20px");
 
-        var principal = authenticationResolver.getPrincipal();
-
-        if (principal != null && jwtService.validToken(principal.getToken())) {
+        if (authenticationResolver.principalIsAuthenticated()) {
             rightSide.add(new LoggedUserInfoComponent(coreAPI, jwtService, authenticationResolver));
         } else {
             rightSide.add(new LoginForm(coreAPI, jwtService));

@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import pl.crewops.dto.message.CreateMessageDTO;
 import pl.crewops.dto.message.MessageDTO;
+import pl.crewops.dto.message.SendMessageCommand;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,16 +21,22 @@ class MessageController {
     private final MessageAPI messageAPI;
 
     @PostMapping(MESSAGES)
-    public ResponseEntity<MessageDTO> createMessage(@RequestBody @Valid @NotNull CreateMessageDTO createMessageDTO) {
-        return ResponseEntity.ok(messageAPI.createMessage(createMessageDTO));
+    public ResponseEntity<Void> sendMessage(@RequestBody @Valid @NotNull SendMessageCommand sendMessageCommand) {
+        messageAPI.sendMessage(sendMessageCommand);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping(MESSAGES_EID)
-    public ResponseEntity<List<MessageDTO>> getMessage(
+    public ResponseEntity<List<MessageDTO>> getMessagesByRecipientEmployeeId(
             @PathVariable(EMPLOYEE_ID) UUID recipientEmployeeId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size) {
-        return ResponseEntity.ok(
-                messageAPI.getAllMessagesByRecipientEmployeeIdAndReadIsFalse(recipientEmployeeId, page, size));
+        return ResponseEntity.ok(messageAPI.getAllMessagesByRecipientEmployeeId(recipientEmployeeId, page, size));
+    }
+
+    @PatchMapping(MESSAGES_MID)
+    public ResponseEntity<MessageDTO> setMessageReadStatus(
+            @PathVariable(MESSAGE_ID) UUID messageId, @RequestBody boolean status) {
+        return ResponseEntity.ok(messageAPI.setMessageReadStatus(messageId, status));
     }
 }

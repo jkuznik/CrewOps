@@ -18,6 +18,8 @@ spring:
       employee.last.name: ${CREW_OPS_EMPLOYEE_LAST_NAME}
       employee.birth.date: ${CREW_OPS_EMPLOYEE_BIRTH_DATE}
       employee.phone.number: ${CREW_OPS_EMPLOYEE_PHONE}
+      department.id: ${CREW_OPS_DEPARTMENT_ID}
+      department.name: ${CREW_OPS_DEPARTMENT_NAME}
 
       tenant.id: ${CREW_OPS_TENANT_ID}
       tenant.company.id: ${CREW_OPS_TENANT_COMPANY_ID}

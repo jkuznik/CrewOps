@@ -1,5 +1,7 @@
 package pl.crewops.component.dialog.machineDialog;
 
+import static pl.crewops.model.DepartmentFormModel.mapToDepartmentDTOs;
+
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
@@ -48,7 +50,6 @@ public class MachineMangerGrid extends VerticalLayout {
         });
 
         H1 employeeNameHolder = new H1();
-        // TODO i18n for sure to update 'kwalifikacjei uprawnienia' change to machines info
         employeeNameHolder.setText(employeeFormModel.getFirstName() + " " + employeeFormModel.getLastName() + " - "
                 + getTranslation("machineManagerGrid.employeeNameHolder"));
 
@@ -73,7 +74,6 @@ public class MachineMangerGrid extends VerticalLayout {
 
                     return registerNumberDiv;
                 }))
-                // TODO i18n
                 .setHeader(getTranslation("machineManagerGrid.registerNumber"))
                 .setKey("registerNumber")
                 .setFlexGrow(1)
@@ -162,7 +162,7 @@ public class MachineMangerGrid extends VerticalLayout {
                 .firstName(employeeFormModel.getFirstName())
                 .lastName(employeeFormModel.getLastName())
                 .birthDate(employeeFormModel.getBirthDate())
-                .department(employeeFormModel.getDepartment())
+                .departments(mapToDepartmentDTOs(employeeFormModel.getDepartments()))
                 .phoneNumber(employeeFormModel.getPhoneNumber())
                 .roles(employeeFormModel.getRoles().stream()
                         .map(r -> new RoleDTO(r.name()))

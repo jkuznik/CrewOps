@@ -20,6 +20,7 @@ import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.dto.company.CompanyDTO;
+import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.employee.UpdateEmployeeDTO;
@@ -28,6 +29,7 @@ import pl.crewops.dto.machine.MachineDTO;
 import pl.crewops.dto.machine.UpdateMachineDTO;
 import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.dto.message.MessageDTO;
+import pl.crewops.dto.message.SendMessageCommand;
 import pl.crewops.dto.qualification.CreateQualificationDTO;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.dto.qualification.UpdateQualificationDTO;
@@ -173,7 +175,7 @@ class CoreClient {
                 @CacheEvict(value = GET_EMPLOYEE_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
                 @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
             })
-    public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) throws NotAuthenticatedException {
+    public CreateAuthUserResult createEmployee(CreateEmployeeDTO createEmployeeDTO) throws NotAuthenticatedException {
         try {
             return authorizedClient()
                     .post()
@@ -218,6 +220,22 @@ class CoreClient {
     // authenticated
     @Cacheable(cacheNames = GET_EMPLOYEE_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     public EmployeeDTO getEmployeeById(UUID employeeId) throws NotAuthenticatedException {
+        log.info("Get employee by id cache missed");
+        try {
+            return authorizedClient()
+                    .get()
+                    .uri(uriBuilder -> uriBuilder.path(EMPLOYEES_EID).build(employeeId))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Error getting employee by id");
+            return null;
+        }
+    }
+
+    // authenticated
+    public EmployeeDTO getEmployeeByIdNoCache(UUID employeeId) throws NotAuthenticatedException {
         log.info("Get employee by id cache missed");
         try {
             return authorizedClient()
@@ -329,6 +347,33 @@ class CoreClient {
                     .body(new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
             log.error("Update qualification expired at error");
+            return null;
+        }
+    }
+
+    public void sendMessage(SendMessageCommand sendMessageCommand) throws NotAuthenticatedException {
+        try {
+            authorizedClient()
+                    .post()
+                    .uri(uriBuilder -> uriBuilder.path(MESSAGES).build())
+                    .body(sendMessageCommand)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientException e) {
+            log.error("Update qualification expired at error");
+        }
+    }
+
+    public MessageDTO setMessageReadStatus(UUID messageId, boolean status) throws NotAuthenticatedException {
+        try {
+            return authorizedClient()
+                    .patch()
+                    .uri(uriBuilder -> uriBuilder.path(MESSAGES_MID).build(messageId))
+                    .body(status)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Update message read status error");
             return null;
         }
     }
@@ -656,6 +701,23 @@ class CoreClient {
                     .body(new ParameterizedTypeReference<List<BreakdownDTO>>() {});
         } catch (RestClientException e) {
             log.error("Error getting breakdowns");
+            return List.of();
+        }
+    }
+
+    // authenticated
+    @Cacheable(cacheNames = GET_ALL_DEPARTMENTS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    public List<DepartmentDTO> getAllDepartments() throws NotAuthenticatedException {
+        log.info("Get all departments cache missed");
+        try {
+            return authorizedClient()
+                    .get()
+                    .uri(uriBuilder -> uriBuilder.path(DEPARTMENTS).build())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Error getting departments");
             return List.of();
         }
     }

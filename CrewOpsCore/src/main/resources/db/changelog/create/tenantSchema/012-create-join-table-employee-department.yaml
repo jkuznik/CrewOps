@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-table-employee-departments
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: employee_department
+            columns:
+              - column:
+                  name: employee_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: department_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+
+        - addPrimaryKey:
+            tableName: employee_department
+            columnNames: employee_id, department_id
+            constraintName: pk_employee_department
+
+        - addForeignKeyConstraint:
+            baseTableName: employee_department
+            baseColumnNames: employee_id
+            constraintName: fk_employee_department_employee
+            referencedTableName: employee
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: employee_department
+            baseColumnNames: department_id
+            constraintName: fk_employee_department_department
+            referencedTableName: department
+            referencedColumnNames: id
+            onDelete: CASCADE

@@ -66,3 +66,75 @@ vaadin-combo-box-item::part(content) {
 vaadin-combo-box-item:hover::part(content) {
     background-color: #3a3a3a;
 }
+
+vaadin-combo-box-item::part(content) {
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+}
+vaadin-combo-box-item:hover::part(content) {
+    background-color: #3a3a3a;
+}
+
+/* Recipient departments ComboBox */
+.recipient-department-combobox::part(text-field) {
+    background-color: #1e1e1e;
+    color: #f0f0f0;
+    border-radius: 6px;
+}
+vaadin-combo-box-overlay[theme~="recipient-department"]::part(content) {
+    background-color: #2a2a2a;
+}
+
+/* Recipient machine ComboBox */
+.recipient-machine-combobox::part(text-field) {
+    background-color: #1e1e1e;
+    color: #f0f0f0;
+    border-radius: 6px;
+}
+vaadin-combo-box-overlay[theme~="recipient-machine"]::part(content) {
+    background-color: #2a2a2a;
+}
+
+/* Recipient employee ComboBox */
+.recipient-employee-combobox::part(text-field) {
+    background-color: #1e1e1e;
+    color: #f0f0f0;
+    border-radius: 6px;
+}
+vaadin-combo-box-overlay[theme~="recipient-employee"]::part(content) {
+    background-color: #2a2a2a;
+}
+
+ /*                                                         MULTISELECT COMBO BOX*/
+/* Pole tekstowe MultiSelectComboBox */
+vaadin-multi-select-combo-box[theme~="recipient-department"]::part(text-field) {
+    background-color: #1e1e1e;
+    color: #f0f0f0;
+    border-radius: 6px;
+    border: 1px solid #444;
+}
+
+/* Chipy/tagi w polu */
+vaadin-multi-select-combo-box[theme~="recipient-department"]::part(chip) {
+    background-color: #444;
+    color: #f0f0f0;
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+
+/* Overlay dropdown */
+vaadin-multi-select-combo-box-overlay[theme~="recipient-department"]::part(content) {
+    background-color: #2a2a2a;
+}
+
+/* Itemy w overlay */
+vaadin-multi-select-combo-box-overlay[theme~="recipient-department"]::part(item) {
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+}
+
+/* Hover dla itemów */
+vaadin-multi-select-combo-box-overlay[theme~="recipient-department"]::part(item):hover {
+    background-color: #3a3a3a;
+}
+

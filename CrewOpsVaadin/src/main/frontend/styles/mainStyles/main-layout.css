@@ -44,6 +44,10 @@ html, body {
 .view-content {
     background-color: var(--main-background-color);
     color: var(--main-text-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 /* GLOBALNE STYLE DLA FORMULARZY */

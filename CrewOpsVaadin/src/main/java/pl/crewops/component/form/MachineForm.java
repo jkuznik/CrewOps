@@ -126,7 +126,7 @@ public class MachineForm extends FormLayout {
         breakdownsList.setVisible(true);
     }
 
-    public void setMachine(MachineFormModel machineFormModel) {
+    public void setBinderValue(MachineFormModel machineFormModel) {
         binder.setBean(machineFormModel);
         if (machineFormModel != null) {
             broken.setVisible(true);
@@ -160,20 +160,26 @@ public class MachineForm extends FormLayout {
         }
     }
 
-    private void localize() {
-        registerNumber.setLabel(getTranslation("machineForm.registrationNumber"));
-        make.setLabel(getTranslation("machineForm.make"));
-        model.setLabel(getTranslation("machineForm.model"));
-        year.setLabel(getTranslation("machineForm.year"));
-        serialNumber.setLabel(getTranslation("machineForm.vin"));
-        machineType.setLabel(getTranslation("machineForm.availableMachineTypes.label"));
+    private void validateAndSave() {
+        var machineFormModel = MachineFormModel.builder()
+                .make(make.getValue())
+                .model(model.getValue())
+                .year(year.getValue())
+                .vin(serialNumber.getValue())
+                .registerNumber(registerNumber.getValue())
+                .machineType(machineType.getValue())
+                .broken(false)
+                .build();
+        binder.setBean(machineFormModel);
+        if (binder.isValid()) {
+            fireEvent(new SaveEvent(this, binder.getBean()));
+        }
+    }
 
-        save.setText(getTranslation("machineForm.save"));
-        update.setText(getTranslation("machineForm.update"));
-        delete.setText(getTranslation("machineForm.delete"));
-        close.setText(getTranslation("machineForm.close"));
-        reportBreakdown.setText(getTranslation("machineForm.reportBreakdown"));
-        breakdownsList.setText(getTranslation("machineForm.breakdownsList"));
+    private void validateAndUpdate() {
+        if (binder.isValid()) {
+            fireEvent(new UpdateEvent(this, binder.getBean()));
+        }
     }
 
     private Component createButtonsLayout() {
@@ -202,26 +208,20 @@ public class MachineForm extends FormLayout {
         return new VerticalLayout(buttonsLayout, reportBreakdown, breakdownsList);
     }
 
-    private void validateAndSave() {
-        var machineFormModel = MachineFormModel.builder()
-                .make(make.getValue())
-                .model(model.getValue())
-                .year(year.getValue())
-                .vin(serialNumber.getValue())
-                .registerNumber(registerNumber.getValue())
-                .machineType(machineType.getValue())
-                .broken(false)
-                .build();
-        binder.setBean(machineFormModel);
-        if (binder.isValid()) {
-            fireEvent(new SaveEvent(this, binder.getBean()));
-        }
-    }
+    private void localize() {
+        registerNumber.setLabel(getTranslation("machineForm.registrationNumber"));
+        make.setLabel(getTranslation("machineForm.make"));
+        model.setLabel(getTranslation("machineForm.model"));
+        year.setLabel(getTranslation("machineForm.year"));
+        serialNumber.setLabel(getTranslation("machineForm.vin"));
+        machineType.setLabel(getTranslation("machineForm.availableMachineTypes.label"));
 
-    private void validateAndUpdate() {
-        if (binder.isValid()) {
-            fireEvent(new UpdateEvent(this, binder.getBean()));
-        }
+        save.setText(getTranslation("machineForm.save"));
+        update.setText(getTranslation("machineForm.update"));
+        delete.setText(getTranslation("machineForm.delete"));
+        close.setText(getTranslation("machineForm.close"));
+        reportBreakdown.setText(getTranslation("machineForm.reportBreakdown"));
+        breakdownsList.setText(getTranslation("machineForm.breakdownsList"));
     }
 
     public abstract static class MachineFormEvent extends ComponentEvent<MachineForm> {

@@ -34,11 +34,15 @@ public class Employee extends AbstractEntity {
     @Size(max = 15)
     private String phoneNumber;
 
-    @Size(max = 31)
-    @NotNull
-    private String department;
-
     private boolean active;
+
+    @Builder.Default
+    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "employee_department",
+            joinColumns = @JoinColumn(name = "employee_id"),
+            inverseJoinColumns = @JoinColumn(name = "department_id"))
+    private Set<Department> departments = new LinkedHashSet<>();
 
     @Builder.Default
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
@@ -62,7 +66,6 @@ public class Employee extends AbstractEntity {
                 .lastName(createEmployeeDTO.lastName())
                 .birthDate(createEmployeeDTO.birthDate())
                 .phoneNumber(createEmployeeDTO.phoneNumber())
-                .department(createEmployeeDTO.department())
                 .build();
     }
 }

@@ -52,4 +52,8 @@ public interface EmployeeAPI {
     void removeMachine(@NotNull UUID employeeId, @NotNull UUID machineId) throws EmployeeNotFoundException;
 
     List<EmployeeDTO> getAllActiveEmployees(int page, int size);
+
+    List<EmployeeDTO> getAllActiveEmployees();
+
+    List<EmployeeDTO> getAllActiveEmployeesByDepartment(@NotNull UUID departmentId);
 }

@@ -9,6 +9,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pl.crewops.dto.auth.*;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
@@ -16,6 +17,7 @@ import pl.crewops.security.custom.permissionAnnotation.ManagerPermission;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 class AuthController {
     private final AuthAPI authAPI;
 

@@ -7,8 +7,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.server.WebBrowser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +21,7 @@ import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.QualificationFormModel;
+import pl.crewops.util.BrowserResolver;
 import pl.crewops.view.HomeView;
 
 @Getter
@@ -100,13 +99,10 @@ public class QualificationGrid extends VerticalLayout {
     }
 
     private void configureForm() {
-        WebBrowser browser = VaadinSession.getCurrent().getBrowser();
-        boolean isMobile = browser.isAndroid() || browser.isIPhone() || browser.isWindowsPhone();
-
-        if (isMobile) {
-            form.setWidthFull(); // Full width on mobile
+        if (BrowserResolver.isMobile()) {
+            form.setWidthFull();
         } else {
-            form.setWidth("25em"); // Fixed width on desktop
+            form.setWidth("25em");
         }
 
         form.addSaveListener(this::saveQualification);

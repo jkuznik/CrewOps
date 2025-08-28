@@ -15,8 +15,10 @@ import pl.crewops.model.joinTable.EmployeeQualification;
 
 interface EmployeeRepository extends JpaRepository<Employee, UUID> {
 
-    @EntityGraph(attributePaths = {"qualifications", "machines"})
-    Page<Employee> findAll(Pageable pageable);
+    List<Employee> findAllByActiveIsTrue();
+
+    @Query("SELECT e FROM Employee e JOIN e.departments d WHERE d.id = :departmentId AND e.active = true")
+    List<Employee> findAllByDepartmentIdAndActiveIsTrue(@Param("departmentId") UUID departmentId);
 
     @EntityGraph(attributePaths = {"qualifications", "machines"})
     Page<Employee> findAllByActiveIsTrue(Pageable pageable);
@@ -25,10 +27,11 @@ interface EmployeeRepository extends JpaRepository<Employee, UUID> {
     Optional<Employee> findById(UUID id);
 
     @Query("SELECT e FROM Employee e JOIN e.qualifications q WHERE q.id = :qualificationId")
-    Page<Employee> findByQualificationId(@Param("qualificationId") UUID qualificationId, Pageable pageable);
+    Page<Employee> findByQualificationIdAndActiveIsTrue(
+            @Param("qualificationId") UUID qualificationId, Pageable pageable);
 
     @Query("SELECT e FROM Employee e JOIN e.machines v WHERE v.id = :machinesId")
-    Page<Employee> findByMachinesId(@Param("machinesId") UUID machineId, Pageable pageable);
+    Page<Employee> findByMachinesIdAndActiveIsTrue(@Param("machinesId") UUID machineId, Pageable pageable);
 
     List<Employee> findByFirstNameAndLastName(String firstName, String lastName);
 }
