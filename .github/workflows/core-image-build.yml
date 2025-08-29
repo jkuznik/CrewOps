@@ -33,3 +33,30 @@ jobs:
         run: |
           docker push jkuznik/crewops-core:${{ github.sha }}
           docker push jkuznik/crewops-core:latest
+          
+          # ✅ Install AWS PowerShell and login to ECR
+      - name: Install AWS PowerShell and Push to ECR
+        shell: pwsh
+        run: |
+          Install-Module -Name AWSPowerShell.NetCore -Force -Scope CurrentUser
+          $AWS_REGION = "${{ secrets.AWS_REGION }}"
+          $AWS_ECR_ACCESS_KEY_ID = "${{ secrets.AWS_ECR_ACCESS_KEY_ID }}"
+          $SECRET_ACCESS_KEY = "${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}"
+
+          # Configure AWS credentials
+          Set-AWSCredential -AccessKey $AWS_ECR_ACCESS_KEY_ID -SecretKey $SECRET_ACCESS_KEY -StoreAs default
+          Set-DefaultAWSRegion -Region $AWS_REGION
+
+          # Authenticate Docker to ECR
+          $ecrLogin = (Get-ECRLoginCommand).Command
+          Invoke-Expression $ecrLogin
+
+          # Tag and push image to ECR
+          $accountId = (Get-STSCallerIdentity).Account
+          $repositoryUri = "$accountId.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
+
+          docker tag jkuznik/crewops-core:${{ github.sha }} $repositoryUri:${{ github.sha }}
+          docker tag jkuznik/crewops-core:${{ github.sha }} $repositoryUri:latest
+
+          docker push $repositoryUri:${{ github.sha }}
+          docker push $repositoryUri:latest

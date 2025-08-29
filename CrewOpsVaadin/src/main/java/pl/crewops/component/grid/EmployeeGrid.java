@@ -1,6 +1,7 @@
 package pl.crewops.component.grid;
 
 import static pl.crewops.model.auth.RoleType.*;
+import static pl.crewops.model.auth.RoleType.EMPLOYEE;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -98,7 +99,7 @@ public class EmployeeGrid extends VerticalLayout {
 
         roleFilter.setClearButtonVisible(true);
         roleFilter.setItems(Arrays.stream(values())
-                .filter(roleType -> roleType != RoleType.EMPLOYEE)
+                .filter(roleType -> roleType != EMPLOYEE && roleType != SYSTEM_ADMIN)
                 .toList());
         roleFilter.setItemLabelGenerator(this::getRoleTranslation);
         roleFilter.addClassName("employee-grid-role-combobox");
@@ -139,7 +140,7 @@ public class EmployeeGrid extends VerticalLayout {
                         .collect(Collectors.joining(", ")))
                 .setKey("departments");
         grid.addColumn(employee -> employee.getRoles().stream()
-                        .filter(role -> role != RoleType.EMPLOYEE)
+                        .filter(role -> role != EMPLOYEE)
                         .map(this::getRoleTranslation)
                         .filter(name -> !name.isBlank())
                         .sorted(String::compareToIgnoreCase)
