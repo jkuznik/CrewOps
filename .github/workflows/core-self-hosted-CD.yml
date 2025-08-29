@@ -97,5 +97,5 @@ jobs:
             -e CREW_OPS_DEPARTMENT_NAME=$CREW_OPS_DEPARTMENT_NAME \
             -e TZ=Europe/Warsaw \
             -p 8080:8080 \
-            --memory=512m \
+            --memory=2048m \
             jkuznik/crewops-core:latest

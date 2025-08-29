@@ -2,36 +2,49 @@ name: Java CI with Gradle
 
 on:
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
 
     steps:
+      # 1. Checkout repo
       - uses: actions/checkout@v4
 
+      # 2. Set up JDK 23
       - name: Set up JDK 23
         uses: actions/setup-java@v4
         with:
           java-version: '23'
           distribution: 'temurin'
 
+      # 3. Cache Gradle Wrapper
+      - name: Cache Gradle Wrapper
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/wrapper/dists
+          key: gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: gradle-wrapper-
+
+      # 4. Cache Gradle Dependencies
       - name: Cache Gradle dependencies
         uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/build.gradle*', '**/settings.gradle*') }}
-          restore-keys: |
-            gradle-${{ runner.os }}-
+          key: gradle-deps-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: gradle-deps-
 
+      # 5. Setup Gradle (optional, ensures correct version)
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.12.1
 
-      - name: Build with Gradle Wrapper
+      # 6. Build project
+      - name: Build with Gradle
         run: ./gradlew build --build-cache --parallel
