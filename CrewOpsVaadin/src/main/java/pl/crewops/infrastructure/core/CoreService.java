@@ -197,6 +197,7 @@ class CoreService implements CoreAPI {
 
     @Override
     public List<DepartmentDTO> getAllDepartments() throws NotAuthenticatedException {
+        log.info(("Get all departments via service proxy"));
         return coreClient.getAllDepartments();
     }
 
