@@ -6,6 +6,6 @@ logging:
 
 spring:
   datasource:
-    url: jdbc:postgresql://CrewOpsDb:5432/${CREWOPS_POSTGRES_DB}
+    url: jdbc:postgresql://${RDS_ENDPOINT}:5432/${CREWOPS_POSTGRES_DB}
     username: ${CREWOPS_POSTGRES_USER}
     password: ${CREWOPS_POSTGRES_PASSWORD}

@@ -35,10 +35,11 @@ jobs:
       - name: Remove old container (if exists)
         run: sudo docker rm -f core || true
 
+# rollback db connection to container just change enc RDS_ENDPOINT to db container name
       - name: Run new container
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          SPRING_DATASOURCE_URL: jdbc:postgresql://CrewOpsDb:5432/${{ secrets.CREWOPS_POSTGRES_DB }}
+          SPRING_DATASOURCE_URL: jdbc:postgresql://${{ secrets.RDS_ENDPOINT }}:5432/${{ secrets.CREWOPS_POSTGRES_DB }}
           SPRING_DATASOURCE_USERNAME: ${{ secrets.CREWOPS_POSTGRES_USER }}
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.CREWOPS_POSTGRES_PASSWORD }}
           CREWOPS_CLIENT_ID_HASH: ${{ secrets.CREWOPS_CLIENT_ID_HASH }}
