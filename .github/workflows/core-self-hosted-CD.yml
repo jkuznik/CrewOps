@@ -20,6 +20,7 @@ jobs:
         run: |
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
+          echo "ECR URI: $ECR_URI"
           aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI
 
       - name: Pull latest image from ECR
@@ -28,6 +29,7 @@ jobs:
         run: |
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
+          echo "ECR URI: $ECR_URI"
           sudo docker pull $ECR_URI:latest
 
       - name: Remove old container (if exists)
@@ -75,14 +77,47 @@ jobs:
         run: |
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
-
-          echo "ECR URI: $ECR_URI"
-
+          
           sudo docker run -d \
             --name core \
             --network crewOps \
             -e SPRING_DATASOURCE_URL=$SPRING_DATASOURCE_URL \
-            ... (rest of the env variables)
+            -e SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME \
+            -e SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD \
+            -e CREWOPS_CLIENT_ID_HASH=$CREWOPS_CLIENT_ID_HASH \
+            -e CREWOPS_CLIENT_ID_INPUT=$CREWOPS_CLIENT_ID_INPUT \
+            -e JWT_CREWOPS=$JWT_CREWOPS \
+            -e JWT_EXPIRATION_CREWOPS=$JWT_EXPIRATION_CREWOPS \
+            -e SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE \
+            -e CREW_OPS_TENANT_ID=$CREW_OPS_TENANT_ID \
+            -e CREW_OPS_TENANT_COMPANY_ID=$CREW_OPS_TENANT_COMPANY_ID \
+            -e CREW_OPS_TENANT_SCHEMA_NAME=$CREW_OPS_TENANT_SCHEMA_NAME \
+            -e CREW_OPS_TENANT_ACTIVE=$CREW_OPS_TENANT_ACTIVE \
+            -e CREW_OPS_AUTH_USER_ROLE_USER_ID=$CREW_OPS_AUTH_USER_ROLE_USER_ID \
+            -e CREW_OPS_AUTH_USER_ROLE_ROLE_ID=$CREW_OPS_AUTH_USER_ROLE_ROLE_ID \
+            -e CREW_OPS_AUTH_USER_ID=$CREW_OPS_AUTH_USER_ID \
+            -e CREW_OPS_AUTH_USER_USERNAME=$CREW_OPS_AUTH_USER_USERNAME \
+            -e CREW_OPS_AUTH_USER_PASSWORD=$CREW_OPS_AUTH_USER_PASSWORD \
+            -e CREW_OPS_AUTH_USER_EMPLOYEE_ID=$CREW_OPS_AUTH_USER_EMPLOYEE_ID \
+            -e CREW_OPS_AUTH_USER_TENANT_ID=$CREW_OPS_AUTH_USER_TENANT_ID \
+            -e CREW_OPS_ADDRESS_ID=$CREW_OPS_ADDRESS_ID \
+            -e CREW_OPS_ADDRESS_POSTAL_CODE=$CREW_OPS_ADDRESS_POSTAL_CODE \
+            -e CREW_OPS_ADDRESS_CITY=$CREW_OPS_ADDRESS_CITY \
+            -e CREW_OPS_ADDRESS_STREET=$CREW_OPS_ADDRESS_STREET \
+            -e CREW_OPS_ADDRESS_LOCAL=$CREW_OPS_ADDRESS_LOCAL \
+            -e CREW_OPS_COMPANY_ID=$CREW_OPS_COMPANY_ID \
+            -e CREW_OPS_COMPANY_NAME=$CREW_OPS_COMPANY_NAME \
+            -e CREW_OPS_COMPANY_ADDRESS_ID=$CREW_OPS_COMPANY_ADDRESS_ID \
+            -e CREW_OPS_COMPANY_EMAIL=$CREW_OPS_COMPANY_EMAIL \
+            -e CREW_OPS_COMPANY_STATUS=$CREW_OPS_COMPANY_STATUS \
+            -e CREW_OPS_EMPLOYEE_ID=$CREW_OPS_EMPLOYEE_ID \
+            -e CREW_OPS_EMPLOYEE_FIRST_NAME=$CREW_OPS_EMPLOYEE_FIRST_NAME \
+            -e CREW_OPS_EMPLOYEE_LAST_NAME=$CREW_OPS_EMPLOYEE_LAST_NAME \
+            -e CREW_OPS_EMPLOYEE_BIRTH_DATE=$CREW_OPS_EMPLOYEE_BIRTH_DATE \
+            -e CREW_OPS_EMPLOYEE_PHONE=$CREW_OPS_EMPLOYEE_PHONE \
+            -e CREW_OPS_DEPARTMENT_ID=$CREW_OPS_DEPARTMENT_ID \
+            -e CREW_OPS_DEPARTMENT_NAME=$CREW_OPS_DEPARTMENT_NAME \
+            -e TZ=Europe/Warsaw \
             -p 8080:8080 \
             --memory=2048m \
             $ECR_URI:latest
