@@ -24,6 +24,8 @@ import pl.crewops.model.MessageFormModel;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.BrowserResolver;
 
+import static pl.crewops.util.LocalDateTimeFormater.DATE_TIME_HUMAN_READABLE_FORMATTER;
+
 @Slf4j
 @Getter
 @Setter
@@ -98,9 +100,11 @@ public class MessageGrid extends VerticalLayout {
                 .setHeader(getTranslation("messageGrid.title"))
                 .setFlexGrow(1);
 
-        grid.addColumn(MessageFormModel::getCreatedAt)
+        grid.addColumn(message ->
+                        message.getCreatedAt() != null ? message.getCreatedAt().format(DATE_TIME_HUMAN_READABLE_FORMATTER) : ""
+                )
                 .setKey("sendTime")
-                .setHeader(getTranslation("messageGrid.sendTime"))
+                .setHeader(getTranslation("messageGrid.sendTime"))F
                 .setAutoWidth(true);
 
         grid.addColumn(MessageFormModel::getDescription)
