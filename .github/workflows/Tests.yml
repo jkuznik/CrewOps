@@ -30,13 +30,29 @@ jobs:
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: gradle-${{ runner.os }}-
 
-      # Cache Vaadin & Node dependencies (optional but speeds up a lot)
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches/modules-2
+            ~/.gradle/caches/jars-1
+          key: gradle-deps-${{ hashFiles('**/build.gradle*', '**/settings.gradle*') }}
+          restore-keys: gradle-deps-
+
+
+      # Ensure the cache directories exist
+      - name: Ensure Vaadin/Node cache dirs exist
+        run: |
+          mkdir -p ~/.vaadin
+          mkdir -p ./CrewOpsVaadin/node_modules
+
+      # Cache Vaadin & Node dependencies
       - name: Cache Vaadin & Node
         uses: actions/cache@v3
         with:
           path: |
             ~/.vaadin
-            **/node_modules
+            ./CrewOpsVaadin/node_modules
           key: vaadin-${{ runner.os }}-${{ hashFiles('**/package.json', '**/pnpm-lock.yaml') }}
           restore-keys: vaadin-${{ runner.os }}-
 
