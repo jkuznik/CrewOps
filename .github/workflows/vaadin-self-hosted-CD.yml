@@ -27,7 +27,7 @@ jobs:
         run: |
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-vaadin"
-          sudo docker pull $ECR_URI:latest
+          docker pull $ECR_URI:latest
 
       - name: Remove old Vaadin container
         run: sudo docker rm -f CrewOpsVaadin || true
@@ -37,14 +37,13 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           CREWOPS_CLIENT_ID_INPUT: ${{ secrets.CREWOPS_CLIENT_ID_INPUT }}
           CREWOPS_CLIENT_ID_HASH: ${{ secrets.CREWOPS_CLIENT_ID_HASH }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
           JWT_CREWOPS: ${{ secrets.JWT_CREWOPS }}
           JWT_EXPIRATION_CREWOPS: ${{ secrets.JWT_EXPIRATION_CREWOPS }}
         run: |          
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-vaadin"
 
-          sudo docker run -d \
+          docker run -d \
             --name CrewOpsVaadin \
             --network crewOps \
             --restart always \

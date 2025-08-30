@@ -30,7 +30,7 @@ jobs:
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
           echo "ECR URI: $ECR_URI"
-          sudo docker pull $ECR_URI:latest
+          docker pull $ECR_URI:latest
 
       - name: Remove old container (if exists)
         run: sudo docker rm -f core || true
@@ -78,7 +78,7 @@ jobs:
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
           
-          sudo docker run -d \
+          docker run -d \
             --name core \
             --network crewOps \
             -e SPRING_DATASOURCE_URL=$SPRING_DATASOURCE_URL \
