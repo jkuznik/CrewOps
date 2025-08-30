@@ -132,6 +132,7 @@ public class EmployeeGrid extends VerticalLayout {
     private void configureGrid() {
         grid.setSizeFull();
 
+        // todo update grid to fetch employee collection ordered by lastname and firtst name
         grid.addColumn(EmployeeFormModel::getFirstName).setKey("firstName");
         grid.addColumn(EmployeeFormModel::getLastName).setKey("lastName");
         grid.addColumn(employee -> employee.getDepartments().stream()

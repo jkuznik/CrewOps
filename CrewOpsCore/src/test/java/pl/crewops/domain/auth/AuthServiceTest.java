@@ -20,12 +20,15 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.dto.auth.*;
+import pl.crewops.dto.employee.CreateEmployeeDTO;
+import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exception.domain.auth.UsernameAlreadyExistException;
 import pl.crewops.model.Employee;
 import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.model.publicSchema.Role;
 import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.security.jwt.JwtServiceCore;
+import pl.crewops.util.credentialsGenerator.CredentialGenerator;
 
 @SpringJUnitConfig(
         classes = {
@@ -137,6 +140,59 @@ class AuthServiceTest {
 
         // then
         assertThat(result).isExactlyInstanceOf(UsernameAlreadyExistException.class);
+    }
+
+    @Test
+    void createAuthUserWithRelatedEmployee_shouldReturnResult_whenEverythingIsValid() {
+        // given
+        var createEmployeeDTO = CreateEmployeeDTO.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .roles(Set.of(RoleDTO.builder().name(EMPLOYEE.name()).build()))
+                .companyId(UUID.randomUUID())
+                .build();
+
+        UUID employeeId = UUID.randomUUID();
+        EmployeeDTO employeeDTO = EmployeeDTO.builder().id(employeeId).build();
+
+        String generatedUsername = "john.doe";
+        String generatedPassword = "generatedPassword";
+
+        // Mock static CredentialGenerator
+        try (var mockedGenerator = mockStatic(CredentialGenerator.class)) {
+            mockedGenerator
+                    .when(() -> CredentialGenerator.generateUsername("John", "Doe"))
+                    .thenReturn(generatedUsername);
+
+            // Mock repository check to return empty username
+            when(authUserRepository.findByUsername(generatedUsername)).thenReturn(Optional.empty());
+
+            // Mock employee creation
+            when(employeeAPI.createEmployee(createEmployeeDTO)).thenReturn(employeeDTO);
+
+            // Create a spy on AuthService to mock internal method calls
+            AuthService spyService = spy(authService);
+
+            // Mock internal createAuthUser method
+            AuthUserDTO authUserDTO = AuthUserDTO.builder()
+                    .username(generatedUsername)
+                    .password(generatedPassword)
+                    .build();
+            doReturn(authUserDTO).when(spyService).createAuthUser(any(), eq(employeeId), any());
+
+            // when
+            CreateAuthUserResult result = spyService.createAuthUserWithRelatedEmployee(createEmployeeDTO);
+
+            // then
+            assertThat(result).isNotNull();
+            assertThat(result.employeeDTO()).isEqualTo(employeeDTO);
+            assertThat(result.authUserDTO()).isEqualTo(authUserDTO);
+
+            // verify interactions
+            verify(employeeAPI).createEmployee(createEmployeeDTO);
+            verify(authUserRepository).findByUsername(generatedUsername);
+            verify(spyService).createAuthUser(any(), eq(employeeId), any());
+        }
     }
 
     @Test
