@@ -1,5 +1,7 @@
 package pl.crewops.component.grid;
 
+import static pl.crewops.util.LocalDateTimeFormater.DATE_TIME_HUMAN_READABLE_FORMATTER;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
@@ -10,6 +12,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -147,7 +150,13 @@ public class BreakdownGrid extends VerticalLayout {
                         : "-")
                 .setKey("repairedBy");
 
-        grid.addColumn(BreakdownFormModel::getSolvedAt).setKey("solvedAt");
+        grid.addColumn(model -> model.getSolvedAt() != null
+                        ? DATE_TIME_HUMAN_READABLE_FORMATTER
+                                .withZone(ZoneId.systemDefault())
+                                .format(model.getSolvedAt())
+                        : "-")
+                .setKey("solvedAt")
+                .setHeader(getTranslation("breakdownGrid.column.solvedAt"));
 
         grid.getColumns().forEach(column -> {
             column.setFlexGrow(1);
