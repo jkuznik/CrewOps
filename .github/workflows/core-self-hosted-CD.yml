@@ -20,7 +20,6 @@ jobs:
         run: |
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
-          echo "ECR URI: $ECR_URI"
           aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI
 
       - name: Pull latest image from ECR
@@ -29,16 +28,16 @@ jobs:
         run: |
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
-          echo "ECR URI: $ECR_URI"
           sudo -E docker pull $ECR_URI:latest
 
       - name: Remove old container (if exists)
         run: sudo docker rm -f core || true
 
+# rollback db connection to container just change enc RDS_ENDPOINT to db container name
       - name: Run new container
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          SPRING_DATASOURCE_URL: jdbc:postgresql://CrewOpsDb:5432/${{ secrets.CREWOPS_POSTGRES_DB }}
+          SPRING_DATASOURCE_URL: jdbc:postgresql://${{ secrets.RDS_ENDPOINT }}:5432/${{ secrets.CREWOPS_POSTGRES_DB }}
           SPRING_DATASOURCE_USERNAME: ${{ secrets.CREWOPS_POSTGRES_USER }}
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.CREWOPS_POSTGRES_PASSWORD }}
           CREWOPS_CLIENT_ID_HASH: ${{ secrets.CREWOPS_CLIENT_ID_HASH }}
@@ -77,7 +76,9 @@ jobs:
         run: |
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
-          
+
+          echo "ECR URI: $ECR_URI"
+
           sudo docker run -d \
             --name core \
             --network crewOps \
