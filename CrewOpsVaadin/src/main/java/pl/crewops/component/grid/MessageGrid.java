@@ -1,5 +1,7 @@
 package pl.crewops.component.grid;
 
+import static pl.crewops.util.LocalDateTimeFormater.DATE_TIME_HUMAN_READABLE_FORMATTER;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -98,7 +100,9 @@ public class MessageGrid extends VerticalLayout {
                 .setHeader(getTranslation("messageGrid.title"))
                 .setFlexGrow(1);
 
-        grid.addColumn(MessageFormModel::getCreatedAt)
+        grid.addColumn(message -> message.getCreatedAt() != null
+                        ? message.getCreatedAt().format(DATE_TIME_HUMAN_READABLE_FORMATTER)
+                        : "")
                 .setKey("sendTime")
                 .setHeader(getTranslation("messageGrid.sendTime"))
                 .setAutoWidth(true);

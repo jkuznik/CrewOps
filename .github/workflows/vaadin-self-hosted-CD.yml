@@ -9,10 +9,27 @@ on:
 jobs:
   deploy-vaadin:
     runs-on: [self-hosted, linux]
-
     steps:
-      - name: Pull latest Vaadin image
-        run: sudo docker pull jkuznik/crewops-vaadin:latest
+#      - name: Pull latest Vaadin image
+#        run: sudo docker pull jkuznik/crewops-vaadin:latest
+
+      - name: Configure AWS CLI
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
+          aws configure set region ${{ secrets.AWS_REGION }}
+
+      - name: Authenticate Docker to ECR
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_URI="$ACCOUNT_ID.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/jkuznik-ecr/crewops-vaadin"
+          aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI
+
+      - name: Pull latest image from ECR
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_URI="$ACCOUNT_ID.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/jkuznik-ecr/crewops-vaadin"
+          sudo docker pull $ECR_URI:latest
 
       - name: Remove old Vaadin container
         run: sudo docker rm -f CrewOpsVaadin || true
@@ -23,7 +40,10 @@ jobs:
           CREWOPS_CLIENT_ID_HASH: ${{ secrets.CREWOPS_CLIENT_ID_HASH }}
           JWT_CREWOPS: ${{ secrets.JWT_CREWOPS }}
           JWT_EXPIRATION_CREWOPS: ${{ secrets.JWT_EXPIRATION_CREWOPS }}
-        run: |
+        run: |          
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_URI="$ACCOUNT_ID.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/jkuznik-ecr/crewops-vaadin"
+
           sudo docker run -d \
             --name CrewOpsVaadin \
             --network crewOps \
@@ -35,4 +55,4 @@ jobs:
             -e TZ=Europe/Warsaw \
             -p 8081:8081 \
             --memory=2048m \
-            jkuznik/crewops-vaadin:latest
+            $ECR_URI:latest
