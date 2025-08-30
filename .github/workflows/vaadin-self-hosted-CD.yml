@@ -13,12 +13,6 @@ jobs:
 #      - name: Pull latest Vaadin image
 #        run: sudo docker pull jkuznik/crewops-vaadin:latest
 
-      - name: Configure AWS CLI
-        run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
-          aws configure set region ${{ secrets.AWS_REGION }}
-
       - name: Authenticate Docker to ECR
         run: |
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)

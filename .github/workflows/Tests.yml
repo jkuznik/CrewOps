@@ -19,36 +19,9 @@ jobs:
           java-version: '23'
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.12.1'
-
-      # Cache Gradle wrapper distributions
-      - name: Cache Gradle Wrapper
-        uses: actions/cache@v3
-        with:
-          path: ~/.gradle/wrapper/dists
-          key: gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: gradle-wrapper-
-
-      # Cache Gradle dependencies
-      - name: Cache Gradle Dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches/modules-2
-            ~/.gradle/caches/jars-1
-          key: gradle-deps-${{ hashFiles('**/build.gradle*', '**/settings.gradle*') }}
-          restore-keys: gradle-deps-
-
-      # Optional: cache Gradle build cache
-      - name: Cache Gradle Build Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.gradle/build-cache
-          key: gradle-build-cache-${{ github.sha }}
-          restore-keys: gradle-build-cache-
-
+      # Use Gradle’s official build action
       - name: Build with Gradle
-        run: ./gradlew build --build-cache --parallel --no-daemon
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build --build-cache --parallel --no-daemon
+          gradle-version: 8.12.1
