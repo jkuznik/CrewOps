@@ -19,9 +19,29 @@ jobs:
           java-version: '23'
           distribution: 'temurin'
 
-      # Use Gradle’s official build action
-      - name: Build with Gradle
+      # Cache Gradle files for faster builds
+      - name: Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: gradle-${{ runner.os }}-
+
+      # Cache Vaadin & Node dependencies (optional but speeds up a lot)
+      - name: Cache Vaadin & Node
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.vaadin
+            **/node_modules
+          key: vaadin-${{ runner.os }}-${{ hashFiles('**/package.json', '**/pnpm-lock.yaml') }}
+          restore-keys: vaadin-${{ runner.os }}-
+
+      # Build with Gradle (skip Vaadin frontend on PRs)
+      - name: Build with Gradle (skip Vaadin frontend for PR)
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: build --build-cache --parallel --no-daemon
+          arguments: build --build-cache --parallel --no-daemon -x vaadinBuildFrontend
           gradle-version: 8.12.1
