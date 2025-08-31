@@ -125,8 +125,10 @@ class CoreClient {
     // manager permission
     @Caching(
             evict = {
-                @CacheEvict(value = GET_EMPLOYEE_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
-                @CacheEvict(value = GET_COMPANY_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+                @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
             })
     public void terminateEmployeeAccount(UUID employeeId) throws NotAuthenticatedException {
         try {

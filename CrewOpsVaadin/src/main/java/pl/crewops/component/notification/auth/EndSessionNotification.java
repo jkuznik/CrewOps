@@ -7,11 +7,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 
-// the reason why earlier this notification has a boarder around was that EndSessionNotification extends
-// vertical/horizontal layout
-// and has property private final Notification notification to handle all logic ( notification.open() make this
-// components visible )
-// All this ABOVE is a way to achieve that effect again
 public class EndSessionNotification extends Notification {
 
     public EndSessionNotification(UI ui, Runnable onSessionEnd) {

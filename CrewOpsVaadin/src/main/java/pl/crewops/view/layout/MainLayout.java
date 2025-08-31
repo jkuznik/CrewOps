@@ -1,5 +1,6 @@
 package pl.crewops.view.layout;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Footer;
@@ -28,6 +29,8 @@ public class MainLayout extends AppLayout {
 
     public MainLayout(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         addClassName("main-layout");
+
+        UI.getCurrent().getPage().executeJs("document.querySelector('html').setAttribute('translate', 'no');");
 
         this.coreAPI = coreAPI;
         this.jwtService = jwtService;

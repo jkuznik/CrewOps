@@ -29,7 +29,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.client.RestClientException;
 import pl.crewops.component.navbarComponents.LanguageSelectorComponent;
-import pl.crewops.component.notification.auth.LoginFailNotification;
+import pl.crewops.component.notification.FailNotification;
 import pl.crewops.dto.auth.AuthRequest;
 import pl.crewops.dto.auth.AuthResponse;
 import pl.crewops.exceptions.NotAuthenticatedException;
@@ -119,7 +119,7 @@ public class LoginForm extends FormLayout {
             UI.getCurrent().getPage().reload();
         } catch (NotAuthenticatedException | RestClientException e) {
             log.error("Login failed: {}", e.getMessage());
-            new LoginFailNotification();
+            new FailNotification(getTranslation("loginFailedNotification.message"));
         }
     }
 
