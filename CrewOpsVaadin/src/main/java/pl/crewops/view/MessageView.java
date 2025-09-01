@@ -7,6 +7,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import pl.crewops.component.grid.MessageGrid;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.infrastructure.localization.DisableTranslateInitializer;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.layout.MainLayout;
@@ -24,6 +25,7 @@ public class MessageView extends MainLayout implements BeforeEnterObserver {
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if (authenticationResolver.principalIsAuthenticated()) {
+            DisableTranslateInitializer.disableTranslate(UI.getCurrent());
             buildContent();
         } else {
             event.forwardTo(HomeView.class);

@@ -13,4 +13,14 @@ public class DisableTranslateInitializer implements UIInitListener {
         UI ui = event.getUI();
         ui.getPage().executeJs("document.querySelector('html').setAttribute('translate', 'no');");
     }
+
+    public static void disableTranslate(UI ui) {
+        ui.getPage()
+                .executeJs("document.documentElement.setAttribute('translate', 'no');"
+                        + "document.body.setAttribute('translate', 'no');"
+                        + "var meta = document.createElement('meta');"
+                        + "meta.name = 'google';"
+                        + "meta.content = 'notranslate';"
+                        + "document.head.appendChild(meta);");
+    }
 }

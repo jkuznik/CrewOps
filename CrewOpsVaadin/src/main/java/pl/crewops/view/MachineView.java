@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import pl.crewops.component.grid.BreakdownGrid;
 import pl.crewops.component.grid.MachineGrid;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.infrastructure.localization.DisableTranslateInitializer;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.layout.MainLayout;
@@ -29,6 +30,7 @@ public class MachineView extends MainLayout implements BeforeEnterObserver {
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if (authenticationResolver.principalIsAuthenticated()) {
+            DisableTranslateInitializer.disableTranslate(UI.getCurrent());
             buildContent();
         } else {
             event.forwardTo(HomeView.class);
