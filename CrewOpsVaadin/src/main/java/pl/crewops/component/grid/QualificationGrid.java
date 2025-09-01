@@ -13,8 +13,8 @@ import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 import pl.crewops.component.form.QualificationForm;
-import pl.crewops.component.notification.DeleteNotification;
 import pl.crewops.component.notification.FailNotification;
+import pl.crewops.component.notification.InfoNotification;
 import pl.crewops.component.notification.SuccessNotification;
 import pl.crewops.component.notification.guardian.DeleteQualificationGuardian;
 import pl.crewops.dto.qualification.QualificationDTO;
@@ -206,7 +206,7 @@ public class QualificationGrid extends VerticalLayout {
             coreAPI.deleteQualification(event.getQualification().getId());
             updateGrid();
             employeeGrid.updateGrid();
-            new DeleteNotification(getTranslation(
+            new InfoNotification(getTranslation(
                     "qualificationGrid.deleteQualification",
                     event.getQualification().getDescription()));
             closeEditor();

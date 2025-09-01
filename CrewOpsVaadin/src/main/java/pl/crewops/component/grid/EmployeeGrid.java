@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import pl.crewops.component.form.EmployeeForm;
+import pl.crewops.component.notification.InfoNotification;
 import pl.crewops.component.notification.SuccessNotification;
 import pl.crewops.component.notification.guardian.DeleteEmployeeGuardian;
 import pl.crewops.dto.auth.CreateAuthUserResult;
@@ -259,6 +260,10 @@ public class EmployeeGrid extends VerticalLayout {
                 coreAPI.terminateEmployeeAccount(event.getEmployee().getId());
                 updateGrid();
                 qualificationGrid.updateGrid();
+                new InfoNotification(getTranslation(
+                        "employeeGrid.deleteEmployee",
+                        event.getEmployee().getFirstName() + " "
+                                + event.getEmployee().getLastName()));
                 closeEditor();
             } catch (NotAuthenticatedException e) {
                 UI.getCurrent().navigate(HomeView.class);
