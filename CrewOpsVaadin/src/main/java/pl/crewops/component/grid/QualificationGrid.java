@@ -13,9 +13,9 @@ import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 import pl.crewops.component.form.QualificationForm;
-import pl.crewops.component.notification.AddQualificationNotification;
-import pl.crewops.component.notification.QualificationAlreadyExistNotification;
-import pl.crewops.component.notification.UpdateQualificationNotification;
+import pl.crewops.component.notification.DeleteNotification;
+import pl.crewops.component.notification.FailNotification;
+import pl.crewops.component.notification.SuccessNotification;
 import pl.crewops.component.notification.guardian.DeleteQualificationGuardian;
 import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
@@ -150,7 +150,7 @@ public class QualificationGrid extends VerticalLayout {
     private void saveQualification(QualificationForm.SaveEvent event) {
         if (qualifications.stream().anyMatch(q -> q.getDescription()
                 .equalsIgnoreCase(event.getQualification().getDescription()))) {
-            new QualificationAlreadyExistNotification(event.getQualification().getDescription());
+            notification(event);
             closeEditor();
             return;
         }
@@ -160,10 +160,17 @@ public class QualificationGrid extends VerticalLayout {
                     QualificationFormModel.toCreateQualificationDTO(event.getQualification()));
             updateGrid();
             closeEditor();
-            qualificationDTO.ifPresent(AddQualificationNotification::new);
+            qualificationDTO.ifPresent(value -> new SuccessNotification(
+                    getTranslation("addQualificationNotification.successAddQualification") + value.description()));
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
+    }
+
+    private void notification(QualificationForm.SaveEvent event) {
+        new FailNotification(getTranslation("qualificationAlreadyExistNotification.messagePrefix")
+                + event.getQualification().getDescription()
+                + getTranslation("qualificationAlreadyExistNotification.messageSuffix"));
     }
 
     private void updateQualification(QualificationForm.UpdateEvent event) {
@@ -172,7 +179,8 @@ public class QualificationGrid extends VerticalLayout {
                     QualificationFormModel.toUpdateQualificationDTO(event.getQualification()));
             updateGrid();
             closeEditor();
-            qualificationDTO.ifPresent(UpdateQualificationNotification::new);
+            qualificationDTO.ifPresent(value -> new SuccessNotification(
+                    getTranslation("updateQualificationNotification.messagePrefix", value.description())));
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
@@ -198,6 +206,9 @@ public class QualificationGrid extends VerticalLayout {
             coreAPI.deleteQualification(event.getQualification().getId());
             updateGrid();
             employeeGrid.updateGrid();
+            new DeleteNotification(getTranslation(
+                    "qualificationGrid.deleteQualification",
+                    event.getQualification().getDescription()));
             closeEditor();
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);

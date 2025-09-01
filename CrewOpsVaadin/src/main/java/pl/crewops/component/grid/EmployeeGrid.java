@@ -1,7 +1,6 @@
 package pl.crewops.component.grid;
 
 import static pl.crewops.model.auth.RoleType.*;
-import static pl.crewops.model.auth.RoleType.EMPLOYEE;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -17,8 +16,7 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import pl.crewops.component.form.EmployeeForm;
-import pl.crewops.component.notification.AddEmployeeNotification;
-import pl.crewops.component.notification.UpdateEmployeeNotification;
+import pl.crewops.component.notification.SuccessNotification;
 import pl.crewops.component.notification.guardian.DeleteEmployeeGuardian;
 import pl.crewops.dto.auth.CreateAuthUserResult;
 import pl.crewops.dto.employee.EmployeeDTO;
@@ -232,7 +230,10 @@ public class EmployeeGrid extends VerticalLayout {
                     coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee(), companyId));
             updateGrid();
             closeEditor();
-            createAuthUserResult.ifPresent(value -> new AddEmployeeNotification(value.employeeDTO()));
+            createAuthUserResult.ifPresent(
+                    value -> new SuccessNotification(getTranslation("addEmployeeNotification.successAddEmployee")
+                            + value.employeeDTO().firstName() + " "
+                            + value.employeeDTO().lastName()));
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
@@ -244,7 +245,9 @@ public class EmployeeGrid extends VerticalLayout {
                     coreAPI.updateEmployee(EmployeeFormModel.toUpdateEmployeeDTO(event.getEmployee()));
             updateGrid();
             closeEditor();
-            employeeDTO.ifPresent(UpdateEmployeeNotification::new);
+            employeeDTO.ifPresent(
+                    value -> new SuccessNotification(getTranslation("updateEmployeeNotification.messagePrefix")
+                            + value.firstName() + " " + value.lastName()));
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }

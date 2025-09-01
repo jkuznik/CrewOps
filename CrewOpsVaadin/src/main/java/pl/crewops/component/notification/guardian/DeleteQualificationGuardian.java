@@ -12,6 +12,8 @@ import pl.crewops.model.QualificationFormModel;
 
 public class DeleteQualificationGuardian extends Notification {
 
+    private static final String CONFIRMATION_VALUE = "ok";
+
     public DeleteQualificationGuardian(QualificationFormModel qualificationFormModel, Runnable onDeleteConfirmed) {
         addClassName("delete-qualification-guardian");
         addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -24,7 +26,8 @@ public class DeleteQualificationGuardian extends Notification {
         message.addClassName("delete-qualification-guardian-div");
         message.setText(getTranslation("deleteQualificationGuardian.message") + " " + qualification);
 
-        var confirmTextField = new TextField(getTranslation("deleteQualificationGuardian.confirmTextField"));
+        var confirmTextField = new TextField(
+                getTranslation("deleteQualificationGuardian.confirmTextField") + " " + CONFIRMATION_VALUE);
         confirmTextField.setWidthFull();
         confirmTextField.setValueChangeMode(ValueChangeMode.EAGER);
 
@@ -42,7 +45,7 @@ public class DeleteQualificationGuardian extends Notification {
 
         confirmTextField.addValueChangeListener(e -> {
             var value = e.getValue() != null ? e.getValue().trim() : "";
-            deleteButton.setEnabled(value.equalsIgnoreCase("OK"));
+            deleteButton.setEnabled(value.equalsIgnoreCase(CONFIRMATION_VALUE));
         });
 
         var buttons = new HorizontalLayout(deleteButton, cancelButton);

@@ -18,7 +18,7 @@ import java.util.Optional;
 import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.component.form.BreakdownForm;
 import pl.crewops.component.notification.FailNotification;
-import pl.crewops.component.notification.UpdateBreakdownNotification;
+import pl.crewops.component.notification.SuccessNotification;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
@@ -226,7 +226,7 @@ public class BreakdownGrid extends VerticalLayout {
                 updateBreakdownGrid();
                 closeEditor();
                 if (breakdownDTO.isPresent()) {
-                    new UpdateBreakdownNotification();
+                    new SuccessNotification(getTranslation("updateBreakdownNotification.messagePrefix"));
                 }
             } catch (NotAuthenticatedException e) {
                 notAuthenticatedAction(e);

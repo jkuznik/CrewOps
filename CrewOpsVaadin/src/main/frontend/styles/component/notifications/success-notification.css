@@ -1,0 +1,24 @@
+.success-notification {
+    background-color: #f5f5f5;
+    color: #3c763d;
+    border-left: 4px solid #3c763d;
+    padding: 10px 16px;
+    border-radius: 2px;
+    box-shadow: none;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 13px;
+    max-width: 320px;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    position: relative;
+    word-break: break-word;
+}
+
+/* Add check mark like Keycloak */
+.success-notification::before {
+    content: "✔";
+    margin-right: 8px;
+    font-weight: bold;
+    color: #3c763d;
+}
