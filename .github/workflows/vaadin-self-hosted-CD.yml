@@ -37,7 +37,6 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           CREWOPS_CLIENT_ID_INPUT: ${{ secrets.CREWOPS_CLIENT_ID_INPUT }}
           CREWOPS_CLIENT_ID_HASH: ${{ secrets.CREWOPS_CLIENT_ID_HASH }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
           JWT_CREWOPS: ${{ secrets.JWT_CREWOPS }}
           JWT_EXPIRATION_CREWOPS: ${{ secrets.JWT_EXPIRATION_CREWOPS }}
         run: |          

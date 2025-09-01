@@ -1,6 +1,9 @@
 package pl.crewops.infrastructure.localization;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.i18n.I18NProvider;
+import com.vaadin.flow.server.UIInitEvent;
+import com.vaadin.flow.server.UIInitListener;
 import java.text.MessageFormat;
 import java.util.*;
 import lombok.Getter;
@@ -10,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Getter
 @Setter
-public class CustomI18NProvider implements I18NProvider {
+public class CustomI18NProvider implements I18NProvider, UIInitListener {
 
     private static final String BUNDLE_PREFIX = "i18n/messages";
 
@@ -42,6 +45,12 @@ public class CustomI18NProvider implements I18NProvider {
 
         String value = bundle.getString(key);
         return params.length > 0 ? MessageFormat.format(value, params) : value;
+    }
+
+    @Override
+    public void uiInit(UIInitEvent event) {
+        UI ui = event.getUI();
+        ui.getPage().executeJs("document.querySelector('html').setAttribute('translate', 'no');");
     }
 
     private ResourceBundle getBundle(Locale locale) {

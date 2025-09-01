@@ -44,6 +44,7 @@ public class MachineForm extends FormLayout {
     Button reportBreakdown = new Button();
     Button breakdownsList = new Button();
 
+    // TODO: setup field validation
     Binder<MachineFormModel> binder = new Binder<>(MachineFormModel.class);
 
     public MachineForm(MachineGrid machineGrid, BreakdownGrid breakdownGrid, CoreAPI coreAPI) {

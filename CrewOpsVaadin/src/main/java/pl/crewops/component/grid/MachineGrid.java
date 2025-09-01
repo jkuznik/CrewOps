@@ -20,9 +20,7 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import pl.crewops.component.form.BreakdownForm;
 import pl.crewops.component.form.MachineForm;
-import pl.crewops.component.notification.AddBreakdownNotification;
-import pl.crewops.component.notification.AddMachineNotification;
-import pl.crewops.component.notification.UpdateMachineNotification;
+import pl.crewops.component.notification.SuccessNotification;
 import pl.crewops.component.notification.guardian.DeleteMachineGuardian;
 import pl.crewops.dto.breakdown.BreakdownDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
@@ -223,7 +221,8 @@ public class MachineGrid extends VerticalLayout {
             updateMachineGrid();
             machineForm.populateMachineTypes(coreAPI);
             closeEditor();
-            machineDTO.ifPresent(AddMachineNotification::new);
+            machineDTO.ifPresent(value -> new SuccessNotification(
+                    getTranslation("addMachineNotification.messagePrefix") + value.registerNumber()));
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
@@ -235,7 +234,8 @@ public class MachineGrid extends VerticalLayout {
                     coreAPI.updateMachine(MachineFormModel.toUpdateMachineDTO(event.getMachine()));
             updateMachineGrid();
             closeEditor();
-            machineDTO.ifPresent(UpdateMachineNotification::new);
+            machineDTO.ifPresent(value -> new SuccessNotification(
+                    getTranslation("updateMachineNotification.messagePrefix") + value.registerNumber()));
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
@@ -248,7 +248,9 @@ public class MachineGrid extends VerticalLayout {
                     coreAPI.createBreakdown(BreakdownFormModel.toCreateBreakdownDTO(event.getBreakdown()));
             updateMachineGrid();
             closeEditor();
-            breakdownDTO.ifPresent(AddBreakdownNotification::new);
+            breakdownDTO.ifPresent(
+                    value -> new SuccessNotification(getTranslation("addBreakdownNotification.successAddBreakdown")
+                            + " " + value.machine().registerNumber()));
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }
