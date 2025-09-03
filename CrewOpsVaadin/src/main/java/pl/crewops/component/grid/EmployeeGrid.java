@@ -76,11 +76,6 @@ public class EmployeeGrid extends VerticalLayout {
         grid.getColumnByKey("departments").setHeader(getTranslation("employeeGrid.column.department"));
     }
 
-    public void closeEditor() {
-        form.setBinderValue(null);
-        form.setVisible(false);
-    }
-
     private HorizontalLayout getContent() {
         var content = new HorizontalLayout(grid, form);
         content.setSizeFull();
@@ -213,6 +208,11 @@ public class EmployeeGrid extends VerticalLayout {
             form.setBinderValue(employeeFormModel);
             form.setFormModeUpdate();
             form.setVisible(true);
+
+            if (BrowserResolver.isMobile()) {
+                grid.setVisible(false);
+                form.setWidthFull();
+            }
         }
     }
 
@@ -220,6 +220,11 @@ public class EmployeeGrid extends VerticalLayout {
         grid.asSingleSelect().clear();
         form.setFormModeSave();
         form.setVisible(true);
+
+        if (BrowserResolver.isMobile()) {
+            grid.setVisible(false);
+            form.setWidthFull();
+        }
     }
 
     private void saveEmployee(EmployeeForm.SaveEvent event) {
@@ -269,5 +274,14 @@ public class EmployeeGrid extends VerticalLayout {
                 UI.getCurrent().navigate(HomeView.class);
             }
         });
+    }
+
+    public void closeEditor() {
+        form.setBinderValue(null);
+        form.setVisible(false);
+
+        if (BrowserResolver.isMobile()) {
+            grid.setVisible(true);
+        }
     }
 }

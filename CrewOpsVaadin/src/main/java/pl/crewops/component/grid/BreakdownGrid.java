@@ -56,11 +56,6 @@ public class BreakdownGrid extends VerticalLayout {
         add(getToolbar(), getContent());
     }
 
-    public void closeEditor() {
-        form.setBreakdown(null);
-        form.setVisible(false);
-    }
-
     public void setFilter(String value) {
         filter.setValue(value);
         updateBreakdownGrid();
@@ -215,6 +210,11 @@ public class BreakdownGrid extends VerticalLayout {
                 form.setFormModeUpdate();
             }
             form.setVisible(true);
+
+            if (BrowserResolver.isMobile()) {
+                grid.setVisible(false);
+                form.setWidthFull();
+            }
         }
     }
 
@@ -231,6 +231,15 @@ public class BreakdownGrid extends VerticalLayout {
             } catch (NotAuthenticatedException e) {
                 notAuthenticatedAction(e);
             }
+        }
+    }
+
+    public void closeEditor() {
+        form.setBreakdown(null);
+        form.setVisible(false);
+
+        if (BrowserResolver.isMobile()) {
+            grid.setVisible(true);
         }
     }
 

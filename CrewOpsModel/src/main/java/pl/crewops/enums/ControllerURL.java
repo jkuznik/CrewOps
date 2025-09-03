@@ -11,6 +11,7 @@ public interface ControllerURL {
     String REGISTER = "/register";
     String LOGOUT = "/logout";
     String VALIDATE = "/validate";
+    String HEALTH = "/health";
 
     String UPDATE_ROLES = "/updateRoles";
 
@@ -60,6 +61,7 @@ public interface ControllerURL {
             LOGIN,
             LOGOUT,
             VALIDATE,
+            HEALTH,
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/swagger-resources/**",
