@@ -34,8 +34,6 @@ import pl.crewops.util.SpringContextBridge;
 
 public class MessageForm extends FormLayout {
 
-    private final CoreAPI coreAPI;
-
     private final Span currentModeDescription = new Span();
     private final RecipientSelectionField recipientSelectionField = new RecipientSelectionField();
     private final TextField sender = new TextField();
@@ -48,8 +46,6 @@ public class MessageForm extends FormLayout {
 
     public MessageForm() {
         addClassName("message-form");
-        this.coreAPI = SpringContextBridge.getBean(CoreAPI.class);
-        var authenticationResolver = SpringContextBridge.getBean(AuthenticationResolver.class);
 
         localize();
 
@@ -57,13 +53,7 @@ public class MessageForm extends FormLayout {
 
         description.setHeight("10em");
 
-        add(
-                currentModeDescription,
-                recipientSelectionField,
-                sender,
-                title,
-                description,
-                createButtonLayout(coreAPI, authenticationResolver));
+        add(currentModeDescription, recipientSelectionField, sender, title, description, createButtonLayout());
     }
 
     public void setSendMessageMode() {
@@ -124,7 +114,7 @@ public class MessageForm extends FormLayout {
         closeButton.setText(getTranslation("messageForm.closeButton"));
     }
 
-    private Component createButtonLayout(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
+    private Component createButtonLayout() {
         sendButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 

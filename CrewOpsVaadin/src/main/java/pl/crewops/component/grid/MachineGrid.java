@@ -38,17 +38,21 @@ public class MachineGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
     private final AuthenticationResolver authenticationResolver;
 
-    private final Grid<MachineFormModel> grid = new Grid<>(MachineFormModel.class);
     private final TextField filter = new TextField();
     private final Button addMachine = new Button();
+    private final HorizontalLayout gridToolbar;
+
+    private final Grid<MachineFormModel> grid = new Grid<>();
     private final MachineForm machineForm;
     private final BreakdownForm breakdownForm = new BreakdownForm();
+
     private MachineFormModel selectedModel;
 
     public MachineGrid(CoreAPI coreAPI, BreakdownGrid breakdownGrid, AuthenticationResolver authenticationResolver) {
         this.coreAPI = coreAPI;
         this.authenticationResolver = authenticationResolver;
         this.machineForm = new MachineForm(this, breakdownGrid, coreAPI);
+        gridToolbar = getToolbar();
 
         configureGrid();
         configureForm();
@@ -63,7 +67,7 @@ public class MachineGrid extends VerticalLayout {
         closeEditor();
 
         setSizeFull();
-        add(getToolbar(), getContent());
+        add(gridToolbar, getContent());
     }
 
     private void localize() {
@@ -82,12 +86,6 @@ public class MachineGrid extends VerticalLayout {
 
     private void setColumnHeader(String key, String translationKey) {
         grid.getColumnByKey(key).setHeader(getTranslation(translationKey));
-    }
-
-    public void closeEditor() {
-        machineForm.setBinderValue(null);
-        machineForm.setVisible(false);
-        breakdownForm.setVisible(false);
     }
 
     public MachineFormModel getSelectedMachine() {
@@ -204,6 +202,12 @@ public class MachineGrid extends VerticalLayout {
                 machineForm.setFormModeEmployeePermission();
             }
             machineForm.setVisible(true);
+
+            if (BrowserResolver.isMobile()) {
+                grid.setVisible(false);
+                gridToolbar.setVisible(false);
+                machineForm.setWidthFull();
+            }
         }
     }
 
@@ -212,6 +216,12 @@ public class MachineGrid extends VerticalLayout {
         grid.asSingleSelect().clear();
         machineForm.setFormModeSave();
         machineForm.setVisible(true);
+
+        if (BrowserResolver.isMobile()) {
+            grid.setVisible(false);
+            gridToolbar.setVisible(false);
+            machineForm.setWidthFull();
+        }
     }
 
     private void saveMachine(MachineForm.SaveEvent event) {
@@ -292,6 +302,23 @@ public class MachineGrid extends VerticalLayout {
         breakdownForm.setBreakdown(breakdownFormModel);
         breakdownForm.setFormModeSave();
         breakdownForm.setVisible(true);
+
+        if (BrowserResolver.isMobile()) {
+            grid.setVisible(false);
+            gridToolbar.setVisible(false);
+            breakdownForm.setWidthFull();
+        }
+    }
+
+    public void closeEditor() {
+        machineForm.setBinderValue(null);
+        machineForm.setVisible(false);
+        breakdownForm.setVisible(false);
+
+        if (BrowserResolver.isMobile()) {
+            grid.setVisible(true);
+            gridToolbar.setVisible(true);
+        }
     }
 
     public void displayBreakdowns(MachineGrid machineGrid, BreakdownGrid breakdownGrid) {
@@ -303,7 +330,7 @@ public class MachineGrid extends VerticalLayout {
         protected MachineGridEvent(MachineGrid source, BreakdownGrid breakdownGrid) {
             super(source, false);
             source.setVisible(false);
-            breakdownGrid.setFilter(source.getSelectedMachine().getRegisterNumber());
+            breakdownGrid.setTypeFilter(source.getSelectedMachine().getRegisterNumber());
             breakdownGrid.setVisible(true);
         }
     }

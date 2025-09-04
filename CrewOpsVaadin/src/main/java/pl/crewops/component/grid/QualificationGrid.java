@@ -29,10 +29,12 @@ import pl.crewops.view.HomeView;
 public class QualificationGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
 
-    private final Grid<QualificationFormModel> grid = new Grid<>();
     private final TextField filter = new TextField();
-    private final QualificationForm form = new QualificationForm();
     private final Button addQualification = new Button();
+    private final HorizontalLayout gridToolbar = getToolbar();
+
+    private final Grid<QualificationFormModel> grid = new Grid<>();
+    private final QualificationForm form = new QualificationForm();
     private EmployeeGrid employeeGrid;
 
     private List<QualificationFormModel> qualifications = new ArrayList<>();
@@ -49,7 +51,7 @@ public class QualificationGrid extends VerticalLayout {
         closeEditor();
 
         setSizeFull();
-        add(getToolbar(), getContent());
+        add(gridToolbar, getContent());
     }
 
     private void localize() {
@@ -108,7 +110,15 @@ public class QualificationGrid extends VerticalLayout {
         form.addSaveListener(this::saveQualification);
         form.addUpdateListener(this::updateQualification);
         form.addDeleteListener(this::deleteQualification);
-        form.addCloseListener(event -> closeEditor());
+
+        form.addCloseListener(event -> {
+            closeEditor();
+
+            if (BrowserResolver.isMobile()) {
+                grid.setVisible(true);
+                gridToolbar.setVisible(true);
+            }
+        });
     }
 
     public void updateGrid() {
@@ -138,6 +148,12 @@ public class QualificationGrid extends VerticalLayout {
             form.setQualification(qualificationFormModel);
             form.setFormModeUpdate();
             form.setVisible(true);
+
+            if (BrowserResolver.isMobile()) {
+                grid.setVisible(false);
+                gridToolbar.setVisible(false);
+                form.setWidthFull();
+            }
         }
     }
 
@@ -145,6 +161,12 @@ public class QualificationGrid extends VerticalLayout {
         grid.asSingleSelect().clear();
         form.setFormModeSave();
         form.setVisible(true);
+
+        if (BrowserResolver.isMobile()) {
+            grid.setVisible(false);
+            gridToolbar.setVisible(false);
+            form.setWidthFull();
+        }
     }
 
     private void saveQualification(QualificationForm.SaveEvent event) {
