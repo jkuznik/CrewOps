@@ -1,9 +1,13 @@
 package pl.crewops.component.grid;
 
+import static pl.crewops.util.LocalDateTimeFormater.DATE_TIME_HUMAN_READABLE_FORMATTER;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.ArrayList;
@@ -58,29 +62,71 @@ public class MessageGrid extends VerticalLayout {
 
     private void configureGrid() {
         grid.setSizeFull();
-        grid.removeAllColumns();
-
         List<EmployeeDTO> allEmployees = new ArrayList<>();
         try {
             allEmployees = coreAPI.getAllEmployees();
         } catch (NotAuthenticatedException e) {
             new FailNotification(e.getMessage());
         }
+
         List<EmployeeDTO> finalAllEmployees = allEmployees;
 
         grid.addComponentColumn(message -> {
                     String senderName = resolveSenderName(message, finalAllEmployees);
+
                     Span senderLabel = new Span(senderName);
                     senderLabel.getElement().getThemeList().add("badge small contrast");
+                    senderLabel.getStyle().set("font-size", "0.8em");
+                    senderLabel.getStyle().set("padding", "0.2em 0.4em");
+                    senderLabel.getStyle().set("border-radius", "8px");
+                    senderLabel.getStyle().set("border", "1px solid #B0B0B0");
+                    senderLabel.getStyle().set("border-style", "solid");
+
                     if (SYSTEM_SENDER.equals(senderName)) {
                         senderLabel.getStyle().set("background-color", "#00adb5");
                         senderLabel.getStyle().set("color", "#ffffff");
                     }
+
+                    senderLabel.getStyle().set("white-space", "nowrap");
+                    senderLabel.getStyle().set("overflow", "hidden");
+                    senderLabel.getStyle().set("text-overflow", "ellipsis");
+                    senderLabel.getStyle().set("max-width", "200px");
+
                     return senderLabel;
                 })
                 .setKey("sender")
                 .setHeader(getTranslation("messageGrid.sender"))
                 .setAutoWidth(true);
+
+        grid.addColumn(MessageFormModel::getTitle)
+                .setKey("title")
+                .setHeader(getTranslation("messageGrid.title"))
+                .setFlexGrow(1);
+
+        grid.addColumn(message -> message.getCreatedAt() != null
+                        ? message.getCreatedAt().format(DATE_TIME_HUMAN_READABLE_FORMATTER)
+                        : "")
+                .setKey("sendTime")
+                .setHeader(getTranslation("messageGrid.sendTime"))
+                .setAutoWidth(true);
+
+        grid.addColumn(MessageFormModel::getDescription)
+                .setKey("description")
+                .setHeader(getTranslation("messageGrid.description"))
+                .setWidth("300px")
+                .setFlexGrow(2);
+
+        grid.addComponentColumn(message -> {
+                    if (!message.isRead()) {
+                        Icon icon = VaadinIcon.ENVELOPE.create();
+                        icon.setColor("#00adb5");
+                        return icon;
+                    }
+                    return null;
+                })
+                .setKey("read")
+                //                .setHeader(getTranslation("messageGrid.status"))
+                .setFlexGrow(0);
 
         grid.asSingleSelect().addValueChangeListener(event -> {
             var selectedMessage = event.getValue();
