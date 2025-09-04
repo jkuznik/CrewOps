@@ -79,7 +79,7 @@ public class MachineView extends MainLayout implements BeforeEnterObserver {
         machineGrid.setVisible(false);
 
         breakdownGrid.closeEditor();
-        breakdownGrid.setFilter("");
+        breakdownGrid.setTypeFilter("");
         breakdownGrid.updateBreakdownGrid();
         breakdownGrid.setVisible(true);
     }

@@ -25,7 +25,6 @@ import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.machine.MachineDTO;
 import pl.crewops.dto.message.RecipientSelection;
-import pl.crewops.dto.message.SendMessageCommand;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.DepartmentFormModel;
@@ -34,8 +33,6 @@ import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.SpringContextBridge;
 
 public class MessageForm extends FormLayout {
-
-    private final CoreAPI coreAPI;
 
     private final Span currentModeDescription = new Span();
     private final RecipientSelectionField recipientSelectionField = new RecipientSelectionField();
@@ -49,8 +46,6 @@ public class MessageForm extends FormLayout {
 
     public MessageForm() {
         addClassName("message-form");
-        this.coreAPI = SpringContextBridge.getBean(CoreAPI.class);
-        var authenticationResolver = SpringContextBridge.getBean(AuthenticationResolver.class);
 
         localize();
 
@@ -58,13 +53,7 @@ public class MessageForm extends FormLayout {
 
         description.setHeight("10em");
 
-        add(
-                currentModeDescription,
-                recipientSelectionField,
-                sender,
-                title,
-                description,
-                createButtonLayout(coreAPI, authenticationResolver));
+        add(currentModeDescription, recipientSelectionField, sender, title, description, createButtonLayout());
     }
 
     public void setSendMessageMode() {
@@ -125,27 +114,14 @@ public class MessageForm extends FormLayout {
         closeButton.setText(getTranslation("messageForm.closeButton"));
     }
 
-    private Component createButtonLayout(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
+    private Component createButtonLayout() {
         sendButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
         sendButton.addClickShortcut(Key.ENTER);
         closeButton.addClickShortcut(Key.ESCAPE);
 
-        sendButton.addClickListener(event -> {
-            try {
-                coreAPI.sendMessage(SendMessageCommand.builder()
-                        .title(title.getValue())
-                        .description(description.getValue())
-                        .recipientSelection(binder.getBean().getRecipientSelection())
-                        .senderEmployeeId(authenticationResolver.getPrincipal().getEmployeeId())
-                        .build());
-            } catch (NotAuthenticatedException e) {
-                new FailNotification(e.getMessage());
-            }
-
-            fireEvent(new SendEvent(this, binder.getBean()));
-        });
+        sendButton.addClickListener(event -> fireEvent(new SendEvent(this, binder.getBean())));
         closeButton.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
         binder.addStatusChangeListener(event -> sendButton.setEnabled(binder.isValid()));

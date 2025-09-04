@@ -37,12 +37,15 @@ public class EmployeeGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
     private final AuthenticationResolver authenticationResolver;
 
-    private final Grid<EmployeeFormModel> grid = new Grid<>();
     private final TextField nameFilter = new TextField();
     private final TextField departmentFilter = new TextField();
-    private ComboBox<RoleType> roleFilter = new ComboBox<>();
-    private final EmployeeForm form;
+    private final ComboBox<RoleType> roleFilter = new ComboBox<>();
     private final Button addEmployee = new Button();
+    private final HorizontalLayout gridToolbar = getToolbar();
+
+    private final Grid<EmployeeFormModel> grid = new Grid<>();
+    private final EmployeeForm form;
+
     private QualificationGrid qualificationGrid;
 
     public EmployeeGrid(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
@@ -59,7 +62,7 @@ public class EmployeeGrid extends VerticalLayout {
         closeEditor();
 
         setSizeFull();
-        add(getToolbar(), getContent());
+        add(gridToolbar, getContent());
     }
 
     private void localize() {
@@ -211,6 +214,7 @@ public class EmployeeGrid extends VerticalLayout {
 
             if (BrowserResolver.isMobile()) {
                 grid.setVisible(false);
+                gridToolbar.setVisible(false);
                 form.setWidthFull();
             }
         }
@@ -223,6 +227,7 @@ public class EmployeeGrid extends VerticalLayout {
 
         if (BrowserResolver.isMobile()) {
             grid.setVisible(false);
+            gridToolbar.setVisible(false);
             form.setWidthFull();
         }
     }
@@ -282,6 +287,7 @@ public class EmployeeGrid extends VerticalLayout {
 
         if (BrowserResolver.isMobile()) {
             grid.setVisible(true);
+            gridToolbar.setVisible(true);
         }
     }
 }

@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import pl.crewops.component.form.MessageForm;
 import pl.crewops.component.notification.FailNotification;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.message.SendMessageCommand;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.MessageFormModel;
@@ -35,9 +36,11 @@ public class MessageGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
     private final AuthenticationResolver authenticationResolver;
 
+    private final Button sendButton = new Button();
+    private final HorizontalLayout gridToolbar = getToolbar();
+
     private final Grid<MessageFormModel> grid = new Grid<>();
     private final MessageForm messageForm = new MessageForm();
-    private final Button sendButton = new Button();
 
     public MessageGrid(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
         this.coreAPI = coreAPI;
@@ -50,7 +53,7 @@ public class MessageGrid extends VerticalLayout {
 
         updateGrid();
 
-        add(getToolbar(), getContent());
+        add(gridToolbar, getContent());
     }
 
     private void localize() {
@@ -127,20 +130,26 @@ public class MessageGrid extends VerticalLayout {
 
         grid.asSingleSelect().addValueChangeListener(event -> {
             var selectedMessage = event.getValue();
+            if (selectedMessage != null && !selectedMessage.isRead()) {
+                try {
+                    coreAPI.setMessageReadStatus(selectedMessage.getId(), true);
+                } catch (NotAuthenticatedException e) {
+                    new FailNotification(e.getMessage());
+                }
+                updateGrid();
+            }
+
             if (selectedMessage != null) {
                 String senderName = resolveSenderName(selectedMessage, finalAllEmployees);
-                if (!event.getValue().isRead()) {
-                    try {
-                        coreAPI.setMessageReadStatus(event.getValue().getId(), true);
-                    } catch (NotAuthenticatedException e) {
-                        new FailNotification(e.getMessage());
-                    }
-                    updateGrid();
-                }
-
                 messageForm.setReadMessageMode();
                 messageForm.setBinderValue(selectedMessage, senderName);
                 messageForm.setVisible(true);
+
+                if (BrowserResolver.isMobile()) {
+                    grid.setVisible(false);
+                    gridToolbar.setVisible(false);
+                    messageForm.setWidthFull();
+                }
             }
         });
     }
@@ -177,11 +186,29 @@ public class MessageGrid extends VerticalLayout {
         }
 
         messageForm.setVisible(false);
+
         messageForm.addSendListener(event -> {
+            try {
+                coreAPI.sendMessage(SendMessageCommand.builder()
+                        .title(event.getMessageFormModel().getTitle())
+                        .description(event.getMessageFormModel().getDescription())
+                        .recipientSelection(event.getMessageFormModel().getRecipientSelection())
+                        .senderEmployeeId(authenticationResolver.getPrincipal().getEmployeeId())
+                        .build());
+            } catch (NotAuthenticatedException e) {
+                new FailNotification(e.getMessage());
+            }
             updateGrid();
         });
 
-        messageForm.addCloseListener(event -> messageForm.setVisible(false));
+        messageForm.addCloseListener(event -> {
+            messageForm.setVisible(false);
+
+            if (BrowserResolver.isMobile()) {
+                grid.setVisible(true);
+                gridToolbar.setVisible(true);
+            }
+        });
     }
 
     private Component getContent() {

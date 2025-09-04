@@ -33,16 +33,18 @@ public class BreakdownGrid extends VerticalLayout {
     private final CoreAPI coreAPI;
     private final AuthenticationResolver authenticationResolver;
 
-    private final Grid<BreakdownFormModel> grid = new Grid<>();
-    private final TextField filter = new TextField();
+    private final TextField typeFilter = new TextField();
     private final TextField descriptionFilter = new TextField();
+    private final HorizontalLayout gridToolbar;
 
+    private final Grid<BreakdownFormModel> grid = new Grid<>();
     private final BreakdownForm form;
 
     public BreakdownGrid(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
         this.coreAPI = coreAPI;
         this.authenticationResolver = authenticationResolver;
         this.form = new BreakdownForm();
+        gridToolbar = getToolbar();
 
         configureGrid();
         configureForm();
@@ -53,11 +55,11 @@ public class BreakdownGrid extends VerticalLayout {
         closeEditor();
 
         setSizeFull();
-        add(getToolbar(), getContent());
+        add(gridToolbar, getContent());
     }
 
-    public void setFilter(String value) {
-        filter.setValue(value);
+    public void setTypeFilter(String value) {
+        typeFilter.setValue(value);
         updateBreakdownGrid();
     }
 
@@ -72,23 +74,22 @@ public class BreakdownGrid extends VerticalLayout {
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        filter.setPlaceholder(getTranslation("breakdownGrid.filter.registrationNumberPlaceholder"));
-        filter.setClearButtonVisible(true);
-        filter.setValueChangeMode(ValueChangeMode.LAZY);
-        filter.addValueChangeListener(event -> updateBreakdownGrid());
+        typeFilter.setClearButtonVisible(true);
+        typeFilter.setValueChangeMode(ValueChangeMode.LAZY);
+        typeFilter.addValueChangeListener(event -> updateBreakdownGrid());
 
-        descriptionFilter.setPlaceholder(getTranslation("breakdownGrid.filter.descriptionPlaceholder"));
         descriptionFilter.setClearButtonVisible(true);
         descriptionFilter.setValueChangeMode(ValueChangeMode.LAZY);
         descriptionFilter.addValueChangeListener(event -> updateBreakdownGrid());
 
-        toolbar.add(filter, descriptionFilter);
+        toolbar.add(typeFilter, descriptionFilter);
 
         return toolbar;
     }
 
     private void localize() {
-        filter.setPlaceholder(getTranslation("breakdownGrid.filter.placeholder"));
+        typeFilter.setPlaceholder(getTranslation("breakdownGrid.filter.registrationNumberPlaceholder"));
+        descriptionFilter.setPlaceholder(getTranslation("breakdownGrid.filter.descriptionPlaceholder"));
 
         grid.getColumnByKey("registrationNumber").setHeader(getTranslation("breakdownGrid.column.registrationNumber"));
         grid.getColumnByKey("description").setHeader(getTranslation("breakdownGrid.column.description"));
@@ -178,7 +179,8 @@ public class BreakdownGrid extends VerticalLayout {
                     .map(BreakdownFormModel::toBreakdownFormModel)
                     .toList();
 
-            String regFilter = filter.getValue() != null ? filter.getValue().toLowerCase() : "";
+            String regFilter =
+                    typeFilter.getValue() != null ? typeFilter.getValue().toLowerCase() : "";
             String descFilter = descriptionFilter.getValue() != null
                     ? descriptionFilter.getValue().toLowerCase()
                     : "";
@@ -213,6 +215,7 @@ public class BreakdownGrid extends VerticalLayout {
 
             if (BrowserResolver.isMobile()) {
                 grid.setVisible(false);
+                gridToolbar.setVisible(false);
                 form.setWidthFull();
             }
         }
@@ -240,6 +243,7 @@ public class BreakdownGrid extends VerticalLayout {
 
         if (BrowserResolver.isMobile()) {
             grid.setVisible(true);
+            gridToolbar.setVisible(true);
         }
     }
 
