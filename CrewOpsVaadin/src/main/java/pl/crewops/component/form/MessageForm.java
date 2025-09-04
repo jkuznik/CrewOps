@@ -25,7 +25,6 @@ import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.dto.machine.MachineDTO;
 import pl.crewops.dto.message.RecipientSelection;
-import pl.crewops.dto.message.SendMessageCommand;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.DepartmentFormModel;
@@ -132,20 +131,7 @@ public class MessageForm extends FormLayout {
         sendButton.addClickShortcut(Key.ENTER);
         closeButton.addClickShortcut(Key.ESCAPE);
 
-        sendButton.addClickListener(event -> {
-            try {
-                coreAPI.sendMessage(SendMessageCommand.builder()
-                        .title(title.getValue())
-                        .description(description.getValue())
-                        .recipientSelection(binder.getBean().getRecipientSelection())
-                        .senderEmployeeId(authenticationResolver.getPrincipal().getEmployeeId())
-                        .build());
-            } catch (NotAuthenticatedException e) {
-                new FailNotification(e.getMessage());
-            }
-
-            fireEvent(new SendEvent(this, binder.getBean()));
-        });
+        sendButton.addClickListener(event -> fireEvent(new SendEvent(this, binder.getBean())));
         closeButton.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
         binder.addStatusChangeListener(event -> sendButton.setEnabled(binder.isValid()));

@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import pl.crewops.component.form.MessageForm;
 import pl.crewops.component.notification.FailNotification;
 import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.dto.message.SendMessageCommand;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.MessageFormModel;
@@ -178,6 +179,16 @@ public class MessageGrid extends VerticalLayout {
 
         messageForm.setVisible(false);
         messageForm.addSendListener(event -> {
+            try {
+                coreAPI.sendMessage(SendMessageCommand.builder()
+                        .title(event.getMessageFormModel().getTitle())
+                        .description(event.getMessageFormModel().getDescription())
+                        .recipientSelection(event.getMessageFormModel().getRecipientSelection())
+                        .senderEmployeeId(authenticationResolver.getPrincipal().getEmployeeId())
+                        .build());
+            } catch (NotAuthenticatedException e) {
+                new FailNotification(e.getMessage());
+            }
             updateGrid();
         });
 

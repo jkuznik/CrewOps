@@ -134,7 +134,6 @@ public class BreakdownForm extends FormLayout {
             model.setMachine(binder.getBean().getMachine());
 
             model.setReportedBy(EmployeeDTO.builder().id(getLoggedEmployeeId()).build());
-
             fireEvent(new SaveEvent(this, model));
         } catch (ValidationException e) {
         }
