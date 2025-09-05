@@ -18,5 +18,4 @@ security:
     clientIdInput: ${CREWOPS_CLIENT_ID_INPUT}
 
 core:
-  base-url: http://crewops-service-be:8080
-
+  base-url: http://${CREWOPS_CORE_URL}:8080
