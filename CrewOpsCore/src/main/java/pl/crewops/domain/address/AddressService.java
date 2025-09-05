@@ -20,6 +20,7 @@ class AddressService implements AddressAPI {
     @Transactional
     public Address createAddress(CreateAddressDTO createAddressDTO) {
         var address = mapToEntity(createAddressDTO);
+        System.out.println("update");
         return addressRepository.save(address);
     }
 }
