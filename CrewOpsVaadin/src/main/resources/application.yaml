@@ -18,4 +18,5 @@ security:
     clientIdInput: ${CREWOPS_CLIENT_ID_INPUT}
 
 core:
-  base-url: http://arn:aws:ecs:eu-north-1:971002456022:service/crewops-ecs-cluster/crewops-service-be:8080
+  base-url: http://crewops-service-be:8080
+
