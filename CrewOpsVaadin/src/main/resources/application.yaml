@@ -19,3 +19,4 @@ security:
 
 core:
   base-url: http://crewops-service-be:8080
+
