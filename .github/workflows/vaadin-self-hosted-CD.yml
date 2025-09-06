@@ -37,6 +37,7 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           CREWOPS_CLIENT_ID_INPUT: ${{ secrets.CREWOPS_CLIENT_ID_INPUT }}
           CREWOPS_CLIENT_ID_HASH: ${{ secrets.CREWOPS_CLIENT_ID_HASH }}
+          CREWOPS_CORE_URL: ${{ secrets.CREWOPS_CORE_URL }}
           CREWOPS_CACHE_URL: ${{ secrets.CREWOPS_CACHE_URL }}
           JWT_CREWOPS: ${{ secrets.JWT_CREWOPS }}
           JWT_EXPIRATION_CREWOPS: ${{ secrets.JWT_EXPIRATION_CREWOPS }}
@@ -50,6 +51,7 @@ jobs:
             --restart always \
             -e CREWOPS_CLIENT_ID_INPUT=$CREWOPS_CLIENT_ID_INPUT \
             -e CREWOPS_CLIENT_ID_HASH=$CREWOPS_CLIENT_ID_HASH \
+            -e CREWOPS_CORE_URL=CREWOPS_CORE_URL \
             -e CREWOPS_CACHE_URL=$CREWOPS_CACHE_URL \
             -e JWT_CREWOPS=$JWT_CREWOPS \
             -e JWT_EXPIRATION_CREWOPS=$JWT_EXPIRATION_CREWOPS \
