@@ -20,6 +20,6 @@ public class RedisConfig {
     @Bean
     public RedisConnectionFactory lettuceConnectionFactoryDev() {
         log.info("Current cache url: " + redisProperties.url());
-        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(redisProperties.url(), 6379));
+        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(redisProperties.url()));
     }
 }
