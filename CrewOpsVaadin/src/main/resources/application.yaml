@@ -19,3 +19,6 @@ security:
 
 core:
   base-url: http://${CREWOPS_CORE_URL}:8080
+
+cache:
+  url: ${CREWOPS_CACHE_URL}
