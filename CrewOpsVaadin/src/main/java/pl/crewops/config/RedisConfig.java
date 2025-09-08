@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
@@ -40,8 +41,10 @@ public class RedisConfig {
         log.info("Connecting to Redis PROD at: {}", redisProperties.url());
 
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(redisProperties.url());
-        LettuceClientConfiguration clientConfig =
-                LettuceClientConfiguration.builder().useSsl().build();
+        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
+                .useSsl()
+                .disablePeerVerification()
+                .build();
 
         return new LettuceConnectionFactory(config, clientConfig);
     }
@@ -49,13 +52,12 @@ public class RedisConfig {
     @Bean
     @Profile("prod")
     public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-        RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
                 .disableCachingNullValues()
-                .entryTtl(Duration.ofHours(1))
-                .disableKeyPrefix();
+                .entryTtl(Duration.ofHours(1));
 
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .cacheDefaults(cacheConfig)
-                .build();
+        RedisCacheWriter writer = RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory);
+
+        return new RedisCacheManager(writer, config);
     }
 }
