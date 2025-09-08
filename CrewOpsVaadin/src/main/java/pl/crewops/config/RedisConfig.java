@@ -1,12 +1,12 @@
 package pl.crewops.config;
 
-import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.redis.cache.BatchStrategies;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.cache.RedisCacheWriter;
@@ -51,14 +51,13 @@ public class RedisConfig {
 
     @Bean
     @Profile("prod")
-    public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .disableCachingNullValues()
-                .entryTtl(Duration.ofHours(1))
-                .disableKeyPrefix();
+    public RedisCacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
+        RedisCacheWriter cacheWriter =
+                RedisCacheWriter.nonLockingRedisCacheWriter(connectionFactory, BatchStrategies.scan(1000));
 
-        RedisCacheWriter writer = RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory);
+        RedisCacheConfiguration cacheConfig =
+                RedisCacheConfiguration.defaultCacheConfig().disableCachingNullValues();
 
-        return RedisCacheManager.builder(writer).cacheDefaults(config).build();
+        return RedisCacheManager.builder(cacheWriter).cacheDefaults(cacheConfig).build();
     }
 }
