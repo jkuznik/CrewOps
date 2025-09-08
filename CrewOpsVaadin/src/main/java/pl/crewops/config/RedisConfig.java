@@ -13,8 +13,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializationContext;
 
 @Log4j2
 @Configuration
@@ -26,39 +24,38 @@ public class RedisConfig {
 
     @Bean
     @Profile("dev")
-    public RedisConnectionFactory lettuceConnectionFactoryDev() {
-        log.info("Current cache url: " + redisProperties.url());
+    public RedisConnectionFactory redisConnectionFactoryDev() {
+        log.info("Connecting to Redis DEV at: {}", redisProperties.url());
 
-        var redisStandaloneConfiguration = new RedisStandaloneConfiguration(redisProperties.url());
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(redisProperties.url());
+        LettuceClientConfiguration clientConfig =
+                LettuceClientConfiguration.builder().build();
 
-        var clientConfig = LettuceClientConfiguration.builder().build(); // no ssl for local connection
-
-        return new LettuceConnectionFactory(redisStandaloneConfiguration, clientConfig);
+        return new LettuceConnectionFactory(config, clientConfig);
     }
 
     @Bean
     @Profile("prod")
-    public RedisConnectionFactory lettuceConnectionFactoryProd() {
-        log.info("Current cache url: " + redisProperties.url());
+    public RedisConnectionFactory redisConnectionFactoryProd() {
+        log.info("Connecting to Redis PROD at: {}", redisProperties.url());
 
-        var redisStandaloneConfiguration = new RedisStandaloneConfiguration(redisProperties.url());
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(redisProperties.url());
+        LettuceClientConfiguration clientConfig =
+                LettuceClientConfiguration.builder().useSsl().build();
 
-        var clientConfig = LettuceClientConfiguration.builder().useSsl().build();
-
-        return new LettuceConnectionFactory(redisStandaloneConfiguration, clientConfig);
+        return new LettuceConnectionFactory(config, clientConfig);
     }
 
     @Bean
+    @Profile("prod")
     public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
-                        new GenericJackson2JsonRedisSerializer()))
+        RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
                 .disableCachingNullValues()
                 .entryTtl(Duration.ofHours(1))
                 .disableKeyPrefix();
 
         return RedisCacheManager.builder(redisConnectionFactory)
-                .cacheDefaults(config)
+                .cacheDefaults(cacheConfig)
                 .build();
     }
 }
