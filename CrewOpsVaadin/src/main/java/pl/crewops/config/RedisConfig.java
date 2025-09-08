@@ -54,10 +54,11 @@ public class RedisConfig {
     public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
                 .disableCachingNullValues()
-                .entryTtl(Duration.ofHours(1));
+                .entryTtl(Duration.ofHours(1))
+                .disableKeyPrefix();
 
         RedisCacheWriter writer = RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory);
 
-        return new RedisCacheManager(writer, config);
+        return RedisCacheManager.builder(writer).cacheDefaults(config).build();
     }
 }
