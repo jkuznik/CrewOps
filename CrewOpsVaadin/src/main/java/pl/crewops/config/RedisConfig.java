@@ -21,8 +21,9 @@ public class RedisConfig {
     @Bean
     public RedisConnectionFactory lettuceConnectionFactoryDev() {
         log.info("Current cache url: " + redisProperties.url());
-      
+
         var redisStandaloneConfiguration = new RedisStandaloneConfiguration(redisProperties.url());
+
         var clientConfig = LettuceClientConfiguration.builder().useSsl().build();
 
         return new LettuceConnectionFactory(redisStandaloneConfiguration, clientConfig);
