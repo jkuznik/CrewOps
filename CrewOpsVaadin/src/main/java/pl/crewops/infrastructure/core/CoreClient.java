@@ -220,7 +220,7 @@ class CoreClient {
     }
 
     // authenticated
-    @Cacheable(cacheNames = GET_EMPLOYEE_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    @Cacheable(cacheNames = GET_EMPLOYEE_BY_ID, key = "#employeeId")
     public EmployeeDTO getEmployeeById(UUID employeeId) throws NotAuthenticatedException {
         log.info("Get employee by id cache missed");
         try {
@@ -726,7 +726,7 @@ class CoreClient {
 
     // authenticated
     // TODO: consider remove caching of this value or implement different logic
-    @Cacheable(cacheNames = GET_COMPANY_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    @Cacheable(cacheNames = GET_COMPANY_BY_ID, key = "#companyId")
     public CompanyDTO getCompanyById(UUID companyId) throws NotAuthenticatedException {
         log.info("Get company by id cache missed");
         try {

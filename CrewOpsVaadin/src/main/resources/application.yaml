@@ -5,12 +5,12 @@ spring:
   application:
     name: CrewOps UI
 
-  devtools:
-    restart:
-      enabled: false
-
   profiles:
     active: dev
+
+  cache:
+    redis:
+      time-to-live: 1h
 
 security:
   properties:
