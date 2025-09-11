@@ -136,9 +136,9 @@ jobs:
             requiresCompatibilities,
             cpu,
             memory,
-            runtimePlatform,
-            enableFaultInjection
-          } + (if .pidMode != null then {pidMode: .pidMode} else {} end)
+            runtimePlatform
+          } + (if .enableFaultInjection != null then {enableFaultInjection: .enableFaultInjection} else {} end)
+            + (if .pidMode != null then {pidMode: .pidMode} else {} end)
             + (if .ipcMode != null then {ipcMode: .ipcMode} else {} end)
             + (if .proxyConfiguration != null then {proxyConfiguration: .proxyConfiguration} else {} end)
             + (if .inferenceAccelerators != null then {inferenceAccelerators: .inferenceAccelerators} else {} end)
