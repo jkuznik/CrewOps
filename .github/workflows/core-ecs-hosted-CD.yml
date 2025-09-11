@@ -12,6 +12,7 @@ env:
   ECS_SERVICE: crewops-core-service
   ECS_CLUSTER: crewopc-basic-cluster
   ECS_TASK_DEFINITION: crewops-core
+  ECS_TASK_DEFINITION_FILE: ecs-task-def.json
 
   CONTAINER_NAME: crewops-core-container
 
@@ -45,19 +46,41 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          # Build a docker container and
-          # push it to ECR so that it can
-          # be deployed to ECS.
-
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f $GITHUB_WORKSPACE/.docker/core.dockerfile $GITHUB_WORKSPACE
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Fetch latest ECS task definition
+        id: fetch-task-def
+        run: |
+          echo "👉 Fetching latest task definition for family: $ECS_TASK_DEFINITION"
+          LATEST_TASK_DEF_ARN=$(aws ecs list-task-definitions \
+            --family-prefix "$ECS_TASK_DEFINITION" \
+            --sort DESC \
+            --max-items 1 \
+            --query 'taskDefinitionArns[0]' \
+            --output text)
+
+          if [ -z "$LATEST_TASK_DEF_ARN" ] || [ "$LATEST_TASK_DEF_ARN" == "None" ]; then
+            echo "❌ No task definitions found for family $ECS_TASK_DEFINITION"
+            exit 1
+          fi
+
+          echo "✅ Latest task definition ARN: $LATEST_TASK_DEF_ARN"
+          LATEST_TASK_DEF=$(basename "$LATEST_TASK_DEF_ARN")
+
+          aws ecs describe-task-definition \
+            --task-definition "$LATEST_TASK_DEF" \
+            --query "taskDefinition" \
+            --output json > $ECS_TASK_DEFINITION_FILE
+
+          echo "task-def-file=$ECS_TASK_DEFINITION_FILE" >> $GITHUB_OUTPUT
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          task-definition: ${{ steps.fetch-task-def.outputs.task-def-file }}
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
@@ -68,6 +91,7 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
+
 #
 #jobs:
 #  deploy-core:
