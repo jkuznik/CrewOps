@@ -6,119 +6,181 @@ on:
     types:
       - completed
 
+env:
+  AWS_REGION: eu-north-1
+  ECR_REPOSITORY: jkuznik-ecr/crewops-core
+  ECS_SERVICE: crewops-core-service
+  ECS_CLUSTER: crewopc-basic-cluster
+  ECS_TASK_DEFINITION: crewops-core
+
+  CONTAINER_NAME: crewops-core-container
+
+permissions:
+  contents: read
+
 jobs:
-  deploy-core:
-    runs-on: [self-hosted, linux]
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
     steps:
-#     this step is an backup in case if my ecr stop working
-#      - name: Pull latest image
-#        run: sudo docker pull jkuznik/crewops-core:latest
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Authenticate Docker to ECR
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
         env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
-          aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI
+          # Build a docker container and
+          # push it to ECR so that it can
+          # be deployed to ECS.
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Pull latest image from ECR
-        env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-        run: |
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
-          sudo -E docker pull $ECR_URI:latest
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build-image.outputs.image }}
 
-      - name: Remove old container (if exists)
-        run: sudo docker rm -f core || true
-
-# rollback db connection to container just change enc RDS_ENDPOINT to db container name
-      - name: Run new container
-        env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          SPRING_DATASOURCE_URL: jdbc:postgresql://${{ secrets.RDS_ENDPOINT }}:5432/${{ secrets.CREWOPS_POSTGRES_DB }}
-          SPRING_DATASOURCE_USERNAME: ${{ secrets.CREWOPS_POSTGRES_USER }}
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.CREWOPS_POSTGRES_PASSWORD }}
-          CREWOPS_CLIENT_ID_HASH: ${{ secrets.CREWOPS_CLIENT_ID_HASH }}
-          CREWOPS_CLIENT_ID_INPUT: ${{ secrets.CREWOPS_CLIENT_ID_INPUT }}
-          CREW_OPS_TENANT_ID: ${{ secrets.CREW_OPS_TENANT_ID }}
-          CREW_OPS_TENANT_COMPANY_ID: ${{ secrets.CREW_OPS_TENANT_COMPANY_ID }}
-          CREW_OPS_TENANT_SCHEMA_NAME: ${{ secrets.CREW_OPS_TENANT_SCHEMA_NAME }}
-          CREW_OPS_TENANT_ACTIVE: ${{ secrets.CREW_OPS_TENANT_ACTIVE }}
-          CREW_OPS_AUTH_USER_ROLE_USER_ID: ${{ secrets.CREW_OPS_AUTH_USER_ROLE_USER_ID }}
-          CREW_OPS_AUTH_USER_ROLE_ROLE_ID: ${{ secrets.CREW_OPS_AUTH_USER_ROLE_ROLE_ID }}
-          CREW_OPS_AUTH_USER_ID: ${{ secrets.CREW_OPS_AUTH_USER_ID }}
-          CREW_OPS_AUTH_USER_USERNAME: ${{ secrets.CREW_OPS_AUTH_USER_USERNAME }}
-          CREW_OPS_AUTH_USER_PASSWORD: ${{ secrets.CREW_OPS_AUTH_USER_PASSWORD }}
-          CREW_OPS_AUTH_USER_EMPLOYEE_ID: ${{ secrets.CREW_OPS_AUTH_USER_EMPLOYEE_ID }}
-          CREW_OPS_AUTH_USER_TENANT_ID: ${{ secrets.CREW_OPS_AUTH_USER_TENANT_ID }}
-          CREW_OPS_ADDRESS_ID: ${{ secrets.CREW_OPS_ADDRESS_ID }}
-          CREW_OPS_ADDRESS_POSTAL_CODE: ${{ secrets.CREW_OPS_ADDRESS_POSTAL_CODE }}
-          CREW_OPS_ADDRESS_CITY: ${{ secrets.CREW_OPS_ADDRESS_CITY }}
-          CREW_OPS_ADDRESS_STREET: ${{ secrets.CREW_OPS_ADDRESS_STREET }}
-          CREW_OPS_ADDRESS_LOCAL: ${{ secrets.CREW_OPS_ADDRESS_LOCAL }}
-          CREW_OPS_COMPANY_ID: ${{ secrets.CREW_OPS_COMPANY_ID }}
-          CREW_OPS_COMPANY_NAME: ${{ secrets.CREW_OPS_COMPANY_NAME }}
-          CREW_OPS_COMPANY_ADDRESS_ID: ${{ secrets.CREW_OPS_COMPANY_ADDRESS_ID }}
-          CREW_OPS_COMPANY_EMAIL: ${{ secrets.CREW_OPS_COMPANY_EMAIL }}
-          CREW_OPS_COMPANY_STATUS: ${{ secrets.CREW_OPS_COMPANY_STATUS }}
-          CREW_OPS_EMPLOYEE_ID: ${{ secrets.CREW_OPS_EMPLOYEE_ID }}
-          CREW_OPS_EMPLOYEE_FIRST_NAME: ${{ secrets.CREW_OPS_EMPLOYEE_FIRST_NAME }}
-          CREW_OPS_EMPLOYEE_LAST_NAME: ${{ secrets.CREW_OPS_EMPLOYEE_LAST_NAME }}
-          CREW_OPS_EMPLOYEE_BIRTH_DATE: ${{ secrets.CREW_OPS_EMPLOYEE_BIRTH_DATE }}
-          CREW_OPS_EMPLOYEE_PHONE: ${{ secrets.CREW_OPS_EMPLOYEE_PHONE }}
-          CREW_OPS_DEPARTMENT_ID: ${{ secrets.CREW_OPS_DEPARTMENT_ID }}
-          CREW_OPS_DEPARTMENT_NAME: ${{ secrets.CREW_OPS_DEPARTMENT_NAME }}
-          JWT_CREWOPS: ${{ secrets.JWT_CREWOPS }}
-          JWT_EXPIRATION_CREWOPS: ${{ secrets.JWT_EXPIRATION_CREWOPS }}
-          SPRING_PROFILES_ACTIVE: prod
-        run: |
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
-
-          echo "ECR URI: $ECR_URI"
-
-          sudo docker run -d \
-            --name core \
-            --network crewOps \
-            -e SPRING_DATASOURCE_URL=$SPRING_DATASOURCE_URL \
-            -e SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME \
-            -e SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD \
-            -e CREWOPS_CLIENT_ID_HASH=$CREWOPS_CLIENT_ID_HASH \
-            -e CREWOPS_CLIENT_ID_INPUT=$CREWOPS_CLIENT_ID_INPUT \
-            -e JWT_CREWOPS=$JWT_CREWOPS \
-            -e JWT_EXPIRATION_CREWOPS=$JWT_EXPIRATION_CREWOPS \
-            -e SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE \
-            -e CREW_OPS_TENANT_ID=$CREW_OPS_TENANT_ID \
-            -e CREW_OPS_TENANT_COMPANY_ID=$CREW_OPS_TENANT_COMPANY_ID \
-            -e CREW_OPS_TENANT_SCHEMA_NAME=$CREW_OPS_TENANT_SCHEMA_NAME \
-            -e CREW_OPS_TENANT_ACTIVE=$CREW_OPS_TENANT_ACTIVE \
-            -e CREW_OPS_AUTH_USER_ROLE_USER_ID=$CREW_OPS_AUTH_USER_ROLE_USER_ID \
-            -e CREW_OPS_AUTH_USER_ROLE_ROLE_ID=$CREW_OPS_AUTH_USER_ROLE_ROLE_ID \
-            -e CREW_OPS_AUTH_USER_ID=$CREW_OPS_AUTH_USER_ID \
-            -e CREW_OPS_AUTH_USER_USERNAME=$CREW_OPS_AUTH_USER_USERNAME \
-            -e CREW_OPS_AUTH_USER_PASSWORD=$CREW_OPS_AUTH_USER_PASSWORD \
-            -e CREW_OPS_AUTH_USER_EMPLOYEE_ID=$CREW_OPS_AUTH_USER_EMPLOYEE_ID \
-            -e CREW_OPS_AUTH_USER_TENANT_ID=$CREW_OPS_AUTH_USER_TENANT_ID \
-            -e CREW_OPS_ADDRESS_ID=$CREW_OPS_ADDRESS_ID \
-            -e CREW_OPS_ADDRESS_POSTAL_CODE=$CREW_OPS_ADDRESS_POSTAL_CODE \
-            -e CREW_OPS_ADDRESS_CITY=$CREW_OPS_ADDRESS_CITY \
-            -e CREW_OPS_ADDRESS_STREET=$CREW_OPS_ADDRESS_STREET \
-            -e CREW_OPS_ADDRESS_LOCAL=$CREW_OPS_ADDRESS_LOCAL \
-            -e CREW_OPS_COMPANY_ID=$CREW_OPS_COMPANY_ID \
-            -e CREW_OPS_COMPANY_NAME=$CREW_OPS_COMPANY_NAME \
-            -e CREW_OPS_COMPANY_ADDRESS_ID=$CREW_OPS_COMPANY_ADDRESS_ID \
-            -e CREW_OPS_COMPANY_EMAIL=$CREW_OPS_COMPANY_EMAIL \
-            -e CREW_OPS_COMPANY_STATUS=$CREW_OPS_COMPANY_STATUS \
-            -e CREW_OPS_EMPLOYEE_ID=$CREW_OPS_EMPLOYEE_ID \
-            -e CREW_OPS_EMPLOYEE_FIRST_NAME=$CREW_OPS_EMPLOYEE_FIRST_NAME \
-            -e CREW_OPS_EMPLOYEE_LAST_NAME=$CREW_OPS_EMPLOYEE_LAST_NAME \
-            -e CREW_OPS_EMPLOYEE_BIRTH_DATE=$CREW_OPS_EMPLOYEE_BIRTH_DATE \
-            -e CREW_OPS_EMPLOYEE_PHONE=$CREW_OPS_EMPLOYEE_PHONE \
-            -e CREW_OPS_DEPARTMENT_ID=$CREW_OPS_DEPARTMENT_ID \
-            -e CREW_OPS_DEPARTMENT_NAME=$CREW_OPS_DEPARTMENT_NAME \
-            -e TZ=Europe/Warsaw \
-            -p 8080:8080 \
-            --memory=2048m \
-            $ECR_URI:latest
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+#
+#jobs:
+#  deploy-core:
+#    runs-on: [self-hosted, linux]
+#    steps:
+##     this step is an backup in case if my ecr stop working
+##      - name: Pull latest image
+##        run: sudo docker pull jkuznik/crewops-core:latest
+#
+#      - name: Authenticate Docker to ECR
+#        env:
+#          AWS_REGION: ${{ secrets.AWS_REGION }}
+#        run: |
+#          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+#          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
+#          aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI
+#
+#      - name: Pull latest image from ECR
+#        env:
+#          AWS_REGION: ${{ secrets.AWS_REGION }}
+#        run: |
+#          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+#          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
+#          sudo -E docker pull $ECR_URI:latest
+#
+#      - name: Remove old container (if exists)
+#        run: sudo docker rm -f core || true
+#
+## rollback db connection to container just change enc RDS_ENDPOINT to db container name
+#      - name: Run new container
+#        env:
+#          AWS_REGION: ${{ secrets.AWS_REGION }}
+#          SPRING_DATASOURCE_URL: jdbc:postgresql://${{ secrets.RDS_ENDPOINT }}:5432/${{ secrets.CREWOPS_POSTGRES_DB }}
+#          SPRING_DATASOURCE_USERNAME: ${{ secrets.CREWOPS_POSTGRES_USER }}
+#          SPRING_DATASOURCE_PASSWORD: ${{ secrets.CREWOPS_POSTGRES_PASSWORD }}
+#          CREWOPS_CLIENT_ID_HASH: ${{ secrets.CREWOPS_CLIENT_ID_HASH }}
+#          CREWOPS_CLIENT_ID_INPUT: ${{ secrets.CREWOPS_CLIENT_ID_INPUT }}
+#          CREW_OPS_TENANT_ID: ${{ secrets.CREW_OPS_TENANT_ID }}
+#          CREW_OPS_TENANT_COMPANY_ID: ${{ secrets.CREW_OPS_TENANT_COMPANY_ID }}
+#          CREW_OPS_TENANT_SCHEMA_NAME: ${{ secrets.CREW_OPS_TENANT_SCHEMA_NAME }}
+#          CREW_OPS_TENANT_ACTIVE: ${{ secrets.CREW_OPS_TENANT_ACTIVE }}
+#          CREW_OPS_AUTH_USER_ROLE_USER_ID: ${{ secrets.CREW_OPS_AUTH_USER_ROLE_USER_ID }}
+#          CREW_OPS_AUTH_USER_ROLE_ROLE_ID: ${{ secrets.CREW_OPS_AUTH_USER_ROLE_ROLE_ID }}
+#          CREW_OPS_AUTH_USER_ID: ${{ secrets.CREW_OPS_AUTH_USER_ID }}
+#          CREW_OPS_AUTH_USER_USERNAME: ${{ secrets.CREW_OPS_AUTH_USER_USERNAME }}
+#          CREW_OPS_AUTH_USER_PASSWORD: ${{ secrets.CREW_OPS_AUTH_USER_PASSWORD }}
+#          CREW_OPS_AUTH_USER_EMPLOYEE_ID: ${{ secrets.CREW_OPS_AUTH_USER_EMPLOYEE_ID }}
+#          CREW_OPS_AUTH_USER_TENANT_ID: ${{ secrets.CREW_OPS_AUTH_USER_TENANT_ID }}
+#          CREW_OPS_ADDRESS_ID: ${{ secrets.CREW_OPS_ADDRESS_ID }}
+#          CREW_OPS_ADDRESS_POSTAL_CODE: ${{ secrets.CREW_OPS_ADDRESS_POSTAL_CODE }}
+#          CREW_OPS_ADDRESS_CITY: ${{ secrets.CREW_OPS_ADDRESS_CITY }}
+#          CREW_OPS_ADDRESS_STREET: ${{ secrets.CREW_OPS_ADDRESS_STREET }}
+#          CREW_OPS_ADDRESS_LOCAL: ${{ secrets.CREW_OPS_ADDRESS_LOCAL }}
+#          CREW_OPS_COMPANY_ID: ${{ secrets.CREW_OPS_COMPANY_ID }}
+#          CREW_OPS_COMPANY_NAME: ${{ secrets.CREW_OPS_COMPANY_NAME }}
+#          CREW_OPS_COMPANY_ADDRESS_ID: ${{ secrets.CREW_OPS_COMPANY_ADDRESS_ID }}
+#          CREW_OPS_COMPANY_EMAIL: ${{ secrets.CREW_OPS_COMPANY_EMAIL }}
+#          CREW_OPS_COMPANY_STATUS: ${{ secrets.CREW_OPS_COMPANY_STATUS }}
+#          CREW_OPS_EMPLOYEE_ID: ${{ secrets.CREW_OPS_EMPLOYEE_ID }}
+#          CREW_OPS_EMPLOYEE_FIRST_NAME: ${{ secrets.CREW_OPS_EMPLOYEE_FIRST_NAME }}
+#          CREW_OPS_EMPLOYEE_LAST_NAME: ${{ secrets.CREW_OPS_EMPLOYEE_LAST_NAME }}
+#          CREW_OPS_EMPLOYEE_BIRTH_DATE: ${{ secrets.CREW_OPS_EMPLOYEE_BIRTH_DATE }}
+#          CREW_OPS_EMPLOYEE_PHONE: ${{ secrets.CREW_OPS_EMPLOYEE_PHONE }}
+#          CREW_OPS_DEPARTMENT_ID: ${{ secrets.CREW_OPS_DEPARTMENT_ID }}
+#          CREW_OPS_DEPARTMENT_NAME: ${{ secrets.CREW_OPS_DEPARTMENT_NAME }}
+#          JWT_CREWOPS: ${{ secrets.JWT_CREWOPS }}
+#          JWT_EXPIRATION_CREWOPS: ${{ secrets.JWT_EXPIRATION_CREWOPS }}
+#          SPRING_PROFILES_ACTIVE: prod
+#        run: |
+#          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+#          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
+#
+#          echo "ECR URI: $ECR_URI"
+#
+#          sudo docker run -d \
+#            --name core \
+#            --network crewOps \
+#            -e SPRING_DATASOURCE_URL=$SPRING_DATASOURCE_URL \
+#            -e SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME \
+#            -e SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD \
+#            -e CREWOPS_CLIENT_ID_HASH=$CREWOPS_CLIENT_ID_HASH \
+#            -e CREWOPS_CLIENT_ID_INPUT=$CREWOPS_CLIENT_ID_INPUT \
+#            -e JWT_CREWOPS=$JWT_CREWOPS \
+#            -e JWT_EXPIRATION_CREWOPS=$JWT_EXPIRATION_CREWOPS \
+#            -e SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE \
+#            -e CREW_OPS_TENANT_ID=$CREW_OPS_TENANT_ID \
+#            -e CREW_OPS_TENANT_COMPANY_ID=$CREW_OPS_TENANT_COMPANY_ID \
+#            -e CREW_OPS_TENANT_SCHEMA_NAME=$CREW_OPS_TENANT_SCHEMA_NAME \
+#            -e CREW_OPS_TENANT_ACTIVE=$CREW_OPS_TENANT_ACTIVE \
+#            -e CREW_OPS_AUTH_USER_ROLE_USER_ID=$CREW_OPS_AUTH_USER_ROLE_USER_ID \
+#            -e CREW_OPS_AUTH_USER_ROLE_ROLE_ID=$CREW_OPS_AUTH_USER_ROLE_ROLE_ID \
+#            -e CREW_OPS_AUTH_USER_ID=$CREW_OPS_AUTH_USER_ID \
+#            -e CREW_OPS_AUTH_USER_USERNAME=$CREW_OPS_AUTH_USER_USERNAME \
+#            -e CREW_OPS_AUTH_USER_PASSWORD=$CREW_OPS_AUTH_USER_PASSWORD \
+#            -e CREW_OPS_AUTH_USER_EMPLOYEE_ID=$CREW_OPS_AUTH_USER_EMPLOYEE_ID \
+#            -e CREW_OPS_AUTH_USER_TENANT_ID=$CREW_OPS_AUTH_USER_TENANT_ID \
+#            -e CREW_OPS_ADDRESS_ID=$CREW_OPS_ADDRESS_ID \
+#            -e CREW_OPS_ADDRESS_POSTAL_CODE=$CREW_OPS_ADDRESS_POSTAL_CODE \
+#            -e CREW_OPS_ADDRESS_CITY=$CREW_OPS_ADDRESS_CITY \
+#            -e CREW_OPS_ADDRESS_STREET=$CREW_OPS_ADDRESS_STREET \
+#            -e CREW_OPS_ADDRESS_LOCAL=$CREW_OPS_ADDRESS_LOCAL \
+#            -e CREW_OPS_COMPANY_ID=$CREW_OPS_COMPANY_ID \
+#            -e CREW_OPS_COMPANY_NAME=$CREW_OPS_COMPANY_NAME \
+#            -e CREW_OPS_COMPANY_ADDRESS_ID=$CREW_OPS_COMPANY_ADDRESS_ID \
+#            -e CREW_OPS_COMPANY_EMAIL=$CREW_OPS_COMPANY_EMAIL \
+#            -e CREW_OPS_COMPANY_STATUS=$CREW_OPS_COMPANY_STATUS \
+#            -e CREW_OPS_EMPLOYEE_ID=$CREW_OPS_EMPLOYEE_ID \
+#            -e CREW_OPS_EMPLOYEE_FIRST_NAME=$CREW_OPS_EMPLOYEE_FIRST_NAME \
+#            -e CREW_OPS_EMPLOYEE_LAST_NAME=$CREW_OPS_EMPLOYEE_LAST_NAME \
+#            -e CREW_OPS_EMPLOYEE_BIRTH_DATE=$CREW_OPS_EMPLOYEE_BIRTH_DATE \
+#            -e CREW_OPS_EMPLOYEE_PHONE=$CREW_OPS_EMPLOYEE_PHONE \
+#            -e CREW_OPS_DEPARTMENT_ID=$CREW_OPS_DEPARTMENT_ID \
+#            -e CREW_OPS_DEPARTMENT_NAME=$CREW_OPS_DEPARTMENT_NAME \
+#            -e TZ=Europe/Warsaw \
+#            -p 8080:8080 \
+#            --memory=2048m \
+#            $ECR_URI:latest
