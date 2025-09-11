@@ -19,33 +19,35 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy
+    name: Deploy Vaadin
     runs-on: ubuntu-latest
     environment: production
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ECS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ECS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build, tag, and push image to Amazon ECR
+      - name: Build, tag, and push Docker image
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
+          echo "👉 Building Docker image..."
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             -f $GITHUB_WORKSPACE/.docker/vaadin.dockerfile $GITHUB_WORKSPACE
+          echo "👉 Pushing Docker image to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
@@ -53,25 +55,25 @@ jobs:
         id: fetch-task
         run: |
           set -euo pipefail
-
-          echo "Fetching latest task definition for family: ${{ env.ECS_TASK_FAMILY }}"
+          FAMILY="${{ env.ECS_TASK_FAMILY }}"
+          echo "👉 Fetching latest task definition for family: $FAMILY"
 
           LATEST_TASK_DEF_ARN=$(aws ecs list-task-definitions \
-            --family-prefix ${{ env.ECS_TASK_FAMILY }} \
+            --family-prefix "$FAMILY" \
             --sort DESC \
             --max-items 1 \
             --query 'taskDefinitionArns[0]' \
             --output text)
 
-          # Remove literal 'None' and any whitespace
+          # Remove literal 'None' and trim whitespace
           LATEST_TASK_DEF_ARN=$(echo "$LATEST_TASK_DEF_ARN" | sed 's/None//g' | xargs)
 
           if [ -z "$LATEST_TASK_DEF_ARN" ]; then
-            echo "No task definitions found for family ${{ env.ECS_TASK_FAMILY }}"
+            echo "❌ No task definitions found for family $FAMILY"
             exit 1
           fi
 
-          echo "Latest task definition ARN: $LATEST_TASK_DEF_ARN"
+          echo "✅ Latest task definition ARN: $LATEST_TASK_DEF_ARN"
 
           aws ecs describe-task-definition \
             --task-definition "$LATEST_TASK_DEF_ARN" \
@@ -93,6 +95,7 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
+
 
 #     paste this directly under on: workflow_run: [] types: -completed    based on self-hosted runner
 #jobs:
