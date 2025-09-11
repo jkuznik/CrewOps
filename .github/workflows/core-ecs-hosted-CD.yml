@@ -1,4 +1,4 @@
-name: Run Core container on host
+name: Deploy Core to ECS
 
 on:
   workflow_run:
@@ -11,9 +11,7 @@ env:
   ECR_REPOSITORY: jkuznik-ecr/crewops-core
   ECS_SERVICE: crewops-core-service
   ECS_CLUSTER: crewopc-basic-cluster
-  ECS_TASK_DEFINITION: crewops-core
-  ECS_TASK_DEFINITION_FILE: ecs-task-def.json
-
+  ECS_TASK_FAMILY: crewops-core
   CONTAINER_NAME: crewops-core-container
 
 permissions:
@@ -21,16 +19,16 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy
+    name: Deploy Core
     runs-on: ubuntu-latest
     environment: production
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ECS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ECS_SECRET_ACCESS_KEY }}
@@ -40,13 +38,16 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build, tag, and push image to Amazon ECR
+      - name: Build, tag, and push Docker image
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f $GITHUB_WORKSPACE/.docker/core.dockerfile $GITHUB_WORKSPACE
+          echo "👉 Building Docker image..."
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -f $GITHUB_WORKSPACE/.docker/core.dockerfile $GITHUB_WORKSPACE
+          echo "👉 Pushing Docker image to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
@@ -54,45 +55,43 @@ jobs:
         id: fetch-task
         run: |
           set -euo pipefail
-
-          echo "Fetching latest task definition for family: ${{ env.ECS_TASK_FAMILY }}"
+          FAMILY="${{ env.ECS_TASK_FAMILY }}"
+          echo "👉 Fetching latest task definition for family: $FAMILY"
 
           LATEST_TASK_DEF_ARN=$(aws ecs list-task-definitions \
-            --family-prefix ${{ env.ECS_TASK_FAMILY }} \
+            --family-prefix "$FAMILY" \
             --sort DESC \
             --max-items 1 \
             --query 'taskDefinitionArns[0]' \
             --output text)
 
-          # Remove literal 'None' and any whitespace
+          # Remove literal 'None' and trim whitespace
           LATEST_TASK_DEF_ARN=$(echo "$LATEST_TASK_DEF_ARN" | sed 's/None//g' | xargs)
 
           if [ -z "$LATEST_TASK_DEF_ARN" ]; then
-            echo "No task definitions found for family ${{ env.ECS_TASK_FAMILY }}"
+            echo "❌ No task definitions found for family $FAMILY"
             exit 1
           fi
 
-          echo "Latest task definition ARN: $LATEST_TASK_DEF_ARN"
+          echo "✅ Latest task definition ARN: $LATEST_TASK_DEF_ARN"
 
           aws ecs describe-task-definition \
             --task-definition "$LATEST_TASK_DEF_ARN" \
             --query "taskDefinition" \
-            --output json > latest-task-def.json    
-          
-          echo "task-def-file=$ECS_TASK_DEFINITION_FILE" >> $GITHUB_OUTPUT
+            --output json > latest-task-def.json
 
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
+      - name: Render new task definition with updated image
+        id: render-task
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ steps.fetch-task-def.outputs.task-def-file }}
+          task-definition: latest-task-def.json
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
-      - name: Deploy Amazon ECS task definition
+      - name: Deploy updated task definition to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          task-definition: ${{ steps.render-task.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
