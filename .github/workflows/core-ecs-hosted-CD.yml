@@ -1,10 +1,15 @@
 name: Deploy Core to ECS
 
 on:
-  workflow_run:
-    workflows: ["Build And Push core image"]
-    types:
-      - completed
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'CrewOpsCore/**'
+      - '.docker/core.dockerfile'
+      - 'settings.gradle.kts'
+      - 'build.gradle.kts'
+      - 'gradle/**'
+      - '.github/workflows/**'
 
 env:
   AWS_REGION: eu-north-1
@@ -65,7 +70,6 @@ jobs:
             --query 'taskDefinitionArns[0]' \
             --output text)
 
-          # Remove literal 'None' and trim whitespace
           LATEST_TASK_DEF_ARN=$(echo "$LATEST_TASK_DEF_ARN" | sed 's/None//g' | xargs)
 
           if [ -z "$LATEST_TASK_DEF_ARN" ]; then
@@ -80,11 +84,28 @@ jobs:
             --query "taskDefinition" \
             --output json > latest-task-def.json
 
+      - name: Clean task definition JSON for ECS actions
+        id: clean-task
+        run: |
+          jq '{
+            family,
+            taskRoleArn,
+            executionRoleArn,
+            networkMode,
+            containerDefinitions,
+            volumes,
+            placementConstraints,
+            requiresCompatibilities,
+            cpu,
+            memory,
+            runtimePlatform
+          }' latest-task-def.json > task-def-clean.json
+
       - name: Render new task definition with updated image
         id: render-task
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: latest-task-def.json
+          task-definition: task-def-clean.json
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
@@ -95,6 +116,7 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
+
 
 #
 #jobs:
