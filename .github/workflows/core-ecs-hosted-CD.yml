@@ -53,7 +53,7 @@ jobs:
       - name: Fetch latest ECS task definition
         id: fetch-task-def
         run: |
-          echo "👉 Fetching latest task definition for family: $ECS_TASK_DEFINITION"
+          echo "Fetching latest task definition for family: $ECS_TASK_DEFINITION"
           LATEST_TASK_DEF_ARN=$(aws ecs list-task-definitions \
             --family-prefix "$ECS_TASK_DEFINITION" \
             --sort DESC \
@@ -62,11 +62,11 @@ jobs:
             --output text)
 
           if [ -z "$LATEST_TASK_DEF_ARN" ] || [ "$LATEST_TASK_DEF_ARN" == "None" ]; then
-            echo "❌ No task definitions found for family $ECS_TASK_DEFINITION"
+            echo "No task definitions found for family $ECS_TASK_DEFINITION"
             exit 1
           fi
 
-          echo "✅ Latest task definition ARN: $LATEST_TASK_DEF_ARN"
+          echo "Latest task definition ARN: $LATEST_TASK_DEF_ARN"
           LATEST_TASK_DEF=$(basename "$LATEST_TASK_DEF_ARN")
 
           aws ecs describe-task-definition \
