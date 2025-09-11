@@ -1,4 +1,4 @@
-name: Deploy Core to ECS
+name: Run Core container on host
 
 on:
   workflow_run:
@@ -11,7 +11,9 @@ env:
   ECR_REPOSITORY: jkuznik-ecr/crewops-core
   ECS_SERVICE: crewops-core-service
   ECS_CLUSTER: crewopc-basic-cluster
-  ECS_TASK_FAMILY: crewops-core
+  ECS_TASK_DEFINITION: crewops-core
+  ECS_TASK_DEFINITION_FILE: ecs-task-def.json
+
   CONTAINER_NAME: crewops-core-container
 
 permissions:
@@ -30,8 +32,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ECS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ECS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -44,49 +46,48 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            -f $GITHUB_WORKSPACE/.docker/core.dockerfile $GITHUB_WORKSPACE
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f $GITHUB_WORKSPACE/.docker/core.dockerfile $GITHUB_WORKSPACE
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Fetch latest ECS task definition
-        id: fetch-task
+        id: fetch-task-def
         run: |
-          set -euo pipefail
-
-          echo "Fetching latest task definition for family: ${{ env.ECS_TASK_FAMILY }}"
-
+          echo "Fetching latest task definition for family: $ECS_TASK_DEFINITION"
           LATEST_TASK_DEF_ARN=$(aws ecs list-task-definitions \
-            --family-prefix ${{ env.ECS_TASK_FAMILY }} \
+            --family-prefix "$ECS_TASK_DEFINITION" \
             --sort DESC \
             --max-items 1 \
             --query 'taskDefinitionArns[0]' \
-            --output text | tr -d '[:space:]')
+            --output text)
 
           if [ -z "$LATEST_TASK_DEF_ARN" ] || [ "$LATEST_TASK_DEF_ARN" == "None" ]; then
-            echo "No task definitions found for family ${{ env.ECS_TASK_FAMILY }}"
+            echo "No task definitions found for family $ECS_TASK_DEFINITION"
             exit 1
           fi
 
           echo "Latest task definition ARN: $LATEST_TASK_DEF_ARN"
+          LATEST_TASK_DEF=$(basename "$LATEST_TASK_DEF_ARN")
 
           aws ecs describe-task-definition \
-            --task-definition $LATEST_TASK_DEF_ARN \
+            --task-definition "$LATEST_TASK_DEF" \
             --query "taskDefinition" \
-            --output json > latest-task-def.json
+            --output json > $ECS_TASK_DEFINITION_FILE
 
-      - name: Render new task definition with updated image
-        id: render-task
+          echo "task-def-file=$ECS_TASK_DEFINITION_FILE" >> $GITHUB_OUTPUT
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: latest-task-def.json
+          task-definition: ${{ steps.fetch-task-def.outputs.task-def-file }}
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
-      - name: Deploy updated task definition to ECS
+      - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.render-task.outputs.task-definition }}
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
