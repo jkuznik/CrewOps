@@ -12,6 +12,7 @@ import com.vaadin.flow.shared.Registration;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
+import pl.crewops.component.dialog.departmentDialog.DepartmentManagerDialog;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.model.EmployeeFormModel;
 
@@ -58,7 +59,7 @@ public class DepartmentAccordion extends FormLayout {
     private DepartmentManagerDialog getConfiguredDepartmentManagerDialog(EmployeeFormModel employeeFormModel) {
         var departmentManagerDialog = new DepartmentManagerDialog(employeeFormModel);
         departmentManagerDialog.addUpdateDepartmentListener(event -> {
-            fireEvent(new UpdateDepartmentEvent(this, event.getEmployeeDTO));
+            fireEvent(new UpdateDepartmentEvent(this, event.getEmployeeDTO()));
         });
 
         return departmentManagerDialog;
