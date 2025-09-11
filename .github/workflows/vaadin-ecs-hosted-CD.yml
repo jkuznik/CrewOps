@@ -54,13 +54,17 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Fetch latest task definition ARN
+          echo "Fetching latest task definition for family: ${{ env.ECS_TASK_FAMILY }}"
+
           LATEST_TASK_DEF_ARN=$(aws ecs list-task-definitions \
             --family-prefix ${{ env.ECS_TASK_FAMILY }} \
             --sort DESC \
             --max-items 1 \
             --query 'taskDefinitionArns[0]' \
-            --output text | tr -d '[:space:]')
+            --output text)
+
+          # Remove literal 'None' and any whitespace
+          LATEST_TASK_DEF_ARN=$(echo "$LATEST_TASK_DEF_ARN" | sed 's/None//g' | xargs)
 
           if [ -z "$LATEST_TASK_DEF_ARN" ]; then
             echo "No task definitions found for family ${{ env.ECS_TASK_FAMILY }}"
@@ -69,9 +73,8 @@ jobs:
 
           echo "Latest task definition ARN: $LATEST_TASK_DEF_ARN"
 
-          # Describe task definition and save
           aws ecs describe-task-definition \
-            --task-definition $LATEST_TASK_DEF_ARN \
+            --task-definition "$LATEST_TASK_DEF_ARN" \
             --query "taskDefinition" \
             --output json > latest-task-def.json
 

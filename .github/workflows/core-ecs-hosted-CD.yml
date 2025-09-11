@@ -51,29 +51,34 @@ jobs:
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Fetch latest ECS task definition
-        id: fetch-task-def
+        id: fetch-task
         run: |
-          echo "Fetching latest task definition for family: $ECS_TASK_DEFINITION"
+          set -euo pipefail
+
+          echo "Fetching latest task definition for family: ${{ env.ECS_TASK_FAMILY }}"
+
           LATEST_TASK_DEF_ARN=$(aws ecs list-task-definitions \
-            --family-prefix "$ECS_TASK_DEFINITION" \
+            --family-prefix ${{ env.ECS_TASK_FAMILY }} \
             --sort DESC \
             --max-items 1 \
             --query 'taskDefinitionArns[0]' \
             --output text)
 
-          if [ -z "$LATEST_TASK_DEF_ARN" ] || [ "$LATEST_TASK_DEF_ARN" == "None" ]; then
-            echo "No task definitions found for family $ECS_TASK_DEFINITION"
+          # Remove literal 'None' and any whitespace
+          LATEST_TASK_DEF_ARN=$(echo "$LATEST_TASK_DEF_ARN" | sed 's/None//g' | xargs)
+
+          if [ -z "$LATEST_TASK_DEF_ARN" ]; then
+            echo "No task definitions found for family ${{ env.ECS_TASK_FAMILY }}"
             exit 1
           fi
 
           echo "Latest task definition ARN: $LATEST_TASK_DEF_ARN"
-          LATEST_TASK_DEF=$(basename "$LATEST_TASK_DEF_ARN")
 
           aws ecs describe-task-definition \
-            --task-definition "$LATEST_TASK_DEF" \
+            --task-definition "$LATEST_TASK_DEF_ARN" \
             --query "taskDefinition" \
-            --output json > $ECS_TASK_DEFINITION_FILE
-
+            --output json > latest-task-def.json    
+          
           echo "task-def-file=$ECS_TASK_DEFINITION_FILE" >> $GITHUB_OUTPUT
 
       - name: Fill in the new image ID in the Amazon ECS task definition
