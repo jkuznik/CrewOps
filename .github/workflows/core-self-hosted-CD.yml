@@ -11,8 +11,13 @@ env:
   ECR_REPOSITORY: jkuznik-ecr/crewops-core
   ECS_SERVICE: crewops-core-service
   ECS_CLUSTER: crewopc-basic-cluster
+<<<<<<< Updated upstream:.github/workflows/core-self-hosted-CD.yml
   ECS_TASK_DEFINITION: crewops-core
 
+=======
+  ECS_TASK_FAMILY: crewops-core
+  ECS_TASK_DEFINITION_FILE: ./crewops-core-latest-task-definition.json
+>>>>>>> Stashed changes:.github/workflows/core-ecs-hosted-CD.yml
   CONTAINER_NAME: crewops-core-container
 
 permissions:
@@ -45,6 +50,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
+<<<<<<< Updated upstream:.github/workflows/core-self-hosted-CD.yml
           # Build a docker container and
           # push it to ECR so that it can
           # be deployed to ECS.
@@ -52,6 +58,44 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
+=======
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -f $GITHUB_WORKSPACE/.docker/core.dockerfile $GITHUB_WORKSPACE
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Fetch latest ECS task definition
+        id: fetch-task-def
+        run: |
+          echo "👉 Fetching latest task definition for family: $ECS_TASK_FAMILY"
+
+          LATEST_TASK_DEF_ARN=$(aws ecs list-task-definitions \
+            --family-prefix "$ECS_TASK_FAMILY" \
+            --sort DESC \
+            --max-items 1 \
+            --query 'taskDefinitionArns[0]' \
+            --output text)
+
+          if [ -z "$LATEST_TASK_DEF_ARN" ] || [ "$LATEST_TASK_DEF_ARN" == "None" ]; then
+            echo "❌ No task definitions found for family $ECS_TASK_FAMILY"
+            exit 1
+          fi
+
+          echo "✅ Latest task definition ARN: $LATEST_TASK_DEF_ARN"
+
+          # Extract only family:revision from ARN (crewops-core:3)
+          LATEST_TASK_DEF=$(echo "$LATEST_TASK_DEF_ARN" | awk -F'/' '{print $2}')
+
+          echo "✅ Latest task definition name: $LATEST_TASK_DEF"
+
+          aws ecs describe-task-definition \
+            --task-definition "$LATEST_TASK_DEF" \
+            --query "taskDefinition" \
+            --output json > $ECS_TASK_DEFINITION_FILE
+
+          echo "task-def-file=$ECS_TASK_DEFINITION_FILE" >> $GITHUB_OUTPUT
+
+>>>>>>> Stashed changes:.github/workflows/core-ecs-hosted-CD.yml
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
