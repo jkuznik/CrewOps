@@ -1,17 +1,11 @@
 name: Deploy Vaadin to ECS
 
-#on:
-#  workflow_run:
-#    workflows: ["Build And Push vaadin image"]
-#    types:
-#      - completed
-
 on:
   push:
     branches: [ "main" ]
     paths:
-      - 'CrewOpsCore/**'
-      - '.docker/core.dockerfile'
+      - 'CrewOpsVaadin/**'
+      - '.docker/vaadin.dockerfile'
       - 'settings.gradle.kts'
       - 'build.gradle.kts'
       - 'gradle/**'
@@ -25,17 +19,20 @@ env:
   ECS_TASK_FAMILY: crewops-vaadin
   CONTAINER_NAME: crewops-vaadin-container
 
-permissions:
-  contents: read
-
 jobs:
   deploy:
     name: Deploy Vaadin
     runs-on: ubuntu-latest
     environment: production
 
+    env:
+      IMAGE_TAG: ${{ github.sha }}
+      IMAGE_URI: ""
+      TASK_DEF_FILE: crewops-vaadin-latest-task-definition.json
+      UPDATED_TASK_DEF_FILE: updated-vaadin-task-def.json
+
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Configure AWS credentials
@@ -49,18 +46,24 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build, tag, and push Docker image
+      - name: Build & Push Docker image
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
         run: |
-          echo "👉 Building Docker image..."
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+          set -euo pipefail
+          echo "👉 Building Vaadin Docker image..."
+          docker build -t $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} \
             -f $GITHUB_WORKSPACE/.docker/vaadin.dockerfile $GITHUB_WORKSPACE
-          echo "👉 Pushing Docker image to ECR..."
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+          echo "👉 Pushing Vaadin Docker image to ECR..."
+          docker push $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+
+          IMAGE_URI="$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          echo "✅ Image pushed: $IMAGE_URI"
+
+          # Save globally
+          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
 
       - name: Fetch latest ECS task definition
         id: fetch-task
@@ -76,7 +79,7 @@ jobs:
             --query 'taskDefinitionArns[0]' \
             --output text)
 
-          LATEST_TASK_DEF_ARN=$(echo "$LATEST_TASK_DEF_ARN" | sed 's/None//g' | xargs)
+          LATEST_TASK_DEF_ARN=$(echo "$LATEST_TASK_DEF_ARN" | sed 's/None//g' | tr -d '[:space:]')
 
           if [ -z "$LATEST_TASK_DEF_ARN" ]; then
             echo "❌ No task definitions found for family $FAMILY"
@@ -85,15 +88,43 @@ jobs:
 
           echo "✅ Latest task definition ARN: $LATEST_TASK_DEF_ARN"
 
-          aws ecs describe-task-definition \
-            --task-definition "$LATEST_TASK_DEF_ARN" \
-            --query "taskDefinition" \
-            --output json > latest-task-def.json
+          LATEST_TASK_DEF=$(basename "$LATEST_TASK_DEF_ARN")
 
-      # --- CLEAN TASK DEFINITION JSON ---
-      - name: Clean task definition for ECS deploy
-        id: clean-task
+          aws ecs describe-task-definition \
+            --task-definition "$LATEST_TASK_DEF" \
+            --region "${{ env.AWS_REGION }}" \
+            --query "taskDefinition" \
+            --output json > "$TASK_DEF_FILE"
+
+          echo "✅ Task definition saved to $TASK_DEF_FILE"
+
+      - name: Modify ECS task definition with new image
+        id: update-task-def
         run: |
+          set -euo pipefail
+          echo "👉 Updating task definition to use new image: $IMAGE_URI"
+
+          jq --arg IMAGE "$IMAGE_URI" \
+             --arg NAME "${{ env.CONTAINER_NAME }}" \
+             ' .containerDefinitions |= map(
+                 if .name == $NAME then
+                   .image = $IMAGE
+                 else
+                   .
+                 end
+               )
+             ' "$TASK_DEF_FILE" > "$UPDATED_TASK_DEF_FILE"
+
+          echo "✅ Updated task definition written to $UPDATED_TASK_DEF_FILE"
+
+      - name: Register and deploy ECS task definition
+        id: deploy-ecs
+        run: |
+          set -euo pipefail
+
+          echo "👉 Cleaning task definition file before registration..."
+          CLEAN_TASK_FILE="task-to-register.json"
+
           jq '{
             family,
             taskRoleArn,
@@ -105,24 +136,39 @@ jobs:
             requiresCompatibilities,
             cpu,
             memory,
-            runtimePlatform
-          }' latest-task-def.json > cleaned-task-def.json
+            runtimePlatform,
+            enableFaultInjection
+          } + (if .pidMode != null then {pidMode: .pidMode} else {} end)
+            + (if .ipcMode != null then {ipcMode: .ipcMode} else {} end)
+            + (if .proxyConfiguration != null then {proxyConfiguration: .proxyConfiguration} else {} end)
+            + (if .inferenceAccelerators != null then {inferenceAccelerators: .inferenceAccelerators} else {} end)
+            + (if .ephemeralStorage != null then {ephemeralStorage: .ephemeralStorage} else {} end)
+          ' "$UPDATED_TASK_DEF_FILE" > "$CLEAN_TASK_FILE"
 
-      - name: Render new task definition with updated image
-        id: render-task
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: cleaned-task-def.json
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.image }}
+          echo "✅ Cleaned task definition written to $CLEAN_TASK_FILE"
 
-      - name: Deploy updated task definition to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-task.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
+          echo "👉 Registering new task definition..."
+          REGISTER_OUTPUT=$(aws ecs register-task-definition \
+            --cli-input-json file://"$CLEAN_TASK_FILE" \
+            --region "${{ env.AWS_REGION }}")
+
+          NEW_TASK_DEF_ARN=$(echo "$REGISTER_OUTPUT" | jq -r '.taskDefinition.taskDefinitionArn')
+          echo "✅ New task definition registered: $NEW_TASK_DEF_ARN"
+
+          echo "👉 Updating ECS service to use new task definition..."
+          aws ecs update-service \
+            --cluster "${{ env.ECS_CLUSTER }}" \
+            --service "${{ env.ECS_SERVICE }}" \
+            --task-definition "$NEW_TASK_DEF_ARN" \
+            --force-new-deployment \
+            --region "${{ env.AWS_REGION }}"
+
+          echo "✅ ECS service force deployment triggered successfully!"
+
+          echo "🗑️  Cleaning up temporary files..."
+          rm -f "$CLEAN_TASK_FILE" "$UPDATED_TASK_DEF_FILE" "$TASK_DEF_FILE"
+          echo "✅ Cleanup completed"
+
 
 #     paste this directly under on: workflow_run: [] types: -completed    based on self-hosted runner
 #jobs:
