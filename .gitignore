@@ -1,5 +1,6 @@
 HELP.md
 .env
+*/.env
 .env-compose
 .gradle
 .github/workflows/run-instruction
