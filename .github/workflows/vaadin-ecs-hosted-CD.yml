@@ -1,4 +1,4 @@
-name: Run Vaadin container on host
+name: Deploy Vaadin to ECS
 
 on:
   workflow_run:
@@ -11,8 +11,7 @@ env:
   ECR_REPOSITORY: jkuznik-ecr/crewops-vaadin
   ECS_SERVICE: crewops-vaadin-service
   ECS_CLUSTER: crewopc-basic-cluster
-  ECS_TASK_DEFINITION: crewops-vaadin
-
+  ECS_TASK_FAMILY: crewops-vaadin
   CONTAINER_NAME: crewops-vaadin-container
 
 permissions:
@@ -45,25 +44,49 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          # Build a docker container and
-          # push it to ECR so that it can
-          # be deployed to ECS.
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -f $GITHUB_WORKSPACE/.docker/vaadin.dockerfile $GITHUB_WORKSPACE
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
+      - name: Fetch latest ECS task definition
+        id: fetch-task
+        run: |
+          set -euo pipefail
+
+          # Fetch latest task definition ARN
+          LATEST_TASK_DEF_ARN=$(aws ecs list-task-definitions \
+            --family-prefix ${{ env.ECS_TASK_FAMILY }} \
+            --sort DESC \
+            --max-items 1 \
+            --query 'taskDefinitionArns[0]' \
+            --output text | tr -d '[:space:]')
+
+          if [ -z "$LATEST_TASK_DEF_ARN" ]; then
+            echo "No task definitions found for family ${{ env.ECS_TASK_FAMILY }}"
+            exit 1
+          fi
+
+          echo "Latest task definition ARN: $LATEST_TASK_DEF_ARN"
+
+          # Describe task definition and save
+          aws ecs describe-task-definition \
+            --task-definition $LATEST_TASK_DEF_ARN \
+            --query "taskDefinition" \
+            --output json > latest-task-def.json
+
+      - name: Render new task definition with updated image
+        id: render-task
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          task-definition: latest-task-def.json
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
-      - name: Deploy Amazon ECS task definition
+      - name: Deploy updated task definition to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          task-definition: ${{ steps.render-task.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
