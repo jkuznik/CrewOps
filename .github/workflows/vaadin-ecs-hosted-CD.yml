@@ -124,7 +124,6 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
 
-
 #     paste this directly under on: workflow_run: [] types: -completed    based on self-hosted runner
 #jobs:
 #  deploy-vaadin:
