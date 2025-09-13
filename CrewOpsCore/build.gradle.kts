@@ -5,7 +5,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.5")
     implementation("org.liquibase:liquibase-core:4.31.1")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
-    
+
     implementation("org.passay:passay:1.6.6")
 
     testImplementation("org.testcontainers:testcontainers:1.20.6")
@@ -20,3 +20,7 @@ tasks.test {
     useJUnitPlatform()
 }
 
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("bootBuildImage") {
+    // Docker image name must be lowercase
+    imageName.set("${project.group}/${project.name.toLowerCase()}:${project.version}")
+}

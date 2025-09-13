@@ -25,10 +25,7 @@ services:
 
   core:
     container_name: CrewOpsCore
-    build:
-      context: .
-      dockerfile: .docker/core.dockerfile
-      pull: false
+    image: pl.crewops/crewopscore:0.0.1-SNAPSHOT
     env_file: .env-compose
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db_postgres:5432/${CREWOPS_POSTGRES_DB}

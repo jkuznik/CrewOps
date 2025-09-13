@@ -43,4 +43,6 @@ tasks.named("build") {
     dependsOn("vaadinBuildFrontend")
 }
 
-defaultTasks("clean", "vaadinBuildFrontend", "build")
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("bootBuildImage") {
+    imageName.set("${project.group}/${project.name.toLowerCase()}:${project.version}")
+}
