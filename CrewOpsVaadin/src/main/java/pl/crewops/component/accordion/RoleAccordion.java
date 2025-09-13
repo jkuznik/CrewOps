@@ -4,12 +4,16 @@ import static pl.crewops.model.auth.RoleType.*;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
 import java.util.Arrays;
@@ -34,7 +38,6 @@ public class RoleAccordion extends FormLayout {
 
     public RoleAccordion() {
         addClassName("roles-accordion");
-
         this.coreAPI = SpringContextBridge.getBean(CoreAPI.class);
         this.authenticationResolver = SpringContextBridge.getBean(AuthenticationResolver.class);
     }
@@ -42,28 +45,52 @@ public class RoleAccordion extends FormLayout {
     public void setValues(EmployeeFormModel employeeFormModel) {
         removeAll();
 
-        var edit = new Button(getTranslation("qualificationAccordion.editButton"));
+        Button edit = new Button(getTranslation("qualificationAccordion.editButton", "Edit"));
+        edit.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
+        edit.setEnabled(false);
 
         CheckboxGroup<RoleType> roleTypeCheckboxGroup = configureRolesCheckbox(employeeFormModel, edit);
+
+        // Collapsible content
+        VerticalLayout rolesDisplay = new VerticalLayout(roleTypeCheckboxGroup);
+        rolesDisplay.setSpacing(false);
+        rolesDisplay.setPadding(false);
+        rolesDisplay.setVisible(false);
+
         configureEditButton(employeeFormModel, edit, roleTypeCheckboxGroup);
 
-        var rolesDisplayLayout = new VerticalLayout(roleTypeCheckboxGroup, edit);
-        rolesDisplayLayout.setSpacing(false);
-        rolesDisplayLayout.setPadding(false);
+        // Toggle button with icons
+        Icon closedIcon = VaadinIcon.CHEVRON_RIGHT.create();
+        Icon openIcon = VaadinIcon.CHEVRON_DOWN.create();
 
-        var accordion = new Accordion();
-        accordion.setVisible(true);
-        accordion.close();
+        Button toggle = new Button(closedIcon);
+        toggle.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL);
+        toggle.getElement().getStyle().set("min-width", "2.2rem");
 
-        add(accordion);
-        accordion.add(getTranslation("employeeForm.roles"), rolesDisplayLayout);
+        toggle.addClickListener(ev -> {
+            boolean expand = !rolesDisplay.isVisible();
+            rolesDisplay.setVisible(expand);
+            toggle.setIcon(expand ? openIcon : closedIcon);
+        });
+
+        // Title
+        Span title = new Span(getTranslation("employeeForm.roles", "Roles"));
+        title.getStyle().set("font-weight", "600");
+
+        // Header row: toggle + title (left), edit (right)
+        HorizontalLayout header = new HorizontalLayout();
+        header.setWidthFull();
+        header.setAlignItems(FlexComponent.Alignment.CENTER);
+        header.add(toggle, title);
+        header.addAndExpand(new Span()); // flexible spacer
+        header.add(edit);
+
+        // Add header + collapsible section
+        add(header, rolesDisplay);
     }
 
     private void configureEditButton(
             EmployeeFormModel employeeFormModel, Button edit, CheckboxGroup<RoleType> checkboxGroup) {
-        edit.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        edit.setEnabled(false);
-
         edit.addClickListener(event -> {
             Set<RoleType> selectedRoles = checkboxGroup.getValue();
             selectedRoles.add(EMPLOYEE);
@@ -78,6 +105,7 @@ public class RoleAccordion extends FormLayout {
                                         .collect(Collectors.toSet()))
                                 .build())
                         .orElseThrow(UpdateQualificationException::new);
+
                 var updatedEmployeeFormModel = EmployeeFormModel.builder()
                         .id(employeeFormModel.getId())
                         .firstName(employeeFormModel.getFirstName())
@@ -93,6 +121,7 @@ public class RoleAccordion extends FormLayout {
                         .build();
 
                 fireEvent(new UpdateEvent(this, updatedEmployeeFormModel));
+                edit.setEnabled(false); // disable again until change
             } catch (NotAuthenticatedException e) {
                 new FailNotification(e.getMessage());
             }
@@ -101,9 +130,7 @@ public class RoleAccordion extends FormLayout {
 
     private CheckboxGroup<RoleType> configureRolesCheckbox(EmployeeFormModel employeeFormModel, Button edit) {
         RoleType[] allRoles = values();
-
         var checkboxGroup = new CheckboxGroup<RoleType>();
-
         checkboxGroup.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
 
         if (authenticationResolver.principalHasCompanyAdminPermission()) {
@@ -118,18 +145,13 @@ public class RoleAccordion extends FormLayout {
                     .collect(Collectors.toSet()));
         }
 
-        checkboxGroup.setItemLabelGenerator(role -> {
-            var translatedRoleName = "";
-
-            switch (role) {
-                case EMPLOYEE -> translatedRoleName = getTranslation("roleType.employee");
-                case MECHANIC -> translatedRoleName = getTranslation("roleType.mechanic");
-                case SHIFT_LEADER -> translatedRoleName = getTranslation("roleType.shiftLeader");
-                case MANAGER -> translatedRoleName = getTranslation("roleType.manager");
-                case COMPANY_ADMIN -> translatedRoleName = getTranslation("roleType.companyAdmin");
-                case SYSTEM_ADMIN -> translatedRoleName = getTranslation("roleType.systemAdmin");
-            }
-            return translatedRoleName;
+        checkboxGroup.setItemLabelGenerator(role -> switch (role) {
+            case EMPLOYEE -> getTranslation("roleType.employee");
+            case MECHANIC -> getTranslation("roleType.mechanic");
+            case SHIFT_LEADER -> getTranslation("roleType.shiftLeader");
+            case MANAGER -> getTranslation("roleType.manager");
+            case COMPANY_ADMIN -> getTranslation("roleType.companyAdmin");
+            case SYSTEM_ADMIN -> getTranslation("roleType.systemAdmin");
         });
 
         if (employeeFormModel.getRoles() != null) {

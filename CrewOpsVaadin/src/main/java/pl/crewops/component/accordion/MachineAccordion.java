@@ -2,11 +2,14 @@ package pl.crewops.component.accordion;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
 import java.util.ArrayList;
@@ -24,16 +27,26 @@ public class MachineAccordion extends FormLayout {
 
     public void setValues(EmployeeFormModel employeeFormModel) {
         removeAll();
-        Accordion accordion = new Accordion();
-        // same i18n key like qualification accordion, update if needed
-        var edit = new Button(getTranslation("qualificationAccordion.editButton"));
+
         var machineManagerDialog = getConfiguredMachineManagerDialog(employeeFormModel);
 
-        edit.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        edit.addClickListener(event -> {
-            machineManagerDialog.open();
-        });
+        // === Buttons & title ===
+        Button edit = new Button(getTranslation("qualificationAccordion.editButton"));
+        edit.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
+        edit.addClickListener(event -> machineManagerDialog.open());
 
+        Span title = new Span(getTranslation("machineAccordion.title"));
+        title.getStyle().set("font-weight", "600");
+
+        // Toggle button with icon instead of text
+        Icon closedIcon = VaadinIcon.CHEVRON_RIGHT.create();
+        Icon openIcon = VaadinIcon.CHEVRON_DOWN.create();
+
+        Button toggle = new Button(closedIcon);
+        toggle.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL);
+        toggle.getElement().getStyle().set("min-width", "2.2rem");
+
+        // List of machines
         List<Span> items = new ArrayList<>();
         employeeFormModel.getMachinesSet().forEach(machine -> {
             String formatted = String.format("%-15s%s", machine.machineType().name(), machine.registerNumber());
@@ -43,16 +56,29 @@ public class MachineAccordion extends FormLayout {
             items.add(span);
         });
 
-        var machinesDisplay = new VerticalLayout(items.toArray(new Span[items.size()]));
+        VerticalLayout machinesDisplay = new VerticalLayout(items.toArray(new Span[0]));
         machinesDisplay.setSpacing(false);
         machinesDisplay.setPadding(false);
-        machinesDisplay.add(edit);
+        machinesDisplay.setVisible(false);
 
-        accordion.setVisible(true);
-        accordion.close();
+        toggle.addClickListener(ev -> {
+            boolean expand = !machinesDisplay.isVisible();
+            machinesDisplay.setVisible(expand);
+            toggle.setIcon(expand ? openIcon : closedIcon);
+        });
 
-        add(accordion);
-        accordion.add(getTranslation("machineAccordion.title"), machinesDisplay);
+        // === HEADER LAYOUT ===
+        HorizontalLayout header = new HorizontalLayout();
+        header.setWidthFull();
+        header.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        // Left: toggle + title, Right: edit
+        header.add(toggle, title);
+        header.addAndExpand(new Span()); // flexible spacer
+        header.add(edit);
+
+        // Add header + collapsible content
+        add(header, machinesDisplay);
     }
 
     private MachineManagerDialog getConfiguredMachineManagerDialog(EmployeeFormModel employeeFormModel) {

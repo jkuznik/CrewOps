@@ -1,14 +1,11 @@
 package pl.crewops.component.form;
 
-import static pl.crewops.model.DepartmentFormModel.mapToDepartmentFormsOrderedResult;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -18,17 +15,11 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 import java.util.*;
-import java.util.stream.Collectors;
+import pl.crewops.component.accordion.DepartmentAccordion;
 import pl.crewops.component.accordion.MachineAccordion;
 import pl.crewops.component.accordion.QualificationAccordion;
 import pl.crewops.component.accordion.RoleAccordion;
-import pl.crewops.component.notification.FailNotification;
-import pl.crewops.dto.department.DepartmentDTO;
-import pl.crewops.exceptions.NotAuthenticatedException;
-import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.model.DepartmentFormModel;
 import pl.crewops.model.EmployeeFormModel;
-import pl.crewops.util.SpringContextBridge;
 
 @CssImport("./styles/component/combo-box.css")
 public class EmployeeForm extends FormLayout {
@@ -37,7 +28,7 @@ public class EmployeeForm extends FormLayout {
     private final DatePicker birthDate = new DatePicker();
     private final TextField phoneNumber = new TextField();
 
-    private final MultiSelectComboBox<DepartmentFormModel> departments;
+    private final DepartmentAccordion departments;
     private final QualificationAccordion qualifications;
     private final MachineAccordion machines;
     private final RoleAccordion roleAccordion;
@@ -60,29 +51,29 @@ public class EmployeeForm extends FormLayout {
         localize();
 
         binder.bindInstanceFields(this);
-        binder.forField(departments).bind(EmployeeFormModel::getDepartments, EmployeeFormModel::setDepartments);
 
         add(
                 firstName,
                 lastName,
                 birthDate,
                 phoneNumber,
-                departments,
                 createButtonsLayout(),
+                departments,
                 qualifications,
                 machines,
                 roleAccordion);
     }
 
-    private MultiSelectComboBox<DepartmentFormModel> getConfiguredDepartmentsMultiSelectedComboBox() {
-        MultiSelectComboBox<DepartmentFormModel> departments = new MultiSelectComboBox<>();
-        departments.setItemLabelGenerator(DepartmentFormModel::getName);
+    private DepartmentAccordion getConfiguredDepartmentsMultiSelectedComboBox() {
+        final var departmentAccordion = new DepartmentAccordion();
 
-        departments.addClassName("recipient-department-combobox");
+        departmentAccordion.addUpdateDepartmentListener(event -> {
+            var employeeFormModel = EmployeeFormModel.toEmployeeFormModel(event.getEmployeeDTO());
+            setBinderValue(employeeFormModel);
+            validateAndUpdate();
+        });
 
-        departments.getElement().setAttribute("theme", "recipient-department");
-
-        return departments;
+        return departmentAccordion;
     }
 
     private QualificationAccordion getConfiguredQualificationsAccordion() {
@@ -124,7 +115,6 @@ public class EmployeeForm extends FormLayout {
         lastName.setLabel(getTranslation("employeeForm.lastName"));
         birthDate.setLabel(getTranslation("employeeForm.birthDate"));
         phoneNumber.setLabel(getTranslation("employeeForm.phoneNumber"));
-        departments.setLabel(getTranslation("employeeForm.department"));
 
         save.setText(getTranslation("employeeForm.save"));
         update.setText(getTranslation("employeeForm.update"));
@@ -154,6 +144,7 @@ public class EmployeeForm extends FormLayout {
         save.setVisible(true);
         update.setVisible(false);
         delete.setVisible(false);
+        departments.setVisible(false);
         qualifications.setVisible(false);
         machines.setVisible(false);
         roleAccordion.setVisible(false);
@@ -170,6 +161,7 @@ public class EmployeeForm extends FormLayout {
         save.setVisible(false);
         update.setVisible(true);
         delete.setVisible(true);
+        departments.setVisible(true);
         qualifications.setVisible(true);
         machines.setVisible(true);
         roleAccordion.setVisible(true);
@@ -188,7 +180,6 @@ public class EmployeeForm extends FormLayout {
                 .lastName(lastName.getValue())
                 .birthDate(birthDate.getValue())
                 .phoneNumber(phoneNumber.getValue())
-                .departments(departments.getValue())
                 .machinesSet(Set.of())
                 .qualificationsSet(Set.of())
                 .roles(Set.of())
@@ -208,84 +199,14 @@ public class EmployeeForm extends FormLayout {
     // TODO: those duration time metrics show me that i have to refactor vaadin components handling strategy
     //  and consider reusability instead of build new one each time
     public void setBinderValue(EmployeeFormModel employeeFormModel) {
-        long start = System.nanoTime();
+        binder.setBean(employeeFormModel);
+        long t7 = System.nanoTime();
 
-        EmployeeFormModel copiedModel = new EmployeeFormModel();
-        List<DepartmentFormModel> allItems = List.of();
-        Set<DepartmentFormModel> selectedFormModels = Set.of();
-
-        try {
-            long t1 = System.nanoTime();
-            var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
-            long t2 = System.nanoTime();
-
-            List<DepartmentDTO> allDepartments = coreAPI.getAllDepartments();
-            long t3 = System.nanoTime();
-
-            allItems = mapToDepartmentFormsOrderedResult(allDepartments);
-            long t4 = System.nanoTime();
-
-            if (employeeFormModel != null && employeeFormModel.getDepartments() != null) {
-                copiedModel = EmployeeFormModel.builder()
-                        .id(employeeFormModel.getId())
-                        .firstName(employeeFormModel.getFirstName())
-                        .lastName(employeeFormModel.getLastName())
-                        .birthDate(employeeFormModel.getBirthDate())
-                        .phoneNumber(employeeFormModel.getPhoneNumber())
-                        .departments(employeeFormModel.getDepartments())
-                        .machinesSet(employeeFormModel.getMachinesSet())
-                        .qualificationsSet(employeeFormModel.getQualificationsSet())
-                        .roles(employeeFormModel.getRoles())
-                        .build();
-
-                selectedFormModels = employeeFormModel.getDepartments();
-
-                var byId = allItems.stream().collect(Collectors.toMap(DepartmentFormModel::getId, d -> d));
-                selectedFormModels = selectedFormModels.stream()
-                        .map(s -> byId.getOrDefault(s.getId(), s))
-                        .collect(Collectors.toCollection(LinkedHashSet::new));
-            }
-            long t5 = System.nanoTime();
-
-            Set<DepartmentFormModel> finalSelectedFormModels = selectedFormModels;
-            List<DepartmentFormModel> sorted = allItems.stream()
-                    .sorted((d1, d2) -> {
-                        boolean s1 = finalSelectedFormModels.contains(d1);
-                        boolean s2 = finalSelectedFormModels.contains(d2);
-                        if (s1 && !s2) return -1;
-                        if (!s1 && s2) return 1;
-                        return d1.getName().compareToIgnoreCase(d2.getName());
-                    })
-                    .toList();
-            long t6 = System.nanoTime();
-
-            departments.setItems(sorted);
-            binder.setBean(copiedModel);
-            if (!selectedFormModels.isEmpty()) {
-                departments.setValue(selectedFormModels);
-            } else {
-                departments.clear();
-            }
-            long t7 = System.nanoTime();
-
-            if (employeeFormModel != null) {
-                qualifications.setValues(employeeFormModel);
-                machines.setValues(employeeFormModel);
-                roleAccordion.setValues(employeeFormModel);
-            }
-            long t8 = System.nanoTime();
-
-            System.out.println("Bean lookup: " + (t2 - t1) / 1_000_000 + " ms");
-            System.out.println("getAllDepartments(): " + (t3 - t2) / 1_000_000 + " ms");
-            System.out.println("Mapping: " + (t4 - t3) / 1_000_000 + " ms");
-            System.out.println("Copy model & selection map: " + (t5 - t4) / 1_000_000 + " ms");
-            System.out.println("Sorting: " + (t6 - t5) / 1_000_000 + " ms");
-            System.out.println("UI binder updates: " + (t7 - t6) / 1_000_000 + " ms");
-            System.out.println("Other UI components: " + (t8 - t7) / 1_000_000 + " ms");
-            System.out.println("TOTAL: " + (t8 - start) / 1_000_000 + " ms");
-
-        } catch (NotAuthenticatedException e) {
-            new FailNotification(e.getMessage());
+        if (employeeFormModel != null) {
+            departments.setValues(employeeFormModel);
+            qualifications.setValues(employeeFormModel);
+            machines.setValues(employeeFormModel);
+            roleAccordion.setValues(employeeFormModel);
         }
     }
 

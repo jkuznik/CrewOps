@@ -15,6 +15,7 @@ import pl.crewops.component.notification.FailNotification;
 import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
+import pl.crewops.exceptions.UpdateDepartmentException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.util.SpringContextBridge;
@@ -41,7 +42,6 @@ public class AddDepartmentForm extends FormLayout {
 
     private void configureDepartments(CoreAPI coreAPI) {
         departments.setItemLabelGenerator(DepartmentDTO::name);
-        // todo i18n
         departments.setPlaceholder(getTranslation("addDepartmentForm.departments"));
 
         departments.addValueChangeListener(e -> {
@@ -66,10 +66,10 @@ public class AddDepartmentForm extends FormLayout {
                                 departments.getValue().id())
                         .orElseThrow(UpdateDepartmentException::new);
                 fireEvent(new AddDepartmentEvent(this, employeeDTO));
-            } catch (UpdateDepartmentException e) {
-                new FailNotification(e.getMessage());
-            } catch (NotAuthenticatedException e) {
-                new FailNotification(e.getMessage());
+            } catch (UpdateDepartmentException ex) {
+                new FailNotification(ex.getMessage());
+            } catch (NotAuthenticatedException ex) {
+                new FailNotification(ex.getMessage());
                 UI.getCurrent().navigate(HomeContent.class);
             }
         });

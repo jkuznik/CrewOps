@@ -2,11 +2,14 @@ package pl.crewops.component.accordion;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
 import java.util.ArrayList;
@@ -24,36 +27,57 @@ public class DepartmentAccordion extends FormLayout {
 
     public void setValues(EmployeeFormModel employeeFormModel) {
         removeAll();
-        var accordion = new Accordion();
-        // TODO : i18n
-        var edit = new Button("Edit");
+
         var departmentManagerDialog = getConfiguredDepartmentManagerDialog(employeeFormModel);
 
-        edit.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        edit.addClickListener(event -> {
-            departmentManagerDialog.open();
-        });
+        // === Buttons & title ===
+        Button edit = new Button(getTranslation("qualificationAccordion.editButton"));
+        edit.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
+        edit.addClickListener(event -> departmentManagerDialog.open());
 
+        Span title = new Span(getTranslation("departmentAccordion.title"));
+        title.getStyle().set("font-weight", "600");
+
+        // Toggle button with chevron icons
+        Icon closedIcon = VaadinIcon.CHEVRON_RIGHT.create();
+        Icon openIcon = VaadinIcon.CHEVRON_DOWN.create();
+
+        Button toggle = new Button(closedIcon);
+        toggle.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL);
+        toggle.getElement().getStyle().set("min-width", "2.2rem");
+
+        // List of departments
         List<Span> items = new ArrayList<>();
         employeeFormModel.getDepartments().forEach(department -> {
-            var departmentName = department.getName();
-            var span = new Span();
+            Span span = new Span(department.getName());
             span.getStyle().set("font-family", "monospace");
             span.getStyle().set("white-space", "pre");
             items.add(span);
         });
 
-        var departmentDisplay = new VerticalLayout(items.toArray(new Span[items.size()]));
+        VerticalLayout departmentDisplay = new VerticalLayout(items.toArray(new Span[0]));
         departmentDisplay.setSpacing(false);
-        departmentDisplay.setMargin(false);
-        departmentDisplay.add(edit);
+        departmentDisplay.setPadding(false);
+        departmentDisplay.setVisible(false);
 
-        accordion.setVisible(true);
-        accordion.close();
+        toggle.addClickListener(ev -> {
+            boolean expand = !departmentDisplay.isVisible();
+            departmentDisplay.setVisible(expand);
+            toggle.setIcon(expand ? openIcon : closedIcon);
+        });
 
-        add(accordion);
-        // todo i18n accordion title
-        accordion.add("Departments", departmentDisplay);
+        // === HEADER LAYOUT ===
+        HorizontalLayout header = new HorizontalLayout();
+        header.setWidthFull();
+        header.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        // Left: toggle + title, Right: edit
+        header.add(toggle, title);
+        header.addAndExpand(new Span()); // flexible spacer
+        header.add(edit);
+
+        // Add header + collapsible content
+        add(header, departmentDisplay);
     }
 
     private DepartmentManagerDialog getConfiguredDepartmentManagerDialog(EmployeeFormModel employeeFormModel) {

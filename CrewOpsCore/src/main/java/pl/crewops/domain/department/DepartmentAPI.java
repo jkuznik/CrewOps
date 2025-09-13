@@ -11,6 +11,8 @@ import pl.crewops.model.Department;
 @Validated
 public interface DepartmentAPI {
 
+    Department getDepartment(@NotNull UUID id);
+
     List<DepartmentDTO> getDepartments();
 
     Set<Department> getDepartmentsIn(@NotNull Set<UUID> departmentIds);

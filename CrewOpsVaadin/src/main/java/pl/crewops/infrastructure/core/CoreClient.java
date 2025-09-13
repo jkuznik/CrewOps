@@ -724,6 +724,51 @@ class CoreClient {
         }
     }
 
+    public Set<DepartmentDTO> getAllDepartmentsByIds(Set<UUID> departmentIds) throws NotAuthenticatedException {
+        log.info("Get all departments by ids cache missed");
+        try {
+            return authorizedClient()
+                    .post()
+                    .uri(uriBuilder -> uriBuilder.path(DEPARTMENTS_DIDS).build())
+                    .body(departmentIds)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Error getting departments by ids");
+            return Set.of();
+        }
+    }
+
+    public EmployeeDTO addEmployeeDepartment(UUID employeeId, UUID departmentId) throws NotAuthenticatedException {
+        log.info("Assignment department to employee");
+        try {
+            return authorizedClient()
+                    .patch()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(EMPLOYEES_EID_DEPARTMENTS_DID)
+                            .build(employeeId.toString(), departmentId.toString()))
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Error during add department to employee");
+            return null;
+        }
+    }
+
+    public void removeEmployeeDepartment(UUID employeeId, UUID departmentId) throws NotAuthenticatedException {
+        try {
+            authorizedClient()
+                    .delete()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(EMPLOYEES_EID_DEPARTMENTS_DID)
+                            .build(employeeId.toString(), departmentId.toString()))
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientException e) {
+            log.error("Error during remove department from employee");
+        }
+    }
+
     // authenticated
     // TODO: consider remove caching of this value or implement different logic
     @Cacheable(cacheNames = GET_COMPANY_BY_ID, key = "#companyId")

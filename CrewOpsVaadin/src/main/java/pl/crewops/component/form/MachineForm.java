@@ -25,6 +25,7 @@ import pl.crewops.view.HomeView;
 
 @CssImport("./styles/component/combo-box.css")
 public class MachineForm extends FormLayout {
+    // todo add binding info in case if value is not valid
     private final MachineGrid machineGrid;
     private final BreakdownGrid breakdownGrid;
 

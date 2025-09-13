@@ -2,11 +2,14 @@ package pl.crewops.component.accordion;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
 import java.util.ArrayList;
@@ -24,30 +27,54 @@ public class QualificationAccordion extends FormLayout {
     public void setValues(EmployeeFormModel employeeFormModel) {
         removeAll();
 
-        var accordion = new Accordion();
-        var edit = new Button(getTranslation("qualificationAccordion.editButton"));
         var qualificationsManagerDialog = getConfiguredQualificationManagerDialog(employeeFormModel);
 
-        edit.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        edit.addClickListener(event -> {
-            qualificationsManagerDialog.open();
-        });
+        // === Buttons & title ===
+        Button edit = new Button(getTranslation("qualificationAccordion.editButton", "Edit"));
+        edit.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
+        edit.addClickListener(event -> qualificationsManagerDialog.open());
 
-        List<Span> accordionItems = new ArrayList<>();
+        Span title = new Span(getTranslation("qualificationAccordion.title", "Qualifications"));
+        title.getStyle().set("font-weight", "600");
+
+        // Toggle button with chevron icons
+        Icon closedIcon = VaadinIcon.CHEVRON_RIGHT.create();
+        Icon openIcon = VaadinIcon.CHEVRON_DOWN.create();
+
+        Button toggle = new Button(closedIcon);
+        toggle.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL);
+        toggle.getElement().getStyle().set("min-width", "2.2rem");
+
+        // List of qualifications
+        List<Span> items = new ArrayList<>();
         employeeFormModel.getQualificationsSet().forEach(qualification -> {
-            accordionItems.add(new Span(qualification.description()));
+            Span span = new Span(qualification.description());
+            items.add(span);
         });
 
-        var qualificationDisplay = new VerticalLayout(accordionItems.toArray(new Span[accordionItems.size()]));
+        VerticalLayout qualificationDisplay = new VerticalLayout(items.toArray(new Span[0]));
         qualificationDisplay.setSpacing(false);
         qualificationDisplay.setPadding(false);
-        qualificationDisplay.add(edit);
+        qualificationDisplay.setVisible(false);
 
-        accordion.setVisible(true);
-        accordion.close();
+        toggle.addClickListener(ev -> {
+            boolean expand = !qualificationDisplay.isVisible();
+            qualificationDisplay.setVisible(expand);
+            toggle.setIcon(expand ? openIcon : closedIcon);
+        });
 
-        add(accordion);
-        accordion.add(getTranslation("qualificationAccordion.title"), qualificationDisplay);
+        // === HEADER LAYOUT ===
+        HorizontalLayout header = new HorizontalLayout();
+        header.setWidthFull();
+        header.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        // Left: toggle + title, Right: edit
+        header.add(toggle, title);
+        header.addAndExpand(new Span()); // flexible spacer
+        header.add(edit);
+
+        // Add header + collapsible content
+        add(header, qualificationDisplay);
     }
 
     private QualificationsManagerDialog getConfiguredQualificationManagerDialog(EmployeeFormModel employeeFormModel) {
@@ -59,7 +86,6 @@ public class QualificationAccordion extends FormLayout {
     }
 
     public abstract static class QualificationAccordionEvent extends ComponentEvent<QualificationAccordion> {
-
         public QualificationAccordionEvent(QualificationAccordion source) {
             super(source, false);
         }

@@ -45,9 +45,13 @@ public interface EmployeeAPI {
             UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO)
             throws EmployeeNotFoundException;
 
+    void removeDepartment(@NotNull UUID employeeId, @NotNull UUID departmentId) throws EmployeeNotFoundException;
+
     void removeQualification(@NotNull UUID employeeId, @NotNull UUID qualificationId) throws EmployeeNotFoundException;
 
     EmployeeDTO addMachine(@NotNull UUID employeeId, @NotNull UUID machineId) throws EmployeeNotFoundException;
+
+    EmployeeDTO addDepartment(@NotNull UUID employeeId, @NotNull UUID departmentId) throws EmployeeNotFoundException;
 
     void removeMachine(@NotNull UUID employeeId, @NotNull UUID machineId) throws EmployeeNotFoundException;
 
