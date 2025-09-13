@@ -45,7 +45,7 @@ public class RoleAccordion extends FormLayout {
     public void setValues(EmployeeFormModel employeeFormModel) {
         removeAll();
 
-        Button edit = new Button(getTranslation("qualificationAccordion.editButton", "Edit"));
+        Button edit = new Button(getTranslation("qualificationAccordion.editButton"));
         edit.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
         edit.setEnabled(false);
 
@@ -74,7 +74,7 @@ public class RoleAccordion extends FormLayout {
         });
 
         // Title
-        Span title = new Span(getTranslation("employeeForm.roles", "Roles"));
+        Span title = new Span(getTranslation("employeeForm.roles"));
         title.getStyle().set("font-weight", "600");
 
         // Header row: toggle + title (left), edit (right)

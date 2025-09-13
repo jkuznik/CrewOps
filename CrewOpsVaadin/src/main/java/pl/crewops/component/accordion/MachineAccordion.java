@@ -5,6 +5,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -12,8 +13,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Getter;
 import pl.crewops.component.dialog.machineDialog.MachineManagerDialog;
 import pl.crewops.dto.employee.EmployeeDTO;
@@ -46,20 +45,26 @@ public class MachineAccordion extends FormLayout {
         toggle.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL);
         toggle.getElement().getStyle().set("min-width", "2.2rem");
 
-        // List of machines
-        List<Span> items = new ArrayList<>();
+        // List of machines with separators
+        VerticalLayout machinesDisplay = new VerticalLayout();
+        machinesDisplay.setSpacing(false);
+        machinesDisplay.setPadding(false);
+        machinesDisplay.setVisible(false);
+
         employeeFormModel.getMachinesSet().forEach(machine -> {
             String formatted = String.format("%-15s%s", machine.machineType().name(), machine.registerNumber());
             Span span = new Span(formatted);
             span.getStyle().set("font-family", "monospace");
             span.getStyle().set("white-space", "pre");
-            items.add(span);
-        });
+            span.getStyle().set("padding", "2px 0");
 
-        VerticalLayout machinesDisplay = new VerticalLayout(items.toArray(new Span[0]));
-        machinesDisplay.setSpacing(false);
-        machinesDisplay.setPadding(false);
-        machinesDisplay.setVisible(false);
+            Div itemWrapper = new Div();
+            itemWrapper.add(span);
+            itemWrapper.getStyle().set("border-bottom", "1px solid #e0e0e0");
+            itemWrapper.getStyle().set("padding-bottom", "2px");
+
+            machinesDisplay.add(itemWrapper);
+        });
 
         toggle.addClickListener(ev -> {
             boolean expand = !machinesDisplay.isVisible();

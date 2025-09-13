@@ -5,6 +5,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -12,8 +13,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Getter;
 import pl.crewops.component.dialog.qualificationManager.QualificationsManagerDialog;
 import pl.crewops.dto.employee.EmployeeDTO;
@@ -30,11 +29,11 @@ public class QualificationAccordion extends FormLayout {
         var qualificationsManagerDialog = getConfiguredQualificationManagerDialog(employeeFormModel);
 
         // === Buttons & title ===
-        Button edit = new Button(getTranslation("qualificationAccordion.editButton", "Edit"));
+        Button edit = new Button(getTranslation("qualificationAccordion.editButton"));
         edit.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
         edit.addClickListener(event -> qualificationsManagerDialog.open());
 
-        Span title = new Span(getTranslation("qualificationAccordion.title", "Qualifications"));
+        Span title = new Span(getTranslation("qualificationAccordion.title"));
         title.getStyle().set("font-weight", "600");
 
         // Toggle button with chevron icons
@@ -45,17 +44,22 @@ public class QualificationAccordion extends FormLayout {
         toggle.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL);
         toggle.getElement().getStyle().set("min-width", "2.2rem");
 
-        // List of qualifications
-        List<Span> items = new ArrayList<>();
-        employeeFormModel.getQualificationsSet().forEach(qualification -> {
-            Span span = new Span(qualification.description());
-            items.add(span);
-        });
-
-        VerticalLayout qualificationDisplay = new VerticalLayout(items.toArray(new Span[0]));
+        // List of qualifications with separators
+        VerticalLayout qualificationDisplay = new VerticalLayout();
         qualificationDisplay.setSpacing(false);
         qualificationDisplay.setPadding(false);
         qualificationDisplay.setVisible(false);
+
+        employeeFormModel.getQualificationsSet().forEach(qualification -> {
+            Span span = new Span(qualification.description());
+
+            Div itemWrapper = new Div();
+            itemWrapper.add(span);
+            itemWrapper.getStyle().set("border-bottom", "1px solid #e0e0e0");
+            itemWrapper.getStyle().set("padding", "2px 0");
+
+            qualificationDisplay.add(itemWrapper);
+        });
 
         toggle.addClickListener(ev -> {
             boolean expand = !qualificationDisplay.isVisible();
