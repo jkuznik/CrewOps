@@ -63,3 +63,11 @@ allprojects {
 dependencies {
     implementation("org.springframework.boot:spring-boot-docker-compose:3.4.4")
 }
+
+tasks.register("buildCoreImage") {
+    dependsOn(":CrewOpsCore:bootBuildImage")
+}
+
+tasks.register("buildVaadinImage") {
+    dependsOn(":CrewOpsVaadin:bootBuildImage")
+}

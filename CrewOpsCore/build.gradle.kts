@@ -21,6 +21,12 @@ tasks.test {
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("bootBuildImage") {
-    // Docker image name must be lowercase
     imageName.set("${project.group}/${project.name.toLowerCase()}:${project.version}")
+
+    environment.set(
+        mapOf(
+            "BP_JVM_PROVIDER" to "corretto",  // 👈 force Corretto
+            "BP_JVM_VERSION" to "21"          // 👈 optional, set version
+        )
+    )
 }
