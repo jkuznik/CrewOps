@@ -122,4 +122,17 @@ class EmployeeController {
         employeeAPI.removeMachine(employeeId, machineId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    @PatchMapping(EMPLOYEES_EID_DEPARTMENTS_DID)
+    public ResponseEntity<EmployeeDTO> addEmployeeDepartments(
+            @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(DEPARTMENT_ID) UUID departmentId) {
+        return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.addDepartment(employeeId, departmentId));
+    }
+
+    @DeleteMapping(EMPLOYEES_EID_DEPARTMENTS_DID)
+    public ResponseEntity<Void> removeEmployeeDepartments(
+            @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(DEPARTMENT_ID) UUID departmentId) {
+        employeeAPI.removeDepartment(employeeId, departmentId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

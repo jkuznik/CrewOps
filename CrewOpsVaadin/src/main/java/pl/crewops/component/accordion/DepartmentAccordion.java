@@ -15,26 +15,27 @@ import com.vaadin.flow.shared.Registration;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
-import pl.crewops.component.dialog.qualificationManager.QualificationsManagerDialog;
+import pl.crewops.component.dialog.departmentDialog.DepartmentManagerDialog;
 import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.model.EmployeeFormModel;
 
-public class QualificationAccordion extends FormLayout {
-    public QualificationAccordion() {
-        addClassName("qualification-accordion");
+public class DepartmentAccordion extends FormLayout {
+
+    public DepartmentAccordion() {
+        addClassName("departments-accordion");
     }
 
     public void setValues(EmployeeFormModel employeeFormModel) {
         removeAll();
 
-        var qualificationsManagerDialog = getConfiguredQualificationManagerDialog(employeeFormModel);
+        var departmentManagerDialog = getConfiguredDepartmentManagerDialog(employeeFormModel);
 
         // === Buttons & title ===
-        Button edit = new Button(getTranslation("qualificationAccordion.editButton", "Edit"));
+        Button edit = new Button(getTranslation("qualificationAccordion.editButton"));
         edit.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
-        edit.addClickListener(event -> qualificationsManagerDialog.open());
+        edit.addClickListener(event -> departmentManagerDialog.open());
 
-        Span title = new Span(getTranslation("qualificationAccordion.title", "Qualifications"));
+        Span title = new Span(getTranslation("departmentAccordion.title"));
         title.getStyle().set("font-weight", "600");
 
         // Toggle button with chevron icons
@@ -45,21 +46,23 @@ public class QualificationAccordion extends FormLayout {
         toggle.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL);
         toggle.getElement().getStyle().set("min-width", "2.2rem");
 
-        // List of qualifications
+        // List of departments
         List<Span> items = new ArrayList<>();
-        employeeFormModel.getQualificationsSet().forEach(qualification -> {
-            Span span = new Span(qualification.description());
+        employeeFormModel.getDepartments().forEach(department -> {
+            Span span = new Span(department.getName());
+            span.getStyle().set("font-family", "monospace");
+            span.getStyle().set("white-space", "pre");
             items.add(span);
         });
 
-        VerticalLayout qualificationDisplay = new VerticalLayout(items.toArray(new Span[0]));
-        qualificationDisplay.setSpacing(false);
-        qualificationDisplay.setPadding(false);
-        qualificationDisplay.setVisible(false);
+        VerticalLayout departmentDisplay = new VerticalLayout(items.toArray(new Span[0]));
+        departmentDisplay.setSpacing(false);
+        departmentDisplay.setPadding(false);
+        departmentDisplay.setVisible(false);
 
         toggle.addClickListener(ev -> {
-            boolean expand = !qualificationDisplay.isVisible();
-            qualificationDisplay.setVisible(expand);
+            boolean expand = !departmentDisplay.isVisible();
+            departmentDisplay.setVisible(expand);
             toggle.setIcon(expand ? openIcon : closedIcon);
         });
 
@@ -74,34 +77,35 @@ public class QualificationAccordion extends FormLayout {
         header.add(edit);
 
         // Add header + collapsible content
-        add(header, qualificationDisplay);
+        add(header, departmentDisplay);
     }
 
-    private QualificationsManagerDialog getConfiguredQualificationManagerDialog(EmployeeFormModel employeeFormModel) {
-        var qualificationsManagerDialog = new QualificationsManagerDialog(employeeFormModel);
-        qualificationsManagerDialog.addUpdateQualificationsListener(event -> {
-            fireEvent(new UpdateQualificationsEvent(this, event.getEmployeeDTO()));
+    private DepartmentManagerDialog getConfiguredDepartmentManagerDialog(EmployeeFormModel employeeFormModel) {
+        var departmentManagerDialog = new DepartmentManagerDialog(employeeFormModel);
+        departmentManagerDialog.addUpdateDepartmentListener(event -> {
+            fireEvent(new UpdateDepartmentEvent(this, event.getEmployeeDTO()));
         });
-        return qualificationsManagerDialog;
+
+        return departmentManagerDialog;
     }
 
-    public abstract static class QualificationAccordionEvent extends ComponentEvent<QualificationAccordion> {
-        public QualificationAccordionEvent(QualificationAccordion source) {
+    public abstract static class DepartmentAccordionEvent extends ComponentEvent<DepartmentAccordion> {
+        public DepartmentAccordionEvent(DepartmentAccordion source) {
             super(source, false);
         }
     }
 
-    public static class UpdateQualificationsEvent extends QualificationAccordionEvent {
+    public static class UpdateDepartmentEvent extends DepartmentAccordionEvent {
         @Getter
         private final EmployeeDTO employeeDTO;
 
-        public UpdateQualificationsEvent(QualificationAccordion source, EmployeeDTO employeeDTO) {
+        public UpdateDepartmentEvent(DepartmentAccordion source, EmployeeDTO employeeDTO) {
             super(source);
             this.employeeDTO = employeeDTO;
         }
     }
 
-    public Registration addUpdateQualificationsListener(ComponentEventListener<UpdateQualificationsEvent> listener) {
-        return addListener(UpdateQualificationsEvent.class, listener);
+    public Registration addUpdateDepartmentListener(ComponentEventListener<UpdateDepartmentEvent> listener) {
+        return addListener(UpdateDepartmentEvent.class, listener);
     }
 }

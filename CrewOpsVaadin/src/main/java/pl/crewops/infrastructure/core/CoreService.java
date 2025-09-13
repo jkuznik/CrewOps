@@ -202,6 +202,18 @@ class CoreService implements CoreAPI {
     }
 
     @Override
+    public Set<DepartmentDTO> getAllDepartmentsByIds(Set<UUID> ids) throws NotAuthenticatedException {
+        log.info(("Get all departments by ids via service proxy"));
+        return coreClient.getAllDepartmentsByIds(ids);
+    }
+
+    @Override
+    public Optional<EmployeeDTO> addEmployeeDepartment(UUID employeeId, UUID departmentId)
+            throws NotAuthenticatedException {
+        return Optional.ofNullable(coreClient.addEmployeeDepartment(employeeId, departmentId));
+    }
+
+    @Override
     public Optional<CompanyDTO> getCompanyById(UUID companyId) throws NotAuthenticatedException {
         log.info("Get company by id via service proxy");
 
@@ -227,6 +239,11 @@ class CoreService implements CoreAPI {
     public void terminateEmployeeAccount(UUID employeeId) throws NotAuthenticatedException {
 
         coreClient.terminateEmployeeAccount(employeeId);
+    }
+
+    @Override
+    public void removeEmployeeDepartment(UUID employeeId, UUID departmentId) throws NotAuthenticatedException {
+        coreClient.removeEmployeeDepartment(employeeId, departmentId);
     }
 
     @Override

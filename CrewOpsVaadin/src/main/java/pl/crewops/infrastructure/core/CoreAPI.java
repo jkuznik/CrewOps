@@ -99,6 +99,11 @@ public interface CoreAPI {
 
     List<DepartmentDTO> getAllDepartments() throws NotAuthenticatedException;
 
+    Set<DepartmentDTO> getAllDepartmentsByIds(@NotNull Set<UUID> ids) throws NotAuthenticatedException;
+
+    Optional<EmployeeDTO> addEmployeeDepartment(@NotNull UUID employeeId, @NotNull UUID departmentId)
+            throws NotAuthenticatedException;
+
     Optional<CompanyDTO> getCompanyById(@NotNull UUID companyId) throws NotAuthenticatedException;
 
     List<MessageDTO> getMessagesByRecipientEmployeeId(@NotNull UUID employeeId) throws NotAuthenticatedException;
@@ -108,6 +113,9 @@ public interface CoreAPI {
     void sendMessage(@NotNull SendMessageCommand sendMessageCommand) throws NotAuthenticatedException;
 
     void terminateEmployeeAccount(@NotNull UUID employeeId) throws NotAuthenticatedException;
+
+    void removeEmployeeDepartment(@NotNull UUID employeeId, @NotNull UUID departmentId)
+            throws NotAuthenticatedException;
 
     void removeEmployeeQualification(@NotNull UUID employeeId, @NotNull UUID qualificationId)
             throws NotAuthenticatedException;

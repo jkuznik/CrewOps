@@ -214,7 +214,7 @@ class EmployeeService implements EmployeeAPI {
 
     @Transactional
     // TODO: consider to refactor code and introduce object like AddMachineCommand, AddQualificationCommand, Remove..
-    // etc.
+    // todo update: consider to use update employee for this request
     public EmployeeDTO addMachine(UUID employeeId, UUID machineId) {
         Employee employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
@@ -225,6 +225,30 @@ class EmployeeService implements EmployeeAPI {
 
         log.info("Add machine {} to employee {}", machineId, employeeId);
         return mapToDTO(employee);
+    }
+
+    @Transactional
+    public EmployeeDTO addDepartment(UUID employeeId, UUID departmentId) {
+        Employee employee =
+                employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
+
+        Department department = departmentAPI.getDepartment(departmentId);
+
+        employee.getDepartments().add(department);
+
+        log.info("Add department {} to employee {}", departmentId, employeeId);
+        return mapToDTO(employee);
+    }
+
+    @Transactional
+    public void removeDepartment(UUID employeeId, UUID departmentId) {
+        Employee employee =
+                employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));
+
+        Department department = departmentAPI.getDepartment(departmentId);
+
+        log.info("Remove department {} from employee {}", department, employeeId);
+        employee.getDepartments().remove(department);
     }
 
     @Transactional
