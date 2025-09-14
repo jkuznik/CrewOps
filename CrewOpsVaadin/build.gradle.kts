@@ -58,7 +58,8 @@ tasks.named<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("boot
     environment.set(
         mapOf(
             "BP_JVM_VERSION" to "21",
-            "BP_CACHE_IMAGE" to "crewops-vaadin:latest"
+            "BP_CACHE_IMAGE" to "crewops-vaadin:latest",
+            "BP_JVM_CLASSPATH" to "app.jar"
         )
     )
 }
