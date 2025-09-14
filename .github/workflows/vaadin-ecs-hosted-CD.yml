@@ -35,6 +35,42 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      # 2️⃣ Set up Java (Amazon Corretto)
+      - name: Set up Java 21 (Amazon Corretto)
+        uses: actions/setup-java@v3
+        with:
+          distribution: corretto
+          java-version: 21
+
+      # 3️⃣ Set up Node (for Vaadin frontend)
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      # 4️⃣ Cache Gradle dependencies
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      # 5️⃣ Build dependent modules
+      - name: Build CrewOpsModel & CrewOpsSecurity
+        run: ./gradlew :CrewOpsModel:build :CrewOpsSecurity:build
+
+      # 6️⃣ Prepare Vaadin frontend (production mode)
+      - name: Vaadin Prepare Frontend
+        run: ./gradlew :CrewOpsVaadin:vaadinPrepareFrontend -Pproduction
+
+      # 7️⃣ Build Docker image using Spring Boot buildpacks
+      - name: Build Docker image
+        run: ./gradlew :CrewOpsVaadin:bootBuildImage \
+          --imageName=jkuznik-ecr/crewops-vaadin:${IMAGE_TAG} \
+          -Pproduction
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
