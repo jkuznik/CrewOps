@@ -25,6 +25,12 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
 
+    env:
+      IMAGE_TAG: ${{ github.sha }}
+      IMAGE_URI: ""
+      TASK_DEF_FILE: crewops-vaadin-latest-task-definition.json
+      UPDATED_TASK_DEF_FILE: updated-task-def.json
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
