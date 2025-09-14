@@ -43,4 +43,22 @@ tasks.named("build") {
     dependsOn("vaadinBuildFrontend")
 }
 
-defaultTasks("clean", "vaadinBuildFrontend", "build")
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("bootBuildImage") {
+    imageName.set("jkuznik-ecr/crewops-vaadin:latest")
+
+    buildpacks.set(
+        listOf(
+            "paketobuildpacks/amazon-corretto",
+            "paketobuildpacks/java"
+        )
+    )
+
+    environment.set(
+        mapOf(
+            "BP_JVM_VERSION" to "21",
+            "BP_CACHE_IMAGE" to "crewops-vaadin:latest"
+        )
+    )
+}
+
+
