@@ -5,7 +5,6 @@ on:
     branches: [ "main" ]
     paths:
       - 'CrewOpsCore/**'
-      - '.docker/core.dockerfile'
       - 'settings.gradle.kts'
       - 'build.gradle.kts'
       - 'gradle/**'
@@ -21,7 +20,6 @@ env:
 
 jobs:
   deploy:
-    name: Deploy Core
     runs-on: ubuntu-latest
     environment: production
 
@@ -42,68 +40,45 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ECS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Build Core image with Gradle
+        run: ./gradlew :CrewOpsCore:bootBuildImage --imageName=$ECR_REPOSITORY:${{ env.IMAGE_TAG }}
+
       - name: Login to Amazon ECR
-        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build & Push Docker image
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      - name: Push Core image to ECR
         run: |
-          set -euo pipefail
-          echo "👉 Building Docker image..."
-          docker build -t $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} \
-            -f $GITHUB_WORKSPACE/.docker/core.dockerfile $GITHUB_WORKSPACE
-
-          echo "👉 Pushing Docker image to ECR..."
-          docker push $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-
-          IMAGE_URI="$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
-          echo "✅ Image pushed: $IMAGE_URI"
-
-          # Save globally
+          IMAGE_URI="${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          docker push $IMAGE_URI
           echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
 
       - name: Fetch latest ECS task definition
-        id: fetch-task
         run: |
-          set -euo pipefail
           FAMILY="${{ env.ECS_TASK_FAMILY }}"
-          echo "👉 Fetching latest task definition for family: $FAMILY"
-
+          echo "Fetching latest task definition for family: $FAMILY"
           LATEST_TASK_DEF_ARN=$(aws ecs list-task-definitions \
             --family-prefix "$FAMILY" \
             --sort DESC \
             --max-items 1 \
             --query 'taskDefinitionArns[0]' \
             --output text)
-
           LATEST_TASK_DEF_ARN=$(echo "$LATEST_TASK_DEF_ARN" | sed 's/None//g' | tr -d '[:space:]')
-
           if [ -z "$LATEST_TASK_DEF_ARN" ]; then
             echo "❌ No task definitions found for family $FAMILY"
             exit 1
           fi
-
           echo "✅ Latest task definition ARN: $LATEST_TASK_DEF_ARN"
-
           LATEST_TASK_DEF=$(basename "$LATEST_TASK_DEF_ARN")
-
           aws ecs describe-task-definition \
             --task-definition "$LATEST_TASK_DEF" \
             --region "${{ env.AWS_REGION }}" \
             --query "taskDefinition" \
             --output json > "$TASK_DEF_FILE"
-
           echo "✅ Task definition saved to $TASK_DEF_FILE"
 
       - name: Modify ECS task definition with new image
-        id: update-task-def
         run: |
-          set -euo pipefail
-          echo "👉 Updating task definition to use new image: $IMAGE_URI"
-
+          echo "Updating task definition to use new image: $IMAGE_URI"
           jq --arg IMAGE "$IMAGE_URI" \
              --arg NAME "${{ env.CONTAINER_NAME }}" \
              ' .containerDefinitions |= map(
@@ -114,17 +89,11 @@ jobs:
                  end
                )
              ' "$TASK_DEF_FILE" > "$UPDATED_TASK_DEF_FILE"
-
           echo "✅ Updated task definition written to $UPDATED_TASK_DEF_FILE"
 
       - name: Register and deploy ECS task definition
-        id: deploy-ecs
         run: |
-          set -euo pipefail
-
-          echo "👉 Cleaning task definition file before registration..."
           CLEAN_TASK_FILE="task-to-register.json"
-
           jq '{
             family,
             taskRoleArn,
@@ -145,17 +114,14 @@ jobs:
             + (if .ephemeralStorage != null then {ephemeralStorage: .ephemeralStorage} else {} end)
           ' "$UPDATED_TASK_DEF_FILE" > "$CLEAN_TASK_FILE"
 
-          echo "✅ Cleaned task definition written to $CLEAN_TASK_FILE"
-
-          echo "👉 Registering new task definition..."
+          echo "Registering new task definition..."
           REGISTER_OUTPUT=$(aws ecs register-task-definition \
             --cli-input-json file://"$CLEAN_TASK_FILE" \
             --region "${{ env.AWS_REGION }}")
-
           NEW_TASK_DEF_ARN=$(echo "$REGISTER_OUTPUT" | jq -r '.taskDefinition.taskDefinitionArn')
           echo "✅ New task definition registered: $NEW_TASK_DEF_ARN"
 
-          echo "👉 Updating ECS service to use new task definition..."
+          echo "Updating ECS service..."
           aws ecs update-service \
             --cluster "${{ env.ECS_CLUSTER }}" \
             --service "${{ env.ECS_SERVICE }}" \
@@ -163,9 +129,7 @@ jobs:
             --force-new-deployment \
             --region "${{ env.AWS_REGION }}"
 
-          echo "✅ ECS service force deployment triggered successfully!"
-
-          echo "🗑️  Cleaning up temporary files..."
+          echo "✅ ECS service force deployment triggered"
           rm -f "$CLEAN_TASK_FILE" "$UPDATED_TASK_DEF_FILE" "$TASK_DEF_FILE"
           echo "✅ Cleanup completed"
 

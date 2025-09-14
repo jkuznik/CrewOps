@@ -44,7 +44,7 @@ tasks.named("build") {
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("bootBuildImage") {
-    imageName.set("pl.crewops/crewopscore:0.0.1-SNAPSHOT")
+    imageName.set("jkuznik-ecr/crewops-vaadin:latest")
 
     buildpacks.set(
         listOf(
@@ -55,7 +55,8 @@ tasks.named<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("boot
 
     environment.set(
         mapOf(
-            "BP_JVM_VERSION" to "21" // or your preferred Java version
+            "BP_JVM_VERSION" to "21",
+            "BP_CACHE_IMAGE" to "crewops-vaadin:latest"
         )
     )
 }
