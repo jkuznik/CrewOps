@@ -44,12 +44,20 @@ tasks.named("build") {
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("bootBuildImage") {
-    imageName.set("${project.group}/${project.name.toLowerCase()}:${project.version}")
+    imageName.set("pl.crewops/crewopscore:0.0.1-SNAPSHOT")
+
+    buildpacks.set(
+        listOf(
+            "paketobuildpacks/amazon-corretto",
+            "paketobuildpacks/java"
+        )
+    )
 
     environment.set(
         mapOf(
-            "BP_JVM_PROVIDER" to "corretto",
-            "BP_JVM_VERSION" to "21"
+            "BP_JVM_VERSION" to "21" // or your preferred Java version
         )
     )
 }
+
+
