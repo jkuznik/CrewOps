@@ -43,8 +43,10 @@ tasks.named("build") {
     dependsOn("vaadinBuildFrontend")
 }
 
+val imageTag: String = System.getenv("IMAGE_TAG") ?: "latest"
+
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("bootBuildImage") {
-    imageName.set("jkuznik-ecr/crewops-vaadin:latest")
+    imageName.set("jkuznik-ecr/crewops-vaadin:$imageTag")
 
     buildpacks.set(
         listOf(

@@ -20,8 +20,10 @@ tasks.test {
     useJUnitPlatform()
 }
 
+val imageTag: String = System.getenv("IMAGE_TAG") ?: "latest"
+
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("bootBuildImage") {
-    imageName.set("jkuznik-ecr/crewops-core:latest")
+    imageName.set("jkuznik-ecr/crewops-core:$imageTag")
 
     buildpacks.set(
         listOf(
