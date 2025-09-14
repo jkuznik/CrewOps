@@ -25,30 +25,24 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
 
-    env:
-      IMAGE_TAG: ${{ github.sha }}
-      IMAGE_URI: ""
-      TASK_DEF_FILE: crewops-vaadin-latest-task-definition.json
-      UPDATED_TASK_DEF_FILE: updated-vaadin-task-def.json
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # 2️⃣ Set up Java (Amazon Corretto)
+      # Set up Amazon Corretto 21
       - name: Set up Java 21 (Amazon Corretto)
         uses: actions/setup-java@v3
         with:
           distribution: corretto
           java-version: 21
 
-      # 3️⃣ Set up Node (for Vaadin frontend)
+      # Set up Node.js for Vaadin frontend
       - name: Set up Node.js 20
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      # 4️⃣ Cache Gradle dependencies
+      # Cache Gradle
       - name: Cache Gradle packages
         uses: actions/cache@v3
         with:
@@ -57,20 +51,15 @@ jobs:
             ~/.gradle/wrapper
           key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
 
-      # 5️⃣ Build dependent modules
+      # Build dependent modules
       - name: Build CrewOpsModel & CrewOpsSecurity
         run: ./gradlew :CrewOpsModel:build :CrewOpsSecurity:build
 
-      # 6️⃣ Prepare Vaadin frontend (production mode)
+      # Prepare Vaadin frontend in production mode
       - name: Vaadin Prepare Frontend
         run: ./gradlew :CrewOpsVaadin:vaadinPrepareFrontend -Pproduction
 
-      # 7️⃣ Build Docker image using Spring Boot buildpacks
-      - name: Build Docker image
-        run: ./gradlew :CrewOpsVaadin:bootBuildImage \
-          --imageName=jkuznik-ecr/crewops-vaadin:${IMAGE_TAG} \
-          -Pproduction
-
+      # Configure AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -78,34 +67,30 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ECS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      # Login to Amazon ECR
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      # Build and push Docker image
       - name: Build & Push Docker image
-        id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}  # Use SHA as tag in CI/CD
         run: |
           set -euo pipefail
+          IMAGE_TAG=${GITHUB_SHA}
+          IMAGE_URI="$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG"
+
           echo "👉 Building Docker image..."
-
-          # If IMAGE_TAG is not set, default to 'latest'
-          IMAGE_TAG=${IMAGE_TAG:-latest}
-
-          ./gradlew :CrewOpsVaadin:bootBuildImage --imageName=$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG
+          ./gradlew :CrewOpsVaadin:bootBuildImage --imageName="$IMAGE_URI" -Pproduction
 
           echo "👉 Pushing Docker image to ECR..."
-          docker push $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG
+          docker push "$IMAGE_URI"
 
-          IMAGE_URI="$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG"
           echo "✅ Image pushed: $IMAGE_URI"
-
-          # Save globally
           echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
-      
 
+      # Fetch latest ECS task definition
       - name: Fetch latest ECS task definition
         id: fetch-task
         run: |
@@ -127,45 +112,31 @@ jobs:
             exit 1
           fi
 
-          echo "✅ Latest task definition ARN: $LATEST_TASK_DEF_ARN"
-
           LATEST_TASK_DEF=$(basename "$LATEST_TASK_DEF_ARN")
-
           aws ecs describe-task-definition \
             --task-definition "$LATEST_TASK_DEF" \
             --region "${{ env.AWS_REGION }}" \
             --query "taskDefinition" \
-            --output json > "$TASK_DEF_FILE"
+            --output json > crewops-vaadin-latest-task-definition.json
 
-          echo "✅ Task definition saved to $TASK_DEF_FILE"
+          echo "✅ Task definition saved."
 
+      # Update ECS task definition with new image
       - name: Modify ECS task definition with new image
-        id: update-task-def
         run: |
           set -euo pipefail
-          echo "👉 Updating task definition to use new image: $IMAGE_URI"
-
           jq --arg IMAGE "$IMAGE_URI" \
              --arg NAME "${{ env.CONTAINER_NAME }}" \
-             ' .containerDefinitions |= map(
-                 if .name == $NAME then
-                   .image = $IMAGE
-                 else
-                   .
-                 end
-               )
-             ' "$TASK_DEF_FILE" > "$UPDATED_TASK_DEF_FILE"
+             '.containerDefinitions |= map(if .name==$NAME then .image=$IMAGE else . end)' \
+             crewops-vaadin-latest-task-definition.json \
+             > updated-vaadin-task-def.json
+          echo "✅ Task definition updated with new image."
 
-          echo "✅ Updated task definition written to $UPDATED_TASK_DEF_FILE"
-
+      # Register and deploy ECS task definition
       - name: Register and deploy ECS task definition
-        id: deploy-ecs
         run: |
           set -euo pipefail
-
-          echo "👉 Cleaning task definition file before registration..."
           CLEAN_TASK_FILE="task-to-register.json"
-
           jq '{
             family,
             taskRoleArn,
@@ -178,17 +149,14 @@ jobs:
             cpu,
             memory,
             runtimePlatform
-          } + (if .enableFaultInjection != null then {enableFaultInjection: .enableFaultInjection} else {} end)
-            + (if .pidMode != null then {pidMode: .pidMode} else {} end)
-            + (if .ipcMode != null then {ipcMode: .ipcMode} else {} end)
-            + (if .proxyConfiguration != null then {proxyConfiguration: .proxyConfiguration} else {} end)
-            + (if .inferenceAccelerators != null then {inferenceAccelerators: .inferenceAccelerators} else {} end)
-            + (if .ephemeralStorage != null then {ephemeralStorage: .ephemeralStorage} else {} end)
-          ' "$UPDATED_TASK_DEF_FILE" > "$CLEAN_TASK_FILE"
+          } + (if .enableFaultInjection != null then {enableFaultInjection:.enableFaultInjection} else {} end)
+            + (if .pidMode != null then {pidMode:.pidMode} else {} end)
+            + (if .ipcMode != null then {ipcMode:.ipcMode} else {} end)
+            + (if .proxyConfiguration != null then {proxyConfiguration:.proxyConfiguration} else {} end)
+            + (if .inferenceAccelerators != null then {inferenceAccelerators:.inferenceAccelerators} else {} end)
+            + (if .ephemeralStorage != null then {ephemeralStorage:.ephemeralStorage} else {} end)
+          ' updated-vaadin-task-def.json > "$CLEAN_TASK_FILE"
 
-          echo "✅ Cleaned task definition written to $CLEAN_TASK_FILE"
-
-          echo "👉 Registering new task definition..."
           REGISTER_OUTPUT=$(aws ecs register-task-definition \
             --cli-input-json file://"$CLEAN_TASK_FILE" \
             --region "${{ env.AWS_REGION }}")
@@ -196,7 +164,7 @@ jobs:
           NEW_TASK_DEF_ARN=$(echo "$REGISTER_OUTPUT" | jq -r '.taskDefinition.taskDefinitionArn')
           echo "✅ New task definition registered: $NEW_TASK_DEF_ARN"
 
-          echo "👉 Updating ECS service to use new task definition..."
+          echo "👉 Updating ECS service..."
           aws ecs update-service \
             --cluster "${{ env.ECS_CLUSTER }}" \
             --service "${{ env.ECS_SERVICE }}" \
@@ -204,12 +172,11 @@ jobs:
             --force-new-deployment \
             --region "${{ env.AWS_REGION }}"
 
-          echo "✅ ECS service force deployment triggered successfully!"
+          echo "✅ ECS service deployment triggered successfully."
 
-          echo "🗑️  Cleaning up temporary files..."
-          rm -f "$CLEAN_TASK_FILE" "$UPDATED_TASK_DEF_FILE" "$TASK_DEF_FILE"
-          echo "✅ Cleanup completed"
-
+          # Cleanup
+          rm -f "$CLEAN_TASK_FILE" updated-vaadin-task-def.json crewops-vaadin-latest-task-definition.json
+          echo "✅ Cleanup done."
 
 #     paste this directly under on: workflow_run: [] types: -completed    based on self-hosted runner
 #jobs:
