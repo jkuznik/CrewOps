@@ -7,7 +7,6 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.*;
-import pl.crewops.enums.CompanyStatus;
 
 @Getter
 @Setter
@@ -28,10 +27,6 @@ public class Company {
     @Email
     @Column(nullable = false, unique = true)
     private String email;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private CompanyStatus status;
 
     // the reason why this entity not extends AbstractEntity is caused by different id column configuration
     @Id
