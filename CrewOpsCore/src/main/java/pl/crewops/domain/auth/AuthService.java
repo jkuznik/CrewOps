@@ -167,7 +167,7 @@ class AuthService implements AuthAPI {
     private TenantDTO tenantDTO(Tenant tenant) {
         return TenantDTO.builder()
                 .id(tenant.getId())
-                .active(tenant.isActive())
+                .status(tenant.getStatus())
                 .schemaName(tenant.getSchemaName())
                 .companyId(tenant.getCompanyId())
                 .build();

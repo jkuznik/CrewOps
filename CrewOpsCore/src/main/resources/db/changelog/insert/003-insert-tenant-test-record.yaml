@@ -23,7 +23,7 @@ databaseChangeLog:
                   value: "test_tax_id"
               - column:
                   name: status
-                  valueBoolean: "TRIAL"
+                  value: "TRIAL"
               - column:
                   name: created_at
                   valueDate: now()

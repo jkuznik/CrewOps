@@ -20,6 +20,7 @@ import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.employee.CreateEmployeeDTO;
 import pl.crewops.dto.message.RecipientSelection;
 import pl.crewops.dto.message.SendMessageCommand;
+import pl.crewops.enums.CompanyStatus;
 import pl.crewops.exception.domain.company.NoUniqueCompanyTaxIdException;
 import pl.crewops.exception.domain.registration.RegisterCustomerException;
 import pl.crewops.exception.multitenancy.CreateSchemaException;
@@ -70,7 +71,8 @@ class RegistrationService {
         Tenant tenant;
 
         try {
-            var notPersistedTenant = Tenant.builder().active(true).build();
+            var notPersistedTenant =
+                    Tenant.builder().status(CompanyStatus.ACTIVE).build();
             notPersistedTenant.setSchemaName(schemaName);
             notPersistedTenant.setCompanyId(UUID.randomUUID());
             notPersistedTenant.setTaxId(
