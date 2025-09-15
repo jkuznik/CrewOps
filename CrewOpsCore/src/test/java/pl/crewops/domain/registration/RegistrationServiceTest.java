@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import pl.crewops.IntegrationTest;
 import pl.crewops.dto.auth.CreateAuthUserDTO;
+import pl.crewops.enums.CompanyStatus;
 import pl.crewops.exception.domain.registration.RegisterCustomerException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.Employee;
@@ -63,7 +64,7 @@ class RegistrationServiceTest extends IntegrationTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.authUserResult().authUserDTO().tenant().active()).isTrue();
+            assertThat(result.authUserResult().authUserDTO().tenant().status()).isEqualTo(CompanyStatus.ACTIVE);
             assertThat(schemaExists).isTrue();
             assertThat(tenant.getId()).isInstanceOf(UUID.class);
             assertThat(employee.getId()).isInstanceOf(UUID.class);

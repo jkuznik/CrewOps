@@ -15,7 +15,6 @@ import pl.crewops.domain.address.AddressAPI;
 import pl.crewops.dto.address.CreateAddressDTO;
 import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.dto.company.CreateCompanyDTO;
-import pl.crewops.enums.CompanyStatus;
 import pl.crewops.exception.domain.company.CompanyNotFoundException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.Address;
@@ -78,7 +77,6 @@ class CompanyServiceTest {
 
         company.setName("Test Company");
         company.setEmail("test@example.com");
-        company.setStatus(CompanyStatus.TRIAL);
 
         when(companyRepository.findById(companyId)).thenReturn(Optional.of(company));
 
