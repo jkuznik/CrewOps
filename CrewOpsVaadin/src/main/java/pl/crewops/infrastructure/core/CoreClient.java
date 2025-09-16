@@ -46,9 +46,9 @@ class CoreClient {
 
     private final RestClient coreClient;
 
-    public CreateCustomerResult registerNewCustomer(CreateCustomerCommand command) throws NotAuthenticatedException {
+    public CreateCustomerResult registerNewCustomer(CreateCustomerCommand command) {
         try {
-            return authorizedClient()
+            return coreClient
                     .post()
                     .uri(uriBuilder -> uriBuilder.path(REGISTER).build())
                     .body(command)

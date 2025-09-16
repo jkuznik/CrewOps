@@ -63,6 +63,7 @@ public interface ControllerURL {
 
     static String[] publicUrl() {
         return new String[] {
+            REGISTER,
             LOGIN,
             LOGOUT,
             VALIDATE,

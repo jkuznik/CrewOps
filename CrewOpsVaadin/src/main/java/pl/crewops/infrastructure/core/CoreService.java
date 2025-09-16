@@ -113,8 +113,7 @@ class CoreService implements CoreAPI {
     }
 
     @Override
-    public Optional<CreateCustomerResult> registerNewCustomer(CreateCustomerCommand command)
-            throws NotAuthenticatedException {
+    public Optional<CreateCustomerResult> registerNewCustomer(CreateCustomerCommand command) {
 
         return Optional.ofNullable(coreClient.registerNewCustomer(command));
     }

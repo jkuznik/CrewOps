@@ -27,6 +27,7 @@ public class Employee extends AbstractEntity {
     @Column(updatable = false)
     private String lastName;
 
+    // todo: birthDate should be updatable
     @NotNull
     @Column(updatable = false)
     private LocalDate birthDate;

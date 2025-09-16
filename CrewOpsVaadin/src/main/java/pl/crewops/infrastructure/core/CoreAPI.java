@@ -66,8 +66,7 @@ public interface CoreAPI {
     Optional<MachineDTO> createMachine(@Valid @NotNull CreateMachineDTO createMachineDTO)
             throws NotAuthenticatedException;
 
-    Optional<CreateCustomerResult> registerNewCustomer(@Valid @NotNull CreateCustomerCommand command)
-            throws NotAuthenticatedException;
+    Optional<CreateCustomerResult> registerNewCustomer(@Valid @NotNull CreateCustomerCommand command);
 
     Optional<MachineDTO> updateMachine(@Valid @NotNull UpdateMachineDTO updateMachineDTO)
             throws NotAuthenticatedException;

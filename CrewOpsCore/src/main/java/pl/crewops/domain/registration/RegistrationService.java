@@ -100,8 +100,8 @@ class RegistrationService {
             transactionManager.commit(saveCompanyStep);
 
         } catch (Exception e) {
-            cleanTenant(tenantId);
             transactionManager.rollback(saveCompanyStep);
+            cleanTenant(tenantId);
             TenantContext.clear();
             schemaManager.dropSchema(schemaName);
             throw new RegisterCustomerException("Failed to create company during registration");
@@ -127,12 +127,16 @@ class RegistrationService {
                     .senderEmployeeId(null)
                     .build();
 
-            messageAPI.sendMessage(sendMessageCommand);
+            log.info("Register new employee successfully");
+
+            //            messageAPI.sendMessage(sendMessageCommand);
+
+            log.info("Send message successfully");
             transactionManager.commit(saveAuthUserWithRelatedEmployee);
         } catch (Exception e) {
-            cleanCompany(companyId, schemaName);
-            cleanTenant(tenantId);
             transactionManager.rollback(saveAuthUserWithRelatedEmployee);
+            cleanTenant(tenantId);
+            cleanCompany(companyId, schemaName);
             TenantContext.clear();
             schemaManager.dropSchema(schemaName);
             throw new RegisterCustomerException("Failed to create employee during registration");
