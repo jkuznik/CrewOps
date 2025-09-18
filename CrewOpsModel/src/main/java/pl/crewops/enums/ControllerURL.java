@@ -9,6 +9,7 @@ public interface ControllerURL {
 
     String LOGIN = "/login";
     String REGISTER = "/register";
+    String VERIFY_EMAIL = "/verifyEmail";
     String LOGOUT = "/logout";
     String VALIDATE = "/validate";
     String HEALTH = "/health";
@@ -64,6 +65,7 @@ public interface ControllerURL {
     static String[] publicUrl() {
         return new String[] {
             REGISTER,
+            VERIFY_EMAIL,
             LOGIN,
             LOGOUT,
             VALIDATE,

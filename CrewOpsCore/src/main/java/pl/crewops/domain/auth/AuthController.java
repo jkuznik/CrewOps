@@ -12,11 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pl.crewops.model.dto.auth.*;
+import pl.crewops.model.dto.auth.AuthRequest;
+import pl.crewops.model.dto.auth.AuthResponse;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
-import pl.crewops.security.auth.AuthRequest;
-import pl.crewops.security.auth.AuthResponse;
-import pl.crewops.security.auth.ValidTokenRequest;
-import pl.crewops.security.auth.ValidTokenResponse;
+import pl.crewops.security.ValidTokenRequest;
+import pl.crewops.security.ValidTokenResponse;
 import pl.crewops.security.custom.permissionAnnotation.ManagerPermission;
 
 @RestController

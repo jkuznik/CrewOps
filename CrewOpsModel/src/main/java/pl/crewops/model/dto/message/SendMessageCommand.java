@@ -7,7 +7,7 @@ import lombok.Builder;
 
 @Builder
 public record SendMessageCommand(
-        @Size(max = 255) String title,
+        @Size(max = 255) String subject,
         @NotNull @Size(min = 2, max = 32767) String description,
         @NotNull RecipientSelection recipientSelection,
         UUID senderEmployeeId) {}

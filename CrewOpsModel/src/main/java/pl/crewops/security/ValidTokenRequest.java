@@ -1,4 +1,4 @@
-package pl.crewops.security.auth;
+package pl.crewops.security;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;

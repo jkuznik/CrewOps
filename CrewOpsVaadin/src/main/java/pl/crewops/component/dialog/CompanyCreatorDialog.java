@@ -1,18 +1,21 @@
 package pl.crewops.component.dialog;
 
+import static pl.crewops.model.dto.registration.PreRegisterResponse.PreRegisterResponseCode.*;
+
 import com.vaadin.flow.component.dialog.Dialog;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import pl.crewops.component.form.CompanyCreatorForm;
+import pl.crewops.component.form.EmailVerificationForm;
 import pl.crewops.component.notification.SuccessNotification;
-import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.auth.RoleType;
@@ -20,24 +23,31 @@ import pl.crewops.model.dto.address.CreateAddressDTO;
 import pl.crewops.model.dto.auth.RoleDTO;
 import pl.crewops.model.dto.company.CreateCompanyDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
+import pl.crewops.model.dto.registration.CreateCustomerCommand;
+import pl.crewops.model.dto.registration.CreateCustomerResult;
+import pl.crewops.model.dto.registration.PreRegisterResponse;
+import pl.crewops.model.dto.registration.VerifyEmailRequest;
 import pl.crewops.model.dto.tenant.CreateTenantDTO;
-import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.util.SpringContextBridge;
 
 public class CompanyCreatorDialog extends Dialog {
 
+    private final CompanyCreatorForm companyCreatorForm = new CompanyCreatorForm();
+    private final EmailVerificationForm emailVerificationForm = new EmailVerificationForm();
+
     public CompanyCreatorDialog() {
         addClassName("company-creator-notification");
         var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
+        companyCreatorForm.setVisible(true);
+        emailVerificationForm.setVisible(false);
 
-        var companyCreatorForm = new CompanyCreatorForm();
         companyCreatorForm.addSaveListener(event -> {
             companyCreatorForm.validate();
             createNewTenant(coreAPI, event.getCompanyInformation());
         });
         companyCreatorForm.addCloseListener(event -> close());
 
-        add(companyCreatorForm);
+        add(companyCreatorForm, emailVerificationForm);
         open();
     }
 
@@ -61,8 +71,25 @@ public class CompanyCreatorDialog extends Dialog {
                 .createEmployeeDTO(createEmployeeDTO)
                 .build();
         try {
-            coreAPI.registerNewCustomer(createCustomerCommand).orElseThrow(NotAuthenticatedException::new);
-            new SuccessNotification(getTranslation("companyCreatorDialog.success"));
+            Optional<PreRegisterResponse> preRegisterResponse = coreAPI.registerNewCustomer(createCustomerCommand);
+            if (preRegisterResponse.isPresent()
+                    && preRegisterResponse.get().code().equals(EMAIL_VERIFICATION_REQUIRED)) {
+                companyCreatorForm.setVisible(false);
+                emailVerificationForm.setVisible(true);
+
+                emailVerificationForm.addVerifyEmailListener(event -> {
+                    Optional<CreateCustomerResult> createCustomerResult = coreAPI.verifyEmail(new VerifyEmailRequest(
+                            preRegisterResponse.get().registrationId(), event.getVerificationCode()));
+                    createCustomerResult.ifPresent(
+                            customerResult -> new SuccessNotification(getTranslation("companyCreatorDialog.success")
+                                    + customerResult.companyDTO().name()));
+                });
+
+                emailVerificationForm.addCancelEmailListener(event -> {
+                    close();
+                });
+            }
+            // todo implement else in case preRegisterResponse.code equals TAX ID ALREADY EXIST
         } catch (Exception e) {
             System.out.println("Error creating new customer with initial employee");
         }

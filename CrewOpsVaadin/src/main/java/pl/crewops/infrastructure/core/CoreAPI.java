@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.model.dto.auth.*;
+import pl.crewops.model.dto.auth.AuthRequest;
+import pl.crewops.model.dto.auth.AuthResponse;
 import pl.crewops.model.dto.breakdown.BreakdownDTO;
 import pl.crewops.model.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.model.dto.breakdown.UpdateBreakdownDTO;
@@ -28,18 +30,20 @@ import pl.crewops.model.dto.qualification.CreateQualificationDTO;
 import pl.crewops.model.dto.qualification.QualificationDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationExpiredAtDTO;
-import pl.crewops.registration.CreateCustomerCommand;
-import pl.crewops.registration.PreRegisterResponse;
-import pl.crewops.security.auth.AuthRequest;
-import pl.crewops.security.auth.AuthResponse;
-import pl.crewops.security.auth.ValidTokenRequest;
-import pl.crewops.security.auth.ValidTokenResponse;
+import pl.crewops.model.dto.registration.CreateCustomerCommand;
+import pl.crewops.model.dto.registration.CreateCustomerResult;
+import pl.crewops.model.dto.registration.PreRegisterResponse;
+import pl.crewops.model.dto.registration.VerifyEmailRequest;
+import pl.crewops.security.ValidTokenRequest;
+import pl.crewops.security.ValidTokenResponse;
 
 @Repository
 @Validated
 public interface CoreAPI {
 
     Optional<AuthResponse> login(@Valid @NotNull AuthRequest request);
+
+    Optional<CreateCustomerResult> verifyEmail(@Valid @NotNull VerifyEmailRequest request);
 
     Optional<AuthUserDTO> updateAuthUserRoles(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO)
             throws NotAuthenticatedException;

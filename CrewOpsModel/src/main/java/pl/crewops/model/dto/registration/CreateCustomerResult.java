@@ -1,4 +1,4 @@
-package pl.crewops.registration;
+package pl.crewops.model.dto.registration;
 
 import lombok.Builder;
 import pl.crewops.model.dto.auth.CreateAuthUserResult;

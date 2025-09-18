@@ -17,7 +17,7 @@ class MessageAPITest extends IntegrationTest {
         // given
         var recipientEmployeeId = UUID.fromString("99999999-9999-9999-9999-999999999999");
         var createMessageDTO = CreateMessageDTO.builder()
-                .title("title")
+                .title("subject")
                 .description("description")
                 .recipientEmployeeId(recipientEmployeeId)
                 .build();

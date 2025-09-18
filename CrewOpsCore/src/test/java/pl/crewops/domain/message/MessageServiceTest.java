@@ -70,7 +70,7 @@ class MessageServiceTest {
                 messageService.getAllMessagesByRecipientEmployeeIdAndReadIsFalse(recipientEmployeeId, 0, 15);
 
         assertThat(result).hasSize(2);
-        assertThat("title").isEqualTo(result.getFirst().title());
+        assertThat("subject").isEqualTo(result.getFirst().title());
     }
 
     @Test
@@ -80,7 +80,7 @@ class MessageServiceTest {
         List<MessageDTO> result = messageService.getAllMessagesByRecipientEmployeeId(recipientEmployeeId, 0, 10);
 
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).title()).isEqualTo("title");
+        assertThat(result.get(0).title()).isEqualTo("subject");
     }
 
     @Test

@@ -1,4 +1,4 @@
-package pl.crewops.security.auth;
+package pl.crewops.model.dto.auth;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;

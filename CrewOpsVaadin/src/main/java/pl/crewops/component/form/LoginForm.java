@@ -32,8 +32,8 @@ import pl.crewops.component.navbarComponents.LanguageSelectorComponent;
 import pl.crewops.component.notification.FailNotification;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.security.auth.AuthRequest;
-import pl.crewops.security.auth.AuthResponse;
+import pl.crewops.model.dto.auth.AuthRequest;
+import pl.crewops.model.dto.auth.AuthResponse;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 

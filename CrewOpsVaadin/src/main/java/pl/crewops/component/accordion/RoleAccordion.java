@@ -77,7 +77,7 @@ public class RoleAccordion extends FormLayout {
         Span title = new Span(getTranslation("employeeForm.roles"));
         title.getStyle().set("font-weight", "600");
 
-        // Header row: toggle + title (left), edit (right)
+        // Header row: toggle + subject (left), edit (right)
         HorizontalLayout header = new HorizontalLayout();
         header.setWidthFull();
         header.setAlignItems(FlexComponent.Alignment.CENTER);

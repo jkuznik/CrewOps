@@ -17,7 +17,7 @@ class MessageTestFactory {
 
     public static SendMessageCommand sendMessageCommandAll() {
         return new SendMessageCommand(
-                "title",
+                "subject",
                 "description",
                 new RecipientSelection(RecipientSelection.RecipientOptionType.ALL, null),
                 UUID.randomUUID());
@@ -25,7 +25,7 @@ class MessageTestFactory {
 
     public static SendMessageCommand sendMessageCommandMachine() {
         return new SendMessageCommand(
-                "title",
+                "subject",
                 "description",
                 new RecipientSelection(
                         RecipientSelection.RecipientOptionType.MACHINE,
@@ -35,7 +35,7 @@ class MessageTestFactory {
 
     public static SendMessageCommand sendMessageCommandEmployee() {
         return new SendMessageCommand(
-                "title",
+                "subject",
                 "description",
                 new RecipientSelection(RecipientSelection.RecipientOptionType.EMPLOYEE, recipientEmployeeId.toString()),
                 UUID.randomUUID());
@@ -43,7 +43,7 @@ class MessageTestFactory {
 
     public static CreateMessageDTO createMessageDTO() {
         return CreateMessageDTO.builder()
-                .title("title")
+                .title("subject")
                 .description("description")
                 .recipientEmployeeId(recipientEmployeeId)
                 .senderEmployeeId(senderEmployeeId)
@@ -52,7 +52,7 @@ class MessageTestFactory {
 
     public static CreateMessageDTO notValidCreateMessageDTO() {
         return CreateMessageDTO.builder()
-                .title("title")
+                .title("subject")
                 .description(null) // there is an constraint that not allow to this value is null
                 .recipientEmployeeId(recipientEmployeeId)
                 .senderEmployeeId(senderEmployeeId)
@@ -61,7 +61,7 @@ class MessageTestFactory {
 
     public static Message message() {
         var message = Message.builder()
-                .title("title")
+                .title("subject")
                 .description("description")
                 .recipientEmployeeId(recipientEmployeeId)
                 .senderEmployeeId(senderEmployeeId)
@@ -76,7 +76,7 @@ class MessageTestFactory {
     public static Page<Message> messageSet() {
         var messages = List.of(
                 Message.builder()
-                        .title("title")
+                        .title("subject")
                         .description("description")
                         .recipientEmployeeId(recipientEmployeeId)
                         .senderEmployeeId(senderEmployeeId)

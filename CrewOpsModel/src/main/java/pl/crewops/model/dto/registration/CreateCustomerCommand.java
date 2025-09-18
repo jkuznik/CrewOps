@@ -1,4 +1,4 @@
-package pl.crewops.registration;
+package pl.crewops.model.dto.registration;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

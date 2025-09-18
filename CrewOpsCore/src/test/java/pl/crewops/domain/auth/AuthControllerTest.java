@@ -24,13 +24,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import pl.crewops.model.dto.auth.*;
+import pl.crewops.model.dto.auth.AuthRequest;
+import pl.crewops.model.dto.auth.AuthResponse;
 import pl.crewops.model.dto.department.DepartmentDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
-import pl.crewops.security.auth.AuthRequest;
-import pl.crewops.security.auth.AuthResponse;
-import pl.crewops.security.auth.ValidTokenRequest;
-import pl.crewops.security.auth.ValidTokenResponse;
+import pl.crewops.security.ValidTokenRequest;
+import pl.crewops.security.ValidTokenResponse;
 import pl.crewops.security.config.TestSecuriityConfig;
 
 @ActiveProfiles("test")

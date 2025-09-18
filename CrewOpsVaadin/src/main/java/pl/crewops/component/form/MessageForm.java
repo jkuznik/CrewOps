@@ -83,14 +83,14 @@ public class MessageForm extends FormLayout {
         if (model != null) {
             binder.setBean(model);
             sender.setValue(senderName);
-            title.setValue(model.getTitle());
+            title.setValue(model.getSubject());
             description.setValue(model.getDescription());
         }
     }
 
     public void clearBinderValue() {
         var model = MessageFormModel.builder()
-                .title(null)
+                .subject(null)
                 .description(null)
                 .senderEmployeeId(null)
                 .build();

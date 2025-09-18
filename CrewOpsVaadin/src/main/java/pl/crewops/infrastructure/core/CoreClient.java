@@ -17,6 +17,8 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.model.dto.auth.*;
+import pl.crewops.model.dto.auth.AuthRequest;
+import pl.crewops.model.dto.auth.AuthResponse;
 import pl.crewops.model.dto.breakdown.BreakdownDTO;
 import pl.crewops.model.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.model.dto.breakdown.UpdateBreakdownDTO;
@@ -35,12 +37,12 @@ import pl.crewops.model.dto.qualification.CreateQualificationDTO;
 import pl.crewops.model.dto.qualification.QualificationDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationExpiredAtDTO;
-import pl.crewops.registration.CreateCustomerCommand;
-import pl.crewops.registration.PreRegisterResponse;
-import pl.crewops.security.auth.AuthRequest;
-import pl.crewops.security.auth.AuthResponse;
-import pl.crewops.security.auth.ValidTokenRequest;
-import pl.crewops.security.auth.ValidTokenResponse;
+import pl.crewops.model.dto.registration.CreateCustomerCommand;
+import pl.crewops.model.dto.registration.CreateCustomerResult;
+import pl.crewops.model.dto.registration.PreRegisterResponse;
+import pl.crewops.model.dto.registration.VerifyEmailRequest;
+import pl.crewops.security.ValidTokenRequest;
+import pl.crewops.security.ValidTokenResponse;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.SpringContextBridge;
 
@@ -65,6 +67,22 @@ class CoreClient {
         }
     }
 
+    public CreateCustomerResult verifyEmail(VerifyEmailRequest request) {
+        try {
+            return coreClient
+                    .post()
+                    .uri(uriBuilder -> uriBuilder.path(VERIFY_EMAIL).build())
+                    .body(request)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Verify email error");
+            return null;
+        }
+    }
+
+    // permit all for sure
     @Caching(
             evict = {
                 @CacheEvict(value = GET_EMPLOYEE_BY_ID, allEntries = true),
@@ -89,7 +107,6 @@ class CoreClient {
             throw e;
         }
     }
-    // permit all for sure
 
     // manager permission
     @Caching(

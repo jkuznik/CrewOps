@@ -68,7 +68,7 @@ class MessageService implements MessageAPI {
     void sendToAllEmployeesAsync(SendMessageCommand sendMessageCommand, List<EmployeeDTO> allActiveEmployees) {
         List<Message> messages = allActiveEmployees.stream()
                 .map(employeeDTO -> mapToEntity(CreateMessageDTO.builder()
-                        .title(sendMessageCommand.title())
+                        .title(sendMessageCommand.subject())
                         .description(sendMessageCommand.description())
                         .recipientEmployeeId(employeeDTO.id())
                         .senderEmployeeId(sendMessageCommand.senderEmployeeId())
@@ -82,7 +82,7 @@ class MessageService implements MessageAPI {
     void sendToAllByMachine(SendMessageCommand sendMessageCommand, List<EmployeeDTO> employeesByMachine) {
         List<Message> messages = employeesByMachine.stream()
                 .map(employeeDTO -> mapToEntity(CreateMessageDTO.builder()
-                        .title(sendMessageCommand.title())
+                        .title(sendMessageCommand.subject())
                         .description(sendMessageCommand.description())
                         .recipientEmployeeId(employeeDTO.id())
                         .senderEmployeeId(sendMessageCommand.senderEmployeeId())
@@ -94,7 +94,7 @@ class MessageService implements MessageAPI {
 
     void sendToRecipientEmployee(SendMessageCommand sendMessageCommand) {
         var createMessageDTO = CreateMessageDTO.builder()
-                .title(sendMessageCommand.title())
+                .title(sendMessageCommand.subject())
                 .description(sendMessageCommand.description())
                 .recipientEmployeeId(
                         UUID.fromString(sendMessageCommand.recipientSelection().value()))

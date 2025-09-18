@@ -98,8 +98,8 @@ public class MessageGrid extends VerticalLayout {
                 .setHeader(getTranslation("messageGrid.sender"))
                 .setAutoWidth(true);
 
-        grid.addColumn(MessageFormModel::getTitle)
-                .setKey("title")
+        grid.addColumn(MessageFormModel::getSubject)
+                .setKey("subject")
                 .setHeader(getTranslation("messageGrid.title"))
                 .setFlexGrow(1);
 
@@ -190,7 +190,7 @@ public class MessageGrid extends VerticalLayout {
         messageForm.addSendListener(event -> {
             try {
                 coreAPI.sendMessage(SendMessageCommand.builder()
-                        .title(event.getMessageFormModel().getTitle())
+                        .subject(event.getMessageFormModel().getSubject())
                         .description(event.getMessageFormModel().getDescription())
                         .recipientSelection(event.getMessageFormModel().getRecipientSelection())
                         .senderEmployeeId(authenticationResolver.getPrincipal().getEmployeeId())

@@ -29,7 +29,7 @@ public class MachineAccordion extends FormLayout {
 
         var machineManagerDialog = getConfiguredMachineManagerDialog(employeeFormModel);
 
-        // === Buttons & title ===
+        // === Buttons & subject ===
         Button edit = new Button(getTranslation("qualificationAccordion.editButton"));
         edit.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
         edit.addClickListener(event -> machineManagerDialog.open());
@@ -77,7 +77,7 @@ public class MachineAccordion extends FormLayout {
         header.setWidthFull();
         header.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        // Left: toggle + title, Right: edit
+        // Left: toggle + subject, Right: edit
         header.add(toggle, title);
         header.addAndExpand(new Span()); // flexible spacer
         header.add(edit);
