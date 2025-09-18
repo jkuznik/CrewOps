@@ -44,6 +44,7 @@ public class HomeView extends MainLayout {
 
     private Component getCurrentContent() {
         var layout = new VerticalLayout();
+
         layout.setId("view-content");
 
         layout.setWidthFull();
@@ -51,12 +52,13 @@ public class HomeView extends MainLayout {
         layout.setSpacing(true);
         layout.getStyle().set("overflow", "auto");
 
-        HomeContent homeContent = new HomeContent();
-        homeContent.setWidthFull();
-
-        layout.add(homeContent);
         if (!authenticationResolver.principalIsAuthenticated()) {
             layout.add(new RegistryContent());
+        } else {
+            HomeContent homeContent = new HomeContent();
+            homeContent.setWidthFull();
+
+            layout.add(homeContent);
         }
         return layout;
     }
