@@ -22,15 +22,15 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import pl.crewops.component.notification.FailNotification;
-import pl.crewops.dto.auth.RoleDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.qualification.QualificationDTO;
-import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.exceptions.UpdateQualificationException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.QualificationFormModel;
+import pl.crewops.model.dto.auth.RoleDTO;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.qualification.QualificationDTO;
+import pl.crewops.model.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.util.SpringContextBridge;
 
 public class EditQualificationForm extends FormLayout {

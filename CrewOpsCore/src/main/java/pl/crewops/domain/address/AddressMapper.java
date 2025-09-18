@@ -1,8 +1,8 @@
 package pl.crewops.domain.address;
 
-import pl.crewops.dto.address.AddressDTO;
-import pl.crewops.dto.address.CreateAddressDTO;
 import pl.crewops.model.Address;
+import pl.crewops.model.dto.address.AddressDTO;
+import pl.crewops.model.dto.address.CreateAddressDTO;
 
 class AddressMapper {
 

@@ -15,9 +15,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.machine.MachineAPI;
-import pl.crewops.dto.breakdown.BreakdownDTO;
-import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.model.Breakdown;
+import pl.crewops.model.dto.breakdown.BreakdownDTO;
+import pl.crewops.model.dto.breakdown.UpdateBreakdownDTO;
 
 @SpringJUnitConfig(classes = {BreakdownService.class, BreakdownRepository.class, MachineAPI.class, EmployeeAPI.class})
 class BreakdownServiceTest {

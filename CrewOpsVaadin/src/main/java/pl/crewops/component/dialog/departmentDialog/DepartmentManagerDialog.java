@@ -8,8 +8,8 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
 import lombok.Getter;
-import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.model.EmployeeFormModel;
+import pl.crewops.model.dto.employee.EmployeeDTO;
 
 public class DepartmentManagerDialog extends Dialog {
 

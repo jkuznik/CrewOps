@@ -5,10 +5,10 @@ import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.*;
-import pl.crewops.dto.breakdown.BreakdownDTO;
-import pl.crewops.dto.breakdown.CreateBreakdownDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.machine.MachineDTO;
+import pl.crewops.model.dto.breakdown.BreakdownDTO;
+import pl.crewops.model.dto.breakdown.CreateBreakdownDTO;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.machine.MachineDTO;
 
 @Getter
 @Setter

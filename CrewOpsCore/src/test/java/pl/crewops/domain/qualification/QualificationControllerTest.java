@@ -20,10 +20,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import pl.crewops.dto.qualification.CreateQualificationDTO;
-import pl.crewops.dto.qualification.QualificationDTO;
-import pl.crewops.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.enums.ControllerURL;
+import pl.crewops.model.dto.qualification.CreateQualificationDTO;
+import pl.crewops.model.dto.qualification.QualificationDTO;
+import pl.crewops.model.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.security.config.TestSecuriityConfig;
 
 @ActiveProfiles("test")

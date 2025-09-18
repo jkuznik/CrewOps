@@ -12,14 +12,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.domain.machineType.MachineTypeAPI;
-import pl.crewops.dto.machine.CreateMachineDTO;
-import pl.crewops.dto.machine.MachineDTO;
-import pl.crewops.dto.machine.UpdateMachineDTO;
-import pl.crewops.dto.machineType.CreateMachineTypeDTO;
 import pl.crewops.exception.domain.machine.MachineNotFoundException;
 import pl.crewops.exception.domain.machine.MachineTypeNotFoundException;
 import pl.crewops.model.Machine;
 import pl.crewops.model.MachineType;
+import pl.crewops.model.dto.machine.CreateMachineDTO;
+import pl.crewops.model.dto.machine.MachineDTO;
+import pl.crewops.model.dto.machine.UpdateMachineDTO;
+import pl.crewops.model.dto.machineType.CreateMachineTypeDTO;
 
 @Slf4j
 @Service

@@ -1,9 +1,9 @@
 package pl.crewops.domain.qualification;
 
 import java.util.UUID;
-import pl.crewops.dto.qualification.CreateQualificationDTO;
-import pl.crewops.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.model.Qualification;
+import pl.crewops.model.dto.qualification.CreateQualificationDTO;
+import pl.crewops.model.dto.qualification.UpdateQualificationDTO;
 
 class QualificationTestFactory {
 

@@ -1,5 +1,6 @@
 package pl.crewops.domain.tenant;
 
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,12 @@ class TenantService implements TenantAPI {
     @Transactional(readOnly = true)
     public Tenant getByCompanyId(UUID companyId) {
         return tenantRepository.findByCompanyId(companyId).orElseThrow(() -> new TenantNotExistException(companyId));
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<Tenant> getOptionalByTaxId(String taxId) {
+        return tenantRepository.findByTaxId(taxId);
     }
 
     @Override

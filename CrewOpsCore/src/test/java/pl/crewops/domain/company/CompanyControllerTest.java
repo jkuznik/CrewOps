@@ -18,10 +18,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import pl.crewops.dto.company.CompanyDTO;
 import pl.crewops.enums.CompanyStatus;
 import pl.crewops.exception.CoreExceptionHandler;
 import pl.crewops.exception.domain.company.CompanyNotFoundException;
+import pl.crewops.model.dto.company.CompanyDTO;
 import pl.crewops.security.config.TestSecuriityConfig;
 
 @ActiveProfiles("test")

@@ -13,9 +13,9 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import pl.crewops.dto.machineType.CreateMachineTypeDTO;
-import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.MachineType;
+import pl.crewops.model.dto.machineType.CreateMachineTypeDTO;
+import pl.crewops.model.dto.machineType.MachineTypeDTO;
 
 @SpringJUnitConfig(classes = {MachineTypeService.class, MachineTypeRepository.class})
 class MachineTypeServiceTest {

@@ -6,9 +6,9 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.UUID;
 import lombok.*;
-import pl.crewops.dto.qualification.CreateQualificationDTO;
-import pl.crewops.dto.qualification.QualificationDTO;
-import pl.crewops.dto.qualification.UpdateQualificationDTO;
+import pl.crewops.model.dto.qualification.CreateQualificationDTO;
+import pl.crewops.model.dto.qualification.QualificationDTO;
+import pl.crewops.model.dto.qualification.UpdateQualificationDTO;
 
 @Getter
 @Setter

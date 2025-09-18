@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.crewops.dto.address.CreateAddressDTO;
 import pl.crewops.model.Address;
+import pl.crewops.model.dto.address.CreateAddressDTO;
 
 @Slf4j
 @Service

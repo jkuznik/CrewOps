@@ -12,12 +12,12 @@ import java.util.Comparator;
 import lombok.Getter;
 import pl.crewops.component.content.HomeContent;
 import pl.crewops.component.notification.FailNotification;
-import pl.crewops.dto.department.DepartmentDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.exceptions.UpdateDepartmentException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
+import pl.crewops.model.dto.department.DepartmentDTO;
+import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.util.SpringContextBridge;
 
 public class AddDepartmentForm extends FormLayout {

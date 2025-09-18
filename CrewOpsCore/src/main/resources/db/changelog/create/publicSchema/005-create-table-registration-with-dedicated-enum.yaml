@@ -1,0 +1,119 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-registration-status-enum
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            stripComments: false
+            sql: |
+              DO $$
+              BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'registration_status') THEN
+                  CREATE TYPE registration_status AS ENUM ('PENDING', 'SUCCESS', 'EXPIRED');
+                END IF;
+              END;
+              $$;
+
+  - changeSet:
+      id: 002-create-table-registration
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: registration
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: version
+                  type: integer
+              - column:
+                  name: status
+                  type: registration_status
+                  constraints:
+                    nullable: false
+              - column:
+                  name: company_name
+                  type: varchar(63)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tax_id
+                  type: varchar(63)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(63)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: postal_code
+                  type: varchar(31)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: city
+                  type: varchar(31)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: street
+                  type: varchar(31)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: local_number
+                  type: varchar(31)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: birth_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: phone_number
+                  type: varchar(15)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 003-create-registration-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS registration_updated_at_trigger ON public.registration;
+              CREATE TRIGGER registration_updated_at_trigger
+              BEFORE UPDATE ON public.registration
+              FOR EACH ROW
+              EXECUTE FUNCTION update_updated_at();

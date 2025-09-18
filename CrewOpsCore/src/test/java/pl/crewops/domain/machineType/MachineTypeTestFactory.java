@@ -1,8 +1,8 @@
 package pl.crewops.domain.machineType;
 
-import pl.crewops.dto.machineType.CreateMachineTypeDTO;
-import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.MachineType;
+import pl.crewops.model.dto.machineType.CreateMachineTypeDTO;
+import pl.crewops.model.dto.machineType.MachineTypeDTO;
 
 class MachineTypeTestFactory {
 

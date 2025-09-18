@@ -21,14 +21,14 @@ import com.vaadin.flow.shared.Registration;
 import java.util.ArrayList;
 import lombok.Getter;
 import pl.crewops.component.notification.FailNotification;
-import pl.crewops.dto.department.DepartmentDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.machine.MachineDTO;
-import pl.crewops.dto.message.RecipientSelection;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.DepartmentFormModel;
 import pl.crewops.model.MessageFormModel;
+import pl.crewops.model.dto.department.DepartmentDTO;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.machine.MachineDTO;
+import pl.crewops.model.dto.message.RecipientSelection;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.SpringContextBridge;
 

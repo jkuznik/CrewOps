@@ -74,7 +74,8 @@ public interface ControllerURL {
             "/webjars/**",
             "/v3/api-docs/**",
             "/swagger.yaml",
-            "/api-docs"
+            "/api-docs",
+            "/testMail"
         };
     }
 

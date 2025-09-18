@@ -13,9 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import pl.crewops.dto.qualification.CreateQualificationDTO;
-import pl.crewops.dto.qualification.QualificationDTO;
-import pl.crewops.dto.qualification.UpdateQualificationDTO;
+import pl.crewops.model.dto.qualification.CreateQualificationDTO;
+import pl.crewops.model.dto.qualification.QualificationDTO;
+import pl.crewops.model.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.security.custom.permissionAnnotation.ManagerPermission;
 
 @RestController

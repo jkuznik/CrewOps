@@ -15,11 +15,11 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.domain.employee.EmployeeAPI;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.message.CreateMessageDTO;
-import pl.crewops.dto.message.MessageDTO;
-import pl.crewops.dto.message.SendMessageCommand;
 import pl.crewops.model.Message;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.message.CreateMessageDTO;
+import pl.crewops.model.dto.message.MessageDTO;
+import pl.crewops.model.dto.message.SendMessageCommand;
 import pl.crewops.util.pagination.PageRequestFactory;
 
 @Slf4j

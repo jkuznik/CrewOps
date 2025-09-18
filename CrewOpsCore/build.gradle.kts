@@ -1,5 +1,6 @@
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-mail:4.0.0-M2")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
     implementation("org.postgresql:postgresql:42.7.5")

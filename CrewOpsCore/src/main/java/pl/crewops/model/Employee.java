@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.*;
-import pl.crewops.dto.employee.CreateEmployeeDTO;
+import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 
 @Getter
 @Setter

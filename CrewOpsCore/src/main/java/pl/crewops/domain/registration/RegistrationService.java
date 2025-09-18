@@ -15,19 +15,20 @@ import pl.crewops.domain.auth.AuthAPI;
 import pl.crewops.domain.company.CompanyAPI;
 import pl.crewops.domain.message.MessageAPI;
 import pl.crewops.domain.tenant.TenantAPI;
-import pl.crewops.dto.auth.CreateAuthUserResult;
-import pl.crewops.dto.company.CompanyDTO;
-import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.dto.message.RecipientSelection;
-import pl.crewops.dto.message.SendMessageCommand;
 import pl.crewops.enums.CompanyStatus;
 import pl.crewops.exception.domain.company.NoUniqueCompanyTaxIdException;
 import pl.crewops.exception.domain.registration.RegisterCustomerException;
 import pl.crewops.exception.multitenancy.CreateSchemaException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
+import pl.crewops.model.dto.auth.CreateAuthUserResult;
+import pl.crewops.model.dto.company.CompanyDTO;
+import pl.crewops.model.dto.employee.CreateEmployeeDTO;
+import pl.crewops.model.dto.message.RecipientSelection;
+import pl.crewops.model.dto.message.SendMessageCommand;
 import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
+import pl.crewops.registration.PreRegisterResponse;
 import pl.crewops.util.multitenancy.LiquibaseSchemaMigrator;
 import pl.crewops.util.multitenancy.SchemaManager;
 import pl.crewops.util.multitenancy.TenantSchemaNameGenerator;
@@ -45,6 +46,15 @@ class RegistrationService {
     private final CompanyAPI companyAPI;
     private final MessageAPI messageAPI;
     private final PlatformTransactionManager transactionManager;
+
+    PreRegisterResponse preRegisterCustomer(@Valid @NotNull CreateCustomerCommand createCustomerCommand) {
+        var taxId = createCustomerCommand.createTenantDTO().createCompanyDTO().taxId();
+        if (tenantAPI.getOptionalByTaxId(taxId).isPresent()) {
+            return new PreRegisterResponse(false, PreRegisterResponse.TAX_ID_ALREADY_EXIST);
+        }
+
+        return null;
+    }
 
     CreateCustomerResult registerCustomer(@Valid @NotNull CreateCustomerCommand createCustomerCommand) {
         DefaultTransactionDefinition def = new DefaultTransactionDefinition();
@@ -72,6 +82,7 @@ class RegistrationService {
 
         try {
             var notPersistedTenant =
+                    // todo: modify this logic to create new customer with trial status
                     Tenant.builder().status(CompanyStatus.ACTIVE).build();
             notPersistedTenant.setSchemaName(schemaName);
             notPersistedTenant.setCompanyId(UUID.randomUUID());
@@ -129,14 +140,12 @@ class RegistrationService {
 
             log.info("Register new employee successfully");
 
-            //            messageAPI.sendMessage(sendMessageCommand);
-
-            log.info("Send message successfully");
+            //            messageAPI.sendMessage(sendMessageCommand); todo fix that in-app send message to send it
+            // directly to system admin only
             transactionManager.commit(saveAuthUserWithRelatedEmployee);
         } catch (Exception e) {
             transactionManager.rollback(saveAuthUserWithRelatedEmployee);
             cleanTenant(tenantId);
-            cleanCompany(companyId, schemaName);
             TenantContext.clear();
             schemaManager.dropSchema(schemaName);
             throw new RegisterCustomerException("Failed to create employee during registration");
@@ -145,10 +154,6 @@ class RegistrationService {
         TenantContext.clear();
 
         return new CreateCustomerResult(authUserWithRelatedEmployee, companyDTO);
-    }
-
-    private void cleanCompany(UUID companyId, String schemaName) {
-        companyAPI.deleteAfterFailedCustomerRegister(companyId, schemaName);
     }
 
     private void cleanTenant(UUID tenantId) {

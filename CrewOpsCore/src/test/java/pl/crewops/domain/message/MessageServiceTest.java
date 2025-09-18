@@ -18,10 +18,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.domain.employee.EmployeeAPI;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.message.CreateMessageDTO;
-import pl.crewops.dto.message.MessageDTO;
 import pl.crewops.model.Message;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.message.CreateMessageDTO;
+import pl.crewops.model.dto.message.MessageDTO;
 
 @SpringJUnitConfig(classes = {MessageService.class, MessageRepository.class, EmployeeAPI.class})
 class MessageServiceTest {

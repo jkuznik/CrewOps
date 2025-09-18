@@ -4,11 +4,11 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import pl.crewops.dto.address.CreateAddressDTO;
-import pl.crewops.dto.company.CreateCompanyDTO;
-import pl.crewops.dto.department.DepartmentDTO;
-import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.dto.tenant.CreateTenantDTO;
+import pl.crewops.model.dto.address.CreateAddressDTO;
+import pl.crewops.model.dto.company.CreateCompanyDTO;
+import pl.crewops.model.dto.department.DepartmentDTO;
+import pl.crewops.model.dto.employee.CreateEmployeeDTO;
+import pl.crewops.model.dto.tenant.CreateTenantDTO;
 import pl.crewops.registration.CreateCustomerCommand;
 
 class RegistrationTestFactory {

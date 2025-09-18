@@ -17,10 +17,10 @@ import java.util.Comparator;
 import java.util.stream.IntStream;
 import pl.crewops.component.grid.BreakdownGrid;
 import pl.crewops.component.grid.MachineGrid;
-import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.MachineFormModel;
+import pl.crewops.model.dto.machineType.MachineTypeDTO;
 import pl.crewops.view.HomeView;
 
 @CssImport("./styles/component/combo-box.css")

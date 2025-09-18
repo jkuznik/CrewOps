@@ -20,11 +20,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import pl.crewops.dto.machine.CreateMachineDTO;
-import pl.crewops.dto.machine.MachineDTO;
-import pl.crewops.dto.machine.UpdateMachineDTO;
-import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.enums.ControllerURL;
+import pl.crewops.model.dto.machine.CreateMachineDTO;
+import pl.crewops.model.dto.machine.MachineDTO;
+import pl.crewops.model.dto.machine.UpdateMachineDTO;
+import pl.crewops.model.dto.machineType.MachineTypeDTO;
 import pl.crewops.security.config.TestSecuriityConfig;
 
 @ActiveProfiles("test")

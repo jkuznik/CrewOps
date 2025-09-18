@@ -1,9 +1,9 @@
 package pl.crewops.domain.machine;
 
-import pl.crewops.dto.machine.CreateMachineDTO;
-import pl.crewops.dto.machine.MachineDTO;
-import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.Machine;
+import pl.crewops.model.dto.machine.CreateMachineDTO;
+import pl.crewops.model.dto.machine.MachineDTO;
+import pl.crewops.model.dto.machineType.MachineTypeDTO;
 
 class MachineMapper {
 

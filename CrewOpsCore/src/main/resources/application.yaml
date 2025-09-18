@@ -6,12 +6,9 @@ spring:
     default: dev
 
   config:
-    import: "classpath:application-liquibase.yaml"
-
-  liquibase:
-    enabled: true
-    default-schema: public
-    change-log: db/changelog/db.changelog-master.yaml
+    import:
+      - classpath:application-liquibase.yaml
+      - classpath:application-email-config.yaml
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -21,6 +18,23 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
+
+  mail:
+    host: email-smtp.eu-west-1.amazonaws.com
+    port: 587
+    #    username: ${CREWOPS_EMAIL_LOGIN}
+    username: AKIA6EFCBU7LKMYPDLTN
+    #    password: ${CREWOPS_EMAIL_PASSWORD}
+    password: BP/dL/KMXJvIAeJXSW+0hElpnXEGZIVbOubTnRxVz16N
+    properties:
+      mail:
+        transport.protocol: smtp
+        smtp:
+          port: 587
+          auth: true
+          starttls:
+            enable: true
+            required: true
 
 security:
   properties:

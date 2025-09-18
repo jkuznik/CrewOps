@@ -18,8 +18,8 @@ import com.vaadin.flow.shared.Registration;
 import java.util.UUID;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.model.BreakdownFormModel;
+import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.security.custom.UserPrincipal;
 
 public class BreakdownForm extends FormLayout {

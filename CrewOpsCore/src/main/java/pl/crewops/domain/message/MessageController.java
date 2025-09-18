@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import pl.crewops.dto.message.MessageDTO;
-import pl.crewops.dto.message.SendMessageCommand;
+import pl.crewops.model.dto.message.MessageDTO;
+import pl.crewops.model.dto.message.SendMessageCommand;
 
 @RestController
 @RequiredArgsConstructor

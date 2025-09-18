@@ -7,8 +7,8 @@ import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.UUID;
 import lombok.*;
-import pl.crewops.dto.message.MessageDTO;
-import pl.crewops.dto.message.RecipientSelection;
+import pl.crewops.model.dto.message.MessageDTO;
+import pl.crewops.model.dto.message.RecipientSelection;
 
 @Getter
 @Setter

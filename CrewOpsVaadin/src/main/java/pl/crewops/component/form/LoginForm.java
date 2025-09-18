@@ -30,10 +30,10 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.client.RestClientException;
 import pl.crewops.component.navbarComponents.LanguageSelectorComponent;
 import pl.crewops.component.notification.FailNotification;
-import pl.crewops.dto.auth.AuthRequest;
-import pl.crewops.dto.auth.AuthResponse;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.security.auth.AuthRequest;
+import pl.crewops.security.auth.AuthResponse;
 import pl.crewops.security.custom.UserPrincipal;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 
