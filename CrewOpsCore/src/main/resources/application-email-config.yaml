@@ -1,17 +1,15 @@
-#spring:
-#  mail:
-#    host: email-smtp.eu-west-1.amazonaws.com
-#    port: 587
-##    username: ${CREWOPS_EMAIL_LOGIN}
-#    username: crewops
-##    password: ${CREWOPS_EMAIL_PASSWORD}
-#    password: KkX@9Vba
-#    properties:
-#      mail:
-#        transport.protocol: smtp
-#        smtp:
-#          port: 587
-#          auth: true
-#          starttls:
-#            enable: true
-#            required: true
+spring:
+  mail:
+    host: email-smtp.eu-west-1.amazonaws.com
+    port: 587
+    username: ${CREWOPS_EMAIL_LOGIN}
+    password: ${CREWOPS_EMAIL_PASSWORD}
+    properties:
+      mail:
+        transport.protocol: smtp
+        smtp:
+          port: 587
+          auth: true
+          starttls:
+            enable: true
+            required: true
