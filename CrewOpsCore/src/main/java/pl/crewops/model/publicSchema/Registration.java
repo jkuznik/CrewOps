@@ -3,6 +3,7 @@ package pl.crewops.model.publicSchema;
 import jakarta.persistence.*;
 import java.time.Instant;
 import lombok.*;
+import pl.crewops.enums.RegistrationStatus;
 import pl.crewops.model.AbstractEntity;
 
 @Entity
@@ -15,7 +16,11 @@ import pl.crewops.model.AbstractEntity;
 public class Registration extends AbstractEntity {
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "registration_status", nullable = false)
     private RegistrationStatus status;
+
+    @Column(nullable = false)
+    private int verificationCode;
 
     // company info
     @Column(nullable = false)
@@ -51,10 +56,4 @@ public class Registration extends AbstractEntity {
     private Instant birthDate;
 
     private String phoneNumber;
-
-    public enum RegistrationStatus {
-        PENDING,
-        SUCCESS,
-        EXPIRED
-    }
 }

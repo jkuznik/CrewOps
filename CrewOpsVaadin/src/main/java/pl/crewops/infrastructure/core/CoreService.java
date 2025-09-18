@@ -27,7 +27,7 @@ import pl.crewops.model.dto.qualification.QualificationDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.registration.CreateCustomerCommand;
-import pl.crewops.registration.CreateCustomerResult;
+import pl.crewops.registration.PreRegisterResponse;
 import pl.crewops.security.auth.AuthRequest;
 import pl.crewops.security.auth.AuthResponse;
 import pl.crewops.security.auth.ValidTokenRequest;
@@ -117,7 +117,7 @@ class CoreService implements CoreAPI {
     }
 
     @Override
-    public Optional<CreateCustomerResult> registerNewCustomer(CreateCustomerCommand command) {
+    public Optional<PreRegisterResponse> registerNewCustomer(CreateCustomerCommand command) {
 
         return Optional.ofNullable(coreClient.registerNewCustomer(command));
     }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import pl.crewops.registration.CreateCustomerCommand;
-import pl.crewops.registration.CreateCustomerResult;
+import pl.crewops.registration.PreRegisterResponse;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,8 +21,8 @@ class RegistrationController {
     private final RegistrationService registrationService;
 
     @PostMapping(REGISTER)
-    public ResponseEntity<CreateCustomerResult> registerCustomer(
+    public ResponseEntity<PreRegisterResponse> registerCustomer(
             @NotNull @Valid @RequestBody CreateCustomerCommand createCustomerCommand) {
-        return ResponseEntity.ok(registrationService.registerCustomer(createCustomerCommand));
+        return ResponseEntity.ok(registrationService.preRegisterCustomerEmailValidation(createCustomerCommand));
     }
 }

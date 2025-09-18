@@ -22,7 +22,6 @@ import pl.crewops.model.dto.company.CreateCompanyDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.tenant.CreateTenantDTO;
 import pl.crewops.registration.CreateCustomerCommand;
-import pl.crewops.registration.CreateCustomerResult;
 import pl.crewops.util.SpringContextBridge;
 
 public class CompanyCreatorDialog extends Dialog {
@@ -62,10 +61,8 @@ public class CompanyCreatorDialog extends Dialog {
                 .createEmployeeDTO(createEmployeeDTO)
                 .build();
         try {
-            CreateCustomerResult createCustomerResult =
-                    coreAPI.registerNewCustomer(createCustomerCommand).orElseThrow(NotAuthenticatedException::new);
-            new SuccessNotification(getTranslation("companyCreatorDialog.success") + " "
-                    + createCustomerResult.companyDTO().name());
+            coreAPI.registerNewCustomer(createCustomerCommand).orElseThrow(NotAuthenticatedException::new);
+            new SuccessNotification(getTranslation("companyCreatorDialog.success"));
         } catch (Exception e) {
             System.out.println("Error creating new customer with initial employee");
         }

@@ -36,7 +36,7 @@ import pl.crewops.model.dto.qualification.QualificationDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.registration.CreateCustomerCommand;
-import pl.crewops.registration.CreateCustomerResult;
+import pl.crewops.registration.PreRegisterResponse;
 import pl.crewops.security.auth.AuthRequest;
 import pl.crewops.security.auth.AuthResponse;
 import pl.crewops.security.auth.ValidTokenRequest;
@@ -50,7 +50,7 @@ class CoreClient {
 
     private final RestClient coreClient;
 
-    public CreateCustomerResult registerNewCustomer(CreateCustomerCommand command) {
+    public PreRegisterResponse registerNewCustomer(CreateCustomerCommand command) {
         try {
             return coreClient
                     .post()

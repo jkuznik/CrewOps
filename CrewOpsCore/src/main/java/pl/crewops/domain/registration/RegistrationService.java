@@ -2,13 +2,19 @@ package pl.crewops.domain.registration;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomUtils;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.domain.auth.AuthAPI;
@@ -16,15 +22,19 @@ import pl.crewops.domain.company.CompanyAPI;
 import pl.crewops.domain.message.MessageAPI;
 import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.enums.CompanyStatus;
+import pl.crewops.enums.RegistrationStatus;
 import pl.crewops.exception.domain.company.NoUniqueCompanyTaxIdException;
 import pl.crewops.exception.domain.registration.RegisterCustomerException;
 import pl.crewops.exception.multitenancy.CreateSchemaException;
+import pl.crewops.infrastructure.emailSender.EmailSenderAPI;
+import pl.crewops.infrastructure.emailSender.SendEmailRequest;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.model.dto.auth.CreateAuthUserResult;
 import pl.crewops.model.dto.company.CompanyDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.message.RecipientSelection;
 import pl.crewops.model.dto.message.SendMessageCommand;
+import pl.crewops.model.publicSchema.Registration;
 import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.registration.CreateCustomerCommand;
 import pl.crewops.registration.CreateCustomerResult;
@@ -41,19 +51,82 @@ class RegistrationService {
 
     private final SchemaManager schemaManager;
     private final LiquibaseSchemaMigrator liquibaseSchemaMigrator;
+
+    private final RegistrationRepository registrationRepository;
     private final AuthAPI authAPI;
     private final TenantAPI tenantAPI;
     private final CompanyAPI companyAPI;
     private final MessageAPI messageAPI;
+    private final EmailSenderAPI emailSenderAPI;
     private final PlatformTransactionManager transactionManager;
 
-    PreRegisterResponse preRegisterCustomer(@Valid @NotNull CreateCustomerCommand createCustomerCommand) {
+    PreRegisterResponse preRegisterCustomerEmailValidation(
+            @Valid @NotNull CreateCustomerCommand createCustomerCommand) {
         var taxId = createCustomerCommand.createTenantDTO().createCompanyDTO().taxId();
         if (tenantAPI.getOptionalByTaxId(taxId).isPresent()) {
-            return new PreRegisterResponse(false, PreRegisterResponse.TAX_ID_ALREADY_EXIST);
+            return PreRegisterResponse.TAX_ID_ALREADY_EXIST;
         }
 
-        return null;
+        RandomUtils secure = RandomUtils.secure();
+        int verificationCode = secure.randomInt(10000, 99999);
+
+        var pendingRegistration = buildPendingRegistrationRecord(createCustomerCommand, verificationCode);
+
+        registrationRepository.save(pendingRegistration);
+
+        final String VERIFICATION_CODE = "CrewOps System – Company Registration Verification Code";
+
+        emailSenderAPI.sendEmail(SendEmailRequest.builder()
+                .toEmailAddress(createCustomerCommand
+                        .createTenantDTO()
+                        .createCompanyDTO()
+                        .email())
+                .subject(VERIFICATION_CODE)
+                .body(String.valueOf(verificationCode))
+                .build());
+
+        return PreRegisterResponse.EMAIL_VERIFICATION_REQUIRED;
+    }
+
+    private Registration buildPendingRegistrationRecord(
+            CreateCustomerCommand createCustomerCommand, int verificationCode) {
+        return Registration.builder()
+                .status(RegistrationStatus.PENDING)
+                .verificationCode(verificationCode)
+                .companyName(createCustomerCommand
+                        .createTenantDTO()
+                        .createCompanyDTO()
+                        .name())
+                .taxId(createCustomerCommand
+                        .createTenantDTO()
+                        .createCompanyDTO()
+                        .taxId())
+                .email(createCustomerCommand
+                        .createTenantDTO()
+                        .createCompanyDTO()
+                        .email())
+                .postalCode(createCustomerCommand
+                        .createTenantDTO()
+                        .createAddressDTO()
+                        .postalCode())
+                .city(createCustomerCommand.createTenantDTO().createAddressDTO().city())
+                .street(createCustomerCommand
+                        .createTenantDTO()
+                        .createAddressDTO()
+                        .street())
+                .localNumber(createCustomerCommand
+                        .createTenantDTO()
+                        .createAddressDTO()
+                        .localNumber())
+                .firstName(createCustomerCommand.createEmployeeDTO().firstName())
+                .lastName(createCustomerCommand.createEmployeeDTO().lastName())
+                .phoneNumber(createCustomerCommand.createEmployeeDTO().phoneNumber())
+                .birthDate(createCustomerCommand
+                        .createEmployeeDTO()
+                        .birthDate() // <-- LocalDate
+                        .atStartOfDay(ZoneId.systemDefault()) // LocalDateTime
+                        .toInstant())
+                .build();
     }
 
     CreateCustomerResult registerCustomer(@Valid @NotNull CreateCustomerCommand createCustomerCommand) {
@@ -170,5 +243,15 @@ class RegistrationService {
                 .birthDate(createEmployeeDTO.birthDate())
                 .roles(createEmployeeDTO.roles())
                 .build();
+    }
+
+    @Scheduled(cron = "0 0 3 * * *", zone = "Europe/Warsaw")
+    @Transactional
+    public void expireOldRegistrations() {
+        Instant threshold = Instant.now().minus(10, ChronoUnit.MINUTES);
+        int updated = registrationRepository.expirePendingRegistrations(threshold);
+        if (updated > 0) {
+            log.info("Expired " + updated + " registrations");
+        }
     }
 }

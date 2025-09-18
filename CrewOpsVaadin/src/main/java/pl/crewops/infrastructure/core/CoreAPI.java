@@ -29,7 +29,7 @@ import pl.crewops.model.dto.qualification.QualificationDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.registration.CreateCustomerCommand;
-import pl.crewops.registration.CreateCustomerResult;
+import pl.crewops.registration.PreRegisterResponse;
 import pl.crewops.security.auth.AuthRequest;
 import pl.crewops.security.auth.AuthResponse;
 import pl.crewops.security.auth.ValidTokenRequest;
@@ -70,7 +70,7 @@ public interface CoreAPI {
     Optional<MachineDTO> createMachine(@Valid @NotNull CreateMachineDTO createMachineDTO)
             throws NotAuthenticatedException;
 
-    Optional<CreateCustomerResult> registerNewCustomer(@Valid @NotNull CreateCustomerCommand command);
+    Optional<PreRegisterResponse> registerNewCustomer(@Valid @NotNull CreateCustomerCommand command);
 
     Optional<MachineDTO> updateMachine(@Valid @NotNull UpdateMachineDTO updateMachineDTO)
             throws NotAuthenticatedException;
