@@ -12,7 +12,6 @@ import pl.crewops.model.dto.department.DepartmentDTO;
 @Service
 @RequiredArgsConstructor
 class DepartmentService implements DepartmentAPI {
-    // TODO: create CRUD for this domain and dedicated view/grid to maintain this on fe side
 
     private final DepartmentRepository departmentRepository;
 

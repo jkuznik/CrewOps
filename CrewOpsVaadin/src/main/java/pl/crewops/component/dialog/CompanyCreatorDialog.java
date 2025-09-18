@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.Setter;
 import pl.crewops.component.form.CompanyCreatorForm;
 import pl.crewops.component.form.EmailVerificationForm;
+import pl.crewops.component.notification.FailNotification;
 import pl.crewops.component.notification.SuccessNotification;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
@@ -77,19 +78,30 @@ public class CompanyCreatorDialog extends Dialog {
                 companyCreatorForm.setVisible(false);
                 emailVerificationForm.setVisible(true);
 
+                String subject =
+                        getTranslation("companyCreatorDialog.successSubject") + " " + companyInformation.companyName;
+                String bodyTemplate = getTranslation("companyCreatorDialog.successBody");
+
                 emailVerificationForm.addVerifyEmailListener(event -> {
                     Optional<CreateCustomerResult> createCustomerResult = coreAPI.verifyEmail(new VerifyEmailRequest(
-                            preRegisterResponse.get().registrationId(), event.getVerificationCode()));
-                    createCustomerResult.ifPresent(
-                            customerResult -> new SuccessNotification(getTranslation("companyCreatorDialog.success")
-                                    + customerResult.companyDTO().name()));
+                            preRegisterResponse.get().registrationId(),
+                            event.getVerificationCode(),
+                            subject,
+                            bodyTemplate));
+
+                    createCustomerResult.ifPresent(customerResult -> {
+                        close();
+                        new SuccessNotification(getTranslation("companyCreatorDialog.successNotification") + " "
+                                + customerResult.companyDTO().name());
+                    });
                 });
 
                 emailVerificationForm.addCancelEmailListener(event -> {
                     close();
                 });
+            } else {
+                new FailNotification(getTranslation("companyCreatorDialog.taxIdAlreadyExists"));
             }
-            // todo implement else in case preRegisterResponse.code equals TAX ID ALREADY EXIST
         } catch (Exception e) {
             System.out.println("Error creating new customer with initial employee");
         }

@@ -14,7 +14,6 @@ import lombok.Getter;
 
 public class EmailVerificationForm extends FormLayout {
 
-    // todo i18n
     private final Span infoText = new Span();
     private final TextField verificationCode = new TextField();
     private final Button verify = new Button();
@@ -47,13 +46,11 @@ public class EmailVerificationForm extends FormLayout {
         setResponsiveSteps(new ResponsiveStep("0", 1));
     }
 
-    // todo i18n
     private void localize() {
-        infoText.setText("To finalize your registration, we've sent a verification code to your email address. "
-                + "Please enter the code below and click Verify to continue.");
-        verificationCode.setPlaceholder("Verification code");
-        verify.setText("Verify");
-        cancel.setText("Cancel");
+        infoText.setText(getTranslation("emailVerificationForm.infoText"));
+        verificationCode.setPlaceholder(getTranslation("emailVerificationForm.verificationCode.placeholder"));
+        verify.setText(getTranslation("emailVerificationForm.verify.button"));
+        cancel.setText(getTranslation("emailVerificationForm.cancel.button"));
     }
 
     private void configInfoText() {

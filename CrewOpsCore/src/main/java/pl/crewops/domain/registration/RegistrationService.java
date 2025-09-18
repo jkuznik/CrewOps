@@ -38,8 +38,6 @@ import pl.crewops.model.dto.auth.RoleDTO;
 import pl.crewops.model.dto.company.CompanyDTO;
 import pl.crewops.model.dto.company.CreateCompanyDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
-import pl.crewops.model.dto.message.RecipientSelection;
-import pl.crewops.model.dto.message.SendMessageCommand;
 import pl.crewops.model.dto.registration.CreateCustomerCommand;
 import pl.crewops.model.dto.registration.CreateCustomerResult;
 import pl.crewops.model.dto.registration.PreRegisterResponse;
@@ -229,29 +227,27 @@ class RegistrationService {
             authUserWithRelatedEmployee =
                     authAPI.createAuthUserWithRelatedEmployeeForRegisterCustomer(updatedCreateEmployeeDto);
 
-            var sendMessageCommand = SendMessageCommand.builder()
-                    // todo: modify this to departments option with value of system admin departments will be
-                    .recipientSelection(new RecipientSelection(RecipientSelection.RecipientOptionType.ALL, null))
-                    .subject(registration.getCompanyName())
-                    .description("Login: "
-                            + authUserWithRelatedEmployee.authUserDTO().username() + " Pass: "
-                            + authUserWithRelatedEmployee.plainPassword())
-                    .senderEmployeeId(null)
-                    .build();
-
             transactionManager.commit(saveAuthUserWithRelatedEmployee);
 
             log.info("Register new employee successfully");
             registration.setStatus(RegistrationStatus.SUCCESS);
             registrationRepository.save(registration);
 
-            // todo improve those messages THAT WILL RECEIVE FINAL CUSTOMER
+            String subject = request.subject();
+            String bodyTemplate = request.body();
+
+            String body = bodyTemplate
+                    .replace("{0}", authUserWithRelatedEmployee.authUserDTO().username())
+                    .replace("{1}", authUserWithRelatedEmployee.plainPassword())
+                    .replace("%n", System.lineSeparator());
+
             var sendEmailRequest = SendEmailRequest.builder()
                     .toEmailAddress(registration.getEmail())
-                    .subject("Registered customer " + companyDTO.name())
-                    .body("Login: " + authUserWithRelatedEmployee.authUserDTO().username() + " Pass: "
-                            + authUserWithRelatedEmployee.plainPassword())
+                    .subject(subject)
+                    .body(body)
                     .build();
+
+            emailSenderAPI.sendEmail(sendEmailRequest);
             emailSenderAPI.sendEmail(sendEmailRequest);
 
         } catch (Exception e) {

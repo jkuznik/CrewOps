@@ -163,7 +163,7 @@ public class MessageForm extends FormLayout {
      */
     @CssImport("./styles/component/combo-box.css")
     private class RecipientSelectionField extends CustomField<RecipientSelection> {
-        static final String ALL = "ALL"; // todo: make this i18n supported
+        static final String ALL = "ALL";
 
         private final ComboBox<DepartmentFormModel> recipientDepartment = new ComboBox<>();
         private final ComboBox<MachineDTO> recipientMachineOperators = new ComboBox<>();
