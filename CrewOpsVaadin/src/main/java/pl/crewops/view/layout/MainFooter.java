@@ -30,7 +30,15 @@ public class MainFooter extends Footer {
         Anchor githubLink = new Anchor("https://github.com/jkuznik", "GitHub");
         githubLink.setTarget("_blank");
         githubLink.addClassName("main-footer-link");
-        leftSide.add(githubLink);
+
+        Anchor emailLink = new Anchor("mailto:janusz.kuznik@devsmith.eu", "janusz.kuznik@devsmith.eu");
+        emailLink.addClassName("main-footer-link");
+
+        Anchor linkedinLink = new Anchor("https://www.linkedin.com/in/janusz-kuźnik", "LinkedIn");
+        linkedinLink.setTarget("_blank");
+        linkedinLink.addClassName("main-footer-link");
+
+        leftSide.add(emailLink, githubLink, linkedinLink);
 
         VerticalLayout rightSide = new VerticalLayout();
         rightSide.addClassName("main-footer-column");

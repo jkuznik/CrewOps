@@ -172,7 +172,10 @@ class RegistrationServiceTest {
 
         // Execute
         VerifyEmailRequest request = new VerifyEmailRequest(
-                pendingRegistration.getId(), String.valueOf(pendingRegistration.getVerificationCode()));
+                pendingRegistration.getId(),
+                String.valueOf(pendingRegistration.getVerificationCode()),
+                "subject",
+                "body");
 
         CreateCustomerResult result = registrationService.finalizeRegisterCustomer(request);
 
@@ -192,7 +195,7 @@ class RegistrationServiceTest {
         UUID randomId = UUID.randomUUID();
         when(registrationRepository.findById(randomId)).thenReturn(Optional.empty());
 
-        VerifyEmailRequest request = new VerifyEmailRequest(randomId, String.valueOf(12345));
+        VerifyEmailRequest request = new VerifyEmailRequest(randomId, String.valueOf(12345), "subject", "body");
 
         assertThatThrownBy(() -> registrationService.finalizeRegisterCustomer(request))
                 .isInstanceOf(java.util.NoSuchElementException.class);

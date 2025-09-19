@@ -248,7 +248,6 @@ class RegistrationService {
                     .build();
 
             emailSenderAPI.sendEmail(sendEmailRequest);
-            emailSenderAPI.sendEmail(sendEmailRequest);
 
         } catch (Exception e) {
             transactionManager.rollback(saveAuthUserWithRelatedEmployee);
