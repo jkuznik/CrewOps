@@ -128,6 +128,8 @@ public abstract class IntegrationTest {
         registry.add("spring.datasource.url", postgresSQLContainer::getJdbcUrl);
         registry.add("spring.datasource.username", postgresSQLContainer::getUsername);
         registry.add("spring.datasource.password", postgresSQLContainer::getPassword);
+        registry.add("spring.mail.username", () -> "test");
+        registry.add("spring.mail.password", () -> "test");
 
         // liquibase parameters for address
         registry.add("spring.liquibase.parameters.address.id", () -> "8faf1d5c-9e8f-4bca-9c56-123456789aab");
