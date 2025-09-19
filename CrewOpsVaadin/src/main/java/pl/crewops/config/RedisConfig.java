@@ -36,7 +36,7 @@ public class RedisConfig {
     }
 
     @Bean
-    @Profile("prod")
+    @Profile("production")
     public RedisConnectionFactory redisConnectionFactoryProd() {
         log.info("Connecting to Redis PROD at: {}", redisProperties.url());
 
