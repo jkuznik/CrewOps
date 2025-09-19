@@ -1,10 +1,10 @@
 package pl.crewops.domain.breakdown;
 
-import pl.crewops.dto.breakdown.BreakdownDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.machine.MachineDTO;
-import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.Breakdown;
+import pl.crewops.model.dto.breakdown.BreakdownDTO;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.machine.MachineDTO;
+import pl.crewops.model.dto.machineType.MachineTypeDTO;
 
 class BreakdownMapper {
 

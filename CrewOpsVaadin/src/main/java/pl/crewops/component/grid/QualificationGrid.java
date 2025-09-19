@@ -17,10 +17,10 @@ import pl.crewops.component.notification.FailNotification;
 import pl.crewops.component.notification.InfoNotification;
 import pl.crewops.component.notification.SuccessNotification;
 import pl.crewops.component.notification.guardian.DeleteQualificationGuardian;
-import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.QualificationFormModel;
+import pl.crewops.model.dto.qualification.QualificationDTO;
 import pl.crewops.util.BrowserResolver;
 import pl.crewops.view.HomeView;
 

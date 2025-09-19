@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.validation.annotation.Validated;
-import pl.crewops.dto.machine.CreateMachineDTO;
-import pl.crewops.dto.machine.MachineDTO;
-import pl.crewops.dto.machine.UpdateMachineDTO;
 import pl.crewops.exception.domain.machine.MachineNotFoundException;
 import pl.crewops.model.Machine;
+import pl.crewops.model.dto.machine.CreateMachineDTO;
+import pl.crewops.model.dto.machine.MachineDTO;
+import pl.crewops.model.dto.machine.UpdateMachineDTO;
 
 @Validated
 public interface MachineAPI {

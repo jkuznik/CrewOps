@@ -22,8 +22,8 @@ databaseChangeLog:
                   name: tax_id
                   value: "test_tax_id"
               - column:
-                  name: active
-                  valueBoolean: true
+                  name: status
+                  value: "TRIAL"
               - column:
                   name: created_at
                   valueDate: now()

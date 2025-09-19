@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.*;
-import pl.crewops.dto.department.DepartmentDTO;
+import pl.crewops.model.dto.department.DepartmentDTO;
 
 @Getter
 @Setter

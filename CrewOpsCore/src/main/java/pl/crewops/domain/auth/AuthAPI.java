@@ -6,10 +6,14 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.validation.annotation.Validated;
-import pl.crewops.dto.auth.*;
-import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.auth.*;
+import pl.crewops.model.dto.auth.AuthRequest;
+import pl.crewops.model.dto.auth.AuthResponse;
+import pl.crewops.model.dto.employee.CreateEmployeeDTO;
+import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.publicSchema.AuthUser;
+import pl.crewops.security.ValidTokenRequest;
+import pl.crewops.security.ValidTokenResponse;
 
 @Validated
 public interface AuthAPI {

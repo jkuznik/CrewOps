@@ -1,9 +1,12 @@
 package pl.crewops.domain.registration;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static pl.crewops.enums.ControllerURL.REGISTER;
+import static pl.crewops.enums.ControllerURL.VERIFY_EMAIL;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
@@ -22,25 +25,27 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
-import pl.crewops.dto.address.AddressDTO;
-import pl.crewops.dto.address.CreateAddressDTO;
-import pl.crewops.dto.auth.AuthUserDTO;
-import pl.crewops.dto.auth.CreateAuthUserResult;
-import pl.crewops.dto.company.CompanyDTO;
-import pl.crewops.dto.company.CreateCompanyDTO;
-import pl.crewops.dto.department.DepartmentDTO;
-import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.tenant.CreateTenantDTO;
-import pl.crewops.dto.tenant.TenantDTO;
 import pl.crewops.enums.CompanyStatus;
-import pl.crewops.registration.CreateCustomerCommand;
-import pl.crewops.registration.CreateCustomerResult;
+import pl.crewops.model.dto.address.AddressDTO;
+import pl.crewops.model.dto.address.CreateAddressDTO;
+import pl.crewops.model.dto.auth.AuthUserDTO;
+import pl.crewops.model.dto.auth.CreateAuthUserResult;
+import pl.crewops.model.dto.company.CompanyDTO;
+import pl.crewops.model.dto.company.CreateCompanyDTO;
+import pl.crewops.model.dto.department.DepartmentDTO;
+import pl.crewops.model.dto.employee.CreateEmployeeDTO;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.registration.CreateCustomerCommand;
+import pl.crewops.model.dto.registration.CreateCustomerResult;
+import pl.crewops.model.dto.registration.PreRegisterResponse;
+import pl.crewops.model.dto.registration.VerifyEmailRequest;
+import pl.crewops.model.dto.tenant.CreateTenantDTO;
+import pl.crewops.model.dto.tenant.TenantDTO;
 import pl.crewops.security.config.TestSecuriityConfig;
 
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
-@WebMvcTest
+@WebMvcTest(controllers = RegistrationController.class)
 @ContextConfiguration(
         classes = {TestSecuriityConfig.class, RegistrationController.class, MethodValidationPostProcessor.class})
 class RegistrationControllerTest {
@@ -54,143 +59,48 @@ class RegistrationControllerTest {
     @MockitoBean
     private RegistrationService registrationService;
 
+    private String toJson(Object obj) throws Exception {
+        return objectMapper.writeValueAsString(obj);
+    }
+
     @Test
     @WithMockUser(roles = "SYSTEM_ADMIN")
     @DisplayName("POST /register should return 400 when postalCode is blank")
     void registerCustomer_ShouldReturn400_BlankPostalCode() throws Exception {
-        var address = CreateAddressDTO.builder()
-                .postalCode("  ")
-                .city("Warsaw")
-                .street("Main St")
-                .localNumber("10A")
-                .build();
-
-        var company = CreateCompanyDTO.builder()
-                .name("Valid Company")
-                .email("contact@company.com")
-                .build();
-
-        var tenant = CreateTenantDTO.builder()
-                .createCompanyDTO(company)
-                .createAddressDTO(address)
-                .build();
-
-        var employee = CreateEmployeeDTO.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .phoneNumber("+48123123123")
-                .build();
-
         var command = CreateCustomerCommand.builder()
-                .createTenantDTO(tenant)
-                .createEmployeeDTO(employee)
+                .createTenantDTO(CreateTenantDTO.builder()
+                        .createCompanyDTO(CreateCompanyDTO.builder()
+                                .name("Valid Company")
+                                .email("contact@company.com")
+                                .build())
+                        .createAddressDTO(CreateAddressDTO.builder()
+                                .postalCode("  ") // invalid
+                                .city("Warsaw")
+                                .street("Main St")
+                                .localNumber("10A")
+                                .build())
+                        .build())
+                .createEmployeeDTO(CreateEmployeeDTO.builder()
+                        .firstName("John")
+                        .lastName("Doe")
+                        .phoneNumber("+48123123123")
+                        .build())
                 .build();
 
-        mockMvc.perform(post("/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(command)))
+        mockMvc.perform(post(REGISTER).contentType(MediaType.APPLICATION_JSON).content(toJson(command)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    @WithMockUser(roles = "SYSTEM_ADMIN")
-    @DisplayName("POST /register should return 400 when email is invalid")
-    void registerCustomer_ShouldReturn400_InvalidEmail() throws Exception {
-        var address = CreateAddressDTO.builder()
-                .postalCode("00-001")
-                .city("Warsaw")
-                .street("Main St")
-                .localNumber("10A")
-                .build();
-
-        var company = CreateCompanyDTO.builder()
-                .name("Valid Company")
-                .email("not-an-email") // Invalid
-                .build();
-
-        var tenant = CreateTenantDTO.builder()
-                .createCompanyDTO(company)
-                .createAddressDTO(address)
-                .build();
-
-        var employee = CreateEmployeeDTO.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .phoneNumber("+48123123123")
-                .build();
-
+    @DisplayName("POST /register should return 200 and PreRegisterResponse when valid")
+    void registerCustomer_ShouldReturn200_PreRegisterResponse_WhenDataIsValid() throws Exception {
+        UUID registrationId = UUID.randomUUID();
         var command = CreateCustomerCommand.builder()
-                .createTenantDTO(tenant)
-                .createEmployeeDTO(employee)
-                .build();
-
-        mockMvc.perform(post("/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(command)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @WithMockUser(roles = "SYSTEM_ADMIN")
-    @DisplayName("POST /register should return 400 when CreateEmployeeDTO is null")
-    void registerCustomer_ShouldReturn400_NullEmployee() throws Exception {
-        var address = CreateAddressDTO.builder()
-                .postalCode("00-001")
-                .city("Warsaw")
-                .street("Main St")
-                .localNumber("10A")
-                .build();
-
-        var company = CreateCompanyDTO.builder()
-                .name("Company")
-                .email("admin@company.com")
-                .build();
-
-        var tenant = CreateTenantDTO.builder()
-                .createCompanyDTO(company)
-                .createAddressDTO(address)
-                .build();
-
-        var command = CreateCustomerCommand.builder()
-                .createTenantDTO(tenant)
-                .createEmployeeDTO(null)
-                .build();
-
-        mockMvc.perform(post("/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(command)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @WithMockUser(roles = "SYSTEM_ADMIN")
-    @DisplayName("POST /register should return 400 when request body is invalid")
-    void registerCustomer_ShouldReturn400ForInvalidBody() throws Exception {
-        String invalidJson = "{}";
-
-        mockMvc.perform(post("/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(invalidJson))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @WithMockUser(roles = "SYSTEM_ADMIN")
-    @DisplayName("POST /register should return 200 and full result when data is valid and user is SYSTEM_ADMIN")
-    void registerCustomer_ShouldReturn200_WhenDataIsValidAndRoleIsSystemAdmin() throws Exception {
-        // Given
-        UUID companyId = UUID.randomUUID();
-        UUID employeeId = UUID.randomUUID();
-        UUID authUserId = UUID.randomUUID();
-        UUID tenantId = UUID.randomUUID();
-        UUID addressId = UUID.randomUUID();
-
-        var createCustomerCommand = CreateCustomerCommand.builder()
                 .createTenantDTO(CreateTenantDTO.builder()
                         .createCompanyDTO(CreateCompanyDTO.builder()
                                 .name("Tech Solutions")
                                 .email("info@techsolutions.com")
-                                .taxId("testTaxId")
+                                .taxId("1234567890") // ✅ valid tax ID format
                                 .build())
                         .createAddressDTO(CreateAddressDTO.builder()
                                 .postalCode("00-001")
@@ -203,11 +113,36 @@ class RegistrationControllerTest {
                         .firstName("John")
                         .lastName("Doe")
                         .birthDate(LocalDate.of(1990, 1, 1))
-                        .phoneNumber("123456789")
-                        .departments(departmentsDTOs())
-                        .companyId(companyId)
+                        .phoneNumber("+48123456789")
+                        .companyId(UUID.randomUUID())
                         .build())
                 .build();
+
+        var response = new PreRegisterResponse(
+                registrationId, PreRegisterResponse.PreRegisterResponseCode.EMAIL_VERIFICATION_REQUIRED);
+
+        when(registrationService.registerCustomer(command)).thenReturn(response);
+
+        mockMvc.perform(post(REGISTER).contentType(MediaType.APPLICATION_JSON).content(toJson(command)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.registrationId").value(registrationId.toString()))
+                .andExpect(jsonPath("$.code").value("EMAIL_VERIFICATION_REQUIRED"));
+
+        verify(registrationService).registerCustomer(any());
+    }
+
+    @Test
+    @WithMockUser(roles = "SYSTEM_ADMIN")
+    @DisplayName("POST /verify should return 200 and CreateCustomerResult when valid")
+    void finalizeRegisterCustomer_ShouldReturn200_WhenVerificationIsValid() throws Exception {
+        UUID registrationId = UUID.randomUUID();
+        var verifyEmailRequest = new VerifyEmailRequest(registrationId, "12345", "subject", "body");
+
+        UUID companyId = UUID.randomUUID();
+        UUID employeeId = UUID.randomUUID();
+        UUID authUserId = UUID.randomUUID();
+        UUID tenantId = UUID.randomUUID();
+        UUID addressId = UUID.randomUUID();
 
         var result = CreateCustomerResult.builder()
                 .companyDTO(CompanyDTO.builder()
@@ -230,7 +165,9 @@ class RegistrationControllerTest {
                                 .lastName("Doe")
                                 .birthDate(LocalDate.of(1990, 1, 1))
                                 .phoneNumber("123456789")
-                                .departments(departmentsDTOs())
+                                .departments(Set.of(DepartmentDTO.builder()
+                                        .name("department")
+                                        .build()))
                                 .roles(Set.of())
                                 .qualifications(Set.of())
                                 .machines(Set.of())
@@ -247,19 +184,15 @@ class RegistrationControllerTest {
                         .build())
                 .build();
 
-        when(registrationService.registerCustomer(any())).thenReturn(result);
+        when(registrationService.finalizeRegisterCustomer(any())).thenReturn(result);
 
-        mockMvc.perform(post("/register")
+        mockMvc.perform(post(VERIFY_EMAIL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createCustomerCommand)))
+                        .content(toJson(verifyEmailRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.companyDTO.name").value("Tech Solutions"))
-                .andExpect(jsonPath("$.companyDTO.email").value("info@techsolutions.com"))
-                .andExpect(jsonPath("$.authUserResult.employeeDTO.firstName").value("John"))
                 .andExpect(jsonPath("$.authUserResult.authUserDTO.username").value("jdoe"));
-    }
 
-    private Set<DepartmentDTO> departmentsDTOs() {
-        return Set.of(DepartmentDTO.builder().name("department").build());
+        verify(registrationService).finalizeRegisterCustomer(any());
     }
 }

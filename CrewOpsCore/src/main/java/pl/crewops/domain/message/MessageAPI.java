@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.validation.annotation.Validated;
-import pl.crewops.dto.message.CreateMessageDTO;
-import pl.crewops.dto.message.MessageDTO;
-import pl.crewops.dto.message.SendMessageCommand;
+import pl.crewops.model.dto.message.CreateMessageDTO;
+import pl.crewops.model.dto.message.MessageDTO;
+import pl.crewops.model.dto.message.SendMessageCommand;
 
 @Validated
 public interface MessageAPI {

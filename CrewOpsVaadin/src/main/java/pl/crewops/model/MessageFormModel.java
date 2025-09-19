@@ -7,8 +7,8 @@ import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.UUID;
 import lombok.*;
-import pl.crewops.dto.message.MessageDTO;
-import pl.crewops.dto.message.RecipientSelection;
+import pl.crewops.model.dto.message.MessageDTO;
+import pl.crewops.model.dto.message.RecipientSelection;
 
 @Getter
 @Setter
@@ -17,7 +17,7 @@ import pl.crewops.dto.message.RecipientSelection;
 @AllArgsConstructor
 public class MessageFormModel {
     private UUID id;
-    private String title;
+    private String subject;
     private @NotNull @Size(max = 32767, message = "Message can not be longer than 32767 characters") String description;
     private @NotNull RecipientSelection recipientSelection;
     private UUID senderEmployeeId;
@@ -27,7 +27,7 @@ public class MessageFormModel {
     public static MessageFormModel toMessageFormModel(MessageDTO messageDTO) {
         return MessageFormModel.builder()
                 .id(messageDTO.id())
-                .title(messageDTO.title())
+                .subject(messageDTO.title())
                 .description(messageDTO.description())
                 .recipientSelection(new RecipientSelection(
                         RecipientSelection.RecipientOptionType.EMPLOYEE,

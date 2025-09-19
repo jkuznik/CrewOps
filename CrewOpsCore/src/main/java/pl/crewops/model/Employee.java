@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.*;
-import pl.crewops.dto.employee.CreateEmployeeDTO;
+import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 
 @Getter
 @Setter
@@ -27,6 +27,7 @@ public class Employee extends AbstractEntity {
     @Column(updatable = false)
     private String lastName;
 
+    // todo: birthDate should be updatable
     @NotNull
     @Column(updatable = false)
     private LocalDate birthDate;

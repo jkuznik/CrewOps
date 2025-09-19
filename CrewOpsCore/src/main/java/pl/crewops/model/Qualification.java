@@ -6,8 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.*;
-import pl.crewops.dto.qualification.CreateQualificationDTO;
-import pl.crewops.dto.qualification.QualificationDTO;
+import pl.crewops.model.dto.qualification.CreateQualificationDTO;
+import pl.crewops.model.dto.qualification.QualificationDTO;
 import pl.crewops.util.serializer.EmployeeSetSerializer;
 
 @Getter

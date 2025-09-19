@@ -1,6 +1,7 @@
 package pl.crewops.domain.tenant;
 
 import jakarta.validation.constraints.NotNull;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.model.publicSchema.Tenant;
@@ -9,6 +10,8 @@ import pl.crewops.model.publicSchema.Tenant;
 public interface TenantAPI {
 
     Tenant getByCompanyId(@NotNull UUID companyId);
+
+    Optional<Tenant> getOptionalByTaxId(@NotNull String taxId);
 
     Tenant saveTenant(@NotNull Tenant tenant);
 

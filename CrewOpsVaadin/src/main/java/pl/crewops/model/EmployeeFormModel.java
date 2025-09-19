@@ -10,13 +10,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.*;
-import pl.crewops.dto.auth.RoleDTO;
-import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.dto.machine.MachineDTO;
-import pl.crewops.dto.qualification.QualificationDTO;
 import pl.crewops.model.auth.RoleType;
+import pl.crewops.model.dto.auth.RoleDTO;
+import pl.crewops.model.dto.employee.CreateEmployeeDTO;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.model.dto.machine.MachineDTO;
+import pl.crewops.model.dto.qualification.QualificationDTO;
 
 @Getter
 @Setter

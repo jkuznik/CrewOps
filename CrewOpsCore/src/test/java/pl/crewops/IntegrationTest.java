@@ -11,8 +11,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContext;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.test.web.servlet.MockMvc;
@@ -90,6 +92,9 @@ public abstract class IntegrationTest {
     @Autowired
     protected DepartmentAPI departmentAPI;
 
+    @MockitoBean
+    protected JavaMailSender mailSender;
+
     @Autowired
     private LiquibaseSchemaMigrator schemaMigrator;
 
@@ -123,6 +128,8 @@ public abstract class IntegrationTest {
         registry.add("spring.datasource.url", postgresSQLContainer::getJdbcUrl);
         registry.add("spring.datasource.username", postgresSQLContainer::getUsername);
         registry.add("spring.datasource.password", postgresSQLContainer::getPassword);
+        registry.add("spring.mail.username", () -> "test");
+        registry.add("spring.mail.password", () -> "test");
 
         // liquibase parameters for address
         registry.add("spring.liquibase.parameters.address.id", () -> "8faf1d5c-9e8f-4bca-9c56-123456789aab");

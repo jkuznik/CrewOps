@@ -11,11 +11,11 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.IntegrationTest;
-import pl.crewops.dto.machine.CreateMachineDTO;
-import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.exception.domain.machine.MachineNotFoundException;
 import pl.crewops.model.Machine;
 import pl.crewops.model.MachineType;
+import pl.crewops.model.dto.machine.CreateMachineDTO;
+import pl.crewops.model.dto.machineType.MachineTypeDTO;
 
 @Transactional
 class MachineAPITest extends IntegrationTest {

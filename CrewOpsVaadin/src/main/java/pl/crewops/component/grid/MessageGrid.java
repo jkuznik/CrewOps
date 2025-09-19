@@ -19,11 +19,11 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import pl.crewops.component.form.MessageForm;
 import pl.crewops.component.notification.FailNotification;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.message.SendMessageCommand;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.MessageFormModel;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.message.SendMessageCommand;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.BrowserResolver;
 
@@ -98,8 +98,8 @@ public class MessageGrid extends VerticalLayout {
                 .setHeader(getTranslation("messageGrid.sender"))
                 .setAutoWidth(true);
 
-        grid.addColumn(MessageFormModel::getTitle)
-                .setKey("title")
+        grid.addColumn(MessageFormModel::getSubject)
+                .setKey("subject")
                 .setHeader(getTranslation("messageGrid.title"))
                 .setFlexGrow(1);
 
@@ -190,7 +190,7 @@ public class MessageGrid extends VerticalLayout {
         messageForm.addSendListener(event -> {
             try {
                 coreAPI.sendMessage(SendMessageCommand.builder()
-                        .title(event.getMessageFormModel().getTitle())
+                        .subject(event.getMessageFormModel().getSubject())
                         .description(event.getMessageFormModel().getDescription())
                         .recipientSelection(event.getMessageFormModel().getRecipientSelection())
                         .senderEmployeeId(authenticationResolver.getPrincipal().getEmployeeId())

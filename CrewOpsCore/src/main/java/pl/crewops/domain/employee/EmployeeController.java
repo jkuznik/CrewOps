@@ -13,10 +13,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.employee.EmployeeQualificationDTO;
-import pl.crewops.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.employee.EmployeeQualificationDTO;
+import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.model.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.security.custom.permissionAnnotation.ManagerPermission;
 
 @ActiveProfiles("test")

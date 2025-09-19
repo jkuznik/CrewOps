@@ -21,14 +21,14 @@ import com.vaadin.flow.shared.Registration;
 import java.util.ArrayList;
 import lombok.Getter;
 import pl.crewops.component.notification.FailNotification;
-import pl.crewops.dto.department.DepartmentDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.machine.MachineDTO;
-import pl.crewops.dto.message.RecipientSelection;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.DepartmentFormModel;
 import pl.crewops.model.MessageFormModel;
+import pl.crewops.model.dto.department.DepartmentDTO;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.machine.MachineDTO;
+import pl.crewops.model.dto.message.RecipientSelection;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.SpringContextBridge;
 
@@ -83,14 +83,14 @@ public class MessageForm extends FormLayout {
         if (model != null) {
             binder.setBean(model);
             sender.setValue(senderName);
-            title.setValue(model.getTitle());
+            title.setValue(model.getSubject());
             description.setValue(model.getDescription());
         }
     }
 
     public void clearBinderValue() {
         var model = MessageFormModel.builder()
-                .title(null)
+                .subject(null)
                 .description(null)
                 .senderEmployeeId(null)
                 .build();
@@ -163,7 +163,7 @@ public class MessageForm extends FormLayout {
      */
     @CssImport("./styles/component/combo-box.css")
     private class RecipientSelectionField extends CustomField<RecipientSelection> {
-        static final String ALL = "ALL"; // todo: make this i18n supported
+        static final String ALL = "ALL";
 
         private final ComboBox<DepartmentFormModel> recipientDepartment = new ComboBox<>();
         private final ComboBox<MachineDTO> recipientMachineOperators = new ComboBox<>();

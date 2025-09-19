@@ -11,8 +11,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.enums.ControllerURL;
+import pl.crewops.model.dto.department.DepartmentDTO;
 
 @RestController
 @RequiredArgsConstructor

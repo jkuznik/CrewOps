@@ -6,8 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.enums.ControllerURL;
+import pl.crewops.model.dto.machineType.MachineTypeDTO;
 
 @RestController
 @RequiredArgsConstructor

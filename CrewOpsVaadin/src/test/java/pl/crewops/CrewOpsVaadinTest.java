@@ -1,7 +1,7 @@
 package pl.crewops;
 
 import org.junit.jupiter.api.Test;
-import pl.crewops.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.employee.EmployeeDTO;
 
 class CrewOpsVaadinTest {
 

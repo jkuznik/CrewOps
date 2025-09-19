@@ -1,8 +1,8 @@
 package pl.crewops.domain.message;
 
-import pl.crewops.dto.message.CreateMessageDTO;
-import pl.crewops.dto.message.MessageDTO;
 import pl.crewops.model.Message;
+import pl.crewops.model.dto.message.CreateMessageDTO;
+import pl.crewops.model.dto.message.MessageDTO;
 
 class MessageMapper {
 

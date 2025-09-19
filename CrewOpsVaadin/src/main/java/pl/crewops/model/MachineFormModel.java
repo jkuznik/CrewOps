@@ -4,10 +4,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.UUID;
 import lombok.*;
-import pl.crewops.dto.machine.CreateMachineDTO;
-import pl.crewops.dto.machine.MachineDTO;
-import pl.crewops.dto.machine.UpdateMachineDTO;
-import pl.crewops.dto.machineType.MachineTypeDTO;
+import pl.crewops.model.dto.machine.CreateMachineDTO;
+import pl.crewops.model.dto.machine.MachineDTO;
+import pl.crewops.model.dto.machine.UpdateMachineDTO;
+import pl.crewops.model.dto.machineType.MachineTypeDTO;
 
 @Getter
 @Setter

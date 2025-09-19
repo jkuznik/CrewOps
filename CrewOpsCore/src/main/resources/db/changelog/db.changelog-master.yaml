@@ -29,6 +29,8 @@
     - include:
         file: db/changelog/create/publicSchema/004-create-join-table-auth-user-role.yaml
     - include:
+        file: db/changelog/create/publicSchema/005-create-table-registration-with-dedicated-enum.yaml
+    - include:
         file: db/changelog/insert/001-insert-role-initial-values.yaml
     - include:
         file: db/changelog/insert/002-insert-admin-account-values.yaml

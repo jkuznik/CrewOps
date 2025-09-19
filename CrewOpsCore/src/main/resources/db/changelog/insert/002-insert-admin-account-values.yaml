@@ -315,7 +315,6 @@ databaseChangeLog:
               - column: { name: name, type: varchar(63), constraints: { nullable: false } }
               - column: { name: address_id, type: uuid, constraints: { nullable: false, unique: true } }
               - column: { name: email, type: varchar(255), constraints: { nullable: false, unique: true } }
-              - column: { name: status, type: varchar(31), constraints: { nullable: false } }
               - column: { name: created_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
               - column: { name: updated_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
 
@@ -462,7 +461,7 @@ databaseChangeLog:
                   name: tax_id
                   value: ${tenant.tax.id}
               - column:
-                  name: active
+                  name: status
                   valueBoolean: ${tenant.active}
               - column:
                   name: created_at
@@ -559,9 +558,6 @@ databaseChangeLog:
               - column:
                   name: email
                   value: ${company.email}
-              - column:
-                  name: status
-                  value: ${company.status}
               - column:
                   name: created_at
                   valueComputed: "CURRENT_TIMESTAMP"

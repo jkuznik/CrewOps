@@ -6,28 +6,34 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import pl.crewops.dto.auth.*;
-import pl.crewops.dto.breakdown.BreakdownDTO;
-import pl.crewops.dto.breakdown.CreateBreakdownDTO;
-import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
-import pl.crewops.dto.company.CompanyDTO;
-import pl.crewops.dto.department.DepartmentDTO;
-import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.dto.machine.CreateMachineDTO;
-import pl.crewops.dto.machine.MachineDTO;
-import pl.crewops.dto.machine.UpdateMachineDTO;
-import pl.crewops.dto.machineType.MachineTypeDTO;
-import pl.crewops.dto.message.MessageDTO;
-import pl.crewops.dto.message.SendMessageCommand;
-import pl.crewops.dto.qualification.CreateQualificationDTO;
-import pl.crewops.dto.qualification.QualificationDTO;
-import pl.crewops.dto.qualification.UpdateQualificationDTO;
-import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
-import pl.crewops.registration.CreateCustomerCommand;
-import pl.crewops.registration.CreateCustomerResult;
+import pl.crewops.model.dto.auth.*;
+import pl.crewops.model.dto.auth.AuthRequest;
+import pl.crewops.model.dto.auth.AuthResponse;
+import pl.crewops.model.dto.breakdown.BreakdownDTO;
+import pl.crewops.model.dto.breakdown.CreateBreakdownDTO;
+import pl.crewops.model.dto.breakdown.UpdateBreakdownDTO;
+import pl.crewops.model.dto.company.CompanyDTO;
+import pl.crewops.model.dto.department.DepartmentDTO;
+import pl.crewops.model.dto.employee.CreateEmployeeDTO;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.model.dto.machine.CreateMachineDTO;
+import pl.crewops.model.dto.machine.MachineDTO;
+import pl.crewops.model.dto.machine.UpdateMachineDTO;
+import pl.crewops.model.dto.machineType.MachineTypeDTO;
+import pl.crewops.model.dto.message.MessageDTO;
+import pl.crewops.model.dto.message.SendMessageCommand;
+import pl.crewops.model.dto.qualification.CreateQualificationDTO;
+import pl.crewops.model.dto.qualification.QualificationDTO;
+import pl.crewops.model.dto.qualification.UpdateQualificationDTO;
+import pl.crewops.model.dto.qualification.UpdateQualificationExpiredAtDTO;
+import pl.crewops.model.dto.registration.CreateCustomerCommand;
+import pl.crewops.model.dto.registration.CreateCustomerResult;
+import pl.crewops.model.dto.registration.PreRegisterResponse;
+import pl.crewops.model.dto.registration.VerifyEmailRequest;
+import pl.crewops.security.ValidTokenRequest;
+import pl.crewops.security.ValidTokenResponse;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -44,6 +50,12 @@ class CoreService implements CoreAPI {
     public Optional<AuthResponse> login(AuthRequest request) {
         log.info("Login via service proxy");
         return Optional.ofNullable(coreClient.login(request));
+    }
+
+    @Override
+    public Optional<CreateCustomerResult> verifyEmail(VerifyEmailRequest request) {
+        log.info("Verify email request");
+        return Optional.ofNullable(coreClient.verifyEmail(request));
     }
 
     @Override
@@ -113,8 +125,7 @@ class CoreService implements CoreAPI {
     }
 
     @Override
-    public Optional<CreateCustomerResult> registerNewCustomer(CreateCustomerCommand command)
-            throws NotAuthenticatedException {
+    public Optional<PreRegisterResponse> registerNewCustomer(CreateCustomerCommand command) {
 
         return Optional.ofNullable(coreClient.registerNewCustomer(command));
     }

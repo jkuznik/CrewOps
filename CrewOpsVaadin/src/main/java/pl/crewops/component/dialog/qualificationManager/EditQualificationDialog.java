@@ -5,9 +5,9 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.shared.Registration;
 import lombok.Getter;
-import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.QualificationFormModel;
+import pl.crewops.model.dto.employee.EmployeeDTO;
 
 public class EditQualificationDialog extends Dialog {
     private final EditQualificationForm editQualificationForm = new EditQualificationForm();

@@ -1,6 +1,6 @@
 package pl.crewops.domain.tenant;
 
-import pl.crewops.dto.tenant.TenantDTO;
+import pl.crewops.model.dto.tenant.TenantDTO;
 import pl.crewops.model.publicSchema.Tenant;
 
 class TenantMapper {
@@ -9,7 +9,7 @@ class TenantMapper {
         return TenantDTO.builder()
                 .id(tenant.getId())
                 .companyId(tenant.getCompanyId())
-                .active(tenant.isActive())
+                .status(tenant.getStatus())
                 .build();
     }
 }

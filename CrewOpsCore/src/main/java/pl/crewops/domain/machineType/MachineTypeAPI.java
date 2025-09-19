@@ -6,9 +6,9 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.validation.annotation.Validated;
-import pl.crewops.dto.machineType.CreateMachineTypeDTO;
-import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.MachineType;
+import pl.crewops.model.dto.machineType.CreateMachineTypeDTO;
+import pl.crewops.model.dto.machineType.MachineTypeDTO;
 
 @Validated
 public interface MachineTypeAPI {

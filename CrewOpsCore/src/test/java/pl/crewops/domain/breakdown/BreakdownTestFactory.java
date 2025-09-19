@@ -2,10 +2,10 @@ package pl.crewops.domain.breakdown;
 
 import java.util.Set;
 import java.util.UUID;
-import pl.crewops.dto.auth.RoleDTO;
-import pl.crewops.dto.breakdown.CreateBreakdownDTO;
-import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.model.*;
+import pl.crewops.model.dto.auth.RoleDTO;
+import pl.crewops.model.dto.breakdown.CreateBreakdownDTO;
+import pl.crewops.model.dto.breakdown.UpdateBreakdownDTO;
 
 class BreakdownTestFactory {
 

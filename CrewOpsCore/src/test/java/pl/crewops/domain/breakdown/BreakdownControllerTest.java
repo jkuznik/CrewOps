@@ -22,10 +22,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import pl.crewops.dto.breakdown.BreakdownDTO;
-import pl.crewops.dto.breakdown.CreateBreakdownDTO;
-import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
-import pl.crewops.dto.machine.MachineDTO;
+import pl.crewops.model.dto.breakdown.BreakdownDTO;
+import pl.crewops.model.dto.breakdown.CreateBreakdownDTO;
+import pl.crewops.model.dto.breakdown.UpdateBreakdownDTO;
+import pl.crewops.model.dto.machine.MachineDTO;
 import pl.crewops.security.config.TestSecuriityConfig;
 
 @ActiveProfiles("test")

@@ -34,8 +34,8 @@ databaseChangeLog:
                     nullable: false
                     unique: true
               - column:
-                  name: active
-                  type: boolean
+                  name: status
+                  type: varchar(31)
                   constraints:
                     nullable: false
               - column:

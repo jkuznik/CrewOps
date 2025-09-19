@@ -3,9 +3,9 @@ package pl.crewops.security.jwt;
 import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import pl.crewops.dto.auth.ValidTokenRequest;
-import pl.crewops.dto.auth.ValidTokenResponse;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.security.ValidTokenRequest;
+import pl.crewops.security.ValidTokenResponse;
 import pl.crewops.security.config.SecurityConfigProperties;
 
 @Slf4j

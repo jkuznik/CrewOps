@@ -1,11 +1,11 @@
 package pl.crewops.domain.machine;
 
 import java.util.UUID;
-import pl.crewops.dto.machine.CreateMachineDTO;
-import pl.crewops.dto.machine.UpdateMachineDTO;
-import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.Machine;
 import pl.crewops.model.MachineType;
+import pl.crewops.model.dto.machine.CreateMachineDTO;
+import pl.crewops.model.dto.machine.UpdateMachineDTO;
+import pl.crewops.model.dto.machineType.MachineTypeDTO;
 
 class MachineTestFactory {
 

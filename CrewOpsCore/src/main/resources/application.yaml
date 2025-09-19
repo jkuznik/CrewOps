@@ -6,12 +6,9 @@ spring:
     default: dev
 
   config:
-    import: "classpath:application-liquibase.yaml"
-
-  liquibase:
-    enabled: true
-    default-schema: public
-    change-log: db/changelog/db.changelog-master.yaml
+    import:
+      - classpath:application-liquibase.yaml
+      - classpath:application-email-config.yaml
 
   datasource:
     driver-class-name: org.postgresql.Driver

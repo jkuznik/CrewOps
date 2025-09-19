@@ -15,10 +15,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.IntegrationTest;
-import pl.crewops.dto.department.DepartmentDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.model.Employee;
+import pl.crewops.model.dto.department.DepartmentDTO;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
 
 @Transactional
 class EmployeeAPITest extends IntegrationTest {

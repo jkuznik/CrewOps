@@ -8,6 +8,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import pl.crewops.component.content.HomeContent;
+import pl.crewops.component.content.RegistryContent;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
@@ -42,9 +43,8 @@ public class HomeView extends MainLayout {
     }
 
     private Component getCurrentContent() {
-        Component currentContent;
-        //        if (authenticationResolver.principalIsAuthenticated()) {
-        VerticalLayout layout = new VerticalLayout();
+        var layout = new VerticalLayout();
+
         layout.setId("view-content");
 
         layout.setWidthFull();
@@ -52,29 +52,15 @@ public class HomeView extends MainLayout {
         layout.setSpacing(true);
         layout.getStyle().set("overflow", "auto");
 
-        HomeContent homeContent = new HomeContent();
-        homeContent.setSizeFull();
+        if (!authenticationResolver.principalIsAuthenticated()) {
+            layout.add(new RegistryContent());
+        } else {
+            HomeContent homeContent = new HomeContent();
+            homeContent.setWidthFull();
 
-        layout.add(homeContent);
-        currentContent = layout;
-        //        } else {                                  all commented code has change homepage for not logged users
-        //            Div container = new Div();
-        //            container.setId("view-content");
-        //            container.setSizeFull();
-        //            container
-        //                    .getStyle()
-        //                    .set("display", "flex")
-        //                    .set("align-items", "center")
-        //                    .set("justify-content", "center");
-        //
-        //            var loginForm = new LoginForm(coreAPI, jwtService);
-        //            loginForm.setWidth("400px");
-        //            loginForm.getStyle().set("max-width", "90%");
-        //
-        //            container.add(loginForm);
-        //            currentContent = container;
-        //        }
-        return currentContent;
+            layout.add(homeContent);
+        }
+        return layout;
     }
 
     @Override

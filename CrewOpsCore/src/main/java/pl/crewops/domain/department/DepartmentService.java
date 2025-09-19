@@ -5,14 +5,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.crewops.dto.department.DepartmentDTO;
 import pl.crewops.model.Department;
+import pl.crewops.model.dto.department.DepartmentDTO;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 class DepartmentService implements DepartmentAPI {
-    // TODO: create CRUD for this domain and dedicated view/grid to maintain this on fe side
 
     private final DepartmentRepository departmentRepository;
 

@@ -15,11 +15,11 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.domain.employee.EmployeeAPI;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.message.CreateMessageDTO;
-import pl.crewops.dto.message.MessageDTO;
-import pl.crewops.dto.message.SendMessageCommand;
 import pl.crewops.model.Message;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.message.CreateMessageDTO;
+import pl.crewops.model.dto.message.MessageDTO;
+import pl.crewops.model.dto.message.SendMessageCommand;
 import pl.crewops.util.pagination.PageRequestFactory;
 
 @Slf4j
@@ -68,7 +68,7 @@ class MessageService implements MessageAPI {
     void sendToAllEmployeesAsync(SendMessageCommand sendMessageCommand, List<EmployeeDTO> allActiveEmployees) {
         List<Message> messages = allActiveEmployees.stream()
                 .map(employeeDTO -> mapToEntity(CreateMessageDTO.builder()
-                        .title(sendMessageCommand.title())
+                        .title(sendMessageCommand.subject())
                         .description(sendMessageCommand.description())
                         .recipientEmployeeId(employeeDTO.id())
                         .senderEmployeeId(sendMessageCommand.senderEmployeeId())
@@ -82,7 +82,7 @@ class MessageService implements MessageAPI {
     void sendToAllByMachine(SendMessageCommand sendMessageCommand, List<EmployeeDTO> employeesByMachine) {
         List<Message> messages = employeesByMachine.stream()
                 .map(employeeDTO -> mapToEntity(CreateMessageDTO.builder()
-                        .title(sendMessageCommand.title())
+                        .title(sendMessageCommand.subject())
                         .description(sendMessageCommand.description())
                         .recipientEmployeeId(employeeDTO.id())
                         .senderEmployeeId(sendMessageCommand.senderEmployeeId())
@@ -94,7 +94,7 @@ class MessageService implements MessageAPI {
 
     void sendToRecipientEmployee(SendMessageCommand sendMessageCommand) {
         var createMessageDTO = CreateMessageDTO.builder()
-                .title(sendMessageCommand.title())
+                .title(sendMessageCommand.subject())
                 .description(sendMessageCommand.description())
                 .recipientEmployeeId(
                         UUID.fromString(sendMessageCommand.recipientSelection().value()))

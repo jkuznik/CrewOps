@@ -12,11 +12,11 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import pl.crewops.component.notification.FailNotification;
-import pl.crewops.dto.employee.EmployeeDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.QualificationFormModel;
+import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.util.SpringContextBridge;
 
 @Slf4j

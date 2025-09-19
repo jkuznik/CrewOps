@@ -18,10 +18,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.domain.employee.EmployeeAPI;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.message.CreateMessageDTO;
-import pl.crewops.dto.message.MessageDTO;
 import pl.crewops.model.Message;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.message.CreateMessageDTO;
+import pl.crewops.model.dto.message.MessageDTO;
 
 @SpringJUnitConfig(classes = {MessageService.class, MessageRepository.class, EmployeeAPI.class})
 class MessageServiceTest {
@@ -70,7 +70,7 @@ class MessageServiceTest {
                 messageService.getAllMessagesByRecipientEmployeeIdAndReadIsFalse(recipientEmployeeId, 0, 15);
 
         assertThat(result).hasSize(2);
-        assertThat("title").isEqualTo(result.getFirst().title());
+        assertThat("subject").isEqualTo(result.getFirst().title());
     }
 
     @Test
@@ -80,7 +80,7 @@ class MessageServiceTest {
         List<MessageDTO> result = messageService.getAllMessagesByRecipientEmployeeId(recipientEmployeeId, 0, 10);
 
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).title()).isEqualTo("title");
+        assertThat(result.get(0).title()).isEqualTo("subject");
     }
 
     @Test

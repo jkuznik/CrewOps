@@ -8,9 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.crewops.dto.machineType.CreateMachineTypeDTO;
-import pl.crewops.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.MachineType;
+import pl.crewops.model.dto.machineType.CreateMachineTypeDTO;
+import pl.crewops.model.dto.machineType.MachineTypeDTO;
 
 @Service
 @Slf4j

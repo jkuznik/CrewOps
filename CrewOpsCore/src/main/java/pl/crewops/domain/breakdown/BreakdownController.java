@@ -11,9 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import pl.crewops.dto.breakdown.BreakdownDTO;
-import pl.crewops.dto.breakdown.CreateBreakdownDTO;
-import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
+import pl.crewops.model.dto.breakdown.BreakdownDTO;
+import pl.crewops.model.dto.breakdown.CreateBreakdownDTO;
+import pl.crewops.model.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.security.custom.permissionAnnotation.ShiftLeaderPermission;
 
 @RestController

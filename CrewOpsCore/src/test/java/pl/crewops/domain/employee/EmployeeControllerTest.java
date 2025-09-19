@@ -24,10 +24,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.employee.EmployeeQualificationDTO;
-import pl.crewops.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.employee.EmployeeQualificationDTO;
+import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.model.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.security.config.TestSecuriityConfig;
 
 @ActiveProfiles("test")

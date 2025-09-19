@@ -4,9 +4,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import org.springframework.validation.annotation.Validated;
-import pl.crewops.dto.address.CreateAddressDTO;
-import pl.crewops.dto.company.CompanyDTO;
-import pl.crewops.dto.company.CreateCompanyDTO;
+import pl.crewops.model.dto.address.CreateAddressDTO;
+import pl.crewops.model.dto.company.CompanyDTO;
+import pl.crewops.model.dto.company.CreateCompanyDTO;
 
 @Validated
 public interface CompanyAPI {

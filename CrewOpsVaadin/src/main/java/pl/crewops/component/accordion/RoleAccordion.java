@@ -21,14 +21,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import pl.crewops.component.notification.FailNotification;
-import pl.crewops.dto.auth.AuthUserDTO;
-import pl.crewops.dto.auth.RoleDTO;
-import pl.crewops.dto.auth.UpdateAuthUserDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.exceptions.UpdateQualificationException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.auth.RoleType;
+import pl.crewops.model.dto.auth.AuthUserDTO;
+import pl.crewops.model.dto.auth.RoleDTO;
+import pl.crewops.model.dto.auth.UpdateAuthUserDTO;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.SpringContextBridge;
 
@@ -77,7 +77,7 @@ public class RoleAccordion extends FormLayout {
         Span title = new Span(getTranslation("employeeForm.roles"));
         title.getStyle().set("font-weight", "600");
 
-        // Header row: toggle + title (left), edit (right)
+        // Header row: toggle + subject (left), edit (right)
         HorizontalLayout header = new HorizontalLayout();
         header.setWidthFull();
         header.setAlignItems(FlexComponent.Alignment.CENTER);

@@ -1,5 +1,9 @@
 spring:
   liquibase:
+    enabled: true
+    default-schema: public
+    change-log: db/changelog/db.changelog-master.yaml
+
     parameters:
       address.id: ${CREW_OPS_ADDRESS_ID}
       address.postal.code: ${CREW_OPS_ADDRESS_POSTAL_CODE}

@@ -2,175 +2,212 @@ package pl.crewops.domain.registration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.*;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Optional;
 import java.util.UUID;
-import javax.sql.DataSource;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import pl.crewops.IntegrationTest;
-import pl.crewops.dto.auth.CreateAuthUserDTO;
-import pl.crewops.exception.domain.registration.RegisterCustomerException;
-import pl.crewops.infrastructure.multitenancy.TenantContext;
-import pl.crewops.model.Employee;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+import pl.crewops.domain.auth.AuthAPI;
+import pl.crewops.domain.company.CompanyAPI;
+import pl.crewops.domain.tenant.TenantAPI;
+import pl.crewops.enums.CompanyStatus;
+import pl.crewops.enums.RegistrationStatus;
+import pl.crewops.infrastructure.emailSender.EmailSenderAPI;
+import pl.crewops.model.dto.auth.CreateAuthUserResult;
+import pl.crewops.model.dto.employee.CreateEmployeeDTO;
+import pl.crewops.model.dto.registration.CreateCustomerCommand;
+import pl.crewops.model.dto.registration.CreateCustomerResult;
+import pl.crewops.model.dto.registration.PreRegisterResponse;
+import pl.crewops.model.dto.registration.VerifyEmailRequest;
+import pl.crewops.model.publicSchema.Registration;
 import pl.crewops.model.publicSchema.Tenant;
-import pl.crewops.registration.CreateCustomerCommand;
-import pl.crewops.util.credentialsGenerator.CredentialGenerator;
+import pl.crewops.util.multitenancy.LiquibaseSchemaMigrator;
+import pl.crewops.util.multitenancy.SchemaManager;
 
-class RegistrationServiceTest extends IntegrationTest {
-
-    private static final Logger log = LoggerFactory.getLogger(RegistrationServiceTest.class);
+@SpringJUnitConfig(
+        classes = {
+            SchemaManager.class,
+            LiquibaseSchemaMigrator.class,
+            RegistrationService.class,
+            RegistrationRepository.class,
+            TenantAPI.class,
+            AuthAPI.class,
+            CompanyAPI.class,
+            EmailSenderAPI.class,
+            PlatformTransactionManager.class
+        })
+class RegistrationServiceTest {
 
     @Autowired
-    private RegistrationService registrationService;
+    RegistrationService registrationService;
+
+    @MockitoBean
+    SchemaManager schemaManager;
+
+    @MockitoBean
+    LiquibaseSchemaMigrator liquibaseSchemaMigrator;
+
+    @MockitoBean
+    RegistrationRepository registrationRepository;
+
+    @MockitoBean
+    TenantAPI tenantAPI;
+
+    @MockitoBean
+    AuthAPI authAPI;
+
+    @MockitoBean
+    CompanyAPI companyAPI;
+
+    @MockitoBean
+    EmailSenderAPI emailSenderAPI;
+
+    @MockitoBean
+    PlatformTransactionManager transactionManager;
 
     @Autowired
-    private DataSource dataSource;
+    ApplicationContext applicationContext;
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private CreateCustomerCommand validCommand;
 
-    private String createdSchemaName;
-    private UUID createdTenantId;
-    private String createdUsername;
-
-    @Test
-    void registerCustomer() {}
-
-    @Test
-    void registerCustomer_happyPathShouldSaveNewCustomerAndNewSchema() {
-        // given
-        var createCustomerCommand = RegistrationTestFactory.createCustomerCommand();
-        Tenant tenant = new Tenant();
-
-        try {
-            // when
-            var result = registrationService.registerCustomer(createCustomerCommand);
-            tenant = tenantAPI.getByCompanyId(
-                    result.authUserResult().authUserDTO().tenant().companyId());
-
-            TenantContext.setCurrentTenant(tenant.getSchemaName());
-            Employee employee = employeeAPI.getEmployeeById(
-                    result.authUserResult().authUserDTO().employeeId());
-            TenantContext.clear();
-
-            boolean schemaExists = schemaExists(tenant.getSchemaName());
-
-            // then
-            assertThat(result).isNotNull();
-            assertThat(result.authUserResult().authUserDTO().tenant().active()).isTrue();
-            assertThat(schemaExists).isTrue();
-            assertThat(tenant.getId()).isInstanceOf(UUID.class);
-            assertThat(employee.getId()).isInstanceOf(UUID.class);
-        } finally {
-            cleanup(tenant.getSchemaName(), tenant.getId());
-        }
+    @BeforeEach
+    void setUp() {
+        validCommand = RegistrationTestFactory.createCustomerCommand();
     }
 
     @Test
-    void registerCustomer_shouldRollbackTenant_whenExceptionIsThrownAfterTenantAlreadyExists() {
-        // given
-        var createCustomerCommand = RegistrationTestFactory.createCustomerCommandThatBreakUniqueConstraints();
-        var createAuthUser = CreateAuthUserDTO.builder()
-                .username(CredentialGenerator.generateUsername("firstName", "lastName"))
-                .password(CredentialGenerator.generatePassword())
-                .roles(createCustomerCommand.createEmployeeDTO().roles())
+    void registerCustomer_shouldReturnPendingRegistration() {
+        Registration savedRegistration = Registration.builder()
+                .status(RegistrationStatus.PENDING)
+                .verificationCode(12345)
+                .companyName(validCommand.createTenantDTO().createCompanyDTO().name())
+                .taxId(validCommand.createTenantDTO().createCompanyDTO().taxId())
+                .email(validCommand.createTenantDTO().createCompanyDTO().email())
+                .city(validCommand.createTenantDTO().createAddressDTO().city())
+                .postalCode(validCommand.createTenantDTO().createAddressDTO().postalCode())
+                .street(validCommand.createTenantDTO().createAddressDTO().street())
+                .localNumber(validCommand.createTenantDTO().createAddressDTO().localNumber())
+                .firstName(validCommand.createEmployeeDTO().firstName())
+                .lastName(validCommand.createEmployeeDTO().lastName())
+                .birthDate(validCommand
+                        .createEmployeeDTO()
+                        .birthDate()
+                        .atStartOfDay(ZoneId.systemDefault())
+                        .toInstant())
                 .build();
 
-        Exception expectedRegisterExcpetion = null;
-        try {
-            // when
-            try {
-                registrationService.registerCustomer(createCustomerCommand);
-            } catch (RegisterCustomerException e) {
-                expectedRegisterExcpetion = e;
-            }
+        savedRegistration.setId(UUID.randomUUID());
 
-            // then
-            assertThat(expectedRegisterExcpetion).isExactlyInstanceOf(RegisterCustomerException.class);
-        } finally {
-            cleanupAuthUser(createAuthUser.username());
-        }
-    }
+        when(registrationRepository.save(any())).thenReturn(savedRegistration);
 
-    private boolean schemaExists(String schemaName) {
-        try (Connection conn = dataSource.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(
-                        "SELECT schema_name FROM information_schema.schemata WHERE schema_name = ?")) {
-            stmt.setString(1, schemaName);
-            try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next();
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to check schema existence", e);
-        }
+        PreRegisterResponse response = registrationService.registerCustomer(validCommand);
+
+        assertThat(response).isNotNull();
+        assertThat(response.registrationId()).isEqualTo(savedRegistration.getId());
+        assertThat(response.code()).isEqualTo(PreRegisterResponse.PreRegisterResponseCode.EMAIL_VERIFICATION_REQUIRED);
+
+        verify(emailSenderAPI).sendEmail(any());
     }
 
     @Test
-    void registerCustomer_shouldCreateTenantCompanyEmployeeAndSchema() {
-        // given
-        CreateCustomerCommand command = RegistrationTestFactory.createCustomerCommand();
-
-        // when
-        try {
-            var result = registrationService.registerCustomer(command);
-
-            createdSchemaName = result.authUserResult().authUserDTO().tenant().schemaName();
-            createdTenantId = result.authUserResult().authUserDTO().tenant().id();
-            createdUsername = result.authUserResult().authUserDTO().username();
-
-            // then
-            assertThat(result).isNotNull();
-            assertThat(result.companyDTO().name())
-                    .isEqualTo(command.createTenantDTO().createCompanyDTO().name());
-
-            Tenant tenant = tenantAPI.getByCompanyId(result.companyDTO().id());
-            assertThat(tenant).isNotNull();
-            assertThat(schemaExists(tenant.getSchemaName())).isTrue();
-
-            // Check employee exists in tenant schema
-            TenantContext.setCurrentTenant(tenant.getSchemaName());
-            Employee employee = employeeAPI.getEmployeeById(
-                    result.authUserResult().authUserDTO().employeeId());
-            assertThat(employee.getId()).isNotNull();
-            TenantContext.clear();
-
-        } finally {
-            cleanupAuthUser(createdUsername);
-            cleanup(createdSchemaName, createdTenantId);
-        }
-    }
-
-    @Test
-    void registerCustomer_shouldRollbackTenant_whenUniqueConstraintFails() {
-        // given
-        CreateCustomerCommand command = RegistrationTestFactory.createCustomerCommandThatBreakUniqueConstraints();
-
-        var createAuthUser = CreateAuthUserDTO.builder()
-                .username(CredentialGenerator.generateUsername("firstName", "lastName"))
-                .password(CredentialGenerator.generatePassword())
-                .roles(command.createEmployeeDTO().roles())
+    void finalizeRegisterCustomer_shouldCreateTenantCompanyEmployee() {
+        // Prepare pending registration
+        Registration pendingRegistration = Registration.builder()
+                .status(RegistrationStatus.PENDING)
+                .verificationCode(12345)
+                .companyName(validCommand.createTenantDTO().createCompanyDTO().name())
+                .taxId(validCommand.createTenantDTO().createCompanyDTO().taxId())
+                .email(validCommand.createTenantDTO().createCompanyDTO().email())
+                .city(validCommand.createTenantDTO().createAddressDTO().city())
+                .postalCode(validCommand.createTenantDTO().createAddressDTO().postalCode())
+                .street(validCommand.createTenantDTO().createAddressDTO().street())
+                .localNumber(validCommand.createTenantDTO().createAddressDTO().localNumber())
+                .firstName(validCommand.createEmployeeDTO().firstName())
+                .lastName(validCommand.createEmployeeDTO().lastName())
+                .birthDate(validCommand
+                        .createEmployeeDTO()
+                        .birthDate()
+                        .atStartOfDay(ZoneId.systemDefault())
+                        .toInstant())
                 .build();
-        createdUsername = createAuthUser.username();
+        pendingRegistration.setId(UUID.randomUUID());
 
-        // when / then
-        assertThatThrownBy(() -> {
-                    registrationService.registerCustomer(command);
-                })
-                .isInstanceOf(RegisterCustomerException.class);
+        when(registrationRepository.findById(pendingRegistration.getId())).thenReturn(Optional.of(pendingRegistration));
+
+        // Mock tenant
+        Tenant mockTenant = Tenant.builder()
+                .companyId(UUID.randomUUID())
+                .status(CompanyStatus.ACTIVE)
+                .build();
+        mockTenant.setId(UUID.randomUUID());
+        when(tenantAPI.saveTenant(any())).thenReturn(mockTenant);
+
+        // Mock company
+        pl.crewops.model.dto.company.CompanyDTO mockCompanyDTO = mock(pl.crewops.model.dto.company.CompanyDTO.class);
+        when(companyAPI.createCompany(any(), any(), any())).thenReturn(mockCompanyDTO);
+
+        // Mock auth user result
+        CreateAuthUserResult mockAuthUserResult = mock(CreateAuthUserResult.class);
+        var mockAuthUserDTO = mock(pl.crewops.model.dto.auth.AuthUserDTO.class);
+        when(mockAuthUserDTO.username()).thenReturn("user123");
+        when(mockAuthUserResult.authUserDTO()).thenReturn(mockAuthUserDTO);
+        when(mockAuthUserResult.plainPassword()).thenReturn("password123");
+        when(authAPI.createAuthUserWithRelatedEmployeeForRegisterCustomer(any(CreateEmployeeDTO.class)))
+                .thenReturn(mockAuthUserResult);
+
+        // Mock transaction manager
+        TransactionStatus mockTransactionStatus = mock(TransactionStatus.class);
+        when(transactionManager.getTransaction(any(DefaultTransactionDefinition.class)))
+                .thenReturn(mockTransactionStatus);
+
+        // Execute
+        VerifyEmailRequest request = new VerifyEmailRequest(
+                pendingRegistration.getId(),
+                String.valueOf(pendingRegistration.getVerificationCode()),
+                "subject",
+                "body");
+
+        CreateCustomerResult result = registrationService.finalizeRegisterCustomer(request);
+
+        // Verify
+        assertThat(result).isNotNull();
+        assertThat(result.authUserResult()).isEqualTo(mockAuthUserResult);
+        assertThat(result.companyDTO()).isEqualTo(mockCompanyDTO);
+
+        // Ensure email sent
+        verify(emailSenderAPI).sendEmail(any());
+        // Ensure registration status updated
+        verify(registrationRepository).save(pendingRegistration);
     }
 
-    private void cleanup(String schemaName, UUID tenantId) {
-        jdbcTemplate.update("DELETE FROM public.tenant WHERE id = ?", tenantId);
-        jdbcTemplate.execute("DROP SCHEMA IF EXISTS " + schemaName + " CASCADE");
+    @Test
+    void finalizeRegisterCustomer_shouldThrowException_whenRegistrationNotFound() {
+        UUID randomId = UUID.randomUUID();
+        when(registrationRepository.findById(randomId)).thenReturn(Optional.empty());
+
+        VerifyEmailRequest request = new VerifyEmailRequest(randomId, String.valueOf(12345), "subject", "body");
+
+        assertThatThrownBy(() -> registrationService.finalizeRegisterCustomer(request))
+                .isInstanceOf(java.util.NoSuchElementException.class);
     }
 
-    private void cleanupAuthUser(String username) {
-        jdbcTemplate.update("DELETE FROM public.auth_user WHERE username = ?", username);
+    @Test
+    void expireOldRegistrations_shouldCallRepository() {
+        Instant threshold = Instant.now().minusSeconds(600);
+        when(registrationRepository.expirePendingRegistrations(any())).thenReturn(2);
+
+        registrationService.expireOldRegistrations();
+
+        verify(registrationRepository).expirePendingRegistrations(any());
     }
 }

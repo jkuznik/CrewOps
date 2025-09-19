@@ -8,34 +8,42 @@ import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
-import pl.crewops.dto.auth.*;
-import pl.crewops.dto.breakdown.BreakdownDTO;
-import pl.crewops.dto.breakdown.CreateBreakdownDTO;
-import pl.crewops.dto.breakdown.UpdateBreakdownDTO;
-import pl.crewops.dto.company.CompanyDTO;
-import pl.crewops.dto.department.DepartmentDTO;
-import pl.crewops.dto.employee.CreateEmployeeDTO;
-import pl.crewops.dto.employee.EmployeeDTO;
-import pl.crewops.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.dto.machine.CreateMachineDTO;
-import pl.crewops.dto.machine.MachineDTO;
-import pl.crewops.dto.machine.UpdateMachineDTO;
-import pl.crewops.dto.machineType.MachineTypeDTO;
-import pl.crewops.dto.message.MessageDTO;
-import pl.crewops.dto.message.SendMessageCommand;
-import pl.crewops.dto.qualification.CreateQualificationDTO;
-import pl.crewops.dto.qualification.QualificationDTO;
-import pl.crewops.dto.qualification.UpdateQualificationDTO;
-import pl.crewops.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.exceptions.NotAuthenticatedException;
-import pl.crewops.registration.CreateCustomerCommand;
-import pl.crewops.registration.CreateCustomerResult;
+import pl.crewops.model.dto.auth.*;
+import pl.crewops.model.dto.auth.AuthRequest;
+import pl.crewops.model.dto.auth.AuthResponse;
+import pl.crewops.model.dto.breakdown.BreakdownDTO;
+import pl.crewops.model.dto.breakdown.CreateBreakdownDTO;
+import pl.crewops.model.dto.breakdown.UpdateBreakdownDTO;
+import pl.crewops.model.dto.company.CompanyDTO;
+import pl.crewops.model.dto.department.DepartmentDTO;
+import pl.crewops.model.dto.employee.CreateEmployeeDTO;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.model.dto.machine.CreateMachineDTO;
+import pl.crewops.model.dto.machine.MachineDTO;
+import pl.crewops.model.dto.machine.UpdateMachineDTO;
+import pl.crewops.model.dto.machineType.MachineTypeDTO;
+import pl.crewops.model.dto.message.MessageDTO;
+import pl.crewops.model.dto.message.SendMessageCommand;
+import pl.crewops.model.dto.qualification.CreateQualificationDTO;
+import pl.crewops.model.dto.qualification.QualificationDTO;
+import pl.crewops.model.dto.qualification.UpdateQualificationDTO;
+import pl.crewops.model.dto.qualification.UpdateQualificationExpiredAtDTO;
+import pl.crewops.model.dto.registration.CreateCustomerCommand;
+import pl.crewops.model.dto.registration.CreateCustomerResult;
+import pl.crewops.model.dto.registration.PreRegisterResponse;
+import pl.crewops.model.dto.registration.VerifyEmailRequest;
+import pl.crewops.security.ValidTokenRequest;
+import pl.crewops.security.ValidTokenResponse;
 
 @Repository
 @Validated
 public interface CoreAPI {
 
     Optional<AuthResponse> login(@Valid @NotNull AuthRequest request);
+
+    Optional<CreateCustomerResult> verifyEmail(@Valid @NotNull VerifyEmailRequest request);
 
     Optional<AuthUserDTO> updateAuthUserRoles(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO)
             throws NotAuthenticatedException;
@@ -66,8 +74,7 @@ public interface CoreAPI {
     Optional<MachineDTO> createMachine(@Valid @NotNull CreateMachineDTO createMachineDTO)
             throws NotAuthenticatedException;
 
-    Optional<CreateCustomerResult> registerNewCustomer(@Valid @NotNull CreateCustomerCommand command)
-            throws NotAuthenticatedException;
+    Optional<PreRegisterResponse> registerNewCustomer(@Valid @NotNull CreateCustomerCommand command);
 
     Optional<MachineDTO> updateMachine(@Valid @NotNull UpdateMachineDTO updateMachineDTO)
             throws NotAuthenticatedException;
