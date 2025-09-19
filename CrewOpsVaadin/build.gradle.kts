@@ -46,22 +46,24 @@ tasks.named("build") {
 val imageTag: String = System.getenv("IMAGE_TAG") ?: "latest"
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("bootBuildImage") {
-    imageName.set("jkuznik-ecr/crewops-vaadin:latest")
+    dependsOn("vaadinBuildFrontend")
 
-    buildpacks.set(
-        listOf(
-            "paketobuildpacks/amazon-corretto",
-            "paketobuildpacks/java"
-        )
-    )
+    val imageTag: String = System.getenv("IMAGE_TAG") ?: "latest"
+    imageName.set("jkuznik-ecr/crewops-vaadin:$imageTag")
 
-    environment.set(
-        mapOf(
-            "BP_JVM_VERSION" to "21",
-            "BP_CACHE_IMAGE" to "crewops-vaadin:latest",
-            "BP_JVM_CLASSPATH" to "app.jar"
-        )
-    )
+    buildpacks.set(listOf(
+        "paketobuildpacks/amazon-corretto",
+        "paketobuildpacks/java"
+    ))
+
+    environment.set(mapOf(
+        "BP_JVM_VERSION" to "21",
+//        "BP_CACHE_IMAGE" to "crewops-vaadin:latest",
+        "BP_JVM_CLASSPATH" to "app.jar",
+        "SPRING_PROFILES_ACTIVE" to "production",
+        "SERVER_PORT" to "8081"
+    ))
 }
+
 
 
