@@ -50,7 +50,7 @@ public class RedisConfig {
     }
 
     @Bean
-    @Profile("prod")
+    @Profile("production")
     public RedisCacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheWriter cacheWriter =
                 RedisCacheWriter.nonLockingRedisCacheWriter(connectionFactory, BatchStrategies.scan(1000));
