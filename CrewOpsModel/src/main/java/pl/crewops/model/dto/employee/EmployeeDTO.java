@@ -18,6 +18,7 @@ public record EmployeeDTO(
         String lastName,
         LocalDate birthDate,
         String phoneNumber,
+        String email,
         Set<RoleDTO> roles,
         Set<DepartmentDTO> departments,
         boolean active,

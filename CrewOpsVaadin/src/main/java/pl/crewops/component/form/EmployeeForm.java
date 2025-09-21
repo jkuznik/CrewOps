@@ -10,6 +10,7 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
@@ -27,6 +28,7 @@ public class EmployeeForm extends FormLayout {
     private final TextField lastName = new TextField();
     private final DatePicker birthDate = new DatePicker();
     private final TextField phoneNumber = new TextField();
+    private final EmailField email = new EmailField();
 
     private final DepartmentAccordion departments;
     private final QualificationAccordion qualifications;
@@ -57,6 +59,7 @@ public class EmployeeForm extends FormLayout {
                 lastName,
                 birthDate,
                 phoneNumber,
+                email,
                 createButtonsLayout(),
                 departments,
                 qualifications,
@@ -115,6 +118,7 @@ public class EmployeeForm extends FormLayout {
         lastName.setLabel(getTranslation("employeeForm.lastName"));
         birthDate.setLabel(getTranslation("employeeForm.birthDate"));
         phoneNumber.setLabel(getTranslation("employeeForm.phoneNumber"));
+        email.setLabel(getTranslation("employeeForm.email"));
 
         save.setText(getTranslation("employeeForm.save"));
         update.setText(getTranslation("employeeForm.update"));
