@@ -36,7 +36,6 @@ tasks.named<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("boot
     environment.set(
         mapOf(
             "BP_JVM_VERSION" to "21",
-            "BP_CACHE_IMAGE" to "crewops-core:latest"
         )
     )
 }
