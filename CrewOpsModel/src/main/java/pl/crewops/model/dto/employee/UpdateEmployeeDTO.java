@@ -1,5 +1,6 @@
 package pl.crewops.model.dto.employee;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.Set;
@@ -12,6 +13,7 @@ import pl.crewops.model.dto.department.DepartmentDTO;
 public record UpdateEmployeeDTO(
         @NotNull UUID employeeId,
         @Size(max = 15) String phoneNumber,
+        @Size(max = 63) @Email String email,
         Set<DepartmentDTO> departments,
         Set<RoleDTO> roles,
         Boolean active) {}

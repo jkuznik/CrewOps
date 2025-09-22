@@ -27,13 +27,15 @@ public class Employee extends AbstractEntity {
     @Column(updatable = false)
     private String lastName;
 
-    // todo: birthDate should be updatable
+    // todo: birthDate should be updatable but only by manager (for case mistake on creation employee)
     @NotNull
     @Column(updatable = false)
     private LocalDate birthDate;
 
     @Size(max = 15)
     private String phoneNumber;
+
+    private String email;
 
     private boolean active;
 

@@ -59,7 +59,7 @@ tasks.named<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("boot
     environment.set(mapOf(
         "BP_JVM_VERSION" to "21",
 //        "BP_CACHE_IMAGE" to "crewops-vaadin:latest",
-        "BP_JVM_CLASSPATH" to "app.jar",
+//        "BP_JVM_CLASSPATH" to "app.jar",
         "SPRING_PROFILES_ACTIVE" to "production",
         "SERVER_PORT" to "8081"
     ))

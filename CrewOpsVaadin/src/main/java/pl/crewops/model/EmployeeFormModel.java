@@ -2,6 +2,7 @@ package pl.crewops.model;
 
 import static pl.crewops.model.DepartmentFormModel.mapToDepartmentDTOs;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
@@ -29,6 +30,7 @@ public class EmployeeFormModel {
     private @NotNull @Size(min = 2, max = 50, message = "Minimal length is 2") String lastName;
     private @NotNull(message = "This field can't be empty") LocalDate birthDate;
     private @Size(max = 15, message = "Max length is 15") String phoneNumber;
+    private @Size(max = 63) @Email String email;
     private Set<DepartmentFormModel> departments;
     private Set<RoleType> roles;
     private Set<QualificationDTO> qualificationsSet;
@@ -48,6 +50,7 @@ public class EmployeeFormModel {
                 .lastName(employeeDTO.lastName())
                 .birthDate(employeeDTO.birthDate())
                 .phoneNumber(employeeDTO.phoneNumber())
+                .email(employeeDTO.email())
                 .departments(DepartmentFormModel.mapToDepartmentForms(employeeDTO.departments()))
                 .qualificationsSet(employeeDTO.qualifications())
                 .machinesSet(employeeDTO.machines())
@@ -77,6 +80,7 @@ public class EmployeeFormModel {
         return UpdateEmployeeDTO.builder()
                 .employeeId(employeeFormModel.getId())
                 .phoneNumber(employeeFormModel.getPhoneNumber())
+                .email(employeeFormModel.getEmail())
                 .departments(mapToDepartmentDTOs(employeeFormModel.getDepartments()))
                 .roles(employeeFormModel.getRoles().stream()
                         .map(roleType -> RoleDTO.builder().name(roleType.name()).build())

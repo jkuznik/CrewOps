@@ -27,6 +27,7 @@ import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.EmployeeView;
 import pl.crewops.view.HomeView;
 import pl.crewops.view.MessageView;
+import pl.crewops.view.ProfileView;
 
 @Log4j2
 public class LoggedUserInfoComponent extends HorizontalLayout {
@@ -61,7 +62,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
 
         final var token = authenticationResolver.getPrincipal().getToken();
         UserInformation userInformation = getInfo(coreAPI, jwtService, token);
-        infoLayout.add(displayUserInfo(userInformation, authenticationResolver), logoutButtonAndLanguageSelector);
+        infoLayout.add(userProfileComponent(userInformation, authenticationResolver), logoutButtonAndLanguageSelector);
         return infoLayout;
     }
 
@@ -98,7 +99,9 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         }
     }
 
-    private Component displayUserInfo(UserInformation userInformation, AuthenticationResolver authenticationResolver) {
+    private Component userProfileComponent(
+            UserInformation userInformation, AuthenticationResolver authenticationResolver) {
+        // Message button
         Button messageButton = new Button();
         messageButton.setIcon(VaadinIcon.ENVELOPE.create());
         messageButton.getStyle().set("margin-right", "0.5rem");
@@ -107,8 +110,17 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
             UI.getCurrent().navigate(MessageView.class);
         });
 
+        // User profile button
+        Button profileButton = new Button();
+        profileButton.setIcon(VaadinIcon.USER.create());
+        profileButton.getStyle().set("margin-right", "0.5rem");
+
+        profileButton.addClickListener(event -> {
+            UI.getCurrent().navigate(ProfileView.class);
+        });
+
         Span userName = new Span(userInformation.userName + " " + userInformation.userLastname);
-        HorizontalLayout userLayout = new HorizontalLayout(messageButton, userName);
+        HorizontalLayout userLayout = new HorizontalLayout(messageButton, profileButton, userName);
         userLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         userLayout.setSpacing(true);
 

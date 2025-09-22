@@ -41,6 +41,11 @@ databaseChangeLog:
                   constraints:
                       nullable: true
               - column:
+                  name: email
+                  type: varchar(63)
+                  constraints:
+                    nullable: true
+              - column:
                   name: active
                   type: boolean
                   defaultValueBoolean: true

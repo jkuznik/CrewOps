@@ -57,8 +57,8 @@ vaadin-combo-box-overlay::part(dropdown) {
     background-color: #f5f5f5;
 }
 
-
 vaadin-text-field::part(input-field),
+vaadin-email-field::part(input-field), /* ✅ added */
 vaadin-date-picker::part(input-field),
 vaadin-combo-box::part(input-field),
 vaadin-password-field::part(input-field),
@@ -71,6 +71,7 @@ vaadin-text-area::part(input-field) {
 }
 
 vaadin-text-field::part(input-field):focus-within,
+vaadin-email-field::part(input-field):focus-within, /* ✅ added */
 vaadin-date-picker::part(input-field):focus-within,
 vaadin-password-field::part(input-field):focus-within {
     background-color: #1e1e1e;
@@ -78,6 +79,7 @@ vaadin-password-field::part(input-field):focus-within {
 }
 
 vaadin-text-field::part(input),
+vaadin-email-field::part(input), /* ✅ added */
 vaadin-password-field::part(input),
 vaadin-date-picker::part(input),
 vaadin-text-area::part(input) {
@@ -86,6 +88,7 @@ vaadin-text-area::part(input) {
 }
 
 vaadin-text-field::part(label),
+vaadin-email-field::part(label), /* ✅ added */
 vaadin-password-field::part(label),
 vaadin-date-picker::part(label),
 vaadin-text-area::part(label) {
@@ -205,4 +208,3 @@ span, p, label, div {
     height: auto;
     margin: 0;
 }
-
