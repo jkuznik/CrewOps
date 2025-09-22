@@ -38,13 +38,13 @@ public class CustomAuthentication implements Authentication {
     }
 
     @Override
-    public Object getDetails() {
-        return details;
+    public Object getPrincipal() {
+        return principal;
     }
 
     @Override
-    public Object getPrincipal() {
-        return principal;
+    public Object getDetails() {
+        return details;
     }
 
     @Override
