@@ -49,21 +49,21 @@ jobs:
           node-version: 20
 
       # Cache Gradle
-      - name: Cache Gradle packages
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+#      - name: Cache Gradle packages
+#        uses: actions/cache@v3
+#        with:
+#          path: |
+#            ~/.gradle/caches
+#            ~/.gradle/wrapper
+#          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
 
       # Build dependent modules
-      - name: Build CrewOpsModel & CrewOpsSecurity
-        run: ./gradlew clean :CrewOpsModel:build :CrewOpsSecurity:build
+      - name: Build without Gradle cache
+        run: ./gradlew clean :CrewOpsModel:build :CrewOpsSecurity:build -Pproduction --no-build-cache
 
       # Prepare Vaadin frontend in production mode
-      - name: Clean & Prepare Vaadin frontend
-        run: ./gradlew :CrewOpsVaadin:cleanVaadinBuildFrontend :CrewOpsVaadin:vaadinBuildFrontend -Pproduction
+      - name: Prepare Vaadin frontend (production)
+        run: ./gradlew clean :CrewOpsVaadin:vaadinBuildFrontend -Pproduction --no-build-cache
 
       # Configure AWS credentials
       - name: Configure AWS credentials
@@ -88,7 +88,7 @@ jobs:
           IMAGE_URI="$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG"
 
           echo "👉 Building Docker image..."
-          ./gradlew clean :CrewOpsVaadin:bootBuildImage --imageName="$IMAGE_URI" -Pproduction
+          ./gradlew clean :CrewOpsVaadin:bootBuildImage --imageName="$IMAGE_URI" -Pproduction --no-build-cache
 
           echo "👉 Pushing Docker image to ECR..."
           docker push "$IMAGE_URI"
