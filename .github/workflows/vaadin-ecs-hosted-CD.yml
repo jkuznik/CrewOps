@@ -59,11 +59,11 @@ jobs:
 
       # Build dependent modules
       - name: Build CrewOpsModel & CrewOpsSecurity
-        run: ./gradlew :CrewOpsModel:build :CrewOpsSecurity:build
+        run: ./gradlew clean :CrewOpsModel:build :CrewOpsSecurity:build
 
       # Prepare Vaadin frontend in production mode
-      - name: Vaadin Prepare Frontend
-        run: ./gradlew :CrewOpsVaadin:vaadinPrepareFrontend -Pproduction
+      - name: Clean & Prepare Vaadin frontend
+        run: ./gradlew :CrewOpsVaadin:cleanVaadinBuildFrontend :CrewOpsVaadin:vaadinBuildFrontend -Pproduction
 
       # Configure AWS credentials
       - name: Configure AWS credentials
@@ -88,7 +88,7 @@ jobs:
           IMAGE_URI="$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG"
 
           echo "👉 Building Docker image..."
-          ./gradlew :CrewOpsVaadin:bootBuildImage --imageName="$IMAGE_URI" -Pproduction
+          ./gradlew clean :CrewOpsVaadin:bootBuildImage --imageName="$IMAGE_URI" -Pproduction
 
           echo "👉 Pushing Docker image to ECR..."
           docker push "$IMAGE_URI"
