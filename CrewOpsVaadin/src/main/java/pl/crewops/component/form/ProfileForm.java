@@ -4,7 +4,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
@@ -14,6 +13,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.EmailValidator;
 import java.util.Optional;
+import pl.crewops.component.dialog.credentialsDialog.UpdateCredentialsDialog;
 import pl.crewops.component.notification.FailNotification;
 import pl.crewops.component.notification.SuccessNotification;
 import pl.crewops.exceptions.NotAuthenticatedException;
@@ -24,6 +24,7 @@ import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
 
 public class ProfileForm extends FormLayout {
     private final CoreAPI coreAPI;
+    private final ProfileFormModel profileFormModel;
 
     private final TextField firstName = new TextField();
     private final TextField lastName = new TextField();
@@ -39,27 +40,27 @@ public class ProfileForm extends FormLayout {
     public ProfileForm(ProfileFormModel profileFormModel, CoreAPI coreAPI) {
         addClassName("profile-form");
         this.coreAPI = coreAPI;
+        this.profileFormModel = profileFormModel;
 
         localize();
 
-        configureBinder(profileFormModel);
+        configureBinder();
 
         var configuredForm = getConfiguredForm();
 
         add(configuredForm);
     }
 
-    private void configureBinder(ProfileFormModel profileFormModel) {
+    private void configureBinder() {
         binder.bindInstanceFields(this);
 
         binder.forField(email)
                 .withValidator(
                         value -> value == null
                                 || value.isEmpty()
-                                || new EmailValidator(getTranslation("profileForm.email.invalid"))
-                                                .apply(value, null)
-                                                .isError()
-                                        == false,
+                                || !new EmailValidator(getTranslation("profileForm.email.invalid"))
+                                        .apply(value, null)
+                                        .isError(),
                         getTranslation("profileForm.email.invalid"))
                 .bind(ProfileFormModel::getEmail, ProfileFormModel::setEmail);
 
@@ -83,7 +84,7 @@ public class ProfileForm extends FormLayout {
             }
         });
 
-        var updatableDataContainer = updateableDataContainer();
+        var updatableDataContainer = updatableDataContainer();
         var updateCredentialsContainer = getUpdateCredentialsContainer();
 
         verticalLayout.add(firstName, lastName, updatableDataContainer, updateCredentialsContainer);
@@ -91,7 +92,7 @@ public class ProfileForm extends FormLayout {
         return verticalLayout;
     }
 
-    private Component updateableDataContainer() {
+    private Component updatableDataContainer() {
         var container = new VerticalLayout();
         container.setPadding(true);
         container.setSpacing(true);
@@ -110,18 +111,6 @@ public class ProfileForm extends FormLayout {
         return container;
     }
 
-    //    private Component getEmailContainer() {
-    //        var container = new VerticalLayout();
-    //        container.setPadding(true);
-    //        container.setSpacing(true);
-    //
-    //        container.add(email);
-    //
-    //        container.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.START);
-    //
-    //        return container;
-    //    }
-
     private VerticalLayout getUpdateCredentialsContainer() {
         var updateCredentialsContainer = new VerticalLayout();
         updateCredentialsContainer
@@ -137,7 +126,7 @@ public class ProfileForm extends FormLayout {
         credentialsModification.setWidth("140px");
 
         credentialsModification.addClickListener(event -> {
-            new Dialog("kredki").open();
+            new UpdateCredentialsDialog(profileFormModel).open();
         });
 
         updateCredentialsContainer.add(infoText, credentialsModification);
@@ -173,7 +162,7 @@ public class ProfileForm extends FormLayout {
                 if (employeeDTO.get().email() != null) {
                     binder.getBean().setEmail(employeeDTO.get().email());
                 }
-                // todo i18n
+                // todo i18n and customize
                 new SuccessNotification("Employee updated successfully");
             } else {
                 new FailNotification("Something went wrong...");

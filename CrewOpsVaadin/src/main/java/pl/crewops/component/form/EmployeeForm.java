@@ -58,10 +58,9 @@ public class EmployeeForm extends FormLayout {
                 .withValidator(
                         value -> value == null
                                 || value.isEmpty()
-                                || new EmailValidator(getTranslation("profileForm.email.invalid"))
-                                                .apply(value, null)
-                                                .isError()
-                                        == false,
+                                || !new EmailValidator(getTranslation("profileForm.email.invalid"))
+                                        .apply(value, null)
+                                        .isError(),
                         getTranslation("profileForm.email.invalid"))
                 .bind(EmployeeFormModel::getEmail, EmployeeFormModel::setEmail);
 
