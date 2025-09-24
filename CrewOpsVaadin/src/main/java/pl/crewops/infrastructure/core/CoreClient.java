@@ -218,6 +218,7 @@ class CoreClient {
     // authenticated
     @Caching(
             evict = {
+                @CacheEvict(value = GET_EMPLOYEE_BY_ID, key = "#updateEmployeeDTO.employeeId"),
                 @CacheEvict(
                         value = GET_ALL_QUALIFICATIONS,
                         key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),

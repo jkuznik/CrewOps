@@ -80,8 +80,6 @@ public class MachineGrid extends VerticalLayout {
         setColumnHeader("broken", "machineGrid.column.broken");
         setColumnHeader("make", "machineGrid.column.make");
         setColumnHeader("model", "machineGrid.column.model");
-        setColumnHeader("year", "machineGrid.column.year");
-        setColumnHeader("vin", "machineGrid.column.vin");
     }
 
     private void setColumnHeader(String key, String translationKey) {
@@ -142,8 +140,6 @@ public class MachineGrid extends VerticalLayout {
 
         grid.addColumn(MachineFormModel::getMake).setKey("make");
         grid.addColumn(MachineFormModel::getModel).setKey("model");
-        grid.addColumn(MachineFormModel::getYear).setKey("year");
-        grid.addColumn(MachineFormModel::getVin).setKey("vin");
 
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 

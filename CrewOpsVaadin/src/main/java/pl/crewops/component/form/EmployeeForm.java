@@ -10,10 +10,10 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.shared.Registration;
 import java.util.*;
 import pl.crewops.component.accordion.DepartmentAccordion;
@@ -28,7 +28,7 @@ public class EmployeeForm extends FormLayout {
     private final TextField lastName = new TextField();
     private final DatePicker birthDate = new DatePicker();
     private final TextField phoneNumber = new TextField();
-    private final EmailField email = new EmailField();
+    private final TextField email = new TextField();
 
     private final DepartmentAccordion departments;
     private final QualificationAccordion qualifications;
@@ -53,6 +53,17 @@ public class EmployeeForm extends FormLayout {
         localize();
 
         binder.bindInstanceFields(this);
+
+        binder.forField(email)
+                .withValidator(
+                        value -> value == null
+                                || value.isEmpty()
+                                || new EmailValidator(getTranslation("profileForm.email.invalid"))
+                                                .apply(value, null)
+                                                .isError()
+                                        == false,
+                        getTranslation("profileForm.email.invalid"))
+                .bind(EmployeeFormModel::getEmail, EmployeeFormModel::setEmail);
 
         add(
                 firstName,

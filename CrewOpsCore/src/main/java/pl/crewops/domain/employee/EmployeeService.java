@@ -127,6 +127,10 @@ class EmployeeService implements EmployeeAPI {
             employee.setPhoneNumber(updateEmployeeDTO.phoneNumber());
         }
 
+        if (updateEmployeeDTO.email() != null) {
+            employee.setEmail(updateEmployeeDTO.email());
+        }
+
         if (updateEmployeeDTO.departments() != null) {
             Set<Department> departments = departmentAPI.getDepartmentsIn(updateEmployeeDTO.departments().stream()
                     .map(DepartmentDTO::id)

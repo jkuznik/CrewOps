@@ -58,17 +58,12 @@ class EmployeeController {
     @PatchMapping(EMPLOYEES_EID)
     @ManagerPermission
     public ResponseEntity<EmployeeDTO> updateEmployee(
-            @PathVariable(EMPLOYEE_ID) UUID employeeId, @NotNull @Valid @RequestBody UpdateEmployeeDTO updateRequest) {
+            @PathVariable(EMPLOYEE_ID) UUID employeeId,
+            @NotNull @Valid @RequestBody UpdateEmployeeDTO updateEmployeeDTO) {
 
-        if (!updateRequest.employeeId().equals(employeeId)) {
+        if (!updateEmployeeDTO.employeeId().equals(employeeId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Path ID and body ID must match");
         }
-
-        var updateEmployeeDTO = UpdateEmployeeDTO.builder()
-                .employeeId(employeeId)
-                .phoneNumber(updateRequest.phoneNumber())
-                .departments(updateRequest.departments())
-                .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.updateEmployee(updateEmployeeDTO));
     }

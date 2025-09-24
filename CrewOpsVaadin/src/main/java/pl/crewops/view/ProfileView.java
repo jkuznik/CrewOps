@@ -50,7 +50,7 @@ public class ProfileView extends MainLayout implements BeforeEnterObserver {
 
         var profileFormModel = ProfileFormModel.create(principal, employeeDTO);
 
-        final ProfileForm profileForm = new ProfileForm(profileFormModel);
+        final ProfileForm profileForm = new ProfileForm(profileFormModel, coreAPI);
 
         FlexLayout container = new FlexLayout(profileForm);
         container.setSizeFull();

@@ -75,7 +75,6 @@ public class EmployeeGrid extends VerticalLayout {
         grid.getColumnByKey("firstName").setHeader(getTranslation("employeeGrid.column.firstName"));
         grid.getColumnByKey("lastName").setHeader(getTranslation("employeeGrid.column.lastName"));
         grid.getColumnByKey("roles").setHeader(getTranslation("employeeGrid.column.roles"));
-        grid.getColumnByKey("phoneNumber").setHeader(getTranslation("employeeGrid.column.phoneNumber"));
         grid.getColumnByKey("departments").setHeader(getTranslation("employeeGrid.column.department"));
     }
 
@@ -145,7 +144,6 @@ public class EmployeeGrid extends VerticalLayout {
                         .collect(Collectors.joining(", ")))
                 .setHeader(getTranslation("roles"))
                 .setKey("roles");
-        grid.addColumn(EmployeeFormModel::getPhoneNumber).setKey("phoneNumber");
 
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 
