@@ -37,6 +37,8 @@ public class ProfileView extends MainLayout implements BeforeEnterObserver {
     private void buildContent() {
         addClassName("profile-view");
 
+        mainContent.removeAll();
+
         var principal = authenticationResolver.getPrincipal();
         EmployeeDTO employeeDTO = null;
         try {

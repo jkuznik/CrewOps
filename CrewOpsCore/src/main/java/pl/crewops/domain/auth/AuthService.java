@@ -8,11 +8,14 @@ import java.util.stream.Collectors;
 import javax.management.relation.RoleNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.exception.domain.auth.UsernameAlreadyExistException;
@@ -227,16 +230,61 @@ class AuthService implements AuthAPI {
         }
     }
 
+    // TODO: consider to add Global generic CoreResponse<T> object as each single response wrapper but with additional
+    // result
+    //  description like fail reason
+
     @Override
     @Transactional
-    public AuthUserDTO updateAuthUser(UpdateAuthUserDTO updateAuthUserDTO) {
+    public AuthUserDTO updateAuthUserCredentials(UpdateAuthUserDTO updateAuthUserDTO) {
+        var principal = (UserPrincipal)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!principal.getAuthUser().getEmployeeId().equals(updateAuthUserDTO.employeeId())) {
+            log.warn("Not allow update user credentials by user: " + principal.getEmployeeId());
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+        }
+
         try {
             AuthUser authUser = getByEmployeeId(updateAuthUserDTO.employeeId())
                     .orElseThrow(() -> new UsernameNotFoundException("Employee Id " + updateAuthUserDTO.employeeId()));
 
-            if (updateAuthUserDTO.password() != null) {
-                // todo: implement this logic; edit: todo after profile console is ready
+            if (updateAuthUserDTO.username() != null
+                    && !updateAuthUserDTO.username().isEmpty()
+                    && !updateAuthUserDTO.username().equals(authUser.getUsername())) {
+                authUserRepository.findByUsername(updateAuthUserDTO.username()).ifPresent(existingAuthUser -> {
+                    log.error("Username " + updateAuthUserDTO.username()
+                            + " already exists - during update username by user: " + authUser.getUsername());
+                    throw new UsernameAlreadyExistException(
+                            "Username " + updateAuthUserDTO.username() + " already exists");
+                });
+
+                authUser.setUsername(updateAuthUserDTO.username());
             }
+
+            if (updateAuthUserDTO.password() != null
+                    && !updateAuthUserDTO.password().isEmpty()) {
+                authUser.setPassword(passwordEncoder.encode(updateAuthUserDTO.password()));
+            }
+
+            AuthUser saved = authUserRepository.save(authUser);
+
+            // this object return only modified properties, consider if return full build object is required
+            return AuthUserDTO.builder()
+                    .employeeId(saved.getEmployeeId())
+                    .username(saved.getUsername())
+                    .build();
+        } catch (NoSuchElementException e) {
+            log.error("Update auth user failed, {}", e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    @Transactional
+    public AuthUserDTO updateAuthUserRoles(UpdateAuthUserDTO updateAuthUserDTO) {
+        try {
+            AuthUser authUser = getByEmployeeId(updateAuthUserDTO.employeeId())
+                    .orElseThrow(() -> new UsernameNotFoundException("Employee Id " + updateAuthUserDTO.employeeId()));
 
             if (!updateAuthUserDTO.roles().isEmpty()) {
                 Set<Role> updatedRoles = updateAuthUserDTO.roles().stream()
@@ -250,6 +298,7 @@ class AuthService implements AuthAPI {
 
             AuthUser saved = authUserRepository.save(authUser);
 
+            // this object return only modified properties, consider if return full build object is required
             return AuthUserDTO.builder()
                     .employeeId(saved.getEmployeeId())
                     .roles(saved.getRoles().stream()

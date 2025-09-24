@@ -108,6 +108,27 @@ class CoreClient {
         }
     }
 
+    // TODO: keep attention, don't implement fast
+    // authenticated BUT only own data
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_EMPLOYEE_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_COMPANY_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
+    public AuthUserDTO updateAuthUserCredentials(UpdateAuthUserDTO updateAuthUserDTO) throws NotAuthenticatedException {
+        try {
+            return authorizedClient()
+                    .patch()
+                    .uri(uriBuilder -> uriBuilder.path(UPDATE_USER_CREDENTIALS).build())
+                    .body(updateAuthUserDTO)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Update auth user failed");
+            return null;
+        }
+    }
+
     // manager permission
     @Caching(
             evict = {
@@ -118,7 +139,7 @@ class CoreClient {
         try {
             return authorizedClient()
                     .patch()
-                    .uri(uriBuilder -> uriBuilder.path(UPDATE_ROLES).build())
+                    .uri(uriBuilder -> uriBuilder.path(UPDATE_USER_ROLES).build())
                     .body(updateAuthUserDTO)
                     .retrieve()
                     .body(new ParameterizedTypeReference<>() {});
@@ -214,8 +235,10 @@ class CoreClient {
     }
 
     // TODO: consider about implement security on fe side
+    // TODO: for sure separate posibility to update own data and update employee data by manager - create other method
+    //  to achieve that - do that as first issue after current
     // manager permission
-    // authenticated
+    // authenticated BUT logged user can update only his own data !!!!!!!!!!!!!!!!!!!!!!!!!!
     @Caching(
             evict = {
                 @CacheEvict(value = GET_EMPLOYEE_BY_ID, key = "#updateEmployeeDTO.employeeId"),

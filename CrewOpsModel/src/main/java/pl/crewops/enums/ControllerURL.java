@@ -14,7 +14,8 @@ public interface ControllerURL {
     String VALIDATE = "/validate";
     String HEALTH = "/health";
 
-    String UPDATE_ROLES = "/updateRoles";
+    String UPDATE_USER_ROLES = "/updateUserRoles";
+    String UPDATE_USER_CREDENTIALS = "/updateUserCredentials";
 
     String EMPLOYEES = "/employees";
     String EMPLOYEE_ID = "employeeId";

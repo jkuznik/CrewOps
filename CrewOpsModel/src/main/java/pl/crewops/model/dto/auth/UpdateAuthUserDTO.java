@@ -6,4 +6,4 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record UpdateAuthUserDTO(@NotNull UUID employeeId, String password, Set<RoleDTO> roles) {}
+public record UpdateAuthUserDTO(@NotNull UUID employeeId, String username, String password, Set<RoleDTO> roles) {}

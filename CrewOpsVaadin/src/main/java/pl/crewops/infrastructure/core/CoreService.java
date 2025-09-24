@@ -59,6 +59,12 @@ class CoreService implements CoreAPI {
     }
 
     @Override
+    public Optional<AuthUserDTO> updateAuthUserCredentials(UpdateAuthUserDTO updateAuthUserDTO)
+            throws NotAuthenticatedException {
+        return Optional.ofNullable(coreClient.updateAuthUserCredentials(updateAuthUserDTO));
+    }
+
+    @Override
     public Optional<AuthUserDTO> updateAuthUserRoles(UpdateAuthUserDTO updateAuthUserDTO)
             throws NotAuthenticatedException {
         return Optional.ofNullable(coreClient.updateAuthUserRoles(updateAuthUserDTO));

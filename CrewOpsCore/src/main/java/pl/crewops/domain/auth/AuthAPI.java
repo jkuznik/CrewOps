@@ -27,7 +27,9 @@ public interface AuthAPI {
 
     AuthResponse login(@NotNull @Valid AuthRequest authRequest, HttpServletResponse response);
 
-    AuthUserDTO updateAuthUser(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO);
+    AuthUserDTO updateAuthUserCredentials(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO);
+
+    AuthUserDTO updateAuthUserRoles(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO);
 
     ValidTokenResponse validateToken(@NotNull @Valid ValidTokenRequest validTokenRequest);
 

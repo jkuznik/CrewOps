@@ -45,6 +45,9 @@ public interface CoreAPI {
 
     Optional<CreateCustomerResult> verifyEmail(@Valid @NotNull VerifyEmailRequest request);
 
+    Optional<AuthUserDTO> updateAuthUserCredentials(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO)
+            throws NotAuthenticatedException;
+
     Optional<AuthUserDTO> updateAuthUserRoles(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO)
             throws NotAuthenticatedException;
 

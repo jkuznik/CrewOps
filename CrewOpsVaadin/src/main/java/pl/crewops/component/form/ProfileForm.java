@@ -126,7 +126,7 @@ public class ProfileForm extends FormLayout {
         credentialsModification.setWidth("140px");
 
         credentialsModification.addClickListener(event -> {
-            new UpdateCredentialsDialog(profileFormModel).open();
+            new UpdateCredentialsDialog(profileFormModel, coreAPI).open();
         });
 
         updateCredentialsContainer.add(infoText, credentialsModification);
