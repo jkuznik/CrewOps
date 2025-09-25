@@ -20,13 +20,13 @@ public class EmployeeQualification {
     private EmployeeQualificationId id;
 
     @MapsId("employeeId")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
     @MapsId("qualificationId")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "qualification_id", nullable = false)
     private Qualification qualification;

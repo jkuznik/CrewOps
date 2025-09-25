@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-table-auth-user-option
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: auth_user_option
+            columns:
+              - column:
+                  name: auth_user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: option_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enable
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+        - addPrimaryKey:
+            tableName: auth_user_option
+            columnNames: auth_user_id, option_id
+            constraintName: pk_auth_user_option
+
+        - addForeignKeyConstraint:
+            baseTableName: auth_user_option
+            baseColumnNames: auth_user_id
+            constraintName: fk_auth_user_option_auth_user
+            referencedTableName: auth_user
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: auth_user_option
+            baseColumnNames: option_id
+            constraintName: fk_auth_user_option_option
+            referencedTableName: option
+            referencedColumnNames: id
+            onDelete: CASCADE
