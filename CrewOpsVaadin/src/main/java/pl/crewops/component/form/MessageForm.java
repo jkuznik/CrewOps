@@ -108,6 +108,14 @@ public class MessageForm extends FormLayout {
         binder.forField(recipientSelectionField)
                 .asRequired(getTranslation("messageForm.recipientRequired"))
                 .bind(MessageFormModel::getRecipientSelection, MessageFormModel::setRecipientSelection);
+
+        binder.forField(description)
+                .asRequired(getTranslation("messageForm.descriptionRequired"))
+                .withValidator(
+                        description ->
+                                description != null && !description.trim().isEmpty(),
+                        getTranslation("messageForm.descriptionInvalid"))
+                .bind(MessageFormModel::getDescription, MessageFormModel::setDescription);
     }
 
     private void localize() {
@@ -125,10 +133,13 @@ public class MessageForm extends FormLayout {
         sendButton.addClickShortcut(Key.ENTER);
         closeButton.addClickShortcut(Key.ESCAPE);
 
-        sendButton.addClickListener(event -> fireEvent(new SendEvent(this, binder.getBean())));
+        sendButton.addClickListener(event -> {
+            if (binder.validate().isOk()) {
+                fireEvent(new SendEvent(this, binder.getBean()));
+            }
+        });
         closeButton.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
-        binder.addStatusChangeListener(event -> sendButton.setEnabled(binder.isValid()));
         return new HorizontalLayout(sendButton, closeButton);
     }
 
@@ -249,6 +260,16 @@ public class MessageForm extends FormLayout {
             } catch (NotAuthenticatedException e) {
                 new FailNotification(e.getMessage());
             }
+        }
+
+        @Override
+        public void setErrorMessage(String errorMessage) {
+            super.setErrorMessage(errorMessage);
+        }
+
+        @Override
+        public void setInvalid(boolean invalid) {
+            super.setInvalid(invalid);
         }
 
         @Override
