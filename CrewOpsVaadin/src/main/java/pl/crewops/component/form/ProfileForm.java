@@ -137,8 +137,7 @@ public class ProfileForm extends FormLayout {
         firstName.setLabel(getTranslation("employeeForm.firstName"));
         lastName.setLabel(getTranslation("employeeForm.lastName"));
         phoneNumber.setLabel(getTranslation("employeeForm.phoneNumber"));
-        // todo i18n
-        smsConfirmation.setLabel("SMS - this feature currently is in progress");
+        smsConfirmation.setLabel(getTranslation("profileForm.smsConfirmation"));
         email.setLabel(getTranslation("employeeForm.email"));
 
         updateProfile.setText(getTranslation("employeeForm.update"));
@@ -162,10 +161,9 @@ public class ProfileForm extends FormLayout {
                 if (employeeDTO.get().email() != null) {
                     binder.getBean().setEmail(employeeDTO.get().email());
                 }
-                // todo i18n and customize
-                new SuccessNotification("Employee updated successfully");
+                new SuccessNotification(getTranslation("profileForm.successUpdate"));
             } else {
-                new FailNotification("Something went wrong...");
+                new FailNotification(getTranslation("profileForm.failedUpdate"));
                 phoneNumber.setValue(binder.getBean().getPhoneNumber());
                 email.setValue(binder.getBean().getEmail());
             }

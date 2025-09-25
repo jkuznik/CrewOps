@@ -37,6 +37,7 @@ public class UpdateCredentialsForm extends FormLayout {
         configureBinder(profileFormModel);
         configureButtons();
 
+        // todo implement logic to allow change username only once per life time
         VerticalLayout layout =
                 new VerticalLayout(username, repeatUsername, password, repeatPassword, currentPassword, update, close);
         layout.setSpacing(true);

@@ -37,7 +37,7 @@ public class MessageForm extends FormLayout {
     private final Span currentModeDescription = new Span();
     private final RecipientSelectionField recipientSelectionField = new RecipientSelectionField();
     private final TextField sender = new TextField();
-    private final TextField title = new TextField();
+    private final TextField subject = new TextField();
     private final TextArea description = new TextArea();
     private final Button sendButton = new Button();
     private final Button closeButton = new Button();
@@ -53,7 +53,7 @@ public class MessageForm extends FormLayout {
 
         description.setHeight("10em");
 
-        add(currentModeDescription, recipientSelectionField, sender, title, description, createButtonLayout());
+        add(currentModeDescription, recipientSelectionField, sender, subject, description, createButtonLayout());
     }
 
     public void setSendMessageMode() {
@@ -62,7 +62,7 @@ public class MessageForm extends FormLayout {
         recipientSelectionField.displayOptionsByPermissions();
         recipientSelectionField.setVisible(true);
 
-        title.setEnabled(true);
+        subject.setEnabled(true);
         description.setEnabled(true);
 
         sendButton.setVisible(true);
@@ -73,7 +73,7 @@ public class MessageForm extends FormLayout {
         sender.setVisible(true);
         recipientSelectionField.setVisible(false);
 
-        title.setEnabled(false);
+        subject.setEnabled(false);
         description.setEnabled(false);
 
         sendButton.setVisible(false);
@@ -83,8 +83,12 @@ public class MessageForm extends FormLayout {
         if (model != null) {
             binder.setBean(model);
             sender.setValue(senderName);
-            title.setValue(model.getSubject());
-            description.setValue(model.getDescription());
+            if (model.getSubject() != null) {
+                subject.setValue(model.getSubject());
+            }
+            if (model.getDescription() != null) {
+                description.setValue(model.getDescription());
+            }
         }
     }
 
@@ -107,7 +111,7 @@ public class MessageForm extends FormLayout {
     }
 
     private void localize() {
-        title.setLabel(getTranslation("messageForm.title"));
+        subject.setLabel(getTranslation("messageForm.title"));
         description.setLabel(getTranslation("messageForm.description"));
 
         sendButton.setText(getTranslation("messageForm.sendButton"));

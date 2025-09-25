@@ -240,7 +240,14 @@ class AuthService implements AuthAPI {
         var principal = (UserPrincipal)
                 SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!principal.getAuthUser().getEmployeeId().equals(updateAuthUserDTO.employeeId())) {
-            log.warn("Not allow update user credentials by user: " + principal.getEmployeeId());
+            log.warn("Unnatural system behavior detected! Not allow update user credentials by user: "
+                    + principal.getEmployeeId() + " - REASON: attempt to modify other user data!");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+        }
+
+        if (!passwordEncoder.matches(principal.getPassword(), updateAuthUserDTO.currentPassword())) {
+            log.warn("Not allow update user credentials by user: " + principal.getEmployeeId()
+                    + " - REASON: not valid password");
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
         }
 
