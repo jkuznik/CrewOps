@@ -18,6 +18,7 @@ import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.security.ValidTokenRequest;
 import pl.crewops.security.ValidTokenResponse;
 import pl.crewops.security.custom.permissionAnnotation.ManagerPermission;
+import pl.crewops.security.custom.permissionAnnotation.SelfOnlyPermission;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,8 +33,9 @@ class AuthController {
     }
 
     @PatchMapping(UPDATE_USER_CREDENTIALS)
+    @SelfOnlyPermission(identifier = EMPLOYEE_ID)
     public ResponseEntity<AuthUserDTO> updateUserCredentials(@Valid @RequestBody UpdateAuthUserDTO updateAuthUserDTO) {
-        return ResponseEntity.status(HttpStatus.OK).body(authAPI.updateAuthUserCredentials(updateAuthUserDTO));
+        return ResponseEntity.status(HttpStatus.OK).body(authAPI.updateAuthUserProfile(updateAuthUserDTO));
     }
 
     @PatchMapping(UPDATE_USER_ROLES)

@@ -83,8 +83,7 @@ public class UpdateCredentialsForm extends FormLayout {
 
         binder.forField(currentPassword)
                 .withValidator(
-                        value -> value == null || value.isEmpty() || value.length() >= 6,
-                        getTranslation("updateCredentialsForm.currentPassword.invalid"))
+                        value -> !value.isEmpty(), getTranslation("updateCredentialsForm.currentPassword.invalid"))
                 .bind(UpdateCredentialsData::getCurrentPassword, UpdateCredentialsData::setCurrentPassword);
 
         binder.setBean(UpdateCredentialsData.builder()
@@ -99,14 +98,16 @@ public class UpdateCredentialsForm extends FormLayout {
     private void configureButtons() {
         update.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         update.addClickListener(event -> {
-            var updateCredentialsData = UpdateCredentialsData.builder()
-                    .username(username.getValue())
-                    .repeatUsername(repeatUsername.getValue())
-                    .password(password.getValue())
-                    .repeatPassword(repeatPassword.getValue())
-                    .currentPassword(currentPassword.getValue())
-                    .build();
-            fireEvent(new UpdateEvent(this, updateCredentialsData));
+            if (binder.validate().isOk()) {
+                var updateCredentialsData = UpdateCredentialsData.builder()
+                        .username(username.getValue())
+                        .repeatUsername(repeatUsername.getValue())
+                        .password(password.getValue())
+                        .repeatPassword(repeatPassword.getValue())
+                        .currentPassword(currentPassword.getValue())
+                        .build();
+                fireEvent(new UpdateEvent(this, updateCredentialsData));
+            }
         });
 
         close.addThemeVariants(ButtonVariant.LUMO_TERTIARY);

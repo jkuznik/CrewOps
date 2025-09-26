@@ -4,11 +4,18 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import lombok.Builder;
+import pl.crewops.model.dto.option.OptionDTO;
 import pl.crewops.model.dto.tenant.TenantDTO;
 
 @Builder
 public record AuthUserDTO(
-        UUID id, String username, String password, UUID employeeId, Set<RoleDTO> roles, TenantDTO tenant) {
+        UUID id,
+        String username,
+        String password,
+        UUID employeeId,
+        Set<RoleDTO> roles,
+        Set<OptionDTO> options,
+        TenantDTO tenant) {
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof AuthUserDTO that)) return false;

@@ -12,15 +12,19 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.EmailValidator;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import pl.crewops.component.dialog.credentialsDialog.UpdateCredentialsDialog;
 import pl.crewops.component.notification.FailNotification;
 import pl.crewops.component.notification.SuccessNotification;
+import pl.crewops.enums.AuthUserOptions;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.ProfileFormModel;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.model.dto.option.AuthUserOptionDTO;
 
 public class ProfileForm extends FormLayout {
     private final CoreAPI coreAPI;
@@ -145,10 +149,14 @@ public class ProfileForm extends FormLayout {
     }
 
     private void update() {
+        var selectedOptions = collectSelectedOptions();
+
+        // todo finalize update sms agreement
         var updateEmployeeDTO = UpdateEmployeeDTO.builder()
                 .employeeId(binder.getBean().getEmployeeId())
                 .phoneNumber(phoneNumber.getValue())
                 .email(email.getValue())
+                .options(selectedOptions)
                 .build();
 
         try {
@@ -170,5 +178,18 @@ public class ProfileForm extends FormLayout {
         } catch (NotAuthenticatedException e) {
             new FailNotification(e.getMessage()).open();
         }
+    }
+
+    private Set<AuthUserOptionDTO> collectSelectedOptions() {
+        var options = new HashSet<AuthUserOptionDTO>();
+
+        var smsAgreement = AuthUserOptionDTO.builder()
+                .employeeId(profileFormModel.getEmployeeId())
+                .optionId(AuthUserOptions.AGREE_RECEIVE_SMS_NOTIFICATION.getId())
+                .enabled(smsConfirmation.getValue())
+                .build();
+
+        options.add(smsAgreement);
+        return options;
     }
 }

@@ -1,10 +1,9 @@
 package pl.crewops.model.publicSchema;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.time.Instant;
+import java.util.UUID;
 import lombok.*;
-import pl.crewops.model.AbstractEntity;
 
 @Entity
 @Table(name = "option", schema = "public")
@@ -13,8 +12,22 @@ import pl.crewops.model.AbstractEntity;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Option extends AbstractEntity {
+public class Option {
 
     @Column(nullable = false, unique = true)
     private String name;
+
+    // the reason why this entity not extends AbstractEntity is caused by different id column configuration
+    @Id
+    @Column(name = "id", nullable = false)
+    protected UUID id;
+
+    @Version
+    private Integer version;
+
+    @Column(insertable = false, updatable = false)
+    private Instant createdAt;
+
+    @Column(insertable = false, updatable = false)
+    private Instant updatedAt;
 }

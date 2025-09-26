@@ -41,7 +41,13 @@ public interface ControllerURL {
 
     String QUALIFICATIONS_QID = QUALIFICATIONS + "/{" + QUALIFICATION_ID + "}";
     String QUALIFICATIONS_QID_EMPLOYEES = QUALIFICATIONS + "/{" + QUALIFICATION_ID + "}" + EMPLOYEES;
+    /**
+     *  This '/collection' URL prefix is used to modify base QUALIFICATIONS URL which already have defined GET method
+     *  to other operation.
+     *  QIDS mean that method allow to fetch collection of records instead of single record access able under QID
+     * */
     String QUALIFICATIONS_QIDS = QUALIFICATIONS + "/collection";
+
     String QUALIFICATIONS_EID_EXPIRED = QUALIFICATIONS + "/{" + EMPLOYEE_ID + "}" + "/expired";
 
     String MACHINES_VID = MACHINES + "/{" + MACHINE_ID + "}";
@@ -55,6 +61,7 @@ public interface ControllerURL {
     String DEPARTMENTS_DIDS = DEPARTMENTS + "/collection";
 
     String EMPLOYEES_EID_PHONE = EMPLOYEES_EID + "/phone";
+    String EMPLOYEE_EID_OPTIONS = EMPLOYEES_EID + "/options";
     String EMPLOYEES_EID_QUALIFICATIONS_EXPIRED = EMPLOYEES_EID + QUALIFICATIONS + "/expired";
     String EMPLOYEES_EID_QUALIFICATIONS_QID = EMPLOYEES_EID + QUALIFICATIONS_QID;
     String EMPLOYEES_EID_QUALIFICATIONS_QID_EXPIRED = EMPLOYEES_EID_QUALIFICATIONS_QID + "/expired";

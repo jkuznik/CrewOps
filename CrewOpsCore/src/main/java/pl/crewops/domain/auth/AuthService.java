@@ -26,6 +26,7 @@ import pl.crewops.model.dto.auth.AuthResponse;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.model.dto.option.OptionDTO;
 import pl.crewops.model.dto.tenant.TenantDTO;
 import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.model.publicSchema.Role;
@@ -171,25 +172,6 @@ class AuthService implements AuthAPI {
         }
     }
 
-    private TenantDTO tenantDTO(Tenant tenant) {
-        return TenantDTO.builder()
-                .id(tenant.getId())
-                .status(tenant.getStatus())
-                .schemaName(tenant.getSchemaName())
-                .companyId(tenant.getCompanyId())
-                .build();
-    }
-
-    private AuthUserDTO authUserDTO(AuthUser authUser) {
-        return AuthUserDTO.builder()
-                .id(authUser.getId())
-                .username(authUser.getUsername())
-                .password(authUser.getPassword())
-                .employeeId(authUser.getEmployeeId())
-                .tenant(tenantDTO(authUser.getTenant()))
-                .build();
-    }
-
     @Transactional(readOnly = true)
     public ValidTokenResponse validateToken(ValidTokenRequest validTokenRequest) {
         try {
@@ -236,16 +218,11 @@ class AuthService implements AuthAPI {
 
     @Override
     @Transactional
-    public AuthUserDTO updateAuthUserCredentials(UpdateAuthUserDTO updateAuthUserDTO) {
+    public AuthUserDTO updateAuthUserProfile(UpdateAuthUserDTO updateAuthUserDTO) {
         var principal = (UserPrincipal)
                 SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!principal.getAuthUser().getEmployeeId().equals(updateAuthUserDTO.employeeId())) {
-            log.warn("Unnatural system behavior detected! Not allow update user credentials by user: "
-                    + principal.getEmployeeId() + " - REASON: attempt to modify other user data!");
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
-        }
 
-        if (!passwordEncoder.matches(principal.getPassword(), updateAuthUserDTO.currentPassword())) {
+        if (!passwordEncoder.matches(updateAuthUserDTO.currentPassword(), principal.getPassword())) {
             log.warn("Not allow update user credentials by user: " + principal.getEmployeeId()
                     + " - REASON: not valid password");
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
@@ -328,5 +305,31 @@ class AuthService implements AuthAPI {
         } finally {
             TenantContext.clear();
         }
+    }
+
+    private TenantDTO tenantDTO(Tenant tenant) {
+        return TenantDTO.builder()
+                .id(tenant.getId())
+                .status(tenant.getStatus())
+                .schemaName(tenant.getSchemaName())
+                .companyId(tenant.getCompanyId())
+                .build();
+    }
+
+    private AuthUserDTO authUserDTO(AuthUser authUser) {
+        return AuthUserDTO.builder()
+                .id(authUser.getId())
+                .username(authUser.getUsername())
+                .password(authUser.getPassword())
+                .employeeId(authUser.getEmployeeId())
+                .roles(authUser.getRoles().stream()
+                        .map(role -> RoleDTO.builder().name(role.getName()).build())
+                        .collect(Collectors.toSet()))
+                .options(authUser.getOptions().stream()
+                        .map(option ->
+                                OptionDTO.builder().name(option.getName()).build())
+                        .collect(Collectors.toSet()))
+                .tenant(tenantDTO(authUser.getTenant()))
+                .build();
     }
 }

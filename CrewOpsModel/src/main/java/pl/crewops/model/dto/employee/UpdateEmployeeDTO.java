@@ -8,6 +8,7 @@ import java.util.UUID;
 import lombok.Builder;
 import pl.crewops.model.dto.auth.RoleDTO;
 import pl.crewops.model.dto.department.DepartmentDTO;
+import pl.crewops.model.dto.option.AuthUserOptionDTO;
 
 @Builder
 public record UpdateEmployeeDTO(
@@ -16,4 +17,5 @@ public record UpdateEmployeeDTO(
         @Size(max = 63) @Email String email,
         Set<DepartmentDTO> departments,
         Set<RoleDTO> roles,
+        Set<AuthUserOptionDTO> options,
         Boolean active) {}
