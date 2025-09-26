@@ -1,6 +1,7 @@
 package pl.crewops.component.form;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -25,6 +26,7 @@ import pl.crewops.model.ProfileFormModel;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.model.dto.option.AuthUserOptionDTO;
+import pl.crewops.view.HomeView;
 
 public class ProfileForm extends FormLayout {
     private final CoreAPI coreAPI;
@@ -35,6 +37,7 @@ public class ProfileForm extends FormLayout {
     private final TextField phoneNumber = new TextField();
     private final Checkbox smsConfirmation = new Checkbox();
     private final TextField email = new TextField();
+    private final Checkbox emailConfirmation = new Checkbox();
 
     private final Button updateProfile = new Button();
     private final Button credentialsModification = new Button();
@@ -45,6 +48,16 @@ public class ProfileForm extends FormLayout {
         addClassName("profile-form");
         this.coreAPI = coreAPI;
         this.profileFormModel = profileFormModel;
+        Set<AuthUserOptionDTO> options = new HashSet<>();
+
+        try {
+            options = coreAPI.getOptionsByEmployeeId(profileFormModel.getEmployeeId());
+        } catch (NotAuthenticatedException e) {
+            new FailNotification(e.getMessage());
+            UI.getCurrent().navigate(HomeView.class);
+        }
+
+        profileFormModel.setOptions(options);
 
         localize();
 
@@ -108,7 +121,14 @@ public class ProfileForm extends FormLayout {
                 .set("color", "var(--lumo-secondary-text-color)")
                 .set("margin", "0");
 
-        container.add(disclaimer, phoneNumber, smsConfirmation, email, updateProfile);
+        for (AuthUserOptionDTO option : profileFormModel.getOptions()) {
+            switch (option.name()) {
+                case "AGREE_RECEIVE_SMS_NOTIFICATION" -> smsConfirmation.setValue(option.enabled());
+                case "AGREE_RECEIVE_EMAIL_NOTIFICATION" -> emailConfirmation.setValue(option.enabled());
+            }
+        }
+
+        container.add(disclaimer, phoneNumber, smsConfirmation, email, emailConfirmation, updateProfile);
 
         container.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.START);
 
@@ -181,7 +201,6 @@ public class ProfileForm extends FormLayout {
     }
 
     private Set<AuthUserOptionDTO> collectSelectedOptions() {
-        var options = new HashSet<AuthUserOptionDTO>();
 
         var smsAgreement = AuthUserOptionDTO.builder()
                 .employeeId(profileFormModel.getEmployeeId())
@@ -189,7 +208,12 @@ public class ProfileForm extends FormLayout {
                 .enabled(smsConfirmation.getValue())
                 .build();
 
-        options.add(smsAgreement);
-        return options;
+        var emailAgreement = AuthUserOptionDTO.builder()
+                .employeeId(profileFormModel.getEmployeeId())
+                .optionId(AuthUserOptions.AGREE_RECEIVE_EMAIL_NOTIFICATION.getId())
+                .enabled(emailConfirmation.getValue())
+                .build();
+
+        return new HashSet<>(Set.of(smsAgreement, emailAgreement));
     }
 }

@@ -3,9 +3,11 @@ package pl.crewops.model;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.UUID;
 import lombok.*;
 import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.option.AuthUserOptionDTO;
 import pl.crewops.security.custom.UserPrincipal;
 
 @Getter
@@ -22,6 +24,7 @@ public class ProfileFormModel {
     private @Email String email;
     private String username;
     private String password;
+    private Set<AuthUserOptionDTO> options;
 
     public static ProfileFormModel create(UserPrincipal principal, EmployeeDTO employeeDTO) {
         return ProfileFormModel.builder()

@@ -4,4 +4,4 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record AuthUserOptionDTO(UUID employeeId, UUID optionId, boolean enabled) {}
+public record AuthUserOptionDTO(UUID employeeId, UUID optionId, String name, boolean enabled) {}

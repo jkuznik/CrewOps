@@ -239,10 +239,11 @@ public class EmployeeGrid extends VerticalLayout {
                     coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee(), companyId));
             updateGrid();
             closeEditor();
-            createAuthUserResult.ifPresent(
-                    value -> new SuccessNotification(getTranslation("addEmployeeNotification.successAddEmployee")
-                            + value.employeeDTO().firstName() + " "
-                            + value.employeeDTO().lastName()));
+            createAuthUserResult.ifPresent(value -> {
+                new SuccessNotification(getTranslation("addEmployeeNotification.successAddEmployee")
+                        + value.employeeDTO().firstName() + " "
+                        + value.employeeDTO().lastName());
+            });
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }

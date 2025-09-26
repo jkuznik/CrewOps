@@ -196,6 +196,7 @@ public class EmployeeForm extends FormLayout {
                 .phoneNumber(phoneNumber.getValue())
                 .machinesSet(Set.of())
                 .qualificationsSet(Set.of())
+                .departments(Set.of())
                 .roles(Set.of())
                 .build();
 

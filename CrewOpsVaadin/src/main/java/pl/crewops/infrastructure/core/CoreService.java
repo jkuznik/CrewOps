@@ -24,6 +24,7 @@ import pl.crewops.model.dto.machine.UpdateMachineDTO;
 import pl.crewops.model.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.dto.message.MessageDTO;
 import pl.crewops.model.dto.message.SendMessageCommand;
+import pl.crewops.model.dto.option.AuthUserOptionDTO;
 import pl.crewops.model.dto.qualification.CreateQualificationDTO;
 import pl.crewops.model.dto.qualification.QualificationDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationDTO;
@@ -68,6 +69,11 @@ class CoreService implements CoreAPI {
     public Optional<AuthUserDTO> updateAuthUserRoles(UpdateAuthUserDTO updateAuthUserDTO)
             throws NotAuthenticatedException {
         return Optional.ofNullable(coreClient.updateAuthUserRoles(updateAuthUserDTO));
+    }
+
+    @Override
+    public Set<AuthUserOptionDTO> getOptionsByEmployeeId(UUID employeeId) throws NotAuthenticatedException {
+        return coreClient.getOptionsByEmployeeId(employeeId);
     }
 
     @Override

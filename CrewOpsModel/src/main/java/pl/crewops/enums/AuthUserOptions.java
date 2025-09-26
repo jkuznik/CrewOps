@@ -9,7 +9,8 @@ public enum AuthUserOptions {
      * update database.
      *
      * */
-    AGREE_RECEIVE_SMS_NOTIFICATION(UUID.fromString("f8bd1c2a-9e8f-4bca-9c56-37604be09e12"));
+    AGREE_RECEIVE_SMS_NOTIFICATION(UUID.fromString("f8bd1c2a-9e8f-4bca-9c56-37604be09e12")),
+    AGREE_RECEIVE_EMAIL_NOTIFICATION(UUID.fromString("f8bd1c2a-4bca-9e8f-9c56-37604be09e12"));
 
     private final UUID id;
 

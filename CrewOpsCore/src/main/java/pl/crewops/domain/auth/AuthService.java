@@ -2,6 +2,8 @@ package pl.crewops.domain.auth;
 
 import static pl.crewops.util.credentialsGenerator.CredentialGenerator.generatePassword;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,18 +19,26 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.domain.employee.EmployeeAPI;
+import pl.crewops.domain.message.MessageAPI;
+import pl.crewops.domain.option.OptionAPI;
 import pl.crewops.domain.tenant.TenantAPI;
+import pl.crewops.enums.AuthUserOptions;
+import pl.crewops.exception.domain.auth.AuthUserNotFoundException;
 import pl.crewops.exception.domain.auth.UsernameAlreadyExistException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
+import pl.crewops.model.compositePK.AUOID;
 import pl.crewops.model.dto.auth.*;
 import pl.crewops.model.dto.auth.AuthRequest;
 import pl.crewops.model.dto.auth.AuthResponse;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.model.dto.option.OptionDTO;
+import pl.crewops.model.dto.message.RecipientSelection;
+import pl.crewops.model.dto.message.SendMessageCommand;
+import pl.crewops.model.dto.option.AuthUserOptionDTO;
 import pl.crewops.model.dto.tenant.TenantDTO;
 import pl.crewops.model.publicSchema.AuthUser;
+import pl.crewops.model.publicSchema.Option;
 import pl.crewops.model.publicSchema.Role;
 import pl.crewops.model.publicSchema.Tenant;
 import pl.crewops.security.ValidTokenRequest;
@@ -48,6 +58,11 @@ class AuthService implements AuthAPI {
     private final PasswordEncoder passwordEncoder;
     private final TenantAPI tenantAPI;
     private final EmployeeAPI employeeAPI;
+    private final OptionAPI optionAPI;
+    private final MessageAPI messageAPI;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     @Transactional(readOnly = true)
@@ -71,13 +86,14 @@ class AuthService implements AuthAPI {
         } while (getByUsername(username).isPresent());
 
         try {
-            // until createEmployee is in this same tx then hibernate handle rollback, check this some time if any
+            // until createEmployee is in this same with createAuthUser tx then hibernate handle rollback, check this
+            // some time if any
             // implementation is required
             EmployeeDTO employee = employeeAPI.createEmployee(createEmployeeDTO);
-            String generatePassword = generatePassword();
+            String generatedPassword = generatePassword();
             var createAuthUser = CreateAuthUserDTO.builder()
                     .username(username)
-                    .password(generatePassword)
+                    .password(generatedPassword)
                     .roles(createEmployeeDTO.roles())
                     .build();
             AuthUserDTO authUser = createAuthUser(createAuthUser, employee.id(), createEmployeeDTO.companyId());
@@ -86,11 +102,30 @@ class AuthService implements AuthAPI {
                     createEmployeeDTO.firstName() + " " + createEmployeeDTO.lastName(),
                     createAuthUser.username(),
                     createAuthUser.password());
+
+            var principal = (UserPrincipal)
+                    SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            messageAPI.sendMessage(SendMessageCommand.builder()
+                    .recipientSelection(new RecipientSelection(
+                            RecipientSelection.RecipientOptionType.EMPLOYEE,
+                            principal.getEmployeeId().toString()))
+                    .senderEmployeeId(null)
+                    .subject("new employee")
+                    .description("Login : " + createAuthUser.username() + " Pass: " + generatedPassword)
+                    .build());
             return new CreateAuthUserResult(employee, authUser, null);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public Set<AuthUserOptionDTO> getOptionsByEmployeeId(UUID employeeId) {
+        AuthUser authUser = authUserRepository
+                .findByEmployeeId(employeeId)
+                .orElseThrow(() -> new AuthUserNotFoundException(employeeId));
+        return optionAPI.getAuthUserOptionsByAuthUserId(authUser.getId());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -104,13 +139,14 @@ class AuthService implements AuthAPI {
         } while (getByUsername(username).isPresent());
 
         try {
-            // until createEmployee is in this same tx then hibernate handle rollback, check this some time if any
+            // until createEmployee is in this same with createAuthUser tx then hibernate handle rollback, check this
+            // some time if any
             // implementation is required
             EmployeeDTO employee = employeeAPI.createEmployee(createEmployeeDTO);
-            String generatePassword = generatePassword();
+            String generatedPassword = generatePassword();
             var createAuthUser = CreateAuthUserDTO.builder()
                     .username(username)
-                    .password(generatePassword)
+                    .password(generatedPassword)
                     .roles(createEmployeeDTO.roles())
                     .build();
             AuthUserDTO authUser = createAuthUser(createAuthUser, employee.id(), createEmployeeDTO.companyId());
@@ -119,7 +155,18 @@ class AuthService implements AuthAPI {
                     createEmployeeDTO.firstName() + " " + createEmployeeDTO.lastName(),
                     createAuthUser.username(),
                     createAuthUser.password());
-            return new CreateAuthUserResult(employee, authUser, generatePassword);
+
+            var principal = (UserPrincipal)
+                    SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            messageAPI.sendMessage(SendMessageCommand.builder()
+                    .recipientSelection(new RecipientSelection(
+                            RecipientSelection.RecipientOptionType.EMPLOYEE,
+                            principal.getEmployeeId().toString()))
+                    .senderEmployeeId(null)
+                    .subject("new employee")
+                    .description("Login : " + createAuthUser.username() + " Pass: " + generatedPassword)
+                    .build());
+            return new CreateAuthUserResult(employee, authUser, generatedPassword);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
@@ -163,6 +210,7 @@ class AuthService implements AuthAPI {
             log.info("Creating auth user " + createAuthUserDTO.username() + " with roles " + roles);
             authUser.setRoles(roles);
             authUser.setEmployeeId(employeeId);
+            defaultOptions(authUser);
             log.info("Auth user instantiated successfully as " + authUser);
             authUserRepository.save(authUser);
             return authUserDTO(authUser);
@@ -325,11 +373,29 @@ class AuthService implements AuthAPI {
                 .roles(authUser.getRoles().stream()
                         .map(role -> RoleDTO.builder().name(role.getName()).build())
                         .collect(Collectors.toSet()))
-                .options(authUser.getOptions().stream()
-                        .map(option ->
-                                OptionDTO.builder().name(option.getName()).build())
-                        .collect(Collectors.toSet()))
                 .tenant(tenantDTO(authUser.getTenant()))
                 .build();
+    }
+
+    private void defaultOptions(AuthUser authUser) {
+
+        Option smsOption = optionAPI
+                .getOptionByName(AuthUserOptions.AGREE_RECEIVE_SMS_NOTIFICATION.name())
+                .orElseThrow(() -> new NoSuchElementException("No option found for agree receive sms"));
+
+        Option emailOption = optionAPI
+                .getOptionByName(AuthUserOptions.AGREE_RECEIVE_EMAIL_NOTIFICATION.name())
+                .orElseThrow(() -> new NoSuchElementException("No option found for agree receive sms"));
+
+        Set<Option> options = new HashSet<>(Set.of(smsOption, emailOption));
+
+        authUser.setOptions(options);
+
+        entityManager.persist(authUser);
+        entityManager.flush();
+
+        //  TODO: each new option have to be preconfigured to new employees in this part of code
+        optionAPI.updateAuthUserOptionById(new AUOID(authUser.getId(), smsOption.getId()), false);
+        optionAPI.updateAuthUserOptionById(new AUOID(authUser.getId(), emailOption.getId()), false);
     }
 }
