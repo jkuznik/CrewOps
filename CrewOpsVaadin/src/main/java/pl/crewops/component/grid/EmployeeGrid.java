@@ -233,10 +233,13 @@ public class EmployeeGrid extends VerticalLayout {
     private void saveEmployee(EmployeeForm.SaveEvent event) {
         try {
             var principal = authenticationResolver.getPrincipal();
-            UUID companyId = principal.getCompanyId();
+            var createEmployeeDTO = EmployeeFormModel.toCreateEmployeeDTO(
+                    event.getEmployee(),
+                    authenticationResolver.getPrincipal(),
+                    getTranslation("employeeGrid.addNewEmployeeMessageSubject"),
+                    getTranslation("employeeGrid.addNewEmployeeMessageBody"));
 
-            Optional<CreateAuthUserResult> createAuthUserResult =
-                    coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee(), companyId));
+            Optional<CreateAuthUserResult> createAuthUserResult = coreAPI.createEmployee(createEmployeeDTO);
             updateGrid();
             closeEditor();
             createAuthUserResult.ifPresent(value -> {

@@ -18,6 +18,7 @@ import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.model.dto.machine.MachineDTO;
 import pl.crewops.model.dto.qualification.QualificationDTO;
+import pl.crewops.security.custom.UserPrincipal;
 
 @Getter
 @Setter
@@ -58,21 +59,33 @@ public class EmployeeFormModel {
                 .build();
     }
 
-    public static CreateEmployeeDTO toCreateEmployeeDTO(EmployeeFormModel employeeFormModel, UUID companyId) {
+    public static CreateEmployeeDTO toCreateEmployeeDTO(
+            EmployeeFormModel employeeFormModel,
+            UserPrincipal principal,
+            String translatedSubject,
+            String translatedBody) {
         Set<RoleDTO> createRoles = employeeFormModel.roles.stream()
                 .map(role -> RoleDTO.builder().name(role.name()).build())
                 .collect(Collectors.toSet());
 
         createRoles.add(new RoleDTO(RoleType.EMPLOYEE.name()));
 
+        CreateEmployeeDTO.NewEmployeeInformation newEmployeeInformation =
+                CreateEmployeeDTO.NewEmployeeInformation.builder()
+                        .creatorEmployeeId(principal.getEmployeeId())
+                        .subject(translatedSubject)
+                        .body(translatedBody)
+                        .build();
+
         return CreateEmployeeDTO.builder()
+                .newEmployeeInformation(newEmployeeInformation)
                 .firstName(employeeFormModel.getFirstName())
                 .lastName(employeeFormModel.getLastName())
                 .birthDate(employeeFormModel.getBirthDate())
                 .phoneNumber(employeeFormModel.getPhoneNumber())
                 .departments(mapToDepartmentDTOs(employeeFormModel.getDepartments()))
                 .roles(createRoles)
-                .companyId(companyId)
+                .companyId(principal.getCompanyId())
                 .build();
     }
 

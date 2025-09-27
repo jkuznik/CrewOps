@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.domain.employee.EmployeeAPI;
+import pl.crewops.domain.message.MessageAPI;
 import pl.crewops.domain.option.OptionAPI;
 import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.enums.AuthUserOptions;
@@ -32,6 +33,8 @@ import pl.crewops.model.dto.auth.AuthResponse;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.model.dto.message.RecipientSelection;
+import pl.crewops.model.dto.message.SendMessageCommand;
 import pl.crewops.model.dto.option.AuthUserOptionDTO;
 import pl.crewops.model.dto.tenant.TenantDTO;
 import pl.crewops.model.publicSchema.AuthUser;
@@ -56,6 +59,7 @@ class AuthService implements AuthAPI {
     private final TenantAPI tenantAPI;
     private final EmployeeAPI employeeAPI;
     private final OptionAPI optionAPI;
+    private final MessageAPI messageAPI;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -117,6 +121,24 @@ class AuthService implements AuthAPI {
                     createEmployeeDTO.firstName() + " " + createEmployeeDTO.lastName(),
                     createAuthUser.username(),
                     createAuthUser.password());
+
+            if (createEmployeeDTO.newEmployeeInformation() != null) {
+                messageAPI.sendMessage(SendMessageCommand.builder()
+                        .recipientSelection(new RecipientSelection(
+                                RecipientSelection.RecipientOptionType.EMPLOYEE,
+                                createEmployeeDTO
+                                        .newEmployeeInformation()
+                                        .creatorEmployeeId()
+                                        .toString()))
+                        .senderEmployeeId(null) // this mean sender will be 'SYSTEM'
+                        .subject(createEmployeeDTO.newEmployeeInformation().subject())
+                        .description(createEmployeeDTO.newEmployeeInformation().body()
+                                + System.lineSeparator()
+                                + createAuthUser.username()
+                                + System.lineSeparator()
+                                + generatedPassword)
+                        .build());
+            }
 
             if (withPlainPassword) {
                 return new CreateAuthUserResult(employee, authUser, generatedPassword);

@@ -17,11 +17,16 @@ import pl.crewops.model.dto.department.DepartmentDTO;
  * */
 @Builder
 public record CreateEmployeeDTO(
-        UUID creatorEmployeeId,
+        NewEmployeeInformation newEmployeeInformation,
         @Size(max = 50) @NotNull @NotBlank String firstName,
         @Size(max = 50) @NotNull @NotBlank String lastName,
         @NotNull LocalDate birthDate,
         @Size(max = 15) String phoneNumber,
         Set<DepartmentDTO> departments,
         @NotNull UUID companyId,
-        Set<RoleDTO> roles) {}
+        Set<RoleDTO> roles) {
+
+    @Builder
+    public record NewEmployeeInformation(
+            @NotNull UUID creatorEmployeeId, @NotNull String subject, @NotNull String body) {}
+}
