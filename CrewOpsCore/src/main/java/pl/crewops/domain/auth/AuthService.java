@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.domain.employee.EmployeeAPI;
-import pl.crewops.domain.message.MessageAPI;
 import pl.crewops.domain.option.OptionAPI;
 import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.enums.AuthUserOptions;
@@ -33,8 +32,6 @@ import pl.crewops.model.dto.auth.AuthResponse;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
-import pl.crewops.model.dto.message.RecipientSelection;
-import pl.crewops.model.dto.message.SendMessageCommand;
 import pl.crewops.model.dto.option.AuthUserOptionDTO;
 import pl.crewops.model.dto.tenant.TenantDTO;
 import pl.crewops.model.publicSchema.AuthUser;
@@ -59,7 +56,6 @@ class AuthService implements AuthAPI {
     private final TenantAPI tenantAPI;
     private final EmployeeAPI employeeAPI;
     private final OptionAPI optionAPI;
-    private final MessageAPI messageAPI;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -76,50 +72,6 @@ class AuthService implements AuthAPI {
         return authUserRepository.findByEmployeeId(employeeId);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public CreateAuthUserResult createAuthUserWithRelatedEmployee(CreateEmployeeDTO createEmployeeDTO) {
-        log.info("Create employee current tenant is: {}", TenantContext.getCurrentTenant());
-        String username;
-        do {
-            username =
-                    CredentialGenerator.generateUsername(createEmployeeDTO.firstName(), createEmployeeDTO.lastName());
-        } while (getByUsername(username).isPresent());
-
-        try {
-            // until createEmployee is in this same with createAuthUser tx then hibernate handle rollback, check this
-            // some time if any
-            // implementation is required
-            EmployeeDTO employee = employeeAPI.createEmployee(createEmployeeDTO);
-            String generatedPassword = generatePassword();
-            var createAuthUser = CreateAuthUserDTO.builder()
-                    .username(username)
-                    .password(generatedPassword)
-                    .roles(createEmployeeDTO.roles())
-                    .build();
-            AuthUserDTO authUser = createAuthUser(createAuthUser, employee.id(), createEmployeeDTO.companyId());
-            log.info(
-                    "Create employee {} \n with username {} \n password {}",
-                    createEmployeeDTO.firstName() + " " + createEmployeeDTO.lastName(),
-                    createAuthUser.username(),
-                    createAuthUser.password());
-
-            var principal = (UserPrincipal)
-                    SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            messageAPI.sendMessage(SendMessageCommand.builder()
-                    .recipientSelection(new RecipientSelection(
-                            RecipientSelection.RecipientOptionType.EMPLOYEE,
-                            principal.getEmployeeId().toString()))
-                    .senderEmployeeId(null)
-                    .subject("new employee")
-                    .description("Login : " + createAuthUser.username() + " Pass: " + generatedPassword)
-                    .build());
-            return new CreateAuthUserResult(employee, authUser, null);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new RuntimeException(e);
-        }
-    }
-
     @Override
     public Set<AuthUserOptionDTO> getOptionsByEmployeeId(UUID employeeId) {
         AuthUser authUser = authUserRepository
@@ -129,8 +81,18 @@ class AuthService implements AuthAPI {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public CreateAuthUserResult createAuthUserWithRelatedEmployeeForRegisterCustomer(
+    public CreateAuthUserResult createAuthUserWithRelatedEmployee(CreateEmployeeDTO createEmployeeDTO) {
+        return getCreateAuthUserResult(createEmployeeDTO, false);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public CreateAuthUserResult createAuthUserWithRelatedEmployeeForRegisterCustomerRequirements(
             CreateEmployeeDTO createEmployeeDTO) {
+        return getCreateAuthUserResult(createEmployeeDTO, true);
+    }
+
+    private CreateAuthUserResult getCreateAuthUserResult(
+            CreateEmployeeDTO createEmployeeDTO, boolean withPlainPassword) {
         log.info("Create employee current tenant is: {}", TenantContext.getCurrentTenant());
         String username;
         do {
@@ -156,36 +118,18 @@ class AuthService implements AuthAPI {
                     createAuthUser.username(),
                     createAuthUser.password());
 
-            var principal = (UserPrincipal)
-                    SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            messageAPI.sendMessage(SendMessageCommand.builder()
-                    .recipientSelection(new RecipientSelection(
-                            RecipientSelection.RecipientOptionType.EMPLOYEE,
-                            principal.getEmployeeId().toString()))
-                    .senderEmployeeId(null)
-                    .subject("new employee")
-                    .description("Login : " + createAuthUser.username() + " Pass: " + generatedPassword)
-                    .build());
-            return new CreateAuthUserResult(employee, authUser, generatedPassword);
+            if (withPlainPassword) {
+                return new CreateAuthUserResult(employee, authUser, generatedPassword);
+            } else {
+                return new CreateAuthUserResult(employee, authUser, null);
+            }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
 
-    @Transactional
-    // this method has to delete AuthUser record and set false on Active column for related Employee
-    public EmployeeDTO terminateEmployeeAuthUserAccount(UUID employeeId) {
-        log.info("Delete authUser wit employee id: {}", employeeId);
-        authUserRepository.deleteByEmployeeId(employeeId);
-        log.info("Set 'active' column to 'false' for employee {}", employeeId);
-        return employeeAPI.updateEmployee(UpdateEmployeeDTO.builder()
-                .employeeId(employeeId)
-                .active(Boolean.FALSE)
-                .build());
-    }
-
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public AuthUserDTO createAuthUser(CreateAuthUserDTO createAuthUserDTO, UUID employeeId, UUID companyId) {
         if (getByUsername(createAuthUserDTO.username()).isPresent()) {
             log.error("Username " + createAuthUserDTO.username() + " already exists");
@@ -219,50 +163,6 @@ class AuthService implements AuthAPI {
             throw new IllegalArgumentException(e);
         }
     }
-
-    @Transactional(readOnly = true)
-    public ValidTokenResponse validateToken(ValidTokenRequest validTokenRequest) {
-        try {
-            var authUser = authUserRepository
-                    .findByEmployeeId(jwtService.extractEmployeeId(validTokenRequest.token()))
-                    .orElseThrow(() ->
-                            new UsernameNotFoundException("Username " + validTokenRequest.token() + " not found"));
-            var userPrincipal = new UserPrincipal(authUser);
-            boolean result = jwtService.validToken(validTokenRequest.token(), userPrincipal);
-            if (result) {
-                Date expiresAt = jwtService.extractExpiresAt(validTokenRequest.token());
-                return new ValidTokenResponse(true, expiresAt);
-            } else {
-                log.error("Token validation failed");
-                return new ValidTokenResponse(false, null);
-            }
-        } catch (IllegalArgumentException e) {
-            log.error("Token validation failed with exception");
-            return new ValidTokenResponse(false, null);
-        }
-    }
-
-    @Transactional(readOnly = true)
-    public AuthResponse login(AuthRequest authRequest, HttpServletResponse response) {
-        try {
-            AuthUser authUser = getByUsername(authRequest.username())
-                    .orElseThrow(() -> new UsernameNotFoundException(authRequest.username()));
-            if (passwordEncoder.matches(authRequest.password(), authUser.getPassword())) {
-                TenantContext.setCurrentTenant(authUser.getTenant().getSchemaName());
-                return finalizeLoginAction(authUser);
-            } else {
-                log.error("Login failed");
-                throw new IllegalArgumentException("Invalid username or password");
-            }
-        } catch (IllegalArgumentException e) {
-            log.error("Login failed, {}", e.getMessage());
-            throw e;
-        }
-    }
-
-    // TODO: consider to add Global generic CoreResponse<T> object as each single response wrapper but with additional
-    // result
-    //  description like fail reason
 
     @Override
     @Transactional
@@ -313,53 +213,6 @@ class AuthService implements AuthAPI {
 
     @Override
     @Transactional
-    public AuthUserDTO updateAuthUserOptions(UpdateAuthUserDTO updateAuthUserDTO) {
-        try {
-            AuthUser authUser = getByEmployeeId(updateAuthUserDTO.employeeId())
-                    .orElseThrow(() -> new UsernameNotFoundException("Employee Id " + updateAuthUserDTO.employeeId()));
-
-            ensureAuthUserHasRelationToAllOptions(authUser);
-
-            updateAuthUserDTO.options().forEach(option -> {
-                optionAPI.updateAuthUserOptionById(new AUOID(authUser.getId(), option.optionId()), option.enabled());
-            });
-
-            AuthUser saved = authUserRepository.save(authUser);
-
-            // this object return only modified properties, consider if return full build object is required
-            return AuthUserDTO.builder()
-                    .employeeId(saved.getEmployeeId())
-                    .options(updateAuthUserDTO.options())
-                    .build();
-        } catch (NoSuchElementException e) {
-            log.error("Update auth user failed, {}", e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * This method is used to related test auth users with all options, modify changelog to achieve that method can
-     * be safely removed.
-     * */
-    private void ensureAuthUserHasRelationToAllOptions(AuthUser authUser) {
-        Option smsOption = optionAPI
-                .getOptionByName(AuthUserOptions.AGREE_RECEIVE_SMS_NOTIFICATION.name())
-                .orElseThrow(() -> new NoSuchElementException("No option found for agree receive sms"));
-
-        Option emailOption = optionAPI
-                .getOptionByName(AuthUserOptions.AGREE_RECEIVE_EMAIL_NOTIFICATION.name())
-                .orElseThrow(() -> new NoSuchElementException("No option found for agree receive sms"));
-
-        Set<Option> options = new HashSet<>(Set.of(smsOption, emailOption));
-
-        authUser.setOptions(options);
-
-        entityManager.persist(authUser);
-        entityManager.flush();
-    }
-
-    @Override
-    @Transactional
     public AuthUserDTO updateAuthUserRoles(UpdateAuthUserDTO updateAuthUserDTO) {
         try {
             AuthUser authUser = getByEmployeeId(updateAuthUserDTO.employeeId())
@@ -387,6 +240,84 @@ class AuthService implements AuthAPI {
         } catch (NoSuchElementException e) {
             log.error("Update auth user failed, {}", e.getMessage());
             return null;
+        }
+    }
+
+    @Override
+    @Transactional
+    public AuthUserDTO updateAuthUserOptions(UpdateAuthUserDTO updateAuthUserDTO) {
+        try {
+            AuthUser authUser = getByEmployeeId(updateAuthUserDTO.employeeId())
+                    .orElseThrow(() -> new UsernameNotFoundException("Employee Id " + updateAuthUserDTO.employeeId()));
+
+            ensureAuthUserHasRelationToAllOptions(authUser);
+
+            updateAuthUserDTO.options().forEach(option -> {
+                optionAPI.updateAuthUserOptionById(new AUOID(authUser.getId(), option.optionId()), option.enabled());
+            });
+
+            AuthUser saved = authUserRepository.save(authUser);
+
+            // this object return only modified properties, consider if return full build object is required
+            return AuthUserDTO.builder()
+                    .employeeId(saved.getEmployeeId())
+                    .options(updateAuthUserDTO.options())
+                    .build();
+        } catch (NoSuchElementException e) {
+            log.error("Update auth user failed, {}", e.getMessage());
+            return null;
+        }
+    }
+
+    @Transactional
+    // this method has to delete AuthUser record and set false on Active column for related Employee
+    public EmployeeDTO terminateEmployeeAuthUserAccount(UUID employeeId) {
+        log.info("Delete authUser wit employee id: {}", employeeId);
+        authUserRepository.deleteByEmployeeId(employeeId);
+        log.info("Set 'active' column to 'false' for employee {}", employeeId);
+        return employeeAPI.updateEmployee(UpdateEmployeeDTO.builder()
+                .employeeId(employeeId)
+                .active(Boolean.FALSE)
+                .build());
+    }
+
+    @Transactional(readOnly = true)
+    public ValidTokenResponse validateToken(ValidTokenRequest validTokenRequest) {
+        try {
+            var authUser = authUserRepository
+                    .findByEmployeeId(jwtService.extractEmployeeId(validTokenRequest.token()))
+                    .orElseThrow(() ->
+                            new UsernameNotFoundException("Username " + validTokenRequest.token() + " not found"));
+            var userPrincipal = new UserPrincipal(authUser);
+            boolean result = jwtService.validToken(validTokenRequest.token(), userPrincipal);
+            if (result) {
+                Date expiresAt = jwtService.extractExpiresAt(validTokenRequest.token());
+                return new ValidTokenResponse(true, expiresAt);
+            } else {
+                log.error("Token validation failed");
+                return new ValidTokenResponse(false, null);
+            }
+        } catch (IllegalArgumentException e) {
+            log.error("Token validation failed with exception");
+            return new ValidTokenResponse(false, null);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public AuthResponse login(AuthRequest authRequest, HttpServletResponse response) {
+        try {
+            AuthUser authUser = getByUsername(authRequest.username())
+                    .orElseThrow(() -> new UsernameNotFoundException(authRequest.username()));
+            if (passwordEncoder.matches(authRequest.password(), authUser.getPassword())) {
+                TenantContext.setCurrentTenant(authUser.getTenant().getSchemaName());
+                return finalizeLoginAction(authUser);
+            } else {
+                log.error("Login failed");
+                throw new IllegalArgumentException("Invalid username or password");
+            }
+        } catch (IllegalArgumentException e) {
+            log.error("Login failed, {}", e.getMessage());
+            throw e;
         }
     }
 
@@ -433,5 +364,26 @@ class AuthService implements AuthAPI {
                 new AUOID(authUser.getId(), AuthUserOptions.AGREE_RECEIVE_SMS_NOTIFICATION.getId()), false);
         optionAPI.updateAuthUserOptionById(
                 new AUOID(authUser.getId(), AuthUserOptions.AGREE_RECEIVE_EMAIL_NOTIFICATION.getId()), false);
+    }
+
+    /**
+     * This method is used to related test auth users with all options, modify changelog to achieve that method can
+     * be safely removed.
+     * */
+    private void ensureAuthUserHasRelationToAllOptions(AuthUser authUser) {
+        Option smsOption = optionAPI
+                .getOptionByName(AuthUserOptions.AGREE_RECEIVE_SMS_NOTIFICATION.name())
+                .orElseThrow(() -> new NoSuchElementException("No option found for agree receive sms"));
+
+        Option emailOption = optionAPI
+                .getOptionByName(AuthUserOptions.AGREE_RECEIVE_EMAIL_NOTIFICATION.name())
+                .orElseThrow(() -> new NoSuchElementException("No option found for agree receive sms"));
+
+        Set<Option> options = new HashSet<>(Set.of(smsOption, emailOption));
+
+        authUser.setOptions(options);
+
+        entityManager.persist(authUser);
+        entityManager.flush();
     }
 }

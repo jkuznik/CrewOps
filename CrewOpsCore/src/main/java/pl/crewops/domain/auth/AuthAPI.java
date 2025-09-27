@@ -41,7 +41,7 @@ public interface AuthAPI {
 
     CreateAuthUserResult createAuthUserWithRelatedEmployee(@NotNull @Valid CreateEmployeeDTO createEmployeeDTO);
 
-    CreateAuthUserResult createAuthUserWithRelatedEmployeeForRegisterCustomer(
+    CreateAuthUserResult createAuthUserWithRelatedEmployeeForRegisterCustomerRequirements(
             @NotNull @Valid CreateEmployeeDTO createEmployeeDTO);
 
     EmployeeDTO terminateEmployeeAuthUserAccount(UUID employeeId);

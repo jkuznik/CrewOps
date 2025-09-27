@@ -162,7 +162,7 @@ class RegistrationServiceTest {
         when(mockAuthUserDTO.username()).thenReturn("user123");
         when(mockAuthUserResult.authUserDTO()).thenReturn(mockAuthUserDTO);
         when(mockAuthUserResult.plainPassword()).thenReturn("password123");
-        when(authAPI.createAuthUserWithRelatedEmployeeForRegisterCustomer(any(CreateEmployeeDTO.class)))
+        when(authAPI.createAuthUserWithRelatedEmployeeForRegisterCustomerRequirements(any(CreateEmployeeDTO.class)))
                 .thenReturn(mockAuthUserResult);
 
         // Mock transaction manager

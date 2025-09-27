@@ -17,7 +17,7 @@ import pl.crewops.model.dto.department.DepartmentDTO;
  * */
 @Builder
 public record CreateEmployeeDTO(
-        @NotNull UUID creatorEmployeeId,
+        UUID creatorEmployeeId,
         @Size(max = 50) @NotNull @NotBlank String firstName,
         @Size(max = 50) @NotNull @NotBlank String lastName,
         @NotNull LocalDate birthDate,

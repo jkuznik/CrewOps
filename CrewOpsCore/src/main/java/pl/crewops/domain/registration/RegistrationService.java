@@ -225,7 +225,7 @@ class RegistrationService {
                 companyDTO.id());
         try {
             authUserWithRelatedEmployee =
-                    authAPI.createAuthUserWithRelatedEmployeeForRegisterCustomer(updatedCreateEmployeeDto);
+                    authAPI.createAuthUserWithRelatedEmployeeForRegisterCustomerRequirements(updatedCreateEmployeeDto);
 
             transactionManager.commit(saveAuthUserWithRelatedEmployee);
 
