@@ -24,11 +24,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import pl.crewops.model.dto.auth.*;
-import pl.crewops.model.dto.auth.AuthRequest;
-import pl.crewops.model.dto.auth.AuthResponse;
 import pl.crewops.model.dto.department.DepartmentDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.option.AuthUserOptionDTO;
 import pl.crewops.security.ValidTokenRequest;
 import pl.crewops.security.ValidTokenResponse;
 import pl.crewops.security.config.TestSecuriityConfig;
@@ -48,6 +47,9 @@ class AuthControllerTest {
     @MockitoBean
     private AuthAPI authAPI;
 
+    // ----------------------
+    // LOGIN
+    // ----------------------
     @Test
     @DisplayName("POST /login should return 200 with token")
     void login_ShouldReturn200() throws Exception {
@@ -63,6 +65,9 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.token").value("mock-token"));
     }
 
+    // ----------------------
+    // VALIDATE TOKEN
+    // ----------------------
     @Test
     @DisplayName("POST /validate should return 200 with token validation result")
     void validate_ShouldReturn200() throws Exception {
@@ -81,6 +86,42 @@ class AuthControllerTest {
     }
 
     @Test
+    @DisplayName("GET /employees/{id}/options should return 200 with options")
+    @WithMockUser
+    void getEmployeeOptions_ShouldReturn200() throws Exception {
+        UUID employeeId = UUID.randomUUID();
+        UUID optionId = UUID.randomUUID();
+
+        AuthUserOptionDTO option = AuthUserOptionDTO.builder()
+                .employeeId(employeeId)
+                .optionId(optionId)
+                .name("dark_mode")
+                .enabled(true)
+                .build();
+
+        when(authAPI.getOptionsByEmployeeId(employeeId)).thenReturn(Set.of(option));
+
+        mockMvc.perform(get(EMPLOYEE_EID_OPTIONS.replace("{" + EMPLOYEE_ID + "}", employeeId.toString())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].employeeId").value(employeeId.toString()))
+                .andExpect(jsonPath("$[0].optionId").value(optionId.toString()))
+                .andExpect(jsonPath("$[0].name").value("dark_mode"))
+                .andExpect(jsonPath("$[0].enabled").value(true));
+    }
+
+    @Test
+    @DisplayName("GET /employees/{id}/options should return 401 when unauthorized")
+    void getEmployeeOptions_ShouldReturn401WhenUnauthorized() throws Exception {
+        UUID employeeId = UUID.randomUUID();
+
+        mockMvc.perform(get(EMPLOYEE_EID_OPTIONS.replace("{" + EMPLOYEE_ID + "}", employeeId.toString())))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // ----------------------
+    // CREATE EMPLOYEE
+    // ----------------------
+    @Test
     @DisplayName("POST /employees should return 201 when role is MANAGER or higher")
     @WithMockUser(roles = "MANAGER")
     void createEmployee_ShouldReturn201WithManagerRole() throws Exception {
@@ -96,7 +137,7 @@ class AuthControllerTest {
 
         CreateAuthUserResult response = CreateAuthUserResult.builder()
                 .employeeDTO(EmployeeDTO.builder().build())
-                .authUserDTO(AuthUserDTO.builder().build())
+                .authUserDTO(AuthUserDTO.builder().username("anna").build())
                 .build();
 
         when(authAPI.createAuthUserWithRelatedEmployee(any())).thenReturn(response);
@@ -104,7 +145,8 @@ class AuthControllerTest {
         mockMvc.perform(post(EMPLOYEES)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.authUserDTO.username").value("anna"));
     }
 
     @Test
@@ -146,6 +188,9 @@ class AuthControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    // ----------------------
+    // TERMINATE EMPLOYEE
+    // ----------------------
     @Test
     @DisplayName("DELETE /employees/{id} should return 204 when role is allowed")
     @WithMockUser(roles = "MANAGER")
@@ -178,6 +223,109 @@ class AuthControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    // ----------------------
+    // UPDATE USER CREDENTIALS (SELF ONLY)
+    // ----------------------
+    @Test
+    @DisplayName("PATCH /update-user-credentials should return 200 when updating own credentials")
+    @WithMockUser(username = "user1", roles = "USER")
+    void updateUserCredentials_ShouldReturn200WhenSelf() throws Exception {
+        UUID employeeId = UUID.randomUUID();
+        UpdateAuthUserDTO request = UpdateAuthUserDTO.builder()
+                .employeeId(employeeId)
+                .username("user1")
+                .password("newPass123")
+                .currentPassword("oldPass123")
+                .build();
+
+        AuthUserDTO response =
+                AuthUserDTO.builder().employeeId(employeeId).username("user1").build();
+
+        when(authAPI.updateAuthUserProfile(any(UpdateAuthUserDTO.class))).thenReturn(response);
+
+        mockMvc.perform(patch(UPDATE_USER_CREDENTIALS)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("user1"))
+                .andExpect(jsonPath("$.employeeId").value(employeeId.toString()));
+    }
+
+    @Test
+    @DisplayName("PATCH /update-user-credentials should return 401 when unauthorized")
+    void updateUserCredentials_ShouldReturn401WhenUnauthorized() throws Exception {
+        UpdateAuthUserDTO request = UpdateAuthUserDTO.builder()
+                .employeeId(UUID.randomUUID())
+                .username("user1")
+                .password("newPass123")
+                .currentPassword("oldPass123")
+                .build();
+
+        mockMvc.perform(patch(UPDATE_USER_CREDENTIALS)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // ----------------------
+    // UPDATE USER ROLES (MANAGER ONLY)
+    // ----------------------
+    @Test
+    @DisplayName("PATCH /update-user-roles should return 200 when manager")
+    @WithMockUser(roles = "MANAGER")
+    void updateRoles_ShouldReturn200() throws Exception {
+        UUID employeeId = UUID.randomUUID();
+        UpdateAuthUserDTO request = UpdateAuthUserDTO.builder()
+                .employeeId(employeeId)
+                .username("anna")
+                .roles(Set.of(RoleDTO.builder().name("ADMIN").build()))
+                .build();
+
+        AuthUserDTO response =
+                AuthUserDTO.builder().employeeId(employeeId).username("anna").build();
+
+        when(authAPI.updateAuthUserRoles(any(UpdateAuthUserDTO.class))).thenReturn(response);
+
+        mockMvc.perform(patch(UPDATE_USER_ROLES)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("anna"))
+                .andExpect(jsonPath("$.employeeId").value(employeeId.toString()));
+    }
+
+    @Test
+    @DisplayName("PATCH /update-user-roles should return 401 when unauthorized")
+    void updateRoles_ShouldReturn401WhenUnauthorized() throws Exception {
+        UpdateAuthUserDTO request = UpdateAuthUserDTO.builder()
+                .employeeId(UUID.randomUUID())
+                .username("anna")
+                .build();
+
+        mockMvc.perform(patch(UPDATE_USER_ROLES)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("PATCH /update-user-roles should return 403 when role is insufficient")
+    @WithMockUser(roles = "MECHANIC")
+    void updateRoles_ShouldReturn403WithWrongRole() throws Exception {
+        UpdateAuthUserDTO request = UpdateAuthUserDTO.builder()
+                .employeeId(UUID.randomUUID())
+                .username("anna")
+                .build();
+
+        mockMvc.perform(patch(UPDATE_USER_ROLES)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden());
+    }
+
+    // ----------------------
+    // Helpers
+    // ----------------------
     Set<DepartmentDTO> departmentsDTOs() {
         return Set.of(DepartmentDTO.builder().name("department").build());
     }

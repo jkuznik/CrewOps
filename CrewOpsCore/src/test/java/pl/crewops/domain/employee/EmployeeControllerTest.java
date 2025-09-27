@@ -24,6 +24,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import pl.crewops.domain.auth.AuthAPI;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeQualificationDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
@@ -44,6 +45,9 @@ class EmployeeControllerTest {
 
     @MockitoBean
     private EmployeeAPI employeeAPI;
+
+    @MockitoBean
+    private AuthAPI authAPI;
 
     @Test
     @DisplayName("GET /employees should return 401 when unauthenticated")

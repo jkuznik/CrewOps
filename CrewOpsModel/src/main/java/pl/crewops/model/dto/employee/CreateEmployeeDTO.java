@@ -10,8 +10,14 @@ import lombok.Builder;
 import pl.crewops.model.dto.auth.RoleDTO;
 import pl.crewops.model.dto.department.DepartmentDTO;
 
+/**
+ * Property UUID creatorEmployeeId is required for sending notifications to those managers
+ * who just add new employee. Include that information allow to avoid ask about current authentication
+ * from SpringSecurityHolder what is kind of optimisation and simplify testing.
+ * */
 @Builder
 public record CreateEmployeeDTO(
+        @NotNull UUID creatorEmployeeId,
         @Size(max = 50) @NotNull @NotBlank String firstName,
         @Size(max = 50) @NotNull @NotBlank String lastName,
         @NotNull LocalDate birthDate,
