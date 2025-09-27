@@ -13,11 +13,14 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import pl.crewops.domain.auth.AuthAPI;
+import pl.crewops.model.dto.auth.UpdateAuthUserDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeQualificationDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.security.custom.permissionAnnotation.ManagerPermission;
+import pl.crewops.security.custom.permissionAnnotation.SelfOnlyPermission;
 
 @ActiveProfiles("test")
 @RestController
@@ -26,6 +29,7 @@ import pl.crewops.security.custom.permissionAnnotation.ManagerPermission;
 class EmployeeController {
 
     private final EmployeeAPI employeeAPI;
+    private final AuthAPI authAPI;
 
     @GetMapping(EMPLOYEES)
     public ResponseEntity<List<EmployeeDTO>> getEmployees(
@@ -64,6 +68,25 @@ class EmployeeController {
         if (!updateEmployeeDTO.employeeId().equals(employeeId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Path ID and body ID must match");
         }
+
+        return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.updateEmployee(updateEmployeeDTO));
+    }
+
+    @PutMapping(EMPLOYEES_EID)
+    @SelfOnlyPermission
+    public ResponseEntity<EmployeeDTO> updateEmployeeSelfProfile(
+            @PathVariable(EMPLOYEE_ID) UUID employeeId,
+            @NotNull @Valid @RequestBody UpdateEmployeeDTO updateEmployeeDTO) {
+
+        if (!updateEmployeeDTO.employeeId().equals(employeeId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Path ID and body ID must match");
+        }
+        UpdateAuthUserDTO updateAuthUserDTO = UpdateAuthUserDTO.builder()
+                .employeeId(updateEmployeeDTO.employeeId())
+                .options(updateEmployeeDTO.options())
+                .build();
+
+        authAPI.updateAuthUserOptions(updateAuthUserDTO);
 
         return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.updateEmployee(updateEmployeeDTO));
     }

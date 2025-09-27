@@ -31,6 +31,8 @@ public interface AuthAPI {
 
     AuthUserDTO updateAuthUserProfile(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO);
 
+    AuthUserDTO updateAuthUserOptions(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO);
+
     AuthUserDTO updateAuthUserRoles(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO);
 
     Set<AuthUserOptionDTO> getOptionsByEmployeeId(@NotNull UUID employeeId);

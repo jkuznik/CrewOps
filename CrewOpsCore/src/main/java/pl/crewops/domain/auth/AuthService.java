@@ -210,7 +210,7 @@ class AuthService implements AuthAPI {
             log.info("Creating auth user " + createAuthUserDTO.username() + " with roles " + roles);
             authUser.setRoles(roles);
             authUser.setEmployeeId(employeeId);
-            defaultOptions(authUser);
+            defaultOptionsConfiguration(authUser);
             log.info("Auth user instantiated successfully as " + authUser);
             authUserRepository.save(authUser);
             return authUserDTO(authUser);
@@ -313,6 +313,53 @@ class AuthService implements AuthAPI {
 
     @Override
     @Transactional
+    public AuthUserDTO updateAuthUserOptions(UpdateAuthUserDTO updateAuthUserDTO) {
+        try {
+            AuthUser authUser = getByEmployeeId(updateAuthUserDTO.employeeId())
+                    .orElseThrow(() -> new UsernameNotFoundException("Employee Id " + updateAuthUserDTO.employeeId()));
+
+            ensureAuthUserHasRelationToAllOptions(authUser);
+
+            updateAuthUserDTO.options().forEach(option -> {
+                optionAPI.updateAuthUserOptionById(new AUOID(authUser.getId(), option.optionId()), option.enabled());
+            });
+
+            AuthUser saved = authUserRepository.save(authUser);
+
+            // this object return only modified properties, consider if return full build object is required
+            return AuthUserDTO.builder()
+                    .employeeId(saved.getEmployeeId())
+                    .options(updateAuthUserDTO.options())
+                    .build();
+        } catch (NoSuchElementException e) {
+            log.error("Update auth user failed, {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * This method is used to related test auth users with all options, modify changelog to achieve that method can
+     * be safely removed.
+     * */
+    private void ensureAuthUserHasRelationToAllOptions(AuthUser authUser) {
+        Option smsOption = optionAPI
+                .getOptionByName(AuthUserOptions.AGREE_RECEIVE_SMS_NOTIFICATION.name())
+                .orElseThrow(() -> new NoSuchElementException("No option found for agree receive sms"));
+
+        Option emailOption = optionAPI
+                .getOptionByName(AuthUserOptions.AGREE_RECEIVE_EMAIL_NOTIFICATION.name())
+                .orElseThrow(() -> new NoSuchElementException("No option found for agree receive sms"));
+
+        Set<Option> options = new HashSet<>(Set.of(smsOption, emailOption));
+
+        authUser.setOptions(options);
+
+        entityManager.persist(authUser);
+        entityManager.flush();
+    }
+
+    @Override
+    @Transactional
     public AuthUserDTO updateAuthUserRoles(UpdateAuthUserDTO updateAuthUserDTO) {
         try {
             AuthUser authUser = getByEmployeeId(updateAuthUserDTO.employeeId())
@@ -377,25 +424,14 @@ class AuthService implements AuthAPI {
                 .build();
     }
 
-    private void defaultOptions(AuthUser authUser) {
+    private void defaultOptionsConfiguration(AuthUser authUser) {
 
-        Option smsOption = optionAPI
-                .getOptionByName(AuthUserOptions.AGREE_RECEIVE_SMS_NOTIFICATION.name())
-                .orElseThrow(() -> new NoSuchElementException("No option found for agree receive sms"));
-
-        Option emailOption = optionAPI
-                .getOptionByName(AuthUserOptions.AGREE_RECEIVE_EMAIL_NOTIFICATION.name())
-                .orElseThrow(() -> new NoSuchElementException("No option found for agree receive sms"));
-
-        Set<Option> options = new HashSet<>(Set.of(smsOption, emailOption));
-
-        authUser.setOptions(options);
-
-        entityManager.persist(authUser);
-        entityManager.flush();
+        ensureAuthUserHasRelationToAllOptions(authUser);
 
         //  TODO: each new option have to be preconfigured to new employees in this part of code
-        optionAPI.updateAuthUserOptionById(new AUOID(authUser.getId(), smsOption.getId()), false);
-        optionAPI.updateAuthUserOptionById(new AUOID(authUser.getId(), emailOption.getId()), false);
+        optionAPI.updateAuthUserOptionById(
+                new AUOID(authUser.getId(), AuthUserOptions.AGREE_RECEIVE_SMS_NOTIFICATION.getId()), false);
+        optionAPI.updateAuthUserOptionById(
+                new AUOID(authUser.getId(), AuthUserOptions.AGREE_RECEIVE_EMAIL_NOTIFICATION.getId()), false);
     }
 }

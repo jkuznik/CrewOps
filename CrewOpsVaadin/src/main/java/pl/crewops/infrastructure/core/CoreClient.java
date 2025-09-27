@@ -277,6 +277,33 @@ class CoreClient {
             return null;
         }
     }
+    // todo change http methods between this above and below corecliert method to achieve patch update only parts of
+    // resource
+
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_EMPLOYEE_BY_ID, key = "#updateEmployeeDTO.employeeId"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS_WITH_EXPIRATION_TIME,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
+    public EmployeeDTO updateEmployeeSelfProfile(UpdateEmployeeDTO updateEmployeeDTO) throws NotAuthenticatedException {
+        try {
+            return authorizedClient()
+                    .put()
+                    .uri(uriBuilder -> uriBuilder.path(EMPLOYEES_EID).build(updateEmployeeDTO.employeeId()))
+                    .body(updateEmployeeDTO)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Update employee error");
+            return null;
+        }
+    }
 
     // authenticated
     @Cacheable(cacheNames = GET_EMPLOYEE_BY_ID, key = "#employeeId")

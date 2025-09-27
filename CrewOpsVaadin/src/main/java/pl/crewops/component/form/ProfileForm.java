@@ -162,6 +162,7 @@ public class ProfileForm extends FormLayout {
         lastName.setLabel(getTranslation("employeeForm.lastName"));
         phoneNumber.setLabel(getTranslation("employeeForm.phoneNumber"));
         smsConfirmation.setLabel(getTranslation("profileForm.smsConfirmation"));
+        emailConfirmation.setLabel(getTranslation("profileForm.emailConfirmation"));
         email.setLabel(getTranslation("employeeForm.email"));
 
         updateProfile.setText(getTranslation("employeeForm.update"));
@@ -180,7 +181,7 @@ public class ProfileForm extends FormLayout {
                 .build();
 
         try {
-            Optional<EmployeeDTO> employeeDTO = coreAPI.updateEmployee(updateEmployeeDTO);
+            Optional<EmployeeDTO> employeeDTO = coreAPI.updateEmployeeSelfProfile(updateEmployeeDTO);
 
             if (employeeDTO.isPresent()) {
                 if (employeeDTO.get().phoneNumber() != null) {
@@ -189,6 +190,7 @@ public class ProfileForm extends FormLayout {
                 if (employeeDTO.get().email() != null) {
                     binder.getBean().setEmail(employeeDTO.get().email());
                 }
+                profileFormModel.setOptions(coreAPI.getOptionsByEmployeeId(profileFormModel.getEmployeeId()));
                 new SuccessNotification(getTranslation("profileForm.successUpdate"));
             } else {
                 new FailNotification(getTranslation("profileForm.failedUpdate"));

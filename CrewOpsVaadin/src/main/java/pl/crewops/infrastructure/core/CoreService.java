@@ -96,6 +96,13 @@ class CoreService implements CoreAPI {
     }
 
     @Override
+    public Optional<EmployeeDTO> updateEmployeeSelfProfile(UpdateEmployeeDTO updateEmployeeDTO)
+            throws NotAuthenticatedException {
+
+        return Optional.ofNullable(coreClient.updateEmployeeSelfProfile(updateEmployeeDTO));
+    }
+
+    @Override
     public Optional<EmployeeDTO> addEmployeeQualification(UUID employeeId, UUID qualificationId)
             throws NotAuthenticatedException {
 
