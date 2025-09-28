@@ -241,7 +241,7 @@ class AuthControllerTest {
         AuthUserDTO response =
                 AuthUserDTO.builder().employeeId(employeeId).username("user1").build();
 
-        when(authAPI.updateAuthUserProfile(any(UpdateAuthUserDTO.class))).thenReturn(response);
+        when(authAPI.updateAuthUserCredentials(any(UpdateAuthUserDTO.class))).thenReturn(response);
 
         mockMvc.perform(patch(UPDATE_USER_CREDENTIALS)
                         .contentType(MediaType.APPLICATION_JSON)

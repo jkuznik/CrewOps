@@ -16,7 +16,8 @@ import com.vaadin.flow.data.validator.EmailValidator;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import pl.crewops.component.dialog.credentialsDialog.UpdateCredentialsDialog;
+import pl.crewops.component.dialog.credentialsDialog.UpdatePasswordDialog;
+import pl.crewops.component.dialog.credentialsDialog.UpdateUsernameDialog;
 import pl.crewops.component.notification.FailNotification;
 import pl.crewops.component.notification.SuccessNotification;
 import pl.crewops.enums.AuthUserOptions;
@@ -40,7 +41,8 @@ public class ProfileForm extends FormLayout {
     private final Checkbox emailConfirmation = new Checkbox();
 
     private final Button updateProfile = new Button();
-    private final Button credentialsModification = new Button();
+    private final Button updateUsername = new Button();
+    private final Button updatePassword = new Button();
 
     private final Binder<ProfileFormModel> binder = new Binder<>(ProfileFormModel.class);
 
@@ -48,16 +50,13 @@ public class ProfileForm extends FormLayout {
         addClassName("profile-form");
         this.coreAPI = coreAPI;
         this.profileFormModel = profileFormModel;
-        Set<AuthUserOptionDTO> options = new HashSet<>();
 
         try {
-            options = coreAPI.getOptionsByEmployeeId(profileFormModel.getEmployeeId());
+            profileFormModel.setOptions(coreAPI.getOptionsByEmployeeId(profileFormModel.getEmployeeId()));
         } catch (NotAuthenticatedException e) {
             new FailNotification(e.getMessage());
             UI.getCurrent().navigate(HomeView.class);
         }
-
-        profileFormModel.setOptions(options);
 
         localize();
 
@@ -102,9 +101,28 @@ public class ProfileForm extends FormLayout {
         });
 
         var updatableDataContainer = updatableDataContainer();
-        var updateCredentialsContainer = getUpdateCredentialsContainer();
+        var updateUsernameContainer = getUpdateUsernameContainer();
+        var updatePasswordContainer = getUpdatePasswordContainer();
 
-        verticalLayout.add(firstName, lastName, updatableDataContainer, updateCredentialsContainer);
+        Optional<AuthUserOptionDTO> alreadyUsernameModification = profileFormModel.getOptions().stream()
+                .filter(option -> option.name().equals(AuthUserOptions.ALREADY_ONCE_USERNAME_MODIFICATION.name()))
+                .findFirst();
+
+        // this strange condition is caused of that tested values have no relations to auth_user_option yet. That can be
+        // simplified
+        // after fix that in changelog insertions of tested values
+        // todo update changelogs /\
+        if (alreadyUsernameModification.isPresent()) {
+            if (alreadyUsernameModification.get().enabled()) {
+                verticalLayout.add(firstName, lastName, updatableDataContainer, updatePasswordContainer);
+            } else {
+                verticalLayout.add(
+                        firstName, lastName, updatableDataContainer, updateUsernameContainer, updatePasswordContainer);
+            }
+        } else {
+            verticalLayout.add(
+                    firstName, lastName, updatableDataContainer, updateUsernameContainer, updatePasswordContainer);
+        }
 
         return verticalLayout;
     }
@@ -114,12 +132,12 @@ public class ProfileForm extends FormLayout {
         container.setPadding(true);
         container.setSpacing(true);
 
-        var disclaimer = new Paragraph(getTranslation("profileForm.phoneNumberDisclaimer"));
-        disclaimer
-                .getStyle()
-                .set("font-size", "var(--lumo-font-size-s)")
-                .set("color", "var(--lumo-secondary-text-color)")
-                .set("margin", "0");
+        //        var disclaimer = new Paragraph(getTranslation("profileForm.phoneNumberDisclaimer"));
+        //        disclaimer
+        //                .getStyle()
+        //                .set("font-size", "var(--lumo-font-size-s)")
+        //                .set("color", "var(--lumo-secondary-text-color)")
+        //                .set("margin", "0");
 
         for (AuthUserOptionDTO option : profileFormModel.getOptions()) {
             switch (option.name()) {
@@ -128,33 +146,70 @@ public class ProfileForm extends FormLayout {
             }
         }
 
-        container.add(disclaimer, phoneNumber, smsConfirmation, email, emailConfirmation, updateProfile);
+        //        container.add(disclaimer, phoneNumber, smsConfirmation, email, emailConfirmation, updateProfile);
+        container.add(phoneNumber, email, emailConfirmation, updateProfile);
 
         container.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.START);
 
         return container;
     }
 
-    private VerticalLayout getUpdateCredentialsContainer() {
-        var updateCredentialsContainer = new VerticalLayout();
-        updateCredentialsContainer
+    private VerticalLayout getUpdateUsernameContainer() {
+        var container = new VerticalLayout();
+        container
                 .getStyle()
                 .set("border", "1px solid var(--lumo-contrast-20pct)")
                 .set("border-radius", "8px")
                 .set("padding", "1rem")
                 .set("margin-top", "1rem");
 
-        Span infoText = new Span(getTranslation("profileForm.infoText"));
+        var disclaimer = new Paragraph(getTranslation("profileForm.updateUsernameDisclaimer"));
+        disclaimer
+                .getStyle()
+                .set("font-size", "var(--lumo-font-size-s)")
+                .set("color", "var(--lumo-secondary-text-color)")
+                .set("margin", "0");
 
-        credentialsModification.addThemeVariants(ButtonVariant.LUMO_WARNING);
-        credentialsModification.setWidth("140px");
+        Span infoText = new Span(getTranslation("profileForm.updateUsernameInfo"));
 
-        credentialsModification.addClickListener(event -> {
-            new UpdateCredentialsDialog(profileFormModel, coreAPI).open();
+        updateUsername.addThemeVariants(ButtonVariant.LUMO_WARNING);
+        updateUsername.setWidth("140px");
+
+        updateUsername.addClickListener(event -> {
+            new UpdateUsernameDialog(profileFormModel, coreAPI).open();
         });
 
-        updateCredentialsContainer.add(infoText, credentialsModification);
-        return updateCredentialsContainer;
+        container.add(disclaimer, updateUsername, infoText);
+        return container;
+    }
+
+    private VerticalLayout getUpdatePasswordContainer() {
+        var container = new VerticalLayout();
+        container
+                .getStyle()
+                .set("border", "1px solid var(--lumo-contrast-20pct)")
+                .set("border-radius", "8px")
+                .set("padding", "1rem")
+                .set("margin-top", "1rem");
+
+        var disclaimer = new Paragraph(getTranslation("profileForm.updatePasswordDisclaimer"));
+        disclaimer
+                .getStyle()
+                .set("font-size", "var(--lumo-font-size-s)")
+                .set("color", "var(--lumo-secondary-text-color)")
+                .set("margin", "0");
+
+        Span infoText = new Span(getTranslation("profileForm.updatePasswordInfo"));
+
+        updatePassword.addThemeVariants(ButtonVariant.LUMO_WARNING);
+        updatePassword.setWidth("140px");
+
+        updatePassword.addClickListener(event -> {
+            new UpdatePasswordDialog(profileFormModel, coreAPI).open();
+        });
+
+        container.add(disclaimer, updatePassword, infoText);
+        return container;
     }
 
     private void localize() {
@@ -166,13 +221,13 @@ public class ProfileForm extends FormLayout {
         email.setLabel(getTranslation("employeeForm.email"));
 
         updateProfile.setText(getTranslation("employeeForm.update"));
-        credentialsModification.setText(getTranslation("employeeForm.update"));
+        updateUsername.setText(getTranslation("profileForm.edit"));
+        updatePassword.setText(getTranslation("profileForm.edit"));
     }
 
     private void update() {
         var selectedOptions = collectSelectedOptions();
 
-        // todo finalize update sms agreement
         var updateEmployeeDTO = UpdateEmployeeDTO.builder()
                 .employeeId(binder.getBean().getEmployeeId())
                 .phoneNumber(phoneNumber.getValue())
@@ -207,12 +262,14 @@ public class ProfileForm extends FormLayout {
         var smsAgreement = AuthUserOptionDTO.builder()
                 .employeeId(profileFormModel.getEmployeeId())
                 .optionId(AuthUserOptions.AGREE_RECEIVE_SMS_NOTIFICATION.getId())
+                .name(AuthUserOptions.AGREE_RECEIVE_SMS_NOTIFICATION.name())
                 .enabled(smsConfirmation.getValue())
                 .build();
 
         var emailAgreement = AuthUserOptionDTO.builder()
                 .employeeId(profileFormModel.getEmployeeId())
                 .optionId(AuthUserOptions.AGREE_RECEIVE_EMAIL_NOTIFICATION.getId())
+                .name(AuthUserOptions.AGREE_RECEIVE_EMAIL_NOTIFICATION.name())
                 .enabled(emailConfirmation.getValue())
                 .build();
 

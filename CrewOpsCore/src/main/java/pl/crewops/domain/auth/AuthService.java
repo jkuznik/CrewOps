@@ -176,7 +176,7 @@ class AuthService implements AuthAPI {
             log.info("Creating auth user " + createAuthUserDTO.username() + " with roles " + roles);
             authUser.setRoles(roles);
             authUser.setEmployeeId(employeeId);
-            defaultOptionsConfiguration(authUser);
+            ensureAuthUserHasRelationToAllOptions(authUser);
             log.info("Auth user instantiated successfully as " + authUser);
             authUserRepository.save(authUser);
             return authUserDTO(authUser);
@@ -188,7 +188,7 @@ class AuthService implements AuthAPI {
 
     @Override
     @Transactional
-    public AuthUserDTO updateAuthUserProfile(UpdateAuthUserDTO updateAuthUserDTO) {
+    public AuthUserDTO updateAuthUserCredentials(UpdateAuthUserDTO updateAuthUserDTO) {
         var principal = (UserPrincipal)
                 SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -202,6 +202,8 @@ class AuthService implements AuthAPI {
             AuthUser authUser = getByEmployeeId(updateAuthUserDTO.employeeId())
                     .orElseThrow(() -> new UsernameNotFoundException("Employee Id " + updateAuthUserDTO.employeeId()));
 
+            ensureAuthUserHasRelationToAllOptions(authUser);
+
             if (updateAuthUserDTO.username() != null
                     && !updateAuthUserDTO.username().isEmpty()
                     && !updateAuthUserDTO.username().equals(authUser.getUsername())) {
@@ -213,6 +215,8 @@ class AuthService implements AuthAPI {
                 });
 
                 authUser.setUsername(updateAuthUserDTO.username());
+                optionAPI.updateAuthUserOptionById(
+                        new AUOID(authUser.getId(), AuthUserOptions.ALREADY_ONCE_USERNAME_MODIFICATION.getId()), true);
             }
 
             if (updateAuthUserDTO.password() != null
@@ -377,33 +381,50 @@ class AuthService implements AuthAPI {
                 .build();
     }
 
-    private void defaultOptionsConfiguration(AuthUser authUser) {
-
-        ensureAuthUserHasRelationToAllOptions(authUser);
-
-        //  TODO: each new option have to be preconfigured to new employees in this part of code
-        optionAPI.updateAuthUserOptionById(
-                new AUOID(authUser.getId(), AuthUserOptions.AGREE_RECEIVE_SMS_NOTIFICATION.getId()), false);
-        optionAPI.updateAuthUserOptionById(
-                new AUOID(authUser.getId(), AuthUserOptions.AGREE_RECEIVE_EMAIL_NOTIFICATION.getId()), false);
-    }
-
     /**
      * This method is used to related test auth users with all options, modify changelog to achieve that method can
      * be safely removed.
      * */
-    private void ensureAuthUserHasRelationToAllOptions(AuthUser authUser) {
-        Option smsOption = optionAPI
-                .getOptionByName(AuthUserOptions.AGREE_RECEIVE_SMS_NOTIFICATION.name())
-                .orElseThrow(() -> new NoSuchElementException("No option found for agree receive sms"));
+    void ensureAuthUserHasRelationToAllOptions(AuthUser authUser) {
 
-        Option emailOption = optionAPI
-                .getOptionByName(AuthUserOptions.AGREE_RECEIVE_EMAIL_NOTIFICATION.name())
-                .orElseThrow(() -> new NoSuchElementException("No option found for agree receive sms"));
+        if (!authUser.getOptions()
+                .contains(Option.builder()
+                        .id(AuthUserOptions.AGREE_RECEIVE_SMS_NOTIFICATION.getId())
+                        .build())) {
+            authUser.getOptions()
+                    .add(optionAPI
+                            .getOptionByName(AuthUserOptions.AGREE_RECEIVE_SMS_NOTIFICATION.name())
+                            .orElse(new Option()));
 
-        Set<Option> options = new HashSet<>(Set.of(smsOption, emailOption));
+            optionAPI.updateAuthUserOptionById(
+                    new AUOID(authUser.getId(), AuthUserOptions.AGREE_RECEIVE_SMS_NOTIFICATION.getId()), false);
+        }
 
-        authUser.setOptions(options);
+        if (!authUser.getOptions()
+                .contains(Option.builder()
+                        .id(AuthUserOptions.AGREE_RECEIVE_EMAIL_NOTIFICATION.getId())
+                        .build())) {
+            authUser.getOptions()
+                    .add(optionAPI
+                            .getOptionByName(AuthUserOptions.AGREE_RECEIVE_EMAIL_NOTIFICATION.name())
+                            .orElse(new Option()));
+
+            optionAPI.updateAuthUserOptionById(
+                    new AUOID(authUser.getId(), AuthUserOptions.AGREE_RECEIVE_EMAIL_NOTIFICATION.getId()), false);
+        }
+
+        if (!authUser.getOptions()
+                .contains(Option.builder()
+                        .id(AuthUserOptions.ALREADY_ONCE_USERNAME_MODIFICATION.getId())
+                        .build())) {
+            authUser.getOptions()
+                    .add(optionAPI
+                            .getOptionByName(AuthUserOptions.ALREADY_ONCE_USERNAME_MODIFICATION.name())
+                            .orElse(new Option()));
+
+            optionAPI.updateAuthUserOptionById(
+                    new AUOID(authUser.getId(), AuthUserOptions.ALREADY_ONCE_USERNAME_MODIFICATION.getId()), false);
+        }
 
         entityManager.persist(authUser);
         entityManager.flush();

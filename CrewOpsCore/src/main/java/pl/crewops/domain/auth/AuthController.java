@@ -42,7 +42,7 @@ class AuthController {
     @PatchMapping(UPDATE_USER_CREDENTIALS)
     @SelfOnlyPermission(identifier = EMPLOYEE_ID)
     public ResponseEntity<AuthUserDTO> updateUserCredentials(@Valid @RequestBody UpdateAuthUserDTO updateAuthUserDTO) {
-        return ResponseEntity.status(HttpStatus.OK).body(authAPI.updateAuthUserProfile(updateAuthUserDTO));
+        return ResponseEntity.status(HttpStatus.OK).body(authAPI.updateAuthUserCredentials(updateAuthUserDTO));
     }
 
     @PatchMapping(UPDATE_USER_ROLES)

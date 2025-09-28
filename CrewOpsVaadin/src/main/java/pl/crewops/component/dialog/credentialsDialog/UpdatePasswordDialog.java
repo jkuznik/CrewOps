@@ -12,9 +12,9 @@ import pl.crewops.model.dto.auth.AuthUserDTO;
 import pl.crewops.model.dto.auth.UpdateAuthUserDTO;
 import pl.crewops.view.HomeView;
 
-public class UpdateCredentialsDialog extends Dialog {
+public class UpdatePasswordDialog extends Dialog {
 
-    public UpdateCredentialsDialog(ProfileFormModel profileFormModel, CoreAPI coreAPI) {
+    public UpdatePasswordDialog(ProfileFormModel profileFormModel, CoreAPI coreAPI) {
         addClassName("profileDialog");
 
         setModal(true);
@@ -23,13 +23,12 @@ public class UpdateCredentialsDialog extends Dialog {
         setCloseOnEsc(true);
         setCloseOnOutsideClick(false);
 
-        var updateCredentialsForm = new UpdateCredentialsForm(profileFormModel);
+        var updateCredentialsForm = new UpdatePasswordForm(profileFormModel);
 
         updateCredentialsForm.addUpdateListener(event -> {
-            UpdateCredentialsForm.UpdateCredentialsData updateCredentialsData = event.getUpdateCredentialsData();
+            UpdateCredentialsData updateCredentialsData = event.getUpdateCredentialsData();
             var updateAuthUserDTO = UpdateAuthUserDTO.builder()
                     .employeeId(profileFormModel.getEmployeeId())
-                    .username(updateCredentialsData.getUsername())
                     .password(updateCredentialsData.getPassword())
                     .currentPassword(updateCredentialsData.getCurrentPassword())
                     .build();
@@ -37,6 +36,7 @@ public class UpdateCredentialsDialog extends Dialog {
                 Optional<AuthUserDTO> authUserDTO = coreAPI.updateAuthUserCredentials(updateAuthUserDTO);
                 if (authUserDTO.isPresent()) {
                     new SuccessNotification(getTranslation("updateCredentialsDialog.successNotification"));
+                    close();
                 } else {
                     new FailNotification(getTranslation("updateCredentialsDialog.failNotification"));
                 }

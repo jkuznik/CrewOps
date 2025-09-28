@@ -116,6 +116,8 @@ class AuthServiceTest {
     @Test
     void createAuthUser_shouldReturnAuthUser_whenParamsAreValid() {
         // given
+        AuthService spyService = spy(authService);
+
         var tenant = new Tenant();
         tenant.setId(UUID.randomUUID());
         var createAuthUserDTO = CreateAuthUserDTO.builder()
@@ -139,13 +141,14 @@ class AuthServiceTest {
         when(passwordEncoder.encode("password")).thenReturn("password");
         when(roleRepository.findById(any())).thenReturn(Optional.of(role));
         when(authUserRepository.save(any())).thenReturn(authUser);
+        doNothing().when(spyService).ensureAuthUserHasRelationToAllOptions(any(AuthUser.class));
 
-        AuthUserDTO result = authService.createAuthUser(createAuthUserDTO, randomUUID, UUID.randomUUID());
+        AuthUserDTO result = spyService.createAuthUser(createAuthUserDTO, randomUUID, UUID.randomUUID());
 
         // then
         assertThat(result).isNotNull();
         assertThat(result.password()).isEqualTo("password");
-        //        assertThat(result.roles()).isEqualTo(Set.of(role));
+        // assertThat(result.roles()).isEqualTo(Set.of(role));
     }
 
     @Test
