@@ -16,11 +16,10 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.shared.Registration;
 import java.util.UUID;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import pl.crewops.model.BreakdownFormModel;
 import pl.crewops.model.dto.employee.EmployeeDTO;
-import pl.crewops.security.custom.UserPrincipal;
+import pl.crewops.util.AuthenticationResolver;
+import pl.crewops.util.SpringContextBridge;
 
 public class BreakdownForm extends FormLayout {
 
@@ -140,9 +139,8 @@ public class BreakdownForm extends FormLayout {
     }
 
     private UUID getLoggedEmployeeId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return userPrincipal.getEmployeeId();
+        var authenticationResolver = SpringContextBridge.getBean(AuthenticationResolver.class);
+        return authenticationResolver.getPrincipal().getEmployeeId();
     }
 
     private void validateAndUpdate() {

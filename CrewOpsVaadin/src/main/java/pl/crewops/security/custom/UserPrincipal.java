@@ -12,6 +12,7 @@ import pl.crewops.model.auth.RoleGrantedAuthority;
 public class UserPrincipal implements CustomUserPrincipal {
 
     private final UUID companyId;
+    private final String username;
     private final Set<RoleGrantedAuthority> grantedAuthorities;
 
     @Getter
@@ -24,7 +25,7 @@ public class UserPrincipal implements CustomUserPrincipal {
 
     @Override
     public String getUsername() {
-        return null;
+        return username;
     }
 
     @Override

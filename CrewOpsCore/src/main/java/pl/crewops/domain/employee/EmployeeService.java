@@ -124,7 +124,19 @@ class EmployeeService implements EmployeeAPI {
                 .orElseThrow(() -> new EmployeeNotFoundException(updateEmployeeDTO.employeeId()));
 
         if (updateEmployeeDTO.phoneNumber() != null) {
-            employee.setPhoneNumber(updateEmployeeDTO.phoneNumber());
+            if (updateEmployeeDTO.phoneNumber().isEmpty()) {
+                employee.setPhoneNumber(null);
+            } else {
+                employee.setPhoneNumber(updateEmployeeDTO.phoneNumber());
+            }
+        }
+
+        if (updateEmployeeDTO.email() != null) {
+            if (updateEmployeeDTO.email().isEmpty()) {
+                employee.setEmail(null);
+            } else {
+                employee.setEmail(updateEmployeeDTO.email());
+            }
         }
 
         if (updateEmployeeDTO.departments() != null) {

@@ -33,6 +33,7 @@ import pl.crewops.model.dto.machine.UpdateMachineDTO;
 import pl.crewops.model.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.dto.message.MessageDTO;
 import pl.crewops.model.dto.message.SendMessageCommand;
+import pl.crewops.model.dto.option.AuthUserOptionDTO;
 import pl.crewops.model.dto.qualification.CreateQualificationDTO;
 import pl.crewops.model.dto.qualification.QualificationDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationDTO;
@@ -108,6 +109,27 @@ class CoreClient {
         }
     }
 
+    // TODO: keep attention, don't implement fast
+    // authenticated BUT only own data
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_EMPLOYEE_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_COMPANY_BY_ID, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
+    public AuthUserDTO updateAuthUserCredentials(UpdateAuthUserDTO updateAuthUserDTO) throws NotAuthenticatedException {
+        try {
+            return authorizedClient()
+                    .patch()
+                    .uri(uriBuilder -> uriBuilder.path(UPDATE_USER_CREDENTIALS).build())
+                    .body(updateAuthUserDTO)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Update auth user failed");
+            return null;
+        }
+    }
+
     // manager permission
     @Caching(
             evict = {
@@ -118,13 +140,26 @@ class CoreClient {
         try {
             return authorizedClient()
                     .patch()
-                    .uri(uriBuilder -> uriBuilder.path(UPDATE_ROLES).build())
+                    .uri(uriBuilder -> uriBuilder.path(UPDATE_USER_ROLES).build())
                     .body(updateAuthUserDTO)
                     .retrieve()
                     .body(new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
             log.error("Update auth user failed");
             return null;
+        }
+    }
+
+    public Set<AuthUserOptionDTO> getOptionsByEmployeeId(UUID employeeId) throws NotAuthenticatedException {
+        try {
+            return authorizedClient()
+                    .get()
+                    .uri(uriBuilder -> uriBuilder.path(EMPLOYEE_EID_OPTIONS).build(employeeId))
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Get options by employee failed");
+            return Set.of();
         }
     }
 
@@ -214,10 +249,13 @@ class CoreClient {
     }
 
     // TODO: consider about implement security on fe side
+    // TODO: for sure separate posibility to update own data and update employee data by manager - create other method
+    //  to achieve that - do that as first issue after current
     // manager permission
-    // authenticated
+    // authenticated BUT logged user can update only his own data !!!!!!!!!!!!!!!!!!!!!!!!!!
     @Caching(
             evict = {
+                @CacheEvict(value = GET_EMPLOYEE_BY_ID, key = "#updateEmployeeDTO.employeeId"),
                 @CacheEvict(
                         value = GET_ALL_QUALIFICATIONS,
                         key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
@@ -230,6 +268,33 @@ class CoreClient {
         try {
             return authorizedClient()
                     .patch()
+                    .uri(uriBuilder -> uriBuilder.path(EMPLOYEES_EID).build(updateEmployeeDTO.employeeId()))
+                    .body(updateEmployeeDTO)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Update employee error");
+            return null;
+        }
+    }
+    // todo change http methods between this above and below corecliert method to achieve patch update only parts of
+    // resource
+
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_EMPLOYEE_BY_ID, key = "#updateEmployeeDTO.employeeId"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS_WITH_EXPIRATION_TIME,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
+    public EmployeeDTO updateEmployeeSelfProfile(UpdateEmployeeDTO updateEmployeeDTO) throws NotAuthenticatedException {
+        try {
+            return authorizedClient()
+                    .put()
                     .uri(uriBuilder -> uriBuilder.path(EMPLOYEES_EID).build(updateEmployeeDTO.employeeId()))
                     .body(updateEmployeeDTO)
                     .retrieve()

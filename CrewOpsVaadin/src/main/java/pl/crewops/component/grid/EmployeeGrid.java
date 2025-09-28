@@ -75,7 +75,6 @@ public class EmployeeGrid extends VerticalLayout {
         grid.getColumnByKey("firstName").setHeader(getTranslation("employeeGrid.column.firstName"));
         grid.getColumnByKey("lastName").setHeader(getTranslation("employeeGrid.column.lastName"));
         grid.getColumnByKey("roles").setHeader(getTranslation("employeeGrid.column.roles"));
-        grid.getColumnByKey("phoneNumber").setHeader(getTranslation("employeeGrid.column.phoneNumber"));
         grid.getColumnByKey("departments").setHeader(getTranslation("employeeGrid.column.department"));
     }
 
@@ -145,7 +144,6 @@ public class EmployeeGrid extends VerticalLayout {
                         .collect(Collectors.joining(", ")))
                 .setHeader(getTranslation("roles"))
                 .setKey("roles");
-        grid.addColumn(EmployeeFormModel::getPhoneNumber).setKey("phoneNumber");
 
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 
@@ -235,16 +233,20 @@ public class EmployeeGrid extends VerticalLayout {
     private void saveEmployee(EmployeeForm.SaveEvent event) {
         try {
             var principal = authenticationResolver.getPrincipal();
-            UUID companyId = principal.getCompanyId();
+            var createEmployeeDTO = EmployeeFormModel.toCreateEmployeeDTO(
+                    event.getEmployee(),
+                    authenticationResolver.getPrincipal(),
+                    getTranslation("employeeGrid.addNewEmployeeMessageSubject"),
+                    getTranslation("employeeGrid.addNewEmployeeMessageBody"));
 
-            Optional<CreateAuthUserResult> createAuthUserResult =
-                    coreAPI.createEmployee(EmployeeFormModel.toCreateEmployeeDTO(event.getEmployee(), companyId));
+            Optional<CreateAuthUserResult> createAuthUserResult = coreAPI.createEmployee(createEmployeeDTO);
             updateGrid();
             closeEditor();
-            createAuthUserResult.ifPresent(
-                    value -> new SuccessNotification(getTranslation("addEmployeeNotification.successAddEmployee")
-                            + value.employeeDTO().firstName() + " "
-                            + value.employeeDTO().lastName()));
+            createAuthUserResult.ifPresent(value -> {
+                new SuccessNotification(getTranslation("addEmployeeNotification.successAddEmployee")
+                        + value.employeeDTO().firstName() + " "
+                        + value.employeeDTO().lastName());
+            });
         } catch (NotAuthenticatedException e) {
             UI.getCurrent().navigate(HomeView.class);
         }

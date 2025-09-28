@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-insert-option-initial-values
+      author: jkuznik
+      changes:
+        - insert:
+            tableName: option
+            columns:
+              - column: { name: id, value: "f8bd1c2a-9e8f-4bca-9c56-37604be09e12" }
+              - column: { name: name, value: "AGREE_RECEIVE_SMS_NOTIFICATION" }
+
+        - insert:
+            tableName: option
+            columns:
+              - column: { name: id, value: "f8bd1c2a-4bca-9e8f-9c56-37604be09e12" }
+              - column: { name: name, value: "AGREE_RECEIVE_EMAIL_NOTIFICATION" }
+
+        - insert:
+            tableName: option
+            columns:
+              - column: { name: id, value: "f8bd1c2a-9c56-4bca-9e8f-37604be09e12" }
+              - column: { name: name, value: "ALREADY_ONCE_USERNAME_MODIFICATION" }

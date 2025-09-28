@@ -7,6 +7,8 @@ import static org.mockito.Mockito.*;
 import static pl.crewops.model.auth.RoleType.EMPLOYEE;
 import static pl.crewops.model.auth.RoleType.SYSTEM_ADMIN;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.*;
@@ -18,6 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.domain.employee.EmployeeAPI;
+import pl.crewops.domain.message.MessageAPI;
+import pl.crewops.domain.option.OptionAPI;
 import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.exception.domain.auth.UsernameAlreadyExistException;
 import pl.crewops.model.Employee;
@@ -42,12 +46,22 @@ import pl.crewops.util.credentialsGenerator.CredentialGenerator;
             RoleRepository.class,
             PasswordEncoder.class,
             EmployeeAPI.class,
-            TenantAPI.class
+            TenantAPI.class,
+            OptionAPI.class,
+            MessageAPI.class,
+            EntityManagerFactory.class,
+            EntityManager.class
         })
 class AuthServiceTest {
 
     @Autowired
     private AuthService authService;
+
+    @MockitoBean
+    private EntityManagerFactory entityManagerFactory;
+
+    @MockitoBean
+    private EntityManager entityManager;
 
     @MockitoBean
     private JwtServiceCore jwtService;
@@ -73,6 +87,12 @@ class AuthServiceTest {
     @MockitoBean
     private EmployeeAPI employeeAPI;
 
+    @MockitoBean
+    private OptionAPI optionAPI;
+
+    @MockitoBean
+    private MessageAPI messageAPI;
+
     @Test
     void getByUsername_shouldReturnAuthUser_whenUserExists() {
         // given
@@ -96,6 +116,8 @@ class AuthServiceTest {
     @Test
     void createAuthUser_shouldReturnAuthUser_whenParamsAreValid() {
         // given
+        AuthService spyService = spy(authService);
+
         var tenant = new Tenant();
         tenant.setId(UUID.randomUUID());
         var createAuthUserDTO = CreateAuthUserDTO.builder()
@@ -119,13 +141,14 @@ class AuthServiceTest {
         when(passwordEncoder.encode("password")).thenReturn("password");
         when(roleRepository.findById(any())).thenReturn(Optional.of(role));
         when(authUserRepository.save(any())).thenReturn(authUser);
+        doNothing().when(spyService).ensureAuthUserHasRelationToAllOptions(any(AuthUser.class));
 
-        AuthUserDTO result = authService.createAuthUser(createAuthUserDTO, randomUUID, UUID.randomUUID());
+        AuthUserDTO result = spyService.createAuthUser(createAuthUserDTO, randomUUID, UUID.randomUUID());
 
         // then
         assertThat(result).isNotNull();
         assertThat(result.password()).isEqualTo("password");
-        //        assertThat(result.roles()).isEqualTo(Set.of(role));
+        // assertThat(result.roles()).isEqualTo(Set.of(role));
     }
 
     @Test

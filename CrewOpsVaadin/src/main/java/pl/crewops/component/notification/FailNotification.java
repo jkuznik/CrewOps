@@ -7,7 +7,7 @@ public class FailNotification extends Notification {
 
     public FailNotification(String exceptionMessage) {
         addThemeVariants(NotificationVariant.LUMO_ERROR);
-        setPosition(Notification.Position.TOP_END);
+        setPosition(Position.TOP_CENTER);
         setDuration(5000);
 
         setText(exceptionMessage);

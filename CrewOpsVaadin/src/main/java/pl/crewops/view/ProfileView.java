@@ -37,6 +37,8 @@ public class ProfileView extends MainLayout implements BeforeEnterObserver {
     private void buildContent() {
         addClassName("profile-view");
 
+        mainContent.removeAll();
+
         var principal = authenticationResolver.getPrincipal();
         EmployeeDTO employeeDTO = null;
         try {
@@ -50,12 +52,10 @@ public class ProfileView extends MainLayout implements BeforeEnterObserver {
 
         var profileFormModel = ProfileFormModel.create(principal, employeeDTO);
 
-        final ProfileForm profileForm = new ProfileForm(profileFormModel);
+        final ProfileForm profileForm = new ProfileForm(profileFormModel, coreAPI);
 
         FlexLayout container = new FlexLayout(profileForm);
         container.setSizeFull();
-        container.setJustifyContentMode(FlexLayout.JustifyContentMode.CENTER); // center horizontally
-        container.setAlignItems(FlexLayout.Alignment.CENTER);
 
         mainContent.add(container);
     }

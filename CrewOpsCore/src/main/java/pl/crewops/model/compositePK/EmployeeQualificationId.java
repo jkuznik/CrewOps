@@ -3,6 +3,7 @@ package pl.crewops.model.compositePK;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
@@ -16,12 +17,8 @@ import org.hibernate.Hibernate;
 @NoArgsConstructor
 @Embeddable
 public class EmployeeQualificationId implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1758502992767958280L;
-
-    public EmployeeQualificationId(UUID employeeId, UUID qualificationId) {
-        this.employeeId = employeeId;
-        this.qualificationId = qualificationId;
-    }
 
     @NotNull
     @Column(name = "employee_id", nullable = false)
@@ -30,6 +27,11 @@ public class EmployeeQualificationId implements Serializable {
     @NotNull
     @Column(name = "qualification_id", nullable = false)
     private UUID qualificationId;
+
+    public EmployeeQualificationId(UUID employeeId, UUID qualificationId) {
+        this.employeeId = employeeId;
+        this.qualificationId = qualificationId;
+    }
 
     @Override
     public boolean equals(Object o) {

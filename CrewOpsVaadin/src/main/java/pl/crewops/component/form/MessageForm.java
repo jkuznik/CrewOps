@@ -37,7 +37,7 @@ public class MessageForm extends FormLayout {
     private final Span currentModeDescription = new Span();
     private final RecipientSelectionField recipientSelectionField = new RecipientSelectionField();
     private final TextField sender = new TextField();
-    private final TextField title = new TextField();
+    private final TextField subject = new TextField();
     private final TextArea description = new TextArea();
     private final Button sendButton = new Button();
     private final Button closeButton = new Button();
@@ -53,7 +53,7 @@ public class MessageForm extends FormLayout {
 
         description.setHeight("10em");
 
-        add(currentModeDescription, recipientSelectionField, sender, title, description, createButtonLayout());
+        add(currentModeDescription, recipientSelectionField, sender, subject, description, createButtonLayout());
     }
 
     public void setSendMessageMode() {
@@ -62,7 +62,7 @@ public class MessageForm extends FormLayout {
         recipientSelectionField.displayOptionsByPermissions();
         recipientSelectionField.setVisible(true);
 
-        title.setEnabled(true);
+        subject.setEnabled(true);
         description.setEnabled(true);
 
         sendButton.setVisible(true);
@@ -73,7 +73,7 @@ public class MessageForm extends FormLayout {
         sender.setVisible(true);
         recipientSelectionField.setVisible(false);
 
-        title.setEnabled(false);
+        subject.setEnabled(false);
         description.setEnabled(false);
 
         sendButton.setVisible(false);
@@ -83,8 +83,12 @@ public class MessageForm extends FormLayout {
         if (model != null) {
             binder.setBean(model);
             sender.setValue(senderName);
-            title.setValue(model.getSubject());
-            description.setValue(model.getDescription());
+            if (model.getSubject() != null) {
+                subject.setValue(model.getSubject());
+            }
+            if (model.getDescription() != null) {
+                description.setValue(model.getDescription());
+            }
         }
     }
 
@@ -104,10 +108,18 @@ public class MessageForm extends FormLayout {
         binder.forField(recipientSelectionField)
                 .asRequired(getTranslation("messageForm.recipientRequired"))
                 .bind(MessageFormModel::getRecipientSelection, MessageFormModel::setRecipientSelection);
+
+        binder.forField(description)
+                .asRequired(getTranslation("messageForm.descriptionRequired"))
+                .withValidator(
+                        description ->
+                                description != null && !description.trim().isEmpty(),
+                        getTranslation("messageForm.descriptionInvalid"))
+                .bind(MessageFormModel::getDescription, MessageFormModel::setDescription);
     }
 
     private void localize() {
-        title.setLabel(getTranslation("messageForm.title"));
+        subject.setLabel(getTranslation("messageForm.title"));
         description.setLabel(getTranslation("messageForm.description"));
 
         sendButton.setText(getTranslation("messageForm.sendButton"));
@@ -121,10 +133,13 @@ public class MessageForm extends FormLayout {
         sendButton.addClickShortcut(Key.ENTER);
         closeButton.addClickShortcut(Key.ESCAPE);
 
-        sendButton.addClickListener(event -> fireEvent(new SendEvent(this, binder.getBean())));
+        sendButton.addClickListener(event -> {
+            if (binder.validate().isOk()) {
+                fireEvent(new SendEvent(this, binder.getBean()));
+            }
+        });
         closeButton.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
-        binder.addStatusChangeListener(event -> sendButton.setEnabled(binder.isValid()));
         return new HorizontalLayout(sendButton, closeButton);
     }
 
@@ -245,6 +260,16 @@ public class MessageForm extends FormLayout {
             } catch (NotAuthenticatedException e) {
                 new FailNotification(e.getMessage());
             }
+        }
+
+        @Override
+        public void setErrorMessage(String errorMessage) {
+            super.setErrorMessage(errorMessage);
+        }
+
+        @Override
+        public void setInvalid(boolean invalid) {
+            super.setInvalid(invalid);
         }
 
         @Override

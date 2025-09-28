@@ -31,6 +31,12 @@
     - include:
         file: db/changelog/create/publicSchema/005-create-table-registration-with-dedicated-enum.yaml
     - include:
+        file: db/changelog/create/publicSchema/006-create-table-option.yaml
+    - include:
+        file: db/changelog/create/publicSchema/007-create-join-table-auth-user-option.yaml
+    - include:
         file: db/changelog/insert/001-insert-role-initial-values.yaml
     - include:
         file: db/changelog/insert/002-insert-admin-account-values.yaml
+    - include:
+        file: db/changelog/insert/003-insert-option-initial-values.yaml

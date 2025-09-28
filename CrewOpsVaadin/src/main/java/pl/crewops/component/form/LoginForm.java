@@ -97,7 +97,7 @@ public class LoginForm extends FormLayout {
             UUID employeeId = jwtService.extractEmployeeId(token);
             var authorities = jwtService.extractAuthorities(token);
 
-            var userPrincipal = new UserPrincipal(companyId, authorities);
+            var userPrincipal = new UserPrincipal(companyId, username.getValue(), authorities);
             userPrincipal.setToken(token);
             userPrincipal.setEmployeeId(employeeId);
 

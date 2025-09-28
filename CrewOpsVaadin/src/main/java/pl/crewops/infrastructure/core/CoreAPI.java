@@ -26,6 +26,7 @@ import pl.crewops.model.dto.machine.UpdateMachineDTO;
 import pl.crewops.model.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.dto.message.MessageDTO;
 import pl.crewops.model.dto.message.SendMessageCommand;
+import pl.crewops.model.dto.option.AuthUserOptionDTO;
 import pl.crewops.model.dto.qualification.CreateQualificationDTO;
 import pl.crewops.model.dto.qualification.QualificationDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationDTO;
@@ -45,8 +46,13 @@ public interface CoreAPI {
 
     Optional<CreateCustomerResult> verifyEmail(@Valid @NotNull VerifyEmailRequest request);
 
+    Optional<AuthUserDTO> updateAuthUserCredentials(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO)
+            throws NotAuthenticatedException;
+
     Optional<AuthUserDTO> updateAuthUserRoles(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO)
             throws NotAuthenticatedException;
+
+    Set<AuthUserOptionDTO> getOptionsByEmployeeId(@NotNull UUID employeeId) throws NotAuthenticatedException;
 
     Optional<ValidTokenResponse> validateToken(@Valid @NotNull ValidTokenRequest validTokenRequest);
 
@@ -54,6 +60,9 @@ public interface CoreAPI {
             throws NotAuthenticatedException;
 
     Optional<EmployeeDTO> updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) throws NotAuthenticatedException;
+
+    Optional<EmployeeDTO> updateEmployeeSelfProfile(UpdateEmployeeDTO updateEmployeeDTO)
+            throws NotAuthenticatedException;
 
     Optional<EmployeeDTO> addEmployeeQualification(@NotNull UUID employeeId, @NotNull UUID qualificationId)
             throws NotAuthenticatedException;
