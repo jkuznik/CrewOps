@@ -56,8 +56,6 @@ public class ProfileView extends MainLayout implements BeforeEnterObserver {
 
         FlexLayout container = new FlexLayout(profileForm);
         container.setSizeFull();
-        container.setJustifyContentMode(FlexLayout.JustifyContentMode.CENTER); // center horizontally
-        container.setAlignItems(FlexLayout.Alignment.CENTER);
 
         mainContent.add(container);
     }
