@@ -22,6 +22,7 @@ import pl.crewops.domain.company.CompanyAPI;
 import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.enums.CompanyStatus;
 import pl.crewops.enums.RegistrationStatus;
+import pl.crewops.exception.domain.registration.NotFoundPendingRegistrationException;
 import pl.crewops.infrastructure.emailSender.EmailSenderAPI;
 import pl.crewops.model.dto.auth.CreateAuthUserResult;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
@@ -198,7 +199,7 @@ class RegistrationServiceTest {
         VerifyEmailRequest request = new VerifyEmailRequest(randomId, String.valueOf(12345), "subject", "body");
 
         assertThatThrownBy(() -> registrationService.finalizeRegisterCustomer(request))
-                .isInstanceOf(java.util.NoSuchElementException.class);
+                .isInstanceOf(NotFoundPendingRegistrationException.class);
     }
 
     @Test
