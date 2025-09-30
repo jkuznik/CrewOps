@@ -10,14 +10,11 @@ import java.util.stream.Collectors;
 import javax.management.relation.RoleNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.message.MessageAPI;
 import pl.crewops.domain.option.OptionAPI;
@@ -189,15 +186,6 @@ class AuthService implements AuthAPI {
     @Override
     @Transactional
     public AuthUserDTO updateAuthUserCredentials(UpdateAuthUserDTO updateAuthUserDTO) {
-        var principal = (UserPrincipal)
-                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        if (!passwordEncoder.matches(updateAuthUserDTO.currentPassword(), principal.getPassword())) {
-            log.warn("Not allow update user credentials by user: " + principal.getEmployeeId()
-                    + " - REASON: not valid password");
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
-        }
-
         try {
             AuthUser authUser = getByEmployeeId(updateAuthUserDTO.employeeId())
                     .orElseThrow(() -> new UsernameNotFoundException("Employee Id " + updateAuthUserDTO.employeeId()));
@@ -271,8 +259,13 @@ class AuthService implements AuthAPI {
 
     @Override
     @Transactional
-    public AuthUserDTO updateAuthUserOptions(UpdateAuthUserDTO updateAuthUserDTO) {
+    public EmployeeDTO updateAuthUserOptions(UpdateEmployeeDTO updateEmployeeDTO) {
         try {
+            UpdateAuthUserDTO updateAuthUserDTO = UpdateAuthUserDTO.builder()
+                    .employeeId(updateEmployeeDTO.employeeId())
+                    .options(updateEmployeeDTO.options())
+                    .build();
+
             AuthUser authUser = getByEmployeeId(updateAuthUserDTO.employeeId())
                     .orElseThrow(() -> new UsernameNotFoundException("Employee Id " + updateAuthUserDTO.employeeId()));
 
@@ -282,13 +275,9 @@ class AuthService implements AuthAPI {
                 optionAPI.updateAuthUserOptionById(new AUOID(authUser.getId(), option.optionId()), option.enabled());
             });
 
-            AuthUser saved = authUserRepository.save(authUser);
+            authUserRepository.save(authUser);
 
-            // this object return only modified properties, consider if return full build object is required
-            return AuthUserDTO.builder()
-                    .employeeId(saved.getEmployeeId())
-                    .options(updateAuthUserDTO.options())
-                    .build();
+            return employeeAPI.updateEmployee(updateEmployeeDTO);
         } catch (NoSuchElementException e) {
             log.error("Update auth user failed, {}", e.getMessage());
             return null;

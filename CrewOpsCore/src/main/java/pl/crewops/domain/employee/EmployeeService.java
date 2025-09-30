@@ -226,7 +226,6 @@ class EmployeeService implements EmployeeAPI {
 
     @Transactional
     // TODO: consider to refactor code and introduce object like AddMachineCommand, AddQualificationCommand, Remove..
-    // todo update: consider to use update employee for this request
     public EmployeeDTO addMachine(UUID employeeId, UUID machineId) {
         Employee employee =
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId));

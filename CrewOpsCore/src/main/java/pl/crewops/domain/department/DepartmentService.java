@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.crewops.exception.domain.department.DepartmentNotFoundException;
 import pl.crewops.model.Department;
 import pl.crewops.model.dto.department.DepartmentDTO;
 
@@ -17,8 +18,7 @@ class DepartmentService implements DepartmentAPI {
 
     @Override
     public Department getDepartment(UUID id) {
-        // todo custom exception
-        return departmentRepository.findById(id).orElseThrow(NoSuchElementException::new);
+        return departmentRepository.findById(id).orElseThrow(() -> new DepartmentNotFoundException(id));
     }
 
     @Override

@@ -2,7 +2,6 @@ package pl.crewops.component.grid;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.Icon;
@@ -20,6 +19,7 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import pl.crewops.component.form.BreakdownForm;
 import pl.crewops.component.form.MachineForm;
+import pl.crewops.component.notification.NotAuthenticatedNotification;
 import pl.crewops.component.notification.SuccessNotification;
 import pl.crewops.component.notification.guardian.DeleteMachineGuardian;
 import pl.crewops.exceptions.NotAuthenticatedException;
@@ -31,7 +31,6 @@ import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.machine.MachineDTO;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.BrowserResolver;
-import pl.crewops.view.HomeView;
 
 @Slf4j
 public class MachineGrid extends VerticalLayout {
@@ -122,7 +121,8 @@ public class MachineGrid extends VerticalLayout {
         grid.removeAllColumns();
 
         grid.addColumn(MachineFormModel::getMachineType).setKey("machineType");
-        grid.addColumn(MachineFormModel::getRegisterNumber).setKey("registrationNumber");
+
+        grid.addColumn(MachineFormModel::getRegisterNumber).setSortable(true).setKey("registrationNumber");
 
         grid.addColumn(new ComponentRenderer<>(machine -> {
                     if (machine.getBroken()) {
@@ -135,7 +135,6 @@ public class MachineGrid extends VerticalLayout {
                         return check;
                     }
                 }))
-                .setHeader("Broken")
                 .setKey("broken");
 
         grid.addColumn(MachineFormModel::getMake).setKey("make");
@@ -182,7 +181,7 @@ public class MachineGrid extends VerticalLayout {
                         .toList());
             }
         } catch (NotAuthenticatedException e) {
-            UI.getCurrent().navigate(HomeView.class);
+            new NotAuthenticatedNotification(e.getMessage());
         }
     }
 
@@ -230,7 +229,7 @@ public class MachineGrid extends VerticalLayout {
             machineDTO.ifPresent(value -> new SuccessNotification(
                     getTranslation("addMachineNotification.messagePrefix") + value.registerNumber()));
         } catch (NotAuthenticatedException e) {
-            UI.getCurrent().navigate(HomeView.class);
+            new NotAuthenticatedNotification(e.getMessage());
         }
     }
 
@@ -243,7 +242,7 @@ public class MachineGrid extends VerticalLayout {
             machineDTO.ifPresent(value -> new SuccessNotification(
                     getTranslation("updateMachineNotification.messagePrefix") + value.registerNumber()));
         } catch (NotAuthenticatedException e) {
-            UI.getCurrent().navigate(HomeView.class);
+            new NotAuthenticatedNotification(e.getMessage());
         }
     }
 
@@ -258,7 +257,7 @@ public class MachineGrid extends VerticalLayout {
                     value -> new SuccessNotification(getTranslation("addBreakdownNotification.successAddBreakdown")
                             + " " + value.machine().registerNumber()));
         } catch (NotAuthenticatedException e) {
-            UI.getCurrent().navigate(HomeView.class);
+            new NotAuthenticatedNotification(e.getMessage());
         }
     }
 
@@ -270,7 +269,7 @@ public class MachineGrid extends VerticalLayout {
                 machineForm.populateMachineTypes(coreAPI);
                 closeEditor();
             } catch (NotAuthenticatedException e) {
-                UI.getCurrent().navigate(HomeView.class);
+                new NotAuthenticatedNotification(e.getMessage());
             }
         });
     }
@@ -292,7 +291,7 @@ public class MachineGrid extends VerticalLayout {
                     .id(UUID.fromString("11111111-1111-1111-1111-111111111111"))
                     .build());
         } catch (NotAuthenticatedException e) {
-            UI.getCurrent().navigate(HomeView.class);
+            new NotAuthenticatedNotification(e.getMessage());
         }
 
         breakdownForm.setBreakdown(breakdownFormModel);

@@ -6,8 +6,10 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import java.util.NoSuchElementException;
+import java.util.Optional;
 import pl.crewops.component.form.ProfileForm;
+import pl.crewops.component.notification.FailNotification;
+import pl.crewops.component.notification.NotAuthenticatedNotification;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.ProfileFormModel;
@@ -40,23 +42,26 @@ public class ProfileView extends MainLayout implements BeforeEnterObserver {
         mainContent.removeAll();
 
         var principal = authenticationResolver.getPrincipal();
-        EmployeeDTO employeeDTO = null;
+        Optional<EmployeeDTO> employeeDTO;
         try {
-            employeeDTO = coreAPI.getEmployeeById(principal.getEmployeeId())
-                    // todo custom exception
-                    .orElseThrow(NoSuchElementException::new);
+            employeeDTO = coreAPI.getEmployeeById(principal.getEmployeeId());
+            employeeDTO.ifPresent(employee -> {
+                var profileFormModel = ProfileFormModel.create(principal, employee);
+
+                final ProfileForm profileForm = new ProfileForm(profileFormModel, coreAPI);
+
+                FlexLayout container = new FlexLayout(profileForm);
+                container.setSizeFull();
+
+                mainContent.add(container);
+            });
+
+            if (employeeDTO.isEmpty()) {
+                new FailNotification(getTranslation("profileForm.failedUpdate"));
+            }
 
         } catch (NotAuthenticatedException e) {
-            // todo implement logic
+            new NotAuthenticatedNotification(e.getMessage());
         }
-
-        var profileFormModel = ProfileFormModel.create(principal, employeeDTO);
-
-        final ProfileForm profileForm = new ProfileForm(profileFormModel, coreAPI);
-
-        FlexLayout container = new FlexLayout(profileForm);
-        container.setSizeFull();
-
-        mainContent.add(container);
     }
 }

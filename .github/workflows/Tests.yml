@@ -14,11 +14,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 23
+      - name: Set up JDK 23 (Amazon Corretto)
         uses: actions/setup-java@v4
         with:
           java-version: '23'
-          distribution: 'temurin'
+          distribution: 'corretto'
 
       # Cache Gradle files for faster builds
       - name: Cache Gradle

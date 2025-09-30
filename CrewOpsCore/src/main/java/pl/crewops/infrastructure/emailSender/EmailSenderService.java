@@ -16,7 +16,6 @@ class EmailSenderService implements EmailSenderAPI {
     @Autowired(required = false)
     private final JavaMailSender javaMailSender;
 
-    // todo consider of async there
     @Override
     public void sendEmail(SendEmailRequest sendEmailRequest) {
         try {

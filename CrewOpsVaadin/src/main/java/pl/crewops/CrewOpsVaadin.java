@@ -15,7 +15,5 @@ public class CrewOpsVaadin implements AppShellConfigurator {
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(CrewOpsVaadin.class, args);
         SpringContextBridge.setApplicationContext(context);
-
-        // TODO: find why getCompanyById is calling twice on each UI navigation action
     }
 }

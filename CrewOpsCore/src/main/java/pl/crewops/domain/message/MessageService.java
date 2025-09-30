@@ -4,7 +4,6 @@ import static pl.crewops.domain.message.MessageMapper.mapToDTO;
 import static pl.crewops.domain.message.MessageMapper.mapToEntity;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +14,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.domain.employee.EmployeeAPI;
+import pl.crewops.exception.domain.message.MessageNotFoundException;
 import pl.crewops.model.Message;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.message.CreateMessageDTO;
@@ -128,8 +128,8 @@ class MessageService implements MessageAPI {
     @Override
     @Transactional
     public MessageDTO setMessageReadStatus(UUID messageId, boolean read) {
-        // TODO: custom exception
-        Message message = messageRepository.findById(messageId).orElseThrow(() -> new NoSuchElementException());
+        Message message =
+                messageRepository.findById(messageId).orElseThrow(() -> new MessageNotFoundException(messageId));
         message.setRead(read);
         return mapToDTO(messageRepository.save(message));
     }

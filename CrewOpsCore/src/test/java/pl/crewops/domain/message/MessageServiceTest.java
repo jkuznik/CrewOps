@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import static pl.crewops.domain.message.MessageTestFactory.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.domain.employee.EmployeeAPI;
+import pl.crewops.exception.domain.message.MessageNotFoundException;
 import pl.crewops.model.Message;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.message.CreateMessageDTO;
@@ -115,7 +115,7 @@ class MessageServiceTest {
         when(messageRepository.findById(any())).thenReturn(java.util.Optional.empty());
 
         assertThatThrownBy(() -> messageService.setMessageReadStatus(UUID.randomUUID(), true))
-                .isInstanceOf(NoSuchElementException.class);
+                .isInstanceOf(MessageNotFoundException.class);
     }
 
     @Test
