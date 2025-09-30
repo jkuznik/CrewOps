@@ -12,6 +12,7 @@ import pl.crewops.model.dto.auth.AuthRequest;
 import pl.crewops.model.dto.auth.AuthResponse;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.model.dto.option.AuthUserOptionDTO;
 import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.security.ValidTokenRequest;
@@ -31,7 +32,7 @@ public interface AuthAPI {
 
     AuthUserDTO updateAuthUserCredentials(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO);
 
-    AuthUserDTO updateAuthUserOptions(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO);
+    EmployeeDTO updateAuthUserOptions(@Valid @NotNull UpdateEmployeeDTO updateEmployeeDTO);
 
     AuthUserDTO updateAuthUserRoles(@Valid @NotNull UpdateAuthUserDTO updateAuthUserDTO);
 

@@ -20,7 +20,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 import java.util.ArrayList;
 import lombok.Getter;
-import pl.crewops.component.notification.FailNotification;
+import pl.crewops.component.notification.NotAuthenticatedNotification;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.DepartmentFormModel;
@@ -233,7 +233,6 @@ public class MessageForm extends FormLayout {
                     updateValue();
                 });
 
-                // todo: prepare method that allow to fetch all machines without pagination
                 recipientMachineOperators.setItems(coreAPI.getAllMachines());
                 recipientMachineOperators.setItemLabelGenerator(MachineDTO::registerNumber);
 
@@ -258,7 +257,7 @@ public class MessageForm extends FormLayout {
                     updateValue();
                 });
             } catch (NotAuthenticatedException e) {
-                new FailNotification(e.getMessage());
+                new NotAuthenticatedNotification(e.getMessage());
             }
         }
 

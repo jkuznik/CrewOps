@@ -45,8 +45,6 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         qualificationGrid.setVisible(false);
 
         mainContent.removeAll();
-        // TODO: temporary remove footer from this view, there is te way to add it again
-        //        mainContent.add(getToolbar(), employeeGrid, qualificationGrid, mainFooter);
         mainContent.add(getToolbar(), employeeGrid, qualificationGrid);
         mainContent.setFlexGrow(1, employeeGrid);
         mainContent.setFlexGrow(1, qualificationGrid);

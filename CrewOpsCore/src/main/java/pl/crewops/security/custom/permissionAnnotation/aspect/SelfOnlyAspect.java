@@ -1,4 +1,4 @@
-package pl.crewops.security.custom.permissionAnnotation;
+package pl.crewops.security.custom.permissionAnnotation.aspect;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.security.custom.UserPrincipal;
+import pl.crewops.security.custom.permissionAnnotation.SelfOnlyPermission;
 
 @Slf4j
 @Aspect

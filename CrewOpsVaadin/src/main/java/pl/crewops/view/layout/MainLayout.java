@@ -39,8 +39,7 @@ public class MainLayout extends AppLayout {
         mainContent.setSpacing(true);
         mainContent.setPadding(true);
         mainContent.setVisible(true);
-        // TODO: consider if token validation for view display component rules could be in this one place
-        //  and left validation for each operation to BE responsibility
+
         setContent(mainContent);
 
         addToNavbar(navbar);

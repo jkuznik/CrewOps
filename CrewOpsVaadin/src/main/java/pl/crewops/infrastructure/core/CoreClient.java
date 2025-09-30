@@ -109,7 +109,6 @@ class CoreClient {
         }
     }
 
-    // TODO: keep attention, don't implement fast
     // authenticated BUT only own data
     @Caching(
             evict = {
@@ -248,9 +247,6 @@ class CoreClient {
         }
     }
 
-    // TODO: consider about implement security on fe side
-    // TODO: for sure separate posibility to update own data and update employee data by manager - create other method
-    //  to achieve that - do that as first issue after current
     // manager permission
     // authenticated BUT logged user can update only his own data !!!!!!!!!!!!!!!!!!!!!!!!!!
     @Caching(
@@ -277,8 +273,6 @@ class CoreClient {
             return null;
         }
     }
-    // todo change http methods between this above and below corecliert method to achieve patch update only parts of
-    // resource
 
     @Caching(
             evict = {

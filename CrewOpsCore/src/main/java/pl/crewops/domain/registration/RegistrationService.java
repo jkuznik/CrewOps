@@ -6,7 +6,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +25,7 @@ import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.enums.CompanyStatus;
 import pl.crewops.enums.RegistrationStatus;
 import pl.crewops.exception.domain.company.NoUniqueCompanyTaxIdException;
+import pl.crewops.exception.domain.registration.NotFoundPendingRegistrationException;
 import pl.crewops.exception.domain.registration.RegisterCustomerException;
 import pl.crewops.exception.multitenancy.CreateSchemaException;
 import pl.crewops.infrastructure.emailSender.EmailSenderAPI;
@@ -136,8 +136,7 @@ class RegistrationService {
     CreateCustomerResult finalizeRegisterCustomer(@Valid @NotNull VerifyEmailRequest request) {
         Registration registration = registrationRepository
                 .findById(request.registrationId())
-                // todo custom exception
-                .orElseThrow(NoSuchElementException::new);
+                .orElseThrow(() -> new NotFoundPendingRegistrationException(request.registrationId()));
 
         DefaultTransactionDefinition def = new DefaultTransactionDefinition();
         def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
@@ -164,8 +163,7 @@ class RegistrationService {
 
         try {
             var notPersistedTenant =
-                    // todo: modify this logic to create new customer with trial status
-                    Tenant.builder().status(CompanyStatus.ACTIVE).build();
+                    Tenant.builder().status(CompanyStatus.TRIAL).build();
             notPersistedTenant.setSchemaName(schemaName);
             notPersistedTenant.setCompanyId(UUID.randomUUID());
             notPersistedTenant.setTaxId(registration.getTaxId());

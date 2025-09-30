@@ -21,6 +21,7 @@ import pl.crewops.security.ValidTokenRequest;
 import pl.crewops.security.ValidTokenResponse;
 import pl.crewops.security.custom.permissionAnnotation.ManagerPermission;
 import pl.crewops.security.custom.permissionAnnotation.SelfOnlyPermission;
+import pl.crewops.util.validators.ValidatePassword;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,6 +42,7 @@ class AuthController {
 
     @PatchMapping(UPDATE_USER_CREDENTIALS)
     @SelfOnlyPermission(identifier = EMPLOYEE_ID)
+    @ValidatePassword(passwordHolder = "currentPassword")
     public ResponseEntity<AuthUserDTO> updateUserCredentials(@Valid @RequestBody UpdateAuthUserDTO updateAuthUserDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(authAPI.updateAuthUserCredentials(updateAuthUserDTO));
     }

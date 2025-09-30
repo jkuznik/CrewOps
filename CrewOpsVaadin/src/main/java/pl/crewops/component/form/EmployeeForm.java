@@ -211,11 +211,8 @@ public class EmployeeForm extends FormLayout {
         }
     }
 
-    // TODO: those duration time metrics show me that i have to refactor vaadin components handling strategy
-    //  and consider reusability instead of build new one each time
     public void setBinderValue(EmployeeFormModel employeeFormModel) {
         binder.setBean(employeeFormModel);
-        long t7 = System.nanoTime();
 
         if (employeeFormModel != null) {
             departments.setValues(employeeFormModel);

@@ -14,7 +14,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.crewops.domain.auth.AuthAPI;
-import pl.crewops.model.dto.auth.UpdateAuthUserDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeQualificationDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
@@ -81,14 +80,8 @@ class EmployeeController {
         if (!updateEmployeeDTO.employeeId().equals(employeeId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Path ID and body ID must match");
         }
-        UpdateAuthUserDTO updateAuthUserDTO = UpdateAuthUserDTO.builder()
-                .employeeId(updateEmployeeDTO.employeeId())
-                .options(updateEmployeeDTO.options())
-                .build();
 
-        authAPI.updateAuthUserOptions(updateAuthUserDTO);
-
-        return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.updateEmployee(updateEmployeeDTO));
+        return ResponseEntity.status(HttpStatus.OK).body(authAPI.updateAuthUserOptions(updateEmployeeDTO));
     }
 
     @PatchMapping(EMPLOYEES_EID_PHONE)
