@@ -3,14 +3,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const translations = {
         en: {
             "pageTitle": "CrewOps - Efficient Management of Field Teams and Machinery",
-            "pageTitleProject": "Project Details - CrewOps",
+            "pageTitleProject": "Application Details - CrewOps",
             "pageTitleTech": "Technology Stack - CrewOps",
             "pageTitleAbout": "About Me - CrewOps",
             "nav": {
                 "home": "Home",
-                "project": "Project Details",
+                "project": "Application Details",
                 "tech": "Tech Stack",
-                "about": "About Me"
+                "about": "About Me",
+                "privacy": "Privacy Policy"
             },
             "hero": {
                 "title": "Streamline Field Operations with CrewOps",
@@ -216,6 +217,172 @@ document.addEventListener('DOMContentLoaded', function() {
                 "sendEmail": "Send Email",
                 "linkedin": "LinkedIn"
             },
+            "privacy": {
+                "pageTitle": "Privacy Policy — CrewOps",
+                "logo": "CrewOps",
+                "tagline": "Efficient Management of Field Teams and Machinery",
+                "hero": {
+                    "title": "Privacy Policy",
+                    "desc": "Document outlining the principles of personal data processing in the CrewOps Service."
+                },
+                "meta": {
+                    "effectiveDateLabel": "Effective Date:",
+                    "effectiveDate": "October 1, 2025"
+                },
+                "toc": {
+                    "definitions": "Definitions",
+                    "section1": "1. Personal Data Controller",
+                    "section2": "2. Scope of Collected Data",
+                    "section2a": "2.a Technical Data and Cookies",
+                    "section3": "3. Purposes of Data Processing",
+                    "section4": "4. Legal Basis",
+                    "section5": "5. Data Retention Period",
+                    "section6": "6. Rights of Users and Clients",
+                    "section6a": "6.a Deletion of Client Account",
+                    "section7": "7. Contact",
+                    "section8": "8. Policy Update",
+                    "section9": "9. Document Preparation Information"
+                },
+                "definitions": {
+                    "title": "Definitions",
+                    "intro": "For the purposes of this Privacy Policy, the following meanings of terms are adopted:",
+                    "service": "<strong>Service</strong> – a web application provided by Janusz Kuźnik at https://crewops.devsmith.eu, enabling the provision of SaaS services.",
+                    "admin": "<strong>Service Administrator</strong> – Janusz Kuźnik, operating as a sole proprietor; under the GDPR, serves as:",
+                    "admin.dataController": "<strong>personal data controller for Clients</strong> (e.g., contact details of persons registering a company account),",
+                    "admin.processor": "<strong>data processor</strong> for personal data of Users that have been entrusted by the Client.",
+                    "client": "<strong>Client</strong> – an entity (individual, company or other organizational unit) using the Service. The Client acts as <strong>personal data controller for its Users</strong>.",
+                    "user": "<strong>User</strong> – a natural person whose personal data has been entered into the Service by the Client (e.g., Client's employee, collaborator or contractor)."
+                },
+                "section1": {
+                    "title": "1. Personal Data Controller",
+                    "adminIntro": "The personal data controller of Clients using the Service is the Service Administrator - <strong>Janusz Kuźnik</strong>.",
+                    "contact": "Contact with the Service Administrator is possible via e-mail: <strong>janusz.kuznik@devsmith.eu</strong>",
+                    "privacyNote": "The Service Administrator does not disclose his residential address or other contact details in this document due to privacy protection. This data may be provided to the Client or relevant authorities only upon their justified request, in accordance with applicable law.",
+                    "processorNote": "Personal data of Users in the Service are processed by the Service Administrator only on behalf of the Client, who is the personal data controller of its employees, collaborators and contractors. The Service Administrator in this capacity acts as <strong>data processor</strong> based on a personal data processing agreement. The Client may process User data <strong>only to the extent and in the manner made available by the Service</strong>; any other actions are prohibited."
+                },
+                "section2": {
+                    "title": "2. Scope of Collected Data",
+                    "clientAccount": {
+                        "title": "Data regarding the Client's (company) account:",
+                        "companyName": "company name,",
+                        "nip": "tax identification number,",
+                        "address": "company headquarters address,",
+                        "email": "e-mail address indicated for contact and registration.",
+                        "note": "The above data concerns business entities and as a rule does not constitute personal data under the GDPR, except when the e-mail address allows identification of a natural person."
+                    },
+                    "userAccounts": {
+                        "title": "Data regarding User accounts:",
+                        "name": "first and last name,",
+                        "employeeId": "employee identifier (e.g., employee number) assigned by the Client or automatically generated,",
+                        "optional": "optionally: e-mail address and phone number (usually business), if assigning this data enables the use of additional Service functionalities, such as notifications.",
+                        "processorNote": "The Administrator indicates that he is not the direct controller of Users' personal data, but processes them solely based on a <strong>personal data processing agreement</strong> concluded with the Client, who acts as the data controller of its employees, collaborators and contractors.",
+                        "purpose": "User data is processed to the extent necessary to provide services offered by the Service and to ensure the functionality of assigned User accounts, including enabling the use of assigned functions and notifications."
+                    }
+                },
+                "section2a": {
+                    "title": "2.a Technical Data and Cookies",
+                    "intro": "When using the Service, technical data regarding the User's device may be processed, including, among others, internet browser type, operating system, language settings and other data automatically transmitted as part of standard network communication with the Service.",
+                    "cookies": "The Service may use <strong>cookies necessary for the proper functioning of the system and ensuring User session security</strong>. The Administrator does not use tracking mechanisms or process data for profiling or delivering personalized content.",
+                    "ip": "In case of future implementation of login functionality, the Service may also process <strong>User's IP address</strong> to ensure security, monitor abuse and diagnose technical problems.",
+                    "purposeIntro": "Technical data and cookie information are processed only to the extent necessary for:",
+                    "purpose": {
+                        "1": "ensuring proper functioning of the Service,",
+                        "2": "maintaining system security,",
+                        "3": "diagnosing and resolving technical problems."
+                    }
+                },
+                "section3": {
+                    "title": "3. Purposes of Personal Data Processing",
+                    "intro": "Users' personal data are processed in the Service only to the extent and for purposes necessary to provide services offered by the Service, in particular:",
+                    "serviceManagement": {
+                        "title": "Service Implementation",
+                        "clientUsers": "enabling the Client (company) to manage its own users,",
+                        "userFeatures": "enabling Users to use functionalities assigned to their accounts, including notifications and access to Service content."
+                    },
+                    "accountManagement": {
+                        "title": "Account Management and Authorization",
+                        "integrity": "maintaining correctness and integrity of Client and User accounts,",
+                        "security": "in case of login implementation: ensuring access security and authorization."
+                    },
+                    "security": {
+                        "title": "Security and Technical Diagnostics",
+                        "systemSafety": "ensuring Service and user session security,",
+                        "diagnostics": "monitoring system operation correctness, diagnosing and resolving technical problems,",
+                        "misuse": "potential monitoring of abuses within the system (including IP addresses in the future)."
+                    },
+                    "clientSupport": {
+                        "title": "Communication with Client and Technical Support",
+                        "contact": "enabling contact with the Client regarding administrative, technical or service implementation matters, including via the e-mail address provided when registering a company account,",
+                        "support": "providing technical assistance and support in using the Service based on Client or User data."
+                    }
+                },
+                "section4": {
+                    "title": "4. Legal Basis for Personal Data Processing",
+                    "intro": "Processing of Users' personal data in the Service is carried out under the GDPR, in particular:",
+                    "art6b": {
+                        "title": "Art. 6(1)(b) GDPR – necessity for contract performance",
+                        "desc": "User data is processed to the extent necessary to provide the Service to the Client (company) and to implement functionalities assigned to user accounts."
+                    },
+                    "art6f": {
+                        "title": "Art. 6(1)(f) GDPR – legitimate interest of the controller or processor",
+                        "desc": "Technical data, including information about devices, sessions and potential IP addresses, are processed to ensure Service security, monitor system operation correctness, diagnose technical problems and prevent abuse. The legitimate interest also includes the possibility of providing technical assistance to Users."
+                    },
+                    "art6c": {
+                        "title": "Art. 6(1)(c) GDPR – legal obligation",
+                        "desc": "To the extent that the Service is required to fulfill legal obligations (e.g., storing data necessary for Client's tax or accounting purposes), processing is carried out to fulfill these obligations."
+                    }
+                },
+                "section5": {
+                    "title": "5. Data Retention Period",
+                    "clientData": "Client data (company) is stored for the entire duration of service provision by the Service. In case of termination of service use by the Client, Client data and Users directly assigned to that Client are additionally stored for a period of up to <strong>6 months</strong> to enable potential reuse of the Service and preserve activity history. After this period, Client and User data are <strong>permanently and irreversibly deleted or anonymized</strong>, and their recovery is not possible.",
+                    "userData": "User data is stored <strong>as long as the Client uses the Service</strong>. This means that in case of termination of cooperation between the User and the Client (e.g., termination of employment, end of contractual cooperation), the User may lose access to the system, but <strong>history of their activity in the Service remains preserved for the Client's needs</strong>, in accordance with their business requirements.",
+                    "technicalLogs": "Technical data and system logs are stored only to the extent necessary to ensure Service security and diagnose and resolve technical problems, for a period not longer than necessary to achieve these purposes."
+                },
+                "section6": {
+                    "title": "6. Rights of Users and Clients",
+                    "intro": "Users have the right to:",
+                    "access": "<strong>Data access</strong> – the right to request from the controller (Client) information about processed personal data concerning the User, including purpose, scope and retention period.",
+                    "correction": "<strong>Data correction</strong> – the right to request from the controller (Client) correction or completion of incorrect or incomplete personal data.",
+                    "deletion": {
+                        "title": "<strong>Data deletion ('right to be forgotten')</strong> – the right to request from the controller (Client) deletion of personal data, provided there are no other justified grounds for their retention.",
+                        "note": "Depending on the Client's business needs, the deletion operation may be implemented in one of two variants:",
+                        "permanent": "<strong>Irreversible deletion of the User account along with their entire activity history</strong> in the Service.",
+                        "anonymization": "<strong>Anonymization of the User account</strong>, as a result of which personal data are no longer associated with a specific person, allowing to preserve activity history in the system, in accordance with the Client's requirements.",
+                        "processorNote": "The Service Administrator implements the above operations solely based on the Client's request, who is the personal data controller of Users."
+                    },
+                    "limitation": "<strong>Limitation of processing</strong> – the right to request from the controller (Client) restriction of processing in cases provided for by GDPR provisions.",
+                    "objection": "<strong>Objection to data processing</strong> – the right to object to the processing of personal data in cases provided for by GDPR provisions.",
+                    "complaint": "<strong>Complaint to the supervisory authority</strong> – the right to lodge a complaint with the President of the Personal Data Protection Office if it is considered that the processing of personal data violates the provisions of the GDPR."
+                },
+                "section6a": {
+                    "title": "6.a Deletion of Client (company) Account",
+                    "clientRequest": "The Client has the right to request deletion of their account in the Service.",
+                    "irreversible": "Deletion of the Client account is <strong>irreversible</strong> and results in immediate deletion of:",
+                    "userAccounts": "accounts of all Users assigned to that Client (employees, collaborators, contractors),",
+                    "history": "entire history of data related to the Client account and its Users."
+                },
+                "section7": {
+                    "title": "7. Contact regarding Personal Data Protection",
+                    "intro": "All questions, applications or requests regarding personal data processing in connection with the use of the Service may be directed to the Service Administrator via electronic mail:",
+                    "email": "crewops@devsmith.eu",
+                    "responseTime": "The Service Administrator considers requests immediately, taking into account the deadlines provided for in Art. 12 GDPR."
+                },
+                "section8": {
+                    "title": "8. Privacy Policy Update",
+                    "updateRight": "The Service Administrator reserves the right to <strong>update this Privacy Policy</strong> at any time, in particular in case of changes in Service functionality, legal requirements or data processing practices.",
+                    "notification": "The System Administrator <strong>declares that it will inform Service Clients about planned changes to the Privacy Policy</strong> with appropriate advance notice to enable them to familiarize themselves with the new provisions.",
+                    "effective": "Policy updates become effective upon their publication in the Service at the same URL address. Regular review of the Policy content is recommended for current information on personal data processing methods."
+                },
+                "section9": {
+                    "title": "9. Document Preparation Information",
+                    "intro": "The Privacy Policy document was prepared by the <strong>Service Administrator</strong> to transparently present the principles of personal data processing in the Service.",
+                    "effectiveDate": "Effective date: <strong>October 1, 2025</strong>."
+                },
+                "footer": {
+                    "copyright": "© 2025 CrewOps. All rights reserved.",
+                    "author": "Design and implementation: Janusz Kuźnik"
+                }
+            },
             "footer": {
                 "copyright": "© 2025 CrewOps. All rights reserved.",
                 "designedBy": "Designed and built by Janusz Kuźnik"
@@ -223,14 +390,15 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         pl: {
             "pageTitle": "CrewOps - Efektywne Zarządzanie Zespołami Terenowymi i Maszynami",
-            "pageTitleProject": "Szczegóły Projektu - CrewOps",
+            "pageTitleProject": "Aplikacja w szczegółach - CrewOps",
             "pageTitleTech": "Stos Technologiczny - CrewOps",
             "pageTitleAbout": "O Mnie - CrewOps",
             "nav": {
                 "home": "Strona Główna",
-                "project": "Szczegóły Projektu",
+                "project": "Aplikacja w szczegółach",
                 "tech": "Stos Technologiczny",
-                "about": "O Mnie"
+                "about": "O Mnie",
+                "privacy": "Polityka Prywatności"
             },
             "hero": {
                 "title": "Usprawnij Zarządzanie Zespołem z CrewOps",
@@ -436,6 +604,172 @@ document.addEventListener('DOMContentLoaded', function() {
                 "sendEmail": "Wyślij Email",
                 "linkedin": "LinkedIn"
             },
+            "privacy": {
+                "pageTitle": "Polityka Prywatności — CrewOps",
+                "logo": "CrewOps",
+                "tagline": "Efektywne Zarządzanie Zespołami Terenowymi i Maszynami",
+                "hero": {
+                    "title": "Polityka Prywatności",
+                    "desc": "Dokument przedstawia zasady przetwarzania danych osobowych w Serwisie CrewOps."
+                },
+                "meta": {
+                    "effectiveDateLabel": "Data wprowadzenia w życie:",
+                    "effectiveDate": "1 października 2025 roku"
+                },
+                "toc": {
+                    "definitions": "Definicje",
+                    "section1": "1. Administrator danych osobowych",
+                    "section2": "2. Zakres zbieranych danych",
+                    "section2a": "2.a Dane techniczne i pliki cookies",
+                    "section3": "3. Cele przetwarzania danych",
+                    "section4": "4. Podstawa prawna",
+                    "section5": "5. Okres przechowywania danych",
+                    "section6": "6. Prawa użytkowników i Klientów",
+                    "section6a": "6.a Usunięcie konta Klienta",
+                    "section7": "7. Kontakt",
+                    "section8": "8. Aktualizacja Polityki",
+                    "section9": "9. Informacje o sporządzeniu dokumentu"
+                },
+                "definitions": {
+                    "title": "Definicje",
+                    "intro": "Na potrzeby niniejszej Polityki Prywatności przyjmuje się następujące znaczenia pojęć:",
+                    "service": "<strong>Serwis</strong> – aplikacja internetowa udostępniana przez Janusza Kuźnika pod adresem https://crewops.devsmith.eu, umożliwiająca świadczenie usług SaaS.",
+                    "admin": "<strong>Administrator Serwisu</strong> – Janusz Kuźnik, prowadzący działalność jako osoba fizyczna; w rozumieniu RODO pełni rolę:",
+                    "admin.dataController": "<strong>administratora danych osobowych Klientów</strong> (np. dane kontaktowe osób rejestrujących konto firmowe),",
+                    "admin.processor": "<strong>podmiotu przetwarzającego</strong> wobec danych osobowych Użytkowników, które zostały powierzone przez Klienta.",
+                    "client": "<strong>Klient</strong> – podmiot (osoba fizyczna, firma lub inna jednostka organizacyjna) korzystający z usług Serwisu. Klient pełni rolę <strong>administratora danych osobowych swoich Użytkowników</strong>.",
+                    "user": "<strong>Użytkownik</strong> – osoba fizyczna, której dane osobowe zostały wprowadzone do Serwisu przez Klienta (np. pracownik Klienta, współpracownik lub kontrahent)."
+                },
+                "section1": {
+                    "title": "1. Administrator danych osobowych",
+                    "adminIntro": "Administratorem danych osobowych Klientów korzystających z Serwisu jest Administrator Serwisu - <strong>Janusz Kuźnik</strong>.",
+                    "contact": "Kontakt z Administratorem Serwisu jest możliwy za pośrednictwem adresu e-mail: <strong>janusz.kuznik@devsmith.eu</strong>",
+                    "privacyNote": "Administrator Serwisu nie udostępnia swojego adresu zamieszkania ani innych danych kontaktowych w treści niniejszego dokumentu z uwagi na ochronę prywatności. Dane te mogą zostać przekazane Klientowi lub właściwym organom wyłącznie na ich uzasadnione żądanie, zgodnie z obowiązującymi przepisami prawa.",
+                    "processorNote": "Dane osobowe Użytkowników w Serwisie są przetwarzane przez Administratora Serwisu wyłącznie na zlecenie Klienta, który jest administratorem danych osobowych swoich pracowników, współpracowników i kontrahentów. Administrator Serwisu pełni w tym zakresie rolę <strong>podmiotu przetwarzającego (procesora)</strong> na podstawie umowy powierzenia przetwarzania danych osobowych. Klient może przetwarzać dane Użytkowników <strong>wyłącznie w zakresie i w sposób udostępniony przez Serwis</strong>; wszelkie inne działania są niedozwolone."
+                },
+                "section2": {
+                    "title": "2. Zakres zbieranych danych",
+                    "clientAccount": {
+                        "title": "Dane dotyczące konta Klienta (firmowego):",
+                        "companyName": "nazwa firmy,",
+                        "nip": "numer identyfikacji podatkowej (NIP),",
+                        "address": "adres siedziby firmy,",
+                        "email": "adres poczty elektronicznej wskazany do kontaktu i rejestracji.",
+                        "note": "Powyższe dane dotyczą podmiotów gospodarczych i nie stanowią co do zasady danych osobowych w rozumieniu RODO, z wyjątkiem przypadków, gdy adres poczty elektronicznej umożliwia identyfikację osoby fizycznej."
+                    },
+                    "userAccounts": {
+                        "title": "Dane dotyczące kont Użytkowników:",
+                        "name": "imię i nazwisko,",
+                        "employeeId": "identyfikator pracowniczy (np. numer pracownika) nadany przez Klienta lub wygenerowany automatycznie,",
+                        "optional": "opcjonalnie: adres poczty elektronicznej oraz numer telefonu (zazwyczaj służbowy), jeżeli przypisanie tych danych umożliwia korzystanie z dodatkowych funkcjonalności Serwisu, takich jak powiadomienia.",
+                        "processorNote": "Administrator wskazuje, że nie jest bezpośrednim administratorem danych osobowych Użytkowników, lecz przetwarza je wyłącznie na podstawie <strong>umowy powierzenia przetwarzania danych osobowych</strong> zawartej z Klientem, który pełni rolę administratora danych swoich pracowników, współpracowników i kontrahentów.",
+                        "purpose": "Dane Użytkowników przetwarzane są w zakresie niezbędnym do świadczenia usług oferowanych przez Serwis oraz w celu zapewnienia funkcjonalności przypisanych kont Użytkowników, w tym umożliwienia korzystania z przypisanych funkcji i powiadomień."
+                    }
+                },
+                "section2a": {
+                    "title": "2.a Dane techniczne i pliki cookies",
+                    "intro": "Podczas korzystania z Serwisu mogą być przetwarzane dane techniczne dotyczące urządzenia Użytkownika, w tym m.in. typ przeglądarki internetowej, system operacyjny, ustawienia językowe oraz inne dane przekazywane automatycznie w ramach standardowej komunikacji sieciowej z Serwisem.",
+                    "cookies": "Serwis może wykorzystywać <strong>pliki cookies niezbędne do prawidłowego działania systemu i zapewnienia bezpieczeństwa sesji Użytkownika</strong>. Administrator nie stosuje mechanizmów śledzących ani nie przetwarza danych w celach profilowania czy dostarczania spersonalizowanych treści.",
+                    "ip": "W przypadku przyszłej implementacji funkcjonalności logowania, Serwis może przetwarzać również <strong>adres IP Użytkownika</strong> w celu zapewnienia bezpieczeństwa, monitorowania nadużyć i diagnozowania problemów technicznych.",
+                    "purposeIntro": "Dane techniczne i informacje z cookies są przetwarzane wyłącznie w zakresie niezbędnym do:",
+                    "purpose": {
+                        "1": "zapewnienia prawidłowego działania Serwisu,",
+                        "2": "utrzymania bezpieczeństwa systemu,",
+                        "3": "diagnozowania i rozwiązywania problemów technicznych."
+                    }
+                },
+                "section3": {
+                    "title": "3. Cele przetwarzania danych osobowych",
+                    "intro": "Dane osobowe Użytkowników przetwarzane są w Serwisie wyłącznie w zakresie i w celach niezbędnych do świadczenia usług oferowanych przez Serwis, w szczególności:",
+                    "serviceManagement": {
+                        "title": "Realizacja usług Serwisu",
+                        "clientUsers": "umożliwienie Klientowi (firmie) zarządzania własnymi użytkownikami,",
+                        "userFeatures": "umożliwienie Użytkownikom korzystania z funkcjonalności przypisanych do ich kont, w tym powiadomień i dostępu do treści Serwisu."
+                    },
+                    "accountManagement": {
+                        "title": "Zarządzanie kontami i autoryzacja",
+                        "integrity": "utrzymanie poprawności i integralności kont Klienta i jego Użytkowników,",
+                        "security": "w przypadku wdrożenia logowania: zapewnienie bezpieczeństwa dostępu i autoryzacji."
+                    },
+                    "security": {
+                        "title": "Bezpieczeństwo i diagnostyka techniczna",
+                        "systemSafety": "zapewnienie bezpieczeństwa Serwisu i sesji użytkowników,",
+                        "diagnostics": "monitorowanie poprawności działania systemu, diagnozowanie i rozwiązywanie problemów technicznych,",
+                        "misuse": "ewentualne monitorowanie nadużyć w ramach systemu (w tym adresy IP w przyszłości)."
+                    },
+                    "clientSupport": {
+                        "title": "Komunikacja z Klientem i wsparcie techniczne",
+                        "contact": "umożliwienie kontaktu z Klientem w sprawach administracyjnych, technicznych lub związanych z realizacją usług Serwisu, w tym za pośrednictwem adresu e-mail podanego przy rejestracji konta firmowego,",
+                        "support": "udzielanie pomocy technicznej i wsparcia w korzystaniu z Serwisu na podstawie danych Klienta lub Użytkowników."
+                    }
+                },
+                "section4": {
+                    "title": "4. Podstawa prawna przetwarzania danych osobowych",
+                    "intro": "Przetwarzanie danych osobowych Użytkowników w Serwisie odbywa się na podstawie przepisów RODO, w szczególności:",
+                    "art6b": {
+                        "title": "Art. 6 ust. 1 lit. b RODO – niezbędność do wykonania umowy",
+                        "desc": "Dane Użytkowników są przetwarzane w zakresie niezbędnym do świadczenia usług Serwisu na rzecz Klienta (firmy) oraz realizacji funkcjonalności przypisanych kontom użytkowników."
+                    },
+                    "art6f": {
+                        "title": "Art. 6 ust. 1 lit. f RODO – prawnie uzasadniony interes administratora lub podmiotu przetwarzającego",
+                        "desc": "Dane techniczne, w tym informacje o urządzeniu, sesjach i ewentualne adresy IP, są przetwarzane w celu zapewnienia bezpieczeństwa Serwisu, monitorowania poprawności działania systemu, diagnozowania problemów technicznych oraz zapobiegania nadużyciom. Prawnie uzasadniony interes obejmuje również możliwość udzielania pomocy technicznej Użytkownikom."
+                    },
+                    "art6c": {
+                        "title": "Art. 6 ust. 1 lit. c RODO – obowiązek prawny",
+                        "desc": "W zakresie, w jakim Serwis jest zobowiązany do realizacji obowiązków prawnych (np. przechowywanie danych niezbędnych do celów podatkowych lub rozliczeniowych Klienta), przetwarzanie odbywa się w celu wypełnienia tych obowiązków."
+                    }
+                },
+                "section5": {
+                    "title": "5. Okres przechowywania danych",
+                    "clientData": "Dane Klienta (firmowe) przechowywane są przez cały okres świadczenia usług przez Serwis. W przypadku zakończenia korzystania z usług przez Klienta, dane Klienta oraz Użytkowników przypisanych bezpośrednio do danego Klienta przechowywane są dodatkowo przez okres do <strong>6 miesięcy</strong> w celu umożliwienia ewentualnego ponownego skorzystania z usług Serwisu i zachowania historii aktywności. Po upływie tego okresu dane Klienta oraz Użytkowników są <strong>trwale i nieodwracalnie usuwane lub anonimizowane</strong>, a ich odzyskanie nie jest możliwe.",
+                    "userData": "Dane Użytkowników przechowywane są <strong>tak długo, jak Klient korzysta z Serwisu</strong>. Oznacza to, że w przypadku zakończenia współpracy Użytkownika z Klientem (np. rozwiązanie umowy o pracę, zakończenie współpracy kontraktowej) Użytkownik może utracić dostęp do systemu, jednak <strong>historia jego aktywności w Serwisie pozostaje zachowana na potrzeby Klienta</strong>, zgodnie z jego wymaganiami biznesowymi.",
+                    "technicalLogs": "Dane techniczne i logi systemowe przechowywane są wyłącznie w zakresie niezbędnym do zapewnienia bezpieczeństwa Serwisu oraz diagnozowania i rozwiązywania problemów technicznych, przez okres nie dłuższy niż jest konieczny do realizacji tych celów."
+                },
+                "section6": {
+                    "title": "6. Prawa użytkowników i Klientów",
+                    "intro": "Użytkownicy mają prawo do:",
+                    "access": "<strong>Dostępu do danych</strong> – prawo żądania od administratora (Klienta) informacji o przetwarzanych danych osobowych dotyczących Użytkownika, w tym celu, zakresie i okresie przechowywania.",
+                    "correction": "<strong>Sprostowania danych</strong> – prawo żądania od administratora (Klienta) poprawienia lub uzupełnienia nieprawidłowych lub niekompletnych danych osobowych.",
+                    "deletion": {
+                        "title": "<strong>Usunięcia danych („prawo do bycia zapomnianym”)</strong> – prawo żądania od administratora (Klienta) usunięcia danych osobowych, o ile nie istnieją inne uzasadnione podstawy ich przechowywania.",
+                        "note": "W zależności od potrzeb biznesowych Klienta, operacja usunięcia danych może być realizowana w jednym z dwóch wariantów:",
+                        "permanent": "<strong>Nieodwracalne usunięcie konta Użytkownika wraz z całą historią jego aktywności</strong> w Serwisie.",
+                        "anonymization": "<strong>Anonimizacja konta Użytkownika</strong>, w wyniku której dane osobowe nie są już powiązane z konkretną osobą, co pozwala zachować historię aktywności w systemie, zgodnie z wymaganiami Klienta.",
+                        "processorNote": "Administrator Serwisu realizuje powyższe operacje wyłącznie na podstawie zlecenia Klienta, który jest administratorem danych osobowych Użytkowników."
+                    },
+                    "limitation": "<strong>Ograniczenia przetwarzania</strong> – prawo żądania od administratora (Klienta) ograniczenia przetwarzania danych w przypadkach przewidzianych przepisami RODO.",
+                    "objection": "<strong>Sprzeciwu wobec przetwarzania danych</strong> – prawo wniesienia sprzeciwu wobec przetwarzania danych osobowych w przypadkach przewidzianych przepisami RODO.",
+                    "complaint": "<strong>Skargi do organu nadzorczego</strong> – prawo wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych w przypadku uznania, że przetwarzanie danych osobowych narusza przepisy RODO."
+                },
+                "section6a": {
+                    "title": "6.a Usunięcie konta Klienta (firmowego)",
+                    "clientRequest": "Klient ma prawo żądania usunięcia swojego konta w Serwisie.",
+                    "irreversible": "Usunięcie konta Klienta jest <strong>nieodwracalne</strong> i skutkuje natychmiastowym usunięciem:",
+                    "userAccounts": "kont wszystkich Użytkowników przypisanych do danego Klienta (pracowników, współpracowników, kontrahentów),",
+                    "history": "całej historii danych związanych z kontem Klienta i jego Użytkowników."
+                },
+                "section7": {
+                    "title": "7. Kontakt w sprawach ochrony danych osobowych",
+                    "intro": "Wszelkie pytania, wnioski lub żądania dotyczące przetwarzania danych osobowych w związku z korzystaniem z Serwisu mogą być kierowane do Administratora Serwisu za pośrednictwem poczty elektronicznej:",
+                    "email": "crewops@devsmith.eu",
+                    "responseTime": "Administrator Serwisu rozpatruje zgłoszenia niezwłocznie, z uwzględnieniem terminów przewidzianych w art. 12 RODO."
+                },
+                "section8": {
+                    "title": "8. Aktualizacja Polityki Prywatności",
+                    "updateRight": "Administrator Serwisu zastrzega sobie prawo do <strong>aktualizowania niniejszej Polityki Prywatności</strong> w dowolnym czasie, w szczególności w przypadku zmian w funkcjonalności Serwisu, wymogów prawnych lub praktyk przetwarzania danych.",
+                    "notification": "Administrator Systemu <strong>deklaruje, że będzie informował Klientów Serwisu o planowanej zmianie Polityki Prywatności</strong> z odpowiednim wyprzedzeniem, aby umożliwić im zapoznanie się z nowymi zapisami.",
+                    "effective": "Aktualizacje Polityki wchodzą w życie z chwilą ich publikacji w Serwisie pod tym samym adresem URL. Zaleca się regularne zapoznawanie się z treścią Polityki w celu bieżącej informacji o sposobach przetwarzania danych osobowych."
+                },
+                "section9": {
+                    "title": "9. Informacje o sporządzeniu dokumentu",
+                    "intro": "Dokument Polityki Prywatności został przygotowany przez <strong>Administratora Serwisu</strong> w celu transparentnego przedstawienia zasad przetwarzania danych osobowych w Serwisie.",
+                    "effectiveDate": "Data wprowadzenia w życie: <strong>1 października 2025 roku</strong>."
+                },
+                "footer": {
+                    "copyright": "© 2025 CrewOps. Wszelkie prawa zastrzeżone.",
+                    "author": "Projekt i wykonanie: Janusz Kuźnik"
+                }
+            },
             "footer": {
                 "copyright": "© 2025 CrewOps. Wszelkie prawa zastrzeżone.",
                 "designedBy": "Zaprojektowany i zbudowany przez Janusz Kuźnik"
@@ -464,7 +798,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (element.tagName === 'INPUT' || element.tagName === 'META') {
                     element.setAttribute('content', value);
                 } else {
-                    element.textContent = value;
+                    // Check if the value contains HTML tags
+                    if (typeof value === 'string' && (value.includes('<') || value.includes('&'))) {
+                        element.innerHTML = value;
+                    } else {
+                        element.textContent = value;
+                    }
                 }
             }
         });

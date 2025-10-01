@@ -18,8 +18,8 @@ public class CustomI18NProvider implements I18NProvider, UIInitListener {
     private static final String BUNDLE_PREFIX = "i18n/messages";
 
     private static final Map<String, Locale> FLAG_TO_LOCALE = Map.of(
-            "🇺🇸", new Locale("en", "US"),
             "🇵🇱", new Locale("pl", "PL"),
+            "🇬🇧", new Locale("en", "US"),
             "🇩🇪", new Locale("de", "DE"));
 
     private final List<Locale> LOCALES = List.copyOf(FLAG_TO_LOCALE.values());

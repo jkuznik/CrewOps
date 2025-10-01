@@ -20,37 +20,32 @@ public class MainFooter extends Footer {
         HorizontalLayout mainFooterLayout = new HorizontalLayout();
         mainFooterLayout.addClassName("main-footer-layout");
 
+        // Left column
         VerticalLayout leftSide = new VerticalLayout();
         leftSide.addClassName("main-footer-column");
 
         Span contactSpan = new Span(getTranslation("mainFooter.contact"));
         contactSpan.addClassName("main-footer-text");
-        leftSide.add(contactSpan);
 
-        Anchor githubLink = new Anchor("https://github.com/jkuznik", "GitHub");
-        githubLink.setTarget("_blank");
-        githubLink.addClassName("main-footer-link");
+        Anchor contactLink = new Anchor("/contact", getTranslation("mainFooter.contactLink"));
+        contactLink.setTarget("_self");
+        contactLink.addClassName("main-footer-link");
 
-        Anchor emailLink = new Anchor("mailto:janusz.kuznik@devsmith.eu", "janusz.kuznik@devsmith.eu");
-        emailLink.addClassName("main-footer-link");
+        leftSide.add(contactSpan, contactLink);
 
-        Anchor linkedinLink = new Anchor("https://www.linkedin.com/in/janusz-kuźnik", "LinkedIn");
-        linkedinLink.setTarget("_blank");
-        linkedinLink.addClassName("main-footer-link");
-
-        leftSide.add(emailLink, githubLink, linkedinLink);
-
+        // Right column
         VerticalLayout rightSide = new VerticalLayout();
         rightSide.addClassName("main-footer-column");
 
-        Span infoSpan = new Span(getTranslation("mainFooter.info"));
-        infoSpan.addClassName("main-footer-text");
+        Span policySpan = new Span(getTranslation("mainFooter.info"));
+        policySpan.addClassName("main-footer-text");
 
-        Anchor infoLink = new Anchor("/info", getTranslation("mainFooter.infoLink"));
-        infoLink.setTarget("_self");
-        infoLink.addClassName("main-footer-link");
+        Anchor policyLink =
+                new Anchor("https://devsmith.eu/private-policy.html", getTranslation("mainFooter.privacyPolicyLink"));
+        policyLink.setTarget("_self");
+        policyLink.addClassName("main-footer-link");
 
-        rightSide.add(infoSpan, infoLink);
+        rightSide.add(policySpan, policyLink);
 
         mainFooterLayout.add(leftSide, rightSide);
         add(mainFooterLayout);
