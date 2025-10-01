@@ -1,0 +1,94 @@
+package pl.crewops.view;
+
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.EmailField;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.security.jwt.JwtServiceVaadin;
+import pl.crewops.util.AuthenticationResolver;
+import pl.crewops.view.layout.MainLayout;
+
+@Route(value = "contact")
+@PageTitle("Contact - Crew Ops")
+public class ContactView extends MainLayout {
+
+    public ContactView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
+        super(coreAPI, jwtService, authenticationResolver);
+        addClassName("contact-view");
+
+        mainContent.removeAll();
+
+        Component content = getCurrentContent();
+
+        mainContent.add(content, mainFooter);
+        mainContent.setFlexGrow(1, content);
+    }
+
+    private Component getCurrentContent() {
+        VerticalLayout layout = new VerticalLayout();
+        layout.setId("view-content");
+        layout.setWidthFull();
+        layout.setDefaultHorizontalComponentAlignment(VerticalLayout.Alignment.CENTER);
+        layout.setPadding(true);
+        layout.setSpacing(true);
+        layout.getStyle().set("overflow", "auto");
+
+        H3 title = new H3("Contact Us");
+        layout.add(title);
+
+        // Form container
+        VerticalLayout formLayout = new VerticalLayout();
+        formLayout.setWidth("400px"); // fixed width to avoid stretching
+        formLayout.setPadding(false);
+        formLayout.setSpacing(true);
+
+        // Email field
+        EmailField emailField = new EmailField("Your Email");
+        emailField.setRequiredIndicatorVisible(true);
+        emailField.setPlaceholder("you@example.com");
+        emailField.setWidthFull();
+
+        // Message field
+        TextArea messageField = new TextArea("Message");
+        messageField.setPlaceholder("Write your message here...");
+        messageField.setWidthFull();
+        messageField.setHeight("150px"); // compact height
+
+        // Submit button
+        Button submitButton = new Button("Send");
+        submitButton.setWidthFull();
+        submitButton.addClickListener(e -> {
+            if (emailField.isEmpty()) {
+                emailField.setErrorMessage("Email is required");
+            } else {
+                emailField.setErrorMessage(null);
+                // Handle backend logic
+            }
+        });
+
+        formLayout.add(emailField, messageField, submitButton);
+
+        // LinkedIn link below the form
+        HorizontalLayout linkLayout = new HorizontalLayout();
+        linkLayout.setSpacing(true);
+        linkLayout.setDefaultVerticalComponentAlignment(VerticalLayout.Alignment.CENTER);
+
+        Anchor linkedinLink = new Anchor("https://www.linkedin.com/in/janusz-kuźnik", "LinkedIn");
+        linkedinLink.setTarget("_blank");
+
+        linkLayout.add(new Span("Find me on:"), linkedinLink);
+
+        // Add to main layout
+        layout.add(formLayout, linkLayout);
+
+        return layout;
+    }
+}
