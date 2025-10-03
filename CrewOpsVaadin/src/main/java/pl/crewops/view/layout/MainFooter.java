@@ -14,13 +14,21 @@ import com.vaadin.flow.spring.annotation.UIScope;
 @CssImport("./styles/mainStyles/main-footer.css")
 public class MainFooter extends Footer {
 
+    private static final String DOC_DOMAIN = "https://devsmith.eu";
+
+    private static final String FALLBACK_LANGUAGE = "en";
+
     public MainFooter() {
         addClassName("main-footer");
 
         HorizontalLayout mainFooterLayout = new HorizontalLayout();
         mainFooterLayout.addClassName("main-footer-layout");
 
-        // Left column
+        String currentLanguage = getLocale().getLanguage();
+
+        String documentLanguage = currentLanguage.equals("pl") ? "pl" : FALLBACK_LANGUAGE;
+
+        // --- Left column (Contact) ---
         VerticalLayout leftSide = new VerticalLayout();
         leftSide.addClassName("main-footer-column");
 
@@ -33,19 +41,25 @@ public class MainFooter extends Footer {
 
         leftSide.add(contactSpan, contactLink);
 
-        // Right column
+        // --- Right column (Policy & Terms) ---
         VerticalLayout rightSide = new VerticalLayout();
         rightSide.addClassName("main-footer-column");
 
         Span policySpan = new Span(getTranslation("mainFooter.info"));
         policySpan.addClassName("main-footer-text");
 
-        Anchor policyLink =
-                new Anchor("https://devsmith.eu/private-policy.html", getTranslation("mainFooter.privacyPolicyLink"));
-        policyLink.setTarget("_self");
+        // Użycie documentLanguage do budowy linków
+        String privacyPolicyHref = DOC_DOMAIN + "/" + documentLanguage + "/private-policy.html";
+        Anchor policyLink = new Anchor(privacyPolicyHref, getTranslation("mainFooter.privacyPolicyLink"));
+        policyLink.setTarget("_blank");
         policyLink.addClassName("main-footer-link");
 
-        rightSide.add(policySpan, policyLink);
+        String termsOfServiceHref = DOC_DOMAIN + "/" + documentLanguage + "/terms-of-service.html";
+        Anchor termsLink = new Anchor(termsOfServiceHref, getTranslation("mainFooter.termsOfServiceLink"));
+        termsLink.setTarget("_blank");
+        termsLink.addClassName("main-footer-link");
+
+        rightSide.add(policySpan, policyLink, termsLink);
 
         mainFooterLayout.add(leftSide, rightSide);
         add(mainFooterLayout);
