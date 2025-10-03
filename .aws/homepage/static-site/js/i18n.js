@@ -388,479 +388,479 @@ document.addEventListener('DOMContentLoaded', function() {
                 "designedBy": "Designed and built by Janusz Kuźnik"
             }
         },
-        pl: {
-            "pageTitle": "CrewOps - Efektywne Zarządzanie Zespołami Terenowymi i Maszynami",
-            "pageTitleProject": "Aplikacja w szczegółach - CrewOps",
-            "pageTitleTech": "Stos Technologiczny - CrewOps",
-            "pageTitleAbout": "O Mnie - CrewOps",
-            "nav": {
-                "home": "Strona Główna",
-                "project": "Aplikacja w szczegółach",
-                "tech": "Stos Technologiczny",
-                "about": "O Mnie",
-                "privacy": "Polityka Prywatności"
-            },
-            "hero": {
-                "title": "Usprawnij Zarządzanie Zespołem z CrewOps",
-                "description": "Kompleksowe rozwiązanie do zarządzania zespołami technicznymi, monitorowania maszyn i śledzenia konserwacji - wszystko w jednej zintegrowanej platformie zbudowanej przy użyciu nowoczesnych technologii Java.",
-                "tryLive": "Wypróbuj CrewOps",
-                "learnMore": "Dowiedz się więcej"
-            },
-            "features": {
-                "title": "Kluczowe Funkcje",
-                "subtitle": "CrewOps zapewnia wszystko, czego potrzebujesz do efektywnego zarządzania zespołami terenowymi i dostępnym parkiem maszyn",
-                "teamManagement": {
-                    "title": "Zarządzanie Zespołem",
-                    "description": "Przypisz pracowników do konkretnych zmian, zespołów lub maszyn z śledzeniem dostępności personelu w czasie rzeczywistym i kontrolą dostępu opartą na pełnionej funkcji."
+            pl: {
+                "pageTitle": "CrewOps - Efektywne Zarządzanie Zespołami Terenowymi i Maszynami",
+                "pageTitleProject": "Aplikacja w szczegółach - CrewOps",
+                "pageTitleTech": "Stos Technologiczny - CrewOps",
+                "pageTitleAbout": "O Mnie - CrewOps",
+                "nav": {
+                    "home": "Strona Główna",
+                    "project": "Aplikacja w szczegółach",
+                    "tech": "Stos Technologiczny",
+                    "about": "O Mnie",
+                    "privacy": "Polityka Prywatności"
                 },
-                "machineMonitoring": {
-                    "title": "Monitorowanie Maszyn",
-                    "description": "Kompleksowy przegląd statusu sprzętu (dostępnego, przypisanego do pracownika, wyłączonego z użytku) w czasie rzeczywistym."
-                },
-                "faultReporting": {
-                    "title": "Zgłaszanie Usterki",
-                    "description": "Bezpośrednie zgłaszanie usterek maszyn z pełnym rejestrowaniem, śledzeniem statusu, historią napraw i automatycznymi powiadomieniami dla odpowiednich osób."
-                },
-                "adminPanel": {
-                    "title": "Panel Administracyjny",
-                    "description": "Pełna kontrola administracyjna ze szczegółowymi uprawnieniami użytkowników, konfigurowalnymi widokami systemu i kompleksowymi logami działań do audytu i zgodności."
-                }
-            },
-            "tech": {
-                "title": "Zbudowany z Wykorzystaniem Nowoczesnych Technologii",
-                "subtitle": "Wykorzystując najnowszy ekosystem Javy i technologie chmurowe",
-                "viewFull": "Zobacz Pełny Stos Technologiczny",
-                "architectureTitle": "Architektura Systemu",
-                "multiModuleTitle": "Wielomodułowy Projekt Gradle",
-                "multiModuleDesc1": "CrewOps jest zbudowany z czystą, modułową architekturą, która zapewnia separację odpowiedzialności i łatwość utrzymania. Projekt jest zorganizowany w odrębne moduły o jasnych odpowiedzialnościach, promując ponowne wykorzystanie kodu i łatwość utrzymania.",
-                "multiModuleDesc2": "To podejście modułowe pozwala na niezależny rozwój i testowanie różnych komponentów, przy jednoczesnym zachowaniu spójnej architektury systemu. Każdy moduł ma określony cel i dobrze zdefiniowane granice.",
-                "backendModule": "Moduł Backend",
-                "backendItem1": "Framework Spring Boot",
-                "backendItem2": "PostgreSQL z JPA/Hibernate",
-                "backendItem3": "Liquibase do migracji bazy danych",
-                "backendItem4": "Wielodostępność z podejściem schema-per-tenant",
-                "backendItem5": "Uwierzytelnianie oparte na JWT",
-                "backendItem6": "Projektowanie bezstanowego API",
-                "frontendModule": "Moduł Frontend",
-                "frontendItem1": "Spring Boot z Vaadin",
-                "frontendItem2": "Nowoczesne komponenty UI",
-                "frontendItem3": "Zintegrowane Spring Security",
-                "frontendItem4": "Zarządzanie sesją Vaadin",
-                "frontendItem5": "Interfejs webowy",
-                "frontendItem6": "Wersja mobilna w rozwoju",
-                "modelModule": "Moduł Model",
-                "modelItem1": "Współdzielone DTO i enumy",
-                "modelItem2": "Obiekty domenowe",
-                "modelItem3": "Spójne struktury danych",
-                "modelItem4": "Bezpieczeństwo typów między modułami",
-                "modelItem5": "Kontrakty komunikacji HTTP",
-                "modelItem6": "Reguły walidacji",
-                "securityModule": "Moduł Bezpieczeństwa",
-                "securityItem1": "Współdzielone interfejsy bezpieczeństwa",
-                "securityItem2": "Walidacja tokenów JWT",
-                "securityItem3": "Weryfikacja ról",
-                "securityItem4": "Spójne uwierzytelnianie między modułami",
-                "securityItem5": "Sprawdzanie uprawnień",
-                "securityItem6": "Obsługa kontekstu bezpieczeństwa",
-                "coreTitle": "Główne Technologie",
-                "javaDesc": "Podstawowy język programowania z nowoczesnymi funkcjami i silną typizacją",
-                "springDesc": "Framework do budowania samodzielnych, produkcyjnych aplikacji",
-                "postgresDesc": "Solidna relacyjna baza danych z zaawansowanymi funkcjami",
-                "jpaDesc": "Mapowanie obiektowo-relacyjne do interakcji z bazą danych",
-                "liquibaseDesc": "Migracja schematu bazy danych i kontrola wersji",
-                "springSecurityDesc": "Kompleksowy framework bezpieczeństwa do uwierzytelniania i autoryzacji",
-                "jwtDesc": "Tokeny Web JSON do bezstanowego uwierzytelniania",
-                "vaadinDesc": "Nowoczesny framework web do budowy interfejsów użytkownika w Javie",
-                "awsDesc": "Platforma przetwarzania w chmurze do wdrożenia i hostingu",
-                "nginxDesc": "Wysokowydajny serwer WWW i reverse proxy",
-                "dockerDesc": "Platforma kontenerów do spójnych środowisk",
-                "gradleDesc": "Narzędzie automatyzacji budowania do zarządzania zależnościami",
-                "devopsTitle": "DevOps i Wdrożenie",
-                "pipelineTitle": "Potok CI/CD i Infrastruktura",
-                "pipelineDesc": "CrewOps implementuje nowoczesne podejście DevOps z automatycznym wdrożeniem i zarządzaniem infrastrukturą chmurową. Cały potok wdrożeniowy jest zautomatyzowany od zatwierdzenia kodu do wdrożenia produkcyjnego.",
-                "githubTitle": "Integracja z GitHub",
-                "githubItem1": "Zarządzanie repozytorium",
-                "githubItem2": "Zgłoszenia do planowania",
-                "githubItem3": "Projekty jako backlog",
-                "githubItem4": "Automatyczne wyzwalacze wdrożeń",
-                "deploymentTitle": "Potok Wdrożeniowy",
-                "deploymentItem1": "Automatyczne testowanie",
-                "deploymentItem2": "Budowanie przy scalaniu do głównej gałęzi",
-                "deploymentItem3": "Wdrożenie na AWS EC2",
-                "deploymentItem4": "Aktualizacje bez przestojów",
-                "securityTitle2": "Bezpieczeństwo i SSL",
-                "securityItem7": "Reverse proxy Nginx",
-                "securityItem8": "Terminacja HTTPS",
-                "securityItem9": "Zarządzanie certyfikatami SSL",
-                "securityItem10": "Konfiguracja nagłówków bezpieczeństwa",
-                "monitoringTitle": "Monitorowanie",
-                "monitoringItem1": "Logowanie aplikacji",
-                "monitoringItem2": "Monitorowanie wydajności",
-                "monitoringItem3": "Śledzenie błędów",
-                "monitoringItem4": "Wykorzystanie zasobów",
-                "challengesTitle": "Wyzwania Techniczne i Rozwiązania",
-                "challenge1Title": "Implementacja Wielodostępności",
-                "challenge1Desc": "Zaimplementowano podejście schema-per-tenant do izolacji danych w PostgreSQL. Każdy najemca otrzymuje własny schemat bazy danych, współdzieląc tę samą instancję aplikacji. Dynamiczne rozpoznawanie schematu oparte na identyfikatorze najemcy JWT zapewnia właściwą separację danych i bezpieczeństwo.",
-                "challenge2Title": "Spójność Między Modułami",
-                "challenge2Desc": "Utrzymywanie spójności między modułami backend i frontend poprzez współdzielone moduły modelu i bezpieczeństwa. Współdzielone moduły zapewniają bezpieczeństwo typów, spójne struktury danych i jednolitą walidację bezpieczeństwa we wszystkich komponentach aplikacji.",
-                "challenge3Title": "Bezstanowe Uwierzytelnianie",
-                "challenge3Desc": "Zaimplementowano uwierzytelnianie oparte na JWT z Spring Security do projektowania bezstanowego API. Mechanizm odświeżania tokenów i autoryzacja oparta na rolach na poziomie punktów końcowych zapewniają bezpieczną kontrolę dostępu bez przechowywania sesji po stronie serwera.",
-                "challenge4Title": "Powiadomienia w Czasie Rzeczywistym",
-                "challenge4Desc": "Zaprojektowano i zaimplementowano system powiadomień, który wysyła alerty do odpowiednich osób, gdy zgłaszane są usterki maszyn. System zapewnia terminową komunikację i szybką reakcję na krytyczne problemy operacyjne."
-            },
-            "cta": {
-                "title": "Gotowy na Transformację Swoich Operacji Terenowych?",
-                "description": "Doświadcz mocy CrewOps i zobacz, jak może usprawnić zarządzanie zespołami i monitorowanie maszyn.",
-                "launch": "Uruchom CrewOps",
-                "github": "Zobacz na GitHub"
-            },
-            "project": {
-                "title": "Szczegóły Projektu",
-                "subtitle": "Głębsze spojrzenie na CrewOps - kompleksowy system zarządzania zespołami pracowników i maszynami",
-                "overviewTitle": "Przegląd Projektu",
-                "whatIsTitle": "Czym jest CrewOps?",
-                "whatIsDesc1": "CrewOps to kompleksowy system zarządzania zespołami terenowymi i maszynami zaprojektowany w celu usprawnienia codziennych operacji zespołów technicznych. Aplikacja umożliwia zarządzanie zespołami w czasie rzeczywistym, monitorowanie sprzętu i zgłaszanie usterek - wszystko w jednej zintegrowanej platformie.",
-                "whatIsDesc2": "Zbudowany z naciskiem na wydajność i skalowalność, CrewOps pomaga firmom zarządzać całą siłą roboczą i zapasami maszyn z jednego panelu. System jest zaprojektowany do obsługi złożonego harmonogramowania, śledzenia historii awarii i napraw oraz prac serwisowych maszyn.",
-                "whatIsDesc3": "Obecnie dostępny jako aplikacja webowa z wersją mobilną w rozwoju, CrewOps zapewnia nowoczesny, intuicyjny interfejs, który sprawia, że zarządzanie operacjami terenowymi jest proste i skuteczne.",
-                "featuresTitle": "Kluczowe Funkcje w Szczegółach",
-                "teamManagementDetail": "Kompleksowy system zarządzania siłą roboczą, który pozwala administratorom przypisywać pracowników do konkretnych zmian, zespołów lub maszyn. Funkcje obejmują śledzenie dostępności personelu w czasie rzeczywistym, przydziały oparte na umiejętnościach oraz kwalifikacjach. System zapewnia optymalne alokowanie zasobów i redukuje konflikty harmonogramu. Jedną z dodatkowych funkcji jest odpowiednio wczesne powiadamianie o zbliżających się terminach ważności kwalifikacji lub badań medycznych danego pracownika.",
-                "machineMonitoringDetail": "Kompletne zarządzanie cyklem życia sprzętu ze śledzeniem statusu w czasie rzeczywistym. Monitoruj dostępność maszyn, status przypisania i harmonogramy konserwacji. System zapewnia kompleksowe zarządzanie zapasami z automatycznymi alertami o nadchodzących terminach konserwacji i zmianach dostępności sprzętu.",
-                "faultReportingDetail": "Usprawniony system zgłaszania usterek, który pozwala użytkownikom zgłaszać problemy z maszynami bezpośrednio przez aplikację. Każde zgłoszenie jest objęte szczegółowym rejestrowaniem oraz umożliwia śledzenie statusu i pełną historię napraw. Automatyczne powiadomienia zapewniają, że odpowiednie osoby są natychmiast informowane o zgłoszonych usterkach.",
-                "adminPanelDetail": "Interfejs administracyjny ze szczegółowymi uprawnieniami użytkowników i konfigurowalnymi widokami systemu. Administratorzy mają kontrolę nad dostępem użytkowników, konfiguracją systemu i mogą monitorować wszystkie działania za pomocą kompleksowych logów audytowych.",
-                "mvpTitle": "Wizja MVP",
-                "mvpSubtitle": "Nasze Cele Minimalnego Produktu Wdrożeniowego",
-                "mvpDesc": "Wersja MVP CrewOps ma na celu zapewnienie kompleksowego rozwiązania do zarządzania całą kadrą firmy oraz dostępnym parkiem maszyn, z automatycznym zgłaszaniem usterek i systemem powiadamiania odpowiednich osób.",
-                "mvpGoal1Title": "Kompletne Zarządzanie Zespołami",
-                "mvpGoal1Desc": "Zarządzaj wszystkimi zespołami firmy, zmianami i przydziałami w jednym systemie",
-                "mvpGoal2Title": "Pełny Inwentarz Maszyn",
-                "mvpGoal2Desc": "Śledź wszystkie maszyny firmy, ich status i historię konserwacji",
-                "mvpGoal3Title": "Automatyczne Powiadomienia",
-                "mvpGoal3Desc": "Natychmiastowe alerty dla odpowiednich osób, gdy maszyny zgłaszają usterki",
-                "mvpGoal4Title": "Wgląd w Operacje",
-                "mvpGoal4Desc": "Podstawowe raportowanie i analityka dla efektywności operacyjnej",
-                "statusTitle": "Obecny Status",
-                "progressTitle": "Postęp Rozwoju",
-                "progressDesc1": "CrewOps jest obecnie w fazie rozwoju funkcjonalnej wersji webowej z jednoczesnym przygotowaniem wersji mobilnej. Kluczowe funkcje zarządzania zespołami, monitorowania maszyn i zgłaszania usterek są zaimplementowane i testowane w rzeczywistych scenariuszach.",
-                "progressDesc2": "Regularne aktualizacje są wdrażane na podstawie opinii użytkowników i ewoluujących wymagań."
-            },
-            "about": {
-                "title": "O Mnie",
-                "subtitle": "Programista Java pasjonujący się budowaniem aplikacji enterprise i rozwiązywaniem rzeczywistych problemów",
-                "intro1": "Jestem programistą Javy z dwoma latami dedykowanej nauki i praktycznego zastosowania. Moja podróż w tworzeniu oprogramowania zaczęła się od fascynacji rozwiązywaniem rzeczywistych problemów za pomocą technologii, co prowadziło mnie do specjalizacji w aplikacjach enterprise Java.",
-                "intro2": "CrewOps reprezentuje nie tylko projekt, ale kompleksowe eksplorowanie nowoczesnych praktyk tworzenia oprogramowania w Javie, od projektowania baz danych po automatyzację wdrażenia. Moje podejście łączy wiedzę teoretyczną z praktyczną implementacją w celu tworzenia solidnych, skalowalnych rozwiązań.",
-                "intro3": "Poza rozwojej projektu CrewOps staram się brać udział w grupowych projektach co daje mi możliwość poznawania nowych osób oraz rozwiązań technologicznych.",
-                "skillsTitle": "Umiejętności Techniczne",
-                "skillsSubtitle": "W tym czuję się swobodnie",
-                "skillsDesc": "Jako samouczący się programista, skupiłem się na budowaniu praktycznych umiejętności poprzez projekty praktyczne.",
-                "coreJava": "Podstawy Javy",
-                "skillOOP": "Zasady OOP",
-                "skillCollections": "Framework Collections",
-                "skillStreams": "Streams API",
-                "skillExceptions": "Obsługa Wyjątków",
-                "skillJava17": "Funkcje Javy 17+",
-                "springEcosystem": "Ekosystem Spring",
-                "skillSpringBoot": "Spring Boot",
-                "skillSpringMVC": "Spring MVC",
-                "skillSpringSecurity": "Spring Security",
-                "skillSpringData": "Spring Data JPA",
-                "skillRestAPIs": "API REST",
-                "skillDependencyInjection": "Wstrzykiwanie Zależności",
-                "database": "Baza Danych i ORM",
-                "skillPostgreSQL": "PostgreSQL",
-                "skillJPA": "JPA/Hibernate",
-                "skillBasicDB": "Podstawowe Koncepcje Baz Danych",
-                "skillLiquibase": "Liquibase",
-                "security": "Bezpieczeństwo",
-                "skillJWT": "Uwierzytelnianie JWT",
-                "skillRoleBased": "Dostęp Oparty na Rolach",
-                "skillMultitenancy": "Wielodostępność",
-                "frontend": "Frontend",
-                "skillVaadin": "Framework Vaadin",
-                "skillUI": "Komponenty UI",
-                "devOps": "DevOps i Chmura",
-                "skillAWS": "AWS EC2",
-                "skillDocker": "Docker",
-                "skillNginx": "Nginx",
-                "skillCICD": "Podstawy CI/CD",
-                "skillGit": "Git",
-                "journeyTitle": "Moja Podróż Rozwojowa",
-                "journeySubtitle": "Od Początkującego do Programisty Javy",
-                "journeyDesc": "Moja podróż w tworzeniu oprogramowania zaczęła się z pasji i determinacji. Oto oś czasu mojej ścieżki nauki i kluczowe kamienie milowe:",
-                "year2023Start": "2023 - Początki",
-                "journey2023Start": "Zacząłem uczyć się podstaw Javy. Ukończyłem kurs online i zbudowałem proste aplikacje konsolowe, aby zrozumieć podstawowe koncepcje.",
-                "year2023Projects": "2023 - Pierwsze Projekty",
-                "journey2023Projects": "Stworzyłem podstawowe aplikacje Javy do ćwiczenia koncepcji programowania. Skupiłem się na zrozumieniu zasad programowania obiektowego i podstawowych wzorców projektowych.",
-                "year2024Web": "2024 - Tworzenie Web",
-                "journey2024Web": "Zgłębiłem tworzenie web z Spring Boot. Zbudowałem API REST po czym zacząłem brać udział w projektach grupowych.",
-                "year2025CrewOps": "2025 - Początek CrewOps",
-                "journey2025CrewOps": "Zacząłem pracować nad CrewOps jako kompleksowym projektem do zastosowania i rozwinięcia moich umiejętności. Zaimplementowałem architekturę wielomodułową i zaawansowane funkcje.",
-                "year2025DevOps": "2025 - DevOps i Wdrożenie",
-                "journey2025DevOps": "Pomyślnie wdrożyłem CrewOps korzystająć z rozwiązań AWS z automatycznym procesem CI/CD.",
-                "present": "Obecnie - Ciąg Dalszy Nauki",
-                "journeyPresent": "Obecnie eksploruję sposoby monitorowania aplikacji, zaawansowane wzorce bezpieczeństwa i techniki optymalizacji wydajności.",
-                "contactTitle": "Skontaktuj Się",
-                "getInTouch": "Nawiąż Kontakt",
-                "contactDesc": "Aktywnie szukam możliwości dołączania do projektów Java, współpracy z innymi programistami i podejmowania ról, w których mogę zastosować i rozwinąć moje umiejętności.",
-                "sendEmail": "Wyślij Email",
-                "linkedin": "LinkedIn"
-            },
-            "privacy": {
-                "pageTitle": "Polityka Prywatności — CrewOps",
-                "logo": "CrewOps",
-                "tagline": "Efektywne Zarządzanie Zespołami Terenowymi i Maszynami",
                 "hero": {
-                    "title": "Polityka Prywatności",
-                    "desc": "Dokument przedstawia zasady przetwarzania danych osobowych w Serwisie CrewOps."
+                    "title": "Usprawnij Zarządzanie Zespołem z CrewOps",
+                    "description": "Kompleksowe rozwiązanie do zarządzania zespołami technicznymi, monitorowania maszyn i śledzenia konserwacji - wszystko w jednej zintegrowanej platformie zbudowanej przy użyciu nowoczesnych technologii Java.",
+                    "tryLive": "Wypróbuj CrewOps",
+                    "learnMore": "Dowiedz się więcej"
                 },
-                "meta": {
-                    "effectiveDateLabel": "Data wprowadzenia w życie:",
-                    "effectiveDate": "1 października 2025 roku"
-                },
-                "toc": {
-                    "definitions": "Definicje",
-                    "section1": "1. Administrator danych osobowych",
-                    "section2": "2. Zakres zbieranych danych",
-                    "section2a": "2.a Dane techniczne i pliki cookies",
-                    "section3": "3. Cele przetwarzania danych",
-                    "section4": "4. Podstawa prawna",
-                    "section5": "5. Okres przechowywania danych",
-                    "section6": "6. Prawa użytkowników i Klientów",
-                    "section6a": "6.a Usunięcie konta Klienta",
-                    "section7": "7. Kontakt",
-                    "section8": "8. Aktualizacja Polityki",
-                    "section9": "9. Informacje o sporządzeniu dokumentu"
-                },
-                "definitions": {
-                    "title": "Definicje",
-                    "intro": "Na potrzeby niniejszej Polityki Prywatności przyjmuje się następujące znaczenia pojęć:",
-                    "service": "<strong>Serwis</strong> – aplikacja internetowa udostępniana przez Janusza Kuźnika pod adresem https://crewops.devsmith.eu, umożliwiająca świadczenie usług SaaS.",
-                    "admin": "<strong>Administrator Serwisu</strong> – Janusz Kuźnik, prowadzący działalność jako osoba fizyczna; w rozumieniu RODO pełni rolę:",
-                    "admin.dataController": "<strong>administratora danych osobowych Klientów</strong> (np. dane kontaktowe osób rejestrujących konto firmowe),",
-                    "admin.processor": "<strong>podmiotu przetwarzającego</strong> wobec danych osobowych Użytkowników, które zostały powierzone przez Klienta.",
-                    "client": "<strong>Klient</strong> – podmiot (osoba fizyczna, firma lub inna jednostka organizacyjna) korzystający z usług Serwisu. Klient pełni rolę <strong>administratora danych osobowych swoich Użytkowników</strong>.",
-                    "user": "<strong>Użytkownik</strong> – osoba fizyczna, której dane osobowe zostały wprowadzone do Serwisu przez Klienta (np. pracownik Klienta, współpracownik lub kontrahent)."
-                },
-                "section1": {
-                    "title": "1. Administrator danych osobowych",
-                    "adminIntro": "Administratorem danych osobowych Klientów korzystających z Serwisu jest Administrator Serwisu - <strong>Janusz Kuźnik</strong>.",
-                    "contact": "Kontakt z Administratorem Serwisu jest możliwy za pośrednictwem adresu e-mail: <strong>janusz.kuznik@devsmith.eu</strong>",
-                    "privacyNote": "Administrator Serwisu nie udostępnia swojego adresu zamieszkania ani innych danych kontaktowych w treści niniejszego dokumentu z uwagi na ochronę prywatności. Dane te mogą zostać przekazane Klientowi lub właściwym organom wyłącznie na ich uzasadnione żądanie, zgodnie z obowiązującymi przepisami prawa.",
-                    "processorNote": "Dane osobowe Użytkowników w Serwisie są przetwarzane przez Administratora Serwisu wyłącznie na zlecenie Klienta, który jest administratorem danych osobowych swoich pracowników, współpracowników i kontrahentów. Administrator Serwisu pełni w tym zakresie rolę <strong>podmiotu przetwarzającego (procesora)</strong> na podstawie umowy powierzenia przetwarzania danych osobowych. Klient może przetwarzać dane Użytkowników <strong>wyłącznie w zakresie i w sposób udostępniony przez Serwis</strong>; wszelkie inne działania są niedozwolone."
-                },
-                "section2": {
-                    "title": "2. Zakres zbieranych danych",
-                    "clientAccount": {
-                        "title": "Dane dotyczące konta Klienta (firmowego):",
-                        "companyName": "nazwa firmy,",
-                        "nip": "numer identyfikacji podatkowej (NIP),",
-                        "address": "adres siedziby firmy,",
-                        "email": "adres poczty elektronicznej wskazany do kontaktu i rejestracji.",
-                        "note": "Powyższe dane dotyczą podmiotów gospodarczych i nie stanowią co do zasady danych osobowych w rozumieniu RODO, z wyjątkiem przypadków, gdy adres poczty elektronicznej umożliwia identyfikację osoby fizycznej."
+                "features": {
+                    "title": "Kluczowe Funkcje",
+                    "subtitle": "CrewOps zapewnia wszystko, czego potrzebujesz do efektywnego zarządzania zespołami terenowymi i dostępnym parkiem maszyn",
+                    "teamManagement": {
+                        "title": "Zarządzanie Zespołem",
+                        "description": "Przypisz pracowników do konkretnych zmian, zespołów lub maszyn z śledzeniem dostępności personelu w czasie rzeczywistym i kontrolą dostępu opartą na pełnionej funkcji."
                     },
-                    "userAccounts": {
-                        "title": "Dane dotyczące kont Użytkowników:",
-                        "name": "imię i nazwisko,",
-                        "employeeId": "identyfikator pracowniczy (np. numer pracownika) nadany przez Klienta lub wygenerowany automatycznie,",
-                        "optional": "opcjonalnie: adres poczty elektronicznej oraz numer telefonu (zazwyczaj służbowy), jeżeli przypisanie tych danych umożliwia korzystanie z dodatkowych funkcjonalności Serwisu, takich jak powiadomienia.",
-                        "processorNote": "Administrator wskazuje, że nie jest bezpośrednim administratorem danych osobowych Użytkowników, lecz przetwarza je wyłącznie na podstawie <strong>umowy powierzenia przetwarzania danych osobowych</strong> zawartej z Klientem, który pełni rolę administratora danych swoich pracowników, współpracowników i kontrahentów.",
-                        "purpose": "Dane Użytkowników przetwarzane są w zakresie niezbędnym do świadczenia usług oferowanych przez Serwis oraz w celu zapewnienia funkcjonalności przypisanych kont Użytkowników, w tym umożliwienia korzystania z przypisanych funkcji i powiadomień."
+                    "machineMonitoring": {
+                        "title": "Monitorowanie Maszyn",
+                        "description": "Kompleksowy przegląd statusu sprzętu (dostępnego, przypisanego do pracownika, wyłączonego z użytku) w czasie rzeczywistym."
+                    },
+                    "faultReporting": {
+                        "title": "Zgłaszanie Usterki",
+                        "description": "Bezpośrednie zgłaszanie usterek maszyn z pełnym rejestrowaniem, śledzeniem statusu, historią napraw i automatycznymi powiadomieniami dla odpowiednich osób."
+                    },
+                    "adminPanel": {
+                        "title": "Panel Administracyjny",
+                        "description": "Pełna kontrola administracyjna ze szczegółowymi uprawnieniami użytkowników, konfigurowalnymi widokami systemu i kompleksowymi logami działań do audytu i zgodności."
                     }
                 },
-                "section2a": {
-                    "title": "2.a Dane techniczne i pliki cookies",
-                    "intro": "Podczas korzystania z Serwisu mogą być przetwarzane dane techniczne dotyczące urządzenia Użytkownika, w tym m.in. typ przeglądarki internetowej, system operacyjny, ustawienia językowe oraz inne dane przekazywane automatycznie w ramach standardowej komunikacji sieciowej z Serwisem.",
-                    "cookies": "Serwis może wykorzystywać <strong>pliki cookies niezbędne do prawidłowego działania systemu i zapewnienia bezpieczeństwa sesji Użytkownika</strong>. Administrator nie stosuje mechanizmów śledzących ani nie przetwarza danych w celach profilowania czy dostarczania spersonalizowanych treści.",
-                    "ip": "W przypadku przyszłej implementacji funkcjonalności logowania, Serwis może przetwarzać również <strong>adres IP Użytkownika</strong> w celu zapewnienia bezpieczeństwa, monitorowania nadużyć i diagnozowania problemów technicznych.",
-                    "purposeIntro": "Dane techniczne i informacje z cookies są przetwarzane wyłącznie w zakresie niezbędnym do:",
-                    "purpose": {
-                        "1": "zapewnienia prawidłowego działania Serwisu,",
-                        "2": "utrzymania bezpieczeństwa systemu,",
-                        "3": "diagnozowania i rozwiązywania problemów technicznych."
+                "tech": {
+                    "title": "Zbudowany z Wykorzystaniem Nowoczesnych Technologii",
+                    "subtitle": "Wykorzystując najnowszy ekosystem Javy i technologie chmurowe",
+                    "viewFull": "Zobacz Pełny Stos Technologiczny",
+                    "architectureTitle": "Architektura Systemu",
+                    "multiModuleTitle": "Wielomodułowy Projekt Gradle",
+                    "multiModuleDesc1": "CrewOps jest zbudowany z czystą, modułową architekturą, która zapewnia separację odpowiedzialności i łatwość utrzymania. Projekt jest zorganizowany w odrębne moduły o jasnych odpowiedzialnościach, promując ponowne wykorzystanie kodu i łatwość utrzymania.",
+                    "multiModuleDesc2": "To podejście modułowe pozwala na niezależny rozwój i testowanie różnych komponentów, przy jednoczesnym zachowaniu spójnej architektury systemu. Każdy moduł ma określony cel i dobrze zdefiniowane granice.",
+                    "backendModule": "Moduł Backend",
+                    "backendItem1": "Framework Spring Boot",
+                    "backendItem2": "PostgreSQL z JPA/Hibernate",
+                    "backendItem3": "Liquibase do migracji bazy danych",
+                    "backendItem4": "Wielodostępność z podejściem schema-per-tenant",
+                    "backendItem5": "Uwierzytelnianie oparte na JWT",
+                    "backendItem6": "Projektowanie bezstanowego API",
+                    "frontendModule": "Moduł Frontend",
+                    "frontendItem1": "Spring Boot z Vaadin",
+                    "frontendItem2": "Nowoczesne komponenty UI",
+                    "frontendItem3": "Zintegrowane Spring Security",
+                    "frontendItem4": "Zarządzanie sesją Vaadin",
+                    "frontendItem5": "Interfejs webowy",
+                    "frontendItem6": "Wersja mobilna w rozwoju",
+                    "modelModule": "Moduł Model",
+                    "modelItem1": "Współdzielone DTO i enumy",
+                    "modelItem2": "Obiekty domenowe",
+                    "modelItem3": "Spójne struktury danych",
+                    "modelItem4": "Bezpieczeństwo typów między modułami",
+                    "modelItem5": "Kontrakty komunikacji HTTP",
+                    "modelItem6": "Reguły walidacji",
+                    "securityModule": "Moduł Bezpieczeństwa",
+                    "securityItem1": "Współdzielone interfejsy bezpieczeństwa",
+                    "securityItem2": "Walidacja tokenów JWT",
+                    "securityItem3": "Weryfikacja ról",
+                    "securityItem4": "Spójne uwierzytelnianie między modułami",
+                    "securityItem5": "Sprawdzanie uprawnień",
+                    "securityItem6": "Obsługa kontekstu bezpieczeństwa",
+                    "coreTitle": "Główne Technologie",
+                    "javaDesc": "Podstawowy język programowania z nowoczesnymi funkcjami i silną typizacją",
+                    "springDesc": "Framework do budowania samodzielnych, produkcyjnych aplikacji",
+                    "postgresDesc": "Solidna relacyjna baza danych z zaawansowanymi funkcjami",
+                    "jpaDesc": "Mapowanie obiektowo-relacyjne do interakcji z bazą danych",
+                    "liquibaseDesc": "Migracja schematu bazy danych i kontrola wersji",
+                    "springSecurityDesc": "Kompleksowy framework bezpieczeństwa do uwierzytelniania i autoryzacji",
+                    "jwtDesc": "Tokeny Web JSON do bezstanowego uwierzytelniania",
+                    "vaadinDesc": "Nowoczesny framework web do budowy interfejsów użytkownika w Javie",
+                    "awsDesc": "Platforma przetwarzania w chmurze do wdrożenia i hostingu",
+                    "nginxDesc": "Wysokowydajny serwer WWW i reverse proxy",
+                    "dockerDesc": "Platforma kontenerów do spójnych środowisk",
+                    "gradleDesc": "Narzędzie automatyzacji budowania do zarządzania zależnościami",
+                    "devopsTitle": "DevOps i Wdrożenie",
+                    "pipelineTitle": "Potok CI/CD i Infrastruktura",
+                    "pipelineDesc": "CrewOps implementuje nowoczesne podejście DevOps z automatycznym wdrożeniem i zarządzaniem infrastrukturą chmurową. Cały potok wdrożeniowy jest zautomatyzowany od zatwierdzenia kodu do wdrożenia produkcyjnego.",
+                    "githubTitle": "Integracja z GitHub",
+                    "githubItem1": "Zarządzanie repozytorium",
+                    "githubItem2": "Zgłoszenia do planowania",
+                    "githubItem3": "Projekty jako backlog",
+                    "githubItem4": "Automatyczne wyzwalacze wdrożeń",
+                    "deploymentTitle": "Potok Wdrożeniowy",
+                    "deploymentItem1": "Automatyczne testowanie",
+                    "deploymentItem2": "Budowanie przy scalaniu do głównej gałęzi",
+                    "deploymentItem3": "Wdrożenie na AWS EC2",
+                    "deploymentItem4": "Aktualizacje bez przestojów",
+                    "securityTitle2": "Bezpieczeństwo i SSL",
+                    "securityItem7": "Reverse proxy Nginx",
+                    "securityItem8": "Terminacja HTTPS",
+                    "securityItem9": "Zarządzanie certyfikatami SSL",
+                    "securityItem10": "Konfiguracja nagłówków bezpieczeństwa",
+                    "monitoringTitle": "Monitorowanie",
+                    "monitoringItem1": "Logowanie aplikacji",
+                    "monitoringItem2": "Monitorowanie wydajności",
+                    "monitoringItem3": "Śledzenie błędów",
+                    "monitoringItem4": "Wykorzystanie zasobów",
+                    "challengesTitle": "Wyzwania Techniczne i Rozwiązania",
+                    "challenge1Title": "Implementacja Wielodostępności",
+                    "challenge1Desc": "Zaimplementowano podejście schema-per-tenant do izolacji danych w PostgreSQL. Każdy najemca otrzymuje własny schemat bazy danych, współdzieląc tę samą instancję aplikacji. Dynamiczne rozpoznawanie schematu oparte na identyfikatorze najemcy JWT zapewnia właściwą separację danych i bezpieczeństwo.",
+                    "challenge2Title": "Spójność Między Modułami",
+                    "challenge2Desc": "Utrzymywanie spójności między modułami backend i frontend poprzez współdzielone moduły modelu i bezpieczeństwa. Współdzielone moduły zapewniają bezpieczeństwo typów, spójne struktury danych i jednolitą walidację bezpieczeństwa we wszystkich komponentach aplikacji.",
+                    "challenge3Title": "Bezstanowe Uwierzytelnianie",
+                    "challenge3Desc": "Zaimplementowano uwierzytelnianie oparte na JWT z Spring Security do projektowania bezstanowego API. Mechanizm odświeżania tokenów i autoryzacja oparta na rolach na poziomie punktów końcowych zapewniają bezpieczną kontrolę dostępu bez przechowywania sesji po stronie serwera.",
+                    "challenge4Title": "Powiadomienia w Czasie Rzeczywistym",
+                    "challenge4Desc": "Zaprojektowano i zaimplementowano system powiadomień, który wysyła alerty do odpowiednich osób, gdy zgłaszane są usterki maszyn. System zapewnia terminową komunikację i szybką reakcję na krytyczne problemy operacyjne."
+                },
+                "cta": {
+                    "title": "Gotowy na Transformację Swoich Operacji Terenowych?",
+                    "description": "Doświadcz mocy CrewOps i zobacz, jak może usprawnić zarządzanie zespołami i monitorowanie maszyn.",
+                    "launch": "Uruchom CrewOps",
+                    "github": "Zobacz na GitHub"
+                },
+                "project": {
+                    "title": "Szczegóły Projektu",
+                    "subtitle": "Głębsze spojrzenie na CrewOps - kompleksowy system zarządzania zespołami pracowników i maszynami",
+                    "overviewTitle": "Przegląd Projektu",
+                    "whatIsTitle": "Czym jest CrewOps?",
+                    "whatIsDesc1": "CrewOps to kompleksowy system zarządzania zespołami terenowymi i maszynami zaprojektowany w celu usprawnienia codziennych operacji zespołów technicznych. Aplikacja umożliwia zarządzanie zespołami w czasie rzeczywistym, monitorowanie sprzętu i zgłaszanie usterek - wszystko w jednej zintegrowanej platformie.",
+                    "whatIsDesc2": "Zbudowany z naciskiem na wydajność i skalowalność, CrewOps pomaga firmom zarządzać całą siłą roboczą i zapasami maszyn z jednego panelu. System jest zaprojektowany do obsługi złożonego harmonogramowania, śledzenia historii awarii i napraw oraz prac serwisowych maszyn.",
+                    "whatIsDesc3": "Obecnie dostępny jako aplikacja webowa z wersją mobilną w rozwoju, CrewOps zapewnia nowoczesny, intuicyjny interfejs, który sprawia, że zarządzanie operacjami terenowymi jest proste i skuteczne.",
+                    "featuresTitle": "Kluczowe Funkcje w Szczegółach",
+                    "teamManagementDetail": "Kompleksowy system zarządzania siłą roboczą, który pozwala administratorom przypisywać pracowników do konkretnych zmian, zespołów lub maszyn. Funkcje obejmują śledzenie dostępności personelu w czasie rzeczywistym, przydziały oparte na umiejętnościach oraz kwalifikacjach. System zapewnia optymalne alokowanie zasobów i redukuje konflikty harmonogramu. Jedną z dodatkowych funkcji jest odpowiednio wczesne powiadamianie o zbliżających się terminach ważności kwalifikacji lub badań medycznych danego pracownika.",
+                    "machineMonitoringDetail": "Kompletne zarządzanie cyklem życia sprzętu ze śledzeniem statusu w czasie rzeczywistym. Monitoruj dostępność maszyn, status przypisania i harmonogramy konserwacji. System zapewnia kompleksowe zarządzanie zapasami z automatycznymi alertami o nadchodzących terminach konserwacji i zmianach dostępności sprzętu.",
+                    "faultReportingDetail": "Usprawniony system zgłaszania usterek, który pozwala użytkownikom zgłaszać problemy z maszynami bezpośrednio przez aplikację. Każde zgłoszenie jest objęte szczegółowym rejestrowaniem oraz umożliwia śledzenie statusu i pełną historię napraw. Automatyczne powiadomienia zapewniają, że odpowiednie osoby są natychmiast informowane o zgłoszonych usterkach.",
+                    "adminPanelDetail": "Interfejs administracyjny ze szczegółowymi uprawnieniami użytkowników i konfigurowalnymi widokami systemu. Administratorzy mają kontrolę nad dostępem użytkowników, konfiguracją systemu i mogą monitorować wszystkie działania za pomocą kompleksowych logów audytowych.",
+                    "mvpTitle": "Wizja MVP",
+                    "mvpSubtitle": "Nasze Cele Minimalnego Produktu Wdrożeniowego",
+                    "mvpDesc": "Wersja MVP CrewOps ma na celu zapewnienie kompleksowego rozwiązania do zarządzania całą kadrą firmy oraz dostępnym parkiem maszyn, z automatycznym zgłaszaniem usterek i systemem powiadamiania odpowiednich osób.",
+                    "mvpGoal1Title": "Kompletne Zarządzanie Zespołami",
+                    "mvpGoal1Desc": "Zarządzaj wszystkimi zespołami firmy, zmianami i przydziałami w jednym systemie",
+                    "mvpGoal2Title": "Pełny Inwentarz Maszyn",
+                    "mvpGoal2Desc": "Śledź wszystkie maszyny firmy, ich status i historię konserwacji",
+                    "mvpGoal3Title": "Automatyczne Powiadomienia",
+                    "mvpGoal3Desc": "Natychmiastowe alerty dla odpowiednich osób, gdy maszyny zgłaszają usterki",
+                    "mvpGoal4Title": "Wgląd w Operacje",
+                    "mvpGoal4Desc": "Podstawowe raportowanie i analityka dla efektywności operacyjnej",
+                    "statusTitle": "Obecny Status",
+                    "progressTitle": "Postęp Rozwoju",
+                    "progressDesc1": "CrewOps jest obecnie w fazie rozwoju funkcjonalnej wersji webowej z jednoczesnym przygotowaniem wersji mobilnej. Kluczowe funkcje zarządzania zespołami, monitorowania maszyn i zgłaszania usterek są zaimplementowane i testowane w rzeczywistych scenariuszach.",
+                    "progressDesc2": "Regularne aktualizacje są wdrażane na podstawie opinii użytkowników i ewoluujących wymagań."
+                },
+                "about": {
+                    "title": "O Mnie",
+                    "subtitle": "Programista Java pasjonujący się budowaniem aplikacji enterprise i rozwiązywaniem rzeczywistych problemów",
+                    "intro1": "Jestem programistą Javy z dwoma latami dedykowanej nauki i praktycznego zastosowania. Moja podróż w tworzeniu oprogramowania zaczęła się od fascynacji rozwiązywaniem rzeczywistych problemów za pomocą technologii, co prowadziło mnie do specjalizacji w aplikacjach enterprise Java.",
+                    "intro2": "CrewOps reprezentuje nie tylko projekt, ale kompleksowe eksplorowanie nowoczesnych praktyk tworzenia oprogramowania w Javie, od projektowania baz danych po automatyzację wdrażenia. Moje podejście łączy wiedzę teoretyczną z praktyczną implementacją w celu tworzenia solidnych, skalowalnych rozwiązań.",
+                    "intro3": "Poza rozwojej projektu CrewOps staram się brać udział w grupowych projektach co daje mi możliwość poznawania nowych osób oraz rozwiązań technologicznych.",
+                    "skillsTitle": "Umiejętności Techniczne",
+                    "skillsSubtitle": "W tym czuję się swobodnie",
+                    "skillsDesc": "Jako samouczący się programista, skupiłem się na budowaniu praktycznych umiejętności poprzez projekty praktyczne.",
+                    "coreJava": "Podstawy Javy",
+                    "skillOOP": "Zasady OOP",
+                    "skillCollections": "Framework Collections",
+                    "skillStreams": "Streams API",
+                    "skillExceptions": "Obsługa Wyjątków",
+                    "skillJava17": "Funkcje Javy 17+",
+                    "springEcosystem": "Ekosystem Spring",
+                    "skillSpringBoot": "Spring Boot",
+                    "skillSpringMVC": "Spring MVC",
+                    "skillSpringSecurity": "Spring Security",
+                    "skillSpringData": "Spring Data JPA",
+                    "skillRestAPIs": "API REST",
+                    "skillDependencyInjection": "Wstrzykiwanie Zależności",
+                    "database": "Baza Danych i ORM",
+                    "skillPostgreSQL": "PostgreSQL",
+                    "skillJPA": "JPA/Hibernate",
+                    "skillBasicDB": "Podstawowe Koncepcje Baz Danych",
+                    "skillLiquibase": "Liquibase",
+                    "security": "Bezpieczeństwo",
+                    "skillJWT": "Uwierzytelnianie JWT",
+                    "skillRoleBased": "Dostęp Oparty na Rolach",
+                    "skillMultitenancy": "Wielodostępność",
+                    "frontend": "Frontend",
+                    "skillVaadin": "Framework Vaadin",
+                    "skillUI": "Komponenty UI",
+                    "devOps": "DevOps i Chmura",
+                    "skillAWS": "AWS EC2",
+                    "skillDocker": "Docker",
+                    "skillNginx": "Nginx",
+                    "skillCICD": "Podstawy CI/CD",
+                    "skillGit": "Git",
+                    "journeyTitle": "Moja Podróż Rozwojowa",
+                    "journeySubtitle": "Od Początkującego do Programisty Javy",
+                    "journeyDesc": "Moja podróż w tworzeniu oprogramowania zaczęła się z pasji i determinacji. Oto oś czasu mojej ścieżki nauki i kluczowe kamienie milowe:",
+                    "year2023Start": "2023 - Początki",
+                    "journey2023Start": "Zacząłem uczyć się podstaw Javy. Ukończyłem kurs online i zbudowałem proste aplikacje konsolowe, aby zrozumieć podstawowe koncepcje.",
+                    "year2023Projects": "2023 - Pierwsze Projekty",
+                    "journey2023Projects": "Stworzyłem podstawowe aplikacje Javy do ćwiczenia koncepcji programowania. Skupiłem się na zrozumieniu zasad programowania obiektowego i podstawowych wzorców projektowych.",
+                    "year2024Web": "2024 - Tworzenie Web",
+                    "journey2024Web": "Zgłębiłem tworzenie web z Spring Boot. Zbudowałem API REST po czym zacząłem brać udział w projektach grupowych.",
+                    "year2025CrewOps": "2025 - Początek CrewOps",
+                    "journey2025CrewOps": "Zacząłem pracować nad CrewOps jako kompleksowym projektem do zastosowania i rozwinięcia moich umiejętności. Zaimplementowałem architekturę wielomodułową i zaawansowane funkcje.",
+                    "year2025DevOps": "2025 - DevOps i Wdrożenie",
+                    "journey2025DevOps": "Pomyślnie wdrożyłem CrewOps korzystająć z rozwiązań AWS z automatycznym procesem CI/CD.",
+                    "present": "Obecnie - Ciąg Dalszy Nauki",
+                    "journeyPresent": "Obecnie eksploruję sposoby monitorowania aplikacji, zaawansowane wzorce bezpieczeństwa i techniki optymalizacji wydajności.",
+                    "contactTitle": "Skontaktuj Się",
+                    "getInTouch": "Nawiąż Kontakt",
+                    "contactDesc": "Aktywnie szukam możliwości dołączania do projektów Java, współpracy z innymi programistami i podejmowania ról, w których mogę zastosować i rozwinąć moje umiejętności.",
+                    "sendEmail": "Wyślij Email",
+                    "linkedin": "LinkedIn"
+                },
+                "privacy": {
+                    "pageTitle": "Polityka Prywatności — CrewOps",
+                    "logo": "CrewOps",
+                    "tagline": "Efektywne Zarządzanie Zespołami Terenowymi i Maszynami",
+                    "hero": {
+                        "title": "Polityka Prywatności",
+                        "desc": "Dokument przedstawia zasady przetwarzania danych osobowych w Serwisie CrewOps."
+                    },
+                    "meta": {
+                        "effectiveDateLabel": "Data wprowadzenia w życie:",
+                        "effectiveDate": "1 października 2025 roku"
+                    },
+                    "toc": {
+                        "definitions": "Definicje",
+                        "section1": "1. Administrator danych osobowych",
+                        "section2": "2. Zakres zbieranych danych",
+                        "section2a": "2.a Dane techniczne i pliki cookies",
+                        "section3": "3. Cele przetwarzania danych",
+                        "section4": "4. Podstawa prawna",
+                        "section5": "5. Okres przechowywania danych",
+                        "section6": "6. Prawa użytkowników i Klientów",
+                        "section6a": "6.a Usunięcie konta Klienta",
+                        "section7": "7. Kontakt",
+                        "section8": "8. Aktualizacja Polityki",
+                        "section9": "9. Informacje o sporządzeniu dokumentu"
+                    },
+                    "definitions": {
+                        "title": "Definicje",
+                        "intro": "Na potrzeby niniejszej Polityki Prywatności przyjmuje się następujące znaczenia pojęć:",
+                        "service": "<strong>Serwis</strong> – aplikacja internetowa udostępniana przez Janusza Kuźnika pod adresem https://crewops.devsmith.eu, umożliwiająca świadczenie usług SaaS.",
+                        "admin": "<strong>Administrator Serwisu</strong> – Janusz Kuźnik, prowadzący działalność jako osoba fizyczna; w rozumieniu RODO pełni rolę:",
+                        "admin.dataController": "<strong>administratora danych osobowych Klientów</strong> (np. dane kontaktowe osób rejestrujących konto firmowe),",
+                        "admin.processor": "<strong>podmiotu przetwarzającego</strong> wobec danych osobowych Użytkowników, które zostały powierzone przez Klienta.",
+                        "client": "<strong>Klient</strong> – podmiot (osoba fizyczna, firma lub inna jednostka organizacyjna) korzystający z usług Serwisu. Klient pełni rolę <strong>administratora danych osobowych swoich Użytkowników</strong>.",
+                        "user": "<strong>Użytkownik</strong> – osoba fizyczna, której dane osobowe zostały wprowadzone do Serwisu przez Klienta (np. pracownik Klienta, współpracownik lub kontrahent)."
+                    },
+                    "section1": {
+                        "title": "1. Administrator danych osobowych",
+                        "adminIntro": "Administratorem danych osobowych Klientów korzystających z Serwisu jest Administrator Serwisu - <strong>Janusz Kuźnik</strong>.",
+                        "contact": "Kontakt z Administratorem Serwisu jest możliwy za pośrednictwem adresu e-mail: <strong>janusz.kuznik@devsmith.eu</strong>",
+                        "privacyNote": "Administrator Serwisu nie udostępnia swojego adresu zamieszkania ani innych danych kontaktowych w treści niniejszego dokumentu z uwagi na ochronę prywatności. Dane te mogą zostać przekazane Klientowi lub właściwym organom wyłącznie na ich uzasadnione żądanie, zgodnie z obowiązującymi przepisami prawa.",
+                        "processorNote": "Dane osobowe Użytkowników w Serwisie są przetwarzane przez Administratora Serwisu wyłącznie na zlecenie Klienta, który jest administratorem danych osobowych swoich pracowników, współpracowników i kontrahentów. Administrator Serwisu pełni w tym zakresie rolę <strong>podmiotu przetwarzającego (procesora)</strong> na podstawie umowy powierzenia przetwarzania danych osobowych. Klient może przetwarzać dane Użytkowników <strong>wyłącznie w zakresie i w sposób udostępniony przez Serwis</strong>; wszelkie inne działania są niedozwolone."
+                    },
+                    "section2": {
+                        "title": "2. Zakres zbieranych danych",
+                        "clientAccount": {
+                            "title": "Dane dotyczące konta Klienta (firmowego):",
+                            "companyName": "nazwa firmy,",
+                            "nip": "numer identyfikacji podatkowej (NIP),",
+                            "address": "adres siedziby firmy,",
+                            "email": "adres poczty elektronicznej wskazany do kontaktu i rejestracji.",
+                            "note": "Powyższe dane dotyczą podmiotów gospodarczych i nie stanowią co do zasady danych osobowych w rozumieniu RODO, z wyjątkiem przypadków, gdy adres poczty elektronicznej umożliwia identyfikację osoby fizycznej."
+                        },
+                        "userAccounts": {
+                            "title": "Dane dotyczące kont Użytkowników:",
+                            "name": "imię i nazwisko,",
+                            "employeeId": "identyfikator pracowniczy (np. numer pracownika) nadany przez Klienta lub wygenerowany automatycznie,",
+                            "optional": "opcjonalnie: adres poczty elektronicznej oraz numer telefonu (zazwyczaj służbowy), jeżeli przypisanie tych danych umożliwia korzystanie z dodatkowych funkcjonalności Serwisu, takich jak powiadomienia.",
+                            "processorNote": "Administrator wskazuje, że nie jest bezpośrednim administratorem danych osobowych Użytkowników, lecz przetwarza je wyłącznie na podstawie <strong>umowy powierzenia przetwarzania danych osobowych</strong> zawartej z Klientem, który pełni rolę administratora danych swoich pracowników, współpracowników i kontrahentów.",
+                            "purpose": "Dane Użytkowników przetwarzane są w zakresie niezbędnym do świadczenia usług oferowanych przez Serwis oraz w celu zapewnienia funkcjonalności przypisanych kont Użytkowników, w tym umożliwienia korzystania z przypisanych funkcji i powiadomień."
+                        }
+                    },
+                    "section2a": {
+                        "title": "2.a Dane techniczne i pliki cookies",
+                        "intro": "Podczas korzystania z Serwisu mogą być przetwarzane dane techniczne dotyczące urządzenia Użytkownika, w tym m.in. typ przeglądarki internetowej, system operacyjny, ustawienia językowe oraz inne dane przekazywane automatycznie w ramach standardowej komunikacji sieciowej z Serwisem.",
+                        "cookies": "Serwis może wykorzystywać <strong>pliki cookies niezbędne do prawidłowego działania systemu i zapewnienia bezpieczeństwa sesji Użytkownika</strong>. Administrator nie stosuje mechanizmów śledzących ani nie przetwarza danych w celach profilowania czy dostarczania spersonalizowanych treści.",
+                        "ip": "W przypadku przyszłej implementacji funkcjonalności logowania, Serwis może przetwarzać również <strong>adres IP Użytkownika</strong> w celu zapewnienia bezpieczeństwa, monitorowania nadużyć i diagnozowania problemów technicznych.",
+                        "purposeIntro": "Dane techniczne i informacje z cookies są przetwarzane wyłącznie w zakresie niezbędnym do:",
+                        "purpose": {
+                            "1": "zapewnienia prawidłowego działania Serwisu,",
+                            "2": "utrzymania bezpieczeństwa systemu,",
+                            "3": "diagnozowania i rozwiązywania problemów technicznych."
+                        }
+                    },
+                    "section3": {
+                        "title": "3. Cele przetwarzania danych osobowych",
+                        "intro": "Dane osobowe Użytkowników przetwarzane są w Serwisie wyłącznie w zakresie i w celach niezbędnych do świadczenia usług oferowanych przez Serwis, w szczególności:",
+                        "serviceManagement": {
+                            "title": "Realizacja usług Serwisu",
+                            "clientUsers": "umożliwienie Klientowi (firmie) zarządzania własnymi użytkownikami,",
+                            "userFeatures": "umożliwienie Użytkownikom korzystania z funkcjonalności przypisanych do ich kont, w tym powiadomień i dostępu do treści Serwisu."
+                        },
+                        "accountManagement": {
+                            "title": "Zarządzanie kontami i autoryzacja",
+                            "integrity": "utrzymanie poprawności i integralności kont Klienta i jego Użytkowników,",
+                            "security": "w przypadku wdrożenia logowania: zapewnienie bezpieczeństwa dostępu i autoryzacji."
+                        },
+                        "security": {
+                            "title": "Bezpieczeństwo i diagnostyka techniczna",
+                            "systemSafety": "zapewnienie bezpieczeństwa Serwisu i sesji użytkowników,",
+                            "diagnostics": "monitorowanie poprawności działania systemu, diagnozowanie i rozwiązywanie problemów technicznych,",
+                            "misuse": "ewentualne monitorowanie nadużyć w ramach systemu (w tym adresy IP w przyszłości)."
+                        },
+                        "clientSupport": {
+                            "title": "Komunikacja z Klientem i wsparcie techniczne",
+                            "contact": "umożliwienie kontaktu z Klientem w sprawach administracyjnych, technicznych lub związanych z realizacją usług Serwisu, w tym za pośrednictwem adresu e-mail podanego przy rejestracji konta firmowego,",
+                            "support": "udzielanie pomocy technicznej i wsparcia w korzystaniu z Serwisu na podstawie danych Klienta lub Użytkowników."
+                        }
+                    },
+                    "section4": {
+                        "title": "4. Podstawa prawna przetwarzania danych osobowych",
+                        "intro": "Przetwarzanie danych osobowych Użytkowników w Serwisie odbywa się na podstawie przepisów RODO, w szczególności:",
+                        "art6b": {
+                            "title": "Art. 6 ust. 1 lit. b RODO – niezbędność do wykonania umowy",
+                            "desc": "Dane Użytkowników są przetwarzane w zakresie niezbędnym do świadczenia usług Serwisu na rzecz Klienta (firmy) oraz realizacji funkcjonalności przypisanych kontom użytkowników."
+                        },
+                        "art6f": {
+                            "title": "Art. 6 ust. 1 lit. f RODO – prawnie uzasadniony interes administratora lub podmiotu przetwarzającego",
+                            "desc": "Dane techniczne, w tym informacje o urządzeniu, sesjach i ewentualne adresy IP, są przetwarzane w celu zapewnienia bezpieczeństwa Serwisu, monitorowania poprawności działania systemu, diagnozowania problemów technicznych oraz zapobiegania nadużyciom. Prawnie uzasadniony interes obejmuje również możliwość udzielania pomocy technicznej Użytkownikom."
+                        },
+                        "art6c": {
+                            "title": "Art. 6 ust. 1 lit. c RODO – obowiązek prawny",
+                            "desc": "W zakresie, w jakim Serwis jest zobowiązany do realizacji obowiązków prawnych (np. przechowywanie danych niezbędnych do celów podatkowych lub rozliczeniowych Klienta), przetwarzanie odbywa się w celu wypełnienia tych obowiązków."
+                        }
+                    },
+                    "section5": {
+                        "title": "5. Okres przechowywania danych",
+                        "clientData": "Dane Klienta (firmowe) przechowywane są przez cały okres świadczenia usług przez Serwis. W przypadku zakończenia korzystania z usług przez Klienta, dane Klienta oraz Użytkowników przypisanych bezpośrednio do danego Klienta przechowywane są dodatkowo przez okres do <strong>6 miesięcy</strong> w celu umożliwienia ewentualnego ponownego skorzystania z usług Serwisu i zachowania historii aktywności. Po upływie tego okresu dane Klienta oraz Użytkowników są <strong>trwale i nieodwracalnie usuwane lub anonimizowane</strong>, a ich odzyskanie nie jest możliwe.",
+                        "userData": "Dane Użytkowników przechowywane są <strong>tak długo, jak Klient korzysta z Serwisu</strong>. Oznacza to, że w przypadku zakończenia współpracy Użytkownika z Klientem (np. rozwiązanie umowy o pracę, zakończenie współpracy kontraktowej) Użytkownik może utracić dostęp do systemu, jednak <strong>historia jego aktywności w Serwisie pozostaje zachowana na potrzeby Klienta</strong>, zgodnie z jego wymaganiami biznesowymi.",
+                        "technicalLogs": "Dane techniczne i logi systemowe przechowywane są wyłącznie w zakresie niezbędnym do zapewnienia bezpieczeństwa Serwisu oraz diagnozowania i rozwiązywania problemów technicznych, przez okres nie dłuższy niż jest konieczny do realizacji tych celów."
+                    },
+                    "section6": {
+                        "title": "6. Prawa użytkowników i Klientów",
+                        "intro": "Użytkownicy mają prawo do:",
+                        "access": "<strong>Dostępu do danych</strong> – prawo żądania od administratora (Klienta) informacji o przetwarzanych danych osobowych dotyczących Użytkownika, w tym celu, zakresie i okresie przechowywania.",
+                        "correction": "<strong>Sprostowania danych</strong> – prawo żądania od administratora (Klienta) poprawienia lub uzupełnienia nieprawidłowych lub niekompletnych danych osobowych.",
+                        "deletion": {
+                            "title": "<strong>Usunięcia danych („prawo do bycia zapomnianym”)</strong> – prawo żądania od administratora (Klienta) usunięcia danych osobowych, o ile nie istnieją inne uzasadnione podstawy ich przechowywania.",
+                            "note": "W zależności od potrzeb biznesowych Klienta, operacja usunięcia danych może być realizowana w jednym z dwóch wariantów:",
+                            "permanent": "<strong>Nieodwracalne usunięcie konta Użytkownika wraz z całą historią jego aktywności</strong> w Serwisie.",
+                            "anonymization": "<strong>Anonimizacja konta Użytkownika</strong>, w wyniku której dane osobowe nie są już powiązane z konkretną osobą, co pozwala zachować historię aktywności w systemie, zgodnie z wymaganiami Klienta.",
+                            "processorNote": "Administrator Serwisu realizuje powyższe operacje wyłącznie na podstawie zlecenia Klienta, który jest administratorem danych osobowych Użytkowników."
+                        },
+                        "limitation": "<strong>Ograniczenia przetwarzania</strong> – prawo żądania od administratora (Klienta) ograniczenia przetwarzania danych w przypadkach przewidzianych przepisami RODO.",
+                        "objection": "<strong>Sprzeciwu wobec przetwarzania danych</strong> – prawo wniesienia sprzeciwu wobec przetwarzania danych osobowych w przypadkach przewidzianych przepisami RODO.",
+                        "complaint": "<strong>Skargi do organu nadzorczego</strong> – prawo wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych w przypadku uznania, że przetwarzanie danych osobowych narusza przepisy RODO."
+                    },
+                    "section6a": {
+                        "title": "6.a Usunięcie konta Klienta (firmowego)",
+                        "clientRequest": "Klient ma prawo żądania usunięcia swojego konta w Serwisie.",
+                        "irreversible": "Usunięcie konta Klienta jest <strong>nieodwracalne</strong> i skutkuje natychmiastowym usunięciem:",
+                        "userAccounts": "kont wszystkich Użytkowników przypisanych do danego Klienta (pracowników, współpracowników, kontrahentów),",
+                        "history": "całej historii danych związanych z kontem Klienta i jego Użytkowników."
+                    },
+                    "section7": {
+                        "title": "7. Kontakt w sprawach ochrony danych osobowych",
+                        "intro": "Wszelkie pytania, wnioski lub żądania dotyczące przetwarzania danych osobowych w związku z korzystaniem z Serwisu mogą być kierowane do Administratora Serwisu za pośrednictwem poczty elektronicznej:",
+                        "email": "crewops@devsmith.eu",
+                        "responseTime": "Administrator Serwisu rozpatruje zgłoszenia niezwłocznie, z uwzględnieniem terminów przewidzianych w art. 12 RODO."
+                    },
+                    "section8": {
+                        "title": "8. Aktualizacja Polityki Prywatności",
+                        "updateRight": "Administrator Serwisu zastrzega sobie prawo do <strong>aktualizowania niniejszej Polityki Prywatności</strong> w dowolnym czasie, w szczególności w przypadku zmian w funkcjonalności Serwisu, wymogów prawnych lub praktyk przetwarzania danych.",
+                        "notification": "Administrator Systemu <strong>deklaruje, że będzie informował Klientów Serwisu o planowanej zmianie Polityki Prywatności</strong> z odpowiednim wyprzedzeniem, aby umożliwić im zapoznanie się z nowymi zapisami.",
+                        "effective": "Aktualizacje Polityki wchodzą w życie z chwilą ich publikacji w Serwisie pod tym samym adresem URL. Zaleca się regularne zapoznawanie się z treścią Polityki w celu bieżącej informacji o sposobach przetwarzania danych osobowych."
+                    },
+                    "section9": {
+                        "title": "9. Informacje o sporządzeniu dokumentu",
+                        "intro": "Dokument Polityki Prywatności został przygotowany przez <strong>Administratora Serwisu</strong> w celu transparentnego przedstawienia zasad przetwarzania danych osobowych w Serwisie.",
+                        "effectiveDate": "Data wprowadzenia w życie: <strong>1 października 2025 roku</strong>."
+                    },
+                    "footer": {
+                        "copyright": "© 2025 CrewOps. Wszelkie prawa zastrzeżone.",
+                        "author": "Projekt i wykonanie: Janusz Kuźnik"
                     }
-                },
-                "section3": {
-                    "title": "3. Cele przetwarzania danych osobowych",
-                    "intro": "Dane osobowe Użytkowników przetwarzane są w Serwisie wyłącznie w zakresie i w celach niezbędnych do świadczenia usług oferowanych przez Serwis, w szczególności:",
-                    "serviceManagement": {
-                        "title": "Realizacja usług Serwisu",
-                        "clientUsers": "umożliwienie Klientowi (firmie) zarządzania własnymi użytkownikami,",
-                        "userFeatures": "umożliwienie Użytkownikom korzystania z funkcjonalności przypisanych do ich kont, w tym powiadomień i dostępu do treści Serwisu."
-                    },
-                    "accountManagement": {
-                        "title": "Zarządzanie kontami i autoryzacja",
-                        "integrity": "utrzymanie poprawności i integralności kont Klienta i jego Użytkowników,",
-                        "security": "w przypadku wdrożenia logowania: zapewnienie bezpieczeństwa dostępu i autoryzacji."
-                    },
-                    "security": {
-                        "title": "Bezpieczeństwo i diagnostyka techniczna",
-                        "systemSafety": "zapewnienie bezpieczeństwa Serwisu i sesji użytkowników,",
-                        "diagnostics": "monitorowanie poprawności działania systemu, diagnozowanie i rozwiązywanie problemów technicznych,",
-                        "misuse": "ewentualne monitorowanie nadużyć w ramach systemu (w tym adresy IP w przyszłości)."
-                    },
-                    "clientSupport": {
-                        "title": "Komunikacja z Klientem i wsparcie techniczne",
-                        "contact": "umożliwienie kontaktu z Klientem w sprawach administracyjnych, technicznych lub związanych z realizacją usług Serwisu, w tym za pośrednictwem adresu e-mail podanego przy rejestracji konta firmowego,",
-                        "support": "udzielanie pomocy technicznej i wsparcia w korzystaniu z Serwisu na podstawie danych Klienta lub Użytkowników."
-                    }
-                },
-                "section4": {
-                    "title": "4. Podstawa prawna przetwarzania danych osobowych",
-                    "intro": "Przetwarzanie danych osobowych Użytkowników w Serwisie odbywa się na podstawie przepisów RODO, w szczególności:",
-                    "art6b": {
-                        "title": "Art. 6 ust. 1 lit. b RODO – niezbędność do wykonania umowy",
-                        "desc": "Dane Użytkowników są przetwarzane w zakresie niezbędnym do świadczenia usług Serwisu na rzecz Klienta (firmy) oraz realizacji funkcjonalności przypisanych kontom użytkowników."
-                    },
-                    "art6f": {
-                        "title": "Art. 6 ust. 1 lit. f RODO – prawnie uzasadniony interes administratora lub podmiotu przetwarzającego",
-                        "desc": "Dane techniczne, w tym informacje o urządzeniu, sesjach i ewentualne adresy IP, są przetwarzane w celu zapewnienia bezpieczeństwa Serwisu, monitorowania poprawności działania systemu, diagnozowania problemów technicznych oraz zapobiegania nadużyciom. Prawnie uzasadniony interes obejmuje również możliwość udzielania pomocy technicznej Użytkownikom."
-                    },
-                    "art6c": {
-                        "title": "Art. 6 ust. 1 lit. c RODO – obowiązek prawny",
-                        "desc": "W zakresie, w jakim Serwis jest zobowiązany do realizacji obowiązków prawnych (np. przechowywanie danych niezbędnych do celów podatkowych lub rozliczeniowych Klienta), przetwarzanie odbywa się w celu wypełnienia tych obowiązków."
-                    }
-                },
-                "section5": {
-                    "title": "5. Okres przechowywania danych",
-                    "clientData": "Dane Klienta (firmowe) przechowywane są przez cały okres świadczenia usług przez Serwis. W przypadku zakończenia korzystania z usług przez Klienta, dane Klienta oraz Użytkowników przypisanych bezpośrednio do danego Klienta przechowywane są dodatkowo przez okres do <strong>6 miesięcy</strong> w celu umożliwienia ewentualnego ponownego skorzystania z usług Serwisu i zachowania historii aktywności. Po upływie tego okresu dane Klienta oraz Użytkowników są <strong>trwale i nieodwracalnie usuwane lub anonimizowane</strong>, a ich odzyskanie nie jest możliwe.",
-                    "userData": "Dane Użytkowników przechowywane są <strong>tak długo, jak Klient korzysta z Serwisu</strong>. Oznacza to, że w przypadku zakończenia współpracy Użytkownika z Klientem (np. rozwiązanie umowy o pracę, zakończenie współpracy kontraktowej) Użytkownik może utracić dostęp do systemu, jednak <strong>historia jego aktywności w Serwisie pozostaje zachowana na potrzeby Klienta</strong>, zgodnie z jego wymaganiami biznesowymi.",
-                    "technicalLogs": "Dane techniczne i logi systemowe przechowywane są wyłącznie w zakresie niezbędnym do zapewnienia bezpieczeństwa Serwisu oraz diagnozowania i rozwiązywania problemów technicznych, przez okres nie dłuższy niż jest konieczny do realizacji tych celów."
-                },
-                "section6": {
-                    "title": "6. Prawa użytkowników i Klientów",
-                    "intro": "Użytkownicy mają prawo do:",
-                    "access": "<strong>Dostępu do danych</strong> – prawo żądania od administratora (Klienta) informacji o przetwarzanych danych osobowych dotyczących Użytkownika, w tym celu, zakresie i okresie przechowywania.",
-                    "correction": "<strong>Sprostowania danych</strong> – prawo żądania od administratora (Klienta) poprawienia lub uzupełnienia nieprawidłowych lub niekompletnych danych osobowych.",
-                    "deletion": {
-                        "title": "<strong>Usunięcia danych („prawo do bycia zapomnianym”)</strong> – prawo żądania od administratora (Klienta) usunięcia danych osobowych, o ile nie istnieją inne uzasadnione podstawy ich przechowywania.",
-                        "note": "W zależności od potrzeb biznesowych Klienta, operacja usunięcia danych może być realizowana w jednym z dwóch wariantów:",
-                        "permanent": "<strong>Nieodwracalne usunięcie konta Użytkownika wraz z całą historią jego aktywności</strong> w Serwisie.",
-                        "anonymization": "<strong>Anonimizacja konta Użytkownika</strong>, w wyniku której dane osobowe nie są już powiązane z konkretną osobą, co pozwala zachować historię aktywności w systemie, zgodnie z wymaganiami Klienta.",
-                        "processorNote": "Administrator Serwisu realizuje powyższe operacje wyłącznie na podstawie zlecenia Klienta, który jest administratorem danych osobowych Użytkowników."
-                    },
-                    "limitation": "<strong>Ograniczenia przetwarzania</strong> – prawo żądania od administratora (Klienta) ograniczenia przetwarzania danych w przypadkach przewidzianych przepisami RODO.",
-                    "objection": "<strong>Sprzeciwu wobec przetwarzania danych</strong> – prawo wniesienia sprzeciwu wobec przetwarzania danych osobowych w przypadkach przewidzianych przepisami RODO.",
-                    "complaint": "<strong>Skargi do organu nadzorczego</strong> – prawo wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych w przypadku uznania, że przetwarzanie danych osobowych narusza przepisy RODO."
-                },
-                "section6a": {
-                    "title": "6.a Usunięcie konta Klienta (firmowego)",
-                    "clientRequest": "Klient ma prawo żądania usunięcia swojego konta w Serwisie.",
-                    "irreversible": "Usunięcie konta Klienta jest <strong>nieodwracalne</strong> i skutkuje natychmiastowym usunięciem:",
-                    "userAccounts": "kont wszystkich Użytkowników przypisanych do danego Klienta (pracowników, współpracowników, kontrahentów),",
-                    "history": "całej historii danych związanych z kontem Klienta i jego Użytkowników."
-                },
-                "section7": {
-                    "title": "7. Kontakt w sprawach ochrony danych osobowych",
-                    "intro": "Wszelkie pytania, wnioski lub żądania dotyczące przetwarzania danych osobowych w związku z korzystaniem z Serwisu mogą być kierowane do Administratora Serwisu za pośrednictwem poczty elektronicznej:",
-                    "email": "crewops@devsmith.eu",
-                    "responseTime": "Administrator Serwisu rozpatruje zgłoszenia niezwłocznie, z uwzględnieniem terminów przewidzianych w art. 12 RODO."
-                },
-                "section8": {
-                    "title": "8. Aktualizacja Polityki Prywatności",
-                    "updateRight": "Administrator Serwisu zastrzega sobie prawo do <strong>aktualizowania niniejszej Polityki Prywatności</strong> w dowolnym czasie, w szczególności w przypadku zmian w funkcjonalności Serwisu, wymogów prawnych lub praktyk przetwarzania danych.",
-                    "notification": "Administrator Systemu <strong>deklaruje, że będzie informował Klientów Serwisu o planowanej zmianie Polityki Prywatności</strong> z odpowiednim wyprzedzeniem, aby umożliwić im zapoznanie się z nowymi zapisami.",
-                    "effective": "Aktualizacje Polityki wchodzą w życie z chwilą ich publikacji w Serwisie pod tym samym adresem URL. Zaleca się regularne zapoznawanie się z treścią Polityki w celu bieżącej informacji o sposobach przetwarzania danych osobowych."
-                },
-                "section9": {
-                    "title": "9. Informacje o sporządzeniu dokumentu",
-                    "intro": "Dokument Polityki Prywatności został przygotowany przez <strong>Administratora Serwisu</strong> w celu transparentnego przedstawienia zasad przetwarzania danych osobowych w Serwisie.",
-                    "effectiveDate": "Data wprowadzenia w życie: <strong>1 października 2025 roku</strong>."
                 },
                 "footer": {
                     "copyright": "© 2025 CrewOps. Wszelkie prawa zastrzeżone.",
-                    "author": "Projekt i wykonanie: Janusz Kuźnik"
-                }
-            },
-            "footer": {
-                "copyright": "© 2025 CrewOps. Wszelkie prawa zastrzeżone.",
-                "designedBy": "Zaprojektowany i zbudowany przez Janusz Kuźnik"
-            }
-        }
-    };
-
-    let currentLang = localStorage.getItem('preferred-language') || 'en';
-
-    function updateContent(lang) {
-        const translation = translations[lang] || translations.en;
-        document.querySelectorAll('[data-i18n]').forEach(element => {
-            const keys = element.getAttribute('data-i18n').split('.');
-            let value = translation;
-            // Navigate through the translation object
-            for (const key of keys) {
-                if (value && typeof value === 'object' && key in value) {
-                    value = value[key];
-                } else {
-                    value = null;
-                    break;
+                    "designedBy": "Zaprojektowany i zbudowany przez Janusz Kuźnik"
                 }
             }
-            // Update element content if translation exists
-            if (value) {
-                if (element.tagName === 'INPUT' || element.tagName === 'META') {
-                    element.setAttribute('content', value);
-                } else {
-                    // Check if the value contains HTML tags
-                    if (typeof value === 'string' && (value.includes('<') || value.includes('&'))) {
-                        element.innerHTML = value;
+        };
+
+        let currentLang = localStorage.getItem('preferred-language') || 'en';
+
+        function updateContent(lang) {
+            const translation = translations[lang] || translations.en;
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const keys = element.getAttribute('data-i18n').split('.');
+                let value = translation;
+                // Navigate through the translation object
+                for (const key of keys) {
+                    if (value && typeof value === 'object' && key in value) {
+                        value = value[key];
                     } else {
-                        element.textContent = value;
+                        value = null;
+                        break;
                     }
                 }
-            }
-        });
+                // Update element content if translation exists
+                if (value) {
+                    if (element.tagName === 'INPUT' || element.tagName === 'META') {
+                        element.setAttribute('content', value);
+                    } else {
+                        // Check if the value contains HTML tags
+                        if (typeof value === 'string' && (value.includes('<') || value.includes('&'))) {
+                            element.innerHTML = value;
+                        } else {
+                            element.textContent = value;
+                        }
+                    }
+                }
+            });
 
-        // Update document title
-        const titleKey = document.documentElement.getAttribute('data-i18n-title');
-        if (titleKey && translation[titleKey]) {
-            document.title = translation[titleKey];
+            // Update document title
+            const titleKey = document.documentElement.getAttribute('data-i18n-title');
+            if (titleKey && translation[titleKey]) {
+                document.title = translation[titleKey];
+            }
+
+            // Remove the loading class after a short delay
+            setTimeout(() => {
+                document.documentElement.classList.remove('i18n-loading');
+            }, 50);
         }
 
-        // Remove the loading class after a short delay
-        setTimeout(() => {
-            document.documentElement.classList.remove('i18n-loading');
-        }, 50);
-    }
+        function setActiveLanguageButton(lang) {
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.id === `lang-${lang}`) {
+                    btn.classList.add('active');
+                }
+            });
+        }
 
-    function setActiveLanguageButton(lang) {
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.id === `lang-${lang}`) {
-                btn.classList.add('active');
-            }
+        function changeLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('preferred-language', lang);
+            // Update lang attribute
+            document.documentElement.lang = lang;
+            setActiveLanguageButton(lang);
+
+            // Add the loading class back before changing content
+            document.documentElement.classList.add('i18n-loading');
+
+            // Update content after a short delay
+            setTimeout(() => {
+                updateContent(lang);
+            }, 10);
+        }
+
+        // Initialize language
+        function initLanguage() {
+            // Set lang attribute initially
+            document.documentElement.lang = currentLang;
+            setActiveLanguageButton(currentLang);
+            updateContent(currentLang);
+        }
+
+        // Add event listeners to language buttons
+        document.querySelectorAll('.lang-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const lang = this.id.replace('lang-', '');
+                changeLanguage(lang);
+            });
         });
-    }
 
-    function changeLanguage(lang) {
-        currentLang = lang;
-        localStorage.setItem('preferred-language', lang);
-        // Update lang attribute
-        document.documentElement.lang = lang;
-        setActiveLanguageButton(lang);
-
-        // Add the loading class back before changing content
-        document.documentElement.classList.add('i18n-loading');
-
-        // Update content after a short delay
-        setTimeout(() => {
-            updateContent(lang);
-        }, 10);
-    }
-
-    // Initialize language
-    function initLanguage() {
-        // Set lang attribute initially
-        document.documentElement.lang = currentLang;
-        setActiveLanguageButton(currentLang);
-        updateContent(currentLang);
-    }
-
-    // Add event listeners to language buttons
-    document.querySelectorAll('.lang-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const lang = this.id.replace('lang-', '');
-            changeLanguage(lang);
-        });
+        // Initialize on page load
+        initLanguage();
     });
-
-    // Initialize on page load
-    initLanguage();
-});

@@ -1,0 +1,3 @@
+Jak nazywa się stolica Polski?;Kraków;Warszawa;Łódź;Poznań;2
+Jaka jest najdłuższa rzeka w Polsce?;Wisła;Odra;Warta;Bug;1
+Do jakiego morza Polska ma dostęp?;Czarnego;Północnego;Bałtyckiego;Kaspijskiego;3
