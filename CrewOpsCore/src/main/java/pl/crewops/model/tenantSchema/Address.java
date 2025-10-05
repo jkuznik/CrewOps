@@ -1,9 +1,10 @@
-package pl.crewops.model;
+package pl.crewops.model.tenantSchema;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import pl.crewops.model.AbstractEntity;
 
 @Getter
 @Setter

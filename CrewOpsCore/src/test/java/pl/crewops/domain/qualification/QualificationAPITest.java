@@ -10,7 +10,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.IntegrationTest;
-import pl.crewops.model.Qualification;
+import pl.crewops.model.tenantSchema.Qualification;
 
 @Transactional
 class QualificationAPITest extends IntegrationTest {

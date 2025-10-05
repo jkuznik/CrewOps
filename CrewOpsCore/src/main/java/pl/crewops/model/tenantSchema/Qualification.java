@@ -1,4 +1,4 @@
-package pl.crewops.model;
+package pl.crewops.model.tenantSchema;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.*;
+import pl.crewops.model.AbstractEntity;
 import pl.crewops.model.dto.qualification.CreateQualificationDTO;
 import pl.crewops.model.dto.qualification.QualificationDTO;
 import pl.crewops.util.serializer.EmployeeSetSerializer;

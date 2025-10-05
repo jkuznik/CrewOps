@@ -1,6 +1,23 @@
 databaseChangeLog:
   - changeSet:
-      id: 001-create-table-tenant
+      id: 001-create-company-status-enum
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            stripComments: false
+            sql: |
+              DO $$
+              BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'company_status') THEN
+                  CREATE TYPE company_status AS ENUM ('INACTIVE', 'SUSPENDED', 'UNPAID', 'TRIAL', 'ACTIVE');
+                END IF;
+              END;
+              $$;
+
+  - changeSet:
+      id: 002-create-table-tenant
       author: jkuznik
       changes:
         - createTable:
@@ -35,24 +52,24 @@ databaseChangeLog:
                     unique: true
               - column:
                   name: status
-                  type: varchar(31)
+                  type: company_status
                   constraints:
                     nullable: false
               - column:
                   name: created_at
-                  type: timestamp
+                  type: timestamptz
                   defaultValueComputed: CURRENT_TIMESTAMP
                   constraints:
                     nullable: false
               - column:
                   name: updated_at
-                  type: timestamp
+                  type: timestamptz
                   defaultValueComputed: CURRENT_TIMESTAMP
                   constraints:
                     nullable: false
 
   - changeSet:
-      id: 002-create-tenant-updated_at-trigger
+      id: 003-create-tenant-updated_at-trigger
       author: jkuznik
       changes:
         - sql:

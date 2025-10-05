@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.exception.domain.employee.EmployeeNotFoundException;
-import pl.crewops.model.Employee;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeQualificationDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationExpiredAtDTO;
+import pl.crewops.model.tenantSchema.Employee;
 
 @Validated
 public interface EmployeeAPI {

@@ -14,10 +14,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.exception.domain.qualification.QualificationNotFoundException;
-import pl.crewops.model.Qualification;
 import pl.crewops.model.dto.qualification.CreateQualificationDTO;
 import pl.crewops.model.dto.qualification.QualificationDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationDTO;
+import pl.crewops.model.tenantSchema.Qualification;
 
 @Slf4j
 @Service

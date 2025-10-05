@@ -27,9 +27,10 @@ public class BreakdownFormModel {
 
     private EmployeeDTO reportedBy;
     private EmployeeDTO repairedBy;
-    private boolean critical;
+    private Instant reportedAt;
     private boolean solved;
     private Instant solvedAt;
+    private boolean critical;
 
     public static BreakdownFormModel toBreakdownFormModel(BreakdownDTO breakdown) {
         return BreakdownFormModel.builder()
@@ -38,6 +39,7 @@ public class BreakdownFormModel {
                 .machine(breakdown.machine())
                 .reportedBy(breakdown.reportedBy())
                 .repairedBy(breakdown.repairedBy())
+                .reportedAt(breakdown.reportedAt())
                 .critical(breakdown.critical())
                 .solved(breakdown.solved())
                 .solvedAt(breakdown.solvedAt())

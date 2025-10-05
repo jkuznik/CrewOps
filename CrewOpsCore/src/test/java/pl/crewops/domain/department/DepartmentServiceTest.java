@@ -10,8 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import pl.crewops.model.Department;
 import pl.crewops.model.dto.department.DepartmentDTO;
+import pl.crewops.model.tenantSchema.Department;
 
 class DepartmentServiceTest {
 

@@ -1,12 +1,12 @@
 package pl.crewops.domain.auth;
 
 import java.util.Set;
-import pl.crewops.model.Machine;
-import pl.crewops.model.MachineType;
-import pl.crewops.model.Qualification;
 import pl.crewops.model.auth.RoleType;
 import pl.crewops.model.dto.auth.CreateAuthUserDTO;
 import pl.crewops.model.dto.auth.RoleDTO;
+import pl.crewops.model.tenantSchema.Machine;
+import pl.crewops.model.tenantSchema.MachineType;
+import pl.crewops.model.tenantSchema.Qualification;
 
 class AuthTestFactory {
 

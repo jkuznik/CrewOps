@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.exception.domain.department.DepartmentNotFoundException;
-import pl.crewops.model.Department;
 import pl.crewops.model.dto.department.DepartmentDTO;
+import pl.crewops.model.tenantSchema.Department;
 
 @Slf4j
 @Service

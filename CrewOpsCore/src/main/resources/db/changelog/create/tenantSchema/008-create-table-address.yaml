@@ -42,13 +42,13 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: created_at
-                  type: timestamp
+                  type: timestamptz
                   defaultValueComputed: CURRENT_TIMESTAMP
                   constraints:
                     nullable: false
               - column:
                   name: updated_at
-                  type: timestamp
+                  type: timestamptz
                   defaultValueComputed: CURRENT_TIMESTAMP
                   constraints:
                     nullable: false

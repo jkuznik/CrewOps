@@ -18,10 +18,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.exception.domain.message.MessageNotFoundException;
-import pl.crewops.model.Message;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.message.CreateMessageDTO;
 import pl.crewops.model.dto.message.MessageDTO;
+import pl.crewops.model.tenantSchema.Message;
 
 @SpringJUnitConfig(classes = {MessageService.class, MessageRepository.class, EmployeeAPI.class})
 class MessageServiceTest {

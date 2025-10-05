@@ -3,7 +3,7 @@ package pl.crewops.domain.company;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
-import pl.crewops.model.Company;
+import pl.crewops.model.tenantSchema.Company;
 
 interface CompanyRepository extends JpaRepository<Company, UUID> {
 

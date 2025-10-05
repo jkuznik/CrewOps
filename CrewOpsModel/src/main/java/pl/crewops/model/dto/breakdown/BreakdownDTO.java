@@ -15,6 +15,7 @@ public record BreakdownDTO(
         MachineDTO machine,
         EmployeeDTO reportedBy,
         EmployeeDTO repairedBy,
+        Instant reportedAt,
         boolean critical,
         boolean solved,
         Instant solvedAt)

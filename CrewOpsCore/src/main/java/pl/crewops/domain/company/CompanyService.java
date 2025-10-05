@@ -12,11 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.domain.address.AddressAPI;
 import pl.crewops.exception.domain.company.CompanyNotFoundException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
-import pl.crewops.model.Address;
-import pl.crewops.model.Company;
 import pl.crewops.model.dto.address.CreateAddressDTO;
 import pl.crewops.model.dto.company.CompanyDTO;
 import pl.crewops.model.dto.company.CreateCompanyDTO;
+import pl.crewops.model.tenantSchema.Address;
+import pl.crewops.model.tenantSchema.Company;
 
 @Slf4j
 @Service

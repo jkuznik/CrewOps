@@ -96,6 +96,7 @@ public class BreakdownGrid extends VerticalLayout {
         grid.getColumnByKey("critical").setHeader(getTranslation("breakdownGrid.column.critical"));
         grid.getColumnByKey("solved").setHeader(getTranslation("breakdownGrid.column.solved"));
         grid.getColumnByKey("reportedBy").setHeader(getTranslation("breakdownGrid.column.reportedBy"));
+        grid.getColumnByKey("reportedAt").setHeader(getTranslation("breakdownGrid.column.reportedAt"));
         grid.getColumnByKey("repairedBy").setHeader(getTranslation("breakdownGrid.column.repairedBy"));
         grid.getColumnByKey("solvedAt").setHeader(getTranslation("breakdownGrid.column.solvedAt"));
     }
@@ -117,7 +118,6 @@ public class BreakdownGrid extends VerticalLayout {
                         return new Span();
                     }
                 }))
-                .setHeader("Critical")
                 .setKey("critical");
 
         grid.addColumn(new ComponentRenderer<>(model -> {
@@ -131,7 +131,6 @@ public class BreakdownGrid extends VerticalLayout {
                         return pendingIcon;
                     }
                 }))
-                .setHeader("Solved")
                 .setKey("solved");
 
         grid.addColumn(model -> model.getReportedBy() != null
@@ -139,6 +138,13 @@ public class BreakdownGrid extends VerticalLayout {
                                 + model.getReportedBy().lastName()
                         : "-")
                 .setKey("reportedBy");
+
+        grid.addColumn(model -> model.getReportedAt() != null
+                        ? DATE_TIME_HUMAN_READABLE_FORMATTER
+                                .withZone(ZoneId.systemDefault())
+                                .format(model.getReportedAt())
+                        : "-")
+                .setKey("reportedAt");
 
         grid.addColumn(model -> model.getRepairedBy() != null
                         ? model.getRepairedBy().firstName() + " "
@@ -151,8 +157,7 @@ public class BreakdownGrid extends VerticalLayout {
                                 .withZone(ZoneId.systemDefault())
                                 .format(model.getSolvedAt())
                         : "-")
-                .setKey("solvedAt")
-                .setHeader(getTranslation("breakdownGrid.column.solvedAt"));
+                .setKey("solvedAt");
 
         grid.getColumns().forEach(column -> {
             column.setFlexGrow(1);

@@ -4,10 +4,10 @@ import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 import pl.crewops.IntegrationTest;
-import pl.crewops.model.*;
 import pl.crewops.model.dto.department.DepartmentDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.model.tenantSchema.*;
 
 class EmployeeTestFactory {
 

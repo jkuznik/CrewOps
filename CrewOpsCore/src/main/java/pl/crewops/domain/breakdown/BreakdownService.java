@@ -2,6 +2,8 @@ package pl.crewops.domain.breakdown;
 
 import static pl.crewops.domain.breakdown.BreakdownMapper.toDTO;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -15,13 +17,13 @@ import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.exception.domain.breakdown.BreakdownNotFoundException;
 import pl.crewops.exception.domain.employee.EmployeeNotFoundException;
 import pl.crewops.exception.domain.machine.MachineNotFoundException;
-import pl.crewops.model.Breakdown;
-import pl.crewops.model.Employee;
-import pl.crewops.model.Machine;
 import pl.crewops.model.dto.breakdown.BreakdownDTO;
 import pl.crewops.model.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.model.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.model.dto.machine.UpdateMachineDTO;
+import pl.crewops.model.tenantSchema.Breakdown;
+import pl.crewops.model.tenantSchema.Employee;
+import pl.crewops.model.tenantSchema.Machine;
 
 @Slf4j
 @Service
@@ -31,6 +33,9 @@ class BreakdownService {
     private final BreakdownRepository breakdownRepository;
     private final MachineAPI machineAPI;
     private final EmployeeAPI employeeAPI;
+
+    @PersistenceContext
+    private final EntityManager entityManager;
 
     @Transactional
     public BreakdownDTO createBreakdown(CreateBreakdownDTO createBreakdownDTO) {
@@ -97,7 +102,12 @@ class BreakdownService {
             breakdown.setSolvedAt(Instant.now());
             var updatedBreakdown = toDTO(breakdownRepository.save(breakdown));
 
-            if (breakdownRepository.findFirstByMachineAndSolvedIsFalse(machine).isEmpty()) {
+            entityManager.persist(breakdown);
+            entityManager.flush();
+
+            if (breakdownRepository
+                    .findFirstByMachineAndCriticalIsTrueAndSolvedIsFalse(machine)
+                    .isEmpty()) {
                 machine.setBroken(false);
             }
 

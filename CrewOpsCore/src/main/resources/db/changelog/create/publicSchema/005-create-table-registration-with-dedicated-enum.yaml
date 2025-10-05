@@ -34,7 +34,7 @@ databaseChangeLog:
                   type: integer
               - column:
                   name: status
-                  type: varchar(31)
+                  type: registration_status
                   constraints:
                     nullable: false
               - column:

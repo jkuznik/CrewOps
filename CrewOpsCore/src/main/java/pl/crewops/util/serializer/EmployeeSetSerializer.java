@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
-import pl.crewops.model.Employee;
+import pl.crewops.model.tenantSchema.Employee;
 
 public class EmployeeSetSerializer extends JsonSerializer<Set<Employee>> {
 
