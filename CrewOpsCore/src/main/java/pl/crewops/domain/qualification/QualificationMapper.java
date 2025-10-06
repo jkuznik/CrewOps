@@ -1,9 +1,9 @@
 package pl.crewops.domain.qualification;
 
-import pl.crewops.model.Employee;
-import pl.crewops.model.Qualification;
 import pl.crewops.model.dto.qualification.CreateQualificationDTO;
 import pl.crewops.model.dto.qualification.QualificationDTO;
+import pl.crewops.model.tenantSchema.Employee;
+import pl.crewops.model.tenantSchema.Qualification;
 
 class QualificationMapper {
 

@@ -1,9 +1,10 @@
-package pl.crewops.model;
+package pl.crewops.model.tenantSchema;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import lombok.*;
+import pl.crewops.model.AbstractEntity;
 
 @Getter
 @Setter

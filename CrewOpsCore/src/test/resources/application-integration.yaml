@@ -1,17 +1,74 @@
+# src/test/resources/application-integration.yml
 spring:
   jpa:
     properties:
       hibernate:
         show_sql: true
         format_sql: true
-  config:
-    import: optional:file:.env[.properties]
 
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
       - org.springframework.boot.mail.autoconfigure.MailSenderValidatorAutoConfiguration
 
+  # -------------------------------------------------------------------------
+  # Sekcja 2: Parametry Liquibase (Zastępuje @DynamicPropertySource)
+  # -------------------------------------------------------------------------
+  liquibase:
+    enabled: true
+    default-schema: public
+    change-log: db/changelog/db.changelog-master.yaml # Upewnij się, że ścieżka jest poprawna
+
+    parameters:
+      # ADRES
+      address.id: 8faf1d5c-9e8f-4bca-9c56-123456789aab
+      address.postal.code: postalCodeTest
+      address.city: cityTest
+      address.street: streetTest
+      address.local.number: localNumberTest
+
+      # FIRMA (COMPANY)
+      company.id: 2b3b7d5c-9e8f-4bca-9c56-123456789abd
+      company.name: CrewOpsTest
+      company.address.id: 8faf1d5c-9e8f-4bca-9c56-123456789aab
+      company.email: test.email@test.com
+      company.status: ACTIVE # Wartość ENUM jako prosty string
+
+      # PRACOWNIK (EMPLOYEE)
+      employee.id: 1cd62a5c-9e2f-4bca-9c56-123456789abc
+      employee.first.name: TestAdmin
+      employee.last.name: TestUser
+      employee.birth.date: 2000-01-01
+      employee.phone.number: 1234567890
+
+      # DZIAŁ (DEPARTMENT)
+      department.id: d0000000-0000-0000-0000-000000000001
+      department.name: AdminTest
+
+      # TENANT
+      tenant.id: 2b3b7d5c-9e8f-4bca-9c56-123456789abc
+      tenant.company.id: 2b3b7d5c-9e8f-4bca-9c56-123456789abd
+      tenant.schema.name: test_2b3b7d5c9e8f
+      tenant.tax.id: test_tenant_tax_id
+      tenant.active: ACTIVE # Zastępuje mylący placeholder, wartość ENUM jako string
+
+      # AUTH USER
+      auth.user.id: 2bc51b6d-1f3a-4bca-9c56-123456789abc
+      auth.user.username: admin_test
+      # Użycie hasła testowego. Jest to hasz, więc nie jest wrażliwe, ale musi być stabilne
+      auth.user.password: $2a$10$njg7g8ZWIxIpGEap4x7XQ.RGShM6ti/kLZ6402ZvnmqyeTtFlcseK
+      auth.user.tenant.id: 2b3b7d5c-9e8f-4bca-9c56-123456789abc
+      auth.user.employee.id: 1cd62a5c-9e2f-4bca-9c56-123456789abc
+
+      # AUTH USER ROLE
+      auth.user.role.auth.user.id: 2bc51b6d-1f3a-4bca-9c56-123456789abc
+      auth.user.role.role.id: e90a0e1e-8ab9-41ec-b98e-23a7bba4ef58
+# -------------------------------------------------------------------------
+# Sekcja 3: Ustawienia Bezpieczeństwa (Testowe)
+# -------------------------------------------------------------------------
 security:
   properties:
-    jwtExpiration: 10
+    jwtExpiration: 300
+    clientId: 1234
+    clientIdInput: 1234
+    jwtSecret: 1234

@@ -3,6 +3,8 @@ package pl.crewops.model.publicSchema;
 import jakarta.persistence.*;
 import java.util.UUID;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import pl.crewops.enums.CompanyStatus;
 import pl.crewops.model.AbstractEntity;
 
@@ -24,7 +26,7 @@ public class Tenant extends AbstractEntity {
     @Column(nullable = false, unique = true)
     private String taxId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(columnDefinition = "company_status", nullable = false)
     private CompanyStatus status;
 }

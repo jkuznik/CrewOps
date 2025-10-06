@@ -1,7 +1,7 @@
 package pl.crewops.domain.department;
 
-import pl.crewops.model.Department;
 import pl.crewops.model.dto.department.DepartmentDTO;
+import pl.crewops.model.tenantSchema.Department;
 
 class DepartmentMapper {
 

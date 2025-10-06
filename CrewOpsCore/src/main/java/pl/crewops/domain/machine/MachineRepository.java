@@ -6,8 +6,8 @@ import java.util.Set;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import pl.crewops.model.Machine;
-import pl.crewops.model.MachineType;
+import pl.crewops.model.tenantSchema.Machine;
+import pl.crewops.model.tenantSchema.MachineType;
 
 interface MachineRepository extends JpaRepository<Machine, UUID> {
 

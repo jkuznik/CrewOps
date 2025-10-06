@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-daily-entry-status-enum
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            stripComments: false
+            sql: |
+              DO $$
+              BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'daily_status') THEN
+                  CREATE TYPE daily_status AS ENUM ('DRAFT', 'PENDING', 'AUTOAPPROVED', 'APPROVED', 'MODIFIED_APPROVED');
+                END IF;
+              END;
+              $$;

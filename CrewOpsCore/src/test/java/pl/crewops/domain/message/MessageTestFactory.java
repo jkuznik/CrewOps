@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import pl.crewops.model.Message;
 import pl.crewops.model.dto.message.CreateMessageDTO;
 import pl.crewops.model.dto.message.RecipientSelection;
 import pl.crewops.model.dto.message.SendMessageCommand;
+import pl.crewops.model.tenantSchema.Message;
 
 class MessageTestFactory {
 

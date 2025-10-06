@@ -1,12 +1,12 @@
     plugins {
-            id("com.vaadin") version "24.6.6"
+            id("com.vaadin") version "24.7.1"
         }
 
         repositories {
             maven (url = uri("https://maven.vaadin.com/vaadin-addons"))
         }
 
-        extra["vaadinVersion"] = "24.6.6"
+        extra["vaadinVersion"] = "24.7.1"
 
         val production: Boolean = project.hasProperty("production")
 
@@ -23,6 +23,8 @@
             implementation("com.vaadin:vaadin-spring-boot-starter")
             implementation("org.springframework.boot:spring-boot-starter-cache")
             implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+            implementation("org.vaadin.addons.componentfactory:vcf-timeline:1.0.2")
 
             implementation(project(":CrewOpsModel"))
             implementation(project(":CrewOpsSecurity"))

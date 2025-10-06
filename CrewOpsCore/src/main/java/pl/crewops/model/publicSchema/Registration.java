@@ -3,6 +3,8 @@ package pl.crewops.model.publicSchema;
 import jakarta.persistence.*;
 import java.time.Instant;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import pl.crewops.enums.RegistrationStatus;
 import pl.crewops.model.AbstractEntity;
 
@@ -15,7 +17,7 @@ import pl.crewops.model.AbstractEntity;
 @AllArgsConstructor
 public class Registration extends AbstractEntity {
 
-    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(columnDefinition = "registration_status", nullable = false)
     private RegistrationStatus status;
 

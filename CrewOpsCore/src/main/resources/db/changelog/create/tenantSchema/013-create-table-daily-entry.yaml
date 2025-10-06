@@ -1,0 +1,91 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 001-create-table-daily-entry
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: daily_entry
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: version
+                  type: integer
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: employee_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: entry_date
+                  type: DATE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: start_time
+                  type: timestamptz
+              - column:
+                  name: end_time
+                  type: timestamptz
+              - column:
+                  name: overtime
+                  type: NUMERIC(7, 4)
+                  defaultValueNumeric: 0.0000
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: daily_status
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+        # Ograniczenie unikalności: Jeden wpis na pracownika na dzień
+        - addUniqueConstraint:
+            columnNames: employee_id, entry_date
+            constraintName: uq_daily_entry_employee_date
+            tableName: daily_entry
+
+  - changeSet:
+      id: 002-create-daily-entry-employee-foreign-key
+      author: jkuznik
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: daily_entry
+            baseColumnNames: employee_id
+            referencedTableName: employee
+            referencedColumnNames: id
+            constraintName: fk_daily_entry_employee
+            onDelete: CASCADE
+
+  - changeSet:
+      id: 003-create-daily_entry-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS daily_entry_updated_at_trigger ON daily_entry;
+              CREATE TRIGGER daily_entry_updated_at_trigger
+              BEFORE UPDATE ON daily_entry
+              FOR EACH ROW
+              EXECUTE FUNCTION update_updated_at();

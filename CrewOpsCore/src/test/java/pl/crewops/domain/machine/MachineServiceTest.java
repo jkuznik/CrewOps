@@ -17,11 +17,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.domain.machineType.MachineTypeAPI;
 import pl.crewops.exception.domain.machine.MachineNotFoundException;
-import pl.crewops.model.Machine;
-import pl.crewops.model.MachineType;
 import pl.crewops.model.dto.machine.CreateMachineDTO;
 import pl.crewops.model.dto.machine.MachineDTO;
 import pl.crewops.model.dto.machine.UpdateMachineDTO;
+import pl.crewops.model.tenantSchema.Machine;
+import pl.crewops.model.tenantSchema.MachineType;
 
 @SpringJUnitConfig(classes = {MachineService.class})
 class MachineServiceTest {

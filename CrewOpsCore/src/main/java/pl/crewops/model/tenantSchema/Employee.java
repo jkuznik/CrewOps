@@ -1,4 +1,4 @@
-package pl.crewops.model;
+package pl.crewops.model.tenantSchema;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.*;
+import pl.crewops.model.AbstractEntity;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 
 @Getter

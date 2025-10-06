@@ -7,9 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import pl.crewops.model.Employee;
-import pl.crewops.model.Qualification;
 import pl.crewops.model.compositePK.EmployeeQualificationId;
+import pl.crewops.model.tenantSchema.Employee;
+import pl.crewops.model.tenantSchema.Qualification;
 
 @Getter
 @Setter

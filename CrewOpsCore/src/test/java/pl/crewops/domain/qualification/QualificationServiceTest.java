@@ -17,10 +17,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import pl.crewops.model.Qualification;
 import pl.crewops.model.dto.qualification.CreateQualificationDTO;
 import pl.crewops.model.dto.qualification.QualificationDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationDTO;
+import pl.crewops.model.tenantSchema.Qualification;
 
 @SpringJUnitConfig(classes = {QualificationService.class})
 class QualificationServiceTest {

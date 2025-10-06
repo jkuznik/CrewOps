@@ -14,12 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.domain.machineType.MachineTypeAPI;
 import pl.crewops.exception.domain.machine.MachineNotFoundException;
 import pl.crewops.exception.domain.machine.MachineTypeNotFoundException;
-import pl.crewops.model.Machine;
-import pl.crewops.model.MachineType;
 import pl.crewops.model.dto.machine.CreateMachineDTO;
 import pl.crewops.model.dto.machine.MachineDTO;
 import pl.crewops.model.dto.machine.UpdateMachineDTO;
 import pl.crewops.model.dto.machineType.CreateMachineTypeDTO;
+import pl.crewops.model.tenantSchema.Machine;
+import pl.crewops.model.tenantSchema.MachineType;
 
 @Slf4j
 @Service

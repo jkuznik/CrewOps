@@ -25,9 +25,6 @@ import pl.crewops.domain.department.DepartmentAPI;
 import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
 import pl.crewops.exception.domain.employee.ExpireAtException;
-import pl.crewops.model.Employee;
-import pl.crewops.model.Machine;
-import pl.crewops.model.Qualification;
 import pl.crewops.model.compositePK.EmployeeQualificationId;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
@@ -36,6 +33,9 @@ import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.model.joinTable.EmployeeQualification;
 import pl.crewops.model.publicSchema.AuthUser;
+import pl.crewops.model.tenantSchema.Employee;
+import pl.crewops.model.tenantSchema.Machine;
+import pl.crewops.model.tenantSchema.Qualification;
 import pl.crewops.util.spring.SpringContextBridge;
 
 @SpringJUnitConfig(

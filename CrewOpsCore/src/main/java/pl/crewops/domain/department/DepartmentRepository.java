@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import pl.crewops.model.Department;
+import pl.crewops.model.tenantSchema.Department;
 
 interface DepartmentRepository extends JpaRepository<Department, UUID> {
 

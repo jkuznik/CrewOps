@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import pl.crewops.domain.auth.AuthAPI;
-import pl.crewops.model.Employee;
 import pl.crewops.model.dto.auth.RoleDTO;
 import pl.crewops.model.dto.department.DepartmentDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
@@ -18,6 +17,7 @@ import pl.crewops.model.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.dto.qualification.QualificationDTO;
 import pl.crewops.model.joinTable.EmployeeQualification;
 import pl.crewops.model.publicSchema.AuthUser;
+import pl.crewops.model.tenantSchema.Employee;
 import pl.crewops.util.spring.SpringContextBridge;
 
 class EmployeeMapper {

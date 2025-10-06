@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.validation.annotation.Validated;
-import pl.crewops.model.Department;
 import pl.crewops.model.dto.department.DepartmentDTO;
+import pl.crewops.model.tenantSchema.Department;
 
 @Validated
 public interface DepartmentAPI {

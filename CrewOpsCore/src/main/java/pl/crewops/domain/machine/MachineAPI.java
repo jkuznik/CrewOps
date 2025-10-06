@@ -7,10 +7,10 @@ import java.util.Set;
 import java.util.UUID;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.exception.domain.machine.MachineNotFoundException;
-import pl.crewops.model.Machine;
 import pl.crewops.model.dto.machine.CreateMachineDTO;
 import pl.crewops.model.dto.machine.MachineDTO;
 import pl.crewops.model.dto.machine.UpdateMachineDTO;
+import pl.crewops.model.tenantSchema.Machine;
 
 @Validated
 public interface MachineAPI {

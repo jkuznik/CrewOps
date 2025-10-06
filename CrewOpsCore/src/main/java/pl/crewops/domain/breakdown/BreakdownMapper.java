@@ -1,10 +1,10 @@
 package pl.crewops.domain.breakdown;
 
-import pl.crewops.model.Breakdown;
 import pl.crewops.model.dto.breakdown.BreakdownDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.machine.MachineDTO;
 import pl.crewops.model.dto.machineType.MachineTypeDTO;
+import pl.crewops.model.tenantSchema.Breakdown;
 
 class BreakdownMapper {
 
@@ -33,6 +33,7 @@ class BreakdownMapper {
                         .firstName(reportedBy.getFirstName())
                         .lastName(reportedBy.getLastName())
                         .build())
+                .reportedAt(breakdown.getCreatedAt())
                 .repairedBy(
                         breakdown.getRepairedBy() != null
                                 ? EmployeeDTO.builder()

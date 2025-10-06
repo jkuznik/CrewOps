@@ -462,7 +462,7 @@ databaseChangeLog:
                   value: ${tenant.tax.id}
               - column:
                   name: status
-                  valueBoolean: ${tenant.active}
+                  value: ${tenant.active}
               - column:
                   name: created_at
                   valueComputed: "NOW()"

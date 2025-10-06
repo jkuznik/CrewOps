@@ -22,10 +22,6 @@ import pl.crewops.exception.domain.employee.EmployeeNotFoundException;
 import pl.crewops.exception.domain.employee.EmployeeQualificationNotFoundException;
 import pl.crewops.exception.domain.employee.ExpireAtException;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
-import pl.crewops.model.Department;
-import pl.crewops.model.Employee;
-import pl.crewops.model.Machine;
-import pl.crewops.model.Qualification;
 import pl.crewops.model.dto.department.DepartmentDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
@@ -33,6 +29,10 @@ import pl.crewops.model.dto.employee.EmployeeQualificationDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.model.joinTable.EmployeeQualification;
+import pl.crewops.model.tenantSchema.Department;
+import pl.crewops.model.tenantSchema.Employee;
+import pl.crewops.model.tenantSchema.Machine;
+import pl.crewops.model.tenantSchema.Qualification;
 import pl.crewops.util.pagination.PageRequestFactory;
 
 @Slf4j

@@ -7,8 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import pl.crewops.model.Qualification;
 import pl.crewops.model.dto.qualification.QualificationDTO;
+import pl.crewops.model.tenantSchema.Qualification;
 
 interface QualificationRepository extends JpaRepository<Qualification, UUID> {
 

@@ -15,13 +15,13 @@ import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.exception.domain.breakdown.BreakdownNotFoundException;
 import pl.crewops.exception.domain.employee.EmployeeNotFoundException;
 import pl.crewops.exception.domain.machine.MachineNotFoundException;
-import pl.crewops.model.Breakdown;
-import pl.crewops.model.Employee;
-import pl.crewops.model.Machine;
 import pl.crewops.model.dto.breakdown.BreakdownDTO;
 import pl.crewops.model.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.model.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.model.dto.machine.UpdateMachineDTO;
+import pl.crewops.model.tenantSchema.Breakdown;
+import pl.crewops.model.tenantSchema.Employee;
+import pl.crewops.model.tenantSchema.Machine;
 
 @Slf4j
 @Service
@@ -97,7 +97,9 @@ class BreakdownService {
             breakdown.setSolvedAt(Instant.now());
             var updatedBreakdown = toDTO(breakdownRepository.save(breakdown));
 
-            if (breakdownRepository.findFirstByMachineAndSolvedIsFalse(machine).isEmpty()) {
+            if (breakdownRepository
+                    .findFirstByMachineAndCriticalIsTrueAndSolvedIsFalse(machine)
+                    .isEmpty()) {
                 machine.setBroken(false);
             }
 
