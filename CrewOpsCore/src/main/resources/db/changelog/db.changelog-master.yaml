@@ -35,6 +35,8 @@
     - include:
         file: db/changelog/create/publicSchema/007-create-join-table-auth-user-option.yaml
     - include:
+        file: db/changelog/create/publicSchema/008-create-type-daily-status.yaml
+    - include:
         file: db/changelog/insert/001-insert-role-initial-values.yaml
     - include:
         file: db/changelog/insert/002-insert-admin-account-values.yaml

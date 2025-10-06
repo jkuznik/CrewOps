@@ -6,6 +6,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import pl.crewops.enums.DailyEntryStatus;
 import pl.crewops.model.AbstractEntity;
 
@@ -39,7 +41,7 @@ public class DailyEntry extends AbstractEntity {
     @Column(precision = 7, scale = 4, nullable = false)
     private BigDecimal overtime = BigDecimal.ZERO;
 
-    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(columnDefinition = "daily_status", nullable = false)
     private DailyEntryStatus status;
 }

@@ -3,11 +3,11 @@ package pl.crewops.component.dialog;
 import static pl.crewops.model.dto.registration.PreRegisterResponse.PreRegisterResponseCode.*;
 
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.notification.Notification;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import lombok.Builder;
@@ -15,6 +15,8 @@ import lombok.Getter;
 import lombok.Setter;
 import pl.crewops.component.form.CompanyCreatorForm;
 import pl.crewops.component.form.EmailVerificationForm;
+import pl.crewops.component.notification.FailNotification;
+import pl.crewops.component.notification.SuccessNotification;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.EmployeeFormModel;
 import pl.crewops.model.auth.RoleType;
@@ -23,6 +25,9 @@ import pl.crewops.model.dto.auth.RoleDTO;
 import pl.crewops.model.dto.company.CreateCompanyDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.registration.CreateCustomerCommand;
+import pl.crewops.model.dto.registration.CreateCustomerResult;
+import pl.crewops.model.dto.registration.PreRegisterResponse;
+import pl.crewops.model.dto.registration.VerifyEmailRequest;
 import pl.crewops.model.dto.tenant.CreateTenantDTO;
 import pl.crewops.util.SpringContextBridge;
 
@@ -67,43 +72,45 @@ public class CompanyCreatorDialog extends Dialog {
                 .createEmployeeDTO(createEmployeeDTO)
                 .build();
         try {
-            new Notification(
-                            "Możliwość rejestrowania nowych użytkowników jest tymczasowo zablokowana do czasu wprowadzenia zasad polityki prywatności. Twoje dane obecnie nie są w żaden sposób przetwarzane. W celu przetestowania aktualnych funkcji systemu spróbuj się zalogować z wykorzystaniem danych: test/admin lub emp/emp. Pozdrawiam")
-                    .open();
-            //            Optional<PreRegisterResponse> preRegisterResponse =
-            // coreAPI.registerNewCustomer(createCustomerCommand);
-            //            if (preRegisterResponse.isPresent()
-            //                    && preRegisterResponse.get().code().equals(EMAIL_VERIFICATION_REQUIRED)) {
-            //                companyCreatorForm.setVisible(false);
-            //                emailVerificationForm.setVisible(true);
-            //
-            //                String subject =
-            //                        getTranslation("companyCreatorDialog.successSubject") + " " +
-            // companyInformation.companyName;
-            //                String bodyTemplate = getTranslation("companyCreatorDialog.successBody");
-            //
-            //                emailVerificationForm.addVerifyEmailListener(event -> {
-            //                    Optional<CreateCustomerResult> createCustomerResult = coreAPI.verifyEmail(new
-            // VerifyEmailRequest(
-            //                            preRegisterResponse.get().registrationId(),
-            //                            event.getVerificationCode(),
-            //                            subject,
-            //                            bodyTemplate));
-            //
-            //                    createCustomerResult.ifPresent(customerResult -> {
-            //                        close();
-            //                        new SuccessNotification(getTranslation("companyCreatorDialog.successNotification")
-            // + " "
-            //                                + customerResult.companyDTO().name());
-            //                    });
-            //                });
-            //
-            //                emailVerificationForm.addCancelEmailListener(event -> {
-            //                    close();
-            //                });
-            //            } else {
-            //                new FailNotification(getTranslation("companyCreatorDialog.taxIdAlreadyExists"));
-            //            }
+            //            new Notification(
+            //                            "Możliwość rejestrowania nowych użytkowników jest tymczasowo zablokowana do
+            // czasu wprowadzenia zasad polityki prywatności. Twoje dane obecnie nie są w żaden sposób przetwarzane. W
+            // celu przetestowania aktualnych funkcji systemu spróbuj się zalogować z wykorzystaniem danych: test/admin
+            // lub emp/emp. Pozdrawiam")
+            //                    .open();
+            Optional<PreRegisterResponse> preRegisterResponse = coreAPI.registerNewCustomer(createCustomerCommand);
+            if (preRegisterResponse.isPresent()
+                    && preRegisterResponse.get().code().equals(EMAIL_VERIFICATION_REQUIRED)) {
+                companyCreatorForm.setVisible(false);
+                emailVerificationForm.setVisible(true);
+
+                String subject =
+                        getTranslation("companyCreatorDialog.successSubject") + " " + companyInformation.companyName;
+                String bodyTemplate = getTranslation("companyCreatorDialog.successBody");
+
+                emailVerificationForm.addVerifyEmailListener(event -> {
+                    Optional<CreateCustomerResult> createCustomerResult = coreAPI.verifyEmail(new VerifyEmailRequest(
+                            preRegisterResponse.get().registrationId(),
+                            event.getVerificationCode(),
+                            subject,
+                            bodyTemplate));
+
+                    createCustomerResult.ifPresent(customerResult -> {
+                        close();
+                        new SuccessNotification(getTranslation("companyCreatorDialog.successNotification")
+                                + " "
+                                + customerResult.companyDTO().name());
+                    });
+                });
+
+                emailVerificationForm.addCancelEmailListener(event -> {
+                    close();
+                });
+            } else {
+                //                            new
+                // FailNotification(getTranslation("companyCreatorDialog.taxIdAlreadyExists"));
+                new FailNotification(getTranslation("updateCredentialsDialog.failNotification"));
+            }
         } catch (Exception e) {
             System.out.println("Error creating new customer with initial employee");
         }
