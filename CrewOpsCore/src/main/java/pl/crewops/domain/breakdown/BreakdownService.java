@@ -2,8 +2,6 @@ package pl.crewops.domain.breakdown;
 
 import static pl.crewops.domain.breakdown.BreakdownMapper.toDTO;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -33,9 +31,6 @@ class BreakdownService {
     private final BreakdownRepository breakdownRepository;
     private final MachineAPI machineAPI;
     private final EmployeeAPI employeeAPI;
-
-    @PersistenceContext
-    private final EntityManager entityManager;
 
     @Transactional
     public BreakdownDTO createBreakdown(CreateBreakdownDTO createBreakdownDTO) {
@@ -101,9 +96,6 @@ class BreakdownService {
             breakdown.setRepairedBy(employee);
             breakdown.setSolvedAt(Instant.now());
             var updatedBreakdown = toDTO(breakdownRepository.save(breakdown));
-
-            entityManager.persist(breakdown);
-            entityManager.flush();
 
             if (breakdownRepository
                     .findFirstByMachineAndCriticalIsTrueAndSolvedIsFalse(machine)
