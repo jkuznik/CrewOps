@@ -15,6 +15,8 @@ import com.vaadin.flow.spring.annotation.UIScope;
 public class MainFooter extends Footer {
 
     private static final String DOC_DOMAIN = "https://devsmith.eu";
+    private static final String POLICY = "/private-policy/";
+    private static final String TERMS = "/terms-of-service/";
 
     private static final String FALLBACK_LANGUAGE = "en";
 
@@ -49,12 +51,12 @@ public class MainFooter extends Footer {
         policySpan.addClassName("main-footer-text");
 
         // Użycie documentLanguage do budowy linków
-        String privacyPolicyHref = DOC_DOMAIN + "/" + documentLanguage + "/private-policy.html";
+        String privacyPolicyHref = DOC_DOMAIN + "/" + documentLanguage + POLICY;
         Anchor policyLink = new Anchor(privacyPolicyHref, getTranslation("mainFooter.privacyPolicyLink"));
         policyLink.setTarget("_blank");
         policyLink.addClassName("main-footer-link");
 
-        String termsOfServiceHref = DOC_DOMAIN + "/" + documentLanguage + "/terms-of-service.html";
+        String termsOfServiceHref = DOC_DOMAIN + "/" + documentLanguage + TERMS;
         Anchor termsLink = new Anchor(termsOfServiceHref, getTranslation("mainFooter.termsOfServiceLink"));
         termsLink.setTarget("_blank");
         termsLink.addClassName("main-footer-link");
