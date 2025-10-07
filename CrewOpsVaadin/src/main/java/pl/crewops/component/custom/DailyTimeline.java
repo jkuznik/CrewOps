@@ -13,10 +13,11 @@ import java.util.List;
 public class DailyTimeline extends Div {
 
     private static final int TIMELINE_WIDTH_PX = 2000;
-
     private static final int SCROLL_OFFSET_PX = 400;
 
-    public DailyTimeline(List<Item> items) {
+    private final Timeline timeline = new Timeline();
+
+    public DailyTimeline() {
         setWidth("80%");
         setHeight("140px");
         getStyle().set("overflow-x", "auto");
@@ -24,7 +25,7 @@ public class DailyTimeline extends Div {
         getStyle().set("border-radius", "4px");
         getStyle().set("padding", "5px");
 
-        add(getConfiguredTimeline(items));
+        add(configureTimeline());
 
         int scrollPosition = calculateScrollPosition();
         String jsCode = String.format("setTimeout(function() { $0.scrollLeft = %d; }, 100);", scrollPosition);
@@ -70,9 +71,7 @@ public class DailyTimeline extends Div {
         return scrollPosition;
     }
 
-    private Timeline getConfiguredTimeline(List<Item> items) {
-
-        Timeline timeline = new Timeline(items);
+    private Timeline configureTimeline() {
 
         LocalDate today = LocalDate.now();
         timeline.setTimelineRange(LocalDateTime.of(today, LocalTime.MIN), LocalDateTime.of(today, LocalTime.MAX));
@@ -84,6 +83,10 @@ public class DailyTimeline extends Div {
         timeline.setWidth(TIMELINE_WIDTH_PX + "px");
 
         return timeline;
+    }
+
+    public void updateItems(List<Item> items) {
+        timeline.setItems(items);
     }
 
     // template of items creation (Item.class that is supported by Timeline.class)
