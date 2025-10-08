@@ -9,23 +9,24 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.shared.Tooltip;
-import com.vaadin.flow.component.textfield.NumberField;
-import com.vaadin.flow.component.timepicker.TimePicker;
 
-public class TimesheetEntryForm extends FormLayout {
+public class AttendanceStatusForm extends FormLayout {
 
-    // todo: i18n
-    private final Span headerText = new Span("Czas pracy");
-    private final TimePicker from = new TimePicker("Od");
-    private final TimePicker to = new TimePicker("Do");
-    private final NumberField overtime = new NumberField("Nadgodziny");
+    private static final String STATUS_PRESENT = "Obecny w pracy";
+    private static final String STATUS_SICK_LEAVE = "Zwolnienie (L4 / Opieka)";
+    private static final String STATUS_VACATION = "Urlop wypoczynkowy / Wolne";
+    private static final String STATUS_OTHER = "Inne (Szkolenie, Delegacja)";
+    private static final String STATUS_ABSENT = "Nieobecny (nieusprawiedliwiona)";
 
+    private final Span headerText = new Span("Status obecności");
+    private final RadioButtonGroup<String> statusSelection = new RadioButtonGroup<>();
     private final Icon helpIcon = VaadinIcon.INFO_CIRCLE.create();
-
     private final Button save = new Button("Zapisz");
 
-    public TimesheetEntryForm() {
+    public AttendanceStatusForm() {
 
         headerText.getStyle().set("font-weight", "bold");
         headerText.getStyle().set("font-size", "1.1em");
@@ -34,6 +35,13 @@ public class TimesheetEntryForm extends FormLayout {
         verticalLayout.getStyle().set("border", "1px solid #ccc");
         verticalLayout.getStyle().set("border-radius", "4px");
         verticalLayout.getStyle().set("padding", "10px");
+
+        statusSelection.setLabel("");
+        statusSelection.setItems(STATUS_PRESENT, STATUS_SICK_LEAVE, STATUS_VACATION, STATUS_OTHER, STATUS_ABSENT);
+        statusSelection.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+
+        var spacer = new Div();
+        spacer.setHeight("300px");
 
         var horizontalLayout = new HorizontalLayout();
         horizontalLayout.setWidthFull();
@@ -47,19 +55,19 @@ public class TimesheetEntryForm extends FormLayout {
         save.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         horizontalLayout.add(helpIcon, save);
 
-        var spacer = new Div();
-        spacer.setHeight("200px");
-
         verticalLayout.setMaxHeight("400px");
         verticalLayout.setMaxWidth("300px");
-        verticalLayout.add(headerText, from, to, overtime, spacer, horizontalLayout);
+        verticalLayout.add(headerText, statusSelection, spacer, horizontalLayout);
 
         add(verticalLayout);
     }
 
     private String getHelpText() {
-        return "Zasady wprowadzania czasu:\n\n" + "1. Czas pracy (Od/Do) to cały przepracowany czas.\n"
-                + "2. Nadgodziny to Ilość godzin (np. 2.5) zawarta w zadeklarowanym czasie Od/Do.\n"
-                + "3. Jeśli cały czas Od/Do był nadgodzinami, Nadgodziny muszą być równe zadeklarowanemu czasowi.";
+        return "Instrukcje dotyczące zgłaszania dziennego statusu:\n\n"
+                + "1. **Obecny w pracy:** Jesteś w pracy i wykonujesz obowiązki.\n"
+                + "2. **Zwolnienie (L4 / Opieka):** Zwolnienie lekarskie, opieka nad dzieckiem/inną osobą.\n"
+                + "3. **Urlop wypoczynkowy / Wolne:** Zaplanowany urlop wypoczynkowy lub dzień wolny.\n"
+                + "4. **Inne:** Akceptowana podróż służbowa, szkolenie, dyżur, itp.\n"
+                + "5. **Nieobecny:** Nieusprawiedliwiona lub nieautoryzowana nieobecność.";
     }
 }
