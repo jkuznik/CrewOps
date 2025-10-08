@@ -2,6 +2,7 @@ package pl.crewops.view;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -55,9 +56,24 @@ public class MachineView extends MainLayout implements BeforeEnterObserver {
         var toolbar = new HorizontalLayout();
 
         Button list = new Button(getTranslation("machineView.machineList"));
+        list.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        list.setWidth("160px");
+
         Button breakdown = new Button(getTranslation("machineView.breakdowns"));
-        list.addClickListener(event -> displayMachineGrid());
-        breakdown.addClickListener(event -> displayBreakdownGrid());
+        breakdown.setWidth("160px");
+
+        list.addClickListener(event -> {
+            displayMachineGrid();
+
+            list.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            breakdown.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        });
+        breakdown.addClickListener(event -> {
+            displayBreakdownGrid();
+
+            breakdown.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            list.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        });
 
         toolbar.add(list, breakdown);
 

@@ -43,14 +43,13 @@ public class EmployeeGrid extends VerticalLayout {
     private final HorizontalLayout gridToolbar = getToolbar();
 
     private final Grid<EmployeeFormModel> grid = new Grid<>();
-    private final EmployeeForm form;
+    private final EmployeeForm form = new EmployeeForm();
 
     private QualificationGrid qualificationGrid;
 
     public EmployeeGrid(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
         this.coreAPI = coreAPI;
         this.authenticationResolver = authenticationResolver;
-        form = new EmployeeForm();
 
         configureGrid();
         configureForm();
@@ -105,6 +104,7 @@ public class EmployeeGrid extends VerticalLayout {
         departmentFilter.setValueChangeMode(ValueChangeMode.LAZY);
         departmentFilter.addValueChangeListener(event -> updateGrid());
 
+        addEmployee.setWidth("160px");
         addEmployee.addClickListener(event -> addEmployee());
 
         toolbar.add(nameFilter, departmentFilter, roleFilter, addEmployee);
