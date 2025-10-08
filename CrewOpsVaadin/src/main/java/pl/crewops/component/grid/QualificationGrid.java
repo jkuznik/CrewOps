@@ -83,6 +83,7 @@ public class QualificationGrid extends VerticalLayout {
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         filter.addValueChangeListener(event -> updateGrid());
 
+        addQualification.setWidth("160px");
         addQualification.addClickListener(event -> addQualification());
 
         toolbar.add(filter, addQualification);

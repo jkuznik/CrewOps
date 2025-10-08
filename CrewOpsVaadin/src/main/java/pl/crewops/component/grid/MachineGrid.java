@@ -105,6 +105,7 @@ public class MachineGrid extends VerticalLayout {
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         filter.addValueChangeListener(event -> updateMachineGrid());
 
+        addMachine.setWidth("160px");
         addMachine.addClickListener(event -> addMachine());
 
         if (authenticationResolver.principalHasManagerPermission()) {

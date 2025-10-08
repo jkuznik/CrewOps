@@ -2,6 +2,7 @@ package pl.crewops.view;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -54,9 +55,24 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         var toolbar = new HorizontalLayout();
 
         Button employeeList = new Button(getTranslation("employeeView.employeeList"));
+        employeeList.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        employeeList.setWidth("160px");
+
         Button qualifications = new Button(getTranslation("employeeView.qualifications"));
-        employeeList.addClickListener(event -> displayEmployeeGrid());
-        qualifications.addClickListener(event -> displayQualificationGrid());
+        qualifications.setWidth("160px");
+
+        employeeList.addClickListener(event -> {
+            displayEmployeeGrid();
+
+            employeeList.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            qualifications.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        });
+        qualifications.addClickListener(event -> {
+            displayQualificationGrid();
+
+            qualifications.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            employeeList.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        });
 
         toolbar.add(employeeList, qualifications);
 
