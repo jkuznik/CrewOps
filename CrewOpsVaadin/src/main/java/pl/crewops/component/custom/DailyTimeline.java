@@ -3,15 +3,17 @@ package pl.crewops.component.custom;
 import com.vaadin.componentfactory.timeline.Timeline;
 import com.vaadin.componentfactory.timeline.model.Item;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import pl.crewops.component.form.daily.AttendanceStatusForm;
 
 public class DailyTimeline extends Div {
 
     private static final String TIMELINE_WIDTH_PX = "1200px";
-    private static final String TIMELINE_HEIGHT_PX = "150px";
+    private static final String TIMELINE_HEIGHT_PX = "200px";
 
     private final Timeline timeline = new Timeline();
 
@@ -27,7 +29,10 @@ public class DailyTimeline extends Div {
         getStyle().set("border", "1px solid #ccc");
         getStyle().set("border-radius", "4px");
 
-        add(configureTimeline());
+        var horizontalLayout = new HorizontalLayout();
+        horizontalLayout.add(configureTimeline(), new AttendanceStatusForm());
+
+        add(horizontalLayout);
     }
 
     private Timeline configureTimeline() {

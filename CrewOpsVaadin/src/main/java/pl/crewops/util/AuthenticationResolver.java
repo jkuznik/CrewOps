@@ -48,6 +48,20 @@ public class AuthenticationResolver {
         }
     }
 
+    public boolean principalHasShiftLeaderPermission() {
+        if (getAuthenticationPrincipal() instanceof UserPrincipal principal) {
+
+            Set<RoleGrantedAuthority> roleGrantedAuthorities = jwtService.extractAuthorities(principal.getToken());
+
+            return roleGrantedAuthorities.contains(new RoleGrantedAuthority(SHIFT_LEADER))
+                    || roleGrantedAuthorities.contains(new RoleGrantedAuthority(MANAGER))
+                    || roleGrantedAuthorities.contains(new RoleGrantedAuthority(COMPANY_ADMIN))
+                    || roleGrantedAuthorities.contains(new RoleGrantedAuthority(SYSTEM_ADMIN));
+        } else {
+            return false;
+        }
+    }
+
     public boolean principalHasManagerPermission() {
         if (getAuthenticationPrincipal() instanceof UserPrincipal principal) {
 

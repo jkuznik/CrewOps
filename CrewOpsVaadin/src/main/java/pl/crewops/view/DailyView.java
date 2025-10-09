@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import pl.crewops.component.custom.DailyTimeline;
 import pl.crewops.component.dialog.dateSelectorDialog.DateSelectorDialog;
-import pl.crewops.component.form.daily.AttendanceStatusForm;
+import pl.crewops.component.form.daily.DailyActivityForm;
 import pl.crewops.component.form.daily.TimesheetEntryForm;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
@@ -30,9 +30,31 @@ import pl.crewops.view.layout.MainLayout;
 @PageTitle("Daily Entry")
 public class DailyView extends MainLayout implements BeforeEnterObserver {
 
+    /**
+     * Defines the minimum required width (in pixels) for forms in the Daily View
+     * to ensure they stick together seamlessly when placed side-by-side.
+     * <p>
+     * This constant is the base value used to calculate the final width that prevents
+     * visual separation (the "gap") between adjacent form components.
+     */
+    private static final int ENSURE_STICK_FORMS = 440;
+
+    /**
+     * The final, calculated width string for all forms in the daily view.
+     * <p>
+     * The dependency between this field and {@link #ENSURE_STICK_FORMS} ensures that
+     * the current configuration prevents visual gaps, allowing adjacent forms in the
+     * Daily View to be perfectly aligned and "stuck" together.
+     * The additional offset (e.g., +10) often accounts for padding, borders, or
+     * minimum component requirements established by the UI framework (Vaadin).
+     */
+    public static final String FORMS_WIDTH = ENSURE_STICK_FORMS + 10 + "px";
+
     private final Span information = new Span();
     private final TimesheetEntryForm timesheetEntryForm = new TimesheetEntryForm();
-    private final AttendanceStatusForm attendanceStatusForm = new AttendanceStatusForm();
+    private final DailyActivityForm dailyActivityForm = new DailyActivityForm();
+
+    private DailyTimeline timeline;
 
     private boolean isDailyEntryExist;
 
@@ -52,7 +74,7 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
 
     private void buildContent() {
         mainContent.removeAll();
-        var timeline = new DailyTimeline();
+        timeline = new DailyTimeline();
 
         updateTimeline(LocalDate.now());
 
@@ -68,13 +90,13 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
             verticalLayout.setSpacing(true);
             verticalLayout.setPadding(true);
 
-            verticalLayout.add(timesheetEntryForm, attendanceStatusForm);
+            verticalLayout.add(timesheetEntryForm, dailyActivityForm);
 
             return verticalLayout;
         } else {
-            final String FORM_HEIGHT = "400px";
-            final String FORM_WIDTH = "450px";
-            final String CONTAINER_MAX_WIDTH = "700px";
+            final String FORM_HEIGHT = "500px";
+            final String FORM_WIDTH = ENSURE_STICK_FORMS + "px";
+            final String CONTAINER_MAX_WIDTH = "1200px";
 
             var horizontalLayout = new HorizontalLayout();
             horizontalLayout.setSpacing(false);
@@ -86,10 +108,10 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
             timesheetEntryForm.setWidth(FORM_WIDTH);
             timesheetEntryForm.setHeight(FORM_HEIGHT);
 
-            attendanceStatusForm.setWidth(FORM_WIDTH);
-            attendanceStatusForm.setHeight(FORM_HEIGHT);
+            dailyActivityForm.setWidth(FORM_WIDTH);
+            dailyActivityForm.setHeight(FORM_HEIGHT);
 
-            horizontalLayout.add(timesheetEntryForm, attendanceStatusForm);
+            horizontalLayout.add(timesheetEntryForm, dailyActivityForm);
 
             return horizontalLayout;
         }
@@ -103,25 +125,34 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
         currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         currentDay.setWidth("160px");
 
-        Button history = new Button("Historia");
-        history.setWidth("160px");
+        Button calendar = new Button("Kalendarz");
+        calendar.setWidth("160px");
 
         currentDay.addClickListener(event -> {
             updateTimeline(LocalDate.now());
+            timesheetEntryForm.updateDependsOnDate(LocalDate.now());
+            dailyActivityForm.updateDependsOnDate(LocalDate.now());
             currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            history.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            calendar.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
         });
 
-        history.addClickListener(event -> {
+        calendar.addClickListener(event -> {
             var dateSelectorDialog = new DateSelectorDialog();
             dateSelectorDialog.addSelectDateListener(selectedDateEvent -> {
                 updateTimeline(selectedDateEvent.getSelectedDate());
-                history.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                timesheetEntryForm.updateDependsOnDate(selectedDateEvent.getSelectedDate());
+                dailyActivityForm.updateDependsOnDate(selectedDateEvent.getSelectedDate());
+                calendar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
                 currentDay.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+                if (selectedDateEvent.getSelectedDate().equals(LocalDate.now())) {
+                    currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                    calendar.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                }
             });
         });
 
-        toolbar.add(currentDay, history);
+        toolbar.add(currentDay, calendar);
 
         return toolbar;
     }
