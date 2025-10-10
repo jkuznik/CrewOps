@@ -25,8 +25,6 @@ public class DailyActivityForm extends FormLayout {
     //  approve each employee attendance
     private final Button checkSubordinates = createActionButton("Obecność Pracowników", VaadinIcon.USERS);
 
-    private final Button confirmPresence = createActionButton("Potwierdź Obecność", VaadinIcon.CHECK_CIRCLE);
-
     // todo: this feature need dedicated db table job_report related to daily_entry
     private final Button jobRaport = createActionButton("Raport Stanowiskowy", VaadinIcon.CLIPBOARD_TEXT);
 
@@ -58,7 +56,7 @@ public class DailyActivityForm extends FormLayout {
             actionsLayout.add(checkSubordinates);
         }
 
-        actionsLayout.add(confirmPresence, jobRaport, addNote, safetyRaport, requestLeave);
+        actionsLayout.add(jobRaport, addNote, safetyRaport, requestLeave);
 
         var spacer = new Div();
         spacer.setHeight("200px");
@@ -90,7 +88,6 @@ public class DailyActivityForm extends FormLayout {
         switch (state) {
             case PAST -> {
                 checkSubordinates.setVisible(true);
-                confirmPresence.setVisible(false);
                 jobRaport.setVisible(true);
                 addNote.setVisible(true);
                 safetyRaport.setVisible(false);
@@ -98,7 +95,6 @@ public class DailyActivityForm extends FormLayout {
             }
             case TODAY -> {
                 checkSubordinates.setVisible(true);
-                confirmPresence.setVisible(true);
                 jobRaport.setVisible(true);
                 addNote.setVisible(true);
                 safetyRaport.setVisible(true);
@@ -106,7 +102,6 @@ public class DailyActivityForm extends FormLayout {
             }
             case FUTURE -> {
                 checkSubordinates.setVisible(false);
-                confirmPresence.setVisible(false);
                 jobRaport.setVisible(false);
                 addNote.setVisible(true);
                 safetyRaport.setVisible(false);

@@ -12,14 +12,18 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.shared.Tooltip;
-import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalTime; // Dodano import dla obliczeń
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
-import pl.crewops.enums.DateState; // Upewnij się, że ten import jest poprawny
+import java.util.stream.Collectors;
+import pl.crewops.enums.DateState;
+import pl.crewops.enums.OvertimeInterval;
+import pl.crewops.enums.OvertimeInterval.OvertimeValue;
 import pl.crewops.view.DailyView;
 
 public class TimesheetEntryForm extends FormLayout {
@@ -31,15 +35,15 @@ public class TimesheetEntryForm extends FormLayout {
     private final Icon helpIcon = VaadinIcon.INFO_CIRCLE.create();
 
     private final TimePicker from = new TimePicker("Od");
-    private final TimePicker to = new TimePicker("Do");
     private final Select<LocalDate> dateFromSelect = new Select<>();
+
+    private final TimePicker to = new TimePicker("Do");
     private final Select<LocalDate> dateToSelect = new Select<>();
 
-    private final NumberField overtime = new NumberField("Nadgodziny");
+    private final Select<OvertimeInterval> overtime = new Select<>();
+    private final VerticalLayout hoursSummary = initialHourSummaryContent();
 
-    private final VerticalLayout hoursSummary = createHoursSummaryLayout();
-
-    private final Button confirmPresence = createPresenceButton();
+    private final Button confirmPresence = new Button("Potwierdź Obecność");
 
     private LocalDate selectedDate = LocalDate.now();
 
@@ -51,8 +55,8 @@ public class TimesheetEntryForm extends FormLayout {
         var overtimeLayout = createOvertimeLayout(overtime, hoursSummary);
 
         configureValueFields();
-
-        confirmPresence.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        configureOvertime();
+        configureConfirmPresence();
 
         var spacer = new Div();
         spacer.setHeight("200px");
@@ -64,49 +68,61 @@ public class TimesheetEntryForm extends FormLayout {
         add(mainContainer);
     }
 
-    private VerticalLayout createHoursSummaryLayout() {
-        VerticalLayout layout = new VerticalLayout();
-        layout.setPadding(false);
-        layout.setSpacing(false);
+    private void configureOvertime() {
+        // todo: i18n
+        overtime.setLabel("W tym nadgodzin");
+        overtime.setItemLabelGenerator(interval -> {
+            if (interval == OvertimeInterval.ALL) {
+                // todo: i18n - "Cały czas pracy"
+                return "Całkowity czas pracy";
+            } else {
+                return String.format(
+                        "%d:%02d",
+                        interval.getValue().hours(), interval.getValue().minutes());
+            }
+        });
+        overtime.setItems(OvertimeInterval.H00_00);
+        overtime.setValue(OvertimeInterval.H00_00);
+    }
 
-        layout.getStyle().set("border", "1px solid var(--lumo-contrast-10pct)");
-        layout.getStyle().set("border-radius", "4px");
-        layout.getStyle().set("padding", "8px");
-        layout.getStyle().set("min-height", "3em");
+    private void configureConfirmPresence() {
+        confirmPresence.setIcon(new Icon(VaadinIcon.CHECK_CIRCLE));
+        confirmPresence.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+    }
 
-        layout.add(new Span("Przepracowane: -"), new Span("Nadgodziny: -"));
-
-        return layout;
+    /**
+     * Konwertuje całkowitą liczbę minut na format HH:mm.
+     * @param totalMinutes Całkowita liczba minut.
+     * @return Sformatowany ciąg znaków w postaci "HH:mm".
+     */
+    private String formatMinutesToHHMM(long totalMinutes) {
+        if (totalMinutes < 0) {
+            return "0:00";
+        }
+        long hours = totalMinutes / 60;
+        long minutes = totalMinutes % 60;
+        return String.format("%d:%02d", hours, minutes);
     }
 
     private void updateHoursSummary() {
-        LocalTime timeFrom = from.getValue();
-        LocalTime timeTo = to.getValue();
-        LocalDate dateTo = dateToSelect.getValue();
-        Double overtimeValue = overtime.getValue();
+        long totalDurationMinutes = calculateWorkDurationMinutes();
 
-        double totalHours = 0.0;
-        if (timeFrom != null && timeTo != null && dateTo != null && selectedDate != null) {
-            // Zakładamy, że data startu jest zawsze selectedDate
-            java.time.LocalDateTime dateTimeFrom = java.time.LocalDateTime.of(selectedDate, timeFrom);
-            java.time.LocalDateTime dateTimeTo = java.time.LocalDateTime.of(dateTo, timeTo);
-
-            if (dateTimeFrom.isBefore(dateTimeTo)) {
-                Duration duration = Duration.between(dateTimeFrom, dateTimeTo);
-                totalHours = duration.toMinutes() / 60.0;
-            }
+        OvertimeInterval selectedOvertime = overtime.getValue();
+        long actualOvertimeMinutes = 0;
+        if (selectedOvertime != null) {
+            OvertimeValue ov = selectedOvertime.getValue();
+            actualOvertimeMinutes = ov.hours() * 60L + ov.minutes();
         }
 
-        // 2. Pobranie nadgodzin
-        double actualOvertime = overtimeValue != null ? overtimeValue : 0.0;
+        String totalTimeFormatted = formatMinutesToHHMM(totalDurationMinutes);
+        String overtimeFormatted = formatMinutesToHHMM(actualOvertimeMinutes);
 
-        // 3. Aktualizacja komunikatów
         hoursSummary.removeAll();
         // todo: i18n
-        Span totalSpan = new Span(String.format("Przepracowane: %.2f h", totalHours));
-        Span overtimeSpan = new Span(String.format("Nadgodziny: %.2f h", actualOvertime));
+        Span totalSpan = new Span(String.format("Przepracowane: %s", totalTimeFormatted));
+        Span overtimeSpan = new Span(String.format("Nadgodziny: %s", overtimeFormatted));
 
-        if (actualOvertime > 0) {
+        if (actualOvertimeMinutes > 0) {
             overtimeSpan.getStyle().set("color", "var(--lumo-error-text-color)");
             overtimeSpan.getStyle().set("font-weight", "bold");
         }
@@ -114,15 +130,29 @@ public class TimesheetEntryForm extends FormLayout {
         hoursSummary.add(totalSpan, overtimeSpan);
     }
 
-    private Button createPresenceButton() {
-        // todo: i18n
-        Button button = new Button("Potwierdź Obecność");
-        button.setIcon(new Icon(VaadinIcon.CHECK_CIRCLE));
-        return button;
+    /**
+     * Filtruje dostępne opcje OvertimeInterval na podstawie maksymalnego czasu pracy.
+     * @param maxMinutes Maksymalna dozwolona liczba minut nadgodzin (całkowity czas pracy).
+     */
+    private void filterOvertimeOptions(long maxMinutes) {
+        List<OvertimeInterval> filteredItems = Arrays.stream(OvertimeInterval.values())
+                .filter(interval -> {
+                    OvertimeValue ov = interval.getValue();
+                    long intervalMinutes = ov.hours() * 60L + ov.minutes();
+                    return intervalMinutes <= maxMinutes;
+                })
+                .collect(Collectors.toList());
+
+        if (filteredItems.isEmpty()) {
+            overtime.setItems(OvertimeInterval.H00_00);
+        } else {
+            overtime.setItems(filteredItems);
+        }
+
+        overtime.setValue(OvertimeInterval.H00_00);
     }
 
-    // Układ dla Nadgodzin i Podsumowania
-    private HorizontalLayout createOvertimeLayout(NumberField overtimeField, VerticalLayout summaryLayout) {
+    private HorizontalLayout createOvertimeLayout(Select<?> overtimeField, VerticalLayout summaryLayout) {
         var layout = new HorizontalLayout();
         layout.setWidthFull();
         layout.setSpacing(true);
@@ -211,34 +241,33 @@ public class TimesheetEntryForm extends FormLayout {
     }
 
     private void configureValueFields() {
-
-        from.addValueChangeListener(event -> {
+        var updateListener = (Runnable) () -> {
+            long totalMinutes = calculateWorkDurationMinutes();
+            filterOvertimeOptions(totalMinutes);
             updateHoursSummary();
+
             if (validateWorkTime()) {
                 confirmPresence.setVisible(true);
+            } else {
+                confirmPresence.setVisible(false);
             }
-        });
+        };
 
-        to.addValueChangeListener(event -> {
-            updateHoursSummary();
-            if (validateWorkTime()) {
-                confirmPresence.setVisible(true);
-            }
-        });
+        from.addValueChangeListener(event -> updateListener.run());
+        to.addValueChangeListener(event -> updateListener.run());
+        dateToSelect.addValueChangeListener(event -> updateListener.run());
 
-        dateToSelect.addValueChangeListener(event -> {
-            updateHoursSummary();
-            if (validateWorkTime()) {
-                confirmPresence.setVisible(true);
-            }
-        });
-
+        // Specyficzny listener dla pola nadgodzin, tylko aktualizuje podsumowanie
         overtime.addValueChangeListener(event -> {
             updateHoursSummary();
-            confirmPresence.setVisible(true);
+            // Po zmianie nadgodzin, jeśli czas pracy jest poprawny, przycisk może być widoczny
+            if (validateWorkTime()) {
+                confirmPresence.setVisible(true);
+            }
         });
 
         updateDateFieldsOptions();
+        updateListener.run();
     }
 
     private HorizontalLayout configuredHeaderLayout() {
@@ -259,8 +288,53 @@ public class TimesheetEntryForm extends FormLayout {
         return headerLayout;
     }
 
+    private VerticalLayout initialHourSummaryContent() {
+        VerticalLayout layout = new VerticalLayout();
+        layout.setPadding(false);
+        layout.setSpacing(false);
+
+        layout.getStyle().set("border", "1px solid var(--lumo-contrast-10pct)");
+        layout.getStyle().set("border-radius", "4px");
+        layout.getStyle().set("padding", "8px");
+        layout.getStyle().set("min-height", "3em");
+
+        // todo: i18n
+        layout.add(new Span("Przepracowane: 0:00"), new Span("Nadgodziny: 0:00"));
+
+        return layout;
+    }
+
+    private long calculateWorkDurationMinutes() {
+        LocalTime timeFrom = from.getValue();
+        LocalTime timeTo = to.getValue();
+        LocalDate dateTo = dateToSelect.getValue();
+
+        if (timeFrom != null && timeTo != null && dateTo != null && selectedDate != null) {
+            var dateTimeFrom = LocalDateTime.of(selectedDate, timeFrom);
+            var dateTimeTo = LocalDateTime.of(dateTo, timeTo);
+
+            if (dateTimeFrom.isBefore(dateTimeTo)) {
+                Duration duration = Duration.between(dateTimeFrom, dateTimeTo);
+                return duration.toMinutes();
+            }
+        }
+        return -2; // It's required to return less than -1
+        // to work properly with OvertimeInterval.ALL that has .value() equals -1
+    }
+
     private boolean validateWorkTime() {
-        return true;
+        LocalTime timeFrom = from.getValue();
+        LocalTime timeTo = to.getValue();
+        LocalDate dateTo = dateToSelect.getValue();
+
+        if (timeFrom == null || timeTo == null || dateTo == null || selectedDate == null) {
+            return false;
+        }
+
+        var dateTimeFrom = LocalDateTime.of(selectedDate, timeFrom);
+        var dateTimeTo = LocalDateTime.of(dateTo, timeTo);
+
+        return dateTimeFrom.isBefore(dateTimeTo);
     }
 
     private String getHelpText() {
