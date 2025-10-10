@@ -26,7 +26,7 @@ import pl.crewops.enums.OvertimeInterval;
 import pl.crewops.enums.OvertimeInterval.OvertimeValue;
 import pl.crewops.view.DailyView;
 
-public class TimesheetEntryForm extends FormLayout {
+public class TimesheetForm extends FormLayout {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM (EEE)");
 
@@ -47,7 +47,7 @@ public class TimesheetEntryForm extends FormLayout {
 
     private LocalDate selectedDate = LocalDate.now();
 
-    public TimesheetEntryForm() {
+    public TimesheetForm() {
 
         var fromLayout = createDateTimeLayout(from, dateFromSelect);
         var toLayout = createDateTimeLayout(to, dateToSelect);
@@ -105,29 +105,48 @@ public class TimesheetEntryForm extends FormLayout {
     }
 
     private void updateHoursSummary() {
+        // 1. Obliczenie łącznego przepracowanego czasu pracy
         long totalDurationMinutes = calculateWorkDurationMinutes();
 
         OvertimeInterval selectedOvertime = overtime.getValue();
         long actualOvertimeMinutes = 0;
+
         if (selectedOvertime != null) {
-            OvertimeValue ov = selectedOvertime.getValue();
-            actualOvertimeMinutes = ov.hours() * 60L + ov.minutes();
+            if (selectedOvertime == OvertimeInterval.ALL) {
+                // Jeśli wybrano "Całkowity czas pracy", nadgodziny = łączny czas pracy.
+                actualOvertimeMinutes = totalDurationMinutes;
+            } else {
+                // Standardowe obliczenia dla H00_00...H24_00
+                OvertimeValue ov = selectedOvertime.getValue();
+                actualOvertimeMinutes = ov.hours() * 60L + ov.minutes();
+            }
         }
+
+        actualOvertimeMinutes = Math.max(0, actualOvertimeMinutes);
+
+        long normalWorkMinutes = totalDurationMinutes - actualOvertimeMinutes;
+        normalWorkMinutes = Math.max(0, normalWorkMinutes);
 
         String totalTimeFormatted = formatMinutesToHHMM(totalDurationMinutes);
         String overtimeFormatted = formatMinutesToHHMM(actualOvertimeMinutes);
+        String normalWorkFormatted = formatMinutesToHHMM(normalWorkMinutes);
 
         hoursSummary.removeAll();
+
         // todo: i18n
-        Span totalSpan = new Span(String.format("Przepracowane: %s", totalTimeFormatted));
+        Span normalSpan = new Span(String.format("Normalny czas pracy: %s", normalWorkFormatted));
         Span overtimeSpan = new Span(String.format("Nadgodziny: %s", overtimeFormatted));
+        Span totalSpan = new Span(String.format("Łączny czas pracy: %s", totalTimeFormatted));
 
         if (actualOvertimeMinutes > 0) {
             overtimeSpan.getStyle().set("color", "var(--lumo-error-text-color)");
             overtimeSpan.getStyle().set("font-weight", "bold");
         }
 
-        hoursSummary.add(totalSpan, overtimeSpan);
+        // Dodanie stylu do łącznego czasu pracy (dla wizualnego wyróżnienia sumy)
+        totalSpan.getStyle().set("font-weight", "bold");
+
+        hoursSummary.add(normalSpan, overtimeSpan, totalSpan);
     }
 
     /**

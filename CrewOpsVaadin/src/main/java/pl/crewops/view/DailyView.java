@@ -19,7 +19,7 @@ import java.util.List;
 import pl.crewops.component.custom.DailyTimeline;
 import pl.crewops.component.dialog.dateSelectorDialog.DateSelectorDialog;
 import pl.crewops.component.form.daily.DailyActivityForm;
-import pl.crewops.component.form.daily.TimesheetEntryForm;
+import pl.crewops.component.form.daily.TimesheetForm;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
@@ -51,7 +51,7 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
     public static final String FORMS_WIDTH = ENSURE_STICK_FORMS + 10 + "px";
 
     private final Span information = new Span();
-    private final TimesheetEntryForm timesheetEntryForm = new TimesheetEntryForm();
+    private final TimesheetForm timesheetForm = new TimesheetForm();
     private final DailyActivityForm dailyActivityForm = new DailyActivityForm();
 
     private DailyTimeline timeline;
@@ -90,7 +90,7 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
             verticalLayout.setSpacing(true);
             verticalLayout.setPadding(true);
 
-            verticalLayout.add(timesheetEntryForm, dailyActivityForm);
+            verticalLayout.add(timesheetForm, dailyActivityForm);
 
             return verticalLayout;
         } else {
@@ -105,13 +105,13 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
             horizontalLayout.setMaxWidth(CONTAINER_MAX_WIDTH);
             horizontalLayout.setWidthFull();
 
-            timesheetEntryForm.setWidth(FORM_WIDTH);
-            timesheetEntryForm.setHeight(FORM_HEIGHT);
+            timesheetForm.setWidth(FORM_WIDTH);
+            timesheetForm.setHeight(FORM_HEIGHT);
 
             dailyActivityForm.setWidth(FORM_WIDTH);
             dailyActivityForm.setHeight(FORM_HEIGHT);
 
-            horizontalLayout.add(timesheetEntryForm, dailyActivityForm);
+            horizontalLayout.add(timesheetForm, dailyActivityForm);
 
             return horizontalLayout;
         }
@@ -130,7 +130,7 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
 
         currentDay.addClickListener(event -> {
             updateTimeline(LocalDate.now());
-            timesheetEntryForm.updateDependsOnDate(LocalDate.now());
+            timesheetForm.updateDependsOnDate(LocalDate.now());
             dailyActivityForm.updateDependsOnDate(LocalDate.now());
             currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             calendar.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -140,7 +140,7 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
             var dateSelectorDialog = new DateSelectorDialog();
             dateSelectorDialog.addSelectDateListener(selectedDateEvent -> {
                 updateTimeline(selectedDateEvent.getSelectedDate());
-                timesheetEntryForm.updateDependsOnDate(selectedDateEvent.getSelectedDate());
+                timesheetForm.updateDependsOnDate(selectedDateEvent.getSelectedDate());
                 dailyActivityForm.updateDependsOnDate(selectedDateEvent.getSelectedDate());
                 calendar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
                 currentDay.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
