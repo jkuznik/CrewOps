@@ -1,5 +1,6 @@
 package pl.crewops.component.form.daily;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -11,7 +12,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.time.LocalDate;
 import pl.crewops.enums.DateState;
 import pl.crewops.util.AuthenticationResolver;
-import pl.crewops.util.SpringContextBridge;
 import pl.crewops.view.DailyView;
 
 public class DailyActivityForm extends FormLayout {
@@ -19,7 +19,7 @@ public class DailyActivityForm extends FormLayout {
     private final AuthenticationResolver authenticationResolver;
 
     // todo: i18n
-    private final Span headerText = new Span("Panel aktywności");
+    private final Span headerTextLabel = new Span("Panel aktywności");
 
     // todo: this feature allow shift leaders, managers and admins to monitor current attendance of employees and
     //  approve each employee attendance
@@ -37,17 +37,23 @@ public class DailyActivityForm extends FormLayout {
 
     private final Button requestLeave = createActionButton("Zgłoś Wniosek Urlopowy", VaadinIcon.CALENDAR_CLOCK);
 
-    public DailyActivityForm() {
+    public DailyActivityForm(AuthenticationResolver authenticationResolver) {
 
-        this.authenticationResolver = SpringContextBridge.getBean(AuthenticationResolver.class);
+        this.authenticationResolver = authenticationResolver;
 
-        headerText.getStyle().set("font-weight", "bold");
-        headerText.getStyle().set("font-size", "1.1em");
+        var actionsButtons = configuredButtons(authenticationResolver);
 
-        var verticalLayout = new VerticalLayout();
-        verticalLayout.getStyle().set("border", "1px solid #ccc");
-        verticalLayout.getStyle().set("border-radius", "4px");
+        var spacer = new Div();
+        spacer.setHeight("200px");
 
+        var mainContainer = configuredMainContainer();
+
+        mainContainer.add(configuredHeader(), actionsButtons, spacer);
+
+        add(mainContainer);
+    }
+
+    private VerticalLayout configuredButtons(AuthenticationResolver authenticationResolver) {
         var actionsLayout = new VerticalLayout();
         actionsLayout.setSpacing(true);
         actionsLayout.setPadding(false);
@@ -57,16 +63,24 @@ public class DailyActivityForm extends FormLayout {
         }
 
         actionsLayout.add(jobRaport, addNote, safetyRaport, requestLeave);
+        return actionsLayout;
+    }
 
-        var spacer = new Div();
-        spacer.setHeight("200px");
+    private static VerticalLayout configuredMainContainer() {
+        var mainContainer = new VerticalLayout();
+        mainContainer.getStyle().set("border", "1px solid #ccc");
+        mainContainer.getStyle().set("border-radius", "4px");
+        mainContainer.setMaxHeight("400px");
+        mainContainer.setMaxWidth(DailyView.FORMS_WIDTH);
 
-        verticalLayout.setMaxHeight("400px");
-        verticalLayout.setMaxWidth(DailyView.FORMS_WIDTH);
+        return mainContainer;
+    }
 
-        verticalLayout.add(headerText, actionsLayout, spacer);
+    private Component configuredHeader() {
+        headerTextLabel.getStyle().set("font-weight", "bold");
+        headerTextLabel.getStyle().set("font-size", "1.1em");
 
-        add(verticalLayout);
+        return headerTextLabel;
     }
 
     private Button createActionButton(String text, VaadinIcon iconType) {
@@ -80,8 +94,7 @@ public class DailyActivityForm extends FormLayout {
         return button;
     }
 
-    // todo: jesli w przeszlosci to jedyna opcja powinna byc modyfikuj, jesli dzisiaj to wszystko, jesli w przyszlosci
-    // to tylko wniosek o urlop
+    // todo: jeśli potwierdzono obecność to wniosek o urlop dla "dzisiaj" nie powinien być widoczny
     public void updateDependsOnDate(LocalDate localDate) {
         DateState state = DateState.fromLocalDate(localDate);
 

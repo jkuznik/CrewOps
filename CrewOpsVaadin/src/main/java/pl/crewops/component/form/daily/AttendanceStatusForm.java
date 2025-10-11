@@ -7,22 +7,16 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.shared.Tooltip;
+import pl.crewops.enums.DailyAttendanceStatus;
 
 public class AttendanceStatusForm extends FormLayout {
 
-    private static final String STATUS_PRESENT = "Obecny";
-    private static final String STATUS_VACATION = "Urlop";
-    private static final String STATUS_SICK_LEAVE = "Zwolnienie";
-    private static final String STATUS_OTHER = "Inne";
-    private static final String STATUS_ABSENT = "Nieobecny";
-
-    private final RadioButtonGroup<String> statusSelection = new RadioButtonGroup<>();
+    private final RadioButtonGroup<DailyAttendanceStatus> statusSelection = new RadioButtonGroup<>();
     private final Icon helpIcon = VaadinIcon.INFO_CIRCLE.create();
 
     public AttendanceStatusForm() {
 
-        statusSelection.setItems(STATUS_PRESENT, STATUS_VACATION, STATUS_SICK_LEAVE, STATUS_OTHER, STATUS_ABSENT);
-        statusSelection.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+        configureStatusSelection();
 
         var horizontalLayout = new HorizontalLayout();
         horizontalLayout.setPadding(true);
@@ -36,6 +30,36 @@ public class AttendanceStatusForm extends FormLayout {
         horizontalLayout.add(statusSelection, helpIcon);
 
         add(horizontalLayout);
+    }
+
+    private void configureStatusSelection() {
+        statusSelection.setItems(DailyAttendanceStatus.values());
+        statusSelection.setEnabled(false);
+        statusSelection.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+
+        // todo : i18n
+        statusSelection.setItemLabelGenerator(item -> {
+            switch (item) {
+                case PRESENT -> {
+                    return getTranslation("Obecny");
+                }
+                case VACATION -> {
+                    return getTranslation("Urlop");
+                }
+                case SICK_LEAVE -> {
+                    return getTranslation("Zwolnienie");
+                }
+                case OTHER -> {
+                    return getTranslation("Inne");
+                }
+                case ABSENT -> {
+                    return getTranslation("Nieobecny");
+                }
+                default -> {
+                    return "";
+                }
+            }
+        });
     }
 
     private String getHelpText() {

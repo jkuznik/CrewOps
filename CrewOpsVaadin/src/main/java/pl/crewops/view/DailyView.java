@@ -5,7 +5,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -19,6 +18,7 @@ import java.util.List;
 import pl.crewops.component.custom.DailyTimeline;
 import pl.crewops.component.dialog.dateSelectorDialog.DateSelectorDialog;
 import pl.crewops.component.form.daily.DailyActivityForm;
+import pl.crewops.component.form.daily.DailyApprovalForm;
 import pl.crewops.component.form.daily.TimesheetForm;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
@@ -50,16 +50,15 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
      */
     public static final String FORMS_WIDTH = ENSURE_STICK_FORMS + 10 + "px";
 
-    private final Span information = new Span();
-    private final TimesheetForm timesheetForm = new TimesheetForm();
-    private final DailyActivityForm dailyActivityForm = new DailyActivityForm();
-
     private DailyTimeline timeline;
 
-    private boolean isDailyEntryExist;
+    private final TimesheetForm timesheetForm = new TimesheetForm();
+    private final DailyActivityForm dailyActivityForm;
+    private final DailyApprovalForm dailyApprovalForm = new DailyApprovalForm();
 
     public DailyView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         super(coreAPI, jwtService, authenticationResolver);
+        this.dailyActivityForm = new DailyActivityForm(authenticationResolver);
     }
 
     @Override
@@ -76,11 +75,11 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
         mainContent.removeAll();
         timeline = new DailyTimeline();
 
-        updateTimeline(LocalDate.now());
+        updateDailyApprovalForm(LocalDate.now());
 
         var layout = getLayoutDependsOnUserDevice();
 
-        mainContent.add(getToolbar(), information, timeline, layout);
+        mainContent.add(getToolbar(), timeline, layout);
     }
 
     private Component getLayoutDependsOnUserDevice() {
@@ -111,7 +110,10 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
             dailyActivityForm.setWidth(FORM_WIDTH);
             dailyActivityForm.setHeight(FORM_HEIGHT);
 
-            horizontalLayout.add(timesheetForm, dailyActivityForm);
+            dailyApprovalForm.setWidth(FORM_WIDTH);
+            dailyApprovalForm.setHeight(FORM_HEIGHT);
+
+            horizontalLayout.add(timesheetForm, dailyActivityForm, dailyApprovalForm);
 
             return horizontalLayout;
         }
@@ -129,7 +131,7 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
         calendar.setWidth("160px");
 
         currentDay.addClickListener(event -> {
-            updateTimeline(LocalDate.now());
+            updateDailyApprovalForm(LocalDate.now());
             timesheetForm.updateDependsOnDate(LocalDate.now());
             dailyActivityForm.updateDependsOnDate(LocalDate.now());
             currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -139,7 +141,7 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
         calendar.addClickListener(event -> {
             var dateSelectorDialog = new DateSelectorDialog();
             dateSelectorDialog.addSelectDateListener(selectedDateEvent -> {
-                updateTimeline(selectedDateEvent.getSelectedDate());
+                updateDailyApprovalForm(selectedDateEvent.getSelectedDate());
                 timesheetForm.updateDependsOnDate(selectedDateEvent.getSelectedDate());
                 dailyActivityForm.updateDependsOnDate(selectedDateEvent.getSelectedDate());
                 calendar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -157,20 +159,10 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
         return toolbar;
     }
 
-    private void updateTimeline(LocalDate selectedDate) {
+    private void updateDailyApprovalForm(LocalDate selectedDate) {
         //        isDailyEntryExist = coreAPI.getDailyEntryDateAndEmployeeId(LocalDate.now(),
         // authenticationResolver.getPrincipal().getEmployeeId());
 
-        if (!isDailyEntryExist) {
-            if (selectedDate.equals(LocalDate.now())) {
-                information.setText(
-                        "W dzienniku pracy nie zarejstrowano wpisu dla dzisiejszego dnia. Zaktualizuj informacje aby utworzyć trwały wpis do dziennika ");
-            } else {
-                information.setText("W dzienniku pracy nie zarejestrowano wpisu dla " + selectedDate
-                        + ". Zaktualizuj informacje aby utworzyc trawły wpis do dziennika");
-            }
-            information.setVisible(true);
-        }
         //        timeline.updateItems(List.of());
     }
 

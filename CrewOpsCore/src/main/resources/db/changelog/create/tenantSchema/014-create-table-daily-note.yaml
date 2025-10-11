@@ -1,11 +1,10 @@
 databaseChangeLog:
-
   - changeSet:
-      id: 001-create-table-daily-entry
+      id: 001-create-table-daily-note
       author: jkuznik
       changes:
         - createTable:
-            tableName: daily_entry
+            tableName: daily_note
             columns:
               - column:
                   name: id
@@ -20,35 +19,23 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: employee_id
+                  name: daily_entry_id
                   type: uuid
                   constraints:
                     nullable: false
               - column:
-                  name: entry_date
-                  type: DATE
+                  name: reported_by_employee_id
+                  type: uuid
                   constraints:
                     nullable: false
               - column:
-                  name: start_time
-                  type: timestamptz
-              - column:
-                  name: end_time
-                  type: timestamptz
-              - column:
-                  name: overtime
-                  type: NUMERIC(7, 4)
-                  defaultValueNumeric: 0.0000
+                  name: type
+                  type: public.daily_note_type
                   constraints:
                     nullable: false
               - column:
-                  name: attendance
-                  type: public.daily_attendance
-                  constraints:
-                    nullable: false
-              - column:
-                  name: status
-                  type: public.daily_status
+                  name: content
+                  type: varchar(32767)
                   constraints:
                     nullable: false
               - column:
@@ -64,29 +51,31 @@ databaseChangeLog:
                   constraints:
                     nullable: false
 
-        # Ograniczenie unikalności: Jeden wpis na pracownika na dzień
-        - addUniqueConstraint:
-            columnNames: employee_id, entry_date
-            constraintName: uq_daily_entry_employee_date
-            tableName: daily_entry
-
         - addForeignKeyConstraint:
-            baseTableName: daily_entry
-            baseColumnNames: employee_id
-            referencedTableName: employee
+            baseTableName: daily_note
+            baseColumnNames: daily_entry_id
+            referencedTableName: daily_entry
             referencedColumnNames: id
-            constraintName: fk_daily_entry_employee
+            constraintName: fk_daily_note_daily_entry
             onDelete: CASCADE
 
+        - addForeignKeyConstraint:
+            baseTableName: daily_note
+            baseColumnNames: reported_by_employee_id
+            referencedTableName: employee
+            referencedColumnNames: id
+            constraintName: fk_daily_note_reported_by
+            onDelete: RESTRICT
+
   - changeSet:
-      id: 002-create-daily_entry-updated_at-trigger
+      id: 002-create-daily_note-updated_at-trigger
       author: jkuznik
       changes:
         - sql:
             dbms: postgresql
             sql: |
-              DROP TRIGGER IF EXISTS daily_entry_updated_at_trigger ON daily_entry;
-              CREATE TRIGGER daily_entry_updated_at_trigger
-              BEFORE UPDATE ON daily_entry
+              DROP TRIGGER IF EXISTS daily_note_updated_at_trigger ON daily_note;
+              CREATE TRIGGER daily_note_updated_at_trigger
+              BEFORE UPDATE ON daily_note
               FOR EACH ROW
               EXECUTE FUNCTION update_updated_at();

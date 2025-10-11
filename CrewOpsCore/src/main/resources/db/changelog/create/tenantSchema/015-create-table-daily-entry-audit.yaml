@@ -1,11 +1,10 @@
 databaseChangeLog:
-
   - changeSet:
-      id: 001-create-table-daily-entry
+      id: 001-create-table-daily-entry-audit
       author: jkuznik
       changes:
         - createTable:
-            tableName: daily_entry
+            tableName: daily_entry_audit
             columns:
               - column:
                   name: id
@@ -20,37 +19,23 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: employee_id
+                  name: daily_entry_id
                   type: uuid
                   constraints:
                     nullable: false
               - column:
-                  name: entry_date
-                  type: DATE
+                  name: action_by_employee_id
+                  type: uuid
                   constraints:
                     nullable: false
               - column:
-                  name: start_time
-                  type: timestamptz
-              - column:
-                  name: end_time
-                  type: timestamptz
-              - column:
-                  name: overtime
-                  type: NUMERIC(7, 4)
-                  defaultValueNumeric: 0.0000
+                  name: event_type
+                  type: public.daily_entry_event_type
                   constraints:
                     nullable: false
               - column:
-                  name: attendance
-                  type: public.daily_attendance
-                  constraints:
-                    nullable: false
-              - column:
-                  name: status
-                  type: public.daily_status
-                  constraints:
-                    nullable: false
+                  name: details
+                  type: varchar(2047)
               - column:
                   name: created_at
                   type: timestamptz
@@ -64,29 +49,38 @@ databaseChangeLog:
                   constraints:
                     nullable: false
 
-        # Ograniczenie unikalności: Jeden wpis na pracownika na dzień
+        # Ograniczenie unikalności: Dzienny wpis + czas utworzenia muszą być unikalne.
+        # Odwzorowuje: @UniqueConstraint(columnNames = {"daily_entry_id", "created_at"})
         - addUniqueConstraint:
-            columnNames: employee_id, entry_date
-            constraintName: uq_daily_entry_employee_date
-            tableName: daily_entry
+            columnNames: daily_entry_id, created_at
+            constraintName: uq_daily_entry_audit_entry_created_at
+            tableName: daily_entry_audit
 
         - addForeignKeyConstraint:
-            baseTableName: daily_entry
-            baseColumnNames: employee_id
+            baseTableName: daily_entry_audit
+            baseColumnNames: action_by_employee_id
             referencedTableName: employee
             referencedColumnNames: id
-            constraintName: fk_daily_entry_employee
+            constraintName: fk_daily_entry_audit_employee
+            onDelete: RESTRICT
+
+        - addForeignKeyConstraint:
+            baseTableName: daily_entry_audit
+            baseColumnNames: daily_entry_id
+            referencedTableName: daily_entry
+            referencedColumnNames: id
+            constraintName: fk_daily_entry_audit_daily_entry
             onDelete: CASCADE
 
   - changeSet:
-      id: 002-create-daily_entry-updated_at-trigger
+      id: 008-create-daily_entry_audit-updated_at-trigger
       author: jkuznik
       changes:
         - sql:
             dbms: postgresql
             sql: |
-              DROP TRIGGER IF EXISTS daily_entry_updated_at_trigger ON daily_entry;
-              CREATE TRIGGER daily_entry_updated_at_trigger
-              BEFORE UPDATE ON daily_entry
+              DROP TRIGGER IF EXISTS daily_entry_audit_updated_at_trigger ON daily_entry_audit;
+              CREATE TRIGGER daily_entry_audit_updated_at_trigger
+              BEFORE UPDATE ON daily_entry_audit
               FOR EACH ROW
               EXECUTE FUNCTION update_updated_at();

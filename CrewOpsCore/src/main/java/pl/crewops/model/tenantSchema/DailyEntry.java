@@ -4,10 +4,13 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import pl.crewops.enums.DailyAttendanceStatus;
 import pl.crewops.enums.DailyEntryStatus;
 import pl.crewops.model.AbstractEntity;
 
@@ -28,18 +31,24 @@ public class DailyEntry extends AbstractEntity {
     private UUID employeeId;
 
     @Column(nullable = false)
-    private LocalDate date;
+    private LocalDate entryDate;
 
     private Instant startTime;
 
     private Instant endTime;
 
-    // Uncomment this when WorkLog is defined:
-    // @OneToMany(mappedBy = "dailyEntry", cascade = CascadeType.ALL, orphanRemoval = true)
-    // private Set<WorkLog> workLogs = new HashSet<>();
-
     @Column(precision = 7, scale = 4, nullable = false)
     private BigDecimal overtime = BigDecimal.ZERO;
+
+    @OneToMany(mappedBy = "dailyEntry", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<DailyNote> dailyNotes = new HashSet<>();
+
+    @OneToMany(mappedBy = "dailyEntry", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<DailyEntryAudit> auditEvents = new HashSet<>();
+
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(columnDefinition = "daily_attendance")
+    private DailyAttendanceStatus attendance;
 
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(columnDefinition = "daily_status", nullable = false)

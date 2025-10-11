@@ -37,6 +37,12 @@
     - include:
         file: db/changelog/create/publicSchema/008-create-type-daily-status.yaml
     - include:
+        file: db/changelog/create/publicSchema/009-create-type-daily-attendance.yaml
+    - include:
+        file: db/changelog/create/publicSchema/010-create-type-daily-note-type.yaml
+    - include:
+        file: db/changelog/create/publicSchema/011-create-type-daily-entry-audit-type.yaml
+    - include:
         file: db/changelog/insert/001-insert-role-initial-values.yaml
     - include:
         file: db/changelog/insert/002-insert-admin-account-values.yaml

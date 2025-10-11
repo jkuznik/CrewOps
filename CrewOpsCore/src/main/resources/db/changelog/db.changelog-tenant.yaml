@@ -44,5 +44,9 @@
         file: db/changelog/create/tenantSchema/011-create-table-department.yaml
     - include:
         file: db/changelog/create/tenantSchema/012-create-join-table-employee-department.yaml
-#    - include:
-#        file: db/changelog/create/tenantSchema/013-create-table-daily-entry.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/013-create-table-daily-entry.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/014-create-table-daily-note.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/015-create-table-daily-entry-audit.yaml

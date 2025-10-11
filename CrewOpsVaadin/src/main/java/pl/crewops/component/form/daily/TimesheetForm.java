@@ -1,7 +1,5 @@
 package pl.crewops.component.form.daily;
 
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
@@ -43,8 +41,6 @@ public class TimesheetForm extends FormLayout {
     private final Select<OvertimeInterval> overtime = new Select<>();
     private final VerticalLayout hoursSummary = initialHourSummaryContent();
 
-    private final Button confirmPresence = new Button("Potwierdź Obecność");
-
     private LocalDate selectedDate = LocalDate.now();
 
     public TimesheetForm() {
@@ -56,14 +52,13 @@ public class TimesheetForm extends FormLayout {
 
         configureValueFields();
         configureOvertime();
-        configureConfirmPresence();
 
         var spacer = new Div();
         spacer.setHeight("200px");
 
-        var mainContainer = getConfiguredMainContainer();
+        var mainContainer = configuredMainContainer();
 
-        mainContainer.add(configuredHeaderLayout(), fromLayout, toLayout, overtimeLayout, spacer, confirmPresence);
+        mainContainer.add(configuredHeader(), fromLayout, toLayout, overtimeLayout, spacer);
 
         add(mainContainer);
     }
@@ -83,11 +78,6 @@ public class TimesheetForm extends FormLayout {
         });
         overtime.setItems(OvertimeInterval.H00_00);
         overtime.setValue(OvertimeInterval.H00_00);
-    }
-
-    private void configureConfirmPresence() {
-        confirmPresence.setIcon(new Icon(VaadinIcon.CHECK_CIRCLE));
-        confirmPresence.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
     }
 
     /**
@@ -193,15 +183,12 @@ public class TimesheetForm extends FormLayout {
         switch (state) {
             case PAST -> {
                 headerTextLabel.setText("Przepracowany Czas Pracy");
-                confirmPresence.setVisible(false);
             }
             case TODAY -> {
                 headerTextLabel.setText("Czas Pracy");
-                confirmPresence.setVisible(true);
             }
             case FUTURE -> {
                 headerTextLabel.setText("Planowany Czas Pracy");
-                confirmPresence.setVisible(false);
             }
         }
     }
@@ -245,11 +232,9 @@ public class TimesheetForm extends FormLayout {
                 || dateToSelect.getValue().isAfter(tomorrow)) {
             dateToSelect.setValue(selectedDate);
         }
-
-        confirmPresence.setVisible(false);
     }
 
-    private static VerticalLayout getConfiguredMainContainer() {
+    private static VerticalLayout configuredMainContainer() {
         var mainContainer = new VerticalLayout();
         mainContainer.getStyle().set("border", "1px solid #ccc");
         mainContainer.getStyle().set("border-radius", "4px");
@@ -264,32 +249,21 @@ public class TimesheetForm extends FormLayout {
             long totalMinutes = calculateWorkDurationMinutes();
             filterOvertimeOptions(totalMinutes);
             updateHoursSummary();
-
-            if (validateWorkTime()) {
-                confirmPresence.setVisible(true);
-            } else {
-                confirmPresence.setVisible(false);
-            }
         };
 
         from.addValueChangeListener(event -> updateListener.run());
         to.addValueChangeListener(event -> updateListener.run());
         dateToSelect.addValueChangeListener(event -> updateListener.run());
 
-        // Specyficzny listener dla pola nadgodzin, tylko aktualizuje podsumowanie
         overtime.addValueChangeListener(event -> {
             updateHoursSummary();
-            // Po zmianie nadgodzin, jeśli czas pracy jest poprawny, przycisk może być widoczny
-            if (validateWorkTime()) {
-                confirmPresence.setVisible(true);
-            }
         });
 
         updateDateFieldsOptions();
         updateListener.run();
     }
 
-    private HorizontalLayout configuredHeaderLayout() {
+    private HorizontalLayout configuredHeader() {
         headerTextLabel.getStyle().set("font-weight", "bold");
         headerTextLabel.getStyle().set("font-size", "1.1em");
 
@@ -357,21 +331,10 @@ public class TimesheetForm extends FormLayout {
     }
 
     private String getHelpText() {
-        return "Zasady wprowadzania czasu:\n\n" + "1. Czas pracy (Od/Do) to cały przepracowany czas.\n"
-                + "2. Nadgodziny to Ilość godzin (np. 2.5) zawarta w zadeklarowanym czasie Od/Do.\n"
-                + "3. Jeśli cały czas Od/Do był nadgodzinami, Nadgodziny muszą być równe zadeklarowanemu czasowi.";
+        return "Zasady wprowadzania czasu:\n\n" + "1. Czas pracy (Od/Do) to cały przepracowany czas danego dnia.\n"
+                + "2. Nadgodziny to ilość godzin (np. 2.5) zawarta w zadeklarowanym czasie pracy.\n"
+                + "3. Jeśli cały czas przepracowany danego dnia był nadgodzinami, to ilość nadgodzin musi być równe zadeklarowanemu czasowi pracy.";
     }
 
-    public LocalDate getDateFromValue() {
-        return dateFromSelect.getValue();
-    }
-
-    public LocalDate getDateToValue() {
-        return dateToSelect.getValue();
-    }
-
-    // Publiczny getter dla przycisku, aby można było dodać listener z widoku
-    public Button getConfirmPresenceButton() {
-        return confirmPresence;
-    }
+    // todo: implement logic to fetch selected work time with overtime info
 }
