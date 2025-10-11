@@ -11,7 +11,7 @@ databaseChangeLog:
               DO $$
               BEGIN
                 IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'daily_status') THEN
-                  CREATE TYPE daily_status AS ENUM ('DRAFT', 'PENDING', 'AUTOAPPROVED', 'APPROVED', 'MODIFIED_APPROVED');
+                  CREATE TYPE daily_status AS ENUM ('EMPTY', 'DRAFT', 'PENDING', 'AUTO_GENERATED', 'MANUAL_EDITED', 'APPROVED');
                 END IF;
               END;
               $$;

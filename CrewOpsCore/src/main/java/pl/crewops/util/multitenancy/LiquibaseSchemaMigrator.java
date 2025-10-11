@@ -1,5 +1,7 @@
 package pl.crewops.util.multitenancy;
 
+import static pl.crewops.infrastructure.multitenancy.TenantIdentifierResolver.*;
+
 import java.sql.Connection;
 import javax.sql.DataSource;
 import liquibase.Contexts;
@@ -22,7 +24,7 @@ public class LiquibaseSchemaMigrator {
     }
 
     public void runMigrations(String schemaName) throws CreateSchemaException {
-        if (schemaName != null && schemaName.equals("public")) {
+        if (schemaName != null && schemaName.equals(DEFAULT_TENANT)) {
             return;
         }
         try (Connection connection = dataSource.getConnection()) {

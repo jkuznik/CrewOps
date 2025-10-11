@@ -6,13 +6,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class TenantIdentifierResolver implements CurrentTenantIdentifierResolver<String> {
 
-    private static final String DEFAULT_TENANT = "public";
+    public static final String DEFAULT_TENANT = "public";
 
     @Override
     public String resolveCurrentTenantIdentifier() {
-        String tenantId = TenantContext.getCurrentTenant();
-        System.out.println("[TenantResolver] Some action for tenant " + tenantId);
-        return (tenantId != null) ? tenantId : DEFAULT_TENANT;
+        String resolvedTenantId = TenantContext.getCurrentTenant();
+
+        if (resolvedTenantId == null) {
+            resolvedTenantId = DEFAULT_TENANT;
+        }
+
+        // todo: consider logger instead of sout
+        System.out.println("[TenantResolver] Some action for tenant " + resolvedTenantId);
+
+        return resolvedTenantId;
     }
 
     @Override
