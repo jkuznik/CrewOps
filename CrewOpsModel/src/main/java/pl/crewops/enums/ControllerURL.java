@@ -14,6 +14,7 @@ public interface ControllerURL {
     String VALIDATE = "/validate";
     String HEALTH = "/health";
 
+    // todo: refactor camel case into kebab case
     String UPDATE_USER_ROLES = "/updateUserRoles";
     String UPDATE_USER_CREDENTIALS = "/updateUserCredentials";
 
@@ -31,6 +32,7 @@ public interface ControllerURL {
     String COMPANY_ID = "companyId";
     String DEPARTMENTS = "/departments";
     String DEPARTMENT_ID = "departmentId";
+    String DAILY_ENTRIES = "/daily-entries";
     String MESSAGES = "/messages";
     String MESSAGE_ID = "messageId";
 
