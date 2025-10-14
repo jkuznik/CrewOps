@@ -62,21 +62,26 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
     public static final String FORMS_HEIGHT = "400px";
 
+    private final Button currentDay = new Button();
+    private final Button calendar = new Button();
+
+    // strange behavior of third part component like Timeline has described with initialize this object
     private DailyTimeline timeline;
 
-    private final TimesheetForm timesheetForm = new TimesheetForm();
+    private final TimesheetForm timesheetForm;
     private final DailyActivityForm dailyActivityForm;
-    private final DailyModificationForm dailyModificationForm = new DailyModificationForm();
-
-    private DailyEntryDTO dailyEntryDTO;
+    private final DailyModificationForm dailyModificationForm;
 
     public DailyView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         super(coreAPI, jwtService, authenticationResolver);
+        this.timesheetForm = new TimesheetForm();
         this.dailyActivityForm = new DailyActivityForm(authenticationResolver);
+        this.dailyModificationForm = new DailyModificationForm(coreAPI, authenticationResolver);
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
+        // todo: implement annotation that do same thing.
         if (authenticationResolver.principalIsAuthenticated()) {
             buildContent();
         } else {
@@ -87,7 +92,14 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
     private void buildContent() {
         mainContent.removeAll();
+
+        // TODO: not sure why this component has strange behavior like DO NOT remove able from mainContent if
+        //  this timeline property is declared as final. In case of final this component is duplicated as many times
+        //  as user revisit DailyView using Drawer navigations. Currently define this property as NOT final solve that
+        //  issue.
         timeline = new DailyTimeline();
+
+        localize();
 
         updateDependsOnDate(LocalDate.now());
 
@@ -98,14 +110,19 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         mainContent.add(getToolbar(), timeline, layout);
     }
 
+    private void localize() {
+        currentDay.setText(getTranslation("dailyView.currentDay"));
+        calendar.setText(getTranslation("dailyView.calendar"));
+    }
+
     @Override
     public void updateDependsOnDate(LocalDate date) {
         try {
-            Optional<DailyEntryDTO> dailyEntryByEmployeeIdAndDate = coreAPI.findDailyEntryByEmployeeIdAndDate(
+            Optional<DailyEntryDTO> dailyEntryDTO = coreAPI.findDailyEntryByEmployeeIdAndDate(
                     authenticationResolver.getPrincipal().getEmployeeId(), date);
 
-            if (dailyEntryByEmployeeIdAndDate.isPresent()) {
-                var dailyEntry = dailyEntryByEmployeeIdAndDate.get();
+            if (dailyEntryDTO.isPresent()) {
+                var dailyEntry = dailyEntryDTO.get();
                 timeline.setAttendanceStatus(dailyEntry.attendance());
                 timesheetForm.setDailyEntry(dailyEntry);
 
@@ -166,12 +183,9 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        // todo: i18n
-        Button currentDay = new Button("Dzisiaj");
         currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         currentDay.setWidth("160px");
 
-        Button calendar = new Button("Kalendarz");
         calendar.setWidth("160px");
 
         currentDay.addClickListener(event -> {
@@ -201,12 +215,13 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         return toolbar;
     }
 
+    // TODO: implement each button logic: createDaily - done,
     private void addDailyModificationFormListeners() {
         dailyModificationForm.addCreateDailyEventListener(event -> {
             var createDailyEntryDTO = CreateDailyEntryDTO.builder()
                     .employeeId(authenticationResolver
                             .getPrincipal()
-                            .getEmployeeId()) // to sie zmieni jesli manager bedzie mial mozliwosc jednostkowego
+                            .getEmployeeId()) // to sie zmieni kiedy manager bedzie mial mozliwosc jednostkowego
                     // utworzenia dailyentry dla danego pracownika przez managera
                     .entryDate(LocalDate.now())
                     .actionByEmployeeId(authenticationResolver.getPrincipal().getEmployeeId())
@@ -220,7 +235,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
             try {
                 Optional<DailyEntryDTO> dailyEntry = coreAPI.createDailyEntry(createDailyEntryDTO);
                 dailyEntry.ifPresent(dailyEntryDTO -> {
-                    new SuccessNotification("Daily entry created");
+                    new SuccessNotification(getTranslation("dailyView.createDailyEntrySuccess"));
                 });
 
             } catch (NotAuthenticatedException e) {

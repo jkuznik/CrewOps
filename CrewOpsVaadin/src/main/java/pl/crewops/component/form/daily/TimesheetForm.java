@@ -27,28 +27,31 @@ import pl.crewops.view.DailyView;
 
 public class TimesheetForm extends FormLayout implements DateSensitive {
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM (EEE)");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM");
 
-    // todo: i18n
-    private final Span headerTextLabel = new Span("Czas Pracy");
+    private final Span headerTextLabel = new Span();
     private final Icon helpIcon = VaadinIcon.INFO_CIRCLE.create();
 
-    private final TimePicker from = new TimePicker("Od");
+    private final TimePicker from = new TimePicker();
     private final Select<LocalDate> dateFromSelect = new Select<>();
 
-    private final TimePicker to = new TimePicker("Do");
+    private final TimePicker to = new TimePicker();
     private final Select<LocalDate> dateToSelect = new Select<>();
 
     private final Select<OvertimeInterval> overtime = new Select<>();
-    private final VerticalLayout hoursSummary = initialHourSummaryContent();
+    private final VerticalLayout hoursSummary = configuredHoursSummaryLayout();
+
+    private final Span normalSpan = new Span();
+    private final Span overtimeSpan = new Span();
+    private final Span totalSpan = new Span();
 
     private LocalDate selectedDate = LocalDate.now();
 
     public TimesheetForm() {
+        localize();
 
         var fromLayout = createDateTimeLayout(from, dateFromSelect);
         var toLayout = createDateTimeLayout(to, dateToSelect);
-
         var overtimeLayout = createOvertimeLayout(overtime, hoursSummary);
 
         configureValueFields();
@@ -65,7 +68,6 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
     }
 
     public void setDailyEntry(DailyEntryDTO dailyEntryDTO) {
-
         if (dailyEntryDTO == null) {
             from.setValue(null);
             to.setValue(null);
@@ -92,7 +94,6 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
         }
 
         LocalDateTime dateTimeFrom = LocalDateTime.of(this.selectedDate, timeFrom);
-
         ZoneId zoneId = ZoneId.systemDefault();
 
         return dateTimeFrom.atZone(zoneId).toInstant();
@@ -107,7 +108,6 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
         }
 
         LocalDateTime dateTimeTo = LocalDateTime.of(dateTo, timeTo);
-
         ZoneId zoneId = ZoneId.systemDefault();
 
         return dateTimeTo.atZone(zoneId).toInstant();
@@ -145,12 +145,10 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
     }
 
     private void configureOvertime() {
-        // todo: i18n
-        overtime.setLabel("W tym nadgodzin");
+        overtime.setLabel(getTranslation("timesheetForm.overtime.label"));
         overtime.setItemLabelGenerator(interval -> {
             if (interval == OvertimeInterval.ALL) {
-                // todo: i18n - "Cały czas pracy"
-                return "Całkowity czas pracy";
+                return getTranslation("timesheetForm.overtime.allTime");
             } else {
                 return String.format(
                         "%d:%02d",
@@ -202,27 +200,36 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
         String overtimeFormatted = formatMinutesToHHMM(actualOvertimeMinutes);
         String normalWorkFormatted = formatMinutesToHHMM(normalWorkMinutes);
 
-        hoursSummary.removeAll();
-
-        // todo: i18n
-        Span normalSpan = new Span(String.format("Normalny czas pracy: %s", normalWorkFormatted));
-        Span overtimeSpan = new Span(String.format("Nadgodziny: %s", overtimeFormatted));
-        Span totalSpan = new Span(String.format("Łączny czas pracy: %s", totalTimeFormatted));
+        normalSpan.setText(getTranslation("timesheetForm.summary.normalWork", normalWorkFormatted));
+        overtimeSpan.setText(getTranslation("timesheetForm.summary.overtime", overtimeFormatted));
+        totalSpan.setText(getTranslation("timesheetForm.summary.totalTime", totalTimeFormatted));
 
         if (actualOvertimeMinutes > 0) {
             overtimeSpan.getStyle().set("color", "var(--lumo-error-text-color)");
             overtimeSpan.getStyle().set("font-weight", "bold");
         }
 
-        // Dodanie stylu do łącznego czasu pracy (dla wizualnego wyróżnienia sumy)
         totalSpan.getStyle().set("font-weight", "bold");
 
         hoursSummary.add(normalSpan, overtimeSpan, totalSpan);
     }
 
+    private HorizontalLayout createOvertimeLayout(Select<?> overtimeField, VerticalLayout summaryLayout) {
+        var layout = new HorizontalLayout();
+        layout.setWidthFull();
+        layout.setSpacing(true);
+        layout.setAlignItems(FlexComponent.Alignment.END);
+
+        overtimeField.setWidth("50%");
+        summaryLayout.setWidth("50%");
+
+        layout.add(overtimeField, summaryLayout);
+        return layout;
+    }
+
     /**
-     * Filtruje dostępne opcje OvertimeInterval na podstawie maksymalnego czasu pracy.
-     * @param maxMinutes Maksymalna dozwolona liczba minut nadgodzin (całkowity czas pracy).
+     * Filter possible options of OvertimeInterval depends on passed work time.
+     * @param maxMinutes Max amount equals all declared work time.
      */
     private void filterOvertimeOptions(long maxMinutes) {
         List<OvertimeInterval> filteredItems = Arrays.stream(OvertimeInterval.values())
@@ -242,19 +249,6 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
         overtime.setValue(OvertimeInterval.H00_00);
     }
 
-    private HorizontalLayout createOvertimeLayout(Select<?> overtimeField, VerticalLayout summaryLayout) {
-        var layout = new HorizontalLayout();
-        layout.setWidthFull();
-        layout.setSpacing(true);
-        layout.setAlignItems(FlexComponent.Alignment.END);
-
-        overtimeField.setWidth("50%");
-        summaryLayout.setWidth("50%");
-
-        layout.add(overtimeField, summaryLayout);
-        return layout;
-    }
-
     @Override
     public void updateDependsOnDate(LocalDate localDate) {
         this.selectedDate = localDate;
@@ -264,15 +258,85 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
 
         switch (state) {
             case PAST -> {
-                headerTextLabel.setText("Przepracowany Czas Pracy");
+                headerTextLabel.setText(getTranslation("timesheetForm.headerText.past"));
             }
             case TODAY -> {
-                headerTextLabel.setText("Czas Pracy");
+                headerTextLabel.setText(getTranslation("timesheetForm.headerText"));
             }
             case FUTURE -> {
-                headerTextLabel.setText("Planowany Czas Pracy");
+                headerTextLabel.setText(getTranslation("timesheetForm.headerText.future"));
             }
         }
+    }
+
+    private static VerticalLayout configuredMainContainer() {
+        var mainContainer = new VerticalLayout();
+        mainContainer.getStyle().set("border", "1px solid #ccc");
+        mainContainer.getStyle().set("border-radius", "4px");
+        mainContainer.getStyle().set("padding", "10px");
+        mainContainer.setMaxHeight(DailyView.FORMS_HEIGHT);
+        mainContainer.setMaxWidth(DailyView.FORMS_WIDTH);
+        return mainContainer;
+    }
+
+    private HorizontalLayout configuredHeader() {
+        headerTextLabel.getStyle().set("font-weight", "bold");
+        headerTextLabel.getStyle().set("font-size", "1.1em");
+
+        helpIcon.setColor("var(--lumo-contrast-50pct)");
+        helpIcon.getStyle().set("cursor", "pointer");
+        Tooltip.forComponent(helpIcon).withText(getHelpText()).withPosition(Tooltip.TooltipPosition.BOTTOM_END);
+
+        var headerLayout = new HorizontalLayout();
+        headerLayout.setWidthFull();
+        headerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        headerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        headerLayout.add(headerTextLabel, helpIcon);
+
+        return headerLayout;
+    }
+
+    private void configureValueFields() {
+        var updateListener = (Runnable) () -> {
+            long totalMinutes = calculateWorkDurationMinutes();
+            filterOvertimeOptions(totalMinutes);
+            updateHoursSummary();
+        };
+
+        dateToSelect.setEnabled(false);
+
+        if (from.getValue() == null) {
+            to.setEnabled(false);
+        }
+        from.addValueChangeListener(event -> {
+            to.setEnabled(true);
+            updateListener.run();
+        });
+        to.addValueChangeListener(event -> updateListener.run());
+        dateToSelect.addValueChangeListener(event -> updateListener.run());
+
+        overtime.addValueChangeListener(event -> {
+            updateHoursSummary();
+        });
+
+        updateDateFieldsOptions();
+        updateListener.run();
+    }
+
+    private VerticalLayout configuredHoursSummaryLayout() {
+        VerticalLayout layout = new VerticalLayout();
+        layout.setPadding(false);
+        layout.setSpacing(false);
+
+        layout.getStyle().set("border", "1px solid var(--lumo-contrast-10pct)");
+        layout.getStyle().set("border-radius", "4px");
+        layout.getStyle().set("padding", "8px");
+        layout.getStyle().set("min-height", "3em");
+
+        //        layout.add(new Span("Przepracowane: 0:00"), new Span("Nadgodziny: 0:00"));
+
+        return layout;
     }
 
     private HorizontalLayout createDateTimeLayout(TimePicker timePicker, Select<LocalDate> dateSelect) {
@@ -298,8 +362,7 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
             if (date.isEqual(selectedDate)) {
                 return date.format(DATE_FORMATTER);
             } else {
-                // todo: i18n
-                return date.format(DATE_FORMATTER) + " (Nast. dzień/Nocna zmiana)";
+                return date.format(DATE_FORMATTER) + getTranslation("timesheetForm.nextDayShiftIndicator");
             }
         });
 
@@ -316,69 +379,6 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
         }
     }
 
-    private static VerticalLayout configuredMainContainer() {
-        var mainContainer = new VerticalLayout();
-        mainContainer.getStyle().set("border", "1px solid #ccc");
-        mainContainer.getStyle().set("border-radius", "4px");
-        mainContainer.getStyle().set("padding", "10px");
-        mainContainer.setMaxHeight(DailyView.FORMS_HEIGHT);
-        mainContainer.setMaxWidth(DailyView.FORMS_WIDTH);
-        return mainContainer;
-    }
-
-    private void configureValueFields() {
-        var updateListener = (Runnable) () -> {
-            long totalMinutes = calculateWorkDurationMinutes();
-            filterOvertimeOptions(totalMinutes);
-            updateHoursSummary();
-        };
-
-        from.addValueChangeListener(event -> updateListener.run());
-        to.addValueChangeListener(event -> updateListener.run());
-        dateToSelect.addValueChangeListener(event -> updateListener.run());
-
-        overtime.addValueChangeListener(event -> {
-            updateHoursSummary();
-        });
-
-        updateDateFieldsOptions();
-        updateListener.run();
-    }
-
-    private HorizontalLayout configuredHeader() {
-        headerTextLabel.getStyle().set("font-weight", "bold");
-        headerTextLabel.getStyle().set("font-size", "1.1em");
-
-        helpIcon.setColor("var(--lumo-contrast-50pct)");
-        helpIcon.getStyle().set("cursor", "pointer");
-        Tooltip.forComponent(helpIcon).withText(getHelpText()).withPosition(Tooltip.TooltipPosition.BOTTOM_END);
-
-        var headerLayout = new HorizontalLayout();
-        headerLayout.setWidthFull();
-        headerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        headerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-
-        headerLayout.add(headerTextLabel, helpIcon);
-
-        return headerLayout;
-    }
-
-    private VerticalLayout initialHourSummaryContent() {
-        VerticalLayout layout = new VerticalLayout();
-        layout.setPadding(false);
-        layout.setSpacing(false);
-
-        layout.getStyle().set("border", "1px solid var(--lumo-contrast-10pct)");
-        layout.getStyle().set("border-radius", "4px");
-        layout.getStyle().set("padding", "8px");
-        layout.getStyle().set("min-height", "3em");
-
-        // todo: i18n
-        layout.add(new Span("Przepracowane: 0:00"), new Span("Nadgodziny: 0:00"));
-
-        return layout;
-    }
-
     private long calculateWorkDurationMinutes() {
         LocalTime timeFrom = from.getValue();
         LocalTime timeTo = to.getValue();
@@ -393,8 +393,9 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
                 return duration.toMinutes();
             }
         }
-        return -2; // It's required to return less than -1
+        // It's required to return less than -1
         // to work properly with OvertimeInterval.ALL that has .value() equals -1
+        return -2;
     }
 
     private boolean validateWorkTime() {
@@ -412,9 +413,15 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
         return dateTimeFrom.isBefore(dateTimeTo);
     }
 
+    private void localize() {
+        from.setLabel(getTranslation("timesheetForm.from"));
+        to.setLabel(getTranslation("timesheetForm.to"));
+    }
+
     private String getHelpText() {
-        return "Zasady wprowadzania czasu:\n\n" + "1. Czas pracy (Od/Do) to cały przepracowany czas danego dnia.\n"
-                + "2. Nadgodziny to ilość godzin (np. 2.5) zawarta w zadeklarowanym czasie pracy.\n"
-                + "3. Jeśli cały czas przepracowany danego dnia był nadgodzinami, to ilość nadgodzin musi być równe zadeklarowanemu czasowi pracy.";
+        return getTranslation("timesheetForm.rules.title") + "\n\n"
+                + getTranslation("timesheetForm.rules.1") + "\n"
+                + getTranslation("timesheetForm.rules.2") + "\n"
+                + getTranslation("timesheetForm.rules.3");
     }
 }

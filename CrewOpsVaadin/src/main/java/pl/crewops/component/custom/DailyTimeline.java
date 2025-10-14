@@ -2,8 +2,7 @@ package pl.crewops.component.custom;
 
 import com.vaadin.componentfactory.timeline.Timeline;
 import com.vaadin.componentfactory.timeline.model.Item;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span; // Używamy Span zamiast RadioButtonGroup
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -14,7 +13,7 @@ import java.time.LocalTime;
 import java.util.List;
 import pl.crewops.enums.DailyAttendanceStatus;
 
-public class DailyTimeline extends Div {
+public class DailyTimeline extends HorizontalLayout {
 
     private static final String TIMELINE_WIDTH_PX = "1200px";
     private static final String TIMELINE_HEIGHT_PX = "200px";
@@ -24,8 +23,12 @@ public class DailyTimeline extends Div {
     private final Icon helpIcon = VaadinIcon.INFO_CIRCLE.create();
 
     public DailyTimeline() {
-        removeAll();
+        configureStyles();
 
+        add(configuredTimeline(), configuredAttendanceContainer());
+    }
+
+    private void configureStyles() {
         setMinWidth(TIMELINE_WIDTH_PX);
         setMaxWidth(TIMELINE_WIDTH_PX);
         setMinHeight(TIMELINE_HEIGHT_PX);
@@ -34,18 +37,11 @@ public class DailyTimeline extends Div {
         getStyle().remove("overflow-y");
         getStyle().set("border", "1px solid #ccc");
         getStyle().set("border-radius", "4px");
-
-        var attendanceLayout = configuredAttendanceContainer();
-
-        var horizontalLayout = new HorizontalLayout();
-
-        horizontalLayout.add(configuredTimeline(), attendanceLayout);
-
-        add(horizontalLayout);
     }
 
     private HorizontalLayout configuredAttendanceContainer() {
         var attendanceLayout = new HorizontalLayout();
+
         attendanceLayout.setPadding(true);
         attendanceLayout.setJustifyContentMode(HorizontalLayout.JustifyContentMode.END);
 
@@ -72,6 +68,7 @@ public class DailyTimeline extends Div {
 
         switch (status) {
             case PRESENT -> {
+                // LUMO_SUCCESS green like
                 statusDisplay.getStyle().set("color", "#10D965");
             }
             case VACATION -> {
@@ -113,19 +110,19 @@ public class DailyTimeline extends Div {
     private String getTranslatedLabel(DailyAttendanceStatus item) {
         switch (item) {
             case PRESENT -> {
-                return getTranslation("Potwierdzona obecność");
+                return getTranslation("dailyTimeline.present");
             }
             case VACATION -> {
-                return getTranslation("Urlop");
+                return getTranslation("dailyTimeline.vacation");
             }
             case SICK_LEAVE -> {
-                return getTranslation("Zwolnienie z pracy");
+                return getTranslation("dailyTimeline.sickLeave");
             }
             case OTHER -> {
-                return getTranslation("Inne");
+                return getTranslation("dailyTimeline.other");
             }
             case ABSENT -> {
-                return getTranslation("Nieobecność w pracy");
+                return getTranslation("dailyTimeline.absent");
             }
             default -> {
                 return "";
@@ -134,10 +131,12 @@ public class DailyTimeline extends Div {
     }
 
     private String getHelpText() {
-        return "1. **Obecność w pracy :** Jesteś / byłeś w pracy danego dnia.\n"
-                + "2. **Urlop :** Zaplanowany urlop wypoczynkowy / okolicznościowy / bezpłatny  lub dzień wolny.\n"
-                + "3. **Zwolnienie z pracy:** Zwolnienie lekarskie, opieka nad dzieckiem/inną osobą.\n"
-                + "4. **Inne :** Akceptowana podróż służbowa, szkolenie, dyżur, medycyna pracy, itp.\n"
-                + "5. **Nieobecność w pracy :** Nieusprawiedliwiona lub nieautoryzowana nieobecność.";
+        return getTranslation("dailyTimeline.helpText.title") + "\n"
+                + getTranslation("dailyTimeline.helpText.1") + "\n"
+                + getTranslation("dailyTimeline.helpText.2") + "\n"
+                + getTranslation("dailyTimeline.helpText.3") + "\n"
+                + getTranslation("dailyTimeline.helpText.4") + "\n"
+                + getTranslation("dailyTimeline.helpText.5") + "\n"
+                + getTranslation("dailyTimeline.helpText.6");
     }
 }

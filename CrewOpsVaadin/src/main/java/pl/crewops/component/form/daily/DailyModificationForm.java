@@ -18,7 +18,6 @@ import lombok.Setter;
 import pl.crewops.enums.DailyEntryStatus;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.util.AuthenticationResolver;
-import pl.crewops.util.SpringContextBridge;
 import pl.crewops.view.DailyView;
 
 public class DailyModificationForm extends FormLayout {
@@ -45,9 +44,9 @@ public class DailyModificationForm extends FormLayout {
     @Setter
     private boolean isAttendanceSelected = false;
 
-    public DailyModificationForm() {
-        this.authenticationResolver = SpringContextBridge.getBean(AuthenticationResolver.class);
-        this.coreAPI = SpringContextBridge.getBean(CoreAPI.class);
+    public DailyModificationForm(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
+        this.authenticationResolver = authenticationResolver;
+        this.coreAPI = coreAPI;
 
         var mainContainer = new VerticalLayout();
         mainContainer.getStyle().set("border", "1px solid #ccc");
