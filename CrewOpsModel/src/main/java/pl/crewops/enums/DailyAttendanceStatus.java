@@ -5,5 +5,6 @@ public enum DailyAttendanceStatus {
     VACATION,
     SICK_LEAVE,
     OTHER,
-    ABSENT
+    ABSENT,
+    NULL
 }

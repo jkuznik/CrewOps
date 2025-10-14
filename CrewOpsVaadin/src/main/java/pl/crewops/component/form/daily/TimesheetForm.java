@@ -11,10 +11,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.timepicker.TimePicker;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
@@ -22,9 +21,11 @@ import java.util.stream.Collectors;
 import pl.crewops.enums.DateState;
 import pl.crewops.enums.OvertimeInterval;
 import pl.crewops.enums.OvertimeInterval.OvertimeValue;
+import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
+import pl.crewops.util.contract.DateSensitive;
 import pl.crewops.view.DailyView;
 
-public class TimesheetForm extends FormLayout {
+public class TimesheetForm extends FormLayout implements DateSensitive {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM (EEE)");
 
@@ -61,6 +62,86 @@ public class TimesheetForm extends FormLayout {
         mainContainer.add(configuredHeader(), fromLayout, toLayout, overtimeLayout, spacer);
 
         add(mainContainer);
+    }
+
+    public void setDailyEntry(DailyEntryDTO dailyEntryDTO) {
+
+        if (dailyEntryDTO == null) {
+            from.setValue(null);
+            to.setValue(null);
+            updateDependsOnDate(selectedDate);
+
+            return;
+        }
+
+        from.setValue(LocalTime.ofInstant(dailyEntryDTO.startTime(), ZoneId.systemDefault()));
+        to.setValue(LocalTime.ofInstant(dailyEntryDTO.endTime(), ZoneId.systemDefault()));
+
+        if (dailyEntryDTO.startTime().isAfter(dailyEntryDTO.endTime())) {
+            dateFromSelect.setValue(dailyEntryDTO.entryDate().plusDays(1L));
+        }
+
+        updateHoursSummary();
+    }
+
+    public Instant getStartTime() {
+        LocalTime timeFrom = from.getValue();
+
+        if (timeFrom == null) {
+            return null;
+        }
+
+        LocalDateTime dateTimeFrom = LocalDateTime.of(this.selectedDate, timeFrom);
+
+        ZoneId zoneId = ZoneId.systemDefault();
+
+        return dateTimeFrom.atZone(zoneId).toInstant();
+    }
+
+    public Instant getEndTime() {
+        LocalTime timeTo = to.getValue();
+        LocalDate dateTo = dateToSelect.getValue();
+
+        if (timeTo == null || dateTo == null) {
+            return null;
+        }
+
+        LocalDateTime dateTimeTo = LocalDateTime.of(dateTo, timeTo);
+
+        ZoneId zoneId = ZoneId.systemDefault();
+
+        return dateTimeTo.atZone(zoneId).toInstant();
+    }
+
+    /**
+     * Zwraca wybraną wartość nadgodzin (z pola 'overtime') w godzinach jako BigDecimal.
+     *
+     * UWAGA: Dla OvertimeInterval.ALL metoda ZWRACA AKTUALNIE OBLICZONY CZAS PRACY.
+     * Jeśli czas pracy nie jest ustawiony, zwraca 0.
+     *
+     * @return Liczba godzin nadgodzin jako BigDecimal.
+     */
+    public BigDecimal getOvertime() {
+        OvertimeInterval selectedOvertime = overtime.getValue();
+
+        if (selectedOvertime == null || selectedOvertime == OvertimeInterval.H00_00) {
+            return BigDecimal.ZERO;
+        }
+
+        if (selectedOvertime == OvertimeInterval.ALL) {
+            long totalMinutes = calculateWorkDurationMinutes();
+
+            if (totalMinutes <= 0) {
+                return BigDecimal.ZERO;
+            }
+
+            return new BigDecimal(totalMinutes).divide(new BigDecimal(60), 2, RoundingMode.HALF_UP);
+        }
+
+        OvertimeInterval.OvertimeValue ov = selectedOvertime.getValue();
+        long minutes = ov.hours() * 60L + ov.minutes();
+
+        return new BigDecimal(minutes).divide(new BigDecimal(60), 2, RoundingMode.HALF_UP);
     }
 
     private void configureOvertime() {
@@ -174,6 +255,7 @@ public class TimesheetForm extends FormLayout {
         return layout;
     }
 
+    @Override
     public void updateDependsOnDate(LocalDate localDate) {
         this.selectedDate = localDate;
         updateDateFieldsOptions();
@@ -239,7 +321,7 @@ public class TimesheetForm extends FormLayout {
         mainContainer.getStyle().set("border", "1px solid #ccc");
         mainContainer.getStyle().set("border-radius", "4px");
         mainContainer.getStyle().set("padding", "10px");
-        mainContainer.setMaxHeight("400px");
+        mainContainer.setMaxHeight(DailyView.FORMS_HEIGHT);
         mainContainer.setMaxWidth(DailyView.FORMS_WIDTH);
         return mainContainer;
     }
@@ -335,6 +417,4 @@ public class TimesheetForm extends FormLayout {
                 + "2. Nadgodziny to ilość godzin (np. 2.5) zawarta w zadeklarowanym czasie pracy.\n"
                 + "3. Jeśli cały czas przepracowany danego dnia był nadgodzinami, to ilość nadgodzin musi być równe zadeklarowanemu czasowi pracy.";
     }
-
-    // todo: implement logic to fetch selected work time with overtime info
 }

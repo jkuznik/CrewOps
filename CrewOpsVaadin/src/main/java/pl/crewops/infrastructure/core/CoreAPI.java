@@ -2,6 +2,7 @@ package pl.crewops.infrastructure.core;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -16,6 +17,8 @@ import pl.crewops.model.dto.breakdown.BreakdownDTO;
 import pl.crewops.model.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.model.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.model.dto.company.CompanyDTO;
+import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
+import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.model.dto.department.DepartmentDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
@@ -125,6 +128,12 @@ public interface CoreAPI {
     List<MessageDTO> getMessagesByRecipientEmployeeId(@NotNull UUID employeeId) throws NotAuthenticatedException;
 
     Optional<MessageDTO> setMessageReadStatus(@NotNull UUID messageId, boolean status) throws NotAuthenticatedException;
+
+    Optional<DailyEntryDTO> createDailyEntry(@NotNull CreateDailyEntryDTO createDailyEntryDTO)
+            throws NotAuthenticatedException;
+
+    Optional<DailyEntryDTO> findDailyEntryByEmployeeIdAndDate(@NotNull UUID employeeId, @NotNull LocalDate localDate)
+            throws NotAuthenticatedException;
 
     void sendMessage(@NotNull SendMessageCommand sendMessageCommand) throws NotAuthenticatedException;
 

@@ -11,7 +11,7 @@ databaseChangeLog:
               DO $$
               BEGIN
                 IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'daily_attendance') THEN
-                  CREATE TYPE daily_attendance AS ENUM ('PRESENT', 'VACATION', 'SICK_LEAVE', 'OTHER', 'ABSENT');
+                  CREATE TYPE daily_attendance AS ENUM ('PRESENT', 'VACATION', 'SICK_LEAVE', 'OTHER', 'ABSENT', 'NULL');
                 END IF;
               END;
               $$;

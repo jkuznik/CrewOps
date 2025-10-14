@@ -1,5 +1,6 @@
 package pl.crewops.infrastructure.core;
 
+import java.time.LocalDate;
 import java.util.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import pl.crewops.model.dto.breakdown.BreakdownDTO;
 import pl.crewops.model.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.model.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.model.dto.company.CompanyDTO;
+import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
+import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.model.dto.department.DepartmentDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
@@ -135,6 +138,18 @@ class CoreService implements CoreAPI {
             throws NotAuthenticatedException {
 
         return coreClient.getAllQualificationsWithExpirationTimeByEmployeeId(employeeId);
+    }
+
+    @Override
+    public Optional<DailyEntryDTO> createDailyEntry(CreateDailyEntryDTO createDailyEntryDTO)
+            throws NotAuthenticatedException {
+        return Optional.ofNullable(coreClient.createDailyEntry(createDailyEntryDTO));
+    }
+
+    @Override
+    public Optional<DailyEntryDTO> findDailyEntryByEmployeeIdAndDate(UUID employeeId, LocalDate localDate)
+            throws NotAuthenticatedException {
+        return Optional.ofNullable(coreClient.findDailyEntryByEmployeeIdAndDate(employeeId, localDate));
     }
 
     @Override

@@ -9,7 +9,9 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import java.time.Instant;
 import java.time.LocalDate;
+import lombok.Setter;
 import pl.crewops.enums.DateState;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.DailyView;
@@ -37,6 +39,11 @@ public class DailyActivityForm extends FormLayout {
 
     private final Button requestLeave = createActionButton("Zgłoś Wniosek Urlopowy", VaadinIcon.CALENDAR_CLOCK);
 
+    // todo: w zaleznosci od tego pola bedzie wyswietlana opcja "Zgłoś Wniosek Urlopowy" lub nie, jeśli akualny czas
+    //  jest mniejszy od expectedStartTime to ta opcja moze byc widoczna a jesli wiekszy to juz nie
+    @Setter
+    private Instant expectedStartTime;
+
     public DailyActivityForm(AuthenticationResolver authenticationResolver) {
 
         this.authenticationResolver = authenticationResolver;
@@ -44,7 +51,7 @@ public class DailyActivityForm extends FormLayout {
         var actionsButtons = configuredButtons(authenticationResolver);
 
         var spacer = new Div();
-        spacer.setHeight("200px");
+        spacer.setHeight("400px");
 
         var mainContainer = configuredMainContainer();
 
@@ -70,7 +77,8 @@ public class DailyActivityForm extends FormLayout {
         var mainContainer = new VerticalLayout();
         mainContainer.getStyle().set("border", "1px solid #ccc");
         mainContainer.getStyle().set("border-radius", "4px");
-        mainContainer.setMaxHeight("400px");
+        mainContainer.getStyle().set("padding", "10px");
+        mainContainer.setMaxHeight(DailyView.FORMS_HEIGHT);
         mainContainer.setMaxWidth(DailyView.FORMS_WIDTH);
 
         return mainContainer;
@@ -98,28 +106,36 @@ public class DailyActivityForm extends FormLayout {
     public void updateDependsOnDate(LocalDate localDate) {
         DateState state = DateState.fromLocalDate(localDate);
 
+        setAllButtonsVisible(false);
         switch (state) {
             case PAST -> {
-                checkSubordinates.setVisible(true);
+                if (authenticationResolver.principalHasManagerPermission()) {
+                    checkSubordinates.setVisible(true);
+                }
                 jobRaport.setVisible(true);
                 addNote.setVisible(true);
-                safetyRaport.setVisible(false);
-                requestLeave.setVisible(false);
             }
             case TODAY -> {
-                checkSubordinates.setVisible(true);
+                if (authenticationResolver.principalHasShiftLeaderPermission()) {
+                    checkSubordinates.setVisible(true);
+                }
                 jobRaport.setVisible(true);
                 addNote.setVisible(true);
                 safetyRaport.setVisible(true);
                 requestLeave.setVisible(true);
             }
             case FUTURE -> {
-                checkSubordinates.setVisible(false);
-                jobRaport.setVisible(false);
                 addNote.setVisible(true);
-                safetyRaport.setVisible(false);
                 requestLeave.setVisible(true);
             }
         }
+    }
+
+    private void setAllButtonsVisible(boolean visible) {
+        checkSubordinates.setVisible(visible);
+        jobRaport.setVisible(visible);
+        addNote.setVisible(visible);
+        safetyRaport.setVisible(visible);
+        requestLeave.setVisible(visible);
     }
 }

@@ -1,5 +1,6 @@
 package pl.crewops.domain.dailyEntry;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
@@ -48,14 +49,20 @@ class DailyEntryMapper {
     }
 
     private static Set<DailyNoteDTO> getMappedDailyNotes(DailyEntry dailyEntry) {
-        return dailyEntry.getDailyNotes().stream()
-                .map(DailyEntryMapper::mapToDTO)
-                .collect(Collectors.toSet());
+        Set<DailyNote> dailyNotes = dailyEntry.getDailyNotes();
+        if (dailyNotes == null) {
+            return Collections.emptySet();
+        }
+
+        return dailyNotes.stream().map(DailyEntryMapper::mapToDTO).collect(Collectors.toSet());
     }
 
     private static Set<DailyEntryAuditDTO> getMappedAuditEvents(DailyEntry dailyEntry) {
-        return dailyEntry.getAuditEvents().stream()
-                .map(DailyEntryMapper::mapToDTO)
-                .collect(Collectors.toSet());
+        Set<DailyEntryAudit> auditEvents = dailyEntry.getAuditEvents();
+        if (auditEvents == null) {
+            return Collections.emptySet();
+        }
+
+        return auditEvents.stream().map(DailyEntryMapper::mapToDTO).collect(Collectors.toSet());
     }
 }

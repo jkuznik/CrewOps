@@ -19,8 +19,8 @@ interface DailyEntryRepository extends JpaRepository<DailyEntry, UUID> {
      * @return Optional zawierający DailyEntry lub pusty Optional
      */
     Optional<DailyEntry> findByEmployeeIdAndEntryDate(UUID employeeId, LocalDate entryDate);
-
-    interface DailyEntryAuditRepository extends JpaRepository<DailyEntryAudit, UUID> {}
-
-    interface DailyEntryNoteRepository extends JpaRepository<DailyNote, UUID> {}
 }
+
+interface DailyEntryAuditRepository extends JpaRepository<DailyEntryAudit, UUID> {}
+
+interface DailyEntryNoteRepository extends JpaRepository<DailyNote, UUID> {}
