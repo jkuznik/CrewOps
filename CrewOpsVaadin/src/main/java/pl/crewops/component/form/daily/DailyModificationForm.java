@@ -16,14 +16,12 @@ import com.vaadin.flow.component.shared.Tooltip; // NOWY IMPORT
 import com.vaadin.flow.shared.Registration;
 import lombok.Setter;
 import pl.crewops.enums.DailyEntryStatus;
-import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.DailyView;
 
 public class DailyModificationForm extends FormLayout {
 
     private final AuthenticationResolver authenticationResolver;
-    private final CoreAPI coreAPI;
 
     // todo: i18n
     private final Span headerTextLabel = new Span("Zarządzanie wpisem");
@@ -44,31 +42,43 @@ public class DailyModificationForm extends FormLayout {
     @Setter
     private boolean isAttendanceSelected = false;
 
-    public DailyModificationForm(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
+    public DailyModificationForm(AuthenticationResolver authenticationResolver) {
         this.authenticationResolver = authenticationResolver;
-        this.coreAPI = coreAPI;
 
+        var mainContainer = configuredMainContainer();
+
+        var buttonsContainer = configuredButtonsContainer();
+
+        mainContainer.add(configuredHeader(), entryStatusInformation, buttonsContainer, spacer());
+
+        add(mainContainer);
+
+        updateState();
+    }
+
+    private static Div spacer() {
+        var spacer = new Div();
+        spacer.setHeight("400px");
+        return spacer;
+    }
+
+    private VerticalLayout configuredButtonsContainer() {
+        var buttonsContainer = new VerticalLayout();
+        buttonsContainer.setSpacing(true);
+        buttonsContainer.setPadding(false);
+
+        buttonsContainer.add(configuredButtons());
+        return buttonsContainer;
+    }
+
+    private static VerticalLayout configuredMainContainer() {
         var mainContainer = new VerticalLayout();
         mainContainer.getStyle().set("border", "1px solid #ccc");
         mainContainer.getStyle().set("border-radius", "4px");
         mainContainer.getStyle().set("padding", "10px");
         mainContainer.setMaxHeight(DailyView.FORMS_HEIGHT);
         mainContainer.setMaxWidth(DailyView.FORMS_WIDTH);
-
-        var buttonsContainer = new VerticalLayout();
-        buttonsContainer.setSpacing(true);
-        buttonsContainer.setPadding(false);
-
-        buttonsContainer.add(configuredButtons());
-
-        var spacer = new Div();
-        spacer.setHeight("400px");
-
-        mainContainer.add(configuredHeader(), entryStatusInformation, buttonsContainer, spacer);
-
-        add(mainContainer);
-
-        updateState();
+        return mainContainer;
     }
 
     private VerticalLayout configuredButtons() {

@@ -26,6 +26,8 @@
 
             implementation("org.vaadin.addons.componentfactory:vcf-timeline:1.0.2")
 
+//            implementation("org.vaadin.addons.mygroup:simpletimeline:1.0.0")
+
             implementation(project(":CrewOpsModel"))
             implementation(project(":CrewOpsSecurity"))
         }

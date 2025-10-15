@@ -29,9 +29,9 @@ public class DailyTimeline extends HorizontalLayout {
     }
 
     private void configureStyles() {
+
         setMinWidth(TIMELINE_WIDTH_PX);
         setMaxWidth(TIMELINE_WIDTH_PX);
-        setMinHeight(TIMELINE_HEIGHT_PX);
         setMaxHeight(TIMELINE_HEIGHT_PX);
         getStyle().remove("overflow-x");
         getStyle().remove("overflow-y");
@@ -92,15 +92,19 @@ public class DailyTimeline extends HorizontalLayout {
 
     private Timeline configuredTimeline() {
         LocalDate today = LocalDate.now();
-        timeline.setTimelineRange(LocalDateTime.of(today, LocalTime.MIN), LocalDateTime.of(today, LocalTime.MAX));
+        setTimelineRange(LocalDateTime.of(today, LocalTime.MIN), LocalDateTime.of(today, LocalTime.MAX));
 
         timeline.setWidthFull();
-        timeline.setMinHeight(TIMELINE_HEIGHT_PX);
+        timeline.setHeight(TIMELINE_HEIGHT_PX);
         timeline.setMoveable(true);
         timeline.setZoomable(true);
         timeline.setShowCurentTime(true);
 
         return timeline;
+    }
+
+    public void setTimelineRange(LocalDateTime from, LocalDateTime to) {
+        timeline.setTimelineRange(from, to);
     }
 
     public void updateItems(List<Item> items) {

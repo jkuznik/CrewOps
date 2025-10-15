@@ -58,14 +58,17 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
         configureValueFields();
         configureOvertime();
 
-        var spacer = new Div();
-        spacer.setHeight("200px");
-
         var mainContainer = configuredMainContainer();
 
-        mainContainer.add(configuredHeader(), fromLayout, toLayout, overtimeLayout, spacer);
+        mainContainer.add(configuredHeader(), fromLayout, toLayout, overtimeLayout, spacer());
 
         add(mainContainer);
+    }
+
+    private static Div spacer() {
+        var spacer = new Div();
+        spacer.setHeight("200px");
+        return spacer;
     }
 
     public void setDailyEntry(DailyEntryDTO dailyEntryDTO) {

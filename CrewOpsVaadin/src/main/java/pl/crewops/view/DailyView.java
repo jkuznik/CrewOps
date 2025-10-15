@@ -7,6 +7,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -15,6 +16,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +42,7 @@ import pl.crewops.view.layout.MainLayout;
 
 @Route("daily")
 @PageTitle("Daily Entry")
+@CssImport("./styles/component/timeline.css")
 public final class DailyView extends MainLayout implements BeforeEnterObserver, DateSensitive {
 
     /**
@@ -76,7 +81,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         super(coreAPI, jwtService, authenticationResolver);
         this.timesheetForm = new TimesheetForm();
         this.dailyActivityForm = new DailyActivityForm(authenticationResolver);
-        this.dailyModificationForm = new DailyModificationForm(coreAPI, authenticationResolver);
+        this.dailyModificationForm = new DailyModificationForm(authenticationResolver);
     }
 
     @Override
@@ -118,7 +123,8 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
             if (dailyEntryDTO.isPresent()) {
                 var dailyEntry = dailyEntryDTO.get();
-                timeline.setAttendanceStatus(dailyEntry.attendance());
+                updateTimeline(dailyEntry);
+
                 timesheetForm.setDailyEntry(dailyEntry);
 
                 // this dailyModificationForm logic has to be in that specific order
@@ -136,6 +142,42 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         } catch (NotAuthenticatedException e) {
             new NotAuthenticatedNotification(e.getMessage());
         }
+    }
+
+    private void updateTimeline(DailyEntryDTO dailyEntry) {
+        final ZoneId ZONE_ID = ZoneId.systemDefault();
+
+        LocalDateTime from = LocalDateTime.ofInstant(dailyEntry.startTime(), ZONE_ID);
+        LocalDateTime to = LocalDateTime.ofInstant(dailyEntry.endTime(), ZONE_ID);
+
+        var items = new ArrayList<Item>();
+
+        // 1. Element "Praca"
+        Item item1 = new Item(from, to, "Praca");
+        item1.setId("1");
+        // Możesz nadać mu domyślną klasę
+        item1.setClassName("timeline-item-default");
+
+        // 2. Element "Nadgodziny" (Chcesz inny kolor, np. "pomarańczowy")
+        var item2 = new Item(to, to.plusHours(2), "Nadgodziny");
+        item2.setId("2");
+        // NADANIE KLASY DLA NADGODZIN
+        item2.setClassName("timeline-item-overtime");
+
+        // 3. Element "Notatka" (Chcesz zielone tło)
+        var item3 = new Item(from.plusHours(4), from.plusHours(4).plusMinutes(5), "Notatka");
+        item3.setId("3");
+        // WAŻNA POPRAWKA: ID item3 było wcześniej ustawione na "2"
+        // (item2.setId("3") zamiast item3.setId("3")) - poprawione
+        // NADANIE KLASY DLA NOTATKI
+        item3.setClassName("timeline-item-note");
+
+        items.addAll(Arrays.asList(item1, item2, item3));
+
+        timeline.updateItems(items);
+        timeline.setTimelineRange(
+                LocalDateTime.of(from.toLocalDate(), LocalTime.MIN), LocalDateTime.of(to.toLocalDate(), LocalTime.MAX));
+        timeline.setAttendanceStatus(dailyEntry.attendance());
     }
 
     private Component getLayoutDependsOnUserDevice() {

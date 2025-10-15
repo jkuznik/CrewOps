@@ -20,24 +20,23 @@ public class DailyActivityForm extends FormLayout {
 
     private final AuthenticationResolver authenticationResolver;
 
-    // todo: i18n
-    private final Span headerTextLabel = new Span("Panel aktywności");
+    private final Span headerTextLabel = new Span();
 
     // todo: this feature allow shift leaders, managers and admins to monitor current attendance of employees and
     //  approve each employee attendance
-    private final Button checkSubordinates = createActionButton("Obecność Pracowników", VaadinIcon.USERS);
+    private final Button checkSubordinates = new Button();
 
     // todo: this feature need dedicated db table job_report related to daily_entry
-    private final Button jobRaport = createActionButton("Raport Stanowiskowy", VaadinIcon.CLIPBOARD_TEXT);
+    private final Button jobRaport = new Button();
 
     // todo: this feature need dedicated db table like shift_note related many to one with daily_entry,
     //  each emploee can add as many notes to single daily_entry as needed
-    private final Button addNote = createActionButton("Dodaj notatke", VaadinIcon.NOTEBOOK);
+    private final Button addNote = new Button();
 
     // todo: this feature need deicated db table like safety_report
-    private final Button safetyRaport = createActionButton("Zgłoś Uwagę BHP", VaadinIcon.WARNING);
+    private final Button safetyRaport = new Button();
 
-    private final Button requestLeave = createActionButton("Zgłoś Wniosek Urlopowy", VaadinIcon.CALENDAR_CLOCK);
+    private final Button requestLeave = new Button();
 
     // todo: w zaleznosci od tego pola bedzie wyswietlana opcja "Zgłoś Wniosek Urlopowy" lub nie, jeśli akualny czas
     //  jest mniejszy od expectedStartTime to ta opcja moze byc widoczna a jesli wiekszy to juz nie
@@ -45,25 +44,41 @@ public class DailyActivityForm extends FormLayout {
     private Instant expectedStartTime;
 
     public DailyActivityForm(AuthenticationResolver authenticationResolver) {
-
         this.authenticationResolver = authenticationResolver;
 
-        var actionsButtons = configuredButtons(authenticationResolver);
+        localize();
 
-        var spacer = new Div();
-        spacer.setHeight("400px");
+        var actionsButtons = configuredButtons();
 
         var mainContainer = configuredMainContainer();
 
-        mainContainer.add(configuredHeader(), actionsButtons, spacer);
+        mainContainer.add(configuredHeader(), actionsButtons, spacer());
 
         add(mainContainer);
     }
 
-    private VerticalLayout configuredButtons(AuthenticationResolver authenticationResolver) {
+    private static Div spacer() {
+        var spacer = new Div();
+        spacer.setHeight("400px");
+        return spacer;
+    }
+
+    private VerticalLayout configuredButtons() {
         var actionsLayout = new VerticalLayout();
         actionsLayout.setSpacing(true);
         actionsLayout.setPadding(false);
+
+        checkSubordinates.setIcon(new Icon(VaadinIcon.USERS));
+        jobRaport.setIcon(new Icon(VaadinIcon.CLIPBOARD_TEXT));
+        addNote.setIcon(new Icon(VaadinIcon.NOTEBOOK));
+        safetyRaport.setIcon(new Icon(VaadinIcon.WARNING));
+        requestLeave.setIcon(new Icon(VaadinIcon.CALENDAR_CLOCK));
+
+        applyButtonStyles(checkSubordinates);
+        applyButtonStyles(jobRaport);
+        applyButtonStyles(addNote);
+        applyButtonStyles(safetyRaport);
+        applyButtonStyles(requestLeave);
 
         if (authenticationResolver.principalHasShiftLeaderPermission()) {
             actionsLayout.add(checkSubordinates);
@@ -71,6 +86,26 @@ public class DailyActivityForm extends FormLayout {
 
         actionsLayout.add(jobRaport, addNote, safetyRaport, requestLeave);
         return actionsLayout;
+    }
+
+    @Override
+    protected void onAttach(com.vaadin.flow.component.AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        applyButtonStyles(checkSubordinates);
+        applyButtonStyles(jobRaport);
+        applyButtonStyles(addNote);
+        applyButtonStyles(safetyRaport);
+        applyButtonStyles(requestLeave);
+    }
+
+    private void localize() {
+        headerTextLabel.setText(getTranslation("dailyActivityForm.headerTextLabel"));
+
+        checkSubordinates.setText(getTranslation("dailyActivityForm.checkSubordinates"));
+        jobRaport.setText(getTranslation("dailyActivityForm.jobRaport"));
+        addNote.setText(getTranslation("dailyActivityForm.addNote"));
+        safetyRaport.setText(getTranslation("dailyActivityForm.safetyRaport"));
+        requestLeave.setText(getTranslation("dailyActivityForm.requestLeave"));
     }
 
     private static VerticalLayout configuredMainContainer() {
@@ -91,15 +126,11 @@ public class DailyActivityForm extends FormLayout {
         return headerTextLabel;
     }
 
-    private Button createActionButton(String text, VaadinIcon iconType) {
-        Button button = new Button(text);
+    private void applyButtonStyles(Button button) {
         button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        button.setIcon(new Icon(iconType));
         button.setWidthFull();
 
         button.getElement().executeJs("this.style.setProperty('justify-content', 'flex-start')");
-
-        return button;
     }
 
     // todo: jeśli potwierdzono obecność to wniosek o urlop dla "dzisiaj" nie powinien być widoczny

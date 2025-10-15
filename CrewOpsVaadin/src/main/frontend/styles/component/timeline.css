@@ -1,0 +1,25 @@
+/* W pliku CSS np. styles.css */
+
+/* --- Klasa dla Nadgodzin (Pomarańczowe tło) --- */
+.timeline-item-overtime {
+    /* Ustawienie koloru tła kontenera elementu */
+    background-color: #ff9800 !important; /* Pomarańczowy */
+    border-color: #f57c00 !important;
+}
+
+.timeline-item-overtime .vis-item-content {
+    /* Opcjonalnie: Styl dla samego tekstu wewnątrz elementu */
+    color: white !important;
+}
+
+/* --- Klasa dla Notatek (Zielone tło) --- */
+.timeline-item-note {
+    /* Ustawienie koloru tła kontenera elementu */
+    background-color: #4CAF50 !important; /* Zielony */
+    border-color: #388E3C !important;
+}
+
+.timeline-item-note .vis-item-content {
+    /* Opcjonalnie: Styl dla samego tekstu wewnątrz elementu */
+    color: white !important;
+}
