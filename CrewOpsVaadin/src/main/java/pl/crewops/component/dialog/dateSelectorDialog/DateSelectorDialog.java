@@ -15,15 +15,15 @@ public class DateSelectorDialog extends Dialog {
 
     public DateSelectorDialog() {
 
-        // todo: i18n
+        //        // todo: i18n
         datePicker.setPlaceholder("Wybierz datę");
 
         // todo: implement logic to auto configure I18n for date picker depends on current language selected
         datePicker.setI18n(createPolishI18n());
 
         datePicker.addValueChangeListener(event -> {
+            this.close();
             fireEvent(new SelectDateEvent(this, event.getValue()));
-            close();
         });
 
         add(datePicker);

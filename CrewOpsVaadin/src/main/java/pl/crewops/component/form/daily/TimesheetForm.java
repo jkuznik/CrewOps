@@ -11,12 +11,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.timepicker.TimePicker;
+import com.vaadin.flow.server.VaadinSession;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import pl.crewops.enums.DateState;
 import pl.crewops.enums.OvertimeInterval;
@@ -27,19 +29,16 @@ import pl.crewops.view.DailyView;
 
 public class TimesheetForm extends FormLayout implements DateSensitive {
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM");
-
     private final Span headerTextLabel = new Span();
     private final Icon helpIcon = VaadinIcon.INFO_CIRCLE.create();
 
     private final TimePicker from = new TimePicker();
-    private final Select<LocalDate> dateFromSelect = new Select<>();
+    private final Span dateFromSpan = new Span();
 
     private final TimePicker to = new TimePicker();
-    private final Select<LocalDate> dateToSelect = new Select<>();
+    private final Span dateToSpan = new Span();
 
     private final Select<OvertimeInterval> overtime = new Select<>();
-    private final VerticalLayout hoursSummary = configuredHoursSummaryLayout();
 
     private final Span normalSpan = new Span();
     private final Span overtimeSpan = new Span();
@@ -47,12 +46,14 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
 
     private LocalDate selectedDate = LocalDate.now();
 
+    private LocalDate calculatedDateTo = LocalDate.now();
+
     public TimesheetForm() {
         localize();
 
-        var fromLayout = createDateTimeLayout(from, dateFromSelect);
-        var toLayout = createDateTimeLayout(to, dateToSelect);
-        var overtimeLayout = createOvertimeLayout(overtime, hoursSummary);
+        var fromLayout = createDateTimeLayout(from, dateFromSpan);
+        var toLayout = createDateTimeLayout(to, dateToSpan);
+        var overtimeLayout = createOvertimeLayout(overtime, configuredHoursSummaryLayout());
 
         configureValueFields();
         configureOvertime();
@@ -72,16 +73,14 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
             from.setValue(null);
             to.setValue(null);
             updateDependsOnDate(selectedDate);
-
             return;
         }
 
         from.setValue(LocalTime.ofInstant(dailyEntryDTO.startTime(), ZoneId.systemDefault()));
         to.setValue(LocalTime.ofInstant(dailyEntryDTO.endTime(), ZoneId.systemDefault()));
 
-        if (dailyEntryDTO.startTime().isAfter(dailyEntryDTO.endTime())) {
-            dateFromSelect.setValue(dailyEntryDTO.entryDate().plusDays(1L));
-        }
+        OvertimeInterval overtimeValue = getOvertimeIntervalByHours(dailyEntryDTO.overTime());
+        overtime.setValue(overtimeValue);
 
         updateHoursSummary();
     }
@@ -89,11 +88,11 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
     public Instant getStartTime() {
         LocalTime timeFrom = from.getValue();
 
-        if (timeFrom == null) {
+        if (timeFrom == null || selectedDate == null) {
             return null;
         }
 
-        LocalDateTime dateTimeFrom = LocalDateTime.of(this.selectedDate, timeFrom);
+        LocalDateTime dateTimeFrom = LocalDateTime.of(selectedDate, timeFrom);
         ZoneId zoneId = ZoneId.systemDefault();
 
         return dateTimeFrom.atZone(zoneId).toInstant();
@@ -101,26 +100,17 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
 
     public Instant getEndTime() {
         LocalTime timeTo = to.getValue();
-        LocalDate dateTo = dateToSelect.getValue();
 
-        if (timeTo == null || dateTo == null) {
+        if (timeTo == null || calculatedDateTo == null) {
             return null;
         }
 
-        LocalDateTime dateTimeTo = LocalDateTime.of(dateTo, timeTo);
+        LocalDateTime dateTimeTo = LocalDateTime.of(calculatedDateTo, timeTo);
         ZoneId zoneId = ZoneId.systemDefault();
 
         return dateTimeTo.atZone(zoneId).toInstant();
     }
 
-    /**
-     * Zwraca wybraną wartość nadgodzin (z pola 'overtime') w godzinach jako BigDecimal.
-     *
-     * UWAGA: Dla OvertimeInterval.ALL metoda ZWRACA AKTUALNIE OBLICZONY CZAS PRACY.
-     * Jeśli czas pracy nie jest ustawiony, zwraca 0.
-     *
-     * @return Liczba godzin nadgodzin jako BigDecimal.
-     */
     public BigDecimal getOvertime() {
         OvertimeInterval selectedOvertime = overtime.getValue();
 
@@ -159,11 +149,25 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
         overtime.setValue(OvertimeInterval.H00_00);
     }
 
-    /**
-     * Konwertuje całkowitą liczbę minut na format HH:mm.
-     * @param totalMinutes Całkowita liczba minut.
-     * @return Sformatowany ciąg znaków w postaci "HH:mm".
-     */
+    private OvertimeInterval getOvertimeIntervalByHours(BigDecimal hours) {
+        if (hours == null || hours.compareTo(BigDecimal.ZERO) <= 0) {
+            return OvertimeInterval.H00_00;
+        }
+        long totalMinutes = hours.multiply(new BigDecimal(60))
+                .setScale(0, RoundingMode.HALF_UP)
+                .longValue();
+
+        return Arrays.stream(OvertimeInterval.values())
+                .filter(interval -> interval != OvertimeInterval.ALL)
+                .filter(interval -> {
+                    OvertimeInterval.OvertimeValue ov = interval.getValue();
+                    long intervalMinutes = ov.hours() * 60L + ov.minutes();
+                    return intervalMinutes == totalMinutes;
+                })
+                .findFirst()
+                .orElse(OvertimeInterval.H00_00);
+    }
+
     private String formatMinutesToHHMM(long totalMinutes) {
         if (totalMinutes < 0) {
             return "0:00";
@@ -174,7 +178,8 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
     }
 
     private void updateHoursSummary() {
-        // 1. Obliczenie łącznego przepracowanego czasu pracy
+        updateDateSpans();
+
         long totalDurationMinutes = calculateWorkDurationMinutes();
 
         OvertimeInterval selectedOvertime = overtime.getValue();
@@ -182,10 +187,8 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
 
         if (selectedOvertime != null) {
             if (selectedOvertime == OvertimeInterval.ALL) {
-                // Jeśli wybrano "Całkowity czas pracy", nadgodziny = łączny czas pracy.
                 actualOvertimeMinutes = totalDurationMinutes;
             } else {
-                // Standardowe obliczenia dla H00_00...H24_00
                 OvertimeValue ov = selectedOvertime.getValue();
                 actualOvertimeMinutes = ov.hours() * 60L + ov.minutes();
             }
@@ -210,8 +213,6 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
         }
 
         totalSpan.getStyle().set("font-weight", "bold");
-
-        hoursSummary.add(normalSpan, overtimeSpan, totalSpan);
     }
 
     private HorizontalLayout createOvertimeLayout(Select<?> overtimeField, VerticalLayout summaryLayout) {
@@ -227,10 +228,6 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
         return layout;
     }
 
-    /**
-     * Filter possible options of OvertimeInterval depends on passed work time.
-     * @param maxMinutes Max amount equals all declared work time.
-     */
     private void filterOvertimeOptions(long maxMinutes) {
         List<OvertimeInterval> filteredItems = Arrays.stream(OvertimeInterval.values())
                 .filter(interval -> {
@@ -252,7 +249,8 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
     @Override
     public void updateDependsOnDate(LocalDate localDate) {
         this.selectedDate = localDate;
-        updateDateFieldsOptions();
+        // Aktualizacja spanów i obliczonych dat na podstawie nowej selectedDate
+        updateDateSpans();
 
         DateState state = DateState.fromLocalDate(localDate);
 
@@ -299,28 +297,22 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
 
     private void configureValueFields() {
         var updateListener = (Runnable) () -> {
+            updateDateSpans();
+
             long totalMinutes = calculateWorkDurationMinutes();
             filterOvertimeOptions(totalMinutes);
             updateHoursSummary();
         };
 
-        dateToSelect.setEnabled(false);
-
-        if (from.getValue() == null) {
-            to.setEnabled(false);
-        }
         from.addValueChangeListener(event -> {
-            to.setEnabled(true);
             updateListener.run();
         });
         to.addValueChangeListener(event -> updateListener.run());
-        dateToSelect.addValueChangeListener(event -> updateListener.run());
 
         overtime.addValueChangeListener(event -> {
             updateHoursSummary();
         });
 
-        updateDateFieldsOptions();
         updateListener.run();
     }
 
@@ -334,55 +326,56 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
         layout.getStyle().set("padding", "8px");
         layout.getStyle().set("min-height", "3em");
 
-        //        layout.add(new Span("Przepracowane: 0:00"), new Span("Nadgodziny: 0:00"));
+        layout.add(normalSpan, overtimeSpan, totalSpan);
 
         return layout;
     }
 
-    private HorizontalLayout createDateTimeLayout(TimePicker timePicker, Select<LocalDate> dateSelect) {
+    private HorizontalLayout createDateTimeLayout(TimePicker timePicker, Span dateSpan) {
         timePicker.setStep(Duration.ofMinutes(15));
         timePicker.setWidth("50%");
-        dateSelect.setWidth("50%");
-        var layout = new HorizontalLayout(timePicker, dateSelect);
+
+        dateSpan.setWidth("50%");
+        dateSpan.getStyle().set("padding", "0.5em 0.5em 0.5em 0.5em");
+        dateSpan.getStyle().set("border", "1px solid var(--lumo-contrast-30pct)");
+        dateSpan.getStyle().set("border-radius", "var(--lumo-border-radius-m)");
+        dateSpan.getStyle().set("line-height", "var(--lumo-line-height-m)");
+        dateSpan.getStyle().set("align-self", "flex-end");
+
+        var layout = new HorizontalLayout(timePicker, dateSpan);
         layout.setAlignItems(FlexComponent.Alignment.END);
         layout.setWidthFull();
         layout.setSpacing(true);
         return layout;
     }
 
-    private void updateDateFieldsOptions() {
+    private void updateDateSpans() {
         if (selectedDate == null) {
             return;
         }
 
-        LocalDate tomorrow = selectedDate.plusDays(1);
+        Locale currentLocale = VaadinSession.getCurrent().getLocale();
+        DateTimeFormatter fullDateFormatter = DateTimeFormatter.ofPattern("dd.MM EEEE", currentLocale);
 
-        dateFromSelect.setItemLabelGenerator(date -> date.format(DATE_FORMATTER));
-        dateToSelect.setItemLabelGenerator(date -> {
-            if (date.isEqual(selectedDate)) {
-                return date.format(DATE_FORMATTER);
-            } else {
-                return date.format(DATE_FORMATTER) + getTranslation("timesheetForm.nextDayShiftIndicator");
-            }
-        });
+        dateFromSpan.setText(selectedDate.format(fullDateFormatter));
 
-        dateFromSelect.setItems(List.of(selectedDate));
-        dateFromSelect.setValue(selectedDate);
-        dateFromSelect.setReadOnly(true);
+        LocalTime timeFrom = from.getValue();
+        LocalTime timeTo = to.getValue();
 
-        dateToSelect.setItems(List.of(selectedDate, tomorrow));
-
-        if (dateToSelect.getValue() == null
-                || dateToSelect.getValue().isBefore(selectedDate)
-                || dateToSelect.getValue().isAfter(tomorrow)) {
-            dateToSelect.setValue(selectedDate);
+        if (timeFrom != null && timeTo != null && timeTo.isBefore(timeFrom)) {
+            calculatedDateTo = selectedDate.plusDays(1);
+        } else {
+            calculatedDateTo = selectedDate;
         }
+
+        dateToSpan.setText(calculatedDateTo.format(fullDateFormatter));
     }
 
     private long calculateWorkDurationMinutes() {
         LocalTime timeFrom = from.getValue();
         LocalTime timeTo = to.getValue();
-        LocalDate dateTo = dateToSelect.getValue();
+
+        LocalDate dateTo = calculatedDateTo;
 
         if (timeFrom != null && timeTo != null && dateTo != null && selectedDate != null) {
             var dateTimeFrom = LocalDateTime.of(selectedDate, timeFrom);
@@ -396,21 +389,6 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
         // It's required to return less than -1
         // to work properly with OvertimeInterval.ALL that has .value() equals -1
         return -2;
-    }
-
-    private boolean validateWorkTime() {
-        LocalTime timeFrom = from.getValue();
-        LocalTime timeTo = to.getValue();
-        LocalDate dateTo = dateToSelect.getValue();
-
-        if (timeFrom == null || timeTo == null || dateTo == null || selectedDate == null) {
-            return false;
-        }
-
-        var dateTimeFrom = LocalDateTime.of(selectedDate, timeFrom);
-        var dateTimeTo = LocalDateTime.of(dateTo, timeTo);
-
-        return dateTimeFrom.isBefore(dateTimeTo);
     }
 
     private void localize() {

@@ -92,11 +92,6 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
     private void buildContent() {
         mainContent.removeAll();
-
-        // TODO: not sure why this component has strange behavior like DO NOT remove able from mainContent if
-        //  this timeline property is declared as final. In case of final this component is duplicated as many times
-        //  as user revisit DailyView using Drawer navigations. Currently define this property as NOT final solve that
-        //  issue.
         timeline = new DailyTimeline();
 
         localize();
