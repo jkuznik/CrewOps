@@ -9,10 +9,10 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent; // NOWY IMPORT
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout; // NOWY IMPORT
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.shared.Tooltip; // NOWY IMPORT
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.shared.Registration;
 import lombok.Setter;
 import pl.crewops.enums.DailyEntryStatus;
@@ -55,7 +55,6 @@ public class DailyModificationForm extends FormLayout {
     }
 
     private void localize() {
-        // 1. Pole tekstowe
         headerTextLabel.setText(getTranslation("dailyModificationForm.headerTextLabel"));
         addButton.setText(getTranslation("dailyModificationForm.addButton"));
         confirmPresenceButton.setText(getTranslation("dailyModificationForm.confirmPresenceButton"));
@@ -119,10 +118,7 @@ public class DailyModificationForm extends FormLayout {
         helpIcon.setColor("var(--lumo-contrast-50pct)");
         helpIcon.getStyle().set("cursor", "pointer");
 
-        // Tooltip jest inicjalizowany tutaj, ale jego treść będzie aktualizowana w updateState
-        Tooltip.forComponent(helpIcon)
-                .withText("") // Początkowo pusta treść
-                .withPosition(Tooltip.TooltipPosition.BOTTOM_END);
+        Tooltip.forComponent(helpIcon).withPosition(Tooltip.TooltipPosition.BOTTOM_END);
 
         var headerLayout = new HorizontalLayout();
         headerLayout.setWidthFull();
@@ -139,28 +135,35 @@ public class DailyModificationForm extends FormLayout {
         updateState();
     }
 
-    /**
-     * Główna metoda aktualizująca widoczność przycisków na podstawie uprawnień i statusu wpisu.
-     */
     public void updateState() {
 
         boolean userIsShiftLeader = authenticationResolver.principalHasShiftLeaderPermission();
         boolean userIsManager = authenticationResolver.principalHasManagerPermission();
 
-        String entryInfoText;
-        String tooltipText;
+        String entryInfoTextKey;
+        String tooltipTextKey;
 
         setAllButtonsVisible(false);
 
+        // W DailyModificationForm.java w metodzie updateState()
+
+        // Zmieniamy deklaracje zmiennych na początku metody,
+        // usuwając "Key", aby odzwierciedlały, że przechowują GŁÓWNY TEKST
+        String entryInfoText;
+        String tooltipText;
+
+        // ... (logika setAllButtonsVisible(false) i uprawnienia)
+
         switch (currentStatus) {
             case EMPTY -> {
-                entryInfoText = "W dzienniku pracy nie zarejestrowano wpisu dla wybranej daty.";
-                tooltipText = "Zaktualizuj informacje aby utworzyć trwały wpis do dziennika.";
+                // Bezpośrednie wywołanie getTranslation() w miejscu przypisania
+                entryInfoText = getTranslation("dailyModificationForm.status.empty.info");
+                tooltipText = getTranslation("dailyModificationForm.status.empty.tooltip");
                 addButton.setVisible(true);
             }
             case DRAFT -> {
-                entryInfoText = "Wpis w trakcie wypełniania.";
-                tooltipText = "Dowolne modyfikacje nie wygenerują powiadomień do osób nadzorujących dziennikiem pracy.";
+                entryInfoText = getTranslation("dailyModificationForm.status.draft.info");
+                tooltipText = getTranslation("dailyModificationForm.status.draft.tooltip");
                 updateButton.setVisible(true);
 
                 if (isAttendanceSelected) {
@@ -170,9 +173,8 @@ public class DailyModificationForm extends FormLayout {
                 }
             }
             case PENDING -> {
-                entryInfoText = "Wpis oczekuje na akceptację.";
-                tooltipText =
-                        "Zmiany nie są możliwe do czasu podjęcia decyzji przez kierownika. Akceptacja wpisu może nastąpić po zadeklarowanym czasie pracy.";
+                entryInfoText = getTranslation("dailyModificationForm.status.pending.info");
+                tooltipText = getTranslation("dailyModificationForm.status.pending.tooltip");
 
                 updateButton.setVisible(true);
 
@@ -182,9 +184,8 @@ public class DailyModificationForm extends FormLayout {
                 }
             }
             case APPROVED -> {
-                entryInfoText = "Wpis zaakceptowany.";
-                tooltipText =
-                        "W razie potrzeb możesz wprowadzić zmiany które będą wymagały potwierdzenia przełożonego.";
+                entryInfoText = getTranslation("dailyModificationForm.status.approved.info");
+                tooltipText = getTranslation("dailyModificationForm.status.approved.tooltip");
 
                 updateButton.setVisible(true);
 
@@ -193,8 +194,8 @@ public class DailyModificationForm extends FormLayout {
                 }
             }
             case MANUAL_EDITED -> {
-                entryInfoText = "Zaktualizowano wpis.";
-                tooltipText = "Wymagana akceptacja przełożonego.";
+                entryInfoText = getTranslation("dailyModificationForm.status.manualEdited.info");
+                tooltipText = getTranslation("dailyModificationForm.status.manualEdited.tooltip");
 
                 updateButton.setVisible(true);
 
@@ -204,9 +205,8 @@ public class DailyModificationForm extends FormLayout {
                 }
             }
             case AUTO_GENERATED -> {
-                entryInfoText = "Automatycznie wygenerowany wpis na podstawie ustalonego grafiku.";
-                tooltipText =
-                        "Wymagane jest potwierdzenie obecności pracownika. Zmiana tego wpisu będzie wymagała akceptacji przełożonego.";
+                entryInfoText = getTranslation("dailyModificationForm.status.autoGenerated.info");
+                tooltipText = getTranslation("dailyModificationForm.status.autoGenerated.tooltip");
 
                 confirmPresenceButton.setVisible(true);
                 updateButton.setVisible(true);
@@ -217,8 +217,8 @@ public class DailyModificationForm extends FormLayout {
                 }
             }
             default -> {
-                entryInfoText = "Nieznany status wpisu.";
-                tooltipText = "Brak dodatkowych informacji.";
+                entryInfoText = getTranslation("dailyModificationForm.status.unknown.info");
+                tooltipText = getTranslation("dailyModificationForm.status.unknown.tooltip");
             }
         }
         entryStatusInformation.setText(entryInfoText);
