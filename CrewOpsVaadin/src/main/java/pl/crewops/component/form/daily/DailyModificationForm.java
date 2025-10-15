@@ -23,19 +23,15 @@ public class DailyModificationForm extends FormLayout {
 
     private final AuthenticationResolver authenticationResolver;
 
-    // todo: i18n
-    private final Span headerTextLabel = new Span("Zarządzanie wpisem");
+    private final Span headerTextLabel = new Span();
     private final Icon helpIcon = VaadinIcon.INFO_CIRCLE.create();
     private final Span entryStatusInformation = new Span();
 
-    // === Przyciski dla wszystkich/pracownika ===
-    private final Button addButton = new Button("dodaj wpis");
-    private final Button confirmPresenceButton = new Button("potwierdz");
-    private final Button updateButton = new Button("zapisz zmiany");
-    private final Button changeAttendanceButton = new Button("zmien status obecności");
-
-    // === Przyciski dla Kierownika/Lidera ===
-    private final Button approveButton = new Button("potwierdz");
+    private final Button addButton = new Button();
+    private final Button confirmPresenceButton = new Button();
+    private final Button updateButton = new Button();
+    private final Button changeAttendanceButton = new Button();
+    private final Button approveButton = new Button();
 
     private DailyEntryStatus currentStatus = DailyEntryStatus.EMPTY;
 
@@ -44,6 +40,8 @@ public class DailyModificationForm extends FormLayout {
 
     public DailyModificationForm(AuthenticationResolver authenticationResolver) {
         this.authenticationResolver = authenticationResolver;
+
+        localize();
 
         var mainContainer = configuredMainContainer();
 
@@ -54,6 +52,16 @@ public class DailyModificationForm extends FormLayout {
         add(mainContainer);
 
         updateState();
+    }
+
+    private void localize() {
+        // 1. Pole tekstowe
+        headerTextLabel.setText(getTranslation("dailyModificationForm.headerTextLabel"));
+        addButton.setText(getTranslation("dailyModificationForm.addButton"));
+        confirmPresenceButton.setText(getTranslation("dailyModificationForm.confirmPresenceButton"));
+        updateButton.setText(getTranslation("dailyModificationForm.updateButton"));
+        changeAttendanceButton.setText(getTranslation("dailyModificationForm.changeAttendanceButton"));
+        approveButton.setText(getTranslation("dailyModificationForm.approveButton"));
     }
 
     private static Div spacer() {

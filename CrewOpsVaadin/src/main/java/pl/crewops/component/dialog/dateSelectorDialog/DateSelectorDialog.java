@@ -22,12 +22,10 @@ public class DateSelectorDialog extends Dialog {
         datePicker.setI18n(createPolishI18n());
 
         datePicker.addValueChangeListener(event -> {
-            this.close();
             fireEvent(new SelectDateEvent(this, event.getValue()));
         });
 
         add(datePicker);
-        open();
     }
 
     private DatePicker.DatePickerI18n createPolishI18n() {

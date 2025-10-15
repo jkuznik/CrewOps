@@ -1,25 +1,84 @@
-/* W pliku CSS np. styles.css */
+/* Plik CSS (np. styles/component/timeline.css) */
 
-/* --- Klasa dla Nadgodzin (Pomarańczowe tło) --- */
+/* ========================================================================= */
+/* --- 1. Ustawienia globalne dla elementów klikalnych i krótkich --- */
+/* ========================================================================= */
+
+.vis-item {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    z-index: 10;
+}
+
+/* Wymuszenie minimalnej szerokości dla klikalności krótkich elementów */
+.vis-item-box {
+    min-width: 15px !important;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+/* ========================================================================= */
+/* --- 2. Kolory bazowe (Niewybrany stan) --- */
+/* ========================================================================= */
+
+/* --- Element Domyślny ("Praca") --- */
+.timeline-item-default {
+    /* Ustawienie bazowego, jasnoniebieskiego koloru (zgodnie z Twoim życzeniem) */
+    background-color: #B3E5FC !important; /* Jasny niebieski */
+    border-color: #03A9F4 !important;    /* Ramka niebieska */
+}
+.timeline-item-default .vis-item-content {
+    color: #333 !important; /* Ciemny tekst */
+}
+
+
+/* --- Element "Nadgodziny" (Pomarańczowy) --- */
 .timeline-item-overtime {
-    /* Ustawienie koloru tła kontenera elementu */
     background-color: #ff9800 !important; /* Pomarańczowy */
     border-color: #f57c00 !important;
 }
-
 .timeline-item-overtime .vis-item-content {
-    /* Opcjonalnie: Styl dla samego tekstu wewnątrz elementu */
     color: white !important;
 }
 
-/* --- Klasa dla Notatek (Zielone tło) --- */
+/* --- Element "Notatka" (Zielony) --- */
 .timeline-item-note {
-    /* Ustawienie koloru tła kontenera elementu */
     background-color: #4CAF50 !important; /* Zielony */
     border-color: #388E3C !important;
 }
-
 .timeline-item-note .vis-item-content {
-    /* Opcjonalnie: Styl dla samego tekstu wewnątrz elementu */
     color: white !important;
+}
+
+
+/* ========================================================================= */
+/* --- 3. Kolory dla stanu Wybranego (Po kliknięciu) --- */
+/* ========================================================================= */
+
+/* --- Wybrany Element Domyślny ("Praca") --- */
+.timeline-item-default.vis-selected {
+    /* Wymuszamy wizualne wyróżnienie po kliknięciu (np. ciemniejszy niebieski) */
+    background-color: #03A9F4 !important;
+    border-color: #01579B !important;
+    border-width: 2px !important;
+    color: white !important;
+}
+.timeline-item-default.vis-selected .vis-item-content {
+    color: white !important;
+}
+
+/* --- Wybrane "Nadgodziny" --- */
+.timeline-item-overtime.vis-selected {
+    /* Zmiana na ciemniejszy pomarańczowy, aby pokazać stan wybrany */
+    background-color: #f57c00 !important;
+    border-color: #c45c00 !important;
+    border-width: 2px !important;
+}
+
+/* --- Wybrana "Notatka" --- */
+.timeline-item-note.vis-selected {
+    /* Zmiana na ciemniejszą zieleń */
+    background-color: #388E3C !important;
+    border-color: #1B5E20 !important;
+    border-width: 2px !important;
 }

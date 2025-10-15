@@ -69,6 +69,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
     private final Button currentDay = new Button();
     private final Button calendar = new Button();
+    private final DateSelectorDialog dateSelectorDialog = new DateSelectorDialog();
 
     // strange behavior of third part component like Timeline has described with initialize this object
     private DailyTimeline timeline;
@@ -123,7 +124,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
             if (dailyEntryDTO.isPresent()) {
                 var dailyEntry = dailyEntryDTO.get();
-                updateTimeline(dailyEntry);
+                updateTimeline(dailyEntry, null);
 
                 timesheetForm.setDailyEntry(dailyEntry);
 
@@ -133,8 +134,8 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
                 }
                 dailyModificationForm.setCurrentStatus(dailyEntry.status());
             } else {
-                timeline.setAttendanceStatus(NULL);
                 timesheetForm.setDailyEntry(null);
+                updateTimeline(null, date);
             }
 
             timesheetForm.updateDependsOnDate(date);
@@ -144,7 +145,13 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         }
     }
 
-    private void updateTimeline(DailyEntryDTO dailyEntry) {
+    private void updateTimeline(DailyEntryDTO dailyEntry, LocalDate date) {
+        if (dailyEntry == null) {
+            timeline.updateItems(List.of());
+            timeline.setTimelineRange(LocalDateTime.of(date, LocalTime.MIN), LocalDateTime.of(date, LocalTime.MAX));
+            return;
+        }
+
         final ZoneId ZONE_ID = ZoneId.systemDefault();
 
         LocalDateTime from = LocalDateTime.ofInstant(dailyEntry.startTime(), ZONE_ID);
@@ -152,27 +159,28 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
         var items = new ArrayList<Item>();
 
-        // 1. Element "Praca"
-        Item item1 = new Item(from, to, "Praca");
+        var item1 = new Item(from, to, "Praca");
         item1.setId("1");
-        // Możesz nadać mu domyślną klasę
         item1.setClassName("timeline-item-default");
 
-        // 2. Element "Nadgodziny" (Chcesz inny kolor, np. "pomarańczowy")
-        var item2 = new Item(to, to.plusHours(2), "Nadgodziny");
+        var item2 = new Item(to, to.plusHours(2), "Praca - Nadgodziny");
         item2.setId("2");
-        // NADANIE KLASY DLA NADGODZIN
         item2.setClassName("timeline-item-overtime");
 
-        // 3. Element "Notatka" (Chcesz zielone tło)
         var item3 = new Item(from.plusHours(4), from.plusHours(4).plusMinutes(5), "Notatka");
         item3.setId("3");
-        // WAŻNA POPRAWKA: ID item3 było wcześniej ustawione na "2"
-        // (item2.setId("3") zamiast item3.setId("3")) - poprawione
-        // NADANIE KLASY DLA NOTATKI
         item3.setClassName("timeline-item-note");
 
-        items.addAll(Arrays.asList(item1, item2, item3));
+        var item4 = new Item(from.plusHours(4).plusMinutes(2), from.plusHours(4).plusMinutes(7), "Notatka");
+        item4.setId("4");
+        item4.setClassName("timeline-item-note");
+
+        items.addAll(Arrays.asList(item1, item2, item3, item4));
+
+        items.forEach(item -> {
+            item.setEditable(false);
+            item.setUpdateTime(false);
+        });
 
         timeline.updateItems(items);
         timeline.setTimelineRange(
@@ -221,6 +229,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         var toolbar = new HorizontalLayout();
 
         currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        calendar.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
         currentDay.setWidth("160px");
 
         calendar.setWidth("160px");
@@ -233,18 +242,20 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         });
 
         calendar.addClickListener(event -> {
-            var dateSelectorDialog = new DateSelectorDialog();
-            dateSelectorDialog.addSelectDateListener(selectedDateEvent -> {
-                updateDependsOnDate(selectedDateEvent.getSelectedDate());
+            dateSelectorDialog.open();
+        });
 
-                calendar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-                currentDay.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        dateSelectorDialog.addSelectDateListener(selectedDateEvent -> {
+            updateDependsOnDate(selectedDateEvent.getSelectedDate());
 
-                if (selectedDateEvent.getSelectedDate().equals(LocalDate.now())) {
-                    currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-                    calendar.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-                }
-            });
+            calendar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            currentDay.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+            if (selectedDateEvent.getSelectedDate().equals(LocalDate.now())) {
+                currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                calendar.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            }
+            dateSelectorDialog.close();
         });
 
         toolbar.add(currentDay, calendar);
@@ -279,39 +290,5 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
                 new NotAuthenticatedNotification(e.getMessage());
             }
         });
-    }
-
-    private List<Item> createTimelineItems() {
-        LocalDate today = LocalDate.now();
-
-        Item item1 = new Item(
-                LocalDateTime.of(2025, 10, 8, 2, 30, 00),
-                LocalDateTime.of(2021, 8, 11, 8, 00, 00),
-                "Item 1 - Praca na projekcie A");
-        item1.setId("1");
-
-        Item item2 = new Item(
-                LocalDateTime.of(2021, 8, 11, 9, 00, 00),
-                LocalDateTime.of(2021, 8, 11, 17, 00, 00),
-                "Item 2 - Spotkanie z klientem");
-        item2.setId("2");
-
-        Item item3 = new Item(today.atTime(0, 30, 00), today.atTime(3, 0, 00), "Item 3 - Migracja serwera");
-        item3.setId("3");
-
-        Item item4 = new Item(today.atTime(4, 30, 00), today.atTime(20, 0, 00), "Item 4 - Dzień wolny");
-        item4.setId("4");
-
-        Item item5 = new Item(today.atTime(21, 30, 00), today.plusDays(1).atTime(1, 15, 00), "Item 5 - Wdrożenie");
-        item5.setId("5");
-
-        List<Item> items = Arrays.asList(item1, item2, item3, item4, item5);
-
-        items.forEach(i -> {
-            i.setEditable(false);
-            i.setUpdateTime(false);
-        });
-
-        return items;
     }
 }
