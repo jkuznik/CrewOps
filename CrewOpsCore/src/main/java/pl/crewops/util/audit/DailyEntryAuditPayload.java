@@ -6,24 +6,24 @@ import lombok.Builder;
 import pl.crewops.enums.DailyEntryAuditType;
 
 /**
- * Reprezentacja danych audytowych zapisywana jako JSON (payload).
- * Zawiera wersję struktury, typ operacji oraz poprzednie i nowe wartości zmienionych pól.
- *
- * Dzięki polom oldValues i newValues można łatwo odtworzyć historię zmian
- * lub zaprezentować użytkownikowi różnice w rekordzie.
+ * Structured representation of audit data stored as JSON payload.
+ * Includes metadata (actor, timestamp), old and new field values.
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record DailyEntryAuditPayload(
 
-        /** Wersja struktury payloadu — umożliwia ewolucję formatu w przyszłości. */
+        /** Payload structure version (supports future evolution). */
         int version,
 
-        /** Typ operacji (np. WORK_TIME_MODIFIED, STATUS_CHANGED, ATTENDANCE_UPDATED). */
+        /** Type of operation (e.g., WORK_TIME_MODIFIED, ATTENDANCE_STATUS_CHANGED). */
         DailyEntryAuditType operationType,
 
-        /** Wartości pól PRZED zmianą (np. startTime: 08:00). */
+        /** Metadata about who performed the action and when. */
+        Map<String, Object> metadata,
+
+        /** Field values BEFORE the change. */
         Map<String, Object> oldValues,
 
-        /** Wartości pól PO zmianie (np. startTime: 09:00). */
+        /** Field values AFTER the change. */
         Map<String, Object> newValues) {}

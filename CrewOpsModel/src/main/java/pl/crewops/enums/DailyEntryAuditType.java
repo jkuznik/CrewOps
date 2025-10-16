@@ -14,11 +14,8 @@ public enum DailyEntryAuditType {
     /** Zdarzenie: Dodano nową notatkę, która jest uwagą BHP/Safety. */
     SAFETY_NOTE_ADDED, // NOWY TYP
 
-    /** Zdarzenie: Rozpoczęto wypełnianie powiązanego raportu. */
-    REPORT_STARTED,
-
-    /** Zdarzenie: Raport został zakończony i zatwierdzony. */
-    REPORT_COMPLETED,
+    /** Zdarzenie: Uzupełnianie powiązanego raportu. */
+    REPORT_STATUS_CHANGED,
 
     /** Zdarzenie: Pole nadgodzin ('overtime') zostało ręcznie zmodyfikowane. */
     OVERTIME_MODIFIED,

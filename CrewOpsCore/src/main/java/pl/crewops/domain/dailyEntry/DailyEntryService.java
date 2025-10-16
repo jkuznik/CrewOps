@@ -14,6 +14,7 @@ import pl.crewops.enums.DailyEntryAuditType;
 import pl.crewops.exception.domain.dailyEntry.DailyEntryNotFoundException;
 import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
+import pl.crewops.model.dto.dailyEntry.UpdateDailyEntryCommand;
 import pl.crewops.model.tenantSchema.DailyEntry;
 import pl.crewops.model.tenantSchema.DailyEntryAudit;
 import pl.crewops.util.audit.AuditDetailsBuilder;
@@ -23,7 +24,7 @@ import pl.crewops.util.audit.AuditDetailsBuilder;
 @RequiredArgsConstructor
 class DailyEntryService implements DailyEntryAPI {
 
-    private static final String INITIAL_COMMENT = "Initial event with status: ";
+    private static final String INITIAL_COMMENT = "Initial status set to: ";
 
     private final DailyEntryRepository dailyEntryRepository;
     private final DailyEntryAuditRepository dailyEntryAuditRepository;
@@ -32,14 +33,15 @@ class DailyEntryService implements DailyEntryAPI {
     @Override
     @Transactional
     public DailyEntryDTO createDailyEntryManually(CreateDailyEntryDTO createDailyEntryDTO) {
-        DailyEntry dailyEntry = mapToEntity(createDailyEntryDTO);
 
-        DailyEntry savedEntry = dailyEntryRepository.save(dailyEntry);
+        final DailyEntry dailyEntry = mapToEntity(createDailyEntryDTO);
 
-        JsonNode payloadNode =
-                auditDetailsBuilder.createPayload(DailyEntryAuditType.ENTRY_STATUS_CHANGED, null, savedEntry);
+        final DailyEntry savedEntry = dailyEntryRepository.save(dailyEntry);
 
-        DailyEntryAudit auditEvent = DailyEntryAudit.builder()
+        final JsonNode payloadNode = auditDetailsBuilder.createPayload(
+                DailyEntryAuditType.ENTRY_STATUS_CHANGED, null, savedEntry, createDailyEntryDTO.actionByEmployeeId());
+
+        final DailyEntryAudit auditEvent = DailyEntryAudit.builder()
                 .dailyEntry(savedEntry)
                 .actionByEmployeeId(createDailyEntryDTO.actionByEmployeeId())
                 .eventType(DailyEntryAuditType.ENTRY_STATUS_CHANGED)
@@ -59,17 +61,17 @@ class DailyEntryService implements DailyEntryAPI {
         DailyEntry dailyEntry = mapToEntity(createDailyEntryDTO);
         DailyEntry savedEntry = dailyEntryRepository.save(dailyEntry);
 
-        // Tworzymy payload dla całego rekordu
-        JsonNode payloadNode = auditDetailsBuilder.createPayload(
-                DailyEntryAuditType.ATTENDANCE_STATUS_CHANGED, // lub inny typ zależnie od logiki
-                null,
-                savedEntry);
+        //        // Tworzymy payload dla całego rekordu
+        //        JsonNode payloadNode = auditDetailsBuilder.createPayload(
+        //                DailyEntryAuditType.ATTENDANCE_STATUS_CHANGED, // lub inny typ zależnie od logiki
+        //                null,
+        //                savedEntry);
 
         DailyEntryAudit auditEvent = DailyEntryAudit.builder()
                 .dailyEntry(savedEntry)
                 .actionByEmployeeId(createDailyEntryDTO.actionByEmployeeId())
                 .eventType(DailyEntryAuditType.ATTENDANCE_STATUS_CHANGED)
-                .payload(payloadNode)
+                //                .payload(payloadNode)
                 .comment("Auto-generated entry")
                 .build();
 
@@ -86,5 +88,70 @@ class DailyEntryService implements DailyEntryAPI {
                 .orElseThrow(() -> new DailyEntryNotFoundException(employeeId, entryDate));
 
         return mapToDTO(dailyEntry);
+    }
+
+    @Transactional
+    public DailyEntryDTO updateDailyEntry(UpdateDailyEntryCommand command) {
+        DailyEntry dailyEntry = dailyEntryRepository
+                .findByEmployeeIdAndEntryDate(command.employeeId(), command.entryDate())
+                .orElseThrow(() -> new DailyEntryNotFoundException(command.employeeId(), command.entryDate()));
+
+        DailyEntry oldEntry = cloneDailyEntry(dailyEntry);
+
+        DailyEntryAuditType auditType;
+
+        switch (command) {
+            case UpdateDailyEntryCommand.UpdateAttendance update -> {
+                dailyEntry.setAttendance(update.newAttendance());
+                auditType = DailyEntryAuditType.ATTENDANCE_STATUS_CHANGED;
+            }
+            case UpdateDailyEntryCommand.UpdateWorkTime update -> {
+                dailyEntry.setStartTime(update.newStartTime());
+                dailyEntry.setEndTime(update.newEndTime());
+                auditType = DailyEntryAuditType.WORK_TIME_MODIFIED;
+            }
+            case UpdateDailyEntryCommand.UpdateOvertime update -> {
+                dailyEntry.setOvertime(update.newOvertime());
+                auditType = DailyEntryAuditType.OVERTIME_MODIFIED;
+            }
+            case UpdateDailyEntryCommand.ChangeEntryStatus update -> {
+                dailyEntry.setStatus(update.newStatus());
+                auditType = DailyEntryAuditType.ENTRY_STATUS_CHANGED;
+            }
+            case UpdateDailyEntryCommand.AddDailyNote update -> {
+                // TODO: implement note persistence logic (e.g. via DailyNoteRepository)
+                auditType = DailyEntryAuditType.DAILY_NOTE_ADDED;
+            }
+        }
+
+        DailyEntry savedEntry = dailyEntryRepository.save(dailyEntry);
+        JsonNode payloadNode =
+                auditDetailsBuilder.createPayload(auditType, oldEntry, savedEntry, command.actionByEmployeeId());
+
+        DailyEntryAudit auditEvent = DailyEntryAudit.builder()
+                .dailyEntry(savedEntry)
+                .actionByEmployeeId(command.actionByEmployeeId())
+                .eventType(auditType)
+                .payload(payloadNode)
+                .comment(command.comment())
+                .build();
+
+        dailyEntryAuditRepository.save(auditEvent);
+
+        return mapToDTO(savedEntry);
+    }
+
+    private DailyEntry cloneDailyEntry(DailyEntry source) {
+        var dailyEntry = DailyEntry.builder()
+                .employeeId(source.getEmployeeId())
+                .entryDate(source.getEntryDate())
+                .attendance(source.getAttendance())
+                .status(source.getStatus())
+                .startTime(source.getStartTime())
+                .endTime(source.getEndTime())
+                .overtime(source.getOvertime())
+                .build();
+        dailyEntry.setId(source.getId());
+        return dailyEntry;
     }
 }

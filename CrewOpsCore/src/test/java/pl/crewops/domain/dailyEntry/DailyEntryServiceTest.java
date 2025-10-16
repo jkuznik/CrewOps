@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Optional;
@@ -21,6 +22,7 @@ import pl.crewops.enums.DailyEntryAuditType;
 import pl.crewops.enums.DailyEntryStatus;
 import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
+import pl.crewops.model.dto.dailyEntry.UpdateDailyEntryCommand;
 import pl.crewops.model.tenantSchema.DailyEntry;
 import pl.crewops.model.tenantSchema.DailyEntryAudit;
 import pl.crewops.util.audit.AuditDetailsBuilder;
@@ -60,7 +62,7 @@ class DailyEntryServiceTest {
             return entry;
         });
 
-        when(auditDetailsBuilder.createPayload(any(DailyEntryAuditType.class), any(), any()))
+        when(auditDetailsBuilder.createPayload(any(DailyEntryAuditType.class), any(), any(), any()))
                 .thenReturn(payloadNode);
     }
 
@@ -116,7 +118,7 @@ class DailyEntryServiceTest {
                 .build();
 
         JsonNode expectedPayload = new ObjectMapper().createObjectNode();
-        when(auditDetailsBuilder.createPayload(any(DailyEntryAuditType.class), any(), any()))
+        when(auditDetailsBuilder.createPayload(any(DailyEntryAuditType.class), any(), any(), any()))
                 .thenReturn(expectedPayload);
 
         // when
@@ -128,7 +130,7 @@ class DailyEntryServiceTest {
 
         // verify audyt wywołany z odpowiednim typem
         verify(auditDetailsBuilder)
-                .createPayload(eq(DailyEntryAuditType.ENTRY_STATUS_CHANGED), isNull(), any(DailyEntry.class));
+                .createPayload(eq(DailyEntryAuditType.ENTRY_STATUS_CHANGED), isNull(), any(DailyEntry.class), any());
         verify(dailyEntryAuditRepository).save(any());
     }
 
@@ -168,11 +170,6 @@ class DailyEntryServiceTest {
         UUID employeeId = UUID.randomUUID();
         LocalDate entryDate = LocalDate.now();
 
-        DailyEntryAudit audit = DailyEntryAudit.builder()
-                .eventType(DailyEntryAuditType.ENTRY_STATUS_CHANGED)
-                .comment("Initial event")
-                .build();
-
         DailyEntry dailyEntry = DailyEntry.builder()
                 .employeeId(employeeId)
                 .entryDate(entryDate)
@@ -181,6 +178,13 @@ class DailyEntryServiceTest {
                 .status(DailyEntryStatus.DRAFT)
                 .build();
         dailyEntry.setId(UUID.randomUUID());
+
+        DailyEntryAudit audit = DailyEntryAudit.builder()
+                .dailyEntry(dailyEntry)
+                .eventType(DailyEntryAuditType.ENTRY_STATUS_CHANGED)
+                .comment("Initial event")
+                .build();
+
         dailyEntry.getAuditEvents().add(audit);
 
         when(dailyEntryRepository.findByEmployeeIdAndEntryDate(employeeId, entryDate))
@@ -196,5 +200,135 @@ class DailyEntryServiceTest {
 
         assertThat(dailyEntry.getAuditEvents()).hasSize(1);
         assertThat(dailyEntry.getAuditEvents().iterator().next().getComment()).isEqualTo("Initial event");
+    }
+
+    @Test
+    void updateAttendance_shouldChangeAttendanceAndCreateAudit() {
+        // given
+        UUID employeeId = UUID.randomUUID();
+        LocalDate entryDate = LocalDate.now();
+        UUID actionBy = UUID.randomUUID();
+
+        DailyEntry dailyEntry = DailyEntry.builder()
+                .employeeId(employeeId)
+                .entryDate(entryDate)
+                .attendance(DailyAttendanceStatus.ABSENT)
+                .status(DailyEntryStatus.DRAFT)
+                .build();
+        dailyEntry.setId(UUID.randomUUID());
+
+        when(dailyEntryRepository.findByEmployeeIdAndEntryDate(employeeId, entryDate))
+                .thenReturn(Optional.of(dailyEntry));
+        when(dailyEntryRepository.save(any(DailyEntry.class))).thenAnswer(i -> i.getArgument(0));
+
+        UpdateDailyEntryCommand.UpdateAttendance command = new UpdateDailyEntryCommand.UpdateAttendance(
+                employeeId, entryDate, actionBy, DailyAttendanceStatus.PRESENT, "Changed attendance");
+
+        // when
+        DailyEntryDTO result = dailyEntryService.updateDailyEntry(command);
+
+        // then
+        assertThat(result.attendance()).isEqualTo(DailyAttendanceStatus.PRESENT);
+        verify(auditDetailsBuilder)
+                .createPayload(eq(DailyEntryAuditType.ATTENDANCE_STATUS_CHANGED), any(), any(), eq(actionBy));
+        verify(dailyEntryAuditRepository).save(any(DailyEntryAudit.class));
+    }
+
+    @Test
+    void updateWorkTime_shouldChangeStartAndEndTimesAndCreateAudit() {
+        // given
+        UUID employeeId = UUID.randomUUID();
+        LocalDate entryDate = LocalDate.now();
+        UUID actionBy = UUID.randomUUID();
+
+        DailyEntry dailyEntry = DailyEntry.builder()
+                .employeeId(employeeId)
+                .entryDate(entryDate)
+                .startTime(Instant.parse("2025-01-01T08:00:00Z"))
+                .endTime(Instant.parse("2025-01-01T16:00:00Z"))
+                .build();
+        dailyEntry.setId(UUID.randomUUID());
+
+        when(dailyEntryRepository.findByEmployeeIdAndEntryDate(employeeId, entryDate))
+                .thenReturn(Optional.of(dailyEntry));
+        when(dailyEntryRepository.save(any(DailyEntry.class))).thenAnswer(i -> i.getArgument(0));
+
+        UpdateDailyEntryCommand.UpdateWorkTime command = new UpdateDailyEntryCommand.UpdateWorkTime(
+                employeeId,
+                entryDate,
+                actionBy,
+                Instant.parse("2025-01-01T09:00:00Z"),
+                Instant.parse("2025-01-01T17:00:00Z"),
+                "Updated work time");
+
+        // when
+        DailyEntryDTO result = dailyEntryService.updateDailyEntry(command);
+
+        // then
+        assertThat(result.startTime()).isEqualTo(Instant.parse("2025-01-01T09:00:00Z"));
+        assertThat(result.endTime()).isEqualTo(Instant.parse("2025-01-01T17:00:00Z"));
+        verify(auditDetailsBuilder)
+                .createPayload(eq(DailyEntryAuditType.WORK_TIME_MODIFIED), any(), any(), eq(actionBy));
+        verify(dailyEntryAuditRepository).save(any(DailyEntryAudit.class));
+    }
+
+    @Test
+    void changeEntryStatus_shouldUpdateStatusAndCreateAudit() {
+        // given
+        UUID employeeId = UUID.randomUUID();
+        LocalDate entryDate = LocalDate.now();
+        UUID actionBy = UUID.randomUUID();
+
+        DailyEntry dailyEntry = DailyEntry.builder()
+                .employeeId(employeeId)
+                .entryDate(entryDate)
+                .status(DailyEntryStatus.DRAFT)
+                .build();
+        dailyEntry.setId(UUID.randomUUID());
+
+        when(dailyEntryRepository.findByEmployeeIdAndEntryDate(employeeId, entryDate))
+                .thenReturn(Optional.of(dailyEntry));
+        when(dailyEntryRepository.save(any(DailyEntry.class))).thenAnswer(i -> i.getArgument(0));
+
+        UpdateDailyEntryCommand.ChangeEntryStatus command = new UpdateDailyEntryCommand.ChangeEntryStatus(
+                employeeId, entryDate, actionBy, DailyEntryStatus.APPROVED, "Approved entry");
+
+        // when
+        DailyEntryDTO result = dailyEntryService.updateDailyEntry(command);
+
+        // then
+        assertThat(result.status()).isEqualTo(DailyEntryStatus.APPROVED);
+        verify(auditDetailsBuilder)
+                .createPayload(eq(DailyEntryAuditType.ENTRY_STATUS_CHANGED), any(), any(), eq(actionBy));
+        verify(dailyEntryAuditRepository).save(any(DailyEntryAudit.class));
+    }
+
+    @Test
+    void addDailyNote_shouldCreateAuditWithNoteContent() {
+        // given
+        UUID employeeId = UUID.randomUUID();
+        LocalDate entryDate = LocalDate.now();
+        UUID actionBy = UUID.randomUUID();
+
+        DailyEntry dailyEntry = DailyEntry.builder()
+                .employeeId(employeeId)
+                .entryDate(entryDate)
+                .status(DailyEntryStatus.DRAFT)
+                .build();
+        dailyEntry.setId(UUID.randomUUID());
+
+        when(dailyEntryRepository.findByEmployeeIdAndEntryDate(employeeId, entryDate))
+                .thenReturn(Optional.of(dailyEntry));
+        when(dailyEntryRepository.save(any(DailyEntry.class))).thenAnswer(i -> i.getArgument(0));
+
+        UpdateDailyEntryCommand.AddDailyNote command = new UpdateDailyEntryCommand.AddDailyNote(
+                employeeId, entryDate, actionBy, "New note", "Added daily note");
+
+        // when
+        DailyEntryDTO result = dailyEntryService.updateDailyEntry(command);
+
+        // then
+        verify(auditDetailsBuilder).createPayload(eq(DailyEntryAuditType.DAILY_NOTE_ADDED), any(), any(), eq(actionBy));
+        verify(dailyEntryAuditRepository).save(any(DailyEntryAudit.class));
     }
 }
