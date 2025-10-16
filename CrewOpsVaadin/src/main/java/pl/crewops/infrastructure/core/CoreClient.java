@@ -267,6 +267,7 @@ class CoreClient {
     }
 
     // authenticated but regular user can fetch only his own daily entry
+    // todo: implement cache and security
     public DailyEntryDTO findDailyEntryByEmployeeIdAndDate(UUID employeeId, LocalDate localDate)
             throws NotAuthenticatedException {
         try {
@@ -280,7 +281,7 @@ class CoreClient {
                     .retrieve()
                     .body(new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
-            log.error("Get daily entry by employee id and entry date failed");
+            log.warn("Get daily entry by employee id and entry date failed");
             return null;
         }
     }

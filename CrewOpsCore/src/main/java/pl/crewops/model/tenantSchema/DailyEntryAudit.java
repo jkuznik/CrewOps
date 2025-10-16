@@ -1,5 +1,6 @@
 package pl.crewops.model.tenantSchema;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import java.util.UUID;
@@ -29,6 +30,9 @@ public class DailyEntryAudit extends AbstractEntity {
     @Column(columnDefinition = "daily_entry_event_type", nullable = false)
     private DailyEntryAuditType eventType;
 
-    @Size(max = 2047)
-    private String details;
+    @JdbcTypeCode(SqlTypes.JSON)
+    private JsonNode payload;
+
+    @Size(max = 127)
+    private String comment;
 }

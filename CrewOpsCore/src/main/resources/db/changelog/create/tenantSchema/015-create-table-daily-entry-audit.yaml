@@ -34,8 +34,11 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: details
-                  type: varchar(2047)
+                  name: payload
+                  type: jsonb
+              - column:
+                  name: comment
+                  type: varchar(127)
               - column:
                   name: created_at
                   type: timestamptz
