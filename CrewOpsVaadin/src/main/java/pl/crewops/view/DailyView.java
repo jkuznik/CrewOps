@@ -182,7 +182,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
             item.setUpdateTime(false);
         });
 
-        timeline.updateItems(items);
+        //        timeline.updateItems(items);
         timeline.setTimelineRange(
                 LocalDateTime.of(from.toLocalDate(), LocalTime.MIN), LocalDateTime.of(to.toLocalDate(), LocalTime.MAX));
         timeline.setAttendanceStatus(dailyEntry.attendance());

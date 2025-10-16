@@ -9,8 +9,8 @@ import pl.crewops.enums.DailyNoteType;
 public record DailyNoteDTO(
         UUID id,
         UUID dailyEntryId,
-        DailyNoteType type,
         UUID reportedByEmployeeId,
+        DailyNoteType type,
         String content,
         Instant createdAt,
         Instant updatedAt) {}

@@ -41,11 +41,26 @@ class DailyEntryMapper {
     }
 
     static DailyNoteDTO mapToDTO(DailyNote dailyNote) {
-        return DailyNoteDTO.builder().build();
+        return DailyNoteDTO.builder()
+                .id(dailyNote.getId())
+                .dailyEntryId(dailyNote.getDailyEntry().getId())
+                .reportedByEmployeeId(dailyNote.getReportedByEmployeeId())
+                .type(dailyNote.getType())
+                .content(dailyNote.getContent())
+                .createdAt(dailyNote.getCreatedAt())
+                .updatedAt(dailyNote.getUpdatedAt())
+                .build();
     }
 
     static DailyEntryAuditDTO mapToDTO(DailyEntryAudit dailyEntryAudit) {
-        return DailyEntryAuditDTO.builder().build();
+        return DailyEntryAuditDTO.builder()
+                .id(dailyEntryAudit.getId())
+                .dailyEntryId(dailyEntryAudit.getDailyEntry().getId())
+                .eventType(dailyEntryAudit.getEventType())
+                .payload(dailyEntryAudit.getPayload())
+                .comment(dailyEntryAudit.getComment())
+                .createdAt(dailyEntryAudit.getCreatedAt())
+                .build();
     }
 
     private static Set<DailyNoteDTO> getMappedDailyNotes(DailyEntry dailyEntry) {

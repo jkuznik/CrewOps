@@ -8,6 +8,8 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +22,7 @@ import pl.crewops.enums.DailyEntryStatus;
 import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.model.tenantSchema.DailyEntry;
+import pl.crewops.model.tenantSchema.DailyEntryAudit;
 import pl.crewops.util.audit.AuditDetailsBuilder;
 
 @SpringJUnitConfig(
@@ -157,5 +160,41 @@ class DailyEntryServiceTest {
         assertThat(result2.status()).isEqualTo(DailyEntryStatus.APPROVED);
         assertThat(result1.attendance()).isEqualTo(DailyAttendanceStatus.PRESENT);
         assertThat(result2.attendance()).isEqualTo(DailyAttendanceStatus.ABSENT);
+    }
+
+    @Test
+    void getByEmployeeIdAndEntryDate_shouldReturnDailyEntryDTO_withAuditEvents() {
+        // given
+        UUID employeeId = UUID.randomUUID();
+        LocalDate entryDate = LocalDate.now();
+
+        DailyEntryAudit audit = DailyEntryAudit.builder()
+                .eventType(DailyEntryAuditType.ENTRY_STATUS_CHANGED)
+                .comment("Initial event")
+                .build();
+
+        DailyEntry dailyEntry = DailyEntry.builder()
+                .employeeId(employeeId)
+                .entryDate(entryDate)
+                .attendance(DailyAttendanceStatus.PRESENT)
+                .auditEvents(new HashSet<>())
+                .status(DailyEntryStatus.DRAFT)
+                .build();
+        dailyEntry.setId(UUID.randomUUID());
+        dailyEntry.getAuditEvents().add(audit);
+
+        when(dailyEntryRepository.findByEmployeeIdAndEntryDate(employeeId, entryDate))
+                .thenReturn(Optional.of(dailyEntry));
+
+        // when
+        DailyEntryDTO result = dailyEntryService.getByEmployeeIdAndEntryDate(employeeId, entryDate);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.attendance()).isEqualTo(DailyAttendanceStatus.PRESENT);
+        assertThat(result.status()).isEqualTo(DailyEntryStatus.DRAFT);
+
+        assertThat(dailyEntry.getAuditEvents()).hasSize(1);
+        assertThat(dailyEntry.getAuditEvents().iterator().next().getComment()).isEqualTo("Initial event");
     }
 }

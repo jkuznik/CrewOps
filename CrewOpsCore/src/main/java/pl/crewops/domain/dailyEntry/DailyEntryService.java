@@ -5,13 +5,13 @@ import static pl.crewops.domain.dailyEntry.DailyEntryMapper.mapToEntity;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.time.LocalDate;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.enums.DailyEntryAuditType;
+import pl.crewops.exception.domain.dailyEntry.DailyEntryNotFoundException;
 import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.model.tenantSchema.DailyEntry;
@@ -83,7 +83,7 @@ class DailyEntryService implements DailyEntryAPI {
     public DailyEntryDTO getByEmployeeIdAndEntryDate(UUID employeeId, LocalDate entryDate) {
         DailyEntry dailyEntry = dailyEntryRepository
                 .findByEmployeeIdAndEntryDate(employeeId, entryDate)
-                .orElseThrow(() -> new NoSuchElementException("Nie znaleziono wpisu dla pracownika " + employeeId));
+                .orElseThrow(() -> new DailyEntryNotFoundException(employeeId, entryDate));
 
         return mapToDTO(dailyEntry);
     }
