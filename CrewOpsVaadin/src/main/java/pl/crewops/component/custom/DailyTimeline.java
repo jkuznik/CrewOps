@@ -16,7 +16,7 @@ import pl.crewops.enums.DailyAttendanceStatus;
 public class DailyTimeline extends HorizontalLayout {
 
     private static final String TIMELINE_WIDTH_PX = "1200px";
-    private static final String TIMELINE_HEIGHT_PX = "200px";
+    private static final int TIMELINE_HEIGHT_PX = 200;
 
     private final Timeline timeline = new Timeline();
     private final Span statusDisplay = new Span();
@@ -32,7 +32,7 @@ public class DailyTimeline extends HorizontalLayout {
 
         setMinWidth(TIMELINE_WIDTH_PX);
         setMaxWidth(TIMELINE_WIDTH_PX);
-        setMaxHeight(TIMELINE_HEIGHT_PX);
+        setMaxHeight(TIMELINE_HEIGHT_PX - 1 + "px");
         getStyle().remove("overflow-x");
         getStyle().remove("overflow-y");
         getStyle().set("border", "1px solid #ccc");
@@ -95,7 +95,7 @@ public class DailyTimeline extends HorizontalLayout {
         setTimelineRange(LocalDateTime.of(today, LocalTime.MIN), LocalDateTime.of(today, LocalTime.MAX));
 
         timeline.setWidthFull();
-        timeline.setHeight(TIMELINE_HEIGHT_PX);
+        timeline.setHeight(TIMELINE_HEIGHT_PX + "px");
         timeline.setMoveable(true);
         timeline.setZoomable(true);
         timeline.setShowCurentTime(true);
