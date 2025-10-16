@@ -65,6 +65,10 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
         add(mainContainer);
     }
 
+    public void setStartTimePickerInvalid(boolean state) {
+        from.setInvalid(state);
+    }
+
     private static Div spacer() {
         var spacer = new Div();
         spacer.setHeight("200px");
@@ -79,8 +83,12 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
             return;
         }
 
-        from.setValue(LocalTime.ofInstant(dailyEntryDTO.startTime(), ZoneId.systemDefault()));
-        to.setValue(LocalTime.ofInstant(dailyEntryDTO.endTime(), ZoneId.systemDefault()));
+        if (dailyEntryDTO.startTime() != null) {
+            from.setValue(LocalTime.ofInstant(dailyEntryDTO.startTime(), ZoneId.systemDefault()));
+        }
+        if (dailyEntryDTO.endTime() != null) {
+            to.setValue(LocalTime.ofInstant(dailyEntryDTO.endTime(), ZoneId.systemDefault()));
+        }
 
         OvertimeInterval overtimeValue = getOvertimeIntervalByHours(dailyEntryDTO.overTime());
         overtime.setValue(overtimeValue);
@@ -307,9 +315,13 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
             updateHoursSummary();
         };
 
+        from.setErrorMessage(getTranslation("timesheetForm.startTimeError"));
+        from.setValue(null);
         from.addValueChangeListener(event -> {
             updateListener.run();
         });
+
+        to.setValue(null);
         to.addValueChangeListener(event -> updateListener.run());
 
         overtime.addValueChangeListener(event -> {

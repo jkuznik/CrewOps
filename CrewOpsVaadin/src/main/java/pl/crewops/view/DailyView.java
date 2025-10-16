@@ -2,7 +2,6 @@ package pl.crewops.view;
 
 import static pl.crewops.enums.DailyAttendanceStatus.*;
 
-import com.vaadin.componentfactory.timeline.model.Item;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -14,19 +13,15 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.time.*;
+import java.util.*;
 import pl.crewops.component.custom.DailyTimeline;
 import pl.crewops.component.dialog.dateSelectorDialog.DateSelectorDialog;
 import pl.crewops.component.form.daily.DailyActivityForm;
 import pl.crewops.component.form.daily.DailyModificationForm;
 import pl.crewops.component.form.daily.TimesheetForm;
+import pl.crewops.component.notification.FailNotification;
 import pl.crewops.component.notification.NotAuthenticatedNotification;
 import pl.crewops.component.notification.SuccessNotification;
 import pl.crewops.enums.DailyEntryStatus;
@@ -34,6 +29,7 @@ import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
+import pl.crewops.model.dto.dailyEntry.UpdateDailyEntryCommand;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.BrowserResolver;
@@ -65,7 +61,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
      */
     public static final String FORMS_WIDTH = ENSURE_STICK_FORMS + 10 + "px";
 
-    public static final String FORMS_HEIGHT = "400px";
+    public static final String FORMS_HEIGHT = "450px";
 
     private final Button currentDay = new Button();
     private final Button calendar = new Button();
@@ -78,6 +74,10 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
     private final DailyActivityForm dailyActivityForm;
     private final DailyModificationForm dailyModificationForm;
 
+    private final boolean isMobile = BrowserResolver.isMobile();
+
+    private Optional<DailyEntryDTO> dailyEntryDTO = Optional.empty();
+
     public DailyView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         super(coreAPI, jwtService, authenticationResolver);
         this.timesheetForm = new TimesheetForm();
@@ -89,7 +89,11 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
     public void beforeEnter(BeforeEnterEvent event) {
         // todo: implement annotation that do same thing.
         if (authenticationResolver.principalIsAuthenticated()) {
-            buildContent();
+            try {
+                buildContent();
+            } catch (Exception e) {
+                new FailNotification(e.getMessage());
+            }
         } else {
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");
@@ -119,13 +123,12 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
     @Override
     public void updateDependsOnDate(LocalDate date) {
         try {
-            Optional<DailyEntryDTO> dailyEntryDTO = coreAPI.findDailyEntryByEmployeeIdAndDate(
+            dailyEntryDTO = coreAPI.findDailyEntryByEmployeeIdAndDate(
                     authenticationResolver.getPrincipal().getEmployeeId(), date);
 
             if (dailyEntryDTO.isPresent()) {
                 var dailyEntry = dailyEntryDTO.get();
                 updateTimeline(dailyEntry, null);
-
                 timesheetForm.setDailyEntry(dailyEntry);
 
                 // this dailyModificationForm logic has to be in that specific order
@@ -154,42 +157,48 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
         final ZoneId ZONE_ID = ZoneId.systemDefault();
 
-        LocalDateTime from = LocalDateTime.ofInstant(dailyEntry.startTime(), ZONE_ID);
-        LocalDateTime to = LocalDateTime.ofInstant(dailyEntry.endTime(), ZONE_ID);
+        if (dailyEntry.endTime() != null) {
+            LocalDateTime to = LocalDateTime.ofInstant(dailyEntry.endTime(), ZONE_ID);
+            timeline.setTimelineRange(
+                    LocalDateTime.of(dailyEntry.entryDate(), LocalTime.MIN),
+                    LocalDateTime.of(to.toLocalDate(), LocalTime.MAX));
+        } else {
+            timeline.setTimelineRange(
+                    LocalDateTime.of(dailyEntry.entryDate(), LocalTime.MIN),
+                    LocalDateTime.of(dailyEntry.entryDate(), LocalTime.MAX));
+        }
 
-        var items = new ArrayList<Item>();
-
-        var item1 = new Item(from, to, "Praca");
-        item1.setId("1");
-        item1.setClassName("timeline-item-default");
-
-        var item2 = new Item(to, to.plusHours(2), "Praca - Nadgodziny");
-        item2.setId("2");
-        item2.setClassName("timeline-item-overtime");
-
-        var item3 = new Item(from.plusHours(4), from.plusHours(4).plusMinutes(5), "Notatka");
-        item3.setId("3");
-        item3.setClassName("timeline-item-note");
-
-        var item4 = new Item(from.plusHours(4).plusMinutes(2), from.plusHours(4).plusMinutes(7), "Notatka");
-        item4.setId("4");
-        item4.setClassName("timeline-item-note");
-
-        items.addAll(Arrays.asList(item1, item2, item3, item4));
-
-        items.forEach(item -> {
-            item.setEditable(false);
-            item.setUpdateTime(false);
-        });
+        //        var items = new ArrayList<Item>();
+        //
+        //        var item1 = new Item(from, to, "Praca");
+        //        item1.setId("1");
+        //        item1.setClassName("timeline-item-default");
+        //
+        //        var item2 = new Item(to, to.plusHours(2), "Praca - Nadgodziny");
+        //        item2.setId("2");
+        //        item2.setClassName("timeline-item-overtime");
+        //
+        //        var item3 = new Item(from.plusHours(4), from.plusHours(4).plusMinutes(5), "Notatka");
+        //        item3.setId("3");
+        //        item3.setClassName("timeline-item-note");
+        //
+        //        var item4 = new Item(from.plusHours(4).plusMinutes(2), from.plusHours(4).plusMinutes(7), "Notatka");
+        //        item4.setId("4");
+        //        item4.setClassName("timeline-item-note");
+        //
+        //        items.addAll(Arrays.asList(item1, item2, item3, item4));
+        //
+        //        items.forEach(item -> {
+        //            item.setEditable(false);
+        //            item.setUpdateTime(false);
+        //        });
 
         //        timeline.updateItems(items);
-        timeline.setTimelineRange(
-                LocalDateTime.of(from.toLocalDate(), LocalTime.MIN), LocalDateTime.of(to.toLocalDate(), LocalTime.MAX));
         timeline.setAttendanceStatus(dailyEntry.attendance());
     }
 
     private Component getLayoutDependsOnUserDevice() {
-        if (BrowserResolver.isMobile()) {
+        if (isMobile) {
             var verticalLayout = new VerticalLayout();
             verticalLayout.setSizeFull();
             verticalLayout.setSpacing(true);
@@ -266,29 +275,66 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
     // TODO: implement each button logic: createDaily - done,
     private void addDailyModificationFormListeners() {
         dailyModificationForm.addCreateDailyEventListener(event -> {
-            var createDailyEntryDTO = CreateDailyEntryDTO.builder()
-                    .employeeId(authenticationResolver
-                            .getPrincipal()
-                            .getEmployeeId()) // to sie zmieni kiedy manager bedzie mial mozliwosc jednostkowego
-                    // utworzenia dailyentry dla danego pracownika przez managera
-                    .entryDate(LocalDate.now())
-                    .actionByEmployeeId(authenticationResolver.getPrincipal().getEmployeeId())
-                    .startTime(timesheetForm.getStartTime())
-                    .endTime(timesheetForm.getEndTime())
-                    .overTime(timesheetForm.getOvertime())
-                    .attendance(PRESENT)
-                    .status(DailyEntryStatus.DRAFT)
-                    .build();
+            createDailyLogic();
+        });
+
+        dailyModificationForm.addUpdateDailyEventListener(event -> {
+            DailyEntryDTO dailyEntry = dailyEntryDTO.orElseGet(() -> {
+                UI.getCurrent().getPage().setLocation("/");
+                return null;
+            });
+
+            // this action is dedicated to update self daily entry
+            UUID myselfId = dailyEntry.employeeId();
+
+            Instant startTime = timesheetForm.getStartTime();
+            Instant endTime = timesheetForm.getEndTime();
+            BigDecimal overtime = timesheetForm.getOvertime();
+
+            var updateCommand = new UpdateDailyEntryCommand.UpdateWorkTime(
+                    myselfId, dailyEntry.entryDate(), myselfId, startTime, endTime, overtime, "");
 
             try {
-                Optional<DailyEntryDTO> dailyEntry = coreAPI.createDailyEntry(createDailyEntryDTO);
-                dailyEntry.ifPresent(dailyEntryDTO -> {
-                    new SuccessNotification(getTranslation("dailyView.createDailyEntrySuccess"));
-                });
-
+                coreAPI.updateDailyEntrySelfPemission(updateCommand);
             } catch (NotAuthenticatedException e) {
                 new NotAuthenticatedNotification(e.getMessage());
             }
         });
+    }
+
+    private void createDailyLogic() {
+        if (timesheetForm.getStartTime() == null) {
+            if (isMobile) {
+                new FailNotification(getTranslation("timesheetForm.startTimeError"));
+            }
+            timesheetForm.setStartTimePickerInvalid(true);
+            return;
+        } else {
+            timesheetForm.setStartTimePickerInvalid(false);
+        }
+
+        var createDailyEntryDTO = CreateDailyEntryDTO.builder()
+                .employeeId(authenticationResolver
+                        .getPrincipal()
+                        .getEmployeeId()) // to sie zmieni kiedy manager bedzie mial mozliwosc jednostkowego
+                // utworzenia dailyentry dla danego pracownika przez managera
+                .entryDate(LocalDate.now())
+                .actionByEmployeeId(authenticationResolver.getPrincipal().getEmployeeId())
+                .startTime(timesheetForm.getStartTime())
+                .endTime(timesheetForm.getEndTime())
+                .overTime(timesheetForm.getOvertime())
+                .attendance(PRESENT)
+                .status(DailyEntryStatus.DRAFT)
+                .build();
+
+        try {
+            Optional<DailyEntryDTO> dailyEntry = coreAPI.createDailyEntry(createDailyEntryDTO);
+            dailyEntry.ifPresent(dailyEntryDTO -> {
+                new SuccessNotification(getTranslation("dailyView.createDailyEntrySuccess"));
+            });
+
+        } catch (NotAuthenticatedException e) {
+            new NotAuthenticatedNotification(e.getMessage());
+        }
     }
 }

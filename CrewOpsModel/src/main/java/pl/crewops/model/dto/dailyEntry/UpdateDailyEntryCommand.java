@@ -1,5 +1,7 @@
 package pl.crewops.model.dto.dailyEntry;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -11,17 +13,22 @@ import pl.crewops.enums.DailyEntryStatus;
 
 /**
  * Base interface for all update commands related to {@code DailyEntry}.
- * <p>
- * Each record represents a distinct type of modification that can be applied to a DailyEntry
- * (e.g., updating attendance, work time, overtime, or adding a note).
- * <p>
- * Implementations are designed for strong type safety and to facilitate
- * handling different update scenarios in a clean and extensible way.
+ * Each record represents a distinct type of modification.
  */
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type" // <-- klucz JSON, który wskaże typ komendy
+        )
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = UpdateDailyEntryCommand.UpdateAttendance.class, name = "UpdateAttendance"),
+    @JsonSubTypes.Type(value = UpdateDailyEntryCommand.UpdateWorkTime.class, name = "UpdateWorkTime"),
+    @JsonSubTypes.Type(value = UpdateDailyEntryCommand.ChangeEntryStatus.class, name = "ChangeEntryStatus"),
+    @JsonSubTypes.Type(value = UpdateDailyEntryCommand.AddDailyNote.class, name = "AddDailyNote")
+})
 public sealed interface UpdateDailyEntryCommand
         permits UpdateDailyEntryCommand.UpdateAttendance,
                 UpdateDailyEntryCommand.UpdateWorkTime,
-                UpdateDailyEntryCommand.UpdateOvertime,
                 UpdateDailyEntryCommand.ChangeEntryStatus,
                 UpdateDailyEntryCommand.AddDailyNote {
 
@@ -65,17 +72,7 @@ public sealed interface UpdateDailyEntryCommand
             @NotNull UUID actionByEmployeeId,
             Instant newStartTime,
             Instant newEndTime,
-            String comment)
-            implements UpdateDailyEntryCommand {}
-
-    /**
-     * Represents a command to modify the overtime value of a DailyEntry.
-     */
-    record UpdateOvertime(
-            @NotNull UUID employeeId,
-            @NotNull LocalDate entryDate,
-            @NotNull UUID actionByEmployeeId,
-            @NotNull BigDecimal newOvertime,
+            BigDecimal newOvertime,
             String comment)
             implements UpdateDailyEntryCommand {}
 

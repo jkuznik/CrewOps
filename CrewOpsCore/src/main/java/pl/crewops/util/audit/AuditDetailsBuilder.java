@@ -20,7 +20,7 @@ import pl.crewops.model.tenantSchema.DailyEntry;
 @RequiredArgsConstructor
 public class AuditDetailsBuilder {
 
-    private static final int PAYLOAD_VERSION = 2;
+    private static final int PAYLOAD_VERSION = 1;
 
     private final ObjectMapper objectMapper;
 
@@ -55,8 +55,6 @@ public class AuditDetailsBuilder {
                     oldValues.put("endTime", oldEntry != null ? oldEntry.getEndTime() : null);
                     newValues.put("endTime", newEntry.getEndTime());
                 }
-            }
-            case OVERTIME_MODIFIED -> {
                 if (oldEntry == null || !Objects.equals(oldEntry.getOvertime(), newEntry.getOvertime())) {
                     oldValues.put("overtime", oldEntry != null ? oldEntry.getOvertime() : null);
                     newValues.put("overtime", newEntry.getOvertime());

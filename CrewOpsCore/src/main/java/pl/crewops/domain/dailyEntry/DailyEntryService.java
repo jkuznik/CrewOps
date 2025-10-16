@@ -108,11 +108,8 @@ class DailyEntryService implements DailyEntryAPI {
             case UpdateDailyEntryCommand.UpdateWorkTime update -> {
                 dailyEntry.setStartTime(update.newStartTime());
                 dailyEntry.setEndTime(update.newEndTime());
-                auditType = DailyEntryAuditType.WORK_TIME_MODIFIED;
-            }
-            case UpdateDailyEntryCommand.UpdateOvertime update -> {
                 dailyEntry.setOvertime(update.newOvertime());
-                auditType = DailyEntryAuditType.OVERTIME_MODIFIED;
+                auditType = DailyEntryAuditType.WORK_TIME_MODIFIED;
             }
             case UpdateDailyEntryCommand.ChangeEntryStatus update -> {
                 dailyEntry.setStatus(update.newStatus());

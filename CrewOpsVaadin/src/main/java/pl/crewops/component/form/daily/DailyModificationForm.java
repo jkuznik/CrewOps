@@ -102,6 +102,9 @@ public class DailyModificationForm extends FormLayout {
             fireEvent(new CreateDailyEntryEvent(this));
         });
         updateButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        updateButton.addClickListener(event -> {
+            fireEvent(new UpdateDailyEntryEvent(this));
+        });
         confirmPresenceButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         changeAttendanceButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         approveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);

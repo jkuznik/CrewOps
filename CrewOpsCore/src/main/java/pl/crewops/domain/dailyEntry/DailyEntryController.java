@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
+import pl.crewops.model.dto.dailyEntry.UpdateDailyEntryCommand;
 import pl.crewops.security.custom.permissionAnnotation.SelfOnlyPermission;
 
 @RestController
@@ -25,5 +26,11 @@ class DailyEntryController {
     @SelfOnlyPermission(identifier = "employeeId")
     public DailyEntryDTO getDailyEntry(@RequestParam UUID employeeId, @RequestParam LocalDate entryDate) {
         return dailyEntryAPI.getByEmployeeIdAndEntryDate(employeeId, entryDate);
+    }
+
+    @PatchMapping(DAILY_ENTRIES)
+    @SelfOnlyPermission(identifier = "actionByEmployeeId")
+    public DailyEntryDTO updateDailyEntry(@RequestBody UpdateDailyEntryCommand updateDailyEntryCommand) {
+        return dailyEntryAPI.updateDailyEntry(updateDailyEntryCommand);
     }
 }

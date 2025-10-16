@@ -26,6 +26,7 @@ import pl.crewops.model.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.model.dto.company.CompanyDTO;
 import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
+import pl.crewops.model.dto.dailyEntry.UpdateDailyEntryCommand;
 import pl.crewops.model.dto.department.DepartmentDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
@@ -282,6 +283,22 @@ class CoreClient {
                     .body(new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
             log.warn("Get daily entry by employee id and entry date failed");
+            return null;
+        }
+    }
+
+    // authenticated and only self resources (for managers should be dedicated method)
+    public DailyEntryDTO updateDailyEntrySelfPermission(UpdateDailyEntryCommand updateDailyEntryCommand)
+            throws NotAuthenticatedException {
+        try {
+            return authorizedClient()
+                    .patch()
+                    .uri(uriBuilder -> uriBuilder.path(DAILY_ENTRIES).build())
+                    .body(updateDailyEntryCommand)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Update daily entry failed");
             return null;
         }
     }
