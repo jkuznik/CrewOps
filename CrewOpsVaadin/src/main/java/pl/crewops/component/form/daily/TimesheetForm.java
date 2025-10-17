@@ -24,10 +24,10 @@ import pl.crewops.enums.DateState;
 import pl.crewops.enums.OvertimeInterval;
 import pl.crewops.enums.OvertimeInterval.OvertimeValue;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
-import pl.crewops.util.contract.DateSensitive;
+import pl.crewops.util.contract.DailyEntrySensitive;
 import pl.crewops.view.DailyView;
 
-public class TimesheetForm extends FormLayout implements DateSensitive {
+public class TimesheetForm extends FormLayout implements DailyEntrySensitive {
 
     private final Span headerTextLabel = new Span();
     private final Icon helpIcon = VaadinIcon.INFO_CIRCLE.create();

@@ -28,6 +28,7 @@ class DailyEntryController {
         return dailyEntryAPI.getByEmployeeIdAndEntryDate(employeeId, entryDate);
     }
 
+    // todo: consider second authentication on this method for self modifications
     @PatchMapping(DAILY_ENTRIES)
     @SelfOnlyPermission(identifier = "actionByEmployeeId")
     public DailyEntryDTO updateDailyEntry(@RequestBody UpdateDailyEntryCommand updateDailyEntryCommand) {

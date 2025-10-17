@@ -14,9 +14,10 @@ import java.time.LocalDate;
 import lombok.Setter;
 import pl.crewops.enums.DateState;
 import pl.crewops.util.AuthenticationResolver;
+import pl.crewops.util.contract.DailyEntrySensitive;
 import pl.crewops.view.DailyView;
 
-public class DailyActivityForm extends FormLayout {
+public class DailyActivityForm extends FormLayout implements DailyEntrySensitive {
 
     private final AuthenticationResolver authenticationResolver;
 
@@ -134,6 +135,10 @@ public class DailyActivityForm extends FormLayout {
     }
 
     // todo: jeśli potwierdzono obecność to wniosek o urlop dla "dzisiaj" nie powinien być widoczny
+
+    // todo: zmienic logike tej metody (w wszystkich komponentach ktore to implementuja) na taką która bazuje na
+    // dailyEntryDTO
+    @Override
     public void updateDependsOnDate(LocalDate localDate) {
         DateState state = DateState.fromLocalDate(localDate);
 

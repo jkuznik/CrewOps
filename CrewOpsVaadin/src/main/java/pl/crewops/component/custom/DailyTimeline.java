@@ -12,8 +12,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import pl.crewops.enums.DailyAttendanceStatus;
+import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
+import pl.crewops.util.contract.DailyEntrySensitive;
 
-public class DailyTimeline extends HorizontalLayout {
+public class DailyTimeline extends HorizontalLayout implements DailyEntrySensitive {
 
     private static final String TIMELINE_WIDTH_PX = "1200px";
     private static final int TIMELINE_HEIGHT_PX = 200;
@@ -22,11 +24,17 @@ public class DailyTimeline extends HorizontalLayout {
     private final Span statusDisplay = new Span();
     private final Icon helpIcon = VaadinIcon.INFO_CIRCLE.create();
 
-    public DailyTimeline() {
+    private DailyEntryDTO dailyEntry;
+
+    public DailyTimeline(DailyEntryDTO dailyEntry) {
+        this.dailyEntry = dailyEntry;
         configureStyles();
 
         add(configuredTimeline(), configuredAttendanceContainer());
     }
+
+    @Override
+    public void updateDependsOnDate(LocalDate date) {}
 
     private void configureStyles() {
 

@@ -33,13 +33,13 @@ import pl.crewops.model.dto.dailyEntry.UpdateDailyEntryCommand;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.BrowserResolver;
-import pl.crewops.util.contract.DateSensitive;
+import pl.crewops.util.contract.DailyEntrySensitive;
 import pl.crewops.view.layout.MainLayout;
 
 @Route("daily")
 @PageTitle("Daily Entry")
 @CssImport("./styles/component/timeline.css")
-public final class DailyView extends MainLayout implements BeforeEnterObserver, DateSensitive {
+public final class DailyView extends MainLayout implements BeforeEnterObserver, DailyEntrySensitive {
 
     /**
      * Defines the minimum required width (in pixels) for forms in the Daily View
@@ -102,11 +102,12 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
     private void buildContent() {
         mainContent.removeAll();
-        timeline = new DailyTimeline();
 
         localize();
 
         updateDependsOnDate(LocalDate.now());
+
+        timeline = new DailyTimeline(dailyEntryDTO.orElse(null));
 
         addDailyModificationFormListeners();
 
@@ -278,28 +279,48 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
             createDailyLogic();
         });
 
-        dailyModificationForm.addUpdateDailyEventListener(event -> {
-            DailyEntryDTO dailyEntry = dailyEntryDTO.orElseGet(() -> {
-                UI.getCurrent().getPage().setLocation("/");
-                return null;
-            });
-
-            // this action is dedicated to update self daily entry
-            UUID myselfId = dailyEntry.employeeId();
-
-            Instant startTime = timesheetForm.getStartTime();
-            Instant endTime = timesheetForm.getEndTime();
-            BigDecimal overtime = timesheetForm.getOvertime();
-
-            var updateCommand = new UpdateDailyEntryCommand.UpdateWorkTime(
-                    myselfId, dailyEntry.entryDate(), myselfId, startTime, endTime, overtime, "");
-
-            try {
-                coreAPI.updateDailyEntrySelfPemission(updateCommand);
-            } catch (NotAuthenticatedException e) {
-                new NotAuthenticatedNotification(e.getMessage());
-            }
+        dailyModificationForm.addChangeTimesheetEventListener(event -> {
+            updateDailyTimesheetLogic();
         });
+    }
+
+    private void updateDailyTimesheetLogic() {
+        DailyEntryDTO dailyEntry = dailyEntryDTO.orElseGet(() -> {
+            UI.getCurrent().getPage().setLocation("/");
+            return null;
+        });
+
+        UUID myselfId = dailyEntry.employeeId();
+
+        Instant startTime = timesheetForm.getStartTime();
+        Instant endTime = timesheetForm.getEndTime();
+        BigDecimal overtime = timesheetForm.getOvertime();
+
+        boolean changed = !Objects.equals(startTime, dailyEntry.startTime())
+                || !Objects.equals(endTime, dailyEntry.endTime())
+                || (dailyEntry.overTime() == null && overtime != null && overtime.compareTo(BigDecimal.ZERO) != 0)
+                || (dailyEntry.overTime() != null
+                        && overtime != null
+                        && dailyEntry.overTime().compareTo(overtime) != 0);
+
+        if (!changed) {
+            return;
+        }
+
+        var updateCommand = new UpdateDailyEntryCommand.UpdateWorkTime(
+                myselfId, dailyEntry.entryDate(), myselfId, startTime, endTime, overtime, "");
+
+        try {
+            Optional<DailyEntryDTO> dailyEntryDTO1 = coreAPI.updateDailyEntrySelfPemission(updateCommand);
+            if (dailyEntryDTO1.isPresent()) {
+                dailyEntryDTO = dailyEntryDTO1;
+                new SuccessNotification(getTranslation("dailyView.updateTimesheetSuccess"));
+            } else {
+                new FailNotification(getTranslation("ailyView.failNotification"));
+            }
+        } catch (NotAuthenticatedException e) {
+            new NotAuthenticatedNotification(e.getMessage());
+        }
     }
 
     private void createDailyLogic() {
@@ -329,9 +350,11 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
         try {
             Optional<DailyEntryDTO> dailyEntry = coreAPI.createDailyEntry(createDailyEntryDTO);
-            dailyEntry.ifPresent(dailyEntryDTO -> {
+            if (dailyEntry.isPresent()) {
                 new SuccessNotification(getTranslation("dailyView.createDailyEntrySuccess"));
-            });
+            } else {
+                new FailNotification(getTranslation("dailyView.failNotification"));
+            }
 
         } catch (NotAuthenticatedException e) {
             new NotAuthenticatedNotification(e.getMessage());

@@ -4,13 +4,17 @@ import static pl.crewops.domain.dailyEntry.DailyEntryMapper.mapToDTO;
 import static pl.crewops.domain.dailyEntry.DailyEntryMapper.mapToEntity;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.enums.DailyEntryAuditType;
+import pl.crewops.enums.DailyEntryStatus;
 import pl.crewops.exception.domain.dailyEntry.DailyEntryNotFoundException;
 import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
@@ -97,7 +101,6 @@ class DailyEntryService implements DailyEntryAPI {
                 .orElseThrow(() -> new DailyEntryNotFoundException(command.employeeId(), command.entryDate()));
 
         DailyEntry oldEntry = cloneDailyEntry(dailyEntry);
-
         DailyEntryAuditType auditType;
 
         switch (command) {
@@ -116,26 +119,93 @@ class DailyEntryService implements DailyEntryAPI {
                 auditType = DailyEntryAuditType.ENTRY_STATUS_CHANGED;
             }
             case UpdateDailyEntryCommand.AddDailyNote update -> {
-                // TODO: implement note persistence logic (e.g. via DailyNoteRepository)
+                // TODO: implement note persistence logic
                 auditType = DailyEntryAuditType.DAILY_NOTE_ADDED;
             }
         }
 
         DailyEntry savedEntry = dailyEntryRepository.save(dailyEntry);
+
+        // Główne zdarzenie audytowe (np. WORK_TIME_MODIFIED)
         JsonNode payloadNode =
                 auditDetailsBuilder.createPayload(auditType, oldEntry, savedEntry, command.actionByEmployeeId());
 
-        DailyEntryAudit auditEvent = DailyEntryAudit.builder()
+        dailyEntryAuditRepository.save(DailyEntryAudit.builder()
                 .dailyEntry(savedEntry)
                 .actionByEmployeeId(command.actionByEmployeeId())
                 .eventType(auditType)
                 .payload(payloadNode)
                 .comment(command.comment())
-                .build();
+                .build());
 
-        dailyEntryAuditRepository.save(auditEvent);
+        if (oldEntry.getStatus() == DailyEntryStatus.APPROVED && sensitiveModification(oldEntry, savedEntry)) {
+
+            DailyEntryStatus previousStatus = savedEntry.getStatus();
+            savedEntry.setStatus(DailyEntryStatus.MANUAL_EDITED);
+            dailyEntryRepository.save(savedEntry);
+
+            // osobny event audytowy: cofnięcie zatwierdzenia
+            JsonNode statusChangePayload = auditDetailsBuilder.createPayload(
+                    DailyEntryAuditType.ENTRY_STATUS_CHANGED, oldEntry, savedEntry, command.actionByEmployeeId());
+
+            DailyEntryAudit entryStatusChangedAudit = DailyEntryAudit.builder()
+                    .dailyEntry(savedEntry)
+                    .actionByEmployeeId(command.actionByEmployeeId())
+                    .eventType(DailyEntryAuditType.ENTRY_STATUS_CHANGED)
+                    .payload(statusChangePayload)
+                    .comment("Entry was modified after approval — status reverted to MANUAL_EDITED")
+                    .build();
+
+            dailyEntryAuditRepository.save(entryStatusChangedAudit);
+        }
 
         return mapToDTO(savedEntry);
+    }
+
+    /**
+     * Determines whether the modification of a DailyEntry affects core ("sensitive") fields.
+     * <p>
+     * A "sensitive modification" is one that should trigger a status change
+     * from APPROVED → MANUAL_EDITED. These include:
+     * <ul>
+     *   <li>Change of attendance status</li>
+     *   <li>Change of start time</li>
+     *   <li>Change of end time</li>
+     *   <li>Change of overtime</li>
+     * </ul>
+     *
+     * @param oldEntry the original DailyEntry state (before update)
+     * @param newEntry the updated DailyEntry state (after update)
+     * @return {@code true} if a sensitive modification occurred, otherwise {@code false}
+     */
+    boolean sensitiveModification(DailyEntry oldEntry, DailyEntry newEntry) {
+
+        // Check attendance change
+        if (!Objects.equals(oldEntry.getAttendance(), newEntry.getAttendance())) {
+            return true;
+        }
+
+        // Check work time changes
+        if (!Objects.equals(oldEntry.getStartTime(), newEntry.getStartTime())) {
+            return true;
+        }
+        if (!Objects.equals(oldEntry.getEndTime(), newEntry.getEndTime())) {
+            return true;
+        }
+
+        // Check overtime changes (handle null and numeric equality properly)
+        if (!Objects.equals(
+                Optional.ofNullable(oldEntry.getOvertime())
+                        .map(BigDecimal::stripTrailingZeros)
+                        .orElse(null),
+                Optional.ofNullable(newEntry.getOvertime())
+                        .map(BigDecimal::stripTrailingZeros)
+                        .orElse(null))) {
+            return true;
+        }
+
+        // Other modifications (notes, comments, etc.) do NOT trigger status change
+        return false;
     }
 
     private DailyEntry cloneDailyEntry(DailyEntry source) {

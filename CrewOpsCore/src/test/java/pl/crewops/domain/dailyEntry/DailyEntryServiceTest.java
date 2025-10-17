@@ -2,8 +2,7 @@ package pl.crewops.domain.dailyEntry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -259,6 +259,7 @@ class DailyEntryServiceTest {
                 actionBy,
                 Instant.parse("2025-01-01T09:00:00Z"),
                 Instant.parse("2025-01-01T17:00:00Z"),
+                null,
                 "Updated work time");
 
         // when
@@ -330,5 +331,66 @@ class DailyEntryServiceTest {
         // then
         verify(auditDetailsBuilder).createPayload(eq(DailyEntryAuditType.DAILY_NOTE_ADDED), any(), any(), eq(actionBy));
         verify(dailyEntryAuditRepository).save(any(DailyEntryAudit.class));
+    }
+
+    @Test
+    void shouldRevertApprovedEntryAndCreateExtraAudit_whenSensitiveModificationOccurs() {
+        // given
+        UUID employeeId = UUID.randomUUID();
+        LocalDate entryDate = LocalDate.now();
+        UUID actionBy = UUID.randomUUID();
+
+        DailyEntry approvedEntry = DailyEntry.builder()
+                .employeeId(employeeId)
+                .entryDate(entryDate)
+                .status(DailyEntryStatus.APPROVED)
+                .startTime(Instant.parse("2025-01-01T08:00:00Z"))
+                .endTime(Instant.parse("2025-01-01T16:00:00Z"))
+                .build();
+        approvedEntry.setId(UUID.randomUUID());
+
+        when(dailyEntryRepository.findByEmployeeIdAndEntryDate(employeeId, entryDate))
+                .thenReturn(Optional.of(approvedEntry));
+        when(dailyEntryRepository.save(any(DailyEntry.class))).thenAnswer(i -> i.getArgument(0));
+
+        // Mockujemy, że metoda sensitiveModification zwróci true
+        DailyEntryService spyService = org.mockito.Mockito.spy(dailyEntryService);
+        doReturn(true).when(spyService).sensitiveModification(any(), any());
+
+        UpdateDailyEntryCommand.UpdateWorkTime command = new UpdateDailyEntryCommand.UpdateWorkTime(
+                employeeId,
+                entryDate,
+                actionBy,
+                Instant.parse("2025-01-01T09:00:00Z"),
+                Instant.parse("2025-01-01T17:00:00Z"),
+                null,
+                "Changed after approval");
+
+        // when
+        DailyEntryDTO result = spyService.updateDailyEntry(command);
+
+        // then
+        assertThat(result.status()).isEqualTo(DailyEntryStatus.MANUAL_EDITED);
+
+        // pierwszy event – modyfikacja czasu pracy
+        verify(auditDetailsBuilder)
+                .createPayload(eq(DailyEntryAuditType.WORK_TIME_MODIFIED), any(), any(), eq(actionBy));
+
+        // drugi event – cofnięcie zatwierdzenia
+        verify(auditDetailsBuilder)
+                .createPayload(eq(DailyEntryAuditType.ENTRY_STATUS_CHANGED), any(), any(), eq(actionBy));
+
+        // Sprawdź, że dwa razy zapisano audyt
+        verify(dailyEntryAuditRepository, times(2)).save(any(DailyEntryAudit.class));
+
+        // I że drugi zapis miał odpowiedni komentarz
+        ArgumentCaptor<DailyEntryAudit> auditCaptor = ArgumentCaptor.forClass(DailyEntryAudit.class);
+        verify(dailyEntryAuditRepository, atLeastOnce()).save(auditCaptor.capture());
+
+        boolean containsRevertComment = auditCaptor.getAllValues().stream()
+                .anyMatch(a ->
+                        "Entry was modified after approval — status reverted to MANUAL_EDITED".equals(a.getComment()));
+
+        assertThat(containsRevertComment).isTrue();
     }
 }

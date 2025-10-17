@@ -55,7 +55,7 @@ databaseChangeLog:
         # Ograniczenie unikalności: Dzienny wpis + czas utworzenia muszą być unikalne.
         # Odwzorowuje: @UniqueConstraint(columnNames = {"daily_entry_id", "created_at"})
         - addUniqueConstraint:
-            columnNames: daily_entry_id, created_at
+            columnNames: daily_entry_id, event_type, created_at
             constraintName: uq_daily_entry_audit_entry_created_at
             tableName: daily_entry_audit
 
