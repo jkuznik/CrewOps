@@ -1,5 +1,7 @@
 package pl.crewops.component.form.daily;
 
+import static pl.crewops.view.DailyView.FORMS_BORDER_PX;
+
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
@@ -24,10 +26,10 @@ import pl.crewops.enums.DateState;
 import pl.crewops.enums.OvertimeInterval;
 import pl.crewops.enums.OvertimeInterval.OvertimeValue;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
-import pl.crewops.util.contract.DailyEntrySensitive;
+import pl.crewops.util.contract.DateSensitive;
 import pl.crewops.view.DailyView;
 
-public class TimesheetForm extends FormLayout implements DailyEntrySensitive {
+public class TimesheetForm extends FormLayout implements DateSensitive {
 
     private final Span headerTextLabel = new Span();
     private final Icon helpIcon = VaadinIcon.INFO_CIRCLE.create();
@@ -280,7 +282,7 @@ public class TimesheetForm extends FormLayout implements DailyEntrySensitive {
 
     private static VerticalLayout configuredMainContainer() {
         var mainContainer = new VerticalLayout();
-        mainContainer.getStyle().set("border", "1px solid #ccc");
+        mainContainer.getStyle().set("border", FORMS_BORDER_PX + " solid #ccc");
         mainContainer.getStyle().set("border-radius", "4px");
         mainContainer.getStyle().set("padding", "10px");
         mainContainer.setMaxHeight(DailyView.FORMS_HEIGHT);

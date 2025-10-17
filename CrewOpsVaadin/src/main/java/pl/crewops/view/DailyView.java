@@ -33,13 +33,13 @@ import pl.crewops.model.dto.dailyEntry.UpdateDailyEntryCommand;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.BrowserResolver;
-import pl.crewops.util.contract.DailyEntrySensitive;
+import pl.crewops.util.contract.DateSensitive;
 import pl.crewops.view.layout.MainLayout;
 
 @Route("daily")
 @PageTitle("Daily Entry")
 @CssImport("./styles/component/timeline.css")
-public final class DailyView extends MainLayout implements BeforeEnterObserver, DailyEntrySensitive {
+public final class DailyView extends MainLayout implements BeforeEnterObserver, DateSensitive {
 
     /**
      * Defines the minimum required width (in pixels) for forms in the Daily View
@@ -62,6 +62,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
     public static final String FORMS_WIDTH = ENSURE_STICK_FORMS + 10 + "px";
 
     public static final String FORMS_HEIGHT = "450px";
+    public static final String FORMS_BORDER_PX = "3px";
 
     private final Button currentDay = new Button();
     private final Button calendar = new Button();
@@ -103,11 +104,11 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
     private void buildContent() {
         mainContent.removeAll();
 
+        timeline = new DailyTimeline(dailyEntryDTO.orElse(null));
+
         localize();
 
         updateDependsOnDate(LocalDate.now());
-
-        timeline = new DailyTimeline(dailyEntryDTO.orElse(null));
 
         addDailyModificationFormListeners();
 
@@ -129,7 +130,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
             if (dailyEntryDTO.isPresent()) {
                 var dailyEntry = dailyEntryDTO.get();
-                updateTimeline(dailyEntry, null);
+                timeline.updateTimeline(dailyEntry, null);
                 timesheetForm.setDailyEntry(dailyEntry);
 
                 // this dailyModificationForm logic has to be in that specific order
@@ -139,7 +140,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
                 dailyModificationForm.setCurrentStatus(dailyEntry.status());
             } else {
                 timesheetForm.setDailyEntry(null);
-                updateTimeline(null, date);
+                timeline.updateTimeline(null, date);
             }
 
             timesheetForm.updateDependsOnDate(date);
@@ -147,55 +148,6 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         } catch (NotAuthenticatedException e) {
             new NotAuthenticatedNotification(e.getMessage());
         }
-    }
-
-    private void updateTimeline(DailyEntryDTO dailyEntry, LocalDate date) {
-        if (dailyEntry == null) {
-            timeline.updateItems(List.of());
-            timeline.setTimelineRange(LocalDateTime.of(date, LocalTime.MIN), LocalDateTime.of(date, LocalTime.MAX));
-            return;
-        }
-
-        final ZoneId ZONE_ID = ZoneId.systemDefault();
-
-        if (dailyEntry.endTime() != null) {
-            LocalDateTime to = LocalDateTime.ofInstant(dailyEntry.endTime(), ZONE_ID);
-            timeline.setTimelineRange(
-                    LocalDateTime.of(dailyEntry.entryDate(), LocalTime.MIN),
-                    LocalDateTime.of(to.toLocalDate(), LocalTime.MAX));
-        } else {
-            timeline.setTimelineRange(
-                    LocalDateTime.of(dailyEntry.entryDate(), LocalTime.MIN),
-                    LocalDateTime.of(dailyEntry.entryDate(), LocalTime.MAX));
-        }
-
-        //        var items = new ArrayList<Item>();
-        //
-        //        var item1 = new Item(from, to, "Praca");
-        //        item1.setId("1");
-        //        item1.setClassName("timeline-item-default");
-        //
-        //        var item2 = new Item(to, to.plusHours(2), "Praca - Nadgodziny");
-        //        item2.setId("2");
-        //        item2.setClassName("timeline-item-overtime");
-        //
-        //        var item3 = new Item(from.plusHours(4), from.plusHours(4).plusMinutes(5), "Notatka");
-        //        item3.setId("3");
-        //        item3.setClassName("timeline-item-note");
-        //
-        //        var item4 = new Item(from.plusHours(4).plusMinutes(2), from.plusHours(4).plusMinutes(7), "Notatka");
-        //        item4.setId("4");
-        //        item4.setClassName("timeline-item-note");
-        //
-        //        items.addAll(Arrays.asList(item1, item2, item3, item4));
-        //
-        //        items.forEach(item -> {
-        //            item.setEditable(false);
-        //            item.setUpdateTime(false);
-        //        });
-
-        //        timeline.updateItems(items);
-        timeline.setAttendanceStatus(dailyEntry.attendance());
     }
 
     private Component getLayoutDependsOnUserDevice() {

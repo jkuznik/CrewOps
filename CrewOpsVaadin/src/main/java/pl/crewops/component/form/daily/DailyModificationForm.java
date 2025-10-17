@@ -1,5 +1,7 @@
 package pl.crewops.component.form.daily;
 
+import static pl.crewops.view.DailyView.FORMS_BORDER_PX;
+
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
@@ -80,7 +82,7 @@ public class DailyModificationForm extends FormLayout {
 
     private static VerticalLayout configuredMainContainer() {
         var mainContainer = new VerticalLayout();
-        mainContainer.getStyle().set("border", "1px solid #ccc");
+        mainContainer.getStyle().set("border", FORMS_BORDER_PX + " solid #ccc");
         mainContainer.getStyle().set("border-radius", "4px");
         mainContainer.getStyle().set("padding", "10px");
         mainContainer.setMaxHeight(DailyView.FORMS_HEIGHT);

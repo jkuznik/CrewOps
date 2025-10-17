@@ -2,7 +2,7 @@ package pl.crewops.util.contract;
 
 import java.time.LocalDate;
 
-public interface DailyEntrySensitive {
+public interface DateSensitive {
 
     void updateDependsOnDate(LocalDate date);
 }

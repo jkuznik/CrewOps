@@ -1,5 +1,7 @@
 package pl.crewops.component.form.daily;
 
+import static pl.crewops.view.DailyView.FORMS_BORDER_PX;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -14,10 +16,10 @@ import java.time.LocalDate;
 import lombok.Setter;
 import pl.crewops.enums.DateState;
 import pl.crewops.util.AuthenticationResolver;
-import pl.crewops.util.contract.DailyEntrySensitive;
+import pl.crewops.util.contract.DateSensitive;
 import pl.crewops.view.DailyView;
 
-public class DailyActivityForm extends FormLayout implements DailyEntrySensitive {
+public class DailyActivityForm extends FormLayout implements DateSensitive {
 
     private final AuthenticationResolver authenticationResolver;
 
@@ -111,7 +113,7 @@ public class DailyActivityForm extends FormLayout implements DailyEntrySensitive
 
     private static VerticalLayout configuredMainContainer() {
         var mainContainer = new VerticalLayout();
-        mainContainer.getStyle().set("border", "1px solid #ccc");
+        mainContainer.getStyle().set("border", FORMS_BORDER_PX + " solid #ccc");
         mainContainer.getStyle().set("border-radius", "4px");
         mainContainer.getStyle().set("padding", "10px");
         mainContainer.setMaxHeight(DailyView.FORMS_HEIGHT);

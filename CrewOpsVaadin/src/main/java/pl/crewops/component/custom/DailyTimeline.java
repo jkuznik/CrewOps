@@ -1,5 +1,7 @@
 package pl.crewops.component.custom;
 
+import static pl.crewops.view.DailyView.FORMS_BORDER_PX;
+
 import com.vaadin.componentfactory.timeline.Timeline;
 import com.vaadin.componentfactory.timeline.model.Item;
 import com.vaadin.flow.component.html.Span;
@@ -7,18 +9,21 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.shared.Tooltip;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import pl.crewops.enums.DailyAttendanceStatus;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
-import pl.crewops.util.contract.DailyEntrySensitive;
 
-public class DailyTimeline extends HorizontalLayout implements DailyEntrySensitive {
+public class DailyTimeline extends HorizontalLayout {
 
     private static final String TIMELINE_WIDTH_PX = "1200px";
-    private static final int TIMELINE_HEIGHT_PX = 200;
+    private static final int TIMELINE_CONTAINER_HEIGHT_PX = 200;
 
     private final Timeline timeline = new Timeline();
     private final Span statusDisplay = new Span();
@@ -33,17 +38,14 @@ public class DailyTimeline extends HorizontalLayout implements DailyEntrySensiti
         add(configuredTimeline(), configuredAttendanceContainer());
     }
 
-    @Override
-    public void updateDependsOnDate(LocalDate date) {}
-
     private void configureStyles() {
 
         setMinWidth(TIMELINE_WIDTH_PX);
         setMaxWidth(TIMELINE_WIDTH_PX);
-        setMaxHeight(TIMELINE_HEIGHT_PX - 1 + "px");
+        setMaxHeight(TIMELINE_CONTAINER_HEIGHT_PX + "px");
         getStyle().remove("overflow-x");
         getStyle().remove("overflow-y");
-        getStyle().set("border", "1px solid #ccc");
+        getStyle().set("border", FORMS_BORDER_PX + " solid #ccc");
         getStyle().set("border-radius", "4px");
     }
 
@@ -100,10 +102,10 @@ public class DailyTimeline extends HorizontalLayout implements DailyEntrySensiti
 
     private Timeline configuredTimeline() {
         LocalDate today = LocalDate.now();
-        setTimelineRange(LocalDateTime.of(today, LocalTime.MIN), LocalDateTime.of(today, LocalTime.MAX));
+        timeline.setTimelineRange(LocalDateTime.of(today, LocalTime.MIN), LocalDateTime.of(today, LocalTime.MAX));
 
         timeline.setWidthFull();
-        timeline.setHeight(TIMELINE_HEIGHT_PX + "px");
+        timeline.setHeight(TIMELINE_CONTAINER_HEIGHT_PX - 5 + "px");
         timeline.setMoveable(true);
         timeline.setZoomable(true);
         timeline.setShowCurentTime(true);
@@ -111,12 +113,87 @@ public class DailyTimeline extends HorizontalLayout implements DailyEntrySensiti
         return timeline;
     }
 
-    public void setTimelineRange(LocalDateTime from, LocalDateTime to) {
-        timeline.setTimelineRange(from, to);
+    public void updateTimeline(DailyEntryDTO dailyEntry, LocalDate date) {
+        if (dailyEntry == null) {
+            timeline.setItems(List.of());
+            timeline.setTimelineRange(LocalDateTime.of(date, LocalTime.MIN), LocalDateTime.of(date, LocalTime.MAX));
+            return;
+        }
+
+        setAttendanceStatus(dailyEntry.attendance());
+        var from = dailyEntry.entryDate();
+        final ZoneId ZONE_ID = ZoneId.systemDefault();
+
+        if (dailyEntry.endTime() != null) {
+            LocalDateTime to = LocalDateTime.ofInstant(dailyEntry.endTime(), ZONE_ID);
+            timeline.setTimelineRange(
+                    LocalDateTime.of(from, LocalTime.MIN), LocalDateTime.of(to.toLocalDate(), LocalTime.MAX));
+        } else {
+            timeline.setTimelineRange(LocalDateTime.of(from, LocalTime.MIN), LocalDateTime.of(from, LocalTime.MAX));
+        }
+
+        var items = new ArrayList<Item>();
+
+        // 🔹 zawsze istnieje startTime
+        if (dailyEntry.startTime() != null) {
+            LocalDateTime workStart = LocalDateTime.ofInstant(dailyEntry.startTime(), ZONE_ID);
+
+            if (dailyEntry.endTime() != null) {
+                LocalDateTime workEnd = LocalDateTime.ofInstant(dailyEntry.endTime(), ZONE_ID);
+
+                var workItem = new Item(workStart, workEnd, "Praca");
+                workItem.setId(UUID.randomUUID().toString());
+                workItem.setClassName("timeline-item-default");
+                workItem.setEditable(false);
+                workItem.setUpdateTime(false);
+
+                items.add(workItem);
+            } else {
+                LocalDateTime softEnd = workStart.plusHours(4);
+
+                var ongoingItem = new Item(workStart, softEnd, "Praca");
+                ongoingItem.setId(UUID.randomUUID().toString());
+                ongoingItem.setClassName("timeline-item-ongoing");
+                ongoingItem.setEditable(false);
+                ongoingItem.setUpdateTime(false);
+
+                items.add(ongoingItem);
+            }
+        }
+
+        Item overtimeItem = createOvertimeItem(dailyEntry);
+        if (overtimeItem != null) {
+            items.add(createOvertimeItem(dailyEntry));
+        }
+
+        timeline.setItems(items);
     }
 
-    public void updateItems(List<Item> items) {
-        timeline.setItems(items);
+    private Item createOvertimeItem(DailyEntryDTO dailyEntry) {
+        if (dailyEntry.endTime() == null
+                || dailyEntry.overTime() == null
+                || dailyEntry.overTime().compareTo(BigDecimal.ZERO) <= 0) {
+            return null; // brak danych do wygenerowania overtime
+        }
+
+        final ZoneId ZONE_ID = ZoneId.systemDefault();
+
+        // koniec itemu
+        LocalDateTime end = LocalDateTime.ofInstant(dailyEntry.endTime(), ZONE_ID);
+
+        // obliczamy początek: endTime - overtime (w godzinach)
+        BigDecimal overtimeHours = dailyEntry.overTime();
+        long overtimeMinutes = overtimeHours.multiply(BigDecimal.valueOf(60)).longValue();
+        LocalDateTime start = end.minusMinutes(overtimeMinutes);
+
+        Item overtimeItem = new Item(start, end, "Praca - Nadgodziny");
+        overtimeItem.setId("overtime"); // id możesz generować dynamicznie jeśli jest kilka
+        overtimeItem.setClassName("timeline-item-overtime");
+
+        overtimeItem.setEditable(false);
+        overtimeItem.setUpdateTime(false);
+
+        return overtimeItem;
     }
 
     private String getTranslatedLabel(DailyAttendanceStatus item) {
