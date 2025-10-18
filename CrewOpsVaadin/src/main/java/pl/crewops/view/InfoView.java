@@ -6,7 +6,9 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.shared.Registration;
 import pl.crewops.component.content.InfoContent;
+import pl.crewops.component.notification.FailNotification;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
@@ -20,9 +22,15 @@ public class InfoView extends MainLayout {
         super(coreAPI, jwtService, authenticationResolver);
         addClassName("info-view");
 
-        mainContent.removeAll();
-        mainContent.add(getCurrentContent(), mainFooter);
-        mainContent.setFlexGrow(1, getCurrentContent());
+        try {
+            mainContent.removeAll();
+            listeners.forEach(Registration::remove);
+
+            mainContent.add(getCurrentContent(), mainFooter);
+            mainContent.setFlexGrow(1, getCurrentContent());
+        } catch (Exception e) {
+            new FailNotification(getTranslation("dailyView.failNotification"));
+        }
     }
 
     private VerticalLayout getCurrentContent() {

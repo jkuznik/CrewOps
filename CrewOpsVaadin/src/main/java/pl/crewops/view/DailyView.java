@@ -38,7 +38,7 @@ import pl.crewops.view.layout.MainLayout;
 @Route("daily")
 @PageTitle("Daily Entry")
 @CssImport("./styles/component/timeline.css")
-public final class DailyView extends MainLayout implements BeforeEnterObserver, BeforeLeaveObserver, DateSensitive {
+public final class DailyView extends MainLayout implements BeforeEnterObserver, DateSensitive {
 
     /**
      * Defines the minimum required width (in pixels) for forms in the Daily View
@@ -78,8 +78,6 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
     private Optional<DailyEntryDTO> dailyEntryDTO = Optional.empty();
 
-    private Set<Registration> listeners = new HashSet<>();
-
     public DailyView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         super(coreAPI, jwtService, authenticationResolver);
         this.timesheetForm = new TimesheetForm();
@@ -92,9 +90,11 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         // todo: implement annotation that do same thing.
         if (authenticationResolver.principalIsAuthenticated()) {
             try {
+                mainContent.removeAll();
+                listeners.forEach(Registration::remove);
                 buildContent();
             } catch (Exception e) {
-                new FailNotification(e.getMessage());
+                new FailNotification(getTranslation("dailyView.failNotification"));
             }
         } else {
             event.forwardTo(HomeView.class);
@@ -102,14 +102,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         }
     }
 
-    @Override
-    public void beforeLeave(BeforeLeaveEvent event) {
-        listeners.forEach(Registration::remove);
-    }
-
     private void buildContent() {
-        mainContent.removeAll();
-
         timeline = new DailyTimeline(dailyEntryDTO.orElse(null));
 
         localize();

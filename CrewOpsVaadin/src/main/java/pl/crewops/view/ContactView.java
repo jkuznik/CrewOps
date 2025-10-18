@@ -11,6 +11,8 @@ import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.shared.Registration;
+import pl.crewops.component.notification.FailNotification;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
@@ -24,12 +26,17 @@ public class ContactView extends MainLayout {
         super(coreAPI, jwtService, authenticationResolver);
         addClassName("contact-view");
 
-        mainContent.removeAll();
+        try {
+            mainContent.removeAll();
+            listeners.forEach(Registration::remove);
 
-        Component content = getCurrentContent();
+            Component content = getCurrentContent();
 
-        mainContent.add(content, mainFooter);
-        mainContent.setFlexGrow(1, content);
+            mainContent.add(content, mainFooter);
+            mainContent.setFlexGrow(1, content);
+        } catch (Exception e) {
+            new FailNotification(getTranslation("dailyView.failNotification"));
+        }
     }
 
     private Component getCurrentContent() {

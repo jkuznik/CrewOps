@@ -8,9 +8,11 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.shared.Registration;
 import lombok.extern.slf4j.Slf4j;
 import pl.crewops.component.grid.BreakdownGrid;
 import pl.crewops.component.grid.MachineGrid;
+import pl.crewops.component.notification.FailNotification;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
@@ -30,7 +32,13 @@ public class MachineView extends MainLayout implements BeforeEnterObserver {
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if (authenticationResolver.principalIsAuthenticated()) {
-            buildContent();
+            try {
+                mainContent.removeAll();
+                listeners.forEach(Registration::remove);
+                buildContent();
+            } catch (Exception e) {
+                new FailNotification(getTranslation("dailyView.failNotification"));
+            }
         } else {
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");
@@ -47,7 +55,6 @@ public class MachineView extends MainLayout implements BeforeEnterObserver {
         machineGrid = new MachineGrid(coreAPI, breakdownGrid, authenticationResolver);
         machineGrid.setSizeFull();
 
-        mainContent.removeAll();
         mainContent.add(getToolbar(), machineGrid, breakdownGrid);
         mainContent.setFlexGrow(1, machineGrid);
     }

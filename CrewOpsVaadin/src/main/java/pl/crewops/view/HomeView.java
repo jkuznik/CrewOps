@@ -7,8 +7,10 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.shared.Registration;
 import pl.crewops.component.content.HomeContent;
 import pl.crewops.component.content.RegistryContent;
+import pl.crewops.component.notification.FailNotification;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
@@ -22,16 +24,21 @@ public class HomeView extends MainLayout {
         super(coreAPI, jwtService, authenticationResolver);
         addClassName("home-view");
 
-        mainContent.removeAll();
+        try {
+            mainContent.removeAll();
+            listeners.forEach(Registration::remove);
 
-        if (!authenticationResolver.principalIsAuthenticated()) {
-            setDrawerOpened(false);
+            if (!authenticationResolver.principalIsAuthenticated()) {
+                setDrawerOpened(false);
+            }
+
+            var currentContent = getCurrentContent();
+
+            mainContent.add(currentContent, mainFooter);
+            mainContent.setFlexGrow(1, currentContent);
+        } catch (Exception e) {
+            new FailNotification(getTranslation("dailyView.failNotification"));
         }
-
-        var currentContent = getCurrentContent();
-
-        mainContent.add(currentContent, mainFooter);
-        mainContent.setFlexGrow(1, currentContent);
     }
 
     private Component getCurrentContent() {

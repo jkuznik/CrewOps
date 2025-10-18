@@ -8,8 +8,10 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.shared.Registration;
 import pl.crewops.component.grid.EmployeeGrid;
 import pl.crewops.component.grid.QualificationGrid;
+import pl.crewops.component.notification.FailNotification;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
@@ -28,7 +30,13 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if (authenticationResolver.principalIsAuthenticated()) {
-            buildContent();
+            try {
+                mainContent.removeAll();
+                listeners.forEach(Registration::remove);
+                buildContent();
+            } catch (Exception e) {
+                new FailNotification(getTranslation("dailyView.failNotification"));
+            }
         } else {
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");
@@ -45,7 +53,6 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
 
         qualificationGrid.setVisible(false);
 
-        mainContent.removeAll();
         mainContent.add(getToolbar(), employeeGrid, qualificationGrid);
         mainContent.setFlexGrow(1, employeeGrid);
         mainContent.setFlexGrow(1, qualificationGrid);
@@ -61,18 +68,21 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         Button qualifications = new Button(getTranslation("employeeView.qualifications"));
         qualifications.setWidth("160px");
 
-        employeeList.addClickListener(event -> {
+        Registration registration = employeeList.addClickListener(event -> {
             displayEmployeeGrid();
 
             employeeList.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             qualifications.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
         });
-        qualifications.addClickListener(event -> {
+        listeners.add(registration);
+
+        Registration registration1 = qualifications.addClickListener(event -> {
             displayQualificationGrid();
 
             qualifications.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             employeeList.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
         });
+        listeners.add(registration1);
 
         toolbar.add(employeeList, qualifications);
 

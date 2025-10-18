@@ -8,6 +8,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import pl.crewops.component.form.LoginForm;
 import pl.crewops.component.navbarComponents.LoggedUserInfoComponent;
+import pl.crewops.component.notification.FailNotification;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
@@ -22,18 +23,23 @@ public class MainNavbar extends HorizontalLayout {
     private final AuthenticationResolver authenticationResolver;
 
     public MainNavbar(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
-        addClassName("main-navbar");
-
         this.coreAPI = coreAPI;
         this.jwtService = jwtService;
         this.authenticationResolver = authenticationResolver;
 
-        setSizeFull();
-        setSpacing(true);
-        setPadding(true);
-        HorizontalLayout navbarRightSide = createNavbarRightSide();
-        add(createNavbarLeftSide(), navbarRightSide);
-        add(navbarRightSide);
+        addClassName("main-navbar");
+
+        try {
+
+            setSizeFull();
+            setSpacing(true);
+            setPadding(true);
+            HorizontalLayout navbarRightSide = createNavbarRightSide();
+            add(createNavbarLeftSide(), navbarRightSide);
+            add(navbarRightSide);
+        } catch (Exception e) {
+            new FailNotification(getTranslation("dailyView.failNotification"));
+        }
     }
 
     private HorizontalLayout createNavbarRightSide() {

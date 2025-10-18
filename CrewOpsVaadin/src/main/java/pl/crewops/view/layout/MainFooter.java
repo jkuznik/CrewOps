@@ -8,6 +8,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import pl.crewops.component.notification.FailNotification;
 
 @SpringComponent
 @UIScope
@@ -23,47 +24,52 @@ public class MainFooter extends Footer {
     public MainFooter() {
         addClassName("main-footer");
 
-        HorizontalLayout mainFooterLayout = new HorizontalLayout();
-        mainFooterLayout.addClassName("main-footer-layout");
+        try {
 
-        String currentLanguage = getLocale().getLanguage();
+            HorizontalLayout mainFooterLayout = new HorizontalLayout();
+            mainFooterLayout.addClassName("main-footer-layout");
 
-        String documentLanguage = currentLanguage.equals("pl") ? "pl" : FALLBACK_LANGUAGE;
+            String currentLanguage = getLocale().getLanguage();
 
-        // --- Left column (Contact) ---
-        VerticalLayout leftSide = new VerticalLayout();
-        leftSide.addClassName("main-footer-column");
+            String documentLanguage = currentLanguage.equals("pl") ? "pl" : FALLBACK_LANGUAGE;
 
-        Span contactSpan = new Span(getTranslation("mainFooter.contact"));
-        contactSpan.addClassName("main-footer-text");
+            // --- Left column (Contact) ---
+            VerticalLayout leftSide = new VerticalLayout();
+            leftSide.addClassName("main-footer-column");
 
-        Anchor contactLink = new Anchor("/contact", getTranslation("mainFooter.contactLink"));
-        contactLink.setTarget("_self");
-        contactLink.addClassName("main-footer-link");
+            Span contactSpan = new Span(getTranslation("mainFooter.contact"));
+            contactSpan.addClassName("main-footer-text");
 
-        leftSide.add(contactSpan, contactLink);
+            Anchor contactLink = new Anchor("/contact", getTranslation("mainFooter.contactLink"));
+            contactLink.setTarget("_self");
+            contactLink.addClassName("main-footer-link");
 
-        // --- Right column (Policy & Terms) ---
-        VerticalLayout rightSide = new VerticalLayout();
-        rightSide.addClassName("main-footer-column");
+            leftSide.add(contactSpan, contactLink);
 
-        Span policySpan = new Span(getTranslation("mainFooter.info"));
-        policySpan.addClassName("main-footer-text");
+            // --- Right column (Policy & Terms) ---
+            VerticalLayout rightSide = new VerticalLayout();
+            rightSide.addClassName("main-footer-column");
 
-        // Użycie documentLanguage do budowy linków
-        String privacyPolicyHref = DOC_DOMAIN + "/" + documentLanguage + POLICY;
-        Anchor policyLink = new Anchor(privacyPolicyHref, getTranslation("mainFooter.privacyPolicyLink"));
-        policyLink.setTarget("_blank");
-        policyLink.addClassName("main-footer-link");
+            Span policySpan = new Span(getTranslation("mainFooter.info"));
+            policySpan.addClassName("main-footer-text");
 
-        String termsOfServiceHref = DOC_DOMAIN + "/" + documentLanguage + TERMS;
-        Anchor termsLink = new Anchor(termsOfServiceHref, getTranslation("mainFooter.termsOfServiceLink"));
-        termsLink.setTarget("_blank");
-        termsLink.addClassName("main-footer-link");
+            // Użycie documentLanguage do budowy linków
+            String privacyPolicyHref = DOC_DOMAIN + "/" + documentLanguage + POLICY;
+            Anchor policyLink = new Anchor(privacyPolicyHref, getTranslation("mainFooter.privacyPolicyLink"));
+            policyLink.setTarget("_blank");
+            policyLink.addClassName("main-footer-link");
 
-        rightSide.add(policySpan, policyLink, termsLink);
+            String termsOfServiceHref = DOC_DOMAIN + "/" + documentLanguage + TERMS;
+            Anchor termsLink = new Anchor(termsOfServiceHref, getTranslation("mainFooter.termsOfServiceLink"));
+            termsLink.setTarget("_blank");
+            termsLink.addClassName("main-footer-link");
 
-        mainFooterLayout.add(leftSide, rightSide);
-        add(mainFooterLayout);
+            rightSide.add(policySpan, policyLink, termsLink);
+
+            mainFooterLayout.add(leftSide, rightSide);
+            add(mainFooterLayout);
+        } catch (Exception e) {
+            new FailNotification(getTranslation("dailyView.failNotification"));
+        }
     }
 }
