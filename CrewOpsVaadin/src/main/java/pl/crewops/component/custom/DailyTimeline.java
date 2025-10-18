@@ -115,6 +115,7 @@ public class DailyTimeline extends HorizontalLayout {
 
     public void updateTimeline(DailyEntryDTO dailyEntry, LocalDate date) {
         if (dailyEntry == null) {
+            statusDisplay.setText("");
             timeline.setItems(List.of());
             timeline.setTimelineRange(LocalDateTime.of(date, LocalTime.MIN), LocalDateTime.of(date, LocalTime.MAX));
             return;

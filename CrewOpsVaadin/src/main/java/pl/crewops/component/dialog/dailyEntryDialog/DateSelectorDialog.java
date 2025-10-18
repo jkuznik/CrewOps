@@ -1,4 +1,4 @@
-package pl.crewops.component.dialog.dateSelectorDialog;
+package pl.crewops.component.dialog.dailyEntryDialog;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;

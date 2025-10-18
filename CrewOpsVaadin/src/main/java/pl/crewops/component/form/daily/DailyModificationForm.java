@@ -16,8 +16,11 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.shared.Registration;
-import lombok.Setter;
+import lombok.Getter;
+import pl.crewops.component.dialog.dailyEntryDialog.AttendanceSelectorDialog;
+import pl.crewops.enums.DailyAttendanceStatus;
 import pl.crewops.enums.DailyEntryStatus;
+import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.DailyView;
 
@@ -35,10 +38,8 @@ public class DailyModificationForm extends FormLayout {
     private final Button changeAttendanceButton = new Button();
     private final Button approveButton = new Button();
 
-    private DailyEntryStatus currentStatus = DailyEntryStatus.EMPTY;
-
-    @Setter
-    private boolean isAttendanceSelected = false;
+    private DailyEntryDTO dailyEntryDTO =
+            DailyEntryDTO.builder().status(DailyEntryStatus.EMPTY).build();
 
     public DailyModificationForm(AuthenticationResolver authenticationResolver) {
         this.authenticationResolver = authenticationResolver;
@@ -103,12 +104,24 @@ public class DailyModificationForm extends FormLayout {
         addButton.addClickListener(event -> {
             fireEvent(new CreateDailyEntryEvent(this));
         });
+
         changeTimesheetButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         changeTimesheetButton.addClickListener(event -> {
             fireEvent(new UpdateDailyEntryEvent(this));
         });
+
         confirmPresenceButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+
         changeAttendanceButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        changeAttendanceButton.addClickListener(event -> {
+            AttendanceSelectorDialog attendanceSelectorDialog =
+                    new AttendanceSelectorDialog(dailyEntryDTO.attendance());
+            Registration registration = attendanceSelectorDialog.addAttendanceChangeListener(event1 -> {
+                fireEvent(new ChangeAttendanceEvent(this, event1.getSelectedStatus()));
+            });
+            attendanceSelectorDialog.addDialogCloseActionListener(close -> registration.remove());
+            attendanceSelectorDialog.open();
+        });
         approveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
 
         container.add(addButton, changeTimesheetButton, confirmPresenceButton, changeAttendanceButton, approveButton);
@@ -135,8 +148,8 @@ public class DailyModificationForm extends FormLayout {
         return headerLayout;
     }
 
-    public void setCurrentStatus(DailyEntryStatus status) {
-        this.currentStatus = status;
+    public void setDailyEntry(DailyEntryDTO dailyEntryDTO) {
+        this.dailyEntryDTO = dailyEntryDTO;
         updateState();
     }
 
@@ -144,9 +157,6 @@ public class DailyModificationForm extends FormLayout {
 
         boolean userIsShiftLeader = authenticationResolver.principalHasShiftLeaderPermission();
         boolean userIsManager = authenticationResolver.principalHasManagerPermission();
-
-        String entryInfoTextKey;
-        String tooltipTextKey;
 
         setAllButtonsVisible(false);
 
@@ -159,7 +169,7 @@ public class DailyModificationForm extends FormLayout {
 
         // ... (logika setAllButtonsVisible(false) i uprawnienia)
 
-        switch (currentStatus) {
+        switch (dailyEntryDTO.status()) {
             case EMPTY -> {
                 // Bezpośrednie wywołanie getTranslation() w miejscu przypisania
                 entryInfoText = getTranslation("dailyModificationForm.status.empty.info");
@@ -171,7 +181,7 @@ public class DailyModificationForm extends FormLayout {
                 tooltipText = getTranslation("dailyModificationForm.status.draft.tooltip");
                 changeTimesheetButton.setVisible(true);
 
-                if (isAttendanceSelected) {
+                if (dailyEntryDTO.attendance() != null) {
                     changeAttendanceButton.setVisible(true);
                 } else {
                     confirmPresenceButton.setVisible(true);
@@ -267,8 +277,12 @@ public class DailyModificationForm extends FormLayout {
     }
 
     public static class ChangeAttendanceEvent extends DailyModificationFormEvent {
-        public ChangeAttendanceEvent(DailyModificationForm source) {
+        @Getter
+        private final DailyAttendanceStatus status;
+
+        public ChangeAttendanceEvent(DailyModificationForm source, DailyAttendanceStatus status) {
             super(source);
+            this.status = status;
         }
     }
 
