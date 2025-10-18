@@ -16,6 +16,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.shared.Registration;
+import java.time.LocalDate;
 import lombok.Getter;
 import pl.crewops.component.dialog.dailyEntryDialog.AttendanceSelectorDialog;
 import pl.crewops.enums.DailyAttendanceStatus;
@@ -111,6 +112,9 @@ public class DailyModificationForm extends FormLayout {
         });
 
         confirmPresenceButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        confirmPresenceButton.addClickListener(event -> {
+            fireEvent(new ConfirmAttendanceEvent(this));
+        });
 
         changeAttendanceButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         changeAttendanceButton.addClickListener(event -> {
@@ -166,10 +170,15 @@ public class DailyModificationForm extends FormLayout {
         // usuwając "Key", aby odzwierciedlały, że przechowują GŁÓWNY TEKST
         String entryInfoText;
         String tooltipText;
+        DailyEntryStatus entryStatus;
 
-        // ... (logika setAllButtonsVisible(false) i uprawnienia)
+        if (dailyEntryDTO == null) {
+            entryStatus = DailyEntryStatus.EMPTY;
+        } else {
+            entryStatus = dailyEntryDTO.status();
+        }
 
-        switch (dailyEntryDTO.status()) {
+        switch (entryStatus) {
             case EMPTY -> {
                 // Bezpośrednie wywołanie getTranslation() w miejscu przypisania
                 entryInfoText = getTranslation("dailyModificationForm.status.empty.info");
@@ -181,10 +190,12 @@ public class DailyModificationForm extends FormLayout {
                 tooltipText = getTranslation("dailyModificationForm.status.draft.tooltip");
                 changeTimesheetButton.setVisible(true);
 
-                if (dailyEntryDTO.attendance() != null) {
+                if (dailyEntryDTO.attendance() == DailyAttendanceStatus.PRESENT) {
                     changeAttendanceButton.setVisible(true);
                 } else {
-                    confirmPresenceButton.setVisible(true);
+                    if (!dailyEntryDTO.entryDate().isAfter(LocalDate.now())) {
+                        confirmPresenceButton.setVisible(true);
+                    }
                 }
             }
             case PENDING -> {

@@ -35,6 +35,9 @@ import pl.crewops.util.BrowserResolver;
 import pl.crewops.util.contract.DateSensitive;
 import pl.crewops.view.layout.MainLayout;
 
+// TODO: dodać kolumnę 'stanowisko' do tabeli daily_entry
+//  dodać opcję 'historia zmian wpisu' w komponencie zarządzania wpisem
+
 @Route("daily")
 @PageTitle("Daily Entry")
 @CssImport("./styles/component/timeline.css")
@@ -77,6 +80,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
     private final boolean isMobile = BrowserResolver.isMobile();
 
     private Optional<DailyEntryDTO> dailyEntryDTO = Optional.empty();
+    private LocalDate selectedDate = LocalDate.now();
 
     public DailyView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         super(coreAPI, jwtService, authenticationResolver);
@@ -107,7 +111,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
         localize();
 
-        updateDependsOnDate(LocalDate.now());
+        updateDependsOnDate(selectedDate);
 
         addDailyModificationFormListeners();
 
@@ -123,6 +127,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
     @Override
     public void updateDependsOnDate(LocalDate date) {
+        selectedDate = date;
         try {
             dailyEntryDTO = coreAPI.findDailyEntryByEmployeeIdAndDate(
                     authenticationResolver.getPrincipal().getEmployeeId(), date);
@@ -136,6 +141,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
             } else {
                 timesheetForm.setDailyEntry(null);
                 timeline.updateTimeline(null, date);
+                dailyModificationForm.setDailyEntry(null);
             }
 
             timesheetForm.updateDependsOnDate(date);
@@ -194,6 +200,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         var registration = currentDay.addClickListener(event -> {
             updateDependsOnDate(LocalDate.now());
 
+            dateSelectorDialog.setDate(selectedDate);
             currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             calendar.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
         });
@@ -205,7 +212,8 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         listeners.add(registration1);
 
         var registration2 = dateSelectorDialog.addSelectDateListener(selectedDateEvent -> {
-            updateDependsOnDate(selectedDateEvent.getSelectedDate());
+            selectedDate = selectedDateEvent.getSelectedDate();
+            updateDependsOnDate(selectedDate);
 
             calendar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             currentDay.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -223,7 +231,8 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         return toolbar;
     }
 
-    // TODO: implement each button logic: createDaily - done, changeTimesheet - done,
+    // TODO: implement each button logic: createDaily - done, changeTimesheet - done, changeAttendance - done,
+    // confirmAttendance - done,
     private void addDailyModificationFormListeners() {
         Registration registration = dailyModificationForm.addCreateDailyEventListener(event -> {
             createDailyLogic();
@@ -239,9 +248,22 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
             updateDailyAttendanceLogic(event.getStatus());
         });
         listeners.add(registration2);
+
+        Registration registration3 = dailyModificationForm.addConfirmAttendanceEventListener(event -> {
+            confirmAttendanceLogic();
+        });
+        listeners.add(registration3);
+    }
+
+    private void confirmAttendanceLogic() {
+        sharedUpdateAttendanceLogic(PRESENT);
     }
 
     private void updateDailyAttendanceLogic(DailyAttendanceStatus dailyAttendanceStatus) {
+        sharedUpdateAttendanceLogic(dailyAttendanceStatus);
+    }
+
+    private void sharedUpdateAttendanceLogic(DailyAttendanceStatus dailyAttendanceStatus) {
         DailyEntryDTO dailyEntry = dailyEntryIsNullFallback();
 
         UUID myselfId = dailyEntry.employeeId();
@@ -302,7 +324,8 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
     private DailyEntryDTO dailyEntryIsNullFallback() {
         return dailyEntryDTO.orElseGet(() -> {
-            UI.getCurrent().getPage().setLocation("/");
+            new FailNotification(getTranslation("dailyView.failNotification"));
+            UI.getCurrent().refreshCurrentRoute(true);
             return null;
         });
     }
@@ -318,24 +341,38 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
             timesheetForm.setStartTimePickerInvalid(false);
         }
 
+        // TODO: consider move this logic to be side
+        DailyAttendanceStatus attendance;
+        if (selectedDate.isAfter(LocalDate.now())) {
+            attendance = NULL;
+        } else {
+            attendance = PRESENT;
+        }
+        DailyEntryStatus status;
+        if (selectedDate.isBefore(LocalDate.now())) {
+            status = DailyEntryStatus.MANUAL_EDITED;
+        } else {
+            status = DailyEntryStatus.DRAFT;
+        }
+
         var createDailyEntryDTO = CreateDailyEntryDTO.builder()
                 .employeeId(authenticationResolver
                         .getPrincipal()
                         .getEmployeeId()) // to sie zmieni kiedy manager bedzie mial mozliwosc jednostkowego
                 // utworzenia dailyentry dla danego pracownika przez managera
-                .entryDate(LocalDate.now())
+                .entryDate(selectedDate)
                 .actionByEmployeeId(authenticationResolver.getPrincipal().getEmployeeId())
                 .startTime(timesheetForm.getStartTime())
                 .endTime(timesheetForm.getEndTime())
                 .overTime(timesheetForm.getOvertime())
-                .attendance(PRESENT)
-                .status(DailyEntryStatus.DRAFT)
+                .attendance(attendance)
+                .status(status)
                 .build();
 
         try {
             Optional<DailyEntryDTO> dailyEntry = coreAPI.createDailyEntry(createDailyEntryDTO);
             if (dailyEntry.isPresent()) {
-                updateDependsOnDate(dailyEntry.get().entryDate());
+                updateDependsOnDate(selectedDate);
                 new SuccessNotification(getTranslation("dailyView.createDailyEntrySuccess"));
             } else {
                 new FailNotification(getTranslation("dailyView.failNotification"));
