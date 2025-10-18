@@ -3,6 +3,7 @@ package pl.crewops.domain.dailyEntry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static pl.crewops.enums.DailyEntryStatus.APPROVED;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -87,14 +88,14 @@ class DailyEntryServiceTest {
     }
 
     @Test
-    void shouldCreateDailyEntryWithApprovedStatusAndAbsentAttendance() {
+    void shouldCreateDailyEntryWithApprovedStatusAndPresentAttendance() {
         // given
         CreateDailyEntryDTO dto = CreateDailyEntryDTO.builder()
                 .employeeId(UUID.randomUUID())
                 .entryDate(LocalDate.now())
                 .actionByEmployeeId(UUID.randomUUID())
                 .attendance(null)
-                .status(DailyEntryStatus.APPROVED)
+                .status(APPROVED)
                 .build();
 
         // when
@@ -102,8 +103,8 @@ class DailyEntryServiceTest {
 
         // then
         assertThat(result).isNotNull();
-        assertThat(result.attendance()).isNull();
-        assertThat(result.status()).isEqualTo(DailyEntryStatus.APPROVED);
+        assertThat(result.attendance()).isEqualTo(DailyAttendanceStatus.PRESENT);
+        assertThat(result.status()).isEqualTo(APPROVED);
     }
 
     @Test
@@ -150,7 +151,7 @@ class DailyEntryServiceTest {
                 .entryDate(LocalDate.now())
                 .actionByEmployeeId(UUID.randomUUID())
                 .attendance(DailyAttendanceStatus.ABSENT)
-                .status(DailyEntryStatus.APPROVED)
+                .status(APPROVED)
                 .build();
 
         // when
@@ -159,7 +160,7 @@ class DailyEntryServiceTest {
 
         // then
         assertThat(result1.status()).isEqualTo(DailyEntryStatus.DRAFT);
-        assertThat(result2.status()).isEqualTo(DailyEntryStatus.APPROVED);
+        assertThat(result2.status()).isEqualTo(APPROVED);
         assertThat(result1.attendance()).isEqualTo(DailyAttendanceStatus.PRESENT);
         assertThat(result2.attendance()).isEqualTo(DailyAttendanceStatus.ABSENT);
     }
@@ -292,13 +293,13 @@ class DailyEntryServiceTest {
         when(dailyEntryRepository.save(any(DailyEntry.class))).thenAnswer(i -> i.getArgument(0));
 
         UpdateDailyEntryCommand.ChangeEntryStatus command = new UpdateDailyEntryCommand.ChangeEntryStatus(
-                employeeId, entryDate, actionBy, DailyEntryStatus.APPROVED, "Approved entry");
+                employeeId, entryDate, actionBy, APPROVED, "Approved entry");
 
         // when
         DailyEntryDTO result = dailyEntryService.updateDailyEntry(command);
 
         // then
-        assertThat(result.status()).isEqualTo(DailyEntryStatus.APPROVED);
+        assertThat(result.status()).isEqualTo(APPROVED);
         verify(auditDetailsBuilder)
                 .createPayload(eq(DailyEntryAuditType.ENTRY_STATUS_CHANGED), any(), any(), eq(actionBy));
         verify(dailyEntryAuditRepository).save(any(DailyEntryAudit.class));
@@ -343,7 +344,7 @@ class DailyEntryServiceTest {
         DailyEntry approvedEntry = DailyEntry.builder()
                 .employeeId(employeeId)
                 .entryDate(entryDate)
-                .status(DailyEntryStatus.APPROVED)
+                .status(APPROVED)
                 .startTime(Instant.parse("2025-01-01T08:00:00Z"))
                 .endTime(Instant.parse("2025-01-01T16:00:00Z"))
                 .build();

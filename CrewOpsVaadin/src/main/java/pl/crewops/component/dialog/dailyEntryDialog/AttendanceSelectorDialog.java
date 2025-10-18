@@ -15,36 +15,34 @@ import pl.crewops.enums.DailyAttendanceStatus;
 public class AttendanceSelectorDialog extends Dialog {
 
     private final RadioButtonGroup<DailyAttendanceStatus> attendanceSelector = new RadioButtonGroup<>();
-    private final Button confirmButton = new Button("Potwierdź");
-    private final Button cancelButton = new Button("Anuluj");
+    private final Button confirmButton = new Button();
+    private final Button cancelButton = new Button();
 
     public AttendanceSelectorDialog(DailyAttendanceStatus currentStatus) {
         configureDialog();
-
         var buttonLayout = configuredButtonContainer();
-
         var mainContainer = configuredMainContainer(buttonLayout);
-
         add(mainContainer);
-
         open();
     }
 
     private void configureDialog() {
-        setHeaderTitle("Wybierz Status Obecności");
+        setHeaderTitle(getTranslation("attendanceSelectorDialog.headerTitle")); // np. "Wybierz status obecności"
         setCloseOnEsc(true);
     }
 
     private VerticalLayout configuredMainContainer(HorizontalLayout buttonLayout) {
         VerticalLayout content = new VerticalLayout(attendanceSelector, buttonLayout);
-        // 1. Konfiguracja RadioButtonGroup
-        attendanceSelector.setLabel("Status");
+
+        attendanceSelector.setLabel(getTranslation("attendanceSelectorDialog.status.label")); // np. "Status"
         attendanceSelector.setItems(
                 DailyAttendanceStatus.PRESENT,
                 DailyAttendanceStatus.VACATION,
                 DailyAttendanceStatus.SICK_LEAVE,
                 DailyAttendanceStatus.OTHER,
                 DailyAttendanceStatus.ABSENT);
+
+        attendanceSelector.setItemLabelGenerator(this::getTranslatedLabel);
 
         attendanceSelector.addValueChangeListener(e -> confirmButton.setEnabled(e.getValue() != null));
         content.setPadding(true);
@@ -54,12 +52,14 @@ public class AttendanceSelectorDialog extends Dialog {
     private HorizontalLayout configuredButtonContainer() {
         HorizontalLayout buttonLayout = new HorizontalLayout(confirmButton, cancelButton);
 
-        // 3. Konfiguracja przycisków
+        confirmButton.setText(getTranslation("attendanceSelectorDialog.button.confirm"));
+        cancelButton.setText(getTranslation("attendanceSelectorDialog.button.cancel"));
+
         confirmButton.setEnabled(false);
         confirmButton.addClickListener(event -> {
             DailyAttendanceStatus selectedStatus = attendanceSelector.getValue();
             if (selectedStatus != null) {
-                fireEvent(new AttendanceChangeEvent(this, attendanceSelector.getValue()));
+                fireEvent(new AttendanceChangeEvent(this, selectedStatus));
                 fireEvent(new DialogCloseActionEvent(this, true));
                 fireEvent(new DialogCloseActionEvent(this, false));
             }
@@ -74,6 +74,19 @@ public class AttendanceSelectorDialog extends Dialog {
         buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         buttonLayout.setWidthFull();
         return buttonLayout;
+    }
+
+    private String getTranslatedLabel(DailyAttendanceStatus status) {
+        String result = "";
+        switch (status) {
+            case PRESENT -> result = getTranslation("attendanceSelectorDialog.status.present");
+            case VACATION -> result = getTranslation("attendanceSelectorDialog.status.vacation");
+            case SICK_LEAVE -> result = getTranslation("attendanceSelectorDialog.status.sickLeave");
+            case OTHER -> result = getTranslation("attendanceSelectorDialog.status.other");
+            case ABSENT -> result = getTranslation("attendanceSelectorDialog.status.absent");
+        }
+        ;
+        return result;
     }
 
     public abstract class AttendanceSelectorDialogEvent extends ComponentEvent<AttendanceSelectorDialog> {

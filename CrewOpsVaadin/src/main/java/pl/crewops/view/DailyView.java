@@ -23,7 +23,6 @@ import pl.crewops.component.notification.FailNotification;
 import pl.crewops.component.notification.NotAuthenticatedNotification;
 import pl.crewops.component.notification.SuccessNotification;
 import pl.crewops.enums.DailyAttendanceStatus;
-import pl.crewops.enums.DailyEntryStatus;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
@@ -118,11 +117,6 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         var layout = getLayoutDependsOnUserDevice();
 
         mainContent.add(getToolbar(), timeline, layout);
-    }
-
-    private void localize() {
-        currentDay.setText(getTranslation("dailyView.currentDay"));
-        calendar.setText(getTranslation("dailyView.calendar"));
     }
 
     @Override
@@ -232,57 +226,39 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
     }
 
     // TODO: implement each button logic: createDaily - done, changeTimesheet - done, changeAttendance - done,
-    // confirmAttendance - done,
+    //  confirmAttendance - done,
     private void addDailyModificationFormListeners() {
-        Registration registration = dailyModificationForm.addCreateDailyEventListener(event -> {
-            createDailyLogic();
-        });
-        listeners.add(registration);
+        listeners.add(createDailyListener());
 
-        Registration registration1 = dailyModificationForm.addChangeTimesheetEventListener(event -> {
+        listeners.add(changeTimesheetListener());
+
+        listeners.add(changeAttendanceListener());
+
+        listeners.add(confirmAttendanceListener());
+    }
+
+    private Registration confirmAttendanceListener() {
+        return dailyModificationForm.addConfirmAttendanceEventListener(event -> {
+            sharedUpdateAttendanceLogic(PRESENT);
+        });
+    }
+
+    private Registration changeAttendanceListener() {
+        return dailyModificationForm.addChangeAttendanceEventListener(event -> {
+            sharedUpdateAttendanceLogic(event.getStatus());
+        });
+    }
+
+    private Registration changeTimesheetListener() {
+        return dailyModificationForm.addChangeTimesheetEventListener(event -> {
             updateDailyTimesheetLogic();
         });
-        listeners.add(registration1);
+    }
 
-        Registration registration2 = dailyModificationForm.addChangeAttendanceEventListener(event -> {
-            updateDailyAttendanceLogic(event.getStatus());
+    private Registration createDailyListener() {
+        return dailyModificationForm.addCreateDailyEventListener(event -> {
+            createDailyLogic();
         });
-        listeners.add(registration2);
-
-        Registration registration3 = dailyModificationForm.addConfirmAttendanceEventListener(event -> {
-            confirmAttendanceLogic();
-        });
-        listeners.add(registration3);
-    }
-
-    private void confirmAttendanceLogic() {
-        sharedUpdateAttendanceLogic(PRESENT);
-    }
-
-    private void updateDailyAttendanceLogic(DailyAttendanceStatus dailyAttendanceStatus) {
-        sharedUpdateAttendanceLogic(dailyAttendanceStatus);
-    }
-
-    private void sharedUpdateAttendanceLogic(DailyAttendanceStatus dailyAttendanceStatus) {
-        DailyEntryDTO dailyEntry = dailyEntryIsNullFallback();
-
-        UUID myselfId = dailyEntry.employeeId();
-
-        var updateCommand = new UpdateDailyEntryCommand.UpdateAttendance(
-                myselfId, dailyEntry.entryDate(), myselfId, dailyAttendanceStatus, "");
-
-        try {
-            Optional<DailyEntryDTO> dailyEntryDTO1 = coreAPI.updateDailyEntrySelfPemission(updateCommand);
-            if (dailyEntryDTO1.isPresent()) {
-                dailyEntryDTO = dailyEntryDTO1;
-                updateDependsOnDate(dailyEntry.entryDate());
-                new SuccessNotification(getTranslation("dailyView.updateTimesheetSuccess"));
-            } else {
-                new FailNotification(getTranslation("dailyView.failNotification"));
-            }
-        } catch (NotAuthenticatedException e) {
-            new NotAuthenticatedNotification(e.getMessage());
-        }
     }
 
     private void updateDailyTimesheetLogic() {
@@ -308,11 +284,66 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         var updateCommand = new UpdateDailyEntryCommand.UpdateWorkTime(
                 myselfId, dailyEntry.entryDate(), myselfId, startTime, endTime, overtime, "");
 
+        sharedUpdateDailyEntryLogic(updateCommand);
+    }
+
+    private void createDailyLogic() {
+        if (timesheetForm.getStartTime() == null) {
+            if (isMobile) {
+                new FailNotification(getTranslation("timesheetForm.startTimeError"));
+            }
+            timesheetForm.setStartTimePickerInvalid(true);
+            return;
+        } else {
+            timesheetForm.setStartTimePickerInvalid(false);
+        }
+
+        var createDailyEntryDTO = CreateDailyEntryDTO.builder()
+                .employeeId(authenticationResolver
+                        .getPrincipal()
+                        .getEmployeeId()) // to sie zmieni kiedy manager bedzie mial mozliwosc jednostkowego
+                // utworzenia dailyentry dla danego pracownika przez managera
+                .entryDate(selectedDate)
+                .actionByEmployeeId(authenticationResolver.getPrincipal().getEmployeeId())
+                .startTime(timesheetForm.getStartTime())
+                .endTime(timesheetForm.getEndTime())
+                .overTime(timesheetForm.getOvertime())
+                .build();
+
+        try {
+            Optional<DailyEntryDTO> dailyEntry = coreAPI.createDailyEntry(createDailyEntryDTO);
+            if (dailyEntry.isPresent()) {
+                updateDependsOnDate(selectedDate);
+                new SuccessNotification(getTranslation("dailyView.createDailyEntrySuccess"));
+            } else {
+                new FailNotification(getTranslation("dailyView.failNotification"));
+            }
+
+        } catch (NotAuthenticatedException e) {
+            new NotAuthenticatedNotification(e.getMessage());
+        }
+    }
+
+    private void sharedUpdateAttendanceLogic(DailyAttendanceStatus dailyAttendanceStatus) {
+        DailyEntryDTO dailyEntry = dailyEntryIsNullFallback();
+
+        if (dailyEntry.attendance().equals(dailyAttendanceStatus)) {
+            return;
+        }
+        UUID myselfId = dailyEntry.employeeId();
+
+        var updateCommand = new UpdateDailyEntryCommand.UpdateAttendance(
+                myselfId, dailyEntry.entryDate(), myselfId, dailyAttendanceStatus, "");
+
+        sharedUpdateDailyEntryLogic(updateCommand);
+    }
+
+    private void sharedUpdateDailyEntryLogic(UpdateDailyEntryCommand updateCommand) {
         try {
             Optional<DailyEntryDTO> dailyEntryDTO1 = coreAPI.updateDailyEntrySelfPemission(updateCommand);
             if (dailyEntryDTO1.isPresent()) {
                 dailyEntryDTO = dailyEntryDTO1;
-                updateDependsOnDate(dailyEntry.entryDate());
+                updateDependsOnDate(dailyEntryDTO1.get().entryDate());
                 new SuccessNotification(getTranslation("dailyView.updateTimesheetSuccess"));
             } else {
                 new FailNotification(getTranslation("dailyView.failNotification"));
@@ -330,56 +361,8 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         });
     }
 
-    private void createDailyLogic() {
-        if (timesheetForm.getStartTime() == null) {
-            if (isMobile) {
-                new FailNotification(getTranslation("timesheetForm.startTimeError"));
-            }
-            timesheetForm.setStartTimePickerInvalid(true);
-            return;
-        } else {
-            timesheetForm.setStartTimePickerInvalid(false);
-        }
-
-        // TODO: consider move this logic to be side
-        DailyAttendanceStatus attendance;
-        if (selectedDate.isAfter(LocalDate.now())) {
-            attendance = NULL;
-        } else {
-            attendance = PRESENT;
-        }
-        DailyEntryStatus status;
-        if (selectedDate.isBefore(LocalDate.now())) {
-            status = DailyEntryStatus.MANUAL_EDITED;
-        } else {
-            status = DailyEntryStatus.DRAFT;
-        }
-
-        var createDailyEntryDTO = CreateDailyEntryDTO.builder()
-                .employeeId(authenticationResolver
-                        .getPrincipal()
-                        .getEmployeeId()) // to sie zmieni kiedy manager bedzie mial mozliwosc jednostkowego
-                // utworzenia dailyentry dla danego pracownika przez managera
-                .entryDate(selectedDate)
-                .actionByEmployeeId(authenticationResolver.getPrincipal().getEmployeeId())
-                .startTime(timesheetForm.getStartTime())
-                .endTime(timesheetForm.getEndTime())
-                .overTime(timesheetForm.getOvertime())
-                .attendance(attendance)
-                .status(status)
-                .build();
-
-        try {
-            Optional<DailyEntryDTO> dailyEntry = coreAPI.createDailyEntry(createDailyEntryDTO);
-            if (dailyEntry.isPresent()) {
-                updateDependsOnDate(selectedDate);
-                new SuccessNotification(getTranslation("dailyView.createDailyEntrySuccess"));
-            } else {
-                new FailNotification(getTranslation("dailyView.failNotification"));
-            }
-
-        } catch (NotAuthenticatedException e) {
-            new NotAuthenticatedNotification(e.getMessage());
-        }
+    private void localize() {
+        currentDay.setText(getTranslation("dailyView.currentDay"));
+        calendar.setText(getTranslation("dailyView.calendar"));
     }
 }

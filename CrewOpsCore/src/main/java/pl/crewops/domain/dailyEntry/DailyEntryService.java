@@ -2,6 +2,8 @@ package pl.crewops.domain.dailyEntry;
 
 import static pl.crewops.domain.dailyEntry.DailyEntryMapper.mapToDTO;
 import static pl.crewops.domain.dailyEntry.DailyEntryMapper.mapToEntity;
+import static pl.crewops.enums.DailyAttendanceStatus.NULL;
+import static pl.crewops.enums.DailyAttendanceStatus.PRESENT;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.math.BigDecimal;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import pl.crewops.enums.DailyAttendanceStatus;
 import pl.crewops.enums.DailyEntryAuditType;
 import pl.crewops.enums.DailyEntryStatus;
 import pl.crewops.exception.domain.dailyEntry.DailyEntryNotFoundException;
@@ -40,6 +43,8 @@ class DailyEntryService implements DailyEntryAPI {
 
         final DailyEntry dailyEntry = mapToEntity(createDailyEntryDTO);
 
+        setAttendanceAndStatusIfNotDefined(createDailyEntryDTO, dailyEntry);
+
         final DailyEntry savedEntry = dailyEntryRepository.save(dailyEntry);
 
         final JsonNode payloadNode = auditDetailsBuilder.createPayload(
@@ -56,6 +61,28 @@ class DailyEntryService implements DailyEntryAPI {
         dailyEntryAuditRepository.save(auditEvent);
 
         return mapToDTO(savedEntry);
+    }
+
+    private static void setAttendanceAndStatusIfNotDefined(
+            CreateDailyEntryDTO createDailyEntryDTO, DailyEntry dailyEntry) {
+        if (dailyEntry.getAttendance() == null) {
+            DailyAttendanceStatus attendance;
+            if (createDailyEntryDTO.entryDate().isAfter(LocalDate.now())) {
+                attendance = NULL;
+            } else {
+                attendance = PRESENT;
+            }
+            dailyEntry.setAttendance(attendance);
+        }
+        if (dailyEntry.getStatus() == null) {
+            DailyEntryStatus status;
+            if (createDailyEntryDTO.entryDate().isBefore(LocalDate.now())) {
+                status = DailyEntryStatus.MANUAL_EDITED;
+            } else {
+                status = DailyEntryStatus.DRAFT;
+            }
+            dailyEntry.setStatus(status);
+        }
     }
 
     @Override

@@ -25,7 +25,6 @@
             implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
             implementation("org.vaadin.addons.componentfactory:vcf-timeline:1.0.2")
-            implementation("org.vaadin.addons.componentfactory:vcf-schedule-x:1.0.2")
 
             implementation(project(":CrewOpsModel"))
             implementation(project(":CrewOpsSecurity"))

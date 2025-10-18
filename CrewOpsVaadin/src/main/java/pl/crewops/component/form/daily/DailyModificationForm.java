@@ -96,27 +96,28 @@ public class DailyModificationForm extends FormLayout {
         var container = new VerticalLayout();
 
         setButtonIcon(addButton, VaadinIcon.CLIPBOARD_CHECK);
-        setButtonIcon(changeTimesheetButton, VaadinIcon.CLIPBOARD_CHECK);
-        setButtonIcon(confirmPresenceButton, VaadinIcon.CHECK_CIRCLE);
-        setButtonIcon(changeAttendanceButton, VaadinIcon.PAPERPLANE);
-        setButtonIcon(approveButton, VaadinIcon.THUMBS_UP);
-
         addButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        setButtonIcon(changeTimesheetButton, VaadinIcon.CLIPBOARD_CHECK);
+        changeTimesheetButton.addThemeVariants(ButtonVariant.LUMO_WARNING);
+        setButtonIcon(confirmPresenceButton, VaadinIcon.CHECK_CIRCLE);
+        confirmPresenceButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        setButtonIcon(changeAttendanceButton, VaadinIcon.PAPERPLANE);
+        changeAttendanceButton.addThemeVariants(ButtonVariant.LUMO_WARNING);
+        setButtonIcon(approveButton, VaadinIcon.THUMBS_UP);
+        approveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+
         addButton.addClickListener(event -> {
             fireEvent(new CreateDailyEntryEvent(this));
         });
 
-        changeTimesheetButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         changeTimesheetButton.addClickListener(event -> {
             fireEvent(new UpdateDailyEntryEvent(this));
         });
 
-        confirmPresenceButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         confirmPresenceButton.addClickListener(event -> {
             fireEvent(new ConfirmAttendanceEvent(this));
         });
 
-        changeAttendanceButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         changeAttendanceButton.addClickListener(event -> {
             AttendanceSelectorDialog attendanceSelectorDialog =
                     new AttendanceSelectorDialog(dailyEntryDTO.attendance());
@@ -126,7 +127,10 @@ public class DailyModificationForm extends FormLayout {
             attendanceSelectorDialog.addDialogCloseActionListener(close -> registration.remove());
             attendanceSelectorDialog.open();
         });
-        approveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+
+        approveButton.addClickListener(event -> {
+            fireEvent(new ApproveDailyEntryEvent(this));
+        });
 
         container.add(addButton, changeTimesheetButton, confirmPresenceButton, changeAttendanceButton, approveButton);
 
@@ -158,16 +162,11 @@ public class DailyModificationForm extends FormLayout {
     }
 
     public void updateState() {
-
         boolean userIsShiftLeader = authenticationResolver.principalHasShiftLeaderPermission();
         boolean userIsManager = authenticationResolver.principalHasManagerPermission();
 
         setAllButtonsVisible(false);
 
-        // W DailyModificationForm.java w metodzie updateState()
-
-        // Zmieniamy deklaracje zmiennych na początku metody,
-        // usuwając "Key", aby odzwierciedlały, że przechowują GŁÓWNY TEKST
         String entryInfoText;
         String tooltipText;
         DailyEntryStatus entryStatus;
@@ -190,12 +189,12 @@ public class DailyModificationForm extends FormLayout {
                 tooltipText = getTranslation("dailyModificationForm.status.draft.tooltip");
                 changeTimesheetButton.setVisible(true);
 
-                if (dailyEntryDTO.attendance() == DailyAttendanceStatus.PRESENT) {
-                    changeAttendanceButton.setVisible(true);
-                } else {
+                if (dailyEntryDTO.attendance() == DailyAttendanceStatus.NULL || dailyEntryDTO.attendance() == null) {
                     if (!dailyEntryDTO.entryDate().isAfter(LocalDate.now())) {
                         confirmPresenceButton.setVisible(true);
                     }
+                } else {
+                    changeAttendanceButton.setVisible(true);
                 }
             }
             case PENDING -> {
