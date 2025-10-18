@@ -179,7 +179,6 @@ public class DailyModificationForm extends FormLayout {
 
         switch (entryStatus) {
             case EMPTY -> {
-                // Bezpośrednie wywołanie getTranslation() w miejscu przypisania
                 entryInfoText = getTranslation("dailyModificationForm.status.empty.info");
                 tooltipText = getTranslation("dailyModificationForm.status.empty.tooltip");
                 addButton.setVisible(true);

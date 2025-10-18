@@ -135,7 +135,6 @@ public class DailyTimeline extends HorizontalLayout {
 
         var items = new ArrayList<Item>();
 
-        // 🔹 zawsze istnieje startTime
         if (dailyEntry.startTime() != null) {
             LocalDateTime workStart = LocalDateTime.ofInstant(dailyEntry.startTime(), ZONE_ID);
 
@@ -170,6 +169,7 @@ public class DailyTimeline extends HorizontalLayout {
         timeline.setItems(items);
     }
 
+    // todo: i18n
     private Item createOvertimeItem(DailyEntryDTO dailyEntry) {
         if (dailyEntry.endTime() == null
                 || dailyEntry.overTime() == null
@@ -179,10 +179,8 @@ public class DailyTimeline extends HorizontalLayout {
 
         final ZoneId ZONE_ID = ZoneId.systemDefault();
 
-        // koniec itemu
         LocalDateTime end = LocalDateTime.ofInstant(dailyEntry.endTime(), ZONE_ID);
 
-        // obliczamy początek: endTime - overtime (w godzinach)
         BigDecimal overtimeHours = dailyEntry.overTime();
         long overtimeMinutes = overtimeHours.multiply(BigDecimal.valueOf(60)).longValue();
         LocalDateTime start = end.minusMinutes(overtimeMinutes);
