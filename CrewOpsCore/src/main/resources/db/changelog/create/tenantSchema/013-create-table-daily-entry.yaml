@@ -42,8 +42,13 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: attendance
+                  type: public.daily_attendance
+                  constraints:
+                    nullable: false
+              - column:
                   name: status
-                  type: daily_status
+                  type: public.daily_status
                   constraints:
                     nullable: false
               - column:
@@ -65,10 +70,6 @@ databaseChangeLog:
             constraintName: uq_daily_entry_employee_date
             tableName: daily_entry
 
-  - changeSet:
-      id: 002-create-daily-entry-employee-foreign-key
-      author: jkuznik
-      changes:
         - addForeignKeyConstraint:
             baseTableName: daily_entry
             baseColumnNames: employee_id
@@ -78,7 +79,7 @@ databaseChangeLog:
             onDelete: CASCADE
 
   - changeSet:
-      id: 003-create-daily_entry-updated_at-trigger
+      id: 002-create-daily_entry-updated_at-trigger
       author: jkuznik
       changes:
         - sql:

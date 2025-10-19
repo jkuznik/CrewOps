@@ -1,5 +1,7 @@
 package pl.crewops.util.multitenancy;
 
+import static pl.crewops.infrastructure.multitenancy.TenantIdentifierResolver.DEFAULT_TENANT;
+
 import java.sql.Connection;
 import javax.sql.DataSource;
 import liquibase.Contexts;
@@ -17,6 +19,8 @@ import pl.crewops.exception.multitenancy.CreateSchemaException;
 
 @Slf4j
 @Component
+// todo: remove 'prod' before real production launch - second: consider to rename 'prod' into 'production'
+//  caused of vaadin requirements of that profile name
 @Profile(value = {"dev", "integration", "prod"})
 public class BootstrapDatabase {
 
@@ -40,9 +44,9 @@ public class BootstrapDatabase {
         this.dataSource = dataSource;
         this.environment = environment;
 
-        executeInsert(schemaManager, liquibaseSchemaMigrator, dataSource, "public", testTenantChangelogPath);
+        executeInsert(schemaManager, liquibaseSchemaMigrator, dataSource, DEFAULT_TENANT, testTenantChangelogPath);
 
-        executeInsert(schemaManager, liquibaseSchemaMigrator, dataSource, "public", testAuthUserRelationsPath);
+        executeInsert(schemaManager, liquibaseSchemaMigrator, dataSource, DEFAULT_TENANT, testAuthUserRelationsPath);
 
         executeInsert(schemaManager, liquibaseSchemaMigrator, dataSource, testSchemaName, testValuesChangelogPath);
     }

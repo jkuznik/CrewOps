@@ -105,8 +105,8 @@
     "@vaadin/vaadin-themable-mixin": "$@vaadin/vaadin-themable-mixin",
     "@vaadin/vaadin-lumo-styles": "$@vaadin/vaadin-lumo-styles",
     "@vaadin/vaadin-material-styles": "$@vaadin/vaadin-material-styles",
-    "line-awesome": "$line-awesome",
     "react-router": "$react-router",
+    "line-awesome": "$line-awesome",
     "vis-timeline": "$vis-timeline",
     "moment": "$moment"
   }

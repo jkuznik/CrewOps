@@ -3,6 +3,7 @@ package pl.crewops.infrastructure.core;
 import static pl.crewops.enums.ControllerURL.*;
 import static pl.crewops.util.CacheResolver.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -23,6 +24,9 @@ import pl.crewops.model.dto.breakdown.BreakdownDTO;
 import pl.crewops.model.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.model.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.model.dto.company.CompanyDTO;
+import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
+import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
+import pl.crewops.model.dto.dailyEntry.UpdateDailyEntryCommand;
 import pl.crewops.model.dto.department.DepartmentDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
@@ -243,6 +247,58 @@ class CoreClient {
                     .body(new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
             log.error("Create new employee error");
+            return null;
+        }
+    }
+
+    // authenticated
+    public DailyEntryDTO createDailyEntry(CreateDailyEntryDTO createDailyEntryDTO) throws NotAuthenticatedException {
+        try {
+            return authorizedClient()
+                    .post()
+                    .uri(uriBuilder -> uriBuilder.path(DAILY_ENTRIES).build())
+                    .body(createDailyEntryDTO)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Create new daily entry error");
+            return null;
+        }
+    }
+
+    // authenticated but regular user can fetch only his own daily entry
+    // todo: implement cache and security
+    public DailyEntryDTO findDailyEntryByEmployeeIdAndDate(UUID employeeId, LocalDate localDate)
+            throws NotAuthenticatedException {
+        try {
+            return authorizedClient()
+                    .get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(DAILY_ENTRIES)
+                            .queryParam("employeeId", employeeId)
+                            .queryParam("entryDate", localDate)
+                            .build())
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.warn("Get daily entry by employee id and entry date failed");
+            return null;
+        }
+    }
+
+    // authenticated and only self resources (for managers should be dedicated method)
+    public DailyEntryDTO updateDailyEntrySelfPermission(UpdateDailyEntryCommand updateDailyEntryCommand)
+            throws NotAuthenticatedException {
+        try {
+            return authorizedClient()
+                    .patch()
+                    .uri(uriBuilder -> uriBuilder.path(DAILY_ENTRIES).build())
+                    .body(updateDailyEntryCommand)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Update daily entry failed");
             return null;
         }
     }

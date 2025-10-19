@@ -11,6 +11,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import pl.crewops.component.notification.FailNotification;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.view.DailyView;
 import pl.crewops.view.EmployeeView;
@@ -36,30 +37,35 @@ public class MainDrawer extends VerticalLayout {
     private final Span machineTextSpan = new Span();
 
     public MainDrawer(AuthenticationResolver authenticationResolver) {
-        addClassName("main-drawer");
-
         this.authenticationResolver = authenticationResolver;
 
-        localize();
-        customizeLinks();
+        addClassName("main-drawer");
 
-        setSizeFull();
-        setSpacing(true);
-        setPadding(true);
+        try {
 
-        VerticalLayout linksLayout = new VerticalLayout();
-        linksLayout.setSizeFull();
-        linksLayout.setPadding(true);
-        linksLayout.setSpacing(true);
-        linksLayout.add(homeLink, dailyLink, employeeLink, machineLink);
+            localize();
+            customizeLinks();
 
-        add(linksLayout, createDrawerFooter());
-        setFlexGrow(1, linksLayout);
+            setSizeFull();
+            setSpacing(true);
+            setPadding(true);
 
-        if (authenticationResolver.principalIsAuthenticated()) {
-            displayLinksDependsOnRoles();
-        } else {
-            hideLinksRequiredAuthentication();
+            VerticalLayout linksLayout = new VerticalLayout();
+            linksLayout.setSizeFull();
+            linksLayout.setPadding(true);
+            linksLayout.setSpacing(true);
+            linksLayout.add(homeLink, dailyLink, employeeLink, machineLink);
+
+            add(linksLayout, createDrawerFooter());
+            setFlexGrow(1, linksLayout);
+
+            if (authenticationResolver.principalIsAuthenticated()) {
+                displayLinksDependsOnRoles();
+            } else {
+                hideLinksRequiredAuthentication();
+            }
+        } catch (Exception e) {
+            new FailNotification(getTranslation("dailyView.failNotification"));
         }
     }
 

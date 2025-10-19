@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-daily-note-type-enum
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            stripComments: false
+            sql: |
+              DO $$
+              BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'daily_note_type') THEN
+                  CREATE TYPE daily_note_type AS ENUM ('PRIVATE', 'PUBLIC', 'WORK_ORDER', 'COMPANY_INFORMATION', 'GENERAL');
+                END IF;
+              END;
+              $$;

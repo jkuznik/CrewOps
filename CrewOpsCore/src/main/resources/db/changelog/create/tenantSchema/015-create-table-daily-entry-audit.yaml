@@ -1,0 +1,89 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-table-daily-entry-audit
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: daily_entry_audit
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: version
+                  type: integer
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: daily_entry_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: action_by_employee_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: event_type
+                  type: public.daily_entry_event_type
+                  constraints:
+                    nullable: false
+              - column:
+                  name: payload
+                  type: jsonb
+              - column:
+                  name: comment
+                  type: varchar(127)
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+        # Ograniczenie unikalności: Dzienny wpis + czas utworzenia muszą być unikalne.
+        # Odwzorowuje: @UniqueConstraint(columnNames = {"daily_entry_id", "created_at"})
+        - addUniqueConstraint:
+            columnNames: daily_entry_id, event_type, created_at
+            constraintName: uq_daily_entry_audit_entry_created_at
+            tableName: daily_entry_audit
+
+        - addForeignKeyConstraint:
+            baseTableName: daily_entry_audit
+            baseColumnNames: action_by_employee_id
+            referencedTableName: employee
+            referencedColumnNames: id
+            constraintName: fk_daily_entry_audit_employee
+            onDelete: RESTRICT
+
+        - addForeignKeyConstraint:
+            baseTableName: daily_entry_audit
+            baseColumnNames: daily_entry_id
+            referencedTableName: daily_entry
+            referencedColumnNames: id
+            constraintName: fk_daily_entry_audit_daily_entry
+            onDelete: CASCADE
+
+  - changeSet:
+      id: 008-create-daily_entry_audit-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS daily_entry_audit_updated_at_trigger ON daily_entry_audit;
+              CREATE TRIGGER daily_entry_audit_updated_at_trigger
+              BEFORE UPDATE ON daily_entry_audit
+              FOR EACH ROW
+              EXECUTE FUNCTION update_updated_at();

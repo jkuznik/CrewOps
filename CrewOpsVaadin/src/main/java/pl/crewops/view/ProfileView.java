@@ -6,6 +6,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.shared.Registration;
 import java.util.Optional;
 import pl.crewops.component.form.ProfileForm;
 import pl.crewops.component.notification.FailNotification;
@@ -29,7 +30,13 @@ public class ProfileView extends MainLayout implements BeforeEnterObserver {
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if (authenticationResolver.principalIsAuthenticated()) {
-            buildContent();
+            try {
+                mainContent.removeAll();
+                listeners.forEach(Registration::remove);
+                buildContent();
+            } catch (Exception e) {
+                new FailNotification(getTranslation("dailyView.failNotification"));
+            }
         } else {
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");
@@ -38,8 +45,6 @@ public class ProfileView extends MainLayout implements BeforeEnterObserver {
 
     private void buildContent() {
         addClassName("profile-view");
-
-        mainContent.removeAll();
 
         var principal = authenticationResolver.getPrincipal();
         Optional<EmployeeDTO> employeeDTO;

@@ -1,34 +1,46 @@
 package pl.crewops.view;
 
-import com.vaadin.componentfactory.timeline.model.Item;
+import static pl.crewops.enums.DailyAttendanceStatus.*;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
+import com.vaadin.flow.router.*;
+import com.vaadin.flow.shared.Registration;
+import java.math.BigDecimal;
+import java.time.*;
+import java.util.*;
 import pl.crewops.component.custom.DailyTimeline;
-import pl.crewops.component.dialog.dateSelectorDialog.DateSelectorDialog;
+import pl.crewops.component.dialog.dailyEntryDialog.DateSelectorDialog;
 import pl.crewops.component.form.daily.DailyActivityForm;
+import pl.crewops.component.form.daily.DailyModificationForm;
 import pl.crewops.component.form.daily.TimesheetForm;
+import pl.crewops.component.notification.FailNotification;
+import pl.crewops.component.notification.NotAuthenticatedNotification;
+import pl.crewops.component.notification.SuccessNotification;
+import pl.crewops.enums.DailyAttendanceStatus;
+import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
+import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
+import pl.crewops.model.dto.dailyEntry.UpdateDailyEntryCommand;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.BrowserResolver;
+import pl.crewops.util.contract.DateSensitive;
 import pl.crewops.view.layout.MainLayout;
+
+// TODO: dodać kolumnę 'stanowisko' do tabeli daily_entry
+//  dodać opcję 'historia zmian wpisu' w komponencie zarządzania wpisem
 
 @Route("daily")
 @PageTitle("Daily Entry")
-public class DailyView extends MainLayout implements BeforeEnterObserver {
+@CssImport("./styles/component/timeline.css")
+public final class DailyView extends MainLayout implements BeforeEnterObserver, DateSensitive {
 
     /**
      * Defines the minimum required width (in pixels) for forms in the Daily View
@@ -50,22 +62,43 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
      */
     public static final String FORMS_WIDTH = ENSURE_STICK_FORMS + 10 + "px";
 
-    private final Span information = new Span();
-    private final TimesheetForm timesheetForm = new TimesheetForm();
-    private final DailyActivityForm dailyActivityForm = new DailyActivityForm();
+    public static final String FORMS_HEIGHT = "450px";
+    public static final String FORMS_BORDER_PX = "3px";
 
+    private final Button currentDay = new Button();
+    private final Button calendar = new Button();
+    private final DateSelectorDialog dateSelectorDialog = new DateSelectorDialog();
+
+    // strange behavior of third part component like Timeline has described with initialize this object
     private DailyTimeline timeline;
 
-    private boolean isDailyEntryExist;
+    private final TimesheetForm timesheetForm;
+    private final DailyActivityForm dailyActivityForm;
+    private final DailyModificationForm dailyModificationForm;
+
+    private final boolean isMobile = BrowserResolver.isMobile();
+
+    private Optional<DailyEntryDTO> dailyEntryDTO = Optional.empty();
+    private LocalDate selectedDate = LocalDate.now();
 
     public DailyView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         super(coreAPI, jwtService, authenticationResolver);
+        this.timesheetForm = new TimesheetForm();
+        this.dailyActivityForm = new DailyActivityForm(authenticationResolver);
+        this.dailyModificationForm = new DailyModificationForm(authenticationResolver);
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
+        // todo: implement annotation that do same thing.
         if (authenticationResolver.principalIsAuthenticated()) {
-            buildContent();
+            try {
+                mainContent.removeAll();
+                listeners.forEach(Registration::remove);
+                buildContent();
+            } catch (Exception e) {
+                new FailNotification(getTranslation("dailyView.failNotification"));
+            }
         } else {
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");
@@ -73,18 +106,47 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
     }
 
     private void buildContent() {
-        mainContent.removeAll();
-        timeline = new DailyTimeline();
+        timeline = new DailyTimeline(dailyEntryDTO.orElse(null));
 
-        updateTimeline(LocalDate.now());
+        localize();
+
+        updateDependsOnDate(selectedDate);
+
+        addDailyModificationFormListeners();
 
         var layout = getLayoutDependsOnUserDevice();
 
-        mainContent.add(getToolbar(), information, timeline, layout);
+        mainContent.add(getToolbar(), timeline, layout);
+    }
+
+    @Override
+    public void updateDependsOnDate(LocalDate date) {
+        selectedDate = date;
+        try {
+            dailyEntryDTO = coreAPI.findDailyEntryByEmployeeIdAndDate(
+                    authenticationResolver.getPrincipal().getEmployeeId(), date);
+
+            if (dailyEntryDTO.isPresent()) {
+                var dailyEntry = dailyEntryDTO.get();
+                timeline.updateTimeline(dailyEntry, null);
+                timesheetForm.setDailyEntry(dailyEntry);
+                dailyModificationForm.setDailyEntry(dailyEntry);
+
+            } else {
+                timesheetForm.setDailyEntry(null);
+                timeline.updateTimeline(null, date);
+                dailyModificationForm.setDailyEntry(null);
+            }
+
+            timesheetForm.updateDependsOnDate(date);
+            dailyActivityForm.updateDependsOnDate(date);
+        } catch (NotAuthenticatedException e) {
+            new NotAuthenticatedNotification(e.getMessage());
+        }
     }
 
     private Component getLayoutDependsOnUserDevice() {
-        if (BrowserResolver.isMobile()) {
+        if (isMobile) {
             var verticalLayout = new VerticalLayout();
             verticalLayout.setSizeFull();
             verticalLayout.setSpacing(true);
@@ -111,7 +173,10 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
             dailyActivityForm.setWidth(FORM_WIDTH);
             dailyActivityForm.setHeight(FORM_HEIGHT);
 
-            horizontalLayout.add(timesheetForm, dailyActivityForm);
+            dailyModificationForm.setWidth(FORM_WIDTH);
+            dailyModificationForm.setHeight(FORM_HEIGHT);
+
+            horizontalLayout.add(timesheetForm, dailyActivityForm, dailyModificationForm);
 
             return horizontalLayout;
         }
@@ -120,91 +185,184 @@ public class DailyView extends MainLayout implements BeforeEnterObserver {
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
 
-        // todo: i18n
-        Button currentDay = new Button("Dzisiaj");
         currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        calendar.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
         currentDay.setWidth("160px");
 
-        Button calendar = new Button("Kalendarz");
         calendar.setWidth("160px");
 
-        currentDay.addClickListener(event -> {
-            updateTimeline(LocalDate.now());
-            timesheetForm.updateDependsOnDate(LocalDate.now());
-            dailyActivityForm.updateDependsOnDate(LocalDate.now());
+        var registration = currentDay.addClickListener(event -> {
+            updateDependsOnDate(LocalDate.now());
+
+            dateSelectorDialog.setDate(selectedDate);
             currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             calendar.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
         });
+        listeners.add(registration);
 
-        calendar.addClickListener(event -> {
-            var dateSelectorDialog = new DateSelectorDialog();
-            dateSelectorDialog.addSelectDateListener(selectedDateEvent -> {
-                updateTimeline(selectedDateEvent.getSelectedDate());
-                timesheetForm.updateDependsOnDate(selectedDateEvent.getSelectedDate());
-                dailyActivityForm.updateDependsOnDate(selectedDateEvent.getSelectedDate());
-                calendar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-                currentDay.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-
-                if (selectedDateEvent.getSelectedDate().equals(LocalDate.now())) {
-                    currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-                    calendar.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-                }
-            });
+        var registration1 = calendar.addClickListener(event -> {
+            dateSelectorDialog.open();
         });
+        listeners.add(registration1);
+
+        var registration2 = dateSelectorDialog.addSelectDateListener(selectedDateEvent -> {
+            selectedDate = selectedDateEvent.getSelectedDate();
+            updateDependsOnDate(selectedDate);
+
+            calendar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            currentDay.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+            if (selectedDateEvent.getSelectedDate().equals(LocalDate.now())) {
+                currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                calendar.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            }
+            dateSelectorDialog.close();
+        });
+        listeners.add(registration2);
 
         toolbar.add(currentDay, calendar);
 
         return toolbar;
     }
 
-    private void updateTimeline(LocalDate selectedDate) {
-        //        isDailyEntryExist = coreAPI.getDailyEntryDateAndEmployeeId(LocalDate.now(),
-        // authenticationResolver.getPrincipal().getEmployeeId());
+    // TODO: implement each button logic: createDaily - done, changeTimesheet - done, changeAttendance - done,
+    //  confirmAttendance - done,
+    private void addDailyModificationFormListeners() {
+        listeners.add(createDailyListener());
 
-        if (!isDailyEntryExist) {
-            if (selectedDate.equals(LocalDate.now())) {
-                information.setText(
-                        "W dzienniku pracy nie zarejstrowano wpisu dla dzisiejszego dnia. Zaktualizuj informacje aby utworzyć trwały wpis do dziennika ");
-            } else {
-                information.setText("W dzienniku pracy nie zarejestrowano wpisu dla " + selectedDate
-                        + ". Zaktualizuj informacje aby utworzyc trawły wpis do dziennika");
-            }
-            information.setVisible(true);
-        }
-        //        timeline.updateItems(List.of());
+        listeners.add(changeTimesheetListener());
+
+        listeners.add(changeAttendanceListener());
+
+        listeners.add(confirmAttendanceListener());
     }
 
-    private List<Item> createTimelineItems() {
-        LocalDate today = LocalDate.now();
-
-        Item item1 = new Item(
-                LocalDateTime.of(2025, 10, 8, 2, 30, 00),
-                LocalDateTime.of(2021, 8, 11, 8, 00, 00),
-                "Item 1 - Praca na projekcie A");
-        item1.setId("1");
-
-        Item item2 = new Item(
-                LocalDateTime.of(2021, 8, 11, 9, 00, 00),
-                LocalDateTime.of(2021, 8, 11, 17, 00, 00),
-                "Item 2 - Spotkanie z klientem");
-        item2.setId("2");
-
-        Item item3 = new Item(today.atTime(0, 30, 00), today.atTime(3, 0, 00), "Item 3 - Migracja serwera");
-        item3.setId("3");
-
-        Item item4 = new Item(today.atTime(4, 30, 00), today.atTime(20, 0, 00), "Item 4 - Dzień wolny");
-        item4.setId("4");
-
-        Item item5 = new Item(today.atTime(21, 30, 00), today.plusDays(1).atTime(1, 15, 00), "Item 5 - Wdrożenie");
-        item5.setId("5");
-
-        List<Item> items = Arrays.asList(item1, item2, item3, item4, item5);
-
-        items.forEach(i -> {
-            i.setEditable(false);
-            i.setUpdateTime(false);
+    private Registration confirmAttendanceListener() {
+        return dailyModificationForm.addConfirmAttendanceEventListener(event -> {
+            sharedUpdateAttendanceLogic(PRESENT);
         });
+    }
 
-        return items;
+    private Registration changeAttendanceListener() {
+        return dailyModificationForm.addChangeAttendanceEventListener(event -> {
+            sharedUpdateAttendanceLogic(event.getStatus());
+        });
+    }
+
+    private Registration changeTimesheetListener() {
+        return dailyModificationForm.addChangeTimesheetEventListener(event -> {
+            updateDailyTimesheetLogic();
+        });
+    }
+
+    private Registration createDailyListener() {
+        return dailyModificationForm.addCreateDailyEventListener(event -> {
+            createDailyLogic();
+        });
+    }
+
+    private void updateDailyTimesheetLogic() {
+        DailyEntryDTO dailyEntry = dailyEntryIsNullFallback();
+
+        UUID myselfId = dailyEntry.employeeId();
+
+        Instant startTime = timesheetForm.getStartTime();
+        Instant endTime = timesheetForm.getEndTime();
+        BigDecimal overtime = timesheetForm.getOvertime();
+
+        boolean changed = !Objects.equals(startTime, dailyEntry.startTime())
+                || !Objects.equals(endTime, dailyEntry.endTime())
+                || (dailyEntry.overTime() == null && overtime != null && overtime.compareTo(BigDecimal.ZERO) != 0)
+                || (dailyEntry.overTime() != null
+                        && overtime != null
+                        && dailyEntry.overTime().compareTo(overtime) != 0);
+
+        if (!changed) {
+            return;
+        }
+
+        var updateCommand = new UpdateDailyEntryCommand.UpdateWorkTime(
+                myselfId, dailyEntry.entryDate(), myselfId, startTime, endTime, overtime, "");
+
+        sharedUpdateDailyEntryLogic(updateCommand);
+    }
+
+    private void createDailyLogic() {
+        if (timesheetForm.getStartTime() == null) {
+            if (isMobile) {
+                new FailNotification(getTranslation("timesheetForm.startTimeError"));
+            }
+            timesheetForm.setStartTimePickerInvalid(true);
+            return;
+        } else {
+            timesheetForm.setStartTimePickerInvalid(false);
+        }
+
+        var createDailyEntryDTO = CreateDailyEntryDTO.builder()
+                .employeeId(authenticationResolver
+                        .getPrincipal()
+                        .getEmployeeId()) // to sie zmieni kiedy manager bedzie mial mozliwosc jednostkowego
+                // utworzenia dailyentry dla danego pracownika przez managera
+                .entryDate(selectedDate)
+                .actionByEmployeeId(authenticationResolver.getPrincipal().getEmployeeId())
+                .startTime(timesheetForm.getStartTime())
+                .endTime(timesheetForm.getEndTime())
+                .overTime(timesheetForm.getOvertime())
+                .build();
+
+        try {
+            Optional<DailyEntryDTO> dailyEntry = coreAPI.createDailyEntry(createDailyEntryDTO);
+            if (dailyEntry.isPresent()) {
+                updateDependsOnDate(selectedDate);
+                new SuccessNotification(getTranslation("dailyView.createDailyEntrySuccess"));
+            } else {
+                new FailNotification(getTranslation("dailyView.failNotification"));
+            }
+
+        } catch (NotAuthenticatedException e) {
+            new NotAuthenticatedNotification(e.getMessage());
+        }
+    }
+
+    private void sharedUpdateAttendanceLogic(DailyAttendanceStatus dailyAttendanceStatus) {
+        DailyEntryDTO dailyEntry = dailyEntryIsNullFallback();
+
+        if (dailyEntry.attendance().equals(dailyAttendanceStatus)) {
+            return;
+        }
+        UUID myselfId = dailyEntry.employeeId();
+
+        var updateCommand = new UpdateDailyEntryCommand.UpdateAttendance(
+                myselfId, dailyEntry.entryDate(), myselfId, dailyAttendanceStatus, "");
+
+        sharedUpdateDailyEntryLogic(updateCommand);
+    }
+
+    private void sharedUpdateDailyEntryLogic(UpdateDailyEntryCommand updateCommand) {
+        try {
+            Optional<DailyEntryDTO> dailyEntryDTO1 = coreAPI.updateDailyEntrySelfPemission(updateCommand);
+            if (dailyEntryDTO1.isPresent()) {
+                dailyEntryDTO = dailyEntryDTO1;
+                updateDependsOnDate(dailyEntryDTO1.get().entryDate());
+                new SuccessNotification(getTranslation("dailyView.updateTimesheetSuccess"));
+            } else {
+                new FailNotification(getTranslation("dailyView.failNotification"));
+            }
+        } catch (NotAuthenticatedException e) {
+            new NotAuthenticatedNotification(e.getMessage());
+        }
+    }
+
+    private DailyEntryDTO dailyEntryIsNullFallback() {
+        return dailyEntryDTO.orElseGet(() -> {
+            new FailNotification(getTranslation("dailyView.failNotification"));
+            UI.getCurrent().refreshCurrentRoute(true);
+            return null;
+        });
+    }
+
+    private void localize() {
+        currentDay.setText(getTranslation("dailyView.currentDay"));
+        calendar.setText(getTranslation("dailyView.calendar"));
     }
 }

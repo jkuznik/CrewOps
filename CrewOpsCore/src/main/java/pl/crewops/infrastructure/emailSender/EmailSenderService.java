@@ -13,6 +13,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 class EmailSenderService implements EmailSenderAPI {
 
+    // todo: use env placeholder
+    private static final String EMAIL_SENDER = "crewops@devsmith.eu";
+    private static final String EMAIL_PERSONAL = "no-reply-crewops";
+
     @Autowired(required = false)
     private final JavaMailSender javaMailSender;
 
@@ -23,7 +27,7 @@ class EmailSenderService implements EmailSenderAPI {
 
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
 
-            mimeMessageHelper.setFrom("crewops@devsmith.eu", "no-reply-crewops");
+            mimeMessageHelper.setFrom(EMAIL_SENDER, EMAIL_PERSONAL);
             mimeMessageHelper.setTo(sendEmailRequest.toEmailAddress());
             mimeMessageHelper.setSubject(sendEmailRequest.subject());
             mimeMessageHelper.setText(sendEmailRequest.body(), false);
