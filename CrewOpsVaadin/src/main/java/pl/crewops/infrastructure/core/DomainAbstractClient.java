@@ -3,7 +3,7 @@ package pl.crewops.infrastructure.core;
 import org.springframework.web.client.RestClient;
 import pl.crewops.exceptions.NotAuthenticatedException;
 
-public abstract class DomainAbstractClient {
+abstract class DomainAbstractClient {
 
     private final AuthorizationProvider authorizationProvider;
 

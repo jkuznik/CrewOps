@@ -49,8 +49,6 @@ import pl.crewops.model.dto.registration.VerifyEmailRequest;
 @Service
 class CoreService implements CoreAPI {
 
-    private final CoreClient coreClient;
-
     private final DomainAuthClient domainAuthClient;
     private final DomainBreakdownClient domainBreakdownClient;
     private final DomainCompanyClient domainCompanyClient;
@@ -63,7 +61,6 @@ class CoreService implements CoreAPI {
     private final DomainQualificationClient deleteQualificationClient;
 
     public CoreService(CoreClient coreClient) {
-        this.coreClient = coreClient;
         this.domainAuthClient = new DomainAuthClient(coreClient.getAuthorizationProvider(), coreClient.getCoreClient());
         this.domainBreakdownClient = new DomainBreakdownClient(coreClient.getAuthorizationProvider());
         this.domainCompanyClient = new DomainCompanyClient(coreClient.getAuthorizationProvider());

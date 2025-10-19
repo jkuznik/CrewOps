@@ -28,9 +28,7 @@ class CoreConfig {
 }
 
 @ConfigurationProperties("core")
-record CoreProperties(
-        //        String apiKey,
-        String baseUrl) {}
+record CoreProperties(String baseUrl) {}
 
 @Getter
 class CoreClient {
