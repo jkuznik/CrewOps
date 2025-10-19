@@ -19,14 +19,13 @@ import pl.crewops.model.dto.registration.PreRegisterResponse;
 import pl.crewops.model.dto.registration.VerifyEmailRequest;
 
 @Slf4j
-class AuthClient {
+class DomainAuthClient extends DomainAbstractClient {
 
     private final RestClient coreClient;
-    private final AuthorizationProvider authorizationProvider;
 
-    public AuthClient(RestClient coreClient, AuthorizationProvider authorizationProvider) {
+    public DomainAuthClient(AuthorizationProvider authorizationProvider, RestClient coreClient) {
+        super(authorizationProvider);
         this.coreClient = coreClient;
-        this.authorizationProvider = authorizationProvider;
     }
 
     public PreRegisterResponse registerNewCustomer(CreateCustomerCommand command) {
@@ -77,8 +76,7 @@ class AuthClient {
     // manager permission
     public AuthUserDTO updateAuthUserRoles(UpdateAuthUserDTO updateAuthUserDTO) throws NotAuthenticatedException {
         try {
-            return authorizationProvider
-                    .authorizedClient()
+            return authorizedClient()
                     .patch()
                     .uri(uriBuilder -> uriBuilder.path(UPDATE_USER_ROLES).build())
                     .body(updateAuthUserDTO)
@@ -93,8 +91,7 @@ class AuthClient {
     // authenticated BUT only own data
     public AuthUserDTO updateAuthUserCredentials(UpdateAuthUserDTO updateAuthUserDTO) throws NotAuthenticatedException {
         try {
-            return authorizationProvider
-                    .authorizedClient()
+            return authorizedClient()
                     .patch()
                     .uri(uriBuilder -> uriBuilder.path(UPDATE_USER_CREDENTIALS).build())
                     .body(updateAuthUserDTO)
@@ -109,8 +106,7 @@ class AuthClient {
     // manager permission
     public void terminateEmployeeAccount(UUID employeeId) throws NotAuthenticatedException {
         try {
-            authorizationProvider
-                    .authorizedClient()
+            authorizedClient()
                     .delete()
                     .uri(uriBuilder -> uriBuilder
                             .path(EMPLOYEES_EID.replace("{" + EMPLOYEE_ID + "}", employeeId.toString()))

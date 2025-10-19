@@ -51,23 +51,39 @@ class CoreService implements CoreAPI {
 
     private final CoreClient coreClient;
 
-    private final AuthClient authClient;
-    private final EmployeeClient employeeClient;
+    private final DomainAuthClient domainAuthClient;
+    private final DomainBreakdownClient domainBreakdownClient;
+    private final DomainCompanyClient domainCompanyClient;
+    private final DomainDailyClient domainDailyClient;
+    private final DomainDepartmentClient domainDepartmentClient;
+    private final DomainEmployeeClient domainEmployeeClient;
+    private final DomainMachineClient domainMachineClient;
+    private final DomainMessageClient domainMessageClient;
+    private final DomainOptionClient domainOptionClient;
+    private final DomainQualificationClient deleteQualificationClient;
 
     public CoreService(CoreClient coreClient) {
         this.coreClient = coreClient;
-        this.authClient = new AuthClient(coreClient.getCoreClient(), coreClient.getAuthorizationProvider());
-        this.employeeClient = new EmployeeClient(coreClient.getAuthorizationProvider());
+        this.domainAuthClient = new DomainAuthClient(coreClient.getAuthorizationProvider(), coreClient.getCoreClient());
+        this.domainBreakdownClient = new DomainBreakdownClient(coreClient.getAuthorizationProvider());
+        this.domainCompanyClient = new DomainCompanyClient(coreClient.getAuthorizationProvider());
+        this.domainDailyClient = new DomainDailyClient(coreClient.getAuthorizationProvider());
+        this.domainDepartmentClient = new DomainDepartmentClient(coreClient.getAuthorizationProvider());
+        this.domainEmployeeClient = new DomainEmployeeClient(coreClient.getAuthorizationProvider());
+        this.domainMachineClient = new DomainMachineClient(coreClient.getAuthorizationProvider());
+        this.domainMessageClient = new DomainMessageClient(coreClient.getAuthorizationProvider());
+        this.domainOptionClient = new DomainOptionClient(coreClient.getAuthorizationProvider());
+        this.deleteQualificationClient = new DomainQualificationClient(coreClient.getAuthorizationProvider());
     }
 
     @Override
     public Optional<CreateCustomerResult> verifyEmail(VerifyEmailRequest request) {
-        return Optional.ofNullable(authClient.verifyEmail(request));
+        return Optional.ofNullable(domainAuthClient.verifyEmail(request));
     }
 
     @Override
     public Optional<PreRegisterResponse> registerNewCustomer(CreateCustomerCommand command) {
-        return Optional.ofNullable(authClient.registerNewCustomer(command));
+        return Optional.ofNullable(domainAuthClient.registerNewCustomer(command));
     }
 
     @Caching(
@@ -83,7 +99,7 @@ class CoreService implements CoreAPI {
             })
     @Override
     public Optional<AuthResponse> login(AuthRequest request) {
-        return Optional.ofNullable(authClient.login(request));
+        return Optional.ofNullable(domainAuthClient.login(request));
     }
 
     @Caching(
@@ -94,7 +110,7 @@ class CoreService implements CoreAPI {
     @Override
     public Optional<AuthUserDTO> updateAuthUserCredentials(UpdateAuthUserDTO updateAuthUserDTO)
             throws NotAuthenticatedException {
-        return Optional.ofNullable(authClient.updateAuthUserCredentials(updateAuthUserDTO));
+        return Optional.ofNullable(domainAuthClient.updateAuthUserCredentials(updateAuthUserDTO));
     }
 
     @Caching(
@@ -105,7 +121,7 @@ class CoreService implements CoreAPI {
     @Override
     public Optional<AuthUserDTO> updateAuthUserRoles(UpdateAuthUserDTO updateAuthUserDTO)
             throws NotAuthenticatedException {
-        return Optional.ofNullable(authClient.updateAuthUserRoles(updateAuthUserDTO));
+        return Optional.ofNullable(domainAuthClient.updateAuthUserRoles(updateAuthUserDTO));
     }
 
     @Caching(
@@ -117,7 +133,82 @@ class CoreService implements CoreAPI {
             })
     @Override
     public void terminateEmployeeAccount(UUID employeeId) throws NotAuthenticatedException {
-        authClient.terminateEmployeeAccount(employeeId);
+        domainAuthClient.terminateEmployeeAccount(employeeId);
+    }
+
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINES_BY_IDS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINE_TYPES,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
+    @Override
+    public Optional<BreakdownDTO> createBreakdown(CreateBreakdownDTO createBreakdownDTO)
+            throws NotAuthenticatedException {
+
+        return Optional.ofNullable(domainBreakdownClient.createBreakdown(createBreakdownDTO));
+    }
+
+    @Cacheable(cacheNames = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    @Override
+    public List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException {
+
+        return domainBreakdownClient.getAllBreakdowns();
+    }
+
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINES_BY_IDS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINE_TYPES,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
+    @Override
+    public Optional<BreakdownDTO> updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO)
+            throws NotAuthenticatedException {
+        return Optional.ofNullable(domainBreakdownClient.updateBreakdown(updateBreakdownDTO));
+    }
+
+    // TODO: consider remove caching of this value or implement different logic
+    @Cacheable(cacheNames = GET_COMPANY_BY_ID, key = "#companyId")
+    @Override
+    public Optional<CompanyDTO> getCompanyById(UUID companyId) throws NotAuthenticatedException {
+        return Optional.ofNullable(domainCompanyClient.getCompanyById(companyId));
+    }
+
+    @Cacheable(cacheNames = GET_ALL_DEPARTMENTS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    @Override
+    public List<DepartmentDTO> getAllDepartments() throws NotAuthenticatedException {
+        log.info(("Get all departments via service proxy"));
+        return domainDepartmentClient.getAllDepartments();
+    }
+
+    @Override
+    public Optional<DailyEntryDTO> createDailyEntry(CreateDailyEntryDTO createDailyEntryDTO)
+            throws NotAuthenticatedException {
+        return Optional.ofNullable(domainDailyClient.createDailyEntry(createDailyEntryDTO));
+    }
+
+    // todo: implement cache and security
+    @Override
+    public Optional<DailyEntryDTO> findDailyEntryByEmployeeIdAndDate(UUID employeeId, LocalDate localDate)
+            throws NotAuthenticatedException {
+        return Optional.ofNullable(domainDailyClient.findDailyEntryByEmployeeIdAndDate(employeeId, localDate));
+    }
+
+    @Override
+    public Optional<DailyEntryDTO> updateDailyEntrySelfPemission(UpdateDailyEntryCommand updateDailyEntryCommand)
+            throws NotAuthenticatedException {
+        return Optional.ofNullable(domainDailyClient.updateDailyEntrySelfPermission(updateDailyEntryCommand));
     }
 
     @Caching(
@@ -128,21 +219,21 @@ class CoreService implements CoreAPI {
     @Override
     public Optional<CreateAuthUserResult> createEmployee(CreateEmployeeDTO createEmployeeDTO)
             throws NotAuthenticatedException {
-        return Optional.ofNullable(employeeClient.createEmployee(createEmployeeDTO));
+        return Optional.ofNullable(domainEmployeeClient.createEmployee(createEmployeeDTO));
     }
 
     @Cacheable(cacheNames = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     @Override
     public List<EmployeeDTO> getAllEmployees() throws NotAuthenticatedException {
         log.info("Cache Miss - getAllEmployees");
-        return employeeClient.getAllEmployees();
+        return domainEmployeeClient.getAllEmployees();
     }
 
     @Cacheable(cacheNames = GET_EMPLOYEE_BY_ID, key = "#employeeId")
     @Override
     public Optional<EmployeeDTO> getEmployeeById(UUID employeeId) throws NotAuthenticatedException {
         log.info("Cache Miss - getEmployeeById");
-        return Optional.ofNullable(employeeClient.getEmployeeById(employeeId));
+        return Optional.ofNullable(domainEmployeeClient.getEmployeeById(employeeId));
     }
 
     @Caching(
@@ -158,7 +249,7 @@ class CoreService implements CoreAPI {
             })
     @Override
     public Optional<EmployeeDTO> updateEmployee(UpdateEmployeeDTO updateEmployeeDTO) throws NotAuthenticatedException {
-        return Optional.ofNullable(employeeClient.updateEmployee(updateEmployeeDTO));
+        return Optional.ofNullable(domainEmployeeClient.updateEmployee(updateEmployeeDTO));
     }
 
     @Caching(
@@ -176,14 +267,14 @@ class CoreService implements CoreAPI {
     public Optional<EmployeeDTO> updateEmployeeSelfProfile(UpdateEmployeeDTO updateEmployeeDTO)
             throws NotAuthenticatedException {
 
-        return Optional.ofNullable(employeeClient.updateEmployeeSelfProfile(updateEmployeeDTO));
+        return Optional.ofNullable(domainEmployeeClient.updateEmployeeSelfProfile(updateEmployeeDTO));
     }
 
     // TODO: cache evict logic
     @Override
     public Optional<EmployeeDTO> addEmployeeDepartment(UUID employeeId, UUID departmentId)
             throws NotAuthenticatedException {
-        return Optional.ofNullable(employeeClient.addEmployeeDepartment(employeeId, departmentId));
+        return Optional.ofNullable(domainEmployeeClient.addEmployeeDepartment(employeeId, departmentId));
     }
 
     @Caching(
@@ -199,7 +290,7 @@ class CoreService implements CoreAPI {
             })
     @Override
     public Optional<EmployeeDTO> addEmployeeMachine(UUID employeeId, UUID machineId) throws NotAuthenticatedException {
-        return Optional.ofNullable(employeeClient.addEmployeeMachine(employeeId, machineId));
+        return Optional.ofNullable(domainEmployeeClient.addEmployeeMachine(employeeId, machineId));
     }
 
     @Caching(
@@ -215,13 +306,13 @@ class CoreService implements CoreAPI {
     @Override
     public Optional<EmployeeDTO> addEmployeeQualification(UUID employeeId, UUID qualificationId)
             throws NotAuthenticatedException {
-        return Optional.ofNullable(employeeClient.addEmployeeQualification(employeeId, qualificationId));
+        return Optional.ofNullable(domainEmployeeClient.addEmployeeQualification(employeeId, qualificationId));
     }
 
     // TODO: cache evict logic
     @Override
     public void removeEmployeeDepartment(UUID employeeId, UUID departmentId) throws NotAuthenticatedException {
-        employeeClient.removeEmployeeDepartment(employeeId, departmentId);
+        domainEmployeeClient.removeEmployeeDepartment(employeeId, departmentId);
     }
 
     @Caching(
@@ -231,7 +322,7 @@ class CoreService implements CoreAPI {
             })
     @Override
     public void removeEmployeeMachine(UUID employeeId, UUID machineId) throws NotAuthenticatedException {
-        employeeClient.removeEmployeeMachine(employeeId, machineId);
+        domainEmployeeClient.removeEmployeeMachine(employeeId, machineId);
     }
 
     @Caching(
@@ -246,153 +337,169 @@ class CoreService implements CoreAPI {
             })
     @Override
     public void removeEmployeeQualification(UUID employeeId, UUID qualificationId) throws NotAuthenticatedException {
-        employeeClient.removeEmployeeQualification(employeeId, qualificationId);
+        domainEmployeeClient.removeEmployeeQualification(employeeId, qualificationId);
     }
 
-    @Override
-    public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO)
-            throws NotAuthenticatedException {
-
-        return Optional.ofNullable(coreClient.createQualification(createQualificationDTO));
-    }
-
-    @Override
-    public Optional<QualificationDTO> updateQualification(UpdateQualificationDTO updateQualificationDTO)
-            throws NotAuthenticatedException {
-
-        return Optional.ofNullable(coreClient.updateQualification(updateQualificationDTO));
-    }
-
-    @Override
-    public Optional<EmployeeDTO> updateQualificationExpireAt(
-            UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO) throws NotAuthenticatedException {
-
-        return Optional.ofNullable(coreClient.updateQualificationExpireAt(updateQualificationExpiredAtDTO));
-    }
-
-    @Override
-    public List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(UUID employeeId)
-            throws NotAuthenticatedException {
-
-        return coreClient.getAllQualificationsWithExpirationTimeByEmployeeId(employeeId);
-    }
-
-    @Override
-    public Optional<DailyEntryDTO> createDailyEntry(CreateDailyEntryDTO createDailyEntryDTO)
-            throws NotAuthenticatedException {
-        return Optional.ofNullable(coreClient.createDailyEntry(createDailyEntryDTO));
-    }
-
-    @Override
-    public Optional<DailyEntryDTO> findDailyEntryByEmployeeIdAndDate(UUID employeeId, LocalDate localDate)
-            throws NotAuthenticatedException {
-        return Optional.ofNullable(coreClient.findDailyEntryByEmployeeIdAndDate(employeeId, localDate));
-    }
-
-    @Override
-    public Optional<DailyEntryDTO> updateDailyEntrySelfPemission(UpdateDailyEntryCommand updateDailyEntryCommand)
-            throws NotAuthenticatedException {
-        return Optional.ofNullable(coreClient.updateDailyEntrySelfPermission(updateDailyEntryCommand));
-    }
-
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINES_BY_IDS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINE_TYPES,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     @Override
     public Optional<MachineDTO> createMachine(CreateMachineDTO createMachineDTO) throws NotAuthenticatedException {
-
-        return Optional.ofNullable(coreClient.createMachine(createMachineDTO));
-    }
-
-    @Override
-    public Optional<MachineDTO> updateMachine(UpdateMachineDTO updateMachineDTO) throws NotAuthenticatedException {
-
-        return Optional.ofNullable(coreClient.updateMachine(updateMachineDTO));
-    }
-
-    @Override
-    public Optional<BreakdownDTO> createBreakdown(CreateBreakdownDTO createBreakdownDTO)
-            throws NotAuthenticatedException {
-
-        return Optional.ofNullable(coreClient.createBreakdown(createBreakdownDTO));
-    }
-
-    @Override
-    public Optional<BreakdownDTO> updateBreakdown(UpdateBreakdownDTO updateBreakdownDTO)
-            throws NotAuthenticatedException {
-
-        return Optional.ofNullable(coreClient.updateBreakdown(updateBreakdownDTO));
-    }
-
-    @Override
-    public List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException {
-        log.info("Cache Miss - getALlQualifications");
-        return coreClient.getAllQualifications();
-    }
-
-    @Override
-    public List<MachineDTO> getAllMachines() throws NotAuthenticatedException {
-
-        return coreClient.getAllMachines();
+        return Optional.ofNullable(domainMachineClient.createMachine(createMachineDTO));
     }
 
     @Override
     public List<MachineDTO> getAllEmployeeMachinesByIds(Set<UUID> ids) throws NotAuthenticatedException {
-
-        return coreClient.getAllEmployeeMachinesByIds(ids);
+        return domainMachineClient.getAllEmployeeMachinesByIds(ids);
     }
 
+    @Override
+    @Cacheable(cacheNames = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    public List<MachineDTO> getAllMachines() throws NotAuthenticatedException {
+        return domainMachineClient.getAllMachines();
+    }
+
+    @Cacheable(cacheNames = GET_ALL_MACHINE_TYPES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     @Override
     public List<MachineTypeDTO> getAllMachineTypes() throws NotAuthenticatedException {
-
-        return coreClient.getAllMachineTypes();
+        return domainMachineClient.getAllMachineTypes();
     }
 
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINES_BY_IDS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINE_TYPES,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     @Override
-    public List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException {
-
-        return coreClient.getAllBreakdowns();
+    public Optional<MachineDTO> updateMachine(UpdateMachineDTO updateMachineDTO) throws NotAuthenticatedException {
+        return Optional.ofNullable(domainMachineClient.updateMachine(updateMachineDTO));
     }
 
+    @Caching(
+            evict = {
+                @CacheEvict(value = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_MACHINES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINES_BY_IDS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_MACHINE_TYPES,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     @Override
-    public List<DepartmentDTO> getAllDepartments() throws NotAuthenticatedException {
-        log.info(("Get all departments via service proxy"));
-        return coreClient.getAllDepartments();
-    }
-
-    @Override
-    public Optional<CompanyDTO> getCompanyById(UUID companyId) throws NotAuthenticatedException {
-        log.info("Get company by id via service proxy");
-
-        return Optional.ofNullable(coreClient.getCompanyById(companyId));
-    }
-
-    @Override
-    public List<MessageDTO> getMessagesByRecipientEmployeeId(UUID employeeId) throws NotAuthenticatedException {
-        return coreClient.getMessagesByRecipientEmployeeId(employeeId);
-    }
-
-    @Override
-    public Optional<MessageDTO> setMessageReadStatus(UUID messageId, boolean status) throws NotAuthenticatedException {
-        return Optional.ofNullable(coreClient.setMessageReadStatus(messageId, status));
+    public void deleteMachine(UUID vehicleId) throws NotAuthenticatedException {
+        domainMachineClient.deleteMachine(vehicleId);
     }
 
     @Override
     public void sendMessage(SendMessageCommand sendMessageCommand) throws NotAuthenticatedException {
-        coreClient.sendMessage(sendMessageCommand);
+        domainMessageClient.sendMessage(sendMessageCommand);
     }
 
     @Override
-    public void deleteQualification(UUID qualificationId) throws NotAuthenticatedException {
+    public List<MessageDTO> getMessagesByRecipientEmployeeId(UUID employeeId) throws NotAuthenticatedException {
+        return domainMessageClient.getMessagesByRecipientEmployeeId(employeeId);
+    }
 
-        coreClient.deleteQualification(qualificationId);
+    @Override
+    public Optional<MessageDTO> setMessageReadStatus(UUID messageId, boolean status) throws NotAuthenticatedException {
+        return Optional.ofNullable(domainMessageClient.setMessageReadStatus(messageId, status));
     }
 
     @Override
     public Set<AuthUserOptionDTO> getOptionsByEmployeeId(UUID employeeId) throws NotAuthenticatedException {
-        return coreClient.getOptionsByEmployeeId(employeeId);
+        return domainOptionClient.getOptionsByEmployeeId(employeeId);
     }
 
+    @Caching(
+            evict = {
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS_WITH_EXPIRATION_TIME,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
     @Override
-    public void deleteMachine(UUID vehicleId) throws NotAuthenticatedException {
+    public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO)
+            throws NotAuthenticatedException {
+        return Optional.ofNullable(deleteQualificationClient.createQualification(createQualificationDTO));
+    }
 
-        coreClient.deleteMachine(vehicleId);
+    @Cacheable(cacheNames = GET_ALL_QUALIFICATIONS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+    @Override
+    public List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException {
+        return deleteQualificationClient.getAllQualifications();
+    }
+
+    @Caching(
+            evict = {
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS_WITH_EXPIRATION_TIME,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
+    @Override
+    public Optional<QualificationDTO> updateQualification(UpdateQualificationDTO updateQualificationDTO)
+            throws NotAuthenticatedException {
+        return Optional.ofNullable(deleteQualificationClient.updateQualification(updateQualificationDTO));
+    }
+
+    @Caching(
+            evict = {
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS_WITH_EXPIRATION_TIME,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
+    @Override
+    public Optional<EmployeeDTO> updateQualificationExpireAt(
+            UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO) throws NotAuthenticatedException {
+
+        return Optional.ofNullable(
+                deleteQualificationClient.updateQualificationExpireAt(updateQualificationExpiredAtDTO));
+    }
+
+    // todo: consider cache by employee id
+    @Override
+    public List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(UUID employeeId)
+            throws NotAuthenticatedException {
+        return deleteQualificationClient.getAllQualificationsWithExpirationTimeByEmployeeId(employeeId);
+    }
+
+    @Caching(
+            evict = {
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(
+                        value = GET_ALL_QUALIFICATIONS_WITH_EXPIRATION_TIME,
+                        key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
+                @CacheEvict(value = GET_ALL_EMPLOYEES, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
+            })
+    @Override
+    public void deleteQualification(UUID qualificationId) throws NotAuthenticatedException {
+        deleteQualificationClient.deleteQualification(qualificationId);
     }
 }

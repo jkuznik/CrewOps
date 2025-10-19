@@ -1,7 +1,6 @@
 package pl.crewops.infrastructure.core;
 
 import static pl.crewops.enums.ControllerURL.*;
-import static pl.crewops.util.CacheResolver.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,11 +15,11 @@ import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
 
 @Slf4j
-class EmployeeClient {
+class DomainEmployeeClient {
 
     private final AuthorizationProvider authorizationProvider;
 
-    public EmployeeClient(AuthorizationProvider authorizationProvider) {
+    public DomainEmployeeClient(AuthorizationProvider authorizationProvider) {
         this.authorizationProvider = authorizationProvider;
     }
 

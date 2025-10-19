@@ -1,6 +1,8 @@
 package pl.crewops.infrastructure.core;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,5 +24,22 @@ class CoreConfig {
                 .build();
 
         return new CoreClient(restClient);
+    }
+}
+
+@ConfigurationProperties("core")
+record CoreProperties(
+        //        String apiKey,
+        String baseUrl) {}
+
+@Getter
+class CoreClient {
+
+    private final RestClient coreClient;
+    private final AuthorizationProvider authorizationProvider;
+
+    public CoreClient(RestClient coreClient) {
+        this.coreClient = coreClient;
+        this.authorizationProvider = new AuthorizationProvider(coreClient);
     }
 }
