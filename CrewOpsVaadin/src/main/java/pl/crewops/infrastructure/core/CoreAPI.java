@@ -39,8 +39,6 @@ import pl.crewops.model.dto.registration.CreateCustomerCommand;
 import pl.crewops.model.dto.registration.CreateCustomerResult;
 import pl.crewops.model.dto.registration.PreRegisterResponse;
 import pl.crewops.model.dto.registration.VerifyEmailRequest;
-import pl.crewops.security.ValidTokenRequest;
-import pl.crewops.security.ValidTokenResponse;
 
 @Repository
 @Validated
@@ -57,8 +55,6 @@ public interface CoreAPI {
             throws NotAuthenticatedException;
 
     Set<AuthUserOptionDTO> getOptionsByEmployeeId(@NotNull UUID employeeId) throws NotAuthenticatedException;
-
-    Optional<ValidTokenResponse> validateToken(@Valid @NotNull ValidTokenRequest validTokenRequest);
 
     Optional<CreateAuthUserResult> createEmployee(@Valid @NotNull CreateEmployeeDTO createEmployeeDTO)
             throws NotAuthenticatedException;
@@ -102,8 +98,6 @@ public interface CoreAPI {
 
     Optional<EmployeeDTO> getEmployeeById(UUID employeeId) throws NotAuthenticatedException;
 
-    Optional<EmployeeDTO> getEmployeeByIdNoCache(UUID employeeId) throws NotAuthenticatedException;
-
     List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException;
 
     List<MachineDTO> getAllMachines() throws NotAuthenticatedException;
@@ -118,8 +112,6 @@ public interface CoreAPI {
     List<BreakdownDTO> getAllBreakdowns() throws NotAuthenticatedException;
 
     List<DepartmentDTO> getAllDepartments() throws NotAuthenticatedException;
-
-    Set<DepartmentDTO> getAllDepartmentsByIds(@NotNull Set<UUID> ids) throws NotAuthenticatedException;
 
     Optional<EmployeeDTO> addEmployeeDepartment(@NotNull UUID employeeId, @NotNull UUID departmentId)
             throws NotAuthenticatedException;

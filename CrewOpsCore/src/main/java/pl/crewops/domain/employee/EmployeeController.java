@@ -98,6 +98,7 @@ class EmployeeController {
     }
 
     @PatchMapping(EMPLOYEES_EID_QUALIFICATIONS_QID)
+    @ManagerPermission
     public ResponseEntity<EmployeeDTO> addEmployeeQualification(
             @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(QUALIFICATION_ID) UUID qualificationId) {
         return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.addQualification(employeeId, qualificationId));
@@ -122,26 +123,28 @@ class EmployeeController {
     }
 
     @PatchMapping(EMPLOYEES_EID_MACHINES_VID)
-    public ResponseEntity<EmployeeDTO> addEmployeeMachines(
+    public ResponseEntity<EmployeeDTO> addEmployeeMachine(
             @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(MACHINE_ID) UUID machineId) {
         return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.addMachine(employeeId, machineId));
     }
 
     @DeleteMapping(EMPLOYEES_EID_MACHINES_VID)
-    public ResponseEntity<Void> removeEmployeeMachines(
+    public ResponseEntity<Void> removeEmployeeMachine(
             @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(MACHINE_ID) UUID machineId) {
         employeeAPI.removeMachine(employeeId, machineId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping(EMPLOYEES_EID_DEPARTMENTS_DID)
-    public ResponseEntity<EmployeeDTO> addEmployeeDepartments(
+    @ManagerPermission
+    public ResponseEntity<EmployeeDTO> addEmployeeDepartment(
             @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(DEPARTMENT_ID) UUID departmentId) {
         return ResponseEntity.status(HttpStatus.OK).body(employeeAPI.addDepartment(employeeId, departmentId));
     }
 
     @DeleteMapping(EMPLOYEES_EID_DEPARTMENTS_DID)
-    public ResponseEntity<Void> removeEmployeeDepartments(
+    @ManagerPermission
+    public ResponseEntity<Void> removeEmployeeDepartment(
             @PathVariable(EMPLOYEE_ID) UUID employeeId, @PathVariable(DEPARTMENT_ID) UUID departmentId) {
         employeeAPI.removeDepartment(employeeId, departmentId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
