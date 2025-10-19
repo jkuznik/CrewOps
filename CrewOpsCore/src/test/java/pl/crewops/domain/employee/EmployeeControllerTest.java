@@ -163,7 +163,7 @@ class EmployeeControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "MANAGER")
     @DisplayName("PATCH /employees/{id}/qualifications/{id} should succeed")
     void addQualification_ShouldReturn200() throws Exception {
         UUID eid = UUID.randomUUID();
