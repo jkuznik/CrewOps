@@ -8,14 +8,16 @@ import java.util.UUID;
 import lombok.Builder;
 import pl.crewops.enums.DailyAttendanceStatus;
 import pl.crewops.enums.DailyEntryStatus;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 
 @Builder
 public record CreateDailyEntryDTO(
         @NotNull UUID employeeId,
         @NotNull LocalDate entryDate,
         UUID actionByEmployeeId,
-        Instant startTime,
+        @NotNull Instant startTime,
         Instant endTime,
         BigDecimal overTime,
+        JobPositionDTO jobPositionDTO,
         DailyAttendanceStatus attendance,
         DailyEntryStatus status) {}

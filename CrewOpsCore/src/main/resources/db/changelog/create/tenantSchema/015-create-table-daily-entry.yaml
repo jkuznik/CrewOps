@@ -32,6 +32,8 @@ databaseChangeLog:
               - column:
                   name: start_time
                   type: timestamptz
+                  constraints:
+                    nullable: false
               - column:
                   name: end_time
                   type: timestamptz
@@ -41,6 +43,9 @@ databaseChangeLog:
                   defaultValueNumeric: 0.0000
                   constraints:
                     nullable: false
+              - column:
+                  name: job_position_id
+                  type: uuid
               - column:
                   name: attendance
                   type: public.daily_attendance

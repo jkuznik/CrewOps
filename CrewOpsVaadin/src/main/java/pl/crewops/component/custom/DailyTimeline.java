@@ -4,11 +4,14 @@ import static pl.crewops.view.DailyView.FORMS_BORDER_PX;
 
 import com.vaadin.componentfactory.timeline.Timeline;
 import com.vaadin.componentfactory.timeline.model.Item;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.Tooltip;
+import com.vaadin.flow.component.textfield.TextField;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,6 +31,7 @@ public class DailyTimeline extends HorizontalLayout {
     private final Timeline timeline = new Timeline();
     private final Span statusDisplay = new Span();
     private final Icon helpIcon = VaadinIcon.INFO_CIRCLE.create();
+    private final TextField jobPosition = new TextField();
 
     private DailyEntryDTO dailyEntry;
 
@@ -49,11 +53,11 @@ public class DailyTimeline extends HorizontalLayout {
         getStyle().set("border-radius", "4px");
     }
 
-    private HorizontalLayout configuredAttendanceContainer() {
-        var attendanceLayout = new HorizontalLayout();
+    private Component configuredAttendanceContainer() {
+        var horizontalLayout = new HorizontalLayout();
 
-        attendanceLayout.setPadding(true);
-        attendanceLayout.setJustifyContentMode(HorizontalLayout.JustifyContentMode.END);
+        horizontalLayout.setPadding(true);
+        horizontalLayout.setJustifyContentMode(HorizontalLayout.JustifyContentMode.END);
 
         statusDisplay.getStyle().set("font-weight", "bold");
         statusDisplay.getStyle().set("padding", "var(--lumo-space-s)");
@@ -64,8 +68,17 @@ public class DailyTimeline extends HorizontalLayout {
 
         Tooltip.forComponent(helpIcon).withText(getHelpText()).withPosition(Tooltip.TooltipPosition.BOTTOM_END);
 
-        attendanceLayout.add(statusDisplay, helpIcon);
-        return attendanceLayout;
+        horizontalLayout.add(statusDisplay, helpIcon);
+
+        var container = new VerticalLayout();
+
+        if (dailyEntry != null && dailyEntry.jobPosition() != null) {
+            jobPosition.setValue(dailyEntry.jobPosition().name());
+        }
+
+        container.add(horizontalLayout, jobPosition);
+
+        return container;
     }
 
     public void setAttendanceStatus(DailyAttendanceStatus status) {
@@ -116,12 +129,18 @@ public class DailyTimeline extends HorizontalLayout {
     public void updateTimeline(DailyEntryDTO dailyEntry, LocalDate date) {
         if (dailyEntry == null) {
             statusDisplay.setText("");
+            jobPosition.setValue("");
             timeline.setItems(List.of());
             timeline.setTimelineRange(LocalDateTime.of(date, LocalTime.MIN), LocalDateTime.of(date, LocalTime.MAX));
             return;
         }
 
         setAttendanceStatus(dailyEntry.attendance());
+        if (dailyEntry.jobPosition() != null) {
+            jobPosition.setValue(dailyEntry.jobPosition().name());
+        } else {
+            jobPosition.setValue("");
+        }
         var from = dailyEntry.entryDate();
         final ZoneId ZONE_ID = ZoneId.systemDefault();
 

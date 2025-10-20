@@ -8,6 +8,7 @@ import static pl.crewops.enums.DailyAttendanceStatus.PRESENT;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import pl.crewops.domain.jobPosition.JobPositionAPI;
 import pl.crewops.enums.DailyAttendanceStatus;
 import pl.crewops.enums.DailyEntryAuditType;
 import pl.crewops.enums.DailyEntryStatus;
@@ -22,8 +24,11 @@ import pl.crewops.exception.domain.dailyEntry.DailyEntryNotFoundException;
 import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.UpdateDailyEntryCommand;
+import pl.crewops.model.dto.jobPosition.CreateJobPositionDTO;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.tenantSchema.DailyEntry;
 import pl.crewops.model.tenantSchema.DailyEntryAudit;
+import pl.crewops.model.tenantSchema.JobPosition;
 import pl.crewops.util.audit.AuditDetailsBuilder;
 
 @Slf4j
@@ -36,6 +41,7 @@ class DailyEntryService implements DailyEntryAPI {
     private final DailyEntryRepository dailyEntryRepository;
     private final DailyEntryAuditRepository dailyEntryAuditRepository;
     private final AuditDetailsBuilder auditDetailsBuilder;
+    private final JobPositionAPI jobPositionAPI;
 
     @Override
     @Transactional
@@ -57,6 +63,12 @@ class DailyEntryService implements DailyEntryAPI {
                 .payload(payloadNode)
                 .comment(INITIAL_COMMENT + savedEntry.getStatus())
                 .build();
+        // PoC
+        var jobPosition = CreateJobPositionDTO.builder().name("hardcoded").build();
+
+        JobPositionDTO jobPositionDTO = jobPositionAPI.createJobPosition(jobPosition);
+        Optional<JobPosition> byId = jobPositionAPI.findById(jobPositionDTO.id());
+        byId.ifPresent(savedEntry::setJobPosition);
 
         dailyEntryAuditRepository.save(auditEvent);
 
@@ -148,6 +160,12 @@ class DailyEntryService implements DailyEntryAPI {
             case UpdateDailyEntryCommand.AddDailyNote update -> {
                 // TODO: implement note persistence logic
                 auditType = DailyEntryAuditType.DAILY_NOTE_ADDED;
+            }
+            case UpdateDailyEntryCommand.UpdateJobPosition update -> {
+                // TODO : custom exception
+                dailyEntry.setJobPosition(
+                        jobPositionAPI.findById(update.jobPosition().id()).orElseThrow(NoSuchElementException::new));
+                auditType = DailyEntryAuditType.UPDATE_JOB_POSITION;
             }
         }
 

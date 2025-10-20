@@ -11,7 +11,7 @@ databaseChangeLog:
               DO $$
               BEGIN
                 IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'daily_entry_event_type') THEN
-                  CREATE TYPE daily_entry_event_type AS ENUM ('WORK_TIME_MODIFIED', 'ATTENDANCE_STATUS_CHANGED', 'DAILY_NOTE_ADDED', 'SAFETY_NOTE_ADDED', 'REPORT_STATUS_CHANGED', 'OVERTIME_MODIFIED', 'ENTRY_STATUS_CHANGED');
+                  CREATE TYPE daily_entry_event_type AS ENUM ('WORK_TIME_MODIFIED', 'UPDATE_JOB_POSITION', 'ATTENDANCE_STATUS_CHANGED', 'DAILY_NOTE_ADDED', 'SAFETY_NOTE_ADDED', 'REPORT_STATUS_CHANGED', 'OVERTIME_MODIFIED', 'ENTRY_STATUS_CHANGED');
                 END IF;
               END;
               $$;

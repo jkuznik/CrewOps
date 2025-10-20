@@ -203,7 +203,7 @@ class CoreService implements CoreAPI {
     }
 
     @Override
-    public Optional<DailyEntryDTO> updateDailyEntrySelfPemission(UpdateDailyEntryCommand updateDailyEntryCommand)
+    public Optional<DailyEntryDTO> updateDailyEntrySelfPermission(UpdateDailyEntryCommand updateDailyEntryCommand)
             throws NotAuthenticatedException {
         return Optional.ofNullable(domainDailyClient.updateDailyEntrySelfPermission(updateDailyEntryCommand));
     }

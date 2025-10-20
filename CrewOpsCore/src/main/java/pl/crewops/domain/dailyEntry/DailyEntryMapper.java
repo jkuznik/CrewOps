@@ -7,6 +7,7 @@ import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryAuditDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyNoteDTO;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.tenantSchema.DailyEntry;
 import pl.crewops.model.tenantSchema.DailyEntryAudit;
 import pl.crewops.model.tenantSchema.DailyNote;
@@ -26,6 +27,15 @@ class DailyEntryMapper {
     }
 
     static DailyEntryDTO mapToDTO(DailyEntry dailyEntry) {
+        JobPositionDTO jobPositionDTO = null;
+        if (dailyEntry.getJobPosition() != null) {
+            jobPositionDTO = JobPositionDTO.builder()
+                    .id(dailyEntry.getJobPosition().getId())
+                    .name(dailyEntry.getJobPosition().getName())
+                    // todo: implement rest (machineDTO and set<qualificationDTO>
+                    .build();
+        }
+
         return DailyEntryDTO.builder()
                 .id(dailyEntry.getId())
                 .employeeId(dailyEntry.getEmployeeId())
@@ -33,6 +43,7 @@ class DailyEntryMapper {
                 .startTime(dailyEntry.getStartTime())
                 .endTime(dailyEntry.getEndTime())
                 .overTime(dailyEntry.getOvertime())
+                .jobPosition(jobPositionDTO)
                 .dailyNotes(getMappedDailyNotes(dailyEntry))
                 .auditEvents(getMappedAuditEvents(dailyEntry))
                 .attendance(dailyEntry.getAttendance())

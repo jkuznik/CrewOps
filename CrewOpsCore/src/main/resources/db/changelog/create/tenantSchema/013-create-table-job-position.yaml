@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: 001-create-table-qualification
+      id: 001-create-table-job-position
       author: jkuznik
       changes:
         - createTable:
-            tableName: qualification
+            tableName: job_position
             columns:
               - column:
                   name: id
@@ -21,11 +21,13 @@ databaseChangeLog:
                     nullable: false
                   defaultValue: 0
               - column:
-                  name: description
-                  type: varchar(1023)
+                  name: name
+                  type: varchar(255)
                   constraints:
                     nullable: false
-                    unique: true
+              - column:
+                  name: machine_id
+                  type: uuid
               - column:
                   name: created_at
                   type: timestamptz
@@ -40,15 +42,15 @@ databaseChangeLog:
                     nullable: false
 
   - changeSet:
-      id: 002-create-qualification-updated_at-trigger
+      id: 002-create-job-position-updated_at-trigger
       author: jkuznik
       changes:
         - sql:
             dbms: postgresql
             # source: https://neon.tech/postgresql/postgresql-tutorial/postgresql-timestamp
             sql: |
-              DROP TRIGGER IF EXISTS qualification_updated_at_trigger ON qualification;
-              CREATE TRIGGER qualification_updated_at_trigger
-              BEFORE UPDATE ON qualification
+              DROP TRIGGER IF EXISTS job_position_updated_at_trigger ON job_position;
+              CREATE TRIGGER job_position_updated_at_trigger
+              BEFORE UPDATE ON job_position
               FOR EACH ROW
               EXECUTE FUNCTION public.update_updated_at();

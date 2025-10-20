@@ -2,7 +2,7 @@ package pl.crewops.model.tenantSchema;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.*;
@@ -10,6 +10,7 @@ import pl.crewops.model.AbstractEntity;
 import pl.crewops.model.dto.qualification.CreateQualificationDTO;
 import pl.crewops.model.dto.qualification.QualificationDTO;
 import pl.crewops.util.serializer.EmployeeSetSerializer;
+import pl.crewops.util.serializer.JobPositionSetSerializer;
 
 @Getter
 @Setter
@@ -19,7 +20,7 @@ import pl.crewops.util.serializer.EmployeeSetSerializer;
 @Entity
 public class Qualification extends AbstractEntity {
 
-    @NotNull
+    @Size(max = 1023)
     @Column(unique = true)
     private String description;
 
@@ -27,6 +28,11 @@ public class Qualification extends AbstractEntity {
     @JsonSerialize(using = EmployeeSetSerializer.class)
     @ManyToMany(mappedBy = "qualifications")
     private Set<Employee> employees = new LinkedHashSet<>();
+
+    @Builder.Default
+    @JsonSerialize(using = JobPositionSetSerializer.class)
+    @ManyToMany(mappedBy = "qualifications")
+    private Set<JobPosition> jobPositions = new LinkedHashSet<>();
 
     public Qualification mapToEntity(CreateQualificationDTO createQualificationDTO) {
         return Qualification.builder()

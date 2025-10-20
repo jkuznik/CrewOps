@@ -46,6 +46,24 @@ public class AuditDetailsBuilder {
                     newValues.put("attendance", newEntry.getAttendance());
                 }
             }
+            case UPDATE_JOB_POSITION -> {
+                if (oldEntry == null || !Objects.equals(oldEntry.getJobPosition(), newEntry.getJobPosition())) {
+                    String oldEntryValue = null;
+                    if (oldEntry != null) {
+                        oldEntryValue = oldEntry.getJobPosition().getMachine() != null
+                                ? oldEntry.getJobPosition().getName() + " ("
+                                        + oldEntry.getJobPosition().getMachine().getRegisterNumber() + ")"
+                                : oldEntry.getJobPosition().getName();
+                    }
+                    String newEntryValue = newEntry.getJobPosition().getMachine() != null
+                            ? newEntry.getJobPosition().getName() + " ("
+                                    + newEntry.getJobPosition().getMachine().getRegisterNumber() + ")"
+                            : newEntry.getJobPosition().getName();
+
+                    oldValues.put("jobPosition", oldEntryValue);
+                    newValues.put("jobPosition", newEntryValue);
+                }
+            }
             case WORK_TIME_MODIFIED -> {
                 if (oldEntry == null || !Objects.equals(oldEntry.getStartTime(), newEntry.getStartTime())) {
                     oldValues.put("startTime", oldEntry != null ? oldEntry.getStartTime() : null);

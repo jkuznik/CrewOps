@@ -92,13 +92,13 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
     public void beforeEnter(BeforeEnterEvent event) {
         // todo: implement annotation that do same thing.
         if (authenticationResolver.principalIsAuthenticated()) {
-            try {
-                mainContent.removeAll();
-                listeners.forEach(Registration::remove);
-                buildContent();
-            } catch (Exception e) {
-                new FailNotification(getTranslation("dailyView.failNotification"));
-            }
+            //            try {
+            mainContent.removeAll();
+            listeners.forEach(Registration::remove);
+            buildContent();
+            //            } catch (Exception e) {
+            //                new FailNotification(getTranslation("dailyView.failNotification"));
+            //            }
         } else {
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");
@@ -340,7 +340,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
     private void sharedUpdateDailyEntryLogic(UpdateDailyEntryCommand updateCommand) {
         try {
-            Optional<DailyEntryDTO> dailyEntryDTO1 = coreAPI.updateDailyEntrySelfPemission(updateCommand);
+            Optional<DailyEntryDTO> dailyEntryDTO1 = coreAPI.updateDailyEntrySelfPermission(updateCommand);
             if (dailyEntryDTO1.isPresent()) {
                 dailyEntryDTO = dailyEntryDTO1;
                 updateDependsOnDate(dailyEntryDTO1.get().entryDate());

@@ -5,6 +5,8 @@ public enum DailyEntryAuditType {
     /** Zdarzenie: Czas rozpoczęcia lub zakończenia pracy został zmodyfikowany. */
     WORK_TIME_MODIFIED,
 
+    UPDATE_JOB_POSITION,
+
     /** Zdarzenie: Status obecności został zmieniony. */
     ATTENDANCE_STATUS_CHANGED,
 

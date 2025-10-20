@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 import pl.crewops.enums.DailyAttendanceStatus;
 import pl.crewops.enums.DailyEntryStatus;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 
 /**
  * Base interface for all update commands related to {@code DailyEntry}.
@@ -24,13 +25,15 @@ import pl.crewops.enums.DailyEntryStatus;
     @JsonSubTypes.Type(value = UpdateDailyEntryCommand.UpdateAttendance.class, name = "UpdateAttendance"),
     @JsonSubTypes.Type(value = UpdateDailyEntryCommand.UpdateWorkTime.class, name = "UpdateWorkTime"),
     @JsonSubTypes.Type(value = UpdateDailyEntryCommand.ChangeEntryStatus.class, name = "ChangeEntryStatus"),
+    @JsonSubTypes.Type(value = UpdateDailyEntryCommand.UpdateJobPosition.class, name = "UpdateJobPosition"),
     @JsonSubTypes.Type(value = UpdateDailyEntryCommand.AddDailyNote.class, name = "AddDailyNote")
 })
 public sealed interface UpdateDailyEntryCommand
         permits UpdateDailyEntryCommand.UpdateAttendance,
                 UpdateDailyEntryCommand.UpdateWorkTime,
                 UpdateDailyEntryCommand.ChangeEntryStatus,
-                UpdateDailyEntryCommand.AddDailyNote {
+                UpdateDailyEntryCommand.AddDailyNote,
+                UpdateDailyEntryCommand.UpdateJobPosition {
 
     /**
      * Unique identifier of the employee whose DailyEntry is being modified.
@@ -95,6 +98,14 @@ public sealed interface UpdateDailyEntryCommand
             @NotNull LocalDate entryDate,
             @NotNull UUID actionByEmployeeId,
             @NotBlank String noteContent,
+            String comment)
+            implements UpdateDailyEntryCommand {}
+
+    record UpdateJobPosition(
+            @NotNull UUID employeeId,
+            @NotNull LocalDate entryDate,
+            @NotNull UUID actionByEmployeeId,
+            @NotBlank JobPositionDTO jobPosition,
             String comment)
             implements UpdateDailyEntryCommand {}
 }
