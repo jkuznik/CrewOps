@@ -29,6 +29,7 @@ import pl.crewops.model.dto.department.DepartmentDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.machine.CreateMachineDTO;
 import pl.crewops.model.dto.machine.MachineDTO;
 import pl.crewops.model.dto.machine.UpdateMachineDTO;
@@ -54,6 +55,7 @@ class CoreService implements CoreAPI {
     private final DomainCompanyClient domainCompanyClient;
     private final DomainDailyClient domainDailyClient;
     private final DomainDepartmentClient domainDepartmentClient;
+    private final DomainJobPositionClient domainJobPositionClient;
     private final DomainEmployeeClient domainEmployeeClient;
     private final DomainMachineClient domainMachineClient;
     private final DomainMessageClient domainMessageClient;
@@ -66,6 +68,7 @@ class CoreService implements CoreAPI {
         this.domainCompanyClient = new DomainCompanyClient(coreClient.getAuthorizationProvider());
         this.domainDailyClient = new DomainDailyClient(coreClient.getAuthorizationProvider());
         this.domainDepartmentClient = new DomainDepartmentClient(coreClient.getAuthorizationProvider());
+        this.domainJobPositionClient = new DomainJobPositionClient(coreClient.getAuthorizationProvider());
         this.domainEmployeeClient = new DomainEmployeeClient(coreClient.getAuthorizationProvider());
         this.domainMachineClient = new DomainMachineClient(coreClient.getAuthorizationProvider());
         this.domainMessageClient = new DomainMessageClient(coreClient.getAuthorizationProvider());
@@ -193,6 +196,11 @@ class CoreService implements CoreAPI {
     public Optional<DailyEntryDTO> createDailyEntry(CreateDailyEntryDTO createDailyEntryDTO)
             throws NotAuthenticatedException {
         return Optional.ofNullable(domainDailyClient.createDailyEntry(createDailyEntryDTO));
+    }
+
+    @Override
+    public List<JobPositionDTO> getAllJobPositions() throws NotAuthenticatedException {
+        return domainJobPositionClient.getAllJobPositions();
     }
 
     // todo: implement cache and security

@@ -2,6 +2,7 @@ package pl.crewops.util.audit;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import pl.crewops.enums.DailyEntryAuditType;
 import pl.crewops.model.tenantSchema.DailyEntry;
+import pl.crewops.model.tenantSchema.JobPosition;
 
 /**
  * Utility responsible for building structured JSON payloads for DailyEntry audit events.
@@ -46,25 +48,7 @@ public class AuditDetailsBuilder {
                     newValues.put("attendance", newEntry.getAttendance());
                 }
             }
-            case UPDATE_JOB_POSITION -> {
-                if (oldEntry == null || !Objects.equals(oldEntry.getJobPosition(), newEntry.getJobPosition())) {
-                    String oldEntryValue = null;
-                    if (oldEntry != null) {
-                        oldEntryValue = oldEntry.getJobPosition().getMachine() != null
-                                ? oldEntry.getJobPosition().getName() + " ("
-                                        + oldEntry.getJobPosition().getMachine().getRegisterNumber() + ")"
-                                : oldEntry.getJobPosition().getName();
-                    }
-                    String newEntryValue = newEntry.getJobPosition().getMachine() != null
-                            ? newEntry.getJobPosition().getName() + " ("
-                                    + newEntry.getJobPosition().getMachine().getRegisterNumber() + ")"
-                            : newEntry.getJobPosition().getName();
-
-                    oldValues.put("jobPosition", oldEntryValue);
-                    newValues.put("jobPosition", newEntryValue);
-                }
-            }
-            case WORK_TIME_MODIFIED -> {
+            case INFORMATION_MODIFIED -> {
                 if (oldEntry == null || !Objects.equals(oldEntry.getStartTime(), newEntry.getStartTime())) {
                     oldValues.put("startTime", oldEntry != null ? oldEntry.getStartTime() : null);
                     newValues.put("startTime", newEntry.getStartTime());
@@ -73,9 +57,59 @@ public class AuditDetailsBuilder {
                     oldValues.put("endTime", oldEntry != null ? oldEntry.getEndTime() : null);
                     newValues.put("endTime", newEntry.getEndTime());
                 }
-                if (oldEntry == null || !Objects.equals(oldEntry.getOvertime(), newEntry.getOvertime())) {
-                    oldValues.put("overtime", oldEntry != null ? oldEntry.getOvertime() : null);
-                    newValues.put("overtime", newEntry.getOvertime());
+
+                // 3. Sprawdzenie Overtime (POPRAWIONA LOGIKA DLA BIGDECIMAL)
+                BigDecimal oldOvertime = oldEntry != null ? oldEntry.getOvertime() : null;
+                BigDecimal newOvertime = newEntry.getOvertime();
+                boolean overtimeChanged = false;
+
+                // Sprawdzenie, czy któraś z wartości jest null (audyt inicjalny)
+                if (oldOvertime == null || newOvertime == null) {
+                    // Jest to zmiana, chyba że oba są null
+                    if (!Objects.equals(oldOvertime, newOvertime)) {
+                        overtimeChanged = true;
+                    }
+                }
+                // Obie wartości nie są null, porównujemy ich wartości liczbowe (compareTo)
+                else if (oldOvertime.compareTo(newOvertime) != 0) {
+                    overtimeChanged = true;
+                }
+                // Jeśli 0 vs 0 lub 2 vs 2, to compareTo zwróci 0, changed będzie false. POPRAWNE.
+
+                if (overtimeChanged) {
+                    oldValues.put("overtime", oldOvertime);
+                    newValues.put("overtime", newOvertime);
+                }
+
+                // 4. Sprawdzenie JobPosition (POPRAWIONA LOGIKA DLA RELACJI JPA)
+                JobPosition oldJobPosition = oldEntry != null ? oldEntry.getJobPosition() : null;
+                JobPosition newJobPosition = newEntry.getJobPosition();
+
+                // Sprawdzamy, czy obiekty JobPosition się różnią.
+                // ZAKŁADAMY, że oldJobPosition jest poprawnie załadowane (nie jest niezainicjalizowanym proxy).
+                boolean jobPositionChanged = !Objects.equals(oldJobPosition, newJobPosition);
+
+                if (jobPositionChanged) {
+                    String oldEntryValue = null;
+                    if (oldJobPosition != null) {
+                        // Tworzenie wartości dla starego wpisu
+                        oldEntryValue = oldJobPosition.getMachine() != null
+                                ? oldJobPosition.getName() + " ("
+                                        + oldJobPosition.getMachine().getRegisterNumber() + ")"
+                                : oldJobPosition.getName();
+                    }
+
+                    // Tworzenie wartości dla nowego wpisu (newJobPosition nie powinien być null, jeśli jest zmiana)
+                    String newEntryValue = null;
+                    if (newJobPosition != null) {
+                        newEntryValue = newJobPosition.getMachine() != null
+                                ? newJobPosition.getName() + " ("
+                                        + newJobPosition.getMachine().getRegisterNumber() + ")"
+                                : newJobPosition.getName();
+                    }
+
+                    oldValues.put("jobPosition", oldEntryValue);
+                    newValues.put("jobPosition", newEntryValue);
                 }
             }
             case ENTRY_STATUS_CHANGED -> {

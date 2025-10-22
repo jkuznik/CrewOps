@@ -5,13 +5,10 @@ import static pl.crewops.view.DailyView.FORMS_BORDER_PX;
 import com.vaadin.componentfactory.timeline.Timeline;
 import com.vaadin.componentfactory.timeline.model.Item;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.shared.Tooltip;
-import com.vaadin.flow.component.textfield.TextField;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,8 +17,13 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import pl.crewops.component.notification.NotAuthenticatedNotification;
 import pl.crewops.enums.DailyAttendanceStatus;
+import pl.crewops.exceptions.NotAuthenticatedException;
+import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
+import pl.crewops.util.SpringContextBridge;
 
 public class DailyTimeline extends HorizontalLayout {
 
@@ -29,9 +31,10 @@ public class DailyTimeline extends HorizontalLayout {
     private static final int TIMELINE_CONTAINER_HEIGHT_PX = 200;
 
     private final Timeline timeline = new Timeline();
+
+    private final Span attendanceHeaderTextLabel = new Span();
     private final Span statusDisplay = new Span();
-    private final Icon helpIcon = VaadinIcon.INFO_CIRCLE.create();
-    private final TextField jobPosition = new TextField();
+    private final ComboBox<JobPositionDTO> jobPosition = new ComboBox<>();
 
     private DailyEntryDTO dailyEntry;
 
@@ -42,8 +45,18 @@ public class DailyTimeline extends HorizontalLayout {
         add(configuredTimeline(), configuredAttendanceContainer());
     }
 
-    private void configureStyles() {
+    private void updateJobPositionComboBox() {
+        var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
 
+        try {
+            List<JobPositionDTO> allJobPositions = coreAPI.getAllJobPositions();
+            jobPosition.setItems(allJobPositions);
+        } catch (NotAuthenticatedException e) {
+            new NotAuthenticatedNotification(e.getMessage());
+        }
+    }
+
+    private void configureStyles() {
         setMinWidth(TIMELINE_WIDTH_PX);
         setMaxWidth(TIMELINE_WIDTH_PX);
         setMaxHeight(TIMELINE_CONTAINER_HEIGHT_PX + "px");
@@ -54,61 +67,65 @@ public class DailyTimeline extends HorizontalLayout {
     }
 
     private Component configuredAttendanceContainer() {
-        var horizontalLayout = new HorizontalLayout();
-
-        horizontalLayout.setPadding(true);
-        horizontalLayout.setJustifyContentMode(HorizontalLayout.JustifyContentMode.END);
-
-        statusDisplay.getStyle().set("font-weight", "bold");
-        statusDisplay.getStyle().set("padding", "var(--lumo-space-s)");
-        statusDisplay.getStyle().set("line-height", "1.5");
-
-        helpIcon.setColor("var(--lumo-contrast-50pct)");
-        helpIcon.getStyle().set("cursor", "pointer");
-
-        Tooltip.forComponent(helpIcon).withText(getHelpText()).withPosition(Tooltip.TooltipPosition.BOTTOM_END);
-
-        horizontalLayout.add(statusDisplay, helpIcon);
 
         var container = new VerticalLayout();
+        container.setSizeUndefined();
+        container.setPadding(true);
+        container.setSpacing(false);
+        // todo: i18n
+        attendanceHeaderTextLabel.setText("Status obecności");
 
+        statusDisplay.getStyle().set("font-weight", "bold");
+        statusDisplay.getStyle().set("line-height", "1.5");
+
+        // todo: i18n
+        jobPosition.setLabel("Stanowisko pracy");
+        updateJobPositionComboBox();
+
+        jobPosition.setItemLabelGenerator(JobPositionDTO::name);
         if (dailyEntry != null && dailyEntry.jobPosition() != null) {
-            jobPosition.setValue(dailyEntry.jobPosition().name());
+            jobPosition.setValue(dailyEntry.jobPosition());
         }
 
-        container.add(horizontalLayout, jobPosition);
+        container.add(attendanceHeaderTextLabel, statusDisplay, jobPosition);
 
         return container;
+    }
+
+    public JobPositionDTO getJobPosition() {
+        return jobPosition.getValue();
     }
 
     public void setAttendanceStatus(DailyAttendanceStatus status) {
 
         statusDisplay.getStyle().remove("color");
-
-        String translatedLabel = getTranslatedLabel(status);
-        statusDisplay.setText(translatedLabel);
         statusDisplay.getStyle().set("font-weight", "bold");
 
         switch (status) {
             case PRESENT -> {
-                // LUMO_SUCCESS green like
-                statusDisplay.getStyle().set("color", "#10D965");
+                statusDisplay.getStyle().set("color", "#10D965"); // LUMO_SUCCESS green like
+                statusDisplay.setText(getTranslation("dailyTimeline.present"));
             }
             case VACATION -> {
-                // Blue
-                statusDisplay.getStyle().set("color", "#007bff");
+                statusDisplay.getStyle().set("color", "#007bff"); // Blue
+                statusDisplay.setText(getTranslation("dailyTimeline.vacation"));
             }
             case SICK_LEAVE -> {
-                statusDisplay.getStyle().set("color", "orange");
+                statusDisplay.getStyle().set("color", "#007bff"); // Blue
+                statusDisplay.setText(getTranslation("dailyTimeline.sickLeave"));
             }
             case ABSENT -> {
                 statusDisplay.getStyle().set("color", "red");
+                statusDisplay.setText(getTranslation("dailyTimeline.absent"));
             }
             case OTHER -> {
                 statusDisplay.getStyle().set("color", "gray");
+                statusDisplay.setText(getTranslation("dailyTimeline.other"));
             }
-            default -> {
-                statusDisplay.getStyle().set("color", "black");
+            case NULL -> {
+                statusDisplay.getStyle().set("color", "gray");
+                // todo: i18n
+                statusDisplay.setText("Brak wpisu");
             }
         }
     }
@@ -128,21 +145,23 @@ public class DailyTimeline extends HorizontalLayout {
 
     public void updateTimeline(DailyEntryDTO dailyEntry, LocalDate date) {
         if (dailyEntry == null) {
-            statusDisplay.setText("");
-            jobPosition.setValue("");
+            jobPosition.setValue(null);
             timeline.setItems(List.of());
             timeline.setTimelineRange(LocalDateTime.of(date, LocalTime.MIN), LocalDateTime.of(date, LocalTime.MAX));
+            setAttendanceStatus(DailyAttendanceStatus.NULL);
             return;
         }
 
-        setAttendanceStatus(dailyEntry.attendance());
-        if (dailyEntry.jobPosition() != null) {
-            jobPosition.setValue(dailyEntry.jobPosition().name());
-        } else {
-            jobPosition.setValue("");
-        }
         var from = dailyEntry.entryDate();
         final ZoneId ZONE_ID = ZoneId.systemDefault();
+
+        setAttendanceStatus(dailyEntry.attendance());
+
+        if (dailyEntry.jobPosition() != null) {
+            jobPosition.setValue(dailyEntry.jobPosition());
+        } else {
+            jobPosition.setValue(null);
+        }
 
         if (dailyEntry.endTime() != null) {
             LocalDateTime to = LocalDateTime.ofInstant(dailyEntry.endTime(), ZONE_ID);
@@ -187,13 +206,13 @@ public class DailyTimeline extends HorizontalLayout {
 
         timeline.setItems(items);
     }
-
     // todo: i18n
+
     private Item createOvertimeItem(DailyEntryDTO dailyEntry) {
         if (dailyEntry.endTime() == null
                 || dailyEntry.overTime() == null
                 || dailyEntry.overTime().compareTo(BigDecimal.ZERO) <= 0) {
-            return null; // brak danych do wygenerowania overtime
+            return null;
         }
 
         final ZoneId ZONE_ID = ZoneId.systemDefault();
@@ -212,38 +231,5 @@ public class DailyTimeline extends HorizontalLayout {
         overtimeItem.setUpdateTime(false);
 
         return overtimeItem;
-    }
-
-    private String getTranslatedLabel(DailyAttendanceStatus item) {
-        switch (item) {
-            case PRESENT -> {
-                return getTranslation("dailyTimeline.present");
-            }
-            case VACATION -> {
-                return getTranslation("dailyTimeline.vacation");
-            }
-            case SICK_LEAVE -> {
-                return getTranslation("dailyTimeline.sickLeave");
-            }
-            case OTHER -> {
-                return getTranslation("dailyTimeline.other");
-            }
-            case ABSENT -> {
-                return getTranslation("dailyTimeline.absent");
-            }
-            default -> {
-                return "";
-            }
-        }
-    }
-
-    private String getHelpText() {
-        return getTranslation("dailyTimeline.helpText.title") + "\n"
-                + getTranslation("dailyTimeline.helpText.1") + "\n"
-                + getTranslation("dailyTimeline.helpText.2") + "\n"
-                + getTranslation("dailyTimeline.helpText.3") + "\n"
-                + getTranslation("dailyTimeline.helpText.4") + "\n"
-                + getTranslation("dailyTimeline.helpText.5") + "\n"
-                + getTranslation("dailyTimeline.helpText.6");
     }
 }

@@ -8,10 +8,7 @@ import static pl.crewops.enums.DailyAttendanceStatus.PRESENT;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -63,12 +60,22 @@ class DailyEntryService implements DailyEntryAPI {
                 .payload(payloadNode)
                 .comment(INITIAL_COMMENT + savedEntry.getStatus())
                 .build();
-        // PoC
-        var jobPosition = CreateJobPositionDTO.builder().name("hardcoded").build();
 
-        JobPositionDTO jobPositionDTO = jobPositionAPI.createJobPosition(jobPosition);
-        Optional<JobPosition> byId = jobPositionAPI.findById(jobPositionDTO.id());
-        byId.ifPresent(savedEntry::setJobPosition);
+        if (createDailyEntryDTO.jobPositionDTO() != null) {
+            String jobPositionName = createDailyEntryDTO.jobPositionDTO().name();
+            Optional<JobPosition> byName = jobPositionAPI.findByName(jobPositionName);
+
+            if (byName.isPresent()) {
+                savedEntry.setJobPosition(byName.get());
+            } else {
+                var jobPosition =
+                        CreateJobPositionDTO.builder().name(jobPositionName).build();
+
+                JobPositionDTO jobPositionDTO = jobPositionAPI.createJobPosition(jobPosition);
+                Optional<JobPosition> byId = jobPositionAPI.findById(jobPositionDTO.id());
+                byId.ifPresent(savedEntry::setJobPosition);
+            }
+        }
 
         dailyEntryAuditRepository.save(auditEvent);
 
@@ -133,6 +140,7 @@ class DailyEntryService implements DailyEntryAPI {
         return mapToDTO(dailyEntry);
     }
 
+    @Override
     @Transactional
     public DailyEntryDTO updateDailyEntry(UpdateDailyEntryCommand command) {
         DailyEntry dailyEntry = dailyEntryRepository
@@ -147,11 +155,16 @@ class DailyEntryService implements DailyEntryAPI {
                 dailyEntry.setAttendance(update.newAttendance());
                 auditType = DailyEntryAuditType.ATTENDANCE_STATUS_CHANGED;
             }
-            case UpdateDailyEntryCommand.UpdateWorkTime update -> {
+            case UpdateDailyEntryCommand.UpdateDailyEntryInformation update -> {
                 dailyEntry.setStartTime(update.newStartTime());
                 dailyEntry.setEndTime(update.newEndTime());
                 dailyEntry.setOvertime(update.newOvertime());
-                auditType = DailyEntryAuditType.WORK_TIME_MODIFIED;
+
+                if (update.jobPositionDTO() != null) {
+                    updateJobPosition(update, dailyEntry);
+                }
+
+                auditType = DailyEntryAuditType.INFORMATION_MODIFIED;
             }
             case UpdateDailyEntryCommand.ChangeEntryStatus update -> {
                 dailyEntry.setStatus(update.newStatus());
@@ -161,17 +174,10 @@ class DailyEntryService implements DailyEntryAPI {
                 // TODO: implement note persistence logic
                 auditType = DailyEntryAuditType.DAILY_NOTE_ADDED;
             }
-            case UpdateDailyEntryCommand.UpdateJobPosition update -> {
-                // TODO : custom exception
-                dailyEntry.setJobPosition(
-                        jobPositionAPI.findById(update.jobPosition().id()).orElseThrow(NoSuchElementException::new));
-                auditType = DailyEntryAuditType.UPDATE_JOB_POSITION;
-            }
         }
 
         DailyEntry savedEntry = dailyEntryRepository.save(dailyEntry);
 
-        // Główne zdarzenie audytowe (np. WORK_TIME_MODIFIED)
         JsonNode payloadNode =
                 auditDetailsBuilder.createPayload(auditType, oldEntry, savedEntry, command.actionByEmployeeId());
 
@@ -185,7 +191,6 @@ class DailyEntryService implements DailyEntryAPI {
 
         if (oldEntry.getStatus() == DailyEntryStatus.APPROVED && sensitiveModification(oldEntry, savedEntry)) {
 
-            DailyEntryStatus previousStatus = savedEntry.getStatus();
             savedEntry.setStatus(DailyEntryStatus.MANUAL_EDITED);
             dailyEntryRepository.save(savedEntry);
 
@@ -205,6 +210,23 @@ class DailyEntryService implements DailyEntryAPI {
         }
 
         return mapToDTO(savedEntry);
+    }
+
+    private void updateJobPosition(UpdateDailyEntryCommand.UpdateDailyEntryInformation update, DailyEntry dailyEntry) {
+        if (dailyEntry.getJobPosition() == null) {
+            Optional<JobPosition> byId =
+                    jobPositionAPI.findById(update.jobPositionDTO().id());
+            byId.ifPresent(dailyEntry::setJobPosition);
+        } else {
+            if (!dailyEntry
+                    .getJobPosition()
+                    .getId()
+                    .equals(update.jobPositionDTO().id())) {
+                Optional<JobPosition> byId =
+                        jobPositionAPI.findById(update.jobPositionDTO().id());
+                byId.ifPresent(dailyEntry::setJobPosition);
+            }
+        }
     }
 
     /**
@@ -262,6 +284,7 @@ class DailyEntryService implements DailyEntryAPI {
                 .startTime(source.getStartTime())
                 .endTime(source.getEndTime())
                 .overtime(source.getOvertime())
+                .jobPosition(source.getJobPosition())
                 .build();
         dailyEntry.setId(source.getId());
         return dailyEntry;

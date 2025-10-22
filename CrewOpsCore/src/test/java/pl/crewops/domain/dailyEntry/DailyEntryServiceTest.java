@@ -254,14 +254,15 @@ class DailyEntryServiceTest {
                 .thenReturn(Optional.of(dailyEntry));
         when(dailyEntryRepository.save(any(DailyEntry.class))).thenAnswer(i -> i.getArgument(0));
 
-        UpdateDailyEntryCommand.UpdateWorkTime command = new UpdateDailyEntryCommand.UpdateWorkTime(
-                employeeId,
-                entryDate,
-                actionBy,
-                Instant.parse("2025-01-01T09:00:00Z"),
-                Instant.parse("2025-01-01T17:00:00Z"),
-                null,
-                "Updated work time");
+        UpdateDailyEntryCommand.UpdateDailyEntryInformation command =
+                new UpdateDailyEntryCommand.UpdateDailyEntryInformation(
+                        employeeId,
+                        entryDate,
+                        actionBy,
+                        Instant.parse("2025-01-01T09:00:00Z"),
+                        Instant.parse("2025-01-01T17:00:00Z"),
+                        null,
+                        "Updated work time");
 
         // when
         DailyEntryDTO result = dailyEntryService.updateDailyEntry(command);
@@ -270,7 +271,7 @@ class DailyEntryServiceTest {
         assertThat(result.startTime()).isEqualTo(Instant.parse("2025-01-01T09:00:00Z"));
         assertThat(result.endTime()).isEqualTo(Instant.parse("2025-01-01T17:00:00Z"));
         verify(auditDetailsBuilder)
-                .createPayload(eq(DailyEntryAuditType.WORK_TIME_MODIFIED), any(), any(), eq(actionBy));
+                .createPayload(eq(DailyEntryAuditType.INFORMATION_MODIFIED), any(), any(), eq(actionBy));
         verify(dailyEntryAuditRepository).save(any(DailyEntryAudit.class));
     }
 
@@ -358,14 +359,15 @@ class DailyEntryServiceTest {
         DailyEntryService spyService = org.mockito.Mockito.spy(dailyEntryService);
         doReturn(true).when(spyService).sensitiveModification(any(), any());
 
-        UpdateDailyEntryCommand.UpdateWorkTime command = new UpdateDailyEntryCommand.UpdateWorkTime(
-                employeeId,
-                entryDate,
-                actionBy,
-                Instant.parse("2025-01-01T09:00:00Z"),
-                Instant.parse("2025-01-01T17:00:00Z"),
-                null,
-                "Changed after approval");
+        UpdateDailyEntryCommand.UpdateDailyEntryInformation command =
+                new UpdateDailyEntryCommand.UpdateDailyEntryInformation(
+                        employeeId,
+                        entryDate,
+                        actionBy,
+                        Instant.parse("2025-01-01T09:00:00Z"),
+                        Instant.parse("2025-01-01T17:00:00Z"),
+                        null,
+                        "Changed after approval");
 
         // when
         DailyEntryDTO result = spyService.updateDailyEntry(command);
@@ -375,7 +377,7 @@ class DailyEntryServiceTest {
 
         // pierwszy event – modyfikacja czasu pracy
         verify(auditDetailsBuilder)
-                .createPayload(eq(DailyEntryAuditType.WORK_TIME_MODIFIED), any(), any(), eq(actionBy));
+                .createPayload(eq(DailyEntryAuditType.INFORMATION_MODIFIED), any(), any(), eq(actionBy));
 
         // drugi event – cofnięcie zatwierdzenia
         verify(auditDetailsBuilder)

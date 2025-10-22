@@ -9,14 +9,14 @@ public interface ControllerURL {
 
     String LOGIN = "/login";
     String REGISTER = "/register";
-    String VERIFY_EMAIL = "/verifyEmail";
+    String VERIFY_EMAIL = "/verify-email";
     String LOGOUT = "/logout";
     String VALIDATE = "/validate";
     String HEALTH = "/health";
 
     // todo: refactor camel case into kebab case
-    String UPDATE_USER_ROLES = "/updateUserRoles";
-    String UPDATE_USER_CREDENTIALS = "/updateUserCredentials";
+    String UPDATE_USER_ROLES = "/update-user-roles";
+    String UPDATE_USER_CREDENTIALS = "/update-user-credentials";
 
     String EMPLOYEES = "/employees";
     String EMPLOYEE_ID = "employeeId";
@@ -33,6 +33,7 @@ public interface ControllerURL {
     String DEPARTMENTS = "/departments";
     String DEPARTMENT_ID = "departmentId";
     String DAILY_ENTRIES = "/daily-entries";
+    String JOB_POSITIONS = "/job-positions";
     String MESSAGES = "/messages";
     String MESSAGE_ID = "messageId";
 

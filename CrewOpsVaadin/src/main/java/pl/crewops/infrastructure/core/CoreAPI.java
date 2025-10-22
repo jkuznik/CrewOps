@@ -13,6 +13,7 @@ import pl.crewops.model.dto.company.CompanyDTO;
 import pl.crewops.model.dto.dailyEntry.*;
 import pl.crewops.model.dto.department.DepartmentDTO;
 import pl.crewops.model.dto.employee.*;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.machine.*;
 import pl.crewops.model.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.dto.message.*;
@@ -145,4 +146,8 @@ public interface CoreAPI {
 
     Optional<DailyEntryDTO> updateDailyEntrySelfPermission(
             @Valid @NotNull UpdateDailyEntryCommand updateDailyEntryCommand) throws NotAuthenticatedException;
+
+    // ---- JOB POSITION ---
+
+    List<JobPositionDTO> getAllJobPositions() throws NotAuthenticatedException;
 }

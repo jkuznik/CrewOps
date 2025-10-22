@@ -28,6 +28,7 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.UpdateDailyEntryCommand;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.BrowserResolver;
@@ -133,8 +134,8 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
                 dailyModificationForm.setDailyEntry(dailyEntry);
 
             } else {
-                timesheetForm.setDailyEntry(null);
                 timeline.updateTimeline(null, date);
+                timesheetForm.setDailyEntry(null);
                 dailyModificationForm.setDailyEntry(null);
             }
 
@@ -225,68 +226,6 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         return toolbar;
     }
 
-    // TODO: implement each button logic: createDaily - done, changeTimesheet - done, changeAttendance - done,
-    //  confirmAttendance - done,
-    private void addDailyModificationFormListeners() {
-        listeners.add(createDailyListener());
-
-        listeners.add(changeTimesheetListener());
-
-        listeners.add(changeAttendanceListener());
-
-        listeners.add(confirmAttendanceListener());
-    }
-
-    private Registration confirmAttendanceListener() {
-        return dailyModificationForm.addConfirmAttendanceEventListener(event -> {
-            sharedUpdateAttendanceLogic(PRESENT);
-        });
-    }
-
-    private Registration changeAttendanceListener() {
-        return dailyModificationForm.addChangeAttendanceEventListener(event -> {
-            sharedUpdateAttendanceLogic(event.getStatus());
-        });
-    }
-
-    private Registration changeTimesheetListener() {
-        return dailyModificationForm.addChangeTimesheetEventListener(event -> {
-            updateDailyTimesheetLogic();
-        });
-    }
-
-    private Registration createDailyListener() {
-        return dailyModificationForm.addCreateDailyEventListener(event -> {
-            createDailyLogic();
-        });
-    }
-
-    private void updateDailyTimesheetLogic() {
-        DailyEntryDTO dailyEntry = dailyEntryIsNullFallback();
-
-        UUID myselfId = dailyEntry.employeeId();
-
-        Instant startTime = timesheetForm.getStartTime();
-        Instant endTime = timesheetForm.getEndTime();
-        BigDecimal overtime = timesheetForm.getOvertime();
-
-        boolean changed = !Objects.equals(startTime, dailyEntry.startTime())
-                || !Objects.equals(endTime, dailyEntry.endTime())
-                || (dailyEntry.overTime() == null && overtime != null && overtime.compareTo(BigDecimal.ZERO) != 0)
-                || (dailyEntry.overTime() != null
-                        && overtime != null
-                        && dailyEntry.overTime().compareTo(overtime) != 0);
-
-        if (!changed) {
-            return;
-        }
-
-        var updateCommand = new UpdateDailyEntryCommand.UpdateWorkTime(
-                myselfId, dailyEntry.entryDate(), myselfId, startTime, endTime, overtime, "");
-
-        sharedUpdateDailyEntryLogic(updateCommand);
-    }
-
     private void createDailyLogic() {
         if (timesheetForm.getStartTime() == null) {
             if (isMobile) {
@@ -308,6 +247,8 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
                 .startTime(timesheetForm.getStartTime())
                 .endTime(timesheetForm.getEndTime())
                 .overTime(timesheetForm.getOvertime())
+                .jobPositionDTO(timeline.getJobPosition())
+                .attendance(OTHER)
                 .build();
 
         try {
@@ -324,7 +265,57 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         }
     }
 
-    private void sharedUpdateAttendanceLogic(DailyAttendanceStatus dailyAttendanceStatus) {
+    private void updateDailyEntryInformation() {
+        DailyEntryDTO dailyEntry = dailyEntryIsNullFallback();
+
+        UUID myselfId = dailyEntry.employeeId();
+
+        Instant startTime = timesheetForm.getStartTime();
+        Instant endTime = timesheetForm.getEndTime();
+        BigDecimal formOvertime = timesheetForm.getOvertime();
+        BigDecimal entryOvertime = dailyEntry.overTime();
+        JobPositionDTO jobPosition = timeline.getJobPosition();
+
+        boolean changed = !Objects.equals(startTime, dailyEntry.startTime())
+                || !Objects.equals(endTime, dailyEntry.endTime())
+                || !Objects.equals(dailyEntry.jobPosition(), jobPosition);
+
+        if (!changed) {
+            changed = isOvertimeChanged(entryOvertime, formOvertime);
+        }
+
+        if (!changed) {
+            return;
+        }
+
+        var updateCommand = new UpdateDailyEntryCommand.UpdateDailyEntryInformation(
+                myselfId, dailyEntry.entryDate(), myselfId, startTime, endTime, formOvertime, jobPosition, "");
+
+        sharedUpdateDailyEntryLogic(updateCommand);
+    }
+
+    /**
+     * Sprawdza, czy wartości nadgodzin różnią się, traktując poprawnie przypadki null i BigDecimal.
+     * * Ta logika zapewnia, że zmiana z wartości dodatniej na ZERO jest uznawana za zmianę.
+     * * @param entryOvertime Nadgodziny z aktualnego DTO (entryDaily.overTime()).
+     * @param formOvertime Nadgodziny z formularza (timesheetForm.getOvertime()).
+     * @return true, jeśli wartości są różne (uwzględniając null/0); false w przeciwnym razie.
+     */
+    private boolean isOvertimeChanged(BigDecimal entryOvertime, BigDecimal formOvertime) {
+        if (entryOvertime == null && formOvertime == null) {
+            return false;
+        }
+
+        if (entryOvertime == null || formOvertime == null) {
+            return true;
+        }
+
+        // C. Żadna nie jest null, porównujemy wartości liczbowe (0 vs 0 -> NIE jest zmianą, 2 vs 0 -> JEST zmianą)
+        // BigDecimal.compareTo() jest prawidłowym sposobem porównywania wartości BigDecimals.
+        return entryOvertime.compareTo(formOvertime) != 0;
+    }
+
+    private void updateAttendance(DailyAttendanceStatus dailyAttendanceStatus) {
         DailyEntryDTO dailyEntry = dailyEntryIsNullFallback();
 
         if (dailyEntry.attendance().equals(dailyAttendanceStatus)) {
@@ -364,5 +355,41 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
     private void localize() {
         currentDay.setText(getTranslation("dailyView.currentDay"));
         calendar.setText(getTranslation("dailyView.calendar"));
+    }
+
+    // TODO: implement each button logic: createDaily - done, changeTimesheet - done, changeAttendance - done,
+    //  confirmAttendance - done,
+    private void addDailyModificationFormListeners() {
+        listeners.add(createDailyListener());
+
+        listeners.add(changeTimesheetListener());
+
+        listeners.add(changeAttendanceListener());
+
+        listeners.add(confirmAttendanceListener());
+    }
+
+    private Registration confirmAttendanceListener() {
+        return dailyModificationForm.addConfirmAttendanceEventListener(event -> {
+            updateAttendance(PRESENT);
+        });
+    }
+
+    private Registration changeAttendanceListener() {
+        return dailyModificationForm.addChangeAttendanceEventListener(event -> {
+            updateAttendance(event.getStatus());
+        });
+    }
+
+    private Registration changeTimesheetListener() {
+        return dailyModificationForm.addChangeTimesheetEventListener(event -> {
+            updateDailyEntryInformation();
+        });
+    }
+
+    private Registration createDailyListener() {
+        return dailyModificationForm.addCreateDailyEventListener(event -> {
+            createDailyLogic();
+        });
     }
 }

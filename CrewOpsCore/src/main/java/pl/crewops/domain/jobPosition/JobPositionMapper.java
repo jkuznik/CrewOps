@@ -16,6 +16,10 @@ class JobPositionMapper {
     }
 
     static JobPositionDTO mapToDTO(JobPosition entity) {
+        if (entity == null) {
+            return null;
+        }
+
         MachineDTO machineDTO = null;
         if (entity.getMachine() != null) {
             machineDTO = MachineDTO.builder()
