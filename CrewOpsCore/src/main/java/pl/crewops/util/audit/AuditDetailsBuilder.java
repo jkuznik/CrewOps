@@ -49,13 +49,36 @@ public class AuditDetailsBuilder {
                 }
             }
             case INFORMATION_MODIFIED -> {
+                // 1. Sprawdzenie StartTime
                 if (oldEntry == null || !Objects.equals(oldEntry.getStartTime(), newEntry.getStartTime())) {
-                    oldValues.put("startTime", oldEntry != null ? oldEntry.getStartTime() : null);
-                    newValues.put("startTime", newEntry.getStartTime());
+
+                    // ZMIANA: Jawne użycie .toString() dla stabilnego formatu ISO-8601 (np. "2025-10-23T08:00:00Z")
+                    oldValues.put(
+                            "startTime",
+                            oldEntry != null && oldEntry.getStartTime() != null
+                                    ? oldEntry.getStartTime().toString()
+                                    : null);
+                    newValues.put(
+                            "startTime",
+                            newEntry.getStartTime() != null
+                                    ? newEntry.getStartTime().toString()
+                                    : null);
                 }
+
+                // 2. Sprawdzenie EndTime
                 if (oldEntry == null || !Objects.equals(oldEntry.getEndTime(), newEntry.getEndTime())) {
-                    oldValues.put("endTime", oldEntry != null ? oldEntry.getEndTime() : null);
-                    newValues.put("endTime", newEntry.getEndTime());
+
+                    // ZMIANA: Jawne użycie .toString() dla stabilnego formatu ISO-8601
+                    oldValues.put(
+                            "endTime",
+                            oldEntry != null && oldEntry.getEndTime() != null
+                                    ? oldEntry.getEndTime().toString()
+                                    : null);
+                    newValues.put(
+                            "endTime",
+                            newEntry.getEndTime() != null
+                                    ? newEntry.getEndTime().toString()
+                                    : null);
                 }
 
                 // 3. Sprawdzenie Overtime (POPRAWIONA LOGIKA DLA BIGDECIMAL)

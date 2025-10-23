@@ -18,12 +18,14 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import pl.crewops.domain.jobPosition.JobPositionAPI;
 import pl.crewops.enums.DailyAttendanceStatus;
 import pl.crewops.enums.DailyEntryAuditType;
 import pl.crewops.enums.DailyEntryStatus;
 import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.UpdateDailyEntryCommand;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.tenantSchema.DailyEntry;
 import pl.crewops.model.tenantSchema.DailyEntryAudit;
 import pl.crewops.util.audit.AuditDetailsBuilder;
@@ -33,7 +35,8 @@ import pl.crewops.util.audit.AuditDetailsBuilder;
             DailyEntryService.class,
             AuditDetailsBuilder.class,
             DailyEntryRepository.class,
-            DailyEntryAuditRepository.class
+            DailyEntryAuditRepository.class,
+            JobPositionAPI.class
         })
 class DailyEntryServiceTest {
 
@@ -48,6 +51,9 @@ class DailyEntryServiceTest {
 
     @MockitoBean
     AuditDetailsBuilder auditDetailsBuilder;
+
+    @MockitoBean
+    JobPositionAPI jobPositionAPI;
 
     private DailyEntry savedEntry;
     private JsonNode payloadNode;
@@ -262,7 +268,8 @@ class DailyEntryServiceTest {
                         Instant.parse("2025-01-01T09:00:00Z"),
                         Instant.parse("2025-01-01T17:00:00Z"),
                         null,
-                        "Updated work time");
+                        JobPositionDTO.builder().build(),
+                        "");
 
         // when
         DailyEntryDTO result = dailyEntryService.updateDailyEntry(command);
@@ -367,6 +374,7 @@ class DailyEntryServiceTest {
                         Instant.parse("2025-01-01T09:00:00Z"),
                         Instant.parse("2025-01-01T17:00:00Z"),
                         null,
+                        JobPositionDTO.builder().build(),
                         "Changed after approval");
 
         // when
