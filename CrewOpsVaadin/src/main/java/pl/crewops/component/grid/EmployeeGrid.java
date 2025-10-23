@@ -210,10 +210,10 @@ public class EmployeeGrid extends VerticalLayout {
 
                         boolean departmentMatches = (selectedDepartment == null || selectedDepartment.isBlank())
                                 || (employee.getDepartments() != null
-                                        && employee.getDepartments()
-                                                .contains(DepartmentFormModel.builder()
-                                                        .name(selectedDepartment)
-                                                        .build()));
+                                        && employee.getDepartments().stream()
+                                                .map(DepartmentFormModel::getName)
+                                                .anyMatch(name ->
+                                                        name.toLowerCase().contains(selectedDepartment)));
 
                         return nameMatches && roleMatches && departmentMatches;
                     })
