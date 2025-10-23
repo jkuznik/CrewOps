@@ -3,7 +3,9 @@ package pl.crewops.component.grid;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -100,16 +102,20 @@ public class MachineGrid extends VerticalLayout {
 
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
+        toolbar.setWidthFull();
 
         filter.setClearButtonVisible(true);
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         filter.addValueChangeListener(event -> updateMachineGrid());
 
         addMachine.setWidth("160px");
+        addMachine.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         addMachine.addClickListener(event -> addMachine());
 
         if (authenticationResolver.principalHasManagerPermission()) {
-            toolbar.add(filter, addMachine);
+            var spacer = new Span();
+            toolbar.add(filter, spacer, addMachine);
+            toolbar.setFlexGrow(1, spacer);
         } else {
             toolbar.add(filter);
         }

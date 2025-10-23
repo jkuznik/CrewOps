@@ -38,12 +38,11 @@ public class BreakdownGrid extends VerticalLayout {
     private final HorizontalLayout gridToolbar;
 
     private final Grid<BreakdownFormModel> grid = new Grid<>();
-    private final BreakdownForm form;
+    private final BreakdownForm form = new BreakdownForm();
 
     public BreakdownGrid(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
         this.coreAPI = coreAPI;
         this.authenticationResolver = authenticationResolver;
-        this.form = new BreakdownForm();
         gridToolbar = getToolbar();
 
         configureGrid();

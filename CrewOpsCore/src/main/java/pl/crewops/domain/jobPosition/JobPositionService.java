@@ -64,6 +64,7 @@ class JobPositionService implements JobPositionAPI {
     }
 
     @Override
+    @Transactional
     public List<JobPositionDTO> getAllJobPositions() {
         List<JobPosition> all = jobPositionRepository.findAll();
         return all.stream().map(JobPositionMapper::mapToDTO).toList();

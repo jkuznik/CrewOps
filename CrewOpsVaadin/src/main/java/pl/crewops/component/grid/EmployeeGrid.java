@@ -3,9 +3,11 @@ package pl.crewops.component.grid;
 import static pl.crewops.model.auth.RoleType.*;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -86,6 +88,7 @@ public class EmployeeGrid extends VerticalLayout {
 
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
+        toolbar.setWidthFull();
 
         nameFilter.setClearButtonVisible(true);
         nameFilter.setValueChangeMode(ValueChangeMode.LAZY);
@@ -105,9 +108,14 @@ public class EmployeeGrid extends VerticalLayout {
         departmentFilter.addValueChangeListener(event -> updateGrid());
 
         addEmployee.setWidth("160px");
+        addEmployee.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         addEmployee.addClickListener(event -> addEmployee());
 
-        toolbar.add(nameFilter, departmentFilter, roleFilter, addEmployee);
+        var spacer = new Span();
+
+        toolbar.add(nameFilter, departmentFilter, roleFilter, spacer, addEmployee);
+
+        toolbar.setFlexGrow(1, spacer);
         return toolbar;
     }
 

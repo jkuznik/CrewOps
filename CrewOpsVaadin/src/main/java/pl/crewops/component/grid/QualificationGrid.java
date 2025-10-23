@@ -2,7 +2,9 @@ package pl.crewops.component.grid;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -78,15 +80,22 @@ public class QualificationGrid extends VerticalLayout {
 
     private HorizontalLayout getToolbar() {
         var toolbar = new HorizontalLayout();
+        toolbar.setWidthFull();
 
         filter.setClearButtonVisible(true);
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         filter.addValueChangeListener(event -> updateGrid());
 
         addQualification.setWidth("160px");
+        addQualification.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         addQualification.addClickListener(event -> addQualification());
 
-        toolbar.add(filter, addQualification);
+        var spacer = new Span();
+
+        toolbar.add(filter, spacer, addQualification);
+
+        toolbar.setFlexGrow(1, spacer);
+
         return toolbar;
     }
 
