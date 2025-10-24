@@ -49,7 +49,7 @@ public class JobPositionForm extends FormLayout {
 
     private Component createButtonsLayout() {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        update.addThemeVariants(ButtonVariant.LUMO_PRIMARY);ns
+        update.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         delete.getElement().getStyle().set("background-color", "#FFA500");
         delete.getElement().getStyle().set("color", "#333333");
         close.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -57,10 +57,10 @@ public class JobPositionForm extends FormLayout {
         save.addClickShortcut(Key.ENTER);
         close.addClickShortcut(Key.ESCAPE);
 
-//        save.addClickListener(event -> validateAndSave());
-//        update.addClickListener(event -> validateAndUpdate());
-//        delete.addClickListener(event -> fireEvent(new EmployeeForm.DeleteEvent(this, binder.getBean())));
-//        close.addClickListener(event -> fireEvent(new EmployeeForm.CloseEvent(this)));
+        //        save.addClickListener(event -> validateAndSave());
+        //        update.addClickListener(event -> validateAndUpdate());
+        //        delete.addClickListener(event -> fireEvent(new EmployeeForm.DeleteEvent(this, binder.getBean())));
+        //        close.addClickListener(event -> fireEvent(new EmployeeForm.CloseEvent(this)));
         close.addClickListener(event -> setVisible(false));
 
         binder.addStatusChangeListener(e -> save.setEnabled(binder.isValid()));
