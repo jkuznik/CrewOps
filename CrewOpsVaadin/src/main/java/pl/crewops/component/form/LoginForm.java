@@ -79,7 +79,7 @@ public class LoginForm extends FormLayout {
     }
 
     private void configureLoginButton(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
-        login.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        login.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         login.addClickListener(event -> loginAction(coreAPI, jwtService));
     }
 

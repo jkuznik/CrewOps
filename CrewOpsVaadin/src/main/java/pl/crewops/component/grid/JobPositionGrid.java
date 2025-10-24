@@ -92,6 +92,7 @@ public class JobPositionGrid extends VerticalLayout {
                 .setKey("machine");
 
         grid.asSingleSelect().addValueChangeListener(e -> {
+            form.setFormModeUpdate();
             form.setVisible(true);
         });
 
@@ -104,6 +105,8 @@ public class JobPositionGrid extends VerticalLayout {
         } else {
             form.setWidth("25em");
         }
+
+        form.setVisible(false);
 
         //        todo: implement
         //        form.addUpdateListener():
@@ -142,7 +145,10 @@ public class JobPositionGrid extends VerticalLayout {
         return content;
     }
 
-    private void addJobPosition() {}
+    private void addJobPosition() {
+        form.setFormModeSave();
+        form.setVisible(true);
+    }
 
     private void localize() {
         grid.getColumnByKey("name").setHeader(getTranslation("jobPositionGrid.name"));

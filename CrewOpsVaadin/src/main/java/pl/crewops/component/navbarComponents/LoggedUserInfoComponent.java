@@ -54,7 +54,10 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
 
         Button logoutButton = new Button(getTranslation("loggedUserInfo.logout"));
         logoutButton.addClickListener(event -> logout(authenticationResolver));
-        logoutButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        logoutButton.addThemeVariants(ButtonVariant.LUMO_WARNING);
+        logoutButton.setWidth("160px");
+
+        //        logoutButton.getElement().getStyle().set("color", "#FF0000");
 
         var logoutButtonAndLanguageSelector = new HorizontalLayout();
         logoutButtonAndLanguageSelector.setSpacing(true);

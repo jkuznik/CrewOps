@@ -139,7 +139,8 @@ public class EmployeeForm extends FormLayout {
     private Component createButtonsLayout() {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         update.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        delete.getElement().getStyle().set("background-color", "#FFA500");
+        delete.getElement().getStyle().set("color", "#333333");
         close.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
         save.addClickShortcut(Key.ENTER);
