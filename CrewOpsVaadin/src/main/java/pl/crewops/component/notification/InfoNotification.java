@@ -6,7 +6,7 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 public class InfoNotification extends Notification {
     public InfoNotification(String message) {
         addThemeVariants(NotificationVariant.LUMO_PRIMARY);
-        setPosition(Notification.Position.TOP_END);
+        setPosition(Notification.Position.TOP_CENTER);
         setDuration(5000);
 
         setText(message);

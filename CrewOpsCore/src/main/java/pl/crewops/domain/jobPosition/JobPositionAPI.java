@@ -22,5 +22,7 @@ public interface JobPositionAPI {
 
     List<JobPositionDTO> getAllJobPositions();
 
-    Optional<JobPositionDTO> updateById(@NotNull @Valid UpdateJobPositionDTO updateJopPositionDTO);
+    JobPositionDTO updateJobPosition(@NotNull @Valid UpdateJobPositionDTO updateJopPositionDTO);
+
+    void deleteById(@NotNull UUID id);
 }

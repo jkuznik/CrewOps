@@ -13,7 +13,9 @@ import pl.crewops.model.dto.company.CompanyDTO;
 import pl.crewops.model.dto.dailyEntry.*;
 import pl.crewops.model.dto.department.DepartmentDTO;
 import pl.crewops.model.dto.employee.*;
+import pl.crewops.model.dto.jobPosition.CreateJobPositionDTO;
 import pl.crewops.model.dto.jobPosition.JobPositionDTO;
+import pl.crewops.model.dto.jobPosition.UpdateJobPositionDTO;
 import pl.crewops.model.dto.machine.*;
 import pl.crewops.model.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.dto.message.*;
@@ -149,5 +151,13 @@ public interface CoreAPI {
 
     // ---- JOB POSITION ---
 
+    JobPositionDTO createJobPosition(@NotNull @Valid CreateJobPositionDTO createJobPositionDTO)
+            throws NotAuthenticatedException;
+
     List<JobPositionDTO> getAllJobPositions() throws NotAuthenticatedException;
+
+    JobPositionDTO updateJobPosition(@NotNull @Valid UpdateJobPositionDTO updateJobPositionDTO)
+            throws NotAuthenticatedException;
+
+    void deleteById(@NotNull UUID id) throws NotAuthenticatedException;
 }

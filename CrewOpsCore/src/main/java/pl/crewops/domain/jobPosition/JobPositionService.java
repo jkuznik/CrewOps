@@ -72,7 +72,7 @@ class JobPositionService implements JobPositionAPI {
 
     @Override
     @Transactional
-    public Optional<JobPositionDTO> updateById(UpdateJobPositionDTO updateJopPositionDTO) {
+    public JobPositionDTO updateJobPosition(UpdateJobPositionDTO updateJopPositionDTO) {
         JobPosition jobPosition = jobPositionRepository
                 .findById(updateJopPositionDTO.id())
                 .
@@ -94,6 +94,13 @@ class JobPositionService implements JobPositionAPI {
             });
         }
 
-        return Optional.ofNullable(mapToDTO(jobPositionRepository.save(jobPosition)));
+        return mapToDTO(jobPositionRepository.save(jobPosition));
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        jobPositionRepository.deleteById(id);
+
+        log.info(jobPositionRepository.findById(id).toString());
     }
 }

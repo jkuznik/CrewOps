@@ -34,6 +34,7 @@ public interface ControllerURL {
     String DEPARTMENT_ID = "departmentId";
     String DAILY_ENTRIES = "/daily-entries";
     String JOB_POSITIONS = "/job-positions";
+    String JOB_POSITIONS_ID = "jobPositionId";
     String MESSAGES = "/messages";
     String MESSAGE_ID = "messageId";
 
@@ -41,6 +42,7 @@ public interface ControllerURL {
     String BREAKDOWNS_BID = BREAKDOWNS + "/{" + BREAKDOWN_ID + "}";
     String COMPANIES_CID = COMPANIES + "/{" + COMPANY_ID + "}";
     String DEPARTMENTS_DID = DEPARTMENTS + "/{" + DEPARTMENT_ID + "}";
+    String JOB_POSITIONS_JID = JOB_POSITIONS + "/{" + JOB_POSITIONS_ID + "}";
 
     String QUALIFICATIONS_QID = QUALIFICATIONS + "/{" + QUALIFICATION_ID + "}";
     String QUALIFICATIONS_QID_EMPLOYEES = QUALIFICATIONS + "/{" + QUALIFICATION_ID + "}" + EMPLOYEES;

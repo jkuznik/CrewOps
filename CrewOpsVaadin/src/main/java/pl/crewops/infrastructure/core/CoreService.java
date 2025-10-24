@@ -29,7 +29,9 @@ import pl.crewops.model.dto.department.DepartmentDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.model.dto.jobPosition.CreateJobPositionDTO;
 import pl.crewops.model.dto.jobPosition.JobPositionDTO;
+import pl.crewops.model.dto.jobPosition.UpdateJobPositionDTO;
 import pl.crewops.model.dto.machine.CreateMachineDTO;
 import pl.crewops.model.dto.machine.MachineDTO;
 import pl.crewops.model.dto.machine.UpdateMachineDTO;
@@ -199,8 +201,25 @@ class CoreService implements CoreAPI {
     }
 
     @Override
+    public JobPositionDTO createJobPosition(CreateJobPositionDTO createJobPositionDTO)
+            throws NotAuthenticatedException {
+        return domainJobPositionClient.createJobPosition(createJobPositionDTO);
+    }
+
+    @Override
     public List<JobPositionDTO> getAllJobPositions() throws NotAuthenticatedException {
         return domainJobPositionClient.getAllJobPositions();
+    }
+
+    @Override
+    public JobPositionDTO updateJobPosition(UpdateJobPositionDTO updateJobPositionDTO)
+            throws NotAuthenticatedException {
+        return domainJobPositionClient.updateJobPosition(updateJobPositionDTO);
+    }
+
+    @Override
+    public void deleteById(UUID id) throws NotAuthenticatedException {
+        domainJobPositionClient.deleteById(id);
     }
 
     // todo: implement cache and security

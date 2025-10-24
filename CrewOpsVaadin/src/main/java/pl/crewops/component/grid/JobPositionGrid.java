@@ -12,10 +12,16 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import java.util.List;
 import pl.crewops.component.form.JobPositionForm;
+import pl.crewops.component.notification.FailNotification;
+import pl.crewops.component.notification.InfoNotification;
 import pl.crewops.component.notification.NotAuthenticatedNotification;
+import pl.crewops.component.notification.SuccessNotification;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.JobPositionFormModel;
+import pl.crewops.model.dto.jobPosition.CreateJobPositionDTO;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
+import pl.crewops.model.dto.jobPosition.UpdateJobPositionDTO;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.BrowserResolver;
 
@@ -88,11 +94,15 @@ public class JobPositionGrid extends VerticalLayout {
 
         grid.addColumn(JobPositionFormModel::getName).setKey("name");
 
-        grid.addColumn(model -> model.getMachine() != null ? model.getMachine().registerNumber() : "-")
+        grid.addColumn(model -> model.getMachine() != null
+                        ? model.getMachine().machineType().name() + " "
+                                + model.getMachine().registerNumber()
+                        : "-")
                 .setKey("machine");
 
         grid.asSingleSelect().addValueChangeListener(e -> {
             form.setFormModeUpdate();
+            form.setBean(e.getValue());
             form.setVisible(true);
         });
 
@@ -108,9 +118,55 @@ public class JobPositionGrid extends VerticalLayout {
 
         form.setVisible(false);
 
-        //        todo: implement
-        //        form.addUpdateListener():
-        //        form.addCloseListener();
+        form.addCreateEventListener(event -> {
+            try {
+                var createJobPosition = CreateJobPositionDTO.builder()
+                        .name(event.getModel().getName())
+                        .machineDTO(event.getModel().getMachine())
+                        .build();
+
+                JobPositionDTO jobPositionDTO = coreAPI.createJobPosition(createJobPosition);
+                if (jobPositionDTO != null) {
+                    new SuccessNotification(" I18n dla tworzenia jobPositionDTO");
+                    updateGrid();
+                } else {
+                    new FailNotification("dla nie udanego tworzenia");
+                }
+            } catch (NotAuthenticatedException e) {
+                new NotAuthenticatedNotification(e.getMessage());
+            }
+        });
+
+        form.addUpdateEventListener(event -> {
+            try {
+                var updateJobPosition = UpdateJobPositionDTO.builder()
+                        .id(event.getModel().getId())
+                        .name(event.getModel().getName())
+                        .machineDTO(event.getModel().getMachine())
+                        .build();
+
+                JobPositionDTO jobPositionDTO = coreAPI.updateJobPosition(updateJobPosition);
+                if (jobPositionDTO != null) {
+                    new SuccessNotification(" I18n dla edycji jobPositionDTO");
+                    updateGrid();
+                } else {
+                    new FailNotification(getTranslation("failNotification"));
+                }
+            } catch (NotAuthenticatedException e) {
+                new NotAuthenticatedNotification(e.getMessage());
+            }
+        });
+
+        form.addDeleteEventListener(event -> {
+            try {
+                coreAPI.deleteById(event.getModel().getId());
+                new InfoNotification(getTranslation(
+                        "jobPositionGrid.deleteJobPosition", event.getModel().getName()));
+                updateGrid();
+            } catch (NotAuthenticatedException e) {
+                new NotAuthenticatedNotification(e.getMessage());
+            }
+        });
     }
 
     private HorizontalLayout getToolbar() {
