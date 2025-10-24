@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
+import pl.crewops.exception.domain.jobPosition.JobPositionNotFoundException;
 import pl.crewops.model.dto.jobPosition.CreateJobPositionDTO;
 import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.jobPosition.UpdateJobPositionDTO;
@@ -75,9 +76,7 @@ class JobPositionService implements JobPositionAPI {
     public JobPositionDTO updateJobPosition(UpdateJobPositionDTO updateJopPositionDTO) {
         JobPosition jobPosition = jobPositionRepository
                 .findById(updateJopPositionDTO.id())
-                .
-                // todo : custom exception
-                orElseThrow(() -> new NoSuchElementException());
+                .orElseThrow(() -> new JobPositionNotFoundException(updateJopPositionDTO.id()));
 
         if (updateJopPositionDTO.name() != null) {
             jobPosition.setName(updateJopPositionDTO.name());

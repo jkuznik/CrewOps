@@ -18,8 +18,6 @@ import pl.crewops.util.AuthenticationResolver;
 @CssImport("./styles/mainStyles/main-layout.css")
 public class MainLayout extends AppLayout {
 
-    // TODO: find risky methods and handle exceptions to avoid displaying stackTrace on fe side
-
     protected final CoreAPI coreAPI;
     protected final JwtServiceVaadin jwtService;
     protected final AuthenticationResolver authenticationResolver;

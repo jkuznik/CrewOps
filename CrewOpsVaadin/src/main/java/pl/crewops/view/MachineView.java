@@ -1,9 +1,8 @@
 package pl.crewops.view;
 
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -22,6 +21,7 @@ import pl.crewops.view.layout.MainLayout;
 @Route(value = "machines")
 @PageTitle("Machine view")
 public class MachineView extends MainLayout implements BeforeEnterObserver {
+
     private MachineGrid machineGrid;
     private BreakdownGrid breakdownGrid;
 
@@ -37,7 +37,7 @@ public class MachineView extends MainLayout implements BeforeEnterObserver {
                 listeners.forEach(Registration::remove);
                 buildContent();
             } catch (Exception e) {
-                new FailNotification(getTranslation("dailyView.failNotification"));
+                new FailNotification(getTranslation("failNotification"));
             }
         } else {
             event.forwardTo(HomeView.class);
@@ -59,32 +59,26 @@ public class MachineView extends MainLayout implements BeforeEnterObserver {
         mainContent.setFlexGrow(1, machineGrid);
     }
 
-    private HorizontalLayout getToolbar() {
-        var toolbar = new HorizontalLayout();
+    private Tabs getToolbar() {
+        // Tworzenie zakładek
+        Tab listTab = new Tab(getTranslation("machineView.machineList"));
+        Tab breakdownTab = new Tab(getTranslation("machineView.breakdowns"));
 
-        Button list = new Button(getTranslation("machineView.machineList"));
-        list.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        list.setWidth("160px");
+        Tabs tabs = new Tabs(listTab, breakdownTab);
 
-        Button breakdown = new Button(getTranslation("machineView.breakdowns"));
-        breakdown.setWidth("160px");
+        // Domyślnie wybieramy pierwszą zakładkę i wyświetlamy machineGrid
+        tabs.setSelectedTab(listTab);
 
-        list.addClickListener(event -> {
-            displayMachineGrid();
-
-            list.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            breakdown.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        });
-        breakdown.addClickListener(event -> {
-            displayBreakdownGrid();
-
-            breakdown.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            list.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        // Logika przełączania widoków na podstawie wybranej zakładki
+        tabs.addSelectedChangeListener(event -> {
+            if (event.getSelectedTab().equals(listTab)) {
+                displayMachineGrid();
+            } else if (event.getSelectedTab().equals(breakdownTab)) {
+                displayBreakdownGrid();
+            }
         });
 
-        toolbar.add(list, breakdown);
-
-        return toolbar;
+        return tabs;
     }
 
     private void displayMachineGrid() {

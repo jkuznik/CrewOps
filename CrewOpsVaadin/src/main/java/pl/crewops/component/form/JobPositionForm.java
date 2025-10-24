@@ -24,7 +24,10 @@ public class JobPositionForm extends FormLayout {
     private final CoreAPI coreAPI;
 
     private final TextField name = new TextField();
+    // todo style css
     private final ComboBox<MachineDTO> machine = new ComboBox<>();
+
+    // todo dodac wsparcie dla przypisywania wymaganych kwalifikacji do danego stanowiska
 
     private final Button save = new Button();
     private final Button update = new Button();
@@ -52,6 +55,8 @@ public class JobPositionForm extends FormLayout {
         save.setVisible(true);
         update.setVisible(false);
         delete.setVisible(false);
+
+        binder.setBean(null);
     }
 
     public void setFormModeUpdate() {

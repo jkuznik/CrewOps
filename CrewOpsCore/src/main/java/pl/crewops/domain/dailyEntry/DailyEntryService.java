@@ -68,18 +68,21 @@ class DailyEntryService implements DailyEntryAPI {
                 .build();
 
         if (createDailyEntryDTO.jobPositionDTO() != null) {
-            String jobPositionName = createDailyEntryDTO.jobPositionDTO().name();
-            Optional<JobPosition> byName = jobPositionAPI.findByName(jobPositionName);
+            JobPositionDTO jobPositionDTO1 = createDailyEntryDTO.jobPositionDTO();
+            if (jobPositionDTO1.id() != null) {
+                var id = createDailyEntryDTO.jobPositionDTO().id();
+                Optional<JobPosition> byId = jobPositionAPI.findById(id);
+                if (byId.isPresent()) {
+                    savedEntry.setJobPosition(byId.get());
+                } else {
+                    var jobPosition = CreateJobPositionDTO.builder()
+                            .name(jobPositionDTO1.name())
+                            .build();
 
-            if (byName.isPresent()) {
-                savedEntry.setJobPosition(byName.get());
-            } else {
-                var jobPosition =
-                        CreateJobPositionDTO.builder().name(jobPositionName).build();
-
-                JobPositionDTO jobPositionDTO = jobPositionAPI.createJobPosition(jobPosition);
-                Optional<JobPosition> byId = jobPositionAPI.findById(jobPositionDTO.id());
-                byId.ifPresent(savedEntry::setJobPosition);
+                    JobPositionDTO createdDTO = jobPositionAPI.createJobPosition(jobPosition);
+                    Optional<JobPosition> created = jobPositionAPI.findById(createdDTO.id());
+                    created.ifPresent(savedEntry::setJobPosition);
+                }
             }
         }
 

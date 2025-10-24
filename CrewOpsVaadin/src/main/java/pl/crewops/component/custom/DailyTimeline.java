@@ -34,6 +34,7 @@ public class DailyTimeline extends HorizontalLayout {
 
     private final Span attendanceHeaderTextLabel = new Span();
     private final Span statusDisplay = new Span();
+    // todo: add css style same as other combobox
     private final ComboBox<JobPositionDTO> jobPosition = new ComboBox<>();
 
     private DailyEntryDTO dailyEntry;

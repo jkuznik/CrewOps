@@ -26,6 +26,9 @@ import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.BrowserResolver;
 
 public class JobPositionGrid extends VerticalLayout {
+
+    // todo znalezc przyczyne ładnego przejscie z update mode na save mode w employee form i zastosowac w pozostalych
+    // formularzach tak samo
     private final CoreAPI coreAPI;
     private final AuthenticationResolver authenticationResolver;
 
@@ -117,7 +120,6 @@ public class JobPositionGrid extends VerticalLayout {
         }
 
         form.setVisible(false);
-
         form.addCreateEventListener(event -> {
             try {
                 var createJobPosition = CreateJobPositionDTO.builder()
@@ -127,10 +129,10 @@ public class JobPositionGrid extends VerticalLayout {
 
                 JobPositionDTO jobPositionDTO = coreAPI.createJobPosition(createJobPosition);
                 if (jobPositionDTO != null) {
-                    new SuccessNotification(" I18n dla tworzenia jobPositionDTO");
+                    new SuccessNotification(getTranslation("jobPosition.create.success"));
                     updateGrid();
                 } else {
-                    new FailNotification("dla nie udanego tworzenia");
+                    new FailNotification(getTranslation("jobPosition.create.fail"));
                 }
             } catch (NotAuthenticatedException e) {
                 new NotAuthenticatedNotification(e.getMessage());
@@ -147,7 +149,7 @@ public class JobPositionGrid extends VerticalLayout {
 
                 JobPositionDTO jobPositionDTO = coreAPI.updateJobPosition(updateJobPosition);
                 if (jobPositionDTO != null) {
-                    new SuccessNotification(" I18n dla edycji jobPositionDTO");
+                    new SuccessNotification(getTranslation("jobPosition.update.success"));
                     updateGrid();
                 } else {
                     new FailNotification(getTranslation("failNotification"));
@@ -186,8 +188,10 @@ public class JobPositionGrid extends VerticalLayout {
         addJobPosition.addClickListener(event -> addJobPosition());
 
         var spacer = new Span();
+        var spacer2 = new Span();
+        spacer2.setWidth("30em");
 
-        toolbar.add(nameFilter, machineFilter, spacer, addJobPosition);
+        toolbar.add(nameFilter, machineFilter, spacer, addJobPosition, spacer2);
 
         toolbar.setFlexGrow(1, spacer);
         return toolbar;

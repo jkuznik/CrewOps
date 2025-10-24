@@ -1,9 +1,8 @@
 package pl.crewops.view;
 
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -60,48 +59,32 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         mainContent.add(getToolbar(), employeeGrid, qualificationGrid, jobPositionGrid);
     }
 
-    private HorizontalLayout getToolbar() {
-        var toolbar = new HorizontalLayout();
+    private Tabs getToolbar() {
+        // Definicja zakładek
+        Tab employeeListTab = new Tab(getTranslation("employeeView.employeeList"));
+        Tab qualificationsTab = new Tab(getTranslation("employeeView.qualifications"));
+        Tab jobPositionsTab = new Tab(getTranslation("employeeView.jobPositions"));
 
-        Button employeeList = new Button(getTranslation("employeeView.employeeList"));
-        employeeList.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        employeeList.setWidth("160px");
+        Tabs tabs = new Tabs(employeeListTab, qualificationsTab, jobPositionsTab);
+        tabs.setFlexGrowForEnclosedTabs(2);
 
-        Button qualifications = new Button(getTranslation("employeeView.qualifications"));
-        qualifications.setWidth("160px");
+        // Domyślnie wybieramy pierwszą zakładkę i pokazujemy listę pracowników
+        tabs.setSelectedTab(employeeListTab);
 
-        Button jobPositions = new Button(getTranslation("employeeView.jobPositions"));
-        jobPositions.setWidth("160px");
+        // KLUCZOWA LOGIKA: Przełączanie widoków
+        tabs.addSelectedChangeListener(event -> {
+            Tab selectedTab = event.getSelectedTab();
 
-        Registration registration = employeeList.addClickListener(event -> {
-            displayEmployeeGrid();
-
-            employeeList.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            qualifications.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            jobPositions.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        });
-        listeners.add(registration);
-
-        Registration registration1 = qualifications.addClickListener(event -> {
-            displayQualificationGrid();
-
-            qualifications.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            employeeList.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            jobPositions.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        });
-        listeners.add(registration1);
-
-        jobPositions.addClickListener(event -> {
-            displayJobPositionGrid();
-
-            jobPositions.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            employeeList.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            qualifications.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            if (selectedTab.equals(employeeListTab)) {
+                displayEmployeeGrid();
+            } else if (selectedTab.equals(qualificationsTab)) {
+                displayQualificationGrid();
+            } else if (selectedTab.equals(jobPositionsTab)) {
+                displayJobPositionGrid();
+            }
         });
 
-        toolbar.add(employeeList, qualifications, jobPositions);
-
-        return toolbar;
+        return tabs;
     }
 
     private void displayEmployeeGrid() {
@@ -124,7 +107,6 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         employeeGrid.setVisible(false);
         qualificationGrid.setVisible(false);
 
-        //        jobPositionGrid.closeEditor();
         jobPositionGrid.setVisible(true);
     }
 }

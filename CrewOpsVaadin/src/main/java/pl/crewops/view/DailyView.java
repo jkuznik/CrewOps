@@ -7,6 +7,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
@@ -117,6 +118,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
         var layout = getLayoutDependsOnUserDevice();
 
+        mainContent.setAlignItems(FlexComponent.Alignment.CENTER);
         mainContent.add(getToolbar(), timeline, layout);
     }
 

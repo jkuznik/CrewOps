@@ -11,6 +11,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.shared.Registration;
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -25,7 +26,6 @@ import pl.crewops.model.dto.machineType.MachineTypeDTO;
 
 @CssImport("./styles/component/combo-box.css")
 public class MachineForm extends FormLayout {
-    // todo add binding info in case if value is not valid
     private final MachineGrid machineGrid;
     private final BreakdownGrid breakdownGrid;
 
@@ -56,7 +56,36 @@ public class MachineForm extends FormLayout {
         this.machineGrid = machineGrid;
         this.breakdownGrid = breakdownGrid;
 
-        binder.bindInstanceFields(this);
+        binder.forField(make)
+                .asRequired(getTranslation("validation.required"))
+                .withValidator(new StringLengthValidator(getTranslation("validation.length.minmax", 2, 31), 2, 31))
+                .bind(MachineFormModel::getMake, MachineFormModel::setMake);
+
+        binder.forField(model)
+                .asRequired(getTranslation("validation.required"))
+                .withValidator(new StringLengthValidator(getTranslation("validation.length.minmax", 2, 31), 2, 31))
+                .bind(MachineFormModel::getModel, MachineFormModel::setModel);
+
+        binder.forField(machineType)
+                .asRequired(getTranslation("validation.required"))
+                .withValidator(new StringLengthValidator(getTranslation("validation.length.minmax", 2, 31), 2, 31))
+                .bind(MachineFormModel::getMachineType, MachineFormModel::setMachineType);
+
+        binder.forField(year)
+                .asRequired(getTranslation("validation.required"))
+                .bind(MachineFormModel::getYear, MachineFormModel::setYear);
+
+        binder.forField(serialNumber)
+                .withValidator(
+                        value -> value == null || value.isEmpty() || (value.length() >= 2 && value.length() <= 50),
+                        getTranslation("validation.length.optional", 2, 50))
+                .bind(MachineFormModel::getVin, MachineFormModel::setVin);
+
+        binder.forField(registerNumber)
+                .withValidator(
+                        value -> value == null || value.isEmpty() || (value.length() >= 2 && value.length() <= 15),
+                        getTranslation("validation.length.optional", 2, 15))
+                .bind(MachineFormModel::getRegisterNumber, MachineFormModel::setRegisterNumber);
 
         populateMachineTypes(coreAPI);
 
@@ -88,7 +117,8 @@ public class MachineForm extends FormLayout {
         year.setEnabled(true);
         serialNumber.setEnabled(true);
 
-        machineType.setValue(null);
+        binder.setBean(MachineFormModel.builder().broken(false).build());
+
         save.setVisible(true);
         update.setVisible(false);
         reportBreakdown.setVisible(false);
@@ -163,23 +193,13 @@ public class MachineForm extends FormLayout {
     }
 
     private void validateAndSave() {
-        var machineFormModel = MachineFormModel.builder()
-                .make(make.getValue())
-                .model(model.getValue())
-                .year(year.getValue())
-                .vin(serialNumber.getValue())
-                .registerNumber(registerNumber.getValue())
-                .machineType(machineType.getValue())
-                .broken(false)
-                .build();
-        binder.setBean(machineFormModel);
-        if (binder.isValid()) {
+        if (binder.writeBeanIfValid(binder.getBean())) {
             fireEvent(new SaveEvent(this, binder.getBean()));
         }
     }
 
     private void validateAndUpdate() {
-        if (binder.isValid()) {
+        if (binder.writeBeanIfValid(binder.getBean())) {
             fireEvent(new UpdateEvent(this, binder.getBean()));
         }
     }
@@ -205,7 +225,7 @@ public class MachineForm extends FormLayout {
         reportBreakdown.addClickListener(event -> fireEvent(new ReportBreakdown(this, binder.getBean())));
         breakdownsList.addClickListener(event -> displayBreakdowns(machineGrid, breakdownGrid));
 
-        binder.addStatusChangeListener(event -> save.setEnabled(binder.isValid()));
+        binder.addStatusChangeListener(event -> save.setEnabled(!event.hasValidationErrors()));
 
         var buttonsLayout = new HorizontalLayout(save, update, delete, close);
         return new VerticalLayout(buttonsLayout, reportBreakdown, breakdownsList);

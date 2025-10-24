@@ -112,8 +112,10 @@ public class EmployeeGrid extends VerticalLayout {
         addEmployee.addClickListener(event -> addEmployee());
 
         var spacer = new Span();
+        var spacer2 = new Span();
+        spacer2.setWidth("30em");
 
-        toolbar.add(nameFilter, departmentFilter, roleFilter, spacer, addEmployee);
+        toolbar.add(nameFilter, departmentFilter, roleFilter, spacer, addEmployee, spacer2);
 
         toolbar.setFlexGrow(1, spacer);
         return toolbar;

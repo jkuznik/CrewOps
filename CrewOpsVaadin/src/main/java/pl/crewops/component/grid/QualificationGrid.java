@@ -91,8 +91,10 @@ public class QualificationGrid extends VerticalLayout {
         addQualification.addClickListener(event -> addQualification());
 
         var spacer = new Span();
+        var spacer2 = new Span();
+        spacer2.setWidth("30em");
 
-        toolbar.add(filter, spacer, addQualification);
+        toolbar.add(filter, spacer, addQualification, spacer2);
 
         toolbar.setFlexGrow(1, spacer);
 

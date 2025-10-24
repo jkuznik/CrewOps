@@ -13,11 +13,11 @@ public record JobPositionDTO(UUID id, String name, MachineDTO machine, Set<Quali
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof JobPositionDTO that)) return false;
-        return Objects.equals(name(), that.name());
+        return Objects.equals(id(), that.id());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name());
+        return Objects.hashCode(id());
     }
 }

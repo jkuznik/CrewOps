@@ -114,7 +114,9 @@ public class MachineGrid extends VerticalLayout {
 
         if (authenticationResolver.principalHasManagerPermission()) {
             var spacer = new Span();
-            toolbar.add(filter, spacer, addMachine);
+            var spacer2 = new Span();
+            spacer2.setWidth("30em");
+            toolbar.add(filter, spacer, addMachine, spacer2);
             toolbar.setFlexGrow(1, spacer);
         } else {
             toolbar.add(filter);
