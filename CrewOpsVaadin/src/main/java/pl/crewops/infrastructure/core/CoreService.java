@@ -180,7 +180,6 @@ class CoreService implements CoreAPI {
         return Optional.ofNullable(domainBreakdownClient.updateBreakdown(updateBreakdownDTO));
     }
 
-    // TODO: consider remove caching of this value or implement different logic
     @Cacheable(cacheNames = GET_COMPANY_BY_ID, key = "#companyId")
     @Override
     public Optional<CompanyDTO> getCompanyById(UUID companyId) throws NotAuthenticatedException {

@@ -14,29 +14,28 @@ public interface ControllerURL {
     String VALIDATE = "/validate";
     String HEALTH = "/health";
 
-    // todo: refactor camel case into kebab case
     String UPDATE_USER_ROLES = "/update-user-roles";
     String UPDATE_USER_CREDENTIALS = "/update-user-credentials";
 
     String EMPLOYEES = "/employees";
-    String EMPLOYEE_ID = "employeeId";
+    String EMPLOYEE_ID = "employee-id";
     String QUALIFICATIONS = "/qualifications";
-    String QUALIFICATION_ID = "qualificationId";
+    String QUALIFICATION_ID = "qualification-id";
     String MACHINES = "/machines";
-    String MACHINE_ID = "machineId";
-    String MACHINE_TYPES = "/machineTypes";
-    String MACHINE_TYPE_ID = "machineTypeId";
+    String MACHINE_ID = "machine-id";
+    String MACHINE_TYPES = "/machine-types";
+    String MACHINE_TYPE_ID = "machine-type-id";
     String BREAKDOWNS = "/breakdowns";
-    String BREAKDOWN_ID = "breakdownId";
+    String BREAKDOWN_ID = "breakdown-id";
     String COMPANIES = "/companies";
-    String COMPANY_ID = "companyId";
+    String COMPANY_ID = "company-id";
     String DEPARTMENTS = "/departments";
-    String DEPARTMENT_ID = "departmentId";
+    String DEPARTMENT_ID = "department-id";
     String DAILY_ENTRIES = "/daily-entries";
     String JOB_POSITIONS = "/job-positions";
-    String JOB_POSITIONS_ID = "jobPositionId";
+    String JOB_POSITIONS_ID = "job-position-id";
     String MESSAGES = "/messages";
-    String MESSAGE_ID = "messageId";
+    String MESSAGE_ID = "message-id";
 
     String EMPLOYEES_EID = EMPLOYEES + "/{" + EMPLOYEE_ID + "}";
     String BREAKDOWNS_BID = BREAKDOWNS + "/{" + BREAKDOWN_ID + "}";
@@ -46,11 +45,6 @@ public interface ControllerURL {
 
     String QUALIFICATIONS_QID = QUALIFICATIONS + "/{" + QUALIFICATION_ID + "}";
     String QUALIFICATIONS_QID_EMPLOYEES = QUALIFICATIONS + "/{" + QUALIFICATION_ID + "}" + EMPLOYEES;
-    /**
-     *  This '/collection' URL prefix is used to modify base QUALIFICATIONS URL which already have defined GET method
-     *  to other operation.
-     *  QIDS mean that method allow to fetch collection of records instead of single record access able under QID
-     * */
     String QUALIFICATIONS_QIDS = QUALIFICATIONS + "/collection";
 
     String QUALIFICATIONS_EID_EXPIRED = QUALIFICATIONS + "/{" + EMPLOYEE_ID + "}" + "/expired";

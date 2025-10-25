@@ -17,6 +17,7 @@ public record MachineDTO(
         String registerNumber,
         Boolean broken)
         implements Serializable {
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof MachineDTO that)) return false;

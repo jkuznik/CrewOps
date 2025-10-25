@@ -3,11 +3,13 @@ package pl.crewops.infrastructure.multitenancy;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.sql.DataSource;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.jdbc.connections.spi.DatabaseConnectionInfo;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class SchemaPerTenantConnectionProvider implements MultiTenantConnectionProvider<String> {
     private final DataSource dataSource;
@@ -23,10 +25,9 @@ public class SchemaPerTenantConnectionProvider implements MultiTenantConnectionP
         return connection;
     }
 
-    // todo: consider use logger instead of sout
     @Override
     public Connection getAnyConnection() throws SQLException {
-        System.out.println("[MultiTenant] getAnyConnection called");
+        log.info("[MultiTenant] getAnyConnection called");
         return dataSource.getConnection();
     }
 

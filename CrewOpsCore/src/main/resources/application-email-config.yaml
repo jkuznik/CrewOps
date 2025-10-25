@@ -13,3 +13,7 @@ spring:
           starttls:
             enable: true
             required: true
+
+email:
+  sender: ${CREWOPS_EMAIL_SENDER}
+  profile: ${CREWOPS_EMAIL_PROFILE}
