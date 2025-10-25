@@ -5,7 +5,6 @@ import static pl.crewops.view.DailyView.FORMS_BORDER_PX;
 import com.vaadin.componentfactory.timeline.Timeline;
 import com.vaadin.componentfactory.timeline.model.Item;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -35,7 +34,7 @@ public class DailyTimeline extends HorizontalLayout {
     private final Span attendanceHeaderTextLabel = new Span();
     private final Span statusDisplay = new Span();
     // todo: add css style same as other combobox
-    private final ComboBox<JobPositionDTO> jobPosition = new ComboBox<>();
+    private final ComboBoxCustom<JobPositionDTO> jobPosition = new ComboBoxCustom<>();
 
     private DailyEntryDTO dailyEntry;
 

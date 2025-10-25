@@ -6,7 +6,6 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -20,6 +19,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 import java.util.ArrayList;
 import lombok.Getter;
+import pl.crewops.component.custom.ComboBoxCustom;
 import pl.crewops.component.notification.NotAuthenticatedNotification;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
@@ -180,20 +180,11 @@ public class MessageForm extends FormLayout {
     private class RecipientSelectionField extends CustomField<RecipientSelection> {
         static final String ALL = "ALL";
 
-        private final ComboBox<DepartmentFormModel> recipientDepartment = new ComboBox<>();
-        private final ComboBox<MachineDTO> recipientMachineOperators = new ComboBox<>();
-        private final ComboBox<EmployeeDTO> recipientEmployeeId = new ComboBox<>();
+        private final ComboBoxCustom<DepartmentFormModel> recipientDepartment = new ComboBoxCustom<>();
+        private final ComboBoxCustom<MachineDTO> recipientMachineOperators = new ComboBoxCustom<>();
+        private final ComboBoxCustom<EmployeeDTO> recipientEmployeeId = new ComboBoxCustom<>();
 
         RecipientSelectionField() {
-            recipientDepartment.addClassName("recipient-departments-combobox");
-            recipientDepartment.getElement().setAttribute("theme", "recipient-department");
-
-            recipientMachineOperators.addClassName("recipient-machine-combobox");
-            recipientMachineOperators.getElement().setAttribute("theme", "recipient-machine");
-
-            recipientEmployeeId.addClassName("recipient-employee-combobox");
-            recipientEmployeeId.getElement().setAttribute("theme", "recipient-employee");
-
             recipientDepartment.setPlaceholder(getTranslation("messageForm.recipientDepartment"));
             recipientMachineOperators.setPlaceholder(getTranslation("messageForm.recipientMachineOperators"));
             recipientEmployeeId.setPlaceholder(getTranslation("messageForm.recipientEmployeeId"));

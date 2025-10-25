@@ -36,8 +36,7 @@ import pl.crewops.util.BrowserResolver;
 import pl.crewops.util.contract.DateSensitive;
 import pl.crewops.view.layout.MainLayout;
 
-// TODO: dodać kolumnę 'stanowisko' do tabeli daily_entry
-//  dodać opcję 'historia zmian wpisu' w komponencie zarządzania wpisem
+// TODO: dodać opcję 'historia zmian wpisu' w komponencie zarządzania wpisem
 
 @Route("daily")
 @PageTitle("Daily Entry")
@@ -94,13 +93,13 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
     public void beforeEnter(BeforeEnterEvent event) {
         // todo: implement annotation that do same thing.
         if (authenticationResolver.principalIsAuthenticated()) {
-            //            try {
-            mainContent.removeAll();
-            listeners.forEach(Registration::remove);
-            buildContent();
-            //            } catch (Exception e) {
-            //                new FailNotification(getTranslation("dailyView.failNotification"));
-            //            }
+            try {
+                mainContent.removeAll();
+                listeners.forEach(Registration::remove);
+                buildContent();
+            } catch (Exception e) {
+                new FailNotification(getTranslation("dailyView.failNotification"));
+            }
         } else {
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");

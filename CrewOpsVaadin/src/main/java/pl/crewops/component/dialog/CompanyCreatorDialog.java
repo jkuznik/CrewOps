@@ -64,7 +64,6 @@ public class CompanyCreatorDialog extends Dialog {
                 .firstName(companyInformation.initialEmployeeInfo.getFirstName())
                 .lastName(companyInformation.initialEmployeeInfo.getLastName())
                 .phoneNumber(companyInformation.initialEmployeeInfo.getPhoneNumber())
-                .birthDate(companyInformation.initialEmployeeInfo.getBirthDate())
                 .roles(companyAdminRoles())
                 .build();
         var createCustomerCommand = CreateCustomerCommand.builder()

@@ -3,8 +3,6 @@ package pl.crewops.component.form;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -16,6 +14,7 @@ import com.vaadin.flow.shared.Registration;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.stream.IntStream;
+import pl.crewops.component.custom.ComboBoxCustom;
 import pl.crewops.component.grid.BreakdownGrid;
 import pl.crewops.component.grid.MachineGrid;
 import pl.crewops.component.notification.NotAuthenticatedNotification;
@@ -24,7 +23,6 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.MachineFormModel;
 import pl.crewops.model.dto.machineType.MachineTypeDTO;
 
-@CssImport("./styles/component/combo-box.css")
 public class MachineForm extends FormLayout {
     private final MachineGrid machineGrid;
     private final BreakdownGrid breakdownGrid;
@@ -32,8 +30,8 @@ public class MachineForm extends FormLayout {
     TextField registerNumber = new TextField();
     TextField make = new TextField();
     TextField model = new TextField();
-    ComboBox<Integer> year = new ComboBox<>();
-    ComboBox<String> machineType = new ComboBox<>();
+    ComboBoxCustom<Integer> year = new ComboBoxCustom<>();
+    ComboBoxCustom<String> machineType = new ComboBoxCustom<>();
     TextField serialNumber = new TextField();
     Span broken = new Span();
 
@@ -45,7 +43,6 @@ public class MachineForm extends FormLayout {
     Button reportBreakdown = new Button();
     Button breakdownsList = new Button();
 
-    // TODO: setup field validation
     Binder<MachineFormModel> binder = new Binder<>(MachineFormModel.class);
 
     public MachineForm(MachineGrid machineGrid, BreakdownGrid breakdownGrid, CoreAPI coreAPI) {
@@ -56,6 +53,26 @@ public class MachineForm extends FormLayout {
         this.machineGrid = machineGrid;
         this.breakdownGrid = breakdownGrid;
 
+        configureBinder();
+
+        populateMachineTypes(coreAPI);
+
+        machineType.setAllowCustomValue(true);
+
+        machineType.addCustomValueSetListener(event -> {
+            String customValue = event.getDetail();
+            machineType.setValue(customValue);
+        });
+
+        year.setItems(IntStream.rangeClosed(1980, LocalDate.now().getYear())
+                .boxed()
+                .sorted(Comparator.reverseOrder())
+                .toList());
+
+        add(broken, registerNumber, machineType, make, model, year, serialNumber, createButtonsLayout());
+    }
+
+    private void configureBinder() {
         binder.forField(make)
                 .asRequired(getTranslation("validation.required"))
                 .withValidator(new StringLengthValidator(getTranslation("validation.length.minmax", 2, 31), 2, 31))
@@ -86,27 +103,6 @@ public class MachineForm extends FormLayout {
                         value -> value == null || value.isEmpty() || (value.length() >= 2 && value.length() <= 15),
                         getTranslation("validation.length.optional", 2, 15))
                 .bind(MachineFormModel::getRegisterNumber, MachineFormModel::setRegisterNumber);
-
-        populateMachineTypes(coreAPI);
-
-        machineType.addClassName("machine-form-machine-type-combobox");
-        machineType.getElement().setAttribute("theme", "machine-type-combo");
-        machineType.setAllowCustomValue(true);
-
-        machineType.addCustomValueSetListener(event -> {
-            String customValue = event.getDetail();
-            machineType.setValue(customValue);
-        });
-
-        year.addClassName("machine-form-year-combobox");
-        year.getElement().setAttribute("theme", "year-combo");
-
-        year.setItems(IntStream.rangeClosed(1980, LocalDate.now().getYear())
-                .boxed()
-                .sorted(Comparator.reverseOrder())
-                .toList());
-
-        add(broken, registerNumber, machineType, make, model, year, serialNumber, createButtonsLayout());
     }
 
     public void setFormModeSave() {

@@ -5,11 +5,11 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.shared.Registration;
 import java.util.Comparator;
 import lombok.Getter;
+import pl.crewops.component.custom.ComboBoxCustom;
 import pl.crewops.component.notification.FailNotification;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.exceptions.UpdateMachineException;
@@ -22,15 +22,12 @@ import pl.crewops.view.HomeView;
 
 public class AddMachineForm extends FormLayout {
 
-    private final ComboBox<MachineDTO> machines = new ComboBox<>();
+    private final ComboBoxCustom<MachineDTO> machines = new ComboBoxCustom<>();
     // same i18n like in AddQualificationForm, update if needed
     private final Button add = new Button(getTranslation("addQualificationForm.addButton"));
 
     public AddMachineForm(EmployeeFormModel employeeFormModel) {
         addClassName("addMachineForm");
-
-        machines.addClassName("dark-combo");
-        machines.getElement().setAttribute("theme", "dark-combo");
 
         var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
 

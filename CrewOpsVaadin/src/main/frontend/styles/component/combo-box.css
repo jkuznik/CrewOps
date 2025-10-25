@@ -1,140 +1,28 @@
-/* Styl samego pola tekstowego ComboBox (zamyka się, nie lista) */
-.machine-form-year-combobox::part(text-field) {
+/* * Plik: styles/component/combo-box.css
+ * Pozostawiona jest tylko konfiguracja dla ComboBoxCustom
+ */
+
+/* 1. Styl dla POLA TEKSTOWEGO wszystkich ComboBoxCustom (klasa dodana w konstruktorze) */
+.crewops-default-combobox::part(text-field) {
     background-color: #1e1e1e; /* ciemne tło */
     color: #f0f0f0; /* jasny tekst */
     border-radius: 6px;
 }
 
-/* Styl tła rozwijanej listy */
-vaadin-combo-box-overlay[theme~="year-combo"]::part(content) {
+/* 2. Styl dla ROZWIJANEJ LISTY (Overlay) wszystkich ComboBoxCustom (motyw dodany w konstruktorze) */
+vaadin-combo-box-overlay[theme~="crewops-default-combo"]::part(content) {
     background-color: #2a2a2a; /* ciemniejsze tło dla rozwijanej listy */
+    color: #f0f0f0;
 }
 
-/* Styl każdego elementu na liście */
-vaadin-combo-box-item::part(content) {
+/* 3. Styl każdego ELEMENTU na liście dla wszystkich ComboBoxCustom */
+/* Używamy selektora ograniczonego motywem, aby uniknąć globalnego stylowania */
+vaadin-combo-box-overlay[theme~="crewops-default-combo"] vaadin-combo-box-item::part(content) {
     background-color: #2a2a2a;
-    color: #f0f0f0; /* jasny tekst */
+    color: #f0f0f0;
 }
 
-/* Hover efekt - jaśniejszy szary */
-vaadin-combo-box-item:hover::part(content) {
+/* 4. Hover efekt dla elementu listy ComboBoxCustom */
+vaadin-combo-box-overlay[theme~="crewops-default-combo"] vaadin-combo-box-item:hover::part(content) {
     background-color: #3a3a3a;
 }
-
-/* Styl pola tekstowego dla dostępnych typów pojazdu */
-.machine-form-machine-type-combobox::part(text-field) {
-    background-color: #1e1e1e;
-    color: #f0f0f0;
-    border-radius: 6px;
-}
-
-/* Styl rozwijanej listy */
-vaadin-combo-box-overlay[theme~="machine-type-combo"]::part(content) {
-    background-color: #2a2a2a;
-}
-
-/* ComboBox input field style */
-.employee-grid-role-combobox::part(text-field) {
-    background-color: #1e1e1e; /* dark background */
-    color: #f0f0f0; /* light text */
-    border-radius: 6px;
-}
-
-/* Overlay (dropdown) background */
-vaadin-combo-box-overlay[theme~="role-combo"]::part(content) {
-    background-color: #2a2a2a;
-    color: #f0f0f0;
-}
-
-/* Items in dropdown */
-vaadin-combo-box-overlay[theme~="role-combo"]::part(item) {
-    color: #f0f0f0;
-}
-
-/* Hover effect */
-vaadin-combo-box-overlay[theme~="role-combo"]::part(item):hover {
-    background-color: #3a3a3a;
-}
-
-/* Styl pozycji listy */
-vaadin-combo-box-item::part(content) {
-    background-color: #2a2a2a;
-    color: #f0f0f0;
-}
-
-/* Hover efekt */
-vaadin-combo-box-item:hover::part(content) {
-    background-color: #3a3a3a;
-}
-
-vaadin-combo-box-item::part(content) {
-    background-color: #2a2a2a;
-    color: #f0f0f0;
-}
-vaadin-combo-box-item:hover::part(content) {
-    background-color: #3a3a3a;
-}
-
-/* Recipient departments ComboBox */
-.recipient-department-combobox::part(text-field) {
-    background-color: #1e1e1e;
-    color: #f0f0f0;
-    border-radius: 6px;
-}
-vaadin-combo-box-overlay[theme~="recipient-department"]::part(content) {
-    background-color: #2a2a2a;
-}
-
-/* Recipient machine ComboBox */
-.recipient-machine-combobox::part(text-field) {
-    background-color: #1e1e1e;
-    color: #f0f0f0;
-    border-radius: 6px;
-}
-vaadin-combo-box-overlay[theme~="recipient-machine"]::part(content) {
-    background-color: #2a2a2a;
-}
-
-/* Recipient employee ComboBox */
-.recipient-employee-combobox::part(text-field) {
-    background-color: #1e1e1e;
-    color: #f0f0f0;
-    border-radius: 6px;
-}
-vaadin-combo-box-overlay[theme~="recipient-employee"]::part(content) {
-    background-color: #2a2a2a;
-}
-
- /*                                                         MULTISELECT COMBO BOX*/
-/* Pole tekstowe MultiSelectComboBox */
-vaadin-multi-select-combo-box[theme~="recipient-department"]::part(text-field) {
-    background-color: #1e1e1e;
-    color: #f0f0f0;
-    border-radius: 6px;
-    border: 1px solid #444;
-}
-
-/* Chipy/tagi w polu */
-vaadin-multi-select-combo-box[theme~="recipient-department"]::part(chip) {
-    background-color: #444;
-    color: #f0f0f0;
-    border-radius: 4px;
-    padding: 2px 6px;
-}
-
-/* Overlay dropdown */
-vaadin-multi-select-combo-box-overlay[theme~="recipient-department"]::part(content) {
-    background-color: #2a2a2a;
-}
-
-/* Itemy w overlay */
-vaadin-multi-select-combo-box-overlay[theme~="recipient-department"]::part(item) {
-    background-color: #2a2a2a;
-    color: #f0f0f0;
-}
-
-/* Hover dla itemów */
-vaadin-multi-select-combo-box-overlay[theme~="recipient-department"]::part(item):hover {
-    background-color: #3a3a3a;
-}
-

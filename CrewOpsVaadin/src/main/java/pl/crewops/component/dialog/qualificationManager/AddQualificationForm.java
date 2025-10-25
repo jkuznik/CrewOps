@@ -5,12 +5,11 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.shared.Registration;
 import java.util.Comparator;
 import lombok.Getter;
+import pl.crewops.component.custom.ComboBoxCustom;
 import pl.crewops.component.notification.FailNotification;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.exceptions.UpdateQualificationException;
@@ -21,17 +20,13 @@ import pl.crewops.model.dto.qualification.QualificationDTO;
 import pl.crewops.util.SpringContextBridge;
 import pl.crewops.view.HomeView;
 
-@CssImport("./styles/component/global-combo-box.css")
 public class AddQualificationForm extends FormLayout {
 
-    private final ComboBox<QualificationDTO> qualifications = new ComboBox<>();
+    private final ComboBoxCustom<QualificationDTO> qualifications = new ComboBoxCustom<>();
     private final Button add = new Button(getTranslation("addQualificationForm.addButton"));
 
     public AddQualificationForm(EmployeeFormModel employeeFormModel) {
         addClassName("add-qualification-form");
-
-        qualifications.addClassName("dark-combo");
-        qualifications.getElement().setAttribute("theme", "dark-combo");
 
         var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
 

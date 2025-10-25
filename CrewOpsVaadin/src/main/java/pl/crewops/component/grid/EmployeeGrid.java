@@ -4,7 +4,6 @@ import static pl.crewops.model.auth.RoleType.*;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
@@ -16,6 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
+import pl.crewops.component.custom.ComboBoxCustom;
 import pl.crewops.component.form.EmployeeForm;
 import pl.crewops.component.notification.InfoNotification;
 import pl.crewops.component.notification.NotAuthenticatedNotification;
@@ -40,7 +40,7 @@ public class EmployeeGrid extends VerticalLayout {
 
     private final TextField nameFilter = new TextField();
     private final TextField departmentFilter = new TextField();
-    private final ComboBox<RoleType> roleFilter = new ComboBox<>();
+    private final ComboBoxCustom<RoleType> roleFilter = new ComboBoxCustom<>();
     private final Button addEmployee = new Button();
     private final HorizontalLayout gridToolbar = getToolbar();
 
@@ -99,8 +99,6 @@ public class EmployeeGrid extends VerticalLayout {
                 .filter(roleType -> roleType != EMPLOYEE && roleType != SYSTEM_ADMIN)
                 .toList());
         roleFilter.setItemLabelGenerator(this::getRoleTranslation);
-        roleFilter.addClassName("employee-grid-role-combobox");
-        roleFilter.getElement().setAttribute("theme", "role-combo");
         roleFilter.addValueChangeListener(event -> updateGrid());
 
         departmentFilter.setClearButtonVisible(true);

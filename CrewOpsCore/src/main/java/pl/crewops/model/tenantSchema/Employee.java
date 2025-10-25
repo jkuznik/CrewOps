@@ -3,7 +3,6 @@ package pl.crewops.model.tenantSchema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.*;
@@ -27,11 +26,6 @@ public class Employee extends AbstractEntity {
     @NotNull
     @Column(updatable = false)
     private String lastName;
-
-    // todo: birthDate should be updatable but only by manager (for case mistake on creation employee)
-    @NotNull
-    @Column(updatable = false)
-    private LocalDate birthDate;
 
     @Size(max = 15)
     private String phoneNumber;
@@ -68,7 +62,6 @@ public class Employee extends AbstractEntity {
         return Employee.builder()
                 .firstName(createEmployeeDTO.firstName())
                 .lastName(createEmployeeDTO.lastName())
-                .birthDate(createEmployeeDTO.birthDate())
                 .phoneNumber(createEmployeeDTO.phoneNumber())
                 .build();
     }

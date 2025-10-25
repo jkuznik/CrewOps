@@ -36,8 +36,8 @@ public class DailyModificationForm extends FormLayout {
     private final Button addButton = new Button();
     private final Button confirmPresenceButton = new Button();
     private final Button changeTimesheetButton = new Button();
-    // TODO: add 'guardian' notification which inform users that action will modify daily status with audit entry,
-    //  send message to own manager about that and have to be approved by manager
+    // TODO: that option should be avail able only for managers, consider allow shift leader mark attendance as present
+    // or absent in daily raports form <-
     private final Button changeAttendanceButton = new Button();
     private final Button approveButton = new Button();
 

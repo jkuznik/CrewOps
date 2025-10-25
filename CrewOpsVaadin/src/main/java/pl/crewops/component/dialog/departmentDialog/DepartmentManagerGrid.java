@@ -111,7 +111,6 @@ public class DepartmentManagerGrid extends VerticalLayout {
                 .id(employeeFormModel.getId())
                 .firstName(employeeFormModel.getFirstName())
                 .lastName(employeeFormModel.getLastName())
-                .birthDate(employeeFormModel.getBirthDate())
                 .departments(mapToDepartmentDTOs(remainingDepartments))
                 .roles(employeeFormModel.getRoles().stream()
                         .map(r -> new RoleDTO(r.name()))

@@ -3,7 +3,6 @@ package pl.crewops.component.form;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -12,6 +11,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 import java.util.List;
 import lombok.Getter;
+import pl.crewops.component.custom.ComboBoxCustom;
 import pl.crewops.component.notification.NotAuthenticatedNotification;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
@@ -24,8 +24,7 @@ public class JobPositionForm extends FormLayout {
     private final CoreAPI coreAPI;
 
     private final TextField name = new TextField();
-    // todo style css
-    private final ComboBox<MachineDTO> machine = new ComboBox<>();
+    private final ComboBoxCustom<MachineDTO> machine = new ComboBoxCustom<>();
 
     // todo dodac wsparcie dla przypisywania wymaganych kwalifikacji do danego stanowiska
 

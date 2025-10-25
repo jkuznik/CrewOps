@@ -6,7 +6,6 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -26,7 +25,6 @@ import pl.crewops.model.EmployeeFormModel;
 public class EmployeeForm extends FormLayout {
     private final TextField firstName = new TextField();
     private final TextField lastName = new TextField();
-    private final DatePicker birthDate = new DatePicker();
     private final TextField phoneNumber = new TextField();
     private final TextField email = new TextField();
 
@@ -67,7 +65,6 @@ public class EmployeeForm extends FormLayout {
         add(
                 firstName,
                 lastName,
-                birthDate,
                 phoneNumber,
                 email,
                 createButtonsLayout(),
@@ -126,7 +123,6 @@ public class EmployeeForm extends FormLayout {
     private void localize() {
         firstName.setLabel(getTranslation("employeeForm.firstName"));
         lastName.setLabel(getTranslation("employeeForm.lastName"));
-        birthDate.setLabel(getTranslation("employeeForm.birthDate"));
         phoneNumber.setLabel(getTranslation("employeeForm.phoneNumber"));
         email.setLabel(getTranslation("employeeForm.email"));
 
@@ -168,8 +164,6 @@ public class EmployeeForm extends FormLayout {
         firstName.setEnabled(true);
         lastName.setReadOnly(false);
         lastName.setEnabled(true);
-        birthDate.setReadOnly(false);
-        birthDate.setEnabled(true);
     }
 
     public void setFormModeUpdate() {
@@ -185,15 +179,12 @@ public class EmployeeForm extends FormLayout {
         firstName.setEnabled(false);
         lastName.setReadOnly(true);
         lastName.setEnabled(false);
-        birthDate.setReadOnly(true);
-        birthDate.setEnabled(false);
     }
 
     private void validateAndSave() {
         var employeeFormModel = EmployeeFormModel.builder()
                 .firstName(firstName.getValue())
                 .lastName(lastName.getValue())
-                .birthDate(birthDate.getValue())
                 .phoneNumber(phoneNumber.getValue())
                 .machinesSet(Set.of())
                 .qualificationsSet(Set.of())
