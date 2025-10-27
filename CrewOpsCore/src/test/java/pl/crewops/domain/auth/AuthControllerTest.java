@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static pl.crewops.enums.ControllerURL.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
@@ -128,7 +127,6 @@ class AuthControllerTest {
         CreateEmployeeDTO request = CreateEmployeeDTO.builder()
                 .firstName("Anna")
                 .lastName("Smith")
-                .birthDate(LocalDate.of(1990, 1, 1))
                 .phoneNumber("123456789")
                 .departments(departmentsDTOs())
                 .companyId(UUID.randomUUID())
@@ -155,7 +153,6 @@ class AuthControllerTest {
         CreateEmployeeDTO request = CreateEmployeeDTO.builder()
                 .firstName("Anna")
                 .lastName("Smith")
-                .birthDate(LocalDate.of(1990, 1, 1))
                 .phoneNumber("123456789")
                 .departments(departmentsDTOs())
                 .companyId(UUID.randomUUID())
@@ -175,7 +172,6 @@ class AuthControllerTest {
         CreateEmployeeDTO request = CreateEmployeeDTO.builder()
                 .firstName("Anna")
                 .lastName("Smith")
-                .birthDate(LocalDate.of(1990, 1, 1))
                 .phoneNumber("123456789")
                 .departments(departmentsDTOs())
                 .companyId(UUID.randomUUID())

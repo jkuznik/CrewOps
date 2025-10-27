@@ -9,7 +9,6 @@ import static pl.crewops.enums.ControllerURL.REGISTER;
 import static pl.crewops.enums.ControllerURL.VERIFY_EMAIL;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -112,7 +111,6 @@ class RegistrationControllerTest {
                 .createEmployeeDTO(CreateEmployeeDTO.builder()
                         .firstName("John")
                         .lastName("Doe")
-                        .birthDate(LocalDate.of(1990, 1, 1))
                         .phoneNumber("+48123456789")
                         .companyId(UUID.randomUUID())
                         .build())
@@ -163,7 +161,6 @@ class RegistrationControllerTest {
                                 .id(employeeId)
                                 .firstName("John")
                                 .lastName("Doe")
-                                .birthDate(LocalDate.of(1990, 1, 1))
                                 .phoneNumber("123456789")
                                 .departments(Set.of(DepartmentDTO.builder()
                                         .name("department")

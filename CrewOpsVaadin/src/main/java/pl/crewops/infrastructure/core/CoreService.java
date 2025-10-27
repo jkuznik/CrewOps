@@ -193,6 +193,9 @@ class CoreService implements CoreAPI {
         return domainDepartmentClient.getAllDepartments();
     }
 
+    @CacheEvict(
+            cacheNames = GET_DAILY_ENTRY_BY_EMPLOYEE_AND_DATE,
+            key = "#createDailyEntryDTO.employeeId() + '_' + #createDailyEntryDTO.entryDate()")
     @Override
     public Optional<DailyEntryDTO> createDailyEntry(CreateDailyEntryDTO createDailyEntryDTO)
             throws NotAuthenticatedException {
@@ -221,13 +224,16 @@ class CoreService implements CoreAPI {
         domainJobPositionClient.deleteById(id);
     }
 
-    // todo: implement cache and security
+    @Cacheable(cacheNames = GET_DAILY_ENTRY_BY_EMPLOYEE_AND_DATE, key = "#employeeId + '_' + #localDate")
     @Override
     public Optional<DailyEntryDTO> findDailyEntryByEmployeeIdAndDate(UUID employeeId, LocalDate localDate)
             throws NotAuthenticatedException {
         return Optional.ofNullable(domainDailyClient.findDailyEntryByEmployeeIdAndDate(employeeId, localDate));
     }
 
+    @CacheEvict(
+            cacheNames = GET_DAILY_ENTRY_BY_EMPLOYEE_AND_DATE,
+            key = "#updateDailyEntryCommand.employeeId() + '_' + #updateDailyEntryCommand.entryDate()")
     @Override
     public Optional<DailyEntryDTO> updateDailyEntrySelfPermission(UpdateDailyEntryCommand updateDailyEntryCommand)
             throws NotAuthenticatedException {

@@ -29,34 +29,35 @@ class DailyEntryMapper {
     }
 
     static DailyEntryDTO mapToDTO(DailyEntry dailyEntry) {
-        MachineDTO machine = null;
-        if (dailyEntry.getJobPosition().getMachine() != null) {
-
-            machine = MachineDTO.builder()
-                    .id(dailyEntry.getJobPosition().getId())
-                    .registerNumber(dailyEntry.getJobPosition().getMachine().getRegisterNumber())
-                    .make(dailyEntry.getJobPosition().getMachine().getMake())
-                    .model(dailyEntry.getJobPosition().getMachine().getModel())
-                    .vin(dailyEntry.getJobPosition().getMachine().getVin())
-                    .year(dailyEntry.getJobPosition().getMachine().getYear())
-                    .broken(dailyEntry.getJobPosition().getMachine().getBroken())
-                    .machineType(MachineTypeDTO.builder()
-                            .id(dailyEntry
-                                    .getJobPosition()
-                                    .getMachine()
-                                    .getMachineType()
-                                    .getId())
-                            .name(dailyEntry
-                                    .getJobPosition()
-                                    .getMachine()
-                                    .getMachineType()
-                                    .getName())
-                            .build())
-                    .build();
-        }
-
         JobPositionDTO jobPositionDTO = null;
+        MachineDTO machine = null;
+
         if (dailyEntry.getJobPosition() != null) {
+            if (dailyEntry.getJobPosition().getMachine() != null) {
+
+                machine = MachineDTO.builder()
+                        .id(dailyEntry.getJobPosition().getId())
+                        .registerNumber(dailyEntry.getJobPosition().getMachine().getRegisterNumber())
+                        .make(dailyEntry.getJobPosition().getMachine().getMake())
+                        .model(dailyEntry.getJobPosition().getMachine().getModel())
+                        .vin(dailyEntry.getJobPosition().getMachine().getVin())
+                        .year(dailyEntry.getJobPosition().getMachine().getYear())
+                        .broken(dailyEntry.getJobPosition().getMachine().getBroken())
+                        .machineType(MachineTypeDTO.builder()
+                                .id(dailyEntry
+                                        .getJobPosition()
+                                        .getMachine()
+                                        .getMachineType()
+                                        .getId())
+                                .name(dailyEntry
+                                        .getJobPosition()
+                                        .getMachine()
+                                        .getMachineType()
+                                        .getName())
+                                .build())
+                        .build();
+            }
+
             jobPositionDTO = JobPositionDTO.builder()
                     .id(dailyEntry.getJobPosition().getId())
                     .name(dailyEntry.getJobPosition().getName())

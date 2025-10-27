@@ -1,6 +1,5 @@
 package pl.crewops.domain.employee;
 
-import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 import pl.crewops.IntegrationTest;
@@ -17,7 +16,6 @@ class EmployeeTestFactory {
         return Employee.builder()
                 .firstName("firstName")
                 .lastName("lastName")
-                .birthDate(LocalDate.parse("2000-01-01"))
                 .phoneNumber("123456789")
                 .departments(departments())
                 .qualifications(getQualifications())
@@ -30,7 +28,6 @@ class EmployeeTestFactory {
         return Employee.builder()
                 .firstName("firstName")
                 .lastName("lastName")
-                .birthDate(LocalDate.parse("2000-01-01"))
                 .phoneNumber("123456789")
                 .departments(departments())
                 .active(true)
@@ -41,7 +38,6 @@ class EmployeeTestFactory {
         return CreateEmployeeDTO.builder()
                 .firstName("firstName")
                 .lastName("lastName")
-                .birthDate(LocalDate.parse("2000-01-01"))
                 .phoneNumber("123456789")
                 .departments(departmentsDTOs())
                 .roles(Set.of())
@@ -53,7 +49,6 @@ class EmployeeTestFactory {
         return CreateEmployeeDTO.builder()
                 .firstName(null)
                 .lastName("lastName")
-                .birthDate(LocalDate.parse("2000-01-01"))
                 .phoneNumber("123456789")
                 .departments(departmentsDTOs())
                 .build();

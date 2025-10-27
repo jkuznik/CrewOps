@@ -1,5 +1,6 @@
 package pl.crewops.model.dto.dailyEntry;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -23,7 +24,9 @@ public record DailyEntryDTO(
         Set<DailyNoteDTO> dailyNotes,
         Set<DailyEntryAuditDTO> auditEvents,
         DailyAttendanceStatus attendance,
-        DailyEntryStatus status) {
+        DailyEntryStatus status)
+        implements Serializable {
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof DailyEntryDTO that)) return false;

@@ -1,5 +1,6 @@
 package pl.crewops.model.dto.dailyEntry;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Builder;
@@ -13,4 +14,5 @@ public record DailyNoteDTO(
         DailyNoteType type,
         String content,
         Instant createdAt,
-        Instant updatedAt) {}
+        Instant updatedAt)
+        implements Serializable {}
