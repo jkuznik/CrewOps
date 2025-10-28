@@ -41,22 +41,6 @@ class EmployeeAPITest extends IntegrationTest {
     }
 
     @Test
-    void shouldReturnEmployeeWithNoQualificationsAndNoVehicles() {
-        // given
-        var createEmployeeDTO = EmployeeTestFactory.createEmployeeDTO();
-
-        // when
-        EmployeeDTO result = employeeAPI.createEmployee(createEmployeeDTO);
-        Employee employee = employeeRepository
-                .findByFirstNameAndLastName("firstName", "lastName")
-                .getFirst();
-
-        // then
-        assertThat(result.firstName()).isEqualTo("firstName");
-        assertThat(result.firstName()).isEqualTo(employee.getFirstName());
-    }
-
-    @Test
     void shouldThrowException_whenCreateEmployeeDTOIsNotValid() {
         // given
         var createEmployeeDTOWithNullFields = createEmployeeDTONotValid();

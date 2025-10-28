@@ -18,5 +18,7 @@ public interface DailyEntryAPI {
 
     DailyEntryDTO getByEmployeeIdAndEntryDate(@NotNull UUID employeeId, @NotNull LocalDate entryDate);
 
-    DailyEntryDTO updateDailyEntry(@NotNull UpdateDailyEntryCommand updateAttendance);
+    DailyEntryDTO updateDailyEntry(@NotNull @Valid UpdateDailyEntryCommand updateAttendance);
+
+    DailyEntryDTO approveDailyEntry(@NotNull @Valid UpdateDailyEntryCommand updateDailyEntryCommand);
 }

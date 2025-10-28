@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-table-job-position
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: job_position
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+                  defaultValueComputed: gen_random_uuid()
+              - column:
+                  name: version
+                  type: integer
+                  constraints:
+                    nullable: false
+                  defaultValue: 0
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: machine_id
+                  type: uuid
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 002-create-job-position-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            # source: https://neon.tech/postgresql/postgresql-tutorial/postgresql-timestamp
+            sql: |
+              DROP TRIGGER IF EXISTS job_position_updated_at_trigger ON job_position;
+              CREATE TRIGGER job_position_updated_at_trigger
+              BEFORE UPDATE ON job_position
+              FOR EACH ROW
+              EXECUTE FUNCTION public.update_updated_at();

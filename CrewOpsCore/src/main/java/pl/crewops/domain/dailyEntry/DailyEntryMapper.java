@@ -7,6 +7,9 @@ import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryAuditDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyNoteDTO;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
+import pl.crewops.model.dto.machine.MachineDTO;
+import pl.crewops.model.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.tenantSchema.DailyEntry;
 import pl.crewops.model.tenantSchema.DailyEntryAudit;
 import pl.crewops.model.tenantSchema.DailyNote;
@@ -26,6 +29,42 @@ class DailyEntryMapper {
     }
 
     static DailyEntryDTO mapToDTO(DailyEntry dailyEntry) {
+        JobPositionDTO jobPositionDTO = null;
+        MachineDTO machine = null;
+
+        if (dailyEntry.getJobPosition() != null) {
+            if (dailyEntry.getJobPosition().getMachine() != null) {
+
+                machine = MachineDTO.builder()
+                        .id(dailyEntry.getJobPosition().getId())
+                        .registerNumber(dailyEntry.getJobPosition().getMachine().getRegisterNumber())
+                        .make(dailyEntry.getJobPosition().getMachine().getMake())
+                        .model(dailyEntry.getJobPosition().getMachine().getModel())
+                        .vin(dailyEntry.getJobPosition().getMachine().getVin())
+                        .year(dailyEntry.getJobPosition().getMachine().getYear())
+                        .broken(dailyEntry.getJobPosition().getMachine().getBroken())
+                        .machineType(MachineTypeDTO.builder()
+                                .id(dailyEntry
+                                        .getJobPosition()
+                                        .getMachine()
+                                        .getMachineType()
+                                        .getId())
+                                .name(dailyEntry
+                                        .getJobPosition()
+                                        .getMachine()
+                                        .getMachineType()
+                                        .getName())
+                                .build())
+                        .build();
+            }
+
+            jobPositionDTO = JobPositionDTO.builder()
+                    .id(dailyEntry.getJobPosition().getId())
+                    .name(dailyEntry.getJobPosition().getName())
+                    .machine(machine)
+                    .build();
+        }
+
         return DailyEntryDTO.builder()
                 .id(dailyEntry.getId())
                 .employeeId(dailyEntry.getEmployeeId())
@@ -33,6 +72,7 @@ class DailyEntryMapper {
                 .startTime(dailyEntry.getStartTime())
                 .endTime(dailyEntry.getEndTime())
                 .overTime(dailyEntry.getOvertime())
+                .jobPosition(jobPositionDTO)
                 .dailyNotes(getMappedDailyNotes(dailyEntry))
                 .auditEvents(getMappedAuditEvents(dailyEntry))
                 .attendance(dailyEntry.getAttendance())

@@ -10,6 +10,7 @@ public class CacheResolver {
 
     public static final String GET_COMPANY_BY_ID = "getCompanyById";
     public static final String GET_EMPLOYEE_BY_ID = "getEmployeeById";
+    public static final String GET_DAILY_ENTRY_BY_EMPLOYEE_AND_DATE = "getDailyEntryByEmployeeAndDate";
     public static final String GET_ALL_EMPLOYEES = "getAllEmployees";
     public static final String GET_ALL_BREAKDOWNS = "getAllBreakdowns";
     public static final String GET_ALL_DEPARTMENTS = "getAllDepartments";

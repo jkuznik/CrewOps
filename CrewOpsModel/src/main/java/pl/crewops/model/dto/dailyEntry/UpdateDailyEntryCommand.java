@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 import pl.crewops.enums.DailyAttendanceStatus;
 import pl.crewops.enums.DailyEntryStatus;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 
 /**
  * Base interface for all update commands related to {@code DailyEntry}.
@@ -22,13 +23,13 @@ import pl.crewops.enums.DailyEntryStatus;
         )
 @JsonSubTypes({
     @JsonSubTypes.Type(value = UpdateDailyEntryCommand.UpdateAttendance.class, name = "UpdateAttendance"),
-    @JsonSubTypes.Type(value = UpdateDailyEntryCommand.UpdateWorkTime.class, name = "UpdateWorkTime"),
+    @JsonSubTypes.Type(value = UpdateDailyEntryCommand.UpdateDailyEntryInformation.class, name = "UpdateWorkTime"),
     @JsonSubTypes.Type(value = UpdateDailyEntryCommand.ChangeEntryStatus.class, name = "ChangeEntryStatus"),
     @JsonSubTypes.Type(value = UpdateDailyEntryCommand.AddDailyNote.class, name = "AddDailyNote")
 })
 public sealed interface UpdateDailyEntryCommand
         permits UpdateDailyEntryCommand.UpdateAttendance,
-                UpdateDailyEntryCommand.UpdateWorkTime,
+                UpdateDailyEntryCommand.UpdateDailyEntryInformation,
                 UpdateDailyEntryCommand.ChangeEntryStatus,
                 UpdateDailyEntryCommand.AddDailyNote {
 
@@ -49,30 +50,31 @@ public sealed interface UpdateDailyEntryCommand
      */
     UUID actionByEmployeeId();
 
-    /**
-     * Represents a command to update the attendance status of a DailyEntry.
-     */
     String comment();
-
-    record UpdateAttendance(
-            @NotNull UUID employeeId,
-            @NotNull LocalDate entryDate,
-            @NotNull UUID actionByEmployeeId,
-            @NotNull DailyAttendanceStatus newAttendance,
-            String comment)
-            implements UpdateDailyEntryCommand {}
 
     /**
      * Represents a command to update the work time (start and/or end time)
      * of a DailyEntry.
      */
-    record UpdateWorkTime(
+    record UpdateDailyEntryInformation(
             @NotNull UUID employeeId,
             @NotNull LocalDate entryDate,
             @NotNull UUID actionByEmployeeId,
             Instant newStartTime,
             Instant newEndTime,
             BigDecimal newOvertime,
+            JobPositionDTO jobPositionDTO,
+            String comment)
+            implements UpdateDailyEntryCommand {}
+
+    /**
+     * Represents a command to update the attendance status of a DailyEntry.
+     */
+    record UpdateAttendance(
+            @NotNull UUID employeeId,
+            @NotNull LocalDate entryDate,
+            @NotNull UUID actionByEmployeeId,
+            @NotNull DailyAttendanceStatus newAttendance,
             String comment)
             implements UpdateDailyEntryCommand {}
 

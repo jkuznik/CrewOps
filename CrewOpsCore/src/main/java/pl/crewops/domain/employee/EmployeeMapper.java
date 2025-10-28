@@ -26,7 +26,6 @@ class EmployeeMapper {
         return Employee.builder()
                 .firstName(createEmployeeDTO.firstName())
                 .lastName(createEmployeeDTO.lastName())
-                .birthDate(createEmployeeDTO.birthDate())
                 .phoneNumber(createEmployeeDTO.phoneNumber())
                 .active(true)
                 .build();
@@ -37,7 +36,6 @@ class EmployeeMapper {
                 .id(employee.getId())
                 .firstName(employee.getFirstName())
                 .lastName(employee.getLastName())
-                .birthDate(employee.getBirthDate())
                 .phoneNumber(employee.getPhoneNumber())
                 .email(employee.getEmail())
                 .departments(getDepartments(employee))
@@ -63,7 +61,6 @@ class EmployeeMapper {
                 .id(employee.getId())
                 .firstName(employee.getFirstName())
                 .lastName(employee.getLastName())
-                .birthDate(employee.getBirthDate())
                 .phoneNumber(employee.getPhoneNumber())
                 .email(employee.getEmail())
                 .departments(getDepartments(employee))

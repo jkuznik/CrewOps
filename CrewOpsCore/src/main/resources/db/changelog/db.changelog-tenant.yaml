@@ -45,8 +45,12 @@
     - include:
         file: db/changelog/create/tenantSchema/012-create-join-table-employee-department.yaml
     - include:
-        file: db/changelog/create/tenantSchema/013-create-table-daily-entry.yaml
+        file: db/changelog/create/tenantSchema/013-create-table-job-position.yaml
     - include:
-        file: db/changelog/create/tenantSchema/014-create-table-daily-note.yaml
+        file: db/changelog/create/tenantSchema/014-create-join-table-job-position-qualification.yaml
     - include:
-        file: db/changelog/create/tenantSchema/015-create-table-daily-entry-audit.yaml
+        file: db/changelog/create/tenantSchema/015-create-table-daily-entry.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/016-create-table-daily-note.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/017-create-table-daily-entry-audit.yaml

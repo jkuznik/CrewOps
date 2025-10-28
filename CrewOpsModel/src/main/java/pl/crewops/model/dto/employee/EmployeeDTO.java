@@ -1,7 +1,6 @@
 package pl.crewops.model.dto.employee;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -16,7 +15,6 @@ public record EmployeeDTO(
         UUID id,
         String firstName,
         String lastName,
-        LocalDate birthDate,
         String phoneNumber,
         String email,
         Set<RoleDTO> roles,
@@ -25,6 +23,7 @@ public record EmployeeDTO(
         Set<QualificationDTO> qualifications,
         Set<MachineDTO> machines)
         implements Serializable {
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof EmployeeDTO that)) return false;

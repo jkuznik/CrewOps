@@ -2,7 +2,6 @@ package pl.crewops.model;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 import lombok.*;
@@ -19,7 +18,6 @@ public class ProfileFormModel {
     private UUID employeeId;
     private String firstName;
     private String lastName;
-    private LocalDate birthDate;
     private @Size(max = 15) String phoneNumber;
     private @Email String email;
     private String username;
@@ -31,7 +29,6 @@ public class ProfileFormModel {
                 .employeeId(principal.getEmployeeId())
                 .firstName(employeeDTO.firstName())
                 .lastName(employeeDTO.lastName())
-                .birthDate(employeeDTO.birthDate())
                 .phoneNumber(employeeDTO.phoneNumber())
                 .email(employeeDTO.email())
                 .username(principal.getUsername())

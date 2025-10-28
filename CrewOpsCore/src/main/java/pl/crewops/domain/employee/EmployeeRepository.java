@@ -32,8 +32,6 @@ interface EmployeeRepository extends JpaRepository<Employee, UUID> {
 
     @Query("SELECT e FROM Employee e JOIN e.machines v WHERE v.id = :machinesId")
     Page<Employee> findByMachinesIdAndActiveIsTrue(@Param("machinesId") UUID machineId, Pageable pageable);
-
-    List<Employee> findByFirstNameAndLastName(String firstName, String lastName);
 }
 
 interface EmployeeQualificationRepository extends JpaRepository<EmployeeQualification, UUID> {

@@ -1,6 +1,8 @@
 package pl.crewops.enums;
 
-public enum DailyAttendanceStatus {
+import java.io.Serializable;
+
+public enum DailyAttendanceStatus implements Serializable {
     PRESENT,
     VACATION,
     SICK_LEAVE,

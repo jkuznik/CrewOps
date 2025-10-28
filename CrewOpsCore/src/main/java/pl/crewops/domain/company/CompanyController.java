@@ -16,7 +16,7 @@ import pl.crewops.model.dto.company.CompanyDTO;
 @RestController
 @RequiredArgsConstructor
 @Validated
-public class CompanyController {
+class CompanyController {
     private final CompanyService companyService;
 
     @GetMapping(COMPANIES_CID)

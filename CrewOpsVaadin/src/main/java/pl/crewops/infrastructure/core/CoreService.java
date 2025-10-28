@@ -29,6 +29,9 @@ import pl.crewops.model.dto.department.DepartmentDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.model.dto.jobPosition.CreateJobPositionDTO;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
+import pl.crewops.model.dto.jobPosition.UpdateJobPositionDTO;
 import pl.crewops.model.dto.machine.CreateMachineDTO;
 import pl.crewops.model.dto.machine.MachineDTO;
 import pl.crewops.model.dto.machine.UpdateMachineDTO;
@@ -54,6 +57,7 @@ class CoreService implements CoreAPI {
     private final DomainCompanyClient domainCompanyClient;
     private final DomainDailyClient domainDailyClient;
     private final DomainDepartmentClient domainDepartmentClient;
+    private final DomainJobPositionClient domainJobPositionClient;
     private final DomainEmployeeClient domainEmployeeClient;
     private final DomainMachineClient domainMachineClient;
     private final DomainMessageClient domainMessageClient;
@@ -66,6 +70,7 @@ class CoreService implements CoreAPI {
         this.domainCompanyClient = new DomainCompanyClient(coreClient.getAuthorizationProvider());
         this.domainDailyClient = new DomainDailyClient(coreClient.getAuthorizationProvider());
         this.domainDepartmentClient = new DomainDepartmentClient(coreClient.getAuthorizationProvider());
+        this.domainJobPositionClient = new DomainJobPositionClient(coreClient.getAuthorizationProvider());
         this.domainEmployeeClient = new DomainEmployeeClient(coreClient.getAuthorizationProvider());
         this.domainMachineClient = new DomainMachineClient(coreClient.getAuthorizationProvider());
         this.domainMessageClient = new DomainMessageClient(coreClient.getAuthorizationProvider());
@@ -73,14 +78,16 @@ class CoreService implements CoreAPI {
         this.deleteQualificationClient = new DomainQualificationClient(coreClient.getAuthorizationProvider());
     }
 
-    @Override
-    public Optional<CreateCustomerResult> verifyEmail(VerifyEmailRequest request) {
-        return Optional.ofNullable(domainAuthClient.verifyEmail(request));
-    }
+    // --- DOMAIN AUTH CLIENT (Rejestracja, Logowanie, Aktualizacje Autoryzacji) ---
 
     @Override
     public Optional<PreRegisterResponse> registerNewCustomer(CreateCustomerCommand command) {
         return Optional.ofNullable(domainAuthClient.registerNewCustomer(command));
+    }
+
+    @Override
+    public Optional<CreateCustomerResult> verifyEmail(VerifyEmailRequest request) {
+        return Optional.ofNullable(domainAuthClient.verifyEmail(request));
     }
 
     @Caching(
@@ -133,6 +140,8 @@ class CoreService implements CoreAPI {
         domainAuthClient.terminateEmployeeAccount(employeeId);
     }
 
+    // --- DOMAIN BREAKDOWN CLIENT (Awarie) ---
+
     @Caching(
             evict = {
                 @CacheEvict(value = GET_ALL_BREAKDOWNS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()"),
@@ -175,12 +184,51 @@ class CoreService implements CoreAPI {
         return Optional.ofNullable(domainBreakdownClient.updateBreakdown(updateBreakdownDTO));
     }
 
-    // TODO: consider remove caching of this value or implement different logic
+    // --- DOMAIN COMPANY CLIENT (Firma) ---
+
     @Cacheable(cacheNames = GET_COMPANY_BY_ID, key = "#companyId")
     @Override
     public Optional<CompanyDTO> getCompanyById(UUID companyId) throws NotAuthenticatedException {
         return Optional.ofNullable(domainCompanyClient.getCompanyById(companyId));
     }
+
+    // --- DOMAIN DAILY CLIENT (Raporty Dzienne) ---
+
+    @CacheEvict(
+            cacheNames = GET_DAILY_ENTRY_BY_EMPLOYEE_AND_DATE,
+            key = "#createDailyEntryDTO.employeeId() + '_' + #createDailyEntryDTO.entryDate()")
+    @Override
+    public Optional<DailyEntryDTO> createDailyEntry(CreateDailyEntryDTO createDailyEntryDTO)
+            throws NotAuthenticatedException {
+        return Optional.ofNullable(domainDailyClient.createDailyEntry(createDailyEntryDTO));
+    }
+
+    @Cacheable(cacheNames = GET_DAILY_ENTRY_BY_EMPLOYEE_AND_DATE, key = "#employeeId + '_' + #localDate")
+    @Override
+    public Optional<DailyEntryDTO> findDailyEntryByEmployeeIdAndDate(UUID employeeId, LocalDate localDate)
+            throws NotAuthenticatedException {
+        return Optional.ofNullable(domainDailyClient.findDailyEntryByEmployeeIdAndDate(employeeId, localDate));
+    }
+
+    @CacheEvict(
+            cacheNames = GET_DAILY_ENTRY_BY_EMPLOYEE_AND_DATE,
+            key = "#updateDailyEntryCommand.employeeId() + '_' + #updateDailyEntryCommand.entryDate()")
+    @Override
+    public Optional<DailyEntryDTO> updateDailyEntrySelfPermission(UpdateDailyEntryCommand updateDailyEntryCommand)
+            throws NotAuthenticatedException {
+        return Optional.ofNullable(domainDailyClient.updateDailyEntrySelfPermission(updateDailyEntryCommand));
+    }
+
+    @CacheEvict(
+            cacheNames = GET_DAILY_ENTRY_BY_EMPLOYEE_AND_DATE,
+            key = "#updateDailyEntryCommand.employeeId() + '_' + #updateDailyEntryCommand.entryDate()")
+    @Override
+    public Optional<DailyEntryDTO> approveDailyEntry(UpdateDailyEntryCommand updateDailyEntryCommand)
+            throws NotAuthenticatedException {
+        return Optional.ofNullable(domainDailyClient.approveDailyEntry(updateDailyEntryCommand));
+    }
+
+    // --- DOMAIN DEPARTMENT CLIENT (Działy) ---
 
     @Cacheable(cacheNames = GET_ALL_DEPARTMENTS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     @Override
@@ -189,24 +237,31 @@ class CoreService implements CoreAPI {
         return domainDepartmentClient.getAllDepartments();
     }
 
-    @Override
-    public Optional<DailyEntryDTO> createDailyEntry(CreateDailyEntryDTO createDailyEntryDTO)
-            throws NotAuthenticatedException {
-        return Optional.ofNullable(domainDailyClient.createDailyEntry(createDailyEntryDTO));
-    }
+    // --- DOMAIN JOB POSITION CLIENT (Stanowiska Pracy) ---
 
-    // todo: implement cache and security
     @Override
-    public Optional<DailyEntryDTO> findDailyEntryByEmployeeIdAndDate(UUID employeeId, LocalDate localDate)
+    public JobPositionDTO createJobPosition(CreateJobPositionDTO createJobPositionDTO)
             throws NotAuthenticatedException {
-        return Optional.ofNullable(domainDailyClient.findDailyEntryByEmployeeIdAndDate(employeeId, localDate));
+        return domainJobPositionClient.createJobPosition(createJobPositionDTO);
     }
 
     @Override
-    public Optional<DailyEntryDTO> updateDailyEntrySelfPemission(UpdateDailyEntryCommand updateDailyEntryCommand)
-            throws NotAuthenticatedException {
-        return Optional.ofNullable(domainDailyClient.updateDailyEntrySelfPermission(updateDailyEntryCommand));
+    public List<JobPositionDTO> getAllJobPositions() throws NotAuthenticatedException {
+        return domainJobPositionClient.getAllJobPositions();
     }
+
+    @Override
+    public JobPositionDTO updateJobPosition(UpdateJobPositionDTO updateJobPositionDTO)
+            throws NotAuthenticatedException {
+        return domainJobPositionClient.updateJobPosition(updateJobPositionDTO);
+    }
+
+    @Override
+    public void deleteById(UUID id) throws NotAuthenticatedException {
+        domainJobPositionClient.deleteById(id);
+    }
+
+    // --- DOMAIN EMPLOYEE CLIENT (Pracownicy) ---
 
     @Caching(
             evict = {
@@ -267,7 +322,6 @@ class CoreService implements CoreAPI {
         return Optional.ofNullable(domainEmployeeClient.updateEmployeeSelfProfile(updateEmployeeDTO));
     }
 
-    // TODO: cache evict logic
     @Override
     public Optional<EmployeeDTO> addEmployeeDepartment(UUID employeeId, UUID departmentId)
             throws NotAuthenticatedException {
@@ -306,7 +360,6 @@ class CoreService implements CoreAPI {
         return Optional.ofNullable(domainEmployeeClient.addEmployeeQualification(employeeId, qualificationId));
     }
 
-    // TODO: cache evict logic
     @Override
     public void removeEmployeeDepartment(UUID employeeId, UUID departmentId) throws NotAuthenticatedException {
         domainEmployeeClient.removeEmployeeDepartment(employeeId, departmentId);
@@ -336,6 +389,8 @@ class CoreService implements CoreAPI {
     public void removeEmployeeQualification(UUID employeeId, UUID qualificationId) throws NotAuthenticatedException {
         domainEmployeeClient.removeEmployeeQualification(employeeId, qualificationId);
     }
+
+    // --- DOMAIN MACHINE CLIENT (Maszyny) ---
 
     @Caching(
             evict = {
@@ -402,6 +457,8 @@ class CoreService implements CoreAPI {
         domainMachineClient.deleteMachine(vehicleId);
     }
 
+    // --- DOMAIN MESSAGE CLIENT (Wiadomości) ---
+
     @Override
     public void sendMessage(SendMessageCommand sendMessageCommand) throws NotAuthenticatedException {
         domainMessageClient.sendMessage(sendMessageCommand);
@@ -417,10 +474,14 @@ class CoreService implements CoreAPI {
         return Optional.ofNullable(domainMessageClient.setMessageReadStatus(messageId, status));
     }
 
+    // --- DOMAIN OPTION CLIENT (Ustawienia Użytkownika) ---
+
     @Override
     public Set<AuthUserOptionDTO> getOptionsByEmployeeId(UUID employeeId) throws NotAuthenticatedException {
         return domainOptionClient.getOptionsByEmployeeId(employeeId);
     }
+
+    // --- DOMAIN QUALIFICATION CLIENT (Kwalifikacje) ---
 
     @Caching(
             evict = {
@@ -442,6 +503,12 @@ class CoreService implements CoreAPI {
     @Override
     public List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException {
         return deleteQualificationClient.getAllQualifications();
+    }
+
+    @Override
+    public List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(UUID employeeId)
+            throws NotAuthenticatedException {
+        return deleteQualificationClient.getAllQualificationsWithExpirationTimeByEmployeeId(employeeId);
     }
 
     @Caching(
@@ -476,13 +543,6 @@ class CoreService implements CoreAPI {
 
         return Optional.ofNullable(
                 deleteQualificationClient.updateQualificationExpireAt(updateQualificationExpiredAtDTO));
-    }
-
-    // todo: consider cache by employee id
-    @Override
-    public List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(UUID employeeId)
-            throws NotAuthenticatedException {
-        return deleteQualificationClient.getAllQualificationsWithExpirationTimeByEmployeeId(employeeId);
     }
 
     @Caching(

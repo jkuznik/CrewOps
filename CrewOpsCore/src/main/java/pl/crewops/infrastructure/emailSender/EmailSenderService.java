@@ -1,24 +1,20 @@
 package pl.crewops.infrastructure.emailSender;
 
 import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.stereotype.Service;
 
 @Log4j2
-@Service
-@RequiredArgsConstructor
 class EmailSenderService implements EmailSenderAPI {
 
-    // todo: use env placeholder
-    private static final String EMAIL_SENDER = "crewops@devsmith.eu";
-    private static final String EMAIL_PERSONAL = "no-reply-crewops";
-
-    @Autowired(required = false)
     private final JavaMailSender javaMailSender;
+    private final EmailSenderConfigProperties emailSenderConfigProperties;
+
+    public EmailSenderService(JavaMailSender javaMailSender, EmailSenderConfigProperties emailSenderConfigProperties) {
+        this.javaMailSender = javaMailSender;
+        this.emailSenderConfigProperties = emailSenderConfigProperties;
+    }
 
     @Override
     public void sendEmail(SendEmailRequest sendEmailRequest) {
@@ -27,7 +23,7 @@ class EmailSenderService implements EmailSenderAPI {
 
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
 
-            mimeMessageHelper.setFrom(EMAIL_SENDER, EMAIL_PERSONAL);
+            mimeMessageHelper.setFrom(emailSenderConfigProperties.sender(), emailSenderConfigProperties.profile());
             mimeMessageHelper.setTo(sendEmailRequest.toEmailAddress());
             mimeMessageHelper.setSubject(sendEmailRequest.subject());
             mimeMessageHelper.setText(sendEmailRequest.body(), false);

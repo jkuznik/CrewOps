@@ -33,12 +33,17 @@ public class DailyEntry extends AbstractEntity {
     @Column(nullable = false)
     private LocalDate entryDate;
 
+    @Column(nullable = false)
     private Instant startTime;
 
     private Instant endTime;
 
     @Column(precision = 7, scale = 4, nullable = false)
     private BigDecimal overtime = BigDecimal.ZERO;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "job_position_id")
+    private JobPosition jobPosition;
 
     @OneToMany(mappedBy = "dailyEntry", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DailyNote> dailyNotes = new HashSet<>();

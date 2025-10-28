@@ -7,6 +7,7 @@ import static pl.crewops.enums.DailyEntryStatus.APPROVED;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -18,12 +19,14 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import pl.crewops.domain.jobPosition.JobPositionAPI;
 import pl.crewops.enums.DailyAttendanceStatus;
 import pl.crewops.enums.DailyEntryAuditType;
 import pl.crewops.enums.DailyEntryStatus;
 import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.UpdateDailyEntryCommand;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.tenantSchema.DailyEntry;
 import pl.crewops.model.tenantSchema.DailyEntryAudit;
 import pl.crewops.util.audit.AuditDetailsBuilder;
@@ -33,7 +36,8 @@ import pl.crewops.util.audit.AuditDetailsBuilder;
             DailyEntryService.class,
             AuditDetailsBuilder.class,
             DailyEntryRepository.class,
-            DailyEntryAuditRepository.class
+            DailyEntryAuditRepository.class,
+            JobPositionAPI.class
         })
 class DailyEntryServiceTest {
 
@@ -48,6 +52,9 @@ class DailyEntryServiceTest {
 
     @MockitoBean
     AuditDetailsBuilder auditDetailsBuilder;
+
+    @MockitoBean
+    JobPositionAPI jobPositionAPI;
 
     private DailyEntry savedEntry;
     private JsonNode payloadNode;
@@ -254,14 +261,16 @@ class DailyEntryServiceTest {
                 .thenReturn(Optional.of(dailyEntry));
         when(dailyEntryRepository.save(any(DailyEntry.class))).thenAnswer(i -> i.getArgument(0));
 
-        UpdateDailyEntryCommand.UpdateWorkTime command = new UpdateDailyEntryCommand.UpdateWorkTime(
-                employeeId,
-                entryDate,
-                actionBy,
-                Instant.parse("2025-01-01T09:00:00Z"),
-                Instant.parse("2025-01-01T17:00:00Z"),
-                null,
-                "Updated work time");
+        UpdateDailyEntryCommand.UpdateDailyEntryInformation command =
+                new UpdateDailyEntryCommand.UpdateDailyEntryInformation(
+                        employeeId,
+                        entryDate,
+                        actionBy,
+                        Instant.parse("2025-01-01T09:00:00Z"),
+                        Instant.parse("2025-01-01T17:00:00Z"),
+                        null,
+                        JobPositionDTO.builder().build(),
+                        "");
 
         // when
         DailyEntryDTO result = dailyEntryService.updateDailyEntry(command);
@@ -270,7 +279,7 @@ class DailyEntryServiceTest {
         assertThat(result.startTime()).isEqualTo(Instant.parse("2025-01-01T09:00:00Z"));
         assertThat(result.endTime()).isEqualTo(Instant.parse("2025-01-01T17:00:00Z"));
         verify(auditDetailsBuilder)
-                .createPayload(eq(DailyEntryAuditType.WORK_TIME_MODIFIED), any(), any(), eq(actionBy));
+                .createPayload(eq(DailyEntryAuditType.INFORMATION_MODIFIED), any(), any(), eq(actionBy));
         verify(dailyEntryAuditRepository).save(any(DailyEntryAudit.class));
     }
 
@@ -354,18 +363,19 @@ class DailyEntryServiceTest {
                 .thenReturn(Optional.of(approvedEntry));
         when(dailyEntryRepository.save(any(DailyEntry.class))).thenAnswer(i -> i.getArgument(0));
 
-        // Mockujemy, że metoda sensitiveModification zwróci true
         DailyEntryService spyService = org.mockito.Mockito.spy(dailyEntryService);
         doReturn(true).when(spyService).sensitiveModification(any(), any());
 
-        UpdateDailyEntryCommand.UpdateWorkTime command = new UpdateDailyEntryCommand.UpdateWorkTime(
-                employeeId,
-                entryDate,
-                actionBy,
-                Instant.parse("2025-01-01T09:00:00Z"),
-                Instant.parse("2025-01-01T17:00:00Z"),
-                null,
-                "Changed after approval");
+        UpdateDailyEntryCommand.UpdateDailyEntryInformation command =
+                new UpdateDailyEntryCommand.UpdateDailyEntryInformation(
+                        employeeId,
+                        entryDate,
+                        actionBy,
+                        Instant.parse("2025-01-01T09:00:00Z"),
+                        Instant.parse("2025-01-01T17:00:00Z"),
+                        null,
+                        JobPositionDTO.builder().build(),
+                        "Changed after approval");
 
         // when
         DailyEntryDTO result = spyService.updateDailyEntry(command);
@@ -373,18 +383,14 @@ class DailyEntryServiceTest {
         // then
         assertThat(result.status()).isEqualTo(DailyEntryStatus.MANUAL_EDITED);
 
-        // pierwszy event – modyfikacja czasu pracy
         verify(auditDetailsBuilder)
-                .createPayload(eq(DailyEntryAuditType.WORK_TIME_MODIFIED), any(), any(), eq(actionBy));
+                .createPayload(eq(DailyEntryAuditType.INFORMATION_MODIFIED), any(), any(), eq(actionBy));
 
-        // drugi event – cofnięcie zatwierdzenia
         verify(auditDetailsBuilder)
                 .createPayload(eq(DailyEntryAuditType.ENTRY_STATUS_CHANGED), any(), any(), eq(actionBy));
 
-        // Sprawdź, że dwa razy zapisano audyt
         verify(dailyEntryAuditRepository, times(2)).save(any(DailyEntryAudit.class));
 
-        // I że drugi zapis miał odpowiedni komentarz
         ArgumentCaptor<DailyEntryAudit> auditCaptor = ArgumentCaptor.forClass(DailyEntryAudit.class);
         verify(dailyEntryAuditRepository, atLeastOnce()).save(auditCaptor.capture());
 
@@ -393,5 +399,56 @@ class DailyEntryServiceTest {
                         "Entry was modified after approval — status reverted to MANUAL_EDITED".equals(a.getComment()));
 
         assertThat(containsRevertComment).isTrue();
+    }
+
+    // --- NOWY TEST DLA approveDailyEntry ---
+
+    @Test
+    void shouldApproveDailyEntryAndCreateAudit() {
+        // given
+        UUID employeeId = UUID.randomUUID();
+        LocalDate entryDate = LocalDate.now();
+        UUID actionBy = UUID.randomUUID();
+        String comment = "Approved by manager";
+
+        DailyEntry draftEntry = DailyEntry.builder()
+                .employeeId(employeeId)
+                .entryDate(entryDate)
+                .status(DailyEntryStatus.DRAFT)
+                .overtime(BigDecimal.ZERO.setScale(4))
+                .build();
+        draftEntry.setId(UUID.randomUUID());
+
+        when(dailyEntryRepository.findByEmployeeIdAndEntryDate(employeeId, entryDate))
+                .thenReturn(Optional.of(draftEntry));
+        when(dailyEntryRepository.save(any(DailyEntry.class))).thenAnswer(i -> i.getArgument(0));
+
+        UpdateDailyEntryCommand command =
+                new UpdateDailyEntryCommand.ChangeEntryStatus(employeeId, entryDate, actionBy, APPROVED, comment);
+
+        // when
+        DailyEntryDTO result = dailyEntryService.approveDailyEntry(command);
+
+        // then
+        assertThat(result.status()).isEqualTo(APPROVED);
+
+        ArgumentCaptor<DailyEntry> entryCaptor = ArgumentCaptor.forClass(DailyEntry.class);
+        verify(dailyEntryRepository).save(entryCaptor.capture());
+        assertThat(entryCaptor.getValue().getStatus()).isEqualTo(APPROVED);
+
+        verify(auditDetailsBuilder)
+                .createPayload(
+                        eq(DailyEntryAuditType.ENTRY_STATUS_CHANGED),
+                        any(DailyEntry.class), // oldEntry (clone)
+                        any(DailyEntry.class), // savedEntry
+                        eq(actionBy));
+
+        ArgumentCaptor<DailyEntryAudit> auditCaptor = ArgumentCaptor.forClass(DailyEntryAudit.class);
+        verify(dailyEntryAuditRepository).save(auditCaptor.capture());
+
+        DailyEntryAudit savedAudit = auditCaptor.getValue();
+        assertThat(savedAudit.getEventType()).isEqualTo(DailyEntryAuditType.ENTRY_STATUS_CHANGED);
+        assertThat(savedAudit.getComment()).isEqualTo(comment);
+        assertThat(savedAudit.getActionByEmployeeId()).isEqualTo(actionBy);
     }
 }

@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-table-job-position-qualification
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: job_position_qualification
+            columns:
+              - column:
+                  name: job_position_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: qualification_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+
+        - addPrimaryKey:
+            tableName: job_position_qualification
+            columnNames: job_position_id, qualification_id
+            constraintName: pk_job_position_qualification
+
+        - addForeignKeyConstraint:
+            baseTableName: job_position_qualification
+            baseColumnNames: job_position_id
+            constraintName: fk_job_position_qualification_job_position
+            referencedTableName: job_position
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: job_position_qualification
+            baseColumnNames: qualification_id
+            constraintName: fk_job_position_qualification_qualification
+            referencedTableName: qualification
+            referencedColumnNames: id
+            onDelete: CASCADE

@@ -3,8 +3,6 @@ package pl.crewops.domain.registration;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.UUID;
@@ -125,11 +123,11 @@ class RegistrationService {
                 .firstName(createCustomerCommand.createEmployeeDTO().firstName())
                 .lastName(createCustomerCommand.createEmployeeDTO().lastName())
                 .phoneNumber(createCustomerCommand.createEmployeeDTO().phoneNumber())
-                .birthDate(createCustomerCommand
-                        .createEmployeeDTO()
-                        .birthDate() // <-- LocalDate
-                        .atStartOfDay(ZoneId.systemDefault()) // LocalDateTime
-                        .toInstant())
+                //                .birthDate(createCustomerCommand
+                //                        .createEmployeeDTO()
+                //                        .birthDate() // <-- LocalDate
+                //                        .atStartOfDay(ZoneId.systemDefault()) // LocalDateTime
+                //                        .toInstant())
                 .build();
     }
 
@@ -212,7 +210,6 @@ class RegistrationService {
                 CreateEmployeeDTO.builder()
                         .firstName(registration.getFirstName())
                         .lastName(registration.getLastName())
-                        .birthDate(LocalDate.ofInstant(registration.getBirthDate(), ZoneId.systemDefault()))
                         .phoneNumber(registration.getPhoneNumber())
                         .roles(Set.of(
                                 RoleDTO.builder()
@@ -271,7 +268,6 @@ class RegistrationService {
                 .lastName(createEmployeeDTO.lastName())
                 .departments(createEmployeeDTO.departments())
                 .phoneNumber(createEmployeeDTO.phoneNumber())
-                .birthDate(createEmployeeDTO.birthDate())
                 .roles(createEmployeeDTO.roles())
                 .build();
     }

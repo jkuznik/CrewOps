@@ -1,6 +1,5 @@
 package pl.crewops.domain.registration;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -54,7 +53,6 @@ class RegistrationTestFactory {
                 .firstName(FIRST_NAME)
                 .lastName("lastName")
                 .departments(departmentsDTOs())
-                .birthDate(LocalDate.now())
                 .companyId(UUID.randomUUID())
                 .phoneNumber("phoneNumber")
                 .roles(new HashSet<>())

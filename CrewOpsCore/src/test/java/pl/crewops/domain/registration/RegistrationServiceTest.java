@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -100,11 +99,6 @@ class RegistrationServiceTest {
                 .localNumber(validCommand.createTenantDTO().createAddressDTO().localNumber())
                 .firstName(validCommand.createEmployeeDTO().firstName())
                 .lastName(validCommand.createEmployeeDTO().lastName())
-                .birthDate(validCommand
-                        .createEmployeeDTO()
-                        .birthDate()
-                        .atStartOfDay(ZoneId.systemDefault())
-                        .toInstant())
                 .build();
 
         savedRegistration.setId(UUID.randomUUID());
@@ -135,11 +129,6 @@ class RegistrationServiceTest {
                 .localNumber(validCommand.createTenantDTO().createAddressDTO().localNumber())
                 .firstName(validCommand.createEmployeeDTO().firstName())
                 .lastName(validCommand.createEmployeeDTO().lastName())
-                .birthDate(validCommand
-                        .createEmployeeDTO()
-                        .birthDate()
-                        .atStartOfDay(ZoneId.systemDefault())
-                        .toInstant())
                 .build();
         pendingRegistration.setId(UUID.randomUUID());
 

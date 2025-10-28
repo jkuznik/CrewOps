@@ -22,7 +22,7 @@ databaseChangeLog:
                   defaultValue: 0
               - column:
                   name: description
-                  type: text
+                  type: varchar(1023)
                   constraints:
                     nullable: false
                     unique: true

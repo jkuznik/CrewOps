@@ -1,6 +1,7 @@
 package pl.crewops.infrastructure.core;
 
 import static pl.crewops.enums.ControllerURL.DAILY_ENTRIES;
+import static pl.crewops.enums.ControllerURL.DAILY_ENTRIES_APPROVE;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -67,6 +68,23 @@ class DomainDailyClient extends DomainAbstractClient {
                     .body(new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
             log.error("Update daily entry failed");
+            return null;
+        }
+    }
+
+    // shift leader permission
+    public DailyEntryDTO approveDailyEntry(UpdateDailyEntryCommand updateDailyEntryCommand)
+            throws NotAuthenticatedException {
+        try {
+            return authorizedClient()
+                    .patch()
+                    .uri(uriBuilder -> uriBuilder.path(DAILY_ENTRIES_APPROVE).build())
+                    .body(updateDailyEntryCommand)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            log.error("Approve daily entry failed");
             return null;
         }
     }
