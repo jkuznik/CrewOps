@@ -22,6 +22,7 @@ public class SelfOnlyAspect {
 
     @Before("@annotation(pl.crewops.security.custom.permissionAnnotation.SelfOnlyPermission)")
     public void validateSelfOnlyPermission(JoinPoint joinPoint) {
+
         var principal = (UserPrincipal)
                 SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
