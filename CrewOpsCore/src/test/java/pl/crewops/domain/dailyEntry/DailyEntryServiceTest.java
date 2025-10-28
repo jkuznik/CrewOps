@@ -7,6 +7,7 @@ import static pl.crewops.enums.DailyEntryStatus.APPROVED;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -362,7 +363,6 @@ class DailyEntryServiceTest {
                 .thenReturn(Optional.of(approvedEntry));
         when(dailyEntryRepository.save(any(DailyEntry.class))).thenAnswer(i -> i.getArgument(0));
 
-        // Mockujemy, że metoda sensitiveModification zwróci true
         DailyEntryService spyService = org.mockito.Mockito.spy(dailyEntryService);
         doReturn(true).when(spyService).sensitiveModification(any(), any());
 
@@ -383,18 +383,14 @@ class DailyEntryServiceTest {
         // then
         assertThat(result.status()).isEqualTo(DailyEntryStatus.MANUAL_EDITED);
 
-        // pierwszy event – modyfikacja czasu pracy
         verify(auditDetailsBuilder)
                 .createPayload(eq(DailyEntryAuditType.INFORMATION_MODIFIED), any(), any(), eq(actionBy));
 
-        // drugi event – cofnięcie zatwierdzenia
         verify(auditDetailsBuilder)
                 .createPayload(eq(DailyEntryAuditType.ENTRY_STATUS_CHANGED), any(), any(), eq(actionBy));
 
-        // Sprawdź, że dwa razy zapisano audyt
         verify(dailyEntryAuditRepository, times(2)).save(any(DailyEntryAudit.class));
 
-        // I że drugi zapis miał odpowiedni komentarz
         ArgumentCaptor<DailyEntryAudit> auditCaptor = ArgumentCaptor.forClass(DailyEntryAudit.class);
         verify(dailyEntryAuditRepository, atLeastOnce()).save(auditCaptor.capture());
 
@@ -403,5 +399,56 @@ class DailyEntryServiceTest {
                         "Entry was modified after approval — status reverted to MANUAL_EDITED".equals(a.getComment()));
 
         assertThat(containsRevertComment).isTrue();
+    }
+
+    // --- NOWY TEST DLA approveDailyEntry ---
+
+    @Test
+    void shouldApproveDailyEntryAndCreateAudit() {
+        // given
+        UUID employeeId = UUID.randomUUID();
+        LocalDate entryDate = LocalDate.now();
+        UUID actionBy = UUID.randomUUID();
+        String comment = "Approved by manager";
+
+        DailyEntry draftEntry = DailyEntry.builder()
+                .employeeId(employeeId)
+                .entryDate(entryDate)
+                .status(DailyEntryStatus.DRAFT)
+                .overtime(BigDecimal.ZERO.setScale(4))
+                .build();
+        draftEntry.setId(UUID.randomUUID());
+
+        when(dailyEntryRepository.findByEmployeeIdAndEntryDate(employeeId, entryDate))
+                .thenReturn(Optional.of(draftEntry));
+        when(dailyEntryRepository.save(any(DailyEntry.class))).thenAnswer(i -> i.getArgument(0));
+
+        UpdateDailyEntryCommand command =
+                new UpdateDailyEntryCommand.ChangeEntryStatus(employeeId, entryDate, actionBy, APPROVED, comment);
+
+        // when
+        DailyEntryDTO result = dailyEntryService.approveDailyEntry(command);
+
+        // then
+        assertThat(result.status()).isEqualTo(APPROVED);
+
+        ArgumentCaptor<DailyEntry> entryCaptor = ArgumentCaptor.forClass(DailyEntry.class);
+        verify(dailyEntryRepository).save(entryCaptor.capture());
+        assertThat(entryCaptor.getValue().getStatus()).isEqualTo(APPROVED);
+
+        verify(auditDetailsBuilder)
+                .createPayload(
+                        eq(DailyEntryAuditType.ENTRY_STATUS_CHANGED),
+                        any(DailyEntry.class), // oldEntry (clone)
+                        any(DailyEntry.class), // savedEntry
+                        eq(actionBy));
+
+        ArgumentCaptor<DailyEntryAudit> auditCaptor = ArgumentCaptor.forClass(DailyEntryAudit.class);
+        verify(dailyEntryAuditRepository).save(auditCaptor.capture());
+
+        DailyEntryAudit savedAudit = auditCaptor.getValue();
+        assertThat(savedAudit.getEventType()).isEqualTo(DailyEntryAuditType.ENTRY_STATUS_CHANGED);
+        assertThat(savedAudit.getComment()).isEqualTo(comment);
+        assertThat(savedAudit.getActionByEmployeeId()).isEqualTo(actionBy);
     }
 }

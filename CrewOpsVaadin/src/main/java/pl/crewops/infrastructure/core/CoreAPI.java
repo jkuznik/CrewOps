@@ -149,6 +149,9 @@ public interface CoreAPI {
     Optional<DailyEntryDTO> updateDailyEntrySelfPermission(
             @Valid @NotNull UpdateDailyEntryCommand updateDailyEntryCommand) throws NotAuthenticatedException;
 
+    Optional<DailyEntryDTO> approveDailyEntry(@Valid @NotNull UpdateDailyEntryCommand updateDailyEntryCommand)
+            throws NotAuthenticatedException;
+
     // ---- JOB POSITION ---
 
     JobPositionDTO createJobPosition(@NotNull @Valid CreateJobPositionDTO createJobPositionDTO)

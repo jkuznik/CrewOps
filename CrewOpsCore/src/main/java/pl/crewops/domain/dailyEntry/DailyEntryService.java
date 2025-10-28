@@ -13,6 +13,7 @@ import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.domain.jobPosition.JobPositionAPI;
 import pl.crewops.enums.DailyAttendanceStatus;
@@ -222,6 +223,42 @@ class DailyEntryService implements DailyEntryAPI {
         }
 
         return mapToDTO(savedEntry);
+    }
+
+    @Override
+    @Transactional
+    public DailyEntryDTO approveDailyEntry(UpdateDailyEntryCommand updateDailyEntryCommand) {
+        DailyEntry dailyEntry = dailyEntryRepository
+                .findByEmployeeIdAndEntryDate(updateDailyEntryCommand.employeeId(), updateDailyEntryCommand.entryDate())
+                .orElseThrow(() -> new DailyEntryNotFoundException(
+                        updateDailyEntryCommand.employeeId(), updateDailyEntryCommand.entryDate()));
+
+        DailyEntry oldEntry = cloneDailyEntry(dailyEntry);
+
+        dailyEntry.setStatus(DailyEntryStatus.APPROVED);
+
+        DailyEntry savedEntry = dailyEntryRepository.save(dailyEntry);
+
+        updateDailyEntryAudit(updateDailyEntryCommand, oldEntry, savedEntry);
+
+        return mapToDTO(savedEntry);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    protected void updateDailyEntryAudit(
+            UpdateDailyEntryCommand updateDailyEntryCommand, DailyEntry oldEntry, DailyEntry savedEntry) {
+        DailyEntryAuditType auditType = DailyEntryAuditType.ENTRY_STATUS_CHANGED;
+
+        JsonNode payload = auditDetailsBuilder.createPayload(
+                auditType, oldEntry, savedEntry, updateDailyEntryCommand.actionByEmployeeId());
+
+        dailyEntryAuditRepository.save(DailyEntryAudit.builder()
+                .actionByEmployeeId(updateDailyEntryCommand.actionByEmployeeId())
+                .dailyEntry(savedEntry)
+                .payload(payload)
+                .eventType(auditType)
+                .comment(updateDailyEntryCommand.comment())
+                .build());
     }
 
     private void updateJobPosition(UpdateDailyEntryCommand.UpdateDailyEntryInformation update, DailyEntry dailyEntry) {

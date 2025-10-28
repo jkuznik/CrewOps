@@ -14,7 +14,7 @@ import pl.crewops.security.custom.permissionAnnotation.ManagerPermission;
 
 @RestController
 @RequiredArgsConstructor
-public class JobPositionController {
+class JobPositionController {
 
     private final JobPositionAPI jobPositionAPI;
 

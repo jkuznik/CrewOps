@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.*;
 import java.util.*;
 import pl.crewops.enums.DailyAttendanceStatus;
+import pl.crewops.enums.DailyEntryStatus;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
@@ -93,7 +94,6 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        // todo: implement annotation that do same thing.
         if (authenticationResolver.principalIsAuthenticated()) {
             try {
                 mainContent.removeAll();
@@ -352,6 +352,30 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         }
     }
 
+    private void approveDailyEntry() {
+        DailyEntryDTO dailyEntry = dailyEntryIsNullFallback();
+
+        var updateCommand = new UpdateDailyEntryCommand.ChangeEntryStatus(
+                dailyEntry.employeeId(),
+                dailyEntry.entryDate(),
+                authenticationResolver.getPrincipal().getEmployeeId(),
+                DailyEntryStatus.APPROVED,
+                "");
+
+        try {
+            Optional<DailyEntryDTO> dailyEntryDTO1 = coreAPI.approveDailyEntry(updateCommand);
+            if (dailyEntryDTO1.isPresent()) {
+                dailyEntryDTO = dailyEntryDTO1;
+                updateDependsOnDate(dailyEntryDTO1.get().entryDate());
+                new SuccessNotification(getTranslation("dailyView.updateTimesheetSuccess"));
+            } else {
+                new FailNotification(getTranslation("dailyView.failNotification"));
+            }
+        } catch (NotAuthenticatedException e) {
+            new FailNotification(getTranslation("dailyView.failNotification"));
+        }
+    }
+
     private DailyEntryDTO dailyEntryIsNullFallback() {
         return dailyEntryDTO.orElseGet(() -> {
             new FailNotification(getTranslation("dailyView.failNotification"));
@@ -365,8 +389,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         calendar.setText(getTranslation("dailyView.calendar"));
     }
 
-    // TODO: implement each button logic: createDaily - done, changeTimesheet - done, changeAttendance - done,
-    //  confirmAttendance - done,
+    // TODO: implement approve button
     private void addDailyModificationFormListeners() {
         listeners.add(createDailyListener());
 
@@ -375,6 +398,14 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver, 
         listeners.add(changeAttendanceListener());
 
         listeners.add(confirmAttendanceListener());
+
+        listeners.add(approveDaily());
+    }
+
+    private Registration approveDaily() {
+        return dailyModificationForm.addApproveDailyEventListener(event -> {
+            approveDailyEntry();
+        });
     }
 
     private Registration confirmAttendanceListener() {

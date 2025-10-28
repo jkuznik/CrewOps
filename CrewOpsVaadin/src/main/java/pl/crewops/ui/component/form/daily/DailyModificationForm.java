@@ -234,9 +234,18 @@ public class DailyModificationForm extends FormLayout {
 
                 changeTimesheetButton.setVisible(true);
 
+                if (dailyEntryDTO.attendance() == NULL
+                        || dailyEntryDTO.attendance() == OTHER
+                        || dailyEntryDTO.attendance() == null) {
+                    confirmPresenceButton.setVisible(true);
+                }
+
                 if (userIsShiftLeader) {
                     changeAttendanceButton.setVisible(true);
-                    if (!dailyEntryDTO.entryDate().isAfter(LocalDate.now()) && dailyEntryDTO.attendance() == PRESENT) {
+                    if (!dailyEntryDTO.entryDate().isAfter(LocalDate.now())
+                            && (dailyEntryDTO.attendance() != null
+                                    && dailyEntryDTO.attendance() != OTHER
+                                    && dailyEntryDTO.attendance() != NULL)) {
                         approveButton.setVisible(true);
                     }
                 }
@@ -255,12 +264,31 @@ public class DailyModificationForm extends FormLayout {
                 entryInfoText = getTranslation("dailyModificationForm.status.manualEdited.info");
                 tooltipText = getTranslation("dailyModificationForm.status.manualEdited.tooltip");
 
-                changeTimesheetButton.setVisible(true);
+                LocalDate entryDate = dailyEntryDTO.entryDate();
+                boolean isFutureEntry = entryDate.isAfter(LocalDate.now());
 
-                if (userIsShiftLeader) {
-                    changeAttendanceButton.setVisible(true);
-                    if (!dailyEntryDTO.entryDate().isAfter(LocalDate.now()) && dailyEntryDTO.attendance() == PRESENT) {
-                        approveButton.setVisible(true);
+                if (isFutureEntry) {
+                    // Future Entry: Only supervision (Shift Leader) can modify.
+                    if (userIsShiftLeader) {
+                        changeTimesheetButton.setVisible(true);
+                        changeAttendanceButton.setVisible(true);
+                    }
+                    // Regular user: No actions allowed for future drafts.
+
+                } else {
+                    // Past or Today Entry: Regular user and supervision can modify.
+                    changeTimesheetButton.setVisible(true); // User and supervision modification enabled.
+
+                    // Regular user action: Confirm presence if attendance is NULL/missing.
+                    if (dailyEntryDTO.attendance() == NULL
+                            || dailyEntryDTO.attendance() == OTHER
+                            || dailyEntryDTO.attendance() == null) {
+                        confirmPresenceButton.setVisible(true);
+                    }
+
+                    // Supervision actions: Change attendance.
+                    if (userIsShiftLeader) {
+                        changeAttendanceButton.setVisible(true);
                     }
                 }
             }
@@ -279,7 +307,10 @@ public class DailyModificationForm extends FormLayout {
 
                 if (userIsShiftLeader) {
                     changeAttendanceButton.setVisible(true);
-                    if (!dailyEntryDTO.entryDate().isAfter(LocalDate.now()) && dailyEntryDTO.attendance() == PRESENT) {
+                    if (!dailyEntryDTO.entryDate().isAfter(LocalDate.now())
+                            && (dailyEntryDTO.attendance() != null
+                                    && dailyEntryDTO.attendance() != OTHER
+                                    && dailyEntryDTO.attendance() != NULL)) {
                         approveButton.setVisible(true);
                     }
                 }
