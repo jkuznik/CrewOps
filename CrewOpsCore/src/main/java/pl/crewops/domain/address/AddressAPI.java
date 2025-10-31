@@ -9,5 +9,7 @@ import pl.crewops.model.tenantSchema.Address;
 @Validated
 public interface AddressAPI {
 
+    // todo: unit test + integration tests
+
     Address createAddress(@NotNull @Valid CreateAddressDTO createAddressDTO);
 }

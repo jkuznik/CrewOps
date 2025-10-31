@@ -6,13 +6,14 @@ import java.util.stream.Collectors;
 import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryAuditDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
-import pl.crewops.model.dto.dailyEntry.DailyNoteDTO;
+import pl.crewops.model.dto.dailyNote.DailyNoteDTO;
 import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.machine.MachineDTO;
 import pl.crewops.model.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.tenantSchema.DailyEntry;
 import pl.crewops.model.tenantSchema.DailyEntryAudit;
 import pl.crewops.model.tenantSchema.DailyNote;
+import pl.crewops.model.tenantSchema.Employee;
 
 class DailyEntryMapper {
 
@@ -81,10 +82,12 @@ class DailyEntryMapper {
     }
 
     static DailyNoteDTO mapToDTO(DailyNote dailyNote) {
+        Employee reportedByEmployeeId = dailyNote.getReportedByEmployeeId();
+
         return DailyNoteDTO.builder()
                 .id(dailyNote.getId())
                 .dailyEntryId(dailyNote.getDailyEntry().getId())
-                .reportedByEmployeeId(dailyNote.getReportedByEmployeeId())
+                .reportedByEmployeeId(reportedByEmployeeId.getId())
                 .type(dailyNote.getType())
                 .content(dailyNote.getContent())
                 .createdAt(dailyNote.getCreatedAt())

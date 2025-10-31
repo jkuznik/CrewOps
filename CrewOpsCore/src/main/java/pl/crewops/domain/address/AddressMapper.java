@@ -1,27 +1,16 @@
 package pl.crewops.domain.address;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import pl.crewops.model.dto.address.AddressDTO;
 import pl.crewops.model.dto.address.CreateAddressDTO;
 import pl.crewops.model.tenantSchema.Address;
 
-class AddressMapper {
+@Mapper(componentModel = "spring")
+public interface AddressMapper {
 
-    static Address mapToEntity(CreateAddressDTO createAddressDTO) {
-        return Address.builder()
-                .postalCode(createAddressDTO.postalCode())
-                .city(createAddressDTO.city())
-                .street(createAddressDTO.street())
-                .localNumber(createAddressDTO.localNumber())
-                .build();
-    }
+    Address toEntity(CreateAddressDTO createAddressDTO);
 
-    static AddressDTO mapToDTO(Address address) {
-        return AddressDTO.builder()
-                .id(address.getId())
-                .postalCode(address.getPostalCode())
-                .city(address.getCity())
-                .street(address.getStreet())
-                .localNumber(address.getLocalNumber())
-                .build();
-    }
+    @Mapping(target = "id", source = "id")
+    AddressDTO toDTO(Address address);
 }

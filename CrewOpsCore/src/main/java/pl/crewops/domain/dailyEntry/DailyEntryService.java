@@ -139,6 +139,12 @@ class DailyEntryService implements DailyEntryAPI {
     }
 
     @Override
+    @Transactional
+    public DailyEntry getById(UUID id) {
+        return dailyEntryRepository.findById(id).orElseThrow(() -> new DailyEntryNotFoundException(id));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public DailyEntryDTO getByEmployeeIdAndEntryDate(UUID employeeId, LocalDate entryDate) {
         DailyEntry dailyEntry = dailyEntryRepository
@@ -180,6 +186,10 @@ class DailyEntryService implements DailyEntryAPI {
                 auditType = DailyEntryAuditType.INFORMATION_MODIFIED;
             }
             case UpdateDailyEntryCommand.ChangeEntryStatus update -> {
+                dailyEntry.setStatus(update.newStatus());
+                auditType = DailyEntryAuditType.ENTRY_STATUS_CHANGED;
+            }
+            case UpdateDailyEntryCommand.ApproveEntry update -> {
                 dailyEntry.setStatus(update.newStatus());
                 auditType = DailyEntryAuditType.ENTRY_STATUS_CHANGED;
             }
@@ -233,6 +243,8 @@ class DailyEntryService implements DailyEntryAPI {
                 .orElseThrow(() -> new DailyEntryNotFoundException(
                         updateDailyEntryCommand.employeeId(), updateDailyEntryCommand.entryDate()));
 
+        checkIfEntryHasModified((UpdateDailyEntryCommand.ApproveEntry) updateDailyEntryCommand, dailyEntry);
+
         DailyEntry oldEntry = cloneDailyEntry(dailyEntry);
 
         dailyEntry.setStatus(DailyEntryStatus.APPROVED);
@@ -242,6 +254,16 @@ class DailyEntryService implements DailyEntryAPI {
         updateDailyEntryAudit(updateDailyEntryCommand, oldEntry, savedEntry);
 
         return mapToDTO(savedEntry);
+    }
+
+    private static void checkIfEntryHasModified(
+            UpdateDailyEntryCommand.ApproveEntry updateDailyEntryCommand, DailyEntry dailyEntry) {
+        if (!dailyEntry.getStartTime().equals(updateDailyEntryCommand.startTime())
+                || !dailyEntry.getEndTime().equals(updateDailyEntryCommand.endTime())
+                || !dailyEntry.getOvertime().equals(updateDailyEntryCommand.overtime())
+                || !dailyEntry.getStatus().equals(updateDailyEntryCommand.currentStatus())) {
+            throw new RuntimeException("Fial to approve entry. Daily entry was modified ");
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -302,6 +324,9 @@ class DailyEntryService implements DailyEntryAPI {
             return true;
         }
         if (!Objects.equals(oldEntry.getEndTime(), newEntry.getEndTime())) {
+            return true;
+        }
+        if (!Objects.equals(oldEntry.getJobPosition(), newEntry.getJobPosition())) {
             return true;
         }
 

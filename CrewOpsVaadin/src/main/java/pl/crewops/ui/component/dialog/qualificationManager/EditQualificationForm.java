@@ -42,7 +42,6 @@ public class EditQualificationForm extends FormLayout {
     private final Button save = new Button();
     private final Button delete = new Button();
     private final Button unset = new Button();
-    private final Button cancel = new Button();
 
     @Setter
     private EmployeeFormModel employeeFormModel;
@@ -68,7 +67,7 @@ public class EditQualificationForm extends FormLayout {
         var buttons = new HorizontalLayout();
         buttons.setSizeFull();
         buttons.setSpacing(true);
-        buttons.add(save, unset, cancel, delete);
+        buttons.add(save, delete, unset);
 
         var verticalLayout = new VerticalLayout();
         verticalLayout.setSizeFull();
@@ -83,7 +82,6 @@ public class EditQualificationForm extends FormLayout {
         save.setText(getTranslation("editQualificationForm.save"));
         delete.setText(getTranslation("editQualificationForm.delete"));
         unset.setText(getTranslation("editQualificationForm.unset"));
-        cancel.setText(getTranslation("editQualificationForm.cancel"));
     }
 
     public void setQualificationFormModel(QualificationFormModel qualificationFormModel) {
@@ -118,7 +116,8 @@ public class EditQualificationForm extends FormLayout {
                 UI.getCurrent().getPage().setLocation("/");
             }
         });
-        delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        delete.getElement().getStyle().set("background-color", "#FFA500");
+        delete.getElement().getStyle().set("color", "#333333");
         delete.addClickListener(event -> {
             try {
                 coreAPI.removeEmployeeQualification(employeeFormModel.getId(), qualificationFormModel.getId());
@@ -129,7 +128,7 @@ public class EditQualificationForm extends FormLayout {
                 UI.getCurrent().getPage().setLocation("/");
             }
         });
-        unset.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        unset.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         unset.addClickListener(event -> {
             try {
                 var employeeDTO = coreAPI.updateQualificationExpireAt(new UpdateQualificationExpiredAtDTO(
@@ -144,9 +143,6 @@ public class EditQualificationForm extends FormLayout {
                 UI.getCurrent().getPage().setLocation("/");
             }
         });
-        cancel.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
-        cancel.addClickShortcut(Key.ESCAPE);
-        cancel.addClickListener(event -> fireEvent(new CancelEvent(this)));
     }
 
     private EmployeeDTO processedEmployeeDTO(
@@ -190,17 +186,7 @@ public class EditQualificationForm extends FormLayout {
         }
     }
 
-    public static class CancelEvent extends EditQualificationFormEvent {
-        public CancelEvent(EditQualificationForm source) {
-            super(source);
-        }
-    }
-
     public Registration addUpdateEventListener(ComponentEventListener<UpdateEvent> listener) {
         return addListener(UpdateEvent.class, listener);
-    }
-
-    public Registration addCancelEventListener(ComponentEventListener<CancelEvent> listener) {
-        return addListener(CancelEvent.class, listener);
     }
 }

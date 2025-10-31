@@ -13,7 +13,7 @@ import com.vaadin.flow.shared.Registration;
 import lombok.Getter;
 import pl.crewops.model.ProfileFormModel;
 
-public class UpdateUsernameForm extends FormLayout {
+class UpdateUsernameForm extends FormLayout {
     private final TextField username = new TextField();
     private final TextField repeatUsername = new TextField();
     private final PasswordField currentPassword = new PasswordField();

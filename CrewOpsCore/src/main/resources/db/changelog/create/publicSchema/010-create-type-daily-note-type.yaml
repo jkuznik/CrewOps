@@ -11,7 +11,7 @@ databaseChangeLog:
               DO $$
               BEGIN
                 IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'daily_note_type') THEN
-                  CREATE TYPE daily_note_type AS ENUM ('PRIVATE', 'PUBLIC', 'WORK_ORDER', 'COMPANY_INFORMATION', 'GENERAL');
+                  CREATE TYPE daily_note_type AS ENUM ('PRIVATE', 'PUBLIC');
                 END IF;
               END;
               $$;

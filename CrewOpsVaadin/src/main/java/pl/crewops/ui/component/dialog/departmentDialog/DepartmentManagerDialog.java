@@ -30,16 +30,18 @@ public class DepartmentManagerDialog extends Dialog {
 
         departmentManagerGrid.setSizeFull();
 
-        // i18n same as QualificationManagerDialog, update if needed
-        var closeButton = new Button(getTranslation("qualificationManagerDialog.closeButton"), event -> close());
-        closeButton.addClickShortcut(Key.ESCAPE);
-
-        var layout = new VerticalLayout(departmentManagerGrid, addDepartmentForm, closeButton);
+        var layout = new VerticalLayout(departmentManagerGrid, addDepartmentForm);
         layout.setSizeFull();
         layout.setSpacing(true);
         layout.setPadding(true);
 
+        // i18n same as QualificationManagerDialog, update if needed
+        var closeButton = new Button(getTranslation("qualificationManagerDialog.closeButton"), event -> close());
+        closeButton.addClickShortcut(Key.ESCAPE);
+
         add(layout);
+
+        getFooter().add(closeButton);
     }
 
     private AddDepartmentForm getConfiguredAddDepartmentForm(EmployeeFormModel employeeFormModel) {

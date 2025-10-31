@@ -26,10 +26,9 @@ import pl.crewops.enums.DateState;
 import pl.crewops.enums.OvertimeInterval;
 import pl.crewops.enums.OvertimeInterval.OvertimeValue;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
-import pl.crewops.ui.contract.DateSensitive;
 import pl.crewops.ui.view.DailyView;
 
-public class TimesheetForm extends FormLayout implements DateSensitive {
+public class TimesheetForm extends FormLayout {
 
     private final Span headerTextLabel = new Span();
     private final Icon helpIcon = VaadinIcon.INFO_CIRCLE.create();
@@ -81,7 +80,6 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
         if (dailyEntryDTO == null) {
             from.setValue(null);
             to.setValue(null);
-            updateDependsOnDate(selectedDate);
             return;
         }
 
@@ -96,6 +94,26 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
         overtime.setValue(overtimeValue);
 
         updateHoursSummary();
+    }
+
+    public void updateDependsOnSelectedDate(LocalDate localDate) {
+        this.selectedDate = localDate;
+        // Aktualizacja spanów i obliczonych dat na podstawie nowej selectedDate
+        updateDateSpans();
+
+        DateState state = DateState.fromLocalDate(localDate);
+
+        switch (state) {
+            case PAST -> {
+                headerTextLabel.setText(getTranslation("timesheetForm.headerText.past"));
+            }
+            case TODAY -> {
+                headerTextLabel.setText(getTranslation("timesheetForm.headerText"));
+            }
+            case FUTURE -> {
+                headerTextLabel.setText(getTranslation("timesheetForm.headerText.future"));
+            }
+        }
     }
 
     public Instant getStartTime() {
@@ -257,27 +275,6 @@ public class TimesheetForm extends FormLayout implements DateSensitive {
         }
 
         overtime.setValue(OvertimeInterval.H00_00);
-    }
-
-    @Override
-    public void updateDependsOnDate(LocalDate localDate) {
-        this.selectedDate = localDate;
-        // Aktualizacja spanów i obliczonych dat na podstawie nowej selectedDate
-        updateDateSpans();
-
-        DateState state = DateState.fromLocalDate(localDate);
-
-        switch (state) {
-            case PAST -> {
-                headerTextLabel.setText(getTranslation("timesheetForm.headerText.past"));
-            }
-            case TODAY -> {
-                headerTextLabel.setText(getTranslation("timesheetForm.headerText"));
-            }
-            case FUTURE -> {
-                headerTextLabel.setText(getTranslation("timesheetForm.headerText.future"));
-            }
-        }
     }
 
     private static VerticalLayout configuredMainContainer() {

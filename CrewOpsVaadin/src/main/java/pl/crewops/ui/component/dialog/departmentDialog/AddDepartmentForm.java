@@ -20,7 +20,7 @@ import pl.crewops.ui.component.custom.ComboBoxCustom;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.util.SpringContextBridge;
 
-public class AddDepartmentForm extends FormLayout {
+class AddDepartmentForm extends FormLayout {
 
     private final ComboBoxCustom<DepartmentDTO> departments = new ComboBoxCustom<>();
     // same i18n like in AddQualificationForm, update if needed

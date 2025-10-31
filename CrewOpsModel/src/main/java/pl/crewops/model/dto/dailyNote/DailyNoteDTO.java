@@ -1,4 +1,4 @@
-package pl.crewops.model.dto.dailyEntry;
+package pl.crewops.model.dto.dailyNote;
 
 import java.io.Serializable;
 import java.time.Instant;

@@ -18,6 +18,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.shared.Registration;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import lombok.Getter;
@@ -177,7 +178,7 @@ public class DailyModificationForm extends FormLayout {
         if (dailyEntryDTO == null) {
             entryStatus = EMPTY;
         } else {
-            if (dailyEntryDTO.status().equals(DRAFT) && dailyEntryDTO.endTime().isBefore(Instant.now())) {
+            if (dailyEntryDTO.status().equals(DRAFT) && shiftEndsMoreThanOneHourAgo()) {
                 entryStatus = PENDING;
             } else {
                 entryStatus = dailyEntryDTO.status();
@@ -185,6 +186,7 @@ public class DailyModificationForm extends FormLayout {
         }
 
         switch (entryStatus) {
+                // todo : Zmieniające się kolory informacji w zależności od statusu wpisu
             case EMPTY -> {
                 // The entry does not exist. The only possible action is to create a new entry.
                 // The 'addButton' should be visible regardless of user permissions.
@@ -290,6 +292,9 @@ public class DailyModificationForm extends FormLayout {
                     if (userIsShiftLeader) {
                         changeAttendanceButton.setVisible(true);
                     }
+                    if (userIsManager) {
+                        approveButton.setVisible(true);
+                    }
                 }
             }
             case AUTO_GENERATED -> {
@@ -322,6 +327,11 @@ public class DailyModificationForm extends FormLayout {
         }
         entryStatusInformation.setText(entryInfoText);
         Tooltip.forComponent(helpIcon).setText(tooltipText);
+    }
+
+    private boolean shiftEndsMoreThanOneHourAgo() {
+        return dailyEntryDTO.endTime() != null
+                && dailyEntryDTO.endTime().plus(Duration.ofHours(1)).isBefore(Instant.now());
     }
 
     private void setAllButtonsVisible(boolean visible) {

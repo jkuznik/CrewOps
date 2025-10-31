@@ -21,8 +21,6 @@ databaseChangeLog:
               - column:
                   name: daily_entry_id
                   type: uuid
-                  constraints:
-                    nullable: false
               - column:
                   name: reported_by_employee_id
                   type: uuid

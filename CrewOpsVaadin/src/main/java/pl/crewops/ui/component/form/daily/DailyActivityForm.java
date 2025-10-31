@@ -3,6 +3,8 @@ package pl.crewops.ui.component.form.daily;
 import static pl.crewops.ui.view.DailyView.FORMS_BORDER_PX;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEvent;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -11,15 +13,16 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.shared.Registration;
 import java.time.Instant;
 import java.time.LocalDate;
 import lombok.Setter;
 import pl.crewops.enums.DateState;
-import pl.crewops.ui.contract.DateSensitive;
+import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.ui.view.DailyView;
 import pl.crewops.util.AuthenticationResolver;
 
-public class DailyActivityForm extends FormLayout implements DateSensitive {
+public class DailyActivityForm extends FormLayout {
 
     private final AuthenticationResolver authenticationResolver;
 
@@ -41,10 +44,10 @@ public class DailyActivityForm extends FormLayout implements DateSensitive {
 
     private final Button requestLeave = new Button();
 
-    // todo: w zaleznosci od tego pola bedzie wyswietlana opcja "Zgłoś Wniosek Urlopowy" lub nie, jeśli akualny czas
-    //  jest mniejszy od expectedStartTime to ta opcja moze byc widoczna a jesli wiekszy to juz nie
     @Setter
-    private Instant expectedStartTime;
+    private DailyEntryDTO dailyEntry = null;
+
+    private LocalDate selectedDate = LocalDate.now();
 
     public DailyActivityForm(AuthenticationResolver authenticationResolver) {
         this.authenticationResolver = authenticationResolver;
@@ -73,7 +76,12 @@ public class DailyActivityForm extends FormLayout implements DateSensitive {
 
         checkSubordinates.setIcon(new Icon(VaadinIcon.USERS));
         jobRaport.setIcon(new Icon(VaadinIcon.CLIPBOARD_TEXT));
+
         addNote.setIcon(new Icon(VaadinIcon.NOTEBOOK));
+        addNote.addClickListener(event -> {
+            fireEvent(new AddNoteEvent(this));
+        });
+
         safetyRaport.setIcon(new Icon(VaadinIcon.WARNING));
         requestLeave.setIcon(new Icon(VaadinIcon.CALENDAR_CLOCK));
 
@@ -136,12 +144,8 @@ public class DailyActivityForm extends FormLayout implements DateSensitive {
         button.getElement().executeJs("this.style.setProperty('justify-content', 'flex-start')");
     }
 
-    // todo: jeśli potwierdzono obecność to wniosek o urlop dla "dzisiaj" nie powinien być widoczny
-
-    // todo: zmienic logike tej metody (w wszystkich komponentach ktore to implementuja) na taką która bazuje na
-    // dailyEntryDTO
-    @Override
-    public void updateDependsOnDate(LocalDate localDate) {
+    public void updateDependsOnSelectedDate(LocalDate localDate) {
+        selectedDate = localDate;
         DateState state = DateState.fromLocalDate(localDate);
 
         setAllButtonsVisible(false);
@@ -150,22 +154,33 @@ public class DailyActivityForm extends FormLayout implements DateSensitive {
                 if (authenticationResolver.principalHasManagerPermission()) {
                     checkSubordinates.setVisible(true);
                 }
-                jobRaport.setVisible(true);
+
                 addNote.setVisible(true);
             }
+
             case TODAY -> {
                 if (authenticationResolver.principalHasShiftLeaderPermission()) {
                     checkSubordinates.setVisible(true);
                 }
-                jobRaport.setVisible(true);
+                if (dailyEntry != null) {
+                    jobRaport.setVisible(true);
+                    ifDailyEntryExistButShiftNotStartYetThenAllowRequestLeave();
+                } else {
+                    requestLeave.setVisible(true);
+                }
                 addNote.setVisible(true);
                 safetyRaport.setVisible(true);
-                requestLeave.setVisible(true);
             }
             case FUTURE -> {
                 addNote.setVisible(true);
                 requestLeave.setVisible(true);
             }
+        }
+    }
+
+    private void ifDailyEntryExistButShiftNotStartYetThenAllowRequestLeave() {
+        if (dailyEntry.startTime().isAfter(Instant.now())) {
+            requestLeave.setVisible(true);
         }
     }
 
@@ -175,5 +190,21 @@ public class DailyActivityForm extends FormLayout implements DateSensitive {
         addNote.setVisible(visible);
         safetyRaport.setVisible(visible);
         requestLeave.setVisible(visible);
+    }
+
+    public abstract static class DailyActivityFormEvents extends ComponentEvent<DailyActivityForm> {
+        public DailyActivityFormEvents(DailyActivityForm source) {
+            super(source, false);
+        }
+    }
+
+    public static class AddNoteEvent extends DailyActivityFormEvents {
+        public AddNoteEvent(DailyActivityForm source) {
+            super(source);
+        }
+    }
+
+    public Registration addCreateNoteListener(ComponentEventListener<AddNoteEvent> listener) {
+        return addListener(AddNoteEvent.class, listener);
     }
 }

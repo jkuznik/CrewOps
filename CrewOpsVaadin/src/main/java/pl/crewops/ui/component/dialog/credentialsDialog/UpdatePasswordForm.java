@@ -15,7 +15,7 @@ import pl.crewops.model.ProfileFormModel;
 
 @Getter
 @Setter
-public class UpdatePasswordForm extends FormLayout {
+class UpdatePasswordForm extends FormLayout {
     private final PasswordField password = new PasswordField();
     private final PasswordField repeatPassword = new PasswordField();
     private final PasswordField currentPassword = new PasswordField();

@@ -77,7 +77,14 @@ public class DailyTimeline extends HorizontalLayout {
         jobPosition.setLabel(getTranslation("dailyTimeline.jobPositionLabel"));
         updateJobPositionComboBox();
 
-        jobPosition.setItemLabelGenerator(JobPositionDTO::name);
+        jobPosition.setItemLabelGenerator(jobPosition -> {
+            if (jobPosition.machine() != null) {
+                return jobPosition.name() + " (" + jobPosition.machine().registerNumber() + ")";
+            } else {
+                return jobPosition.name();
+            }
+        });
+
         if (dailyEntry != null && dailyEntry.jobPosition() != null) {
             jobPosition.setValue(dailyEntry.jobPosition());
         }
