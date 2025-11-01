@@ -10,7 +10,6 @@ import java.util.UUID;
 import lombok.Builder;
 import pl.crewops.enums.DailyAttendanceStatus;
 import pl.crewops.enums.DailyEntryStatus;
-import pl.crewops.model.dto.dailyNote.DailyNoteDTO;
 import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 
 @Builder
@@ -22,7 +21,6 @@ public record DailyEntryDTO(
         Instant endTime,
         BigDecimal overTime,
         JobPositionDTO jobPosition,
-        Set<DailyNoteDTO> dailyNotes,
         Set<DailyEntryAuditDTO> auditEvents,
         DailyAttendanceStatus attendance,
         DailyEntryStatus status)

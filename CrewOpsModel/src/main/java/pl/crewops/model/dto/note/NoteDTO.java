@@ -1,17 +1,18 @@
-package pl.crewops.model.dto.dailyNote;
+package pl.crewops.model.dto.note;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 import lombok.Builder;
-import pl.crewops.enums.DailyNoteType;
+import pl.crewops.enums.NoteType;
 
 @Builder
-public record DailyNoteDTO(
+public record NoteDTO(
         UUID id,
-        UUID dailyEntryId,
+        LocalDate date,
         UUID reportedByEmployeeId,
-        DailyNoteType type,
+        NoteType type,
         String content,
         Instant createdAt,
         Instant updatedAt)

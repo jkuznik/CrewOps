@@ -1,6 +1,6 @@
 package pl.crewops.enums;
 
-public enum DailyNoteType {
+public enum NoteType {
     PRIVATE,
 
     PUBLIC

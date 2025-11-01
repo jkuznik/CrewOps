@@ -1,18 +1,17 @@
-package pl.crewops.domain.dailyNote;
+package pl.crewops.domain.note;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static pl.crewops.domain.dailyNote.DailyNoteTestFactory.createDailyNoteDTO;
-import static pl.crewops.domain.dailyNote.DailyNoteTestFactory.dailyEntry;
-import static pl.crewops.domain.dailyNote.DailyNoteTestFactory.dailyNote;
-import static pl.crewops.domain.dailyNote.DailyNoteTestFactory.dailyNoteDTO;
-import static pl.crewops.domain.dailyNote.DailyNoteTestFactory.employee;
+import static pl.crewops.domain.note.DailyNoteTestFactory.createDailyNoteDTO;
+import static pl.crewops.domain.note.DailyNoteTestFactory.dailyEntry;
+import static pl.crewops.domain.note.DailyNoteTestFactory.dailyNote;
+import static pl.crewops.domain.note.DailyNoteTestFactory.dailyNoteDTO;
+import static pl.crewops.domain.note.DailyNoteTestFactory.employee;
 
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,24 +21,24 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.domain.dailyEntry.DailyEntryAPI;
 import pl.crewops.domain.employee.EmployeeAPI;
-import pl.crewops.model.dto.dailyNote.CreateDailyNoteDTO;
-import pl.crewops.model.dto.dailyNote.DailyNoteDTO;
+import pl.crewops.model.dto.note.CreateNoteDTO;
+import pl.crewops.model.dto.note.NoteDTO;
 import pl.crewops.model.tenantSchema.DailyEntry;
-import pl.crewops.model.tenantSchema.DailyNote;
 import pl.crewops.model.tenantSchema.Employee;
+import pl.crewops.model.tenantSchema.Note;
 
-@SpringJUnitConfig(classes = {DailyNoteService.class})
-class DailyNoteServiceTest {
+@SpringJUnitConfig(classes = {NoteService.class})
+class NoteServiceTest {
 
     @Autowired
-    DailyNoteService dailyNoteService;
+    NoteService dailyNoteService;
 
     // Mocki
     @MockitoBean
-    DailyNoteRepository dailyNoteRepository;
+    NoteRepository noteRepository;
 
     @MockitoBean
-    DailyNoteMapper dailyNoteMapper;
+    NoteMapper noteMapper;
 
     @MockitoBean
     DailyEntryAPI dailyEntryAPI;
@@ -53,13 +52,13 @@ class DailyNoteServiceTest {
     private final UUID DAILY_NOTE_ID = UUID.fromString("00000000-0000-0000-0000-000000000003");
 
     // Obiekty testowe z fabryki
-    private CreateDailyNoteDTO createDtoWithEntry;
-    private CreateDailyNoteDTO createDtoWithoutEntry;
+    private CreateNoteDTO createDtoWithEntry;
+    private CreateNoteDTO createDtoWithoutEntry;
     private DailyEntry dailyEntry;
     private Employee employee;
-    private DailyNote dailyNoteEntity;
-    private DailyNote dailyNoteEntityWithoutEntry;
-    private DailyNoteDTO dailyNoteResultDTO;
+    private Note noteEntity;
+    private Note noteEntityWithoutEntry;
+    private NoteDTO dailyNoteResultDTO;
 
     @BeforeEach
     void setUp() {
@@ -71,8 +70,8 @@ class DailyNoteServiceTest {
         createDtoWithoutEntry = createDailyNoteDTO(null, EMPLOYEE_ID);
 
         // Encje DailyNote (różne dla przypadków)
-        dailyNoteEntity = dailyNote(DAILY_NOTE_ID, dailyEntry, employee);
-        dailyNoteEntityWithoutEntry = dailyNote(DAILY_NOTE_ID, null, employee);
+        noteEntity = dailyNote(DAILY_NOTE_ID, dailyEntry, employee);
+        noteEntityWithoutEntry = dailyNote(DAILY_NOTE_ID, null, employee);
 
         dailyNoteResultDTO = dailyNoteDTO(DAILY_NOTE_ID, DAILY_ENTRY_ID, EMPLOYEE_ID);
     }
@@ -85,63 +84,59 @@ class DailyNoteServiceTest {
         when(employeeAPI.getEmployeeById(EMPLOYEE_ID)).thenReturn(employee);
 
         // 2. Mockowanie mapowania (używamy eq(null) dla mapowania, bo nie interesuje nas tymczasowa encja)
-        when(dailyNoteMapper.toEntity(eq(createDtoWithEntry), eq(dailyEntry), eq(employee)))
-                .thenReturn(dailyNoteEntity);
+        when(noteMapper.toEntity(eq(createDtoWithEntry), eq(employee))).thenReturn(noteEntity);
 
         // 3. Mockowanie repozytorium
-        when(dailyNoteRepository.save(eq(dailyNoteEntity))).thenReturn(dailyNoteEntity);
+        when(noteRepository.save(eq(noteEntity))).thenReturn(noteEntity);
 
         // 4. Mockowanie mapowania wynikowego DTO
-        when(dailyNoteMapper.toDTO(eq(dailyNoteEntity))).thenReturn(dailyNoteResultDTO);
+        when(noteMapper.toDTO(eq(noteEntity))).thenReturn(dailyNoteResultDTO);
 
         // When
-        DailyNoteDTO result = dailyNoteService.createDailyNote(createDtoWithEntry);
+        NoteDTO result = dailyNoteService.createDailyNote(createDtoWithEntry);
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.dailyEntryId()).isEqualTo(DAILY_ENTRY_ID);
 
         // Weryfikacja interakcji
         verify(dailyEntryAPI, times(1)).getById(DAILY_ENTRY_ID);
         verify(employeeAPI, times(1)).getEmployeeById(EMPLOYEE_ID);
-        verify(dailyNoteRepository, times(1)).save(dailyNoteEntity);
+        verify(noteRepository, times(1)).save(noteEntity);
         // Weryfikacja, czy mapper został wywołany z poprawnymi, resolvowanymi encjami
-        verify(dailyNoteMapper, times(1)).toEntity(createDtoWithEntry, dailyEntry, employee);
-        verify(dailyNoteMapper, times(1)).toDTO(dailyNoteEntity);
+        verify(noteMapper, times(1)).toEntity(createDtoWithEntry, employee);
+        verify(noteMapper, times(1)).toDTO(noteEntity);
     }
 
     @Test
     void createDailyNote_ShouldReturnDailyNoteDTO_whenDailyEntryIdIsNull() {
         // Given
         // Ustawienie DTO wynikowego na null DailyEntryId dla asercji
-        DailyNoteDTO expectedDtoWithoutEntry = dailyNoteDTO(DAILY_NOTE_ID, null, EMPLOYEE_ID);
+        NoteDTO expectedDtoWithoutEntry = dailyNoteDTO(DAILY_NOTE_ID, null, EMPLOYEE_ID);
 
         // 1. Ustawienie zachowania API (DailyEntryAPI NIE jest wywoływany)
         when(employeeAPI.getEmployeeById(EMPLOYEE_ID)).thenReturn(employee);
 
         // 2. Mockowanie mapowania z DailyEntry = null
-        when(dailyNoteMapper.toEntity(eq(createDtoWithoutEntry), isNull(), eq(employee)))
-                .thenReturn(dailyNoteEntityWithoutEntry);
+        when(noteMapper.toEntity(eq(createDtoWithoutEntry), eq(employee))).thenReturn(noteEntityWithoutEntry);
 
         // 3. Mockowanie repozytorium
-        when(dailyNoteRepository.save(eq(dailyNoteEntityWithoutEntry))).thenReturn(dailyNoteEntityWithoutEntry);
+        when(noteRepository.save(eq(noteEntityWithoutEntry))).thenReturn(noteEntityWithoutEntry);
 
         // 4. Mockowanie mapowania wynikowego DTO
-        when(dailyNoteMapper.toDTO(eq(dailyNoteEntityWithoutEntry))).thenReturn(expectedDtoWithoutEntry);
+        when(noteMapper.toDTO(eq(noteEntityWithoutEntry))).thenReturn(expectedDtoWithoutEntry);
 
         // When
-        DailyNoteDTO result = dailyNoteService.createDailyNote(createDtoWithoutEntry);
+        NoteDTO result = dailyNoteService.createDailyNote(createDtoWithoutEntry);
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.dailyEntryId()).isNull();
 
         // Weryfikacja interakcji
         verify(dailyEntryAPI, never()).getById(any()); // Sprawdzenie, że nie wywołano
         verify(employeeAPI, times(1)).getEmployeeById(EMPLOYEE_ID);
-        verify(dailyNoteRepository, times(1)).save(dailyNoteEntityWithoutEntry);
+        verify(noteRepository, times(1)).save(noteEntityWithoutEntry);
         // Weryfikacja, czy mapper został wywołany z 'null' dla DailyEntry
-        verify(dailyNoteMapper, times(1)).toEntity(eq(createDtoWithoutEntry), isNull(), eq(employee));
-        verify(dailyNoteMapper, times(1)).toDTO(dailyNoteEntityWithoutEntry);
+        verify(noteMapper, times(1)).toEntity(eq(createDtoWithoutEntry), eq(employee));
+        verify(noteMapper, times(1)).toDTO(noteEntityWithoutEntry);
     }
 }

@@ -159,7 +159,7 @@ public class JobPositionGrid extends VerticalLayout {
 
         form.addDeleteEventListener(event -> {
             try {
-                coreAPI.deleteById(event.getModel().getId());
+                coreAPI.deleteJobPositionById(event.getModel().getId());
                 new InfoNotification(getTranslation(
                         "jobPositionGrid.deleteJobPosition", event.getModel().getName()));
                 updateGrid();

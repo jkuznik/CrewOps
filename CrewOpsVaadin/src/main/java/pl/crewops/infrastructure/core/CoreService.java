@@ -38,6 +38,8 @@ import pl.crewops.model.dto.machine.UpdateMachineDTO;
 import pl.crewops.model.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.dto.message.MessageDTO;
 import pl.crewops.model.dto.message.SendMessageCommand;
+import pl.crewops.model.dto.note.CreateNoteDTO;
+import pl.crewops.model.dto.note.NoteDTO;
 import pl.crewops.model.dto.option.AuthUserOptionDTO;
 import pl.crewops.model.dto.qualification.CreateQualificationDTO;
 import pl.crewops.model.dto.qualification.QualificationDTO;
@@ -61,6 +63,7 @@ class CoreService implements CoreAPI {
     private final DomainEmployeeClient domainEmployeeClient;
     private final DomainMachineClient domainMachineClient;
     private final DomainMessageClient domainMessageClient;
+    private final DomainNoteClient domainNoteClient;
     private final DomainOptionClient domainOptionClient;
     private final DomainQualificationClient deleteQualificationClient;
 
@@ -74,6 +77,7 @@ class CoreService implements CoreAPI {
         this.domainEmployeeClient = new DomainEmployeeClient(coreClient.getAuthorizationProvider());
         this.domainMachineClient = new DomainMachineClient(coreClient.getAuthorizationProvider());
         this.domainMessageClient = new DomainMessageClient(coreClient.getAuthorizationProvider());
+        this.domainNoteClient = new DomainNoteClient(coreClient.getAuthorizationProvider());
         this.domainOptionClient = new DomainOptionClient(coreClient.getAuthorizationProvider());
         this.deleteQualificationClient = new DomainQualificationClient(coreClient.getAuthorizationProvider());
     }
@@ -228,6 +232,18 @@ class CoreService implements CoreAPI {
         return Optional.ofNullable(domainDailyClient.approveDailyEntry(updateDailyEntryCommand));
     }
 
+    // --- DOMAIN NOTE CLIENT ---
+
+    @Override
+    public Optional<NoteDTO> createNote(CreateNoteDTO createNoteDTO) throws NotAuthenticatedException {
+        return Optional.ofNullable(domainNoteClient.createDailyNote(createNoteDTO));
+    }
+
+    @Override
+    public List<NoteDTO> getAllPublicNotesByDate(LocalDate localDate) throws NotAuthenticatedException {
+        return domainNoteClient.getPublicNotesByDate(localDate);
+    }
+
     // --- DOMAIN DEPARTMENT CLIENT (Działy) ---
 
     @Cacheable(cacheNames = GET_ALL_DEPARTMENTS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
@@ -257,7 +273,7 @@ class CoreService implements CoreAPI {
     }
 
     @Override
-    public void deleteById(UUID id) throws NotAuthenticatedException {
+    public void deleteJobPositionById(UUID id) throws NotAuthenticatedException {
         domainJobPositionClient.deleteById(id);
     }
 

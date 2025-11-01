@@ -7,7 +7,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -19,9 +18,7 @@ import com.vaadin.flow.shared.Registration;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import pl.crewops.enums.DailyAttendanceStatus;
 import pl.crewops.enums.DailyEntryStatus;
 import pl.crewops.exceptions.NotAuthenticatedException;
@@ -30,14 +27,16 @@ import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.UpdateDailyEntryCommand;
 import pl.crewops.model.dto.jobPosition.JobPositionDTO;
+import pl.crewops.model.dto.note.NoteDTO;
 import pl.crewops.security.jwt.JwtServiceVaadin;
-import pl.crewops.ui.component.custom.DailyTimeline;
 import pl.crewops.ui.component.dialog.dailNoteDialog.CreateDailyNoteDialog;
 import pl.crewops.ui.component.dialog.dailyEntryDialog.DateSelectorDialog;
 import pl.crewops.ui.component.form.daily.DailyActivityForm;
 import pl.crewops.ui.component.form.daily.DailyModificationForm;
+import pl.crewops.ui.component.form.daily.DailyTimeline;
 import pl.crewops.ui.component.form.daily.TimesheetForm;
 import pl.crewops.ui.component.notification.FailNotification;
+import pl.crewops.ui.component.notification.InfoNotification;
 import pl.crewops.ui.component.notification.NotAuthenticatedNotification;
 import pl.crewops.ui.component.notification.SuccessNotification;
 import pl.crewops.ui.view.layout.MainLayout;
@@ -48,7 +47,6 @@ import pl.crewops.util.BrowserResolver;
 
 @Route("daily")
 @PageTitle("Daily Entry")
-@CssImport("./styles/component/timeline.css")
 public final class DailyView extends MainLayout implements BeforeEnterObserver {
 
     /**
@@ -58,7 +56,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
      * This constant is the base value used to calculate the final width that prevents
      * visual separation (the "gap") between adjacent form components.
      */
-    private static final int ENSURE_STICK_FORMS = 440;
+    private static final int ENSURE_STICK_FORMS = 540;
 
     /**
      * The final, calculated width string for all forms in the daily view.
@@ -69,12 +67,12 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
      * The additional offset (e.g., +10) often accounts for padding, borders, or
      * minimum component requirements established by the UI framework (Vaadin).
      */
-    public static final String FORMS_WIDTH = ENSURE_STICK_FORMS + 10 + "px";
+    public static final String FORMS_WIDTH = ENSURE_STICK_FORMS - 10 + "px";
 
     public static final String FORMS_HEIGHT = "450px";
     public static final String FORMS_BORDER_PX = "3px";
 
-    private static final String WIDTH_PX = "1200px";
+    private static final String WIDTH_PX = "1600px";
 
     private final Button currentDay = new Button();
     private final Button calendar = new Button();
@@ -89,6 +87,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
 
     private final boolean isMobile = BrowserResolver.isMobile();
 
+    private final List<NoteDTO> selectedDateNotes = new ArrayList<>();
     private Optional<DailyEntryDTO> dailyEntryDTO = Optional.empty();
     private LocalDate selectedDate = LocalDate.now();
 
@@ -129,7 +128,12 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
         // aggregate all components of this view
         // allow to set timeline setWidthFull() and control that size by mainContainer.setWidth options ℹ️
         var mainContainer = new VerticalLayout();
-        mainContainer.add(getToolbar(), timeline, getLayoutDependsOnUserDevice());
+
+        var paddingForTimeline = new VerticalLayout(timeline);
+        paddingForTimeline.setSpacing(true);
+        paddingForTimeline.setPadding(true);
+
+        mainContainer.add(getToolbar(), paddingForTimeline, getLayoutDependsOnUserDevice());
         mainContainer.setMaxWidth(WIDTH_PX);
 
         mainContent.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -158,6 +162,12 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
 
             timesheetForm.updateDependsOnSelectedDate(date);
             dailyActivityForm.updateDependsOnSelectedDate(date);
+
+            List<NoteDTO> allNotesByDate = coreAPI.getAllPublicNotesByDate(selectedDate);
+
+            if (!allNotesByDate.isEmpty()) {
+                new InfoNotification("There is " + allNotesByDate.size() + " notes");
+            }
         } catch (NotAuthenticatedException e) {
             new NotAuthenticatedNotification(e.getMessage());
         }
@@ -176,13 +186,12 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
         } else {
             final String FORM_HEIGHT = "500px";
             final String FORM_WIDTH = ENSURE_STICK_FORMS + "px";
-            final String CONTAINER_MAX_WIDTH = "1200px";
 
             var horizontalLayout = new HorizontalLayout();
-            horizontalLayout.setSpacing(false);
-            horizontalLayout.setPadding(false);
+            horizontalLayout.setSpacing(true);
+            horizontalLayout.setPadding(true);
 
-            horizontalLayout.setMaxWidth(CONTAINER_MAX_WIDTH);
+            horizontalLayout.setMaxWidth(WIDTH_PX);
             horizontalLayout.setWidthFull();
 
             timesheetForm.setWidth(FORM_WIDTH);
@@ -411,7 +420,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
 
     private Registration createNoteListener() {
         return dailyActivityForm.addCreateNoteListener(event -> {
-            new CreateDailyNoteDialog(dailyEntryDTO.orElse(null));
+            new CreateDailyNoteDialog(dailyEntryDTO.orElse(null), selectedDate);
         });
     }
 

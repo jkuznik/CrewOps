@@ -1,15 +1,10 @@
 package pl.crewops.ui.component.form.daily;
 
-import static pl.crewops.ui.view.DailyView.FORMS_BORDER_PX;
-
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -19,35 +14,21 @@ import java.time.LocalDate;
 import lombok.Setter;
 import pl.crewops.enums.DateState;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
-import pl.crewops.ui.view.DailyView;
+import pl.crewops.ui.component.custom.PanelCustom;
 import pl.crewops.util.AuthenticationResolver;
 
-public class DailyActivityForm extends FormLayout {
+public class DailyActivityForm extends PanelCustom {
 
     private final AuthenticationResolver authenticationResolver;
 
-    private final Span headerTextLabel = new Span();
-
-    // todo: this feature allow shift leaders, managers and admins to monitor current attendance of employees and
-    //  approve each employee attendance
     private final Button checkSubordinates = new Button();
-
-    // todo: this feature need dedicated db table job_report related to daily_entry
     private final Button jobRaport = new Button();
-
-    // todo: this feature need dedicated db table like shift_note related many to one with daily_entry,
-    //  each emploee can add as many notes to single daily_entry as needed
     private final Button addNote = new Button();
-
-    // todo: this feature need deicated db table like safety_report
     private final Button safetyRaport = new Button();
-
     private final Button requestLeave = new Button();
 
     @Setter
     private DailyEntryDTO dailyEntry = null;
-
-    private LocalDate selectedDate = LocalDate.now();
 
     public DailyActivityForm(AuthenticationResolver authenticationResolver) {
         this.authenticationResolver = authenticationResolver;
@@ -56,11 +37,11 @@ public class DailyActivityForm extends FormLayout {
 
         var actionsButtons = configuredButtons();
 
-        var mainContainer = configuredMainContainer();
+        var formContainer = configuredMainContainer();
 
-        mainContainer.add(configuredHeader(), actionsButtons, spacer());
+        formContainer.add(actionsButtons, spacer());
 
-        add(mainContainer);
+        setContent(formContainer);
     }
 
     private static Div spacer() {
@@ -110,7 +91,7 @@ public class DailyActivityForm extends FormLayout {
     }
 
     private void localize() {
-        headerTextLabel.setText(getTranslation("dailyActivityForm.headerTextLabel"));
+        setSummary(VaadinIcon.LINES_LIST, getTranslation("dailyActivityForm.headerTextLabel"));
 
         checkSubordinates.setText(getTranslation("dailyActivityForm.checkSubordinates"));
         jobRaport.setText(getTranslation("dailyActivityForm.jobRaport"));
@@ -121,20 +102,8 @@ public class DailyActivityForm extends FormLayout {
 
     private static VerticalLayout configuredMainContainer() {
         var mainContainer = new VerticalLayout();
-        mainContainer.getStyle().set("border", FORMS_BORDER_PX + " solid #ccc");
-        mainContainer.getStyle().set("border-radius", "4px");
         mainContainer.getStyle().set("padding", "10px");
-        mainContainer.setMaxHeight(DailyView.FORMS_HEIGHT);
-        mainContainer.setMaxWidth(DailyView.FORMS_WIDTH);
-
         return mainContainer;
-    }
-
-    private Component configuredHeader() {
-        headerTextLabel.getStyle().set("font-weight", "bold");
-        headerTextLabel.getStyle().set("font-size", "1.1em");
-
-        return headerTextLabel;
     }
 
     private void applyButtonStyles(Button button) {
@@ -145,7 +114,6 @@ public class DailyActivityForm extends FormLayout {
     }
 
     public void updateDependsOnSelectedDate(LocalDate localDate) {
-        selectedDate = localDate;
         DateState state = DateState.fromLocalDate(localDate);
 
         setAllButtonsVisible(false);

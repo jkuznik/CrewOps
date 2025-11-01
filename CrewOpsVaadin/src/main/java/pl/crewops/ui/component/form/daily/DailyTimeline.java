@@ -1,6 +1,4 @@
-package pl.crewops.ui.component.custom;
-
-import static pl.crewops.ui.view.DailyView.FORMS_BORDER_PX;
+package pl.crewops.ui.component.form.daily; // Zmieniamy pakiet na form/daily dla spójności
 
 import com.vaadin.componentfactory.timeline.Timeline;
 import com.vaadin.componentfactory.timeline.model.Item;
@@ -21,14 +19,17 @@ import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.model.dto.jobPosition.JobPositionDTO;
+import pl.crewops.ui.component.custom.ComboBoxCustom;
+import pl.crewops.ui.component.custom.PanelCustom;
+import pl.crewops.ui.component.custom.TimelineCustom;
 import pl.crewops.ui.component.notification.NotAuthenticatedNotification;
 import pl.crewops.util.SpringContextBridge;
 
-public class DailyTimeline extends HorizontalLayout {
+public class DailyTimeline extends PanelCustom {
 
-    private static final int TIMELINE_CONTAINER_HEIGHT_PX = 200;
+    public static final int TIMELINE_CONTAINER_HEIGHT_PX = 200;
 
-    private final Timeline timeline = new Timeline();
+    private final Timeline timeline = new TimelineCustom();
 
     private final Span attendanceHeaderTextLabel = new Span();
     private final Span statusDisplay = new Span();
@@ -37,10 +38,27 @@ public class DailyTimeline extends HorizontalLayout {
     private DailyEntryDTO dailyEntry;
 
     public DailyTimeline(DailyEntryDTO dailyEntry) {
-        this.dailyEntry = dailyEntry;
-        configureStyles();
 
-        add(configuredTimeline(), configuredAttendanceContainer());
+        this.dailyEntry = dailyEntry;
+
+        var panelContent = configuredPanelContent();
+        setContent(panelContent);
+
+        if (dailyEntry != null) {
+            setAttendanceStatus(dailyEntry.attendance());
+        } else {
+            setAttendanceStatus(DailyAttendanceStatus.NULL);
+        }
+    }
+
+    private Component configuredPanelContent() {
+        var mainLayout = new HorizontalLayout(configuredTimeline(), configuredAttendanceContainer());
+        mainLayout.setWidthFull();
+        mainLayout.setSpacing(true);
+        mainLayout.getStyle().set("padding", "10px");
+        mainLayout.setMaxHeight(TIMELINE_CONTAINER_HEIGHT_PX + "px");
+
+        return mainLayout;
     }
 
     private void updateJobPositionComboBox() {
@@ -52,15 +70,6 @@ public class DailyTimeline extends HorizontalLayout {
         } catch (NotAuthenticatedException e) {
             new NotAuthenticatedNotification(e.getMessage());
         }
-    }
-
-    private void configureStyles() {
-        setWidthFull();
-        setMaxHeight(TIMELINE_CONTAINER_HEIGHT_PX + "px");
-        getStyle().remove("overflow-x");
-        getStyle().remove("overflow-y");
-        getStyle().set("border", FORMS_BORDER_PX + " solid #ccc");
-        getStyle().set("border-radius", "4px");
     }
 
     private Component configuredAttendanceContainer() {
@@ -135,17 +144,12 @@ public class DailyTimeline extends HorizontalLayout {
         LocalDate today = LocalDate.now();
         timeline.setTimelineRange(LocalDateTime.of(today, LocalTime.MIN), LocalDateTime.of(today, LocalTime.MAX));
 
-        timeline.setWidthFull();
-        timeline.setHeight(TIMELINE_CONTAINER_HEIGHT_PX - 5 + "px");
-        timeline.setMoveable(true);
-        timeline.setZoomable(true);
-        timeline.setShowCurentTime(true);
-
         return timeline;
     }
 
     public void updateTimeline(DailyEntryDTO dailyEntry, LocalDate date) {
         if (dailyEntry == null) {
+            setSummaryText(getTranslation("dailyTimeline.header", date.toString()));
             jobPosition.setValue(null);
             timeline.setItems(List.of());
             timeline.setTimelineRange(LocalDateTime.of(date, LocalTime.MIN), LocalDateTime.of(date, LocalTime.MAX));
@@ -154,6 +158,8 @@ public class DailyTimeline extends HorizontalLayout {
         }
 
         var from = dailyEntry.entryDate();
+        setSummaryText(getTranslation("dailyTimeline.header", from.toString()));
+
         final ZoneId ZONE_ID = ZoneId.systemDefault();
 
         setAttendanceStatus(dailyEntry.attendance());
@@ -202,13 +208,13 @@ public class DailyTimeline extends HorizontalLayout {
 
         Item overtimeItem = createOvertimeItem(dailyEntry);
         if (overtimeItem != null) {
-            items.add(createOvertimeItem(dailyEntry));
+            items.add(overtimeItem);
         }
 
         timeline.setItems(items);
     }
-    // todo: i18n
 
+    // todo: i18n
     private Item createOvertimeItem(DailyEntryDTO dailyEntry) {
         if (dailyEntry.endTime() == null
                 || dailyEntry.overTime() == null

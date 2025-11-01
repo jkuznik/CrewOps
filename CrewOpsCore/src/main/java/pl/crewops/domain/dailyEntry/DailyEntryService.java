@@ -193,9 +193,9 @@ class DailyEntryService implements DailyEntryAPI {
                 dailyEntry.setStatus(update.newStatus());
                 auditType = DailyEntryAuditType.ENTRY_STATUS_CHANGED;
             }
-            case UpdateDailyEntryCommand.AddDailyNote update -> {
+            case UpdateDailyEntryCommand.AddSafetyNote update -> {
                 // TODO: implement note persistence logic
-                auditType = DailyEntryAuditType.DAILY_NOTE_ADDED;
+                auditType = DailyEntryAuditType.SAFETY_NOTE_ADDED;
             }
         }
 

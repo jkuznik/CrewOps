@@ -1,17 +1,12 @@
 package pl.crewops.ui.component.form.daily;
 
-import static pl.crewops.ui.view.DailyView.FORMS_BORDER_PX;
-
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.server.VaadinSession;
 import java.math.BigDecimal;
@@ -26,12 +21,9 @@ import pl.crewops.enums.DateState;
 import pl.crewops.enums.OvertimeInterval;
 import pl.crewops.enums.OvertimeInterval.OvertimeValue;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
-import pl.crewops.ui.view.DailyView;
+import pl.crewops.ui.component.custom.PanelCustom;
 
-public class TimesheetForm extends FormLayout {
-
-    private final Span headerTextLabel = new Span();
-    private final Icon helpIcon = VaadinIcon.INFO_CIRCLE.create();
+public class TimesheetForm extends PanelCustom {
 
     private final TimePicker from = new TimePicker();
     private final Span dateFromSpan = new Span();
@@ -46,10 +38,10 @@ public class TimesheetForm extends FormLayout {
     private final Span totalSpan = new Span();
 
     private LocalDate selectedDate = LocalDate.now();
-
     private LocalDate calculatedDateTo = LocalDate.now();
 
     public TimesheetForm() {
+
         localize();
 
         var fromLayout = createDateTimeLayout(from, dateFromSpan);
@@ -59,11 +51,11 @@ public class TimesheetForm extends FormLayout {
         configureValueFields();
         configureOvertime();
 
-        var mainContainer = configuredMainContainer();
+        var formContainer = configuredMainContainer();
 
-        mainContainer.add(configuredHeader(), fromLayout, toLayout, overtimeLayout, spacer());
+        formContainer.add(fromLayout, toLayout, overtimeLayout, spacer());
 
-        add(mainContainer);
+        setContent(formContainer);
     }
 
     public void setStartTimePickerInvalid(boolean state) {
@@ -105,13 +97,16 @@ public class TimesheetForm extends FormLayout {
 
         switch (state) {
             case PAST -> {
-                headerTextLabel.setText(getTranslation("timesheetForm.headerText.past"));
+                setSummary(VaadinIcon.TIMER, getTranslation("timesheetForm.headerText.past"));
             }
             case TODAY -> {
-                headerTextLabel.setText(getTranslation("timesheetForm.headerText"));
+                setSummary(VaadinIcon.TIMER, getTranslation("timesheetForm.headerText"));
             }
             case FUTURE -> {
-                headerTextLabel.setText(getTranslation("timesheetForm.headerText.future"));
+                setSummary(VaadinIcon.TIMER, getTranslation("timesheetForm.headerText.future"));
+            }
+            default -> {
+                setSummary(VaadinIcon.TIMER, getTranslation("timesheetForm.headerText"));
             }
         }
     }
@@ -252,8 +247,8 @@ public class TimesheetForm extends FormLayout {
         layout.setSpacing(true);
         layout.setAlignItems(FlexComponent.Alignment.END);
 
-        overtimeField.setWidth("50%");
-        summaryLayout.setWidth("50%");
+        overtimeField.setWidth("35%");
+        //        summaryLayout.setWidth("50%");
 
         layout.add(overtimeField, summaryLayout);
         return layout;
@@ -279,30 +274,9 @@ public class TimesheetForm extends FormLayout {
 
     private static VerticalLayout configuredMainContainer() {
         var mainContainer = new VerticalLayout();
-        mainContainer.getStyle().set("border", FORMS_BORDER_PX + " solid #ccc");
-        mainContainer.getStyle().set("border-radius", "4px");
         mainContainer.getStyle().set("padding", "10px");
-        mainContainer.setMaxHeight(DailyView.FORMS_HEIGHT);
-        mainContainer.setMaxWidth(DailyView.FORMS_WIDTH);
+
         return mainContainer;
-    }
-
-    private HorizontalLayout configuredHeader() {
-        headerTextLabel.getStyle().set("font-weight", "bold");
-        headerTextLabel.getStyle().set("font-size", "1.1em");
-
-        helpIcon.setColor("var(--lumo-contrast-50pct)");
-        helpIcon.getStyle().set("cursor", "pointer");
-        Tooltip.forComponent(helpIcon).withText(getHelpText()).withPosition(Tooltip.TooltipPosition.BOTTOM_END);
-
-        var headerLayout = new HorizontalLayout();
-        headerLayout.setWidthFull();
-        headerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        headerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-
-        headerLayout.add(headerTextLabel, helpIcon);
-
-        return headerLayout;
     }
 
     private void configureValueFields() {

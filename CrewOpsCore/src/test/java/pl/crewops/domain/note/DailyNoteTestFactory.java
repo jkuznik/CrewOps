@@ -1,32 +1,30 @@
-package pl.crewops.domain.dailyNote;
+package pl.crewops.domain.note;
 
 import java.time.Instant;
 import java.util.UUID;
-import pl.crewops.enums.DailyNoteType;
-import pl.crewops.model.dto.dailyNote.CreateDailyNoteDTO;
-import pl.crewops.model.dto.dailyNote.DailyNoteDTO;
+import pl.crewops.enums.NoteType;
+import pl.crewops.model.dto.note.CreateNoteDTO;
+import pl.crewops.model.dto.note.NoteDTO;
 import pl.crewops.model.tenantSchema.DailyEntry;
-import pl.crewops.model.tenantSchema.DailyNote;
 import pl.crewops.model.tenantSchema.Employee;
+import pl.crewops.model.tenantSchema.Note;
 
 public class DailyNoteTestFactory {
 
     // --- ENCJIE ---
 
-    public static DailyNote dailyNote(UUID id) {
-        DailyNote note = DailyNote.builder()
-                .type(DailyNoteType.PRIVATE)
-                .content("Test content")
-                .build();
+    public static Note dailyNote(UUID id) {
+        Note note =
+                Note.builder().type(NoteType.PRIVATE).content("Test content").build();
         note.setId(id);
         note.setCreatedAt(Instant.now());
         note.setUpdatedAt(Instant.now());
         return note;
     }
 
-    public static DailyNote dailyNote(UUID id, DailyEntry dailyEntry, Employee reportedBy) {
-        DailyNote note = DailyNote.builder()
-                .type(DailyNoteType.PRIVATE)
+    public static Note dailyNote(UUID id, DailyEntry dailyEntry, Employee reportedBy) {
+        Note note = Note.builder()
+                .type(NoteType.PRIVATE)
                 .content("Test content")
                 .dailyEntry(dailyEntry)
                 .reportedByEmployeeId(reportedBy)
@@ -53,23 +51,23 @@ public class DailyNoteTestFactory {
 
     // --- DTO WEJŚCIOWE ---
 
-    public static CreateDailyNoteDTO createDailyNoteDTO(UUID dailyEntryId, UUID reportedByEmployeeId) {
-        return CreateDailyNoteDTO.builder()
+    public static CreateNoteDTO createDailyNoteDTO(UUID dailyEntryId, UUID reportedByEmployeeId) {
+        return CreateNoteDTO.builder()
                 .dailyEntryId(dailyEntryId)
                 .reportedByEmployeeId(reportedByEmployeeId)
-                .type(DailyNoteType.PRIVATE)
+                .type(NoteType.PRIVATE)
                 .content("Test content for creation")
                 .build();
     }
 
     // --- DTO WYJŚCIOWE ---
 
-    public static DailyNoteDTO dailyNoteDTO(UUID id, UUID dailyEntryId, UUID reportedByEmployeeId) {
-        return DailyNoteDTO.builder()
+    public static NoteDTO dailyNoteDTO(UUID id, UUID dailyEntryId, UUID reportedByEmployeeId) {
+        return NoteDTO.builder()
                 .id(id)
                 .dailyEntryId(dailyEntryId)
                 .reportedByEmployeeId(reportedByEmployeeId)
-                .type(DailyNoteType.PRIVATE)
+                .type(NoteType.PRIVATE)
                 .content("Test content for creation")
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())

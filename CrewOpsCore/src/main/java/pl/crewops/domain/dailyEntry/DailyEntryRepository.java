@@ -6,7 +6,6 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import pl.crewops.model.tenantSchema.DailyEntry;
 import pl.crewops.model.tenantSchema.DailyEntryAudit;
-import pl.crewops.model.tenantSchema.DailyNote;
 
 interface DailyEntryRepository extends JpaRepository<DailyEntry, UUID> {
 
@@ -22,5 +21,3 @@ interface DailyEntryRepository extends JpaRepository<DailyEntry, UUID> {
 }
 
 interface DailyEntryAuditRepository extends JpaRepository<DailyEntryAudit, UUID> {}
-
-interface DailyEntryNoteRepository extends JpaRepository<DailyNote, UUID> {}

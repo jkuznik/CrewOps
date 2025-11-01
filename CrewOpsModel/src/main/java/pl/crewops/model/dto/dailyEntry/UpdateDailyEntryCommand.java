@@ -26,14 +26,14 @@ import pl.crewops.model.dto.jobPosition.JobPositionDTO;
     @JsonSubTypes.Type(value = UpdateDailyEntryCommand.UpdateDailyEntryInformation.class, name = "UpdateWorkTime"),
     @JsonSubTypes.Type(value = UpdateDailyEntryCommand.ChangeEntryStatus.class, name = "ChangeEntryStatus"),
     @JsonSubTypes.Type(value = UpdateDailyEntryCommand.ApproveEntry.class, name = "ApproveEntry"),
-    @JsonSubTypes.Type(value = UpdateDailyEntryCommand.AddDailyNote.class, name = "AddDailyNote")
+    @JsonSubTypes.Type(value = UpdateDailyEntryCommand.AddSafetyNote.class, name = "AddDailyNote")
 })
 public sealed interface UpdateDailyEntryCommand
         permits UpdateDailyEntryCommand.UpdateAttendance,
                 UpdateDailyEntryCommand.UpdateDailyEntryInformation,
                 UpdateDailyEntryCommand.ChangeEntryStatus,
                 UpdateDailyEntryCommand.ApproveEntry,
-                UpdateDailyEntryCommand.AddDailyNote {
+                UpdateDailyEntryCommand.AddSafetyNote {
 
     /**
      * Unique identifier of the employee whose DailyEntry is being modified.
@@ -105,7 +105,7 @@ public sealed interface UpdateDailyEntryCommand
     /**
      * Represents a command to add a new daily note to a DailyEntry.
      */
-    record AddDailyNote(
+    record AddSafetyNote(
             @NotNull UUID employeeId,
             @NotNull LocalDate entryDate,
             @NotNull UUID actionByEmployeeId,

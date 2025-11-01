@@ -3,10 +3,11 @@ package pl.crewops.model.tenantSchema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import pl.crewops.enums.DailyNoteType;
+import pl.crewops.enums.NoteType;
 import pl.crewops.model.AbstractEntity;
 
 @Getter
@@ -15,15 +16,14 @@ import pl.crewops.model.AbstractEntity;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DailyNote extends AbstractEntity {
+public class Note extends AbstractEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "daily_entry_id")
-    private DailyEntry dailyEntry;
+    @Column(nullable = false)
+    private LocalDate date;
 
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(columnDefinition = "daily_note_type", nullable = false)
-    private DailyNoteType type;
+    private NoteType type;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "reported_by_employee_id", nullable = false, updatable = false)

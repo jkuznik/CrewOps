@@ -332,7 +332,7 @@ class DailyEntryServiceTest {
                 .thenReturn(Optional.of(dailyEntry));
         when(dailyEntryRepository.save(any(DailyEntry.class))).thenAnswer(i -> i.getArgument(0));
 
-        UpdateDailyEntryCommand.AddDailyNote command = new UpdateDailyEntryCommand.AddDailyNote(
+        UpdateDailyEntryCommand.AddSafetyNote command = new UpdateDailyEntryCommand.AddSafetyNote(
                 employeeId, entryDate, actionBy, "New note", "Added daily note");
 
         // when

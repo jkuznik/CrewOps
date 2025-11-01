@@ -2,21 +2,16 @@ package pl.crewops.ui.component.form.daily;
 
 import static pl.crewops.enums.DailyAttendanceStatus.*;
 import static pl.crewops.enums.DailyEntryStatus.*;
-import static pl.crewops.ui.view.DailyView.FORMS_BORDER_PX;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.shared.Registration;
 import java.time.Duration;
 import java.time.Instant;
@@ -25,46 +20,44 @@ import lombok.Getter;
 import pl.crewops.enums.DailyAttendanceStatus;
 import pl.crewops.enums.DailyEntryStatus;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
+import pl.crewops.ui.component.custom.PanelCustom;
 import pl.crewops.ui.component.dialog.dailyEntryDialog.AttendanceSelectorDialog;
-import pl.crewops.ui.view.DailyView;
 import pl.crewops.util.AuthenticationResolver;
 
-public class DailyModificationForm extends FormLayout {
+// Klasa dziedziczy po Panel
+public class DailyModificationForm extends PanelCustom {
 
     private final AuthenticationResolver authenticationResolver;
 
-    private final Span headerTextLabel = new Span();
-    private final Icon helpIcon = VaadinIcon.INFO_CIRCLE.create();
+    //    private final Icon helpIcon = VaadinIcon.INFO_CIRCLE.create();
     private final Span entryStatusInformation = new Span();
 
     private final Button addButton = new Button();
     private final Button confirmPresenceButton = new Button();
     private final Button changeTimesheetButton = new Button();
-    // TODO: that option should be avail able only for managers, consider allow shift leader mark attendance as present
-    // or absent in daily raports form <-
     private final Button changeAttendanceButton = new Button();
     private final Button approveButton = new Button();
 
     private DailyEntryDTO dailyEntryDTO = DailyEntryDTO.builder().status(EMPTY).build();
 
     public DailyModificationForm(AuthenticationResolver authenticationResolver) {
+
         this.authenticationResolver = authenticationResolver;
 
         localize();
 
         var mainContainer = configuredMainContainer();
-
         var buttonsContainer = configuredButtonsContainer();
 
-        mainContainer.add(configuredHeader(), entryStatusInformation, buttonsContainer, spacer());
+        mainContainer.add(entryStatusInformation, buttonsContainer, spacer());
 
-        add(mainContainer);
+        setContent(mainContainer);
 
         updateState();
     }
 
     private void localize() {
-        headerTextLabel.setText(getTranslation("dailyModificationForm.headerTextLabel"));
+        setSummary(VaadinIcon.CALENDAR_CLOCK, getTranslation("dailyModificationForm.headerTextLabel"));
         addButton.setText(getTranslation("dailyModificationForm.addButton"));
         confirmPresenceButton.setText(getTranslation("dailyModificationForm.confirmPresenceButton"));
         changeTimesheetButton.setText(getTranslation("dailyModificationForm.updateButton"));
@@ -89,11 +82,7 @@ public class DailyModificationForm extends FormLayout {
 
     private static VerticalLayout configuredMainContainer() {
         var mainContainer = new VerticalLayout();
-        mainContainer.getStyle().set("border", FORMS_BORDER_PX + " solid #ccc");
-        mainContainer.getStyle().set("border-radius", "4px");
         mainContainer.getStyle().set("padding", "10px");
-        mainContainer.setMaxHeight(DailyView.FORMS_HEIGHT);
-        mainContainer.setMaxWidth(DailyView.FORMS_WIDTH);
         return mainContainer;
     }
 
@@ -102,14 +91,19 @@ public class DailyModificationForm extends FormLayout {
 
         setButtonIcon(addButton, VaadinIcon.CLIPBOARD_CHECK);
         addButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        addButton.setWidthFull();
         setButtonIcon(changeTimesheetButton, VaadinIcon.CLIPBOARD_CHECK);
         changeTimesheetButton.addThemeVariants(ButtonVariant.LUMO_WARNING);
+        changeTimesheetButton.setWidthFull();
         setButtonIcon(confirmPresenceButton, VaadinIcon.CHECK_CIRCLE);
         confirmPresenceButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        confirmPresenceButton.setWidthFull();
         setButtonIcon(changeAttendanceButton, VaadinIcon.PAPERPLANE);
         changeAttendanceButton.addThemeVariants(ButtonVariant.LUMO_WARNING);
-        setButtonIcon(approveButton, VaadinIcon.THUMBS_UP);
+        changeAttendanceButton.setWidthFull();
+        setButtonIcon(approveButton, VaadinIcon.HANDSHAKE);
         approveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        approveButton.setWidthFull();
 
         addButton.addClickListener(event -> {
             fireEvent(new CreateDailyEntryEvent(this));
@@ -141,25 +135,6 @@ public class DailyModificationForm extends FormLayout {
         return container;
     }
 
-    private HorizontalLayout configuredHeader() {
-        headerTextLabel.getStyle().set("font-weight", "bold");
-        headerTextLabel.getStyle().set("font-size", "1.1em");
-
-        helpIcon.setColor("var(--lumo-contrast-50pct)");
-        helpIcon.getStyle().set("cursor", "pointer");
-
-        Tooltip.forComponent(helpIcon).withPosition(Tooltip.TooltipPosition.BOTTOM_END);
-
-        var headerLayout = new HorizontalLayout();
-        headerLayout.setWidthFull();
-        headerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        headerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-
-        headerLayout.add(headerTextLabel, helpIcon);
-
-        return headerLayout;
-    }
-
     public void setDailyEntry(DailyEntryDTO dailyEntryDTO) {
         this.dailyEntryDTO = dailyEntryDTO;
         updateState();
@@ -188,16 +163,12 @@ public class DailyModificationForm extends FormLayout {
         switch (entryStatus) {
                 // todo : Zmieniające się kolory informacji w zależności od statusu wpisu
             case EMPTY -> {
-                // The entry does not exist. The only possible action is to create a new entry.
-                // The 'addButton' should be visible regardless of user permissions.
                 entryInfoText = getTranslation("dailyModificationForm.status.empty.info");
                 tooltipText = getTranslation("dailyModificationForm.status.empty.tooltip");
                 addButton.setVisible(true);
             }
 
             case DRAFT -> {
-                // The entry exists but is in the Draft state. It does not necessarily await supervision confirmation.
-                // Access depends on whether the entry date is in the past/today or the future.
                 entryInfoText = getTranslation("dailyModificationForm.status.draft.info");
                 tooltipText = getTranslation("dailyModificationForm.status.draft.tooltip");
 
@@ -205,25 +176,19 @@ public class DailyModificationForm extends FormLayout {
                 boolean isFutureEntry = entryDate.isAfter(LocalDate.now());
 
                 if (isFutureEntry) {
-                    // Future Entry: Only supervision (Shift Leader) can modify.
                     if (userIsShiftLeader) {
                         changeTimesheetButton.setVisible(true);
                         changeAttendanceButton.setVisible(true);
                     }
-                    // Regular user: No actions allowed for future drafts.
-
                 } else {
-                    // Past or Today Entry: Regular user and supervision can modify.
-                    changeTimesheetButton.setVisible(true); // User and supervision modification enabled.
+                    changeTimesheetButton.setVisible(true);
 
-                    // Regular user action: Confirm presence if attendance is NULL/missing.
                     if (dailyEntryDTO.attendance() == NULL
                             || dailyEntryDTO.attendance() == OTHER
                             || dailyEntryDTO.attendance() == null) {
                         confirmPresenceButton.setVisible(true);
                     }
 
-                    // Supervision actions: Change attendance.
                     if (userIsShiftLeader) {
                         changeAttendanceButton.setVisible(true);
                     }
@@ -270,25 +235,19 @@ public class DailyModificationForm extends FormLayout {
                 boolean isFutureEntry = entryDate.isAfter(LocalDate.now());
 
                 if (isFutureEntry) {
-                    // Future Entry: Only supervision (Shift Leader) can modify.
                     if (userIsShiftLeader) {
                         changeTimesheetButton.setVisible(true);
                         changeAttendanceButton.setVisible(true);
                     }
-                    // Regular user: No actions allowed for future drafts.
-
                 } else {
-                    // Past or Today Entry: Regular user and supervision can modify.
-                    changeTimesheetButton.setVisible(true); // User and supervision modification enabled.
+                    changeTimesheetButton.setVisible(true);
 
-                    // Regular user action: Confirm presence if attendance is NULL/missing.
                     if (dailyEntryDTO.attendance() == NULL
                             || dailyEntryDTO.attendance() == OTHER
                             || dailyEntryDTO.attendance() == null) {
                         confirmPresenceButton.setVisible(true);
                     }
 
-                    // Supervision actions: Change attendance.
                     if (userIsShiftLeader) {
                         changeAttendanceButton.setVisible(true);
                     }
@@ -303,7 +262,6 @@ public class DailyModificationForm extends FormLayout {
 
                 changeTimesheetButton.setVisible(true);
 
-                // Regular user action: Confirm presence if attendance is NULL/missing.
                 if (dailyEntryDTO.attendance() == NULL
                         || dailyEntryDTO.attendance() == OTHER
                         || dailyEntryDTO.attendance() == null) {
@@ -326,7 +284,8 @@ public class DailyModificationForm extends FormLayout {
             }
         }
         entryStatusInformation.setText(entryInfoText);
-        Tooltip.forComponent(helpIcon).setText(tooltipText);
+
+        //        Tooltip.forComponent(helpIcon).setText(tooltipText);
     }
 
     private boolean shiftEndsMoreThanOneHourAgo() {
