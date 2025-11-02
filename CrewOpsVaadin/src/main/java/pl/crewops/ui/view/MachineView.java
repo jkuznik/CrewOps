@@ -60,16 +60,13 @@ public class MachineView extends MainLayout implements BeforeEnterObserver {
     }
 
     private Tabs getToolbar() {
-        // Tworzenie zakładek
         Tab listTab = new Tab(getTranslation("machineView.machineList"));
         Tab breakdownTab = new Tab(getTranslation("machineView.breakdowns"));
 
         Tabs tabs = new Tabs(listTab, breakdownTab);
 
-        // Domyślnie wybieramy pierwszą zakładkę i wyświetlamy machineGrid
         tabs.setSelectedTab(listTab);
 
-        // Logika przełączania widoków na podstawie wybranej zakładki
         tabs.addSelectedChangeListener(event -> {
             if (event.getSelectedTab().equals(listTab)) {
                 displayMachineGrid();

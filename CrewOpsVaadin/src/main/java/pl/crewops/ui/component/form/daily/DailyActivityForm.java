@@ -5,6 +5,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -26,6 +27,8 @@ public class DailyActivityForm extends PanelCustom {
     private final Button addNote = new Button();
     private final Button safetyRaport = new Button();
     private final Button requestLeave = new Button();
+    private final Button readNotes = new Button();
+    private final Button readSafetyRaport = new Button();
 
     @Setter
     private DailyEntryDTO dailyEntry = null;
@@ -63,31 +66,28 @@ public class DailyActivityForm extends PanelCustom {
             fireEvent(new AddNoteEvent(this));
         });
 
-        safetyRaport.setIcon(new Icon(VaadinIcon.WARNING));
+        safetyRaport.setIcon(new Icon(VaadinIcon.SHIELD));
         requestLeave.setIcon(new Icon(VaadinIcon.CALENDAR_CLOCK));
+
+        readNotes.setIcon(new Icon(VaadinIcon.RECORDS));
+        readSafetyRaport.setIcon(new Icon(VaadinIcon.WARNING));
 
         applyButtonStyles(checkSubordinates);
         applyButtonStyles(jobRaport);
         applyButtonStyles(addNote);
         applyButtonStyles(safetyRaport);
         applyButtonStyles(requestLeave);
+        applyButtonStyles(readNotes);
+        applyButtonStyles(readSafetyRaport);
 
         if (authenticationResolver.principalHasShiftLeaderPermission()) {
             actionsLayout.add(checkSubordinates);
         }
 
-        actionsLayout.add(jobRaport, addNote, safetyRaport, requestLeave);
-        return actionsLayout;
-    }
+        Hr separator = new Hr();
 
-    @Override
-    protected void onAttach(com.vaadin.flow.component.AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        applyButtonStyles(checkSubordinates);
-        applyButtonStyles(jobRaport);
-        applyButtonStyles(addNote);
-        applyButtonStyles(safetyRaport);
-        applyButtonStyles(requestLeave);
+        actionsLayout.add(jobRaport, addNote, safetyRaport, requestLeave, separator, readNotes, readSafetyRaport);
+        return actionsLayout;
     }
 
     private void localize() {
@@ -98,6 +98,10 @@ public class DailyActivityForm extends PanelCustom {
         addNote.setText(getTranslation("dailyActivityForm.addNote"));
         safetyRaport.setText(getTranslation("dailyActivityForm.safetyRaport"));
         requestLeave.setText(getTranslation("dailyActivityForm.requestLeave"));
+
+        // todo i18n
+        readNotes.setText("Uwagi i zalecenia");
+        readSafetyRaport.setText("Zgłoszone uwagi BHP");
     }
 
     private static VerticalLayout configuredMainContainer() {
@@ -109,8 +113,6 @@ public class DailyActivityForm extends PanelCustom {
     private void applyButtonStyles(Button button) {
         button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         button.setWidthFull();
-
-        button.getElement().executeJs("this.style.setProperty('justify-content', 'flex-start')");
     }
 
     public void updateDependsOnSelectedDate(LocalDate localDate) {
