@@ -12,7 +12,7 @@ public class PanelCustom extends Panel {
 
     private static final PanelConfig timelineConfig = PanelType.PRIMARY.getConfig().toBuilder()
             .collapsable(false)
-            .primaryColor("#00adb5")
+            .primaryColor("#006B70")
             .closeable(false)
             .icon(VaadinIcon.PIE_BAR_CHART)
             .titleFontSize("var(--lumo-font-size-xl)")

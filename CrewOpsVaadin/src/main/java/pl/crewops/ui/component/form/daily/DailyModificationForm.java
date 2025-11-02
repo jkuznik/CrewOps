@@ -3,6 +3,7 @@ package pl.crewops.ui.component.form.daily;
 import static pl.crewops.enums.DailyAttendanceStatus.*;
 import static pl.crewops.enums.DailyEntryStatus.*;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
@@ -11,6 +12,8 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
 import java.time.Duration;
@@ -24,13 +27,14 @@ import pl.crewops.ui.component.custom.PanelCustom;
 import pl.crewops.ui.component.dialog.dailyEntryDialog.AttendanceSelectorDialog;
 import pl.crewops.util.AuthenticationResolver;
 
-// Klasa dziedziczy po Panel
 public class DailyModificationForm extends PanelCustom {
 
     private final AuthenticationResolver authenticationResolver;
 
-    //    private final Icon helpIcon = VaadinIcon.INFO_CIRCLE.create();
-    private final Span entryStatusInformation = new Span();
+    private final Span attendanceText = new Span();
+    private final Span attendanceStatusDisplay = new Span();
+    private final Span entryStatusText = new Span();
+    private final Span entryStatusDisplay = new Span();
 
     private final Button addButton = new Button();
     private final Button confirmPresenceButton = new Button();
@@ -38,7 +42,8 @@ public class DailyModificationForm extends PanelCustom {
     private final Button changeAttendanceButton = new Button();
     private final Button approveButton = new Button();
 
-    private DailyEntryDTO dailyEntryDTO = DailyEntryDTO.builder().status(EMPTY).build();
+    private DailyEntryDTO dailyEntryDTO =
+            DailyEntryDTO.builder().status(EMPTY).attendance(NULL).build();
 
     public DailyModificationForm(AuthenticationResolver authenticationResolver) {
 
@@ -49,7 +54,7 @@ public class DailyModificationForm extends PanelCustom {
         var mainContainer = configuredMainContainer();
         var buttonsContainer = configuredButtonsContainer();
 
-        mainContainer.add(entryStatusInformation, buttonsContainer, spacer());
+        mainContainer.add(configuredEntryInformationContainer(), buttonsContainer, spacer());
 
         setContent(mainContainer);
 
@@ -58,11 +63,249 @@ public class DailyModificationForm extends PanelCustom {
 
     private void localize() {
         setSummary(VaadinIcon.CALENDAR_CLOCK, getTranslation("dailyModificationForm.headerTextLabel"));
+        attendanceText.setText(getTranslation("dailyModificationForm.attendanceStatusHeader"));
+        entryStatusText.setText(getTranslation("dailyModificationForm.entryStatusHeader"));
         addButton.setText(getTranslation("dailyModificationForm.addButton"));
         confirmPresenceButton.setText(getTranslation("dailyModificationForm.confirmPresenceButton"));
         changeTimesheetButton.setText(getTranslation("dailyModificationForm.updateButton"));
         changeAttendanceButton.setText(getTranslation("dailyModificationForm.changeAttendanceButton"));
         approveButton.setText(getTranslation("dailyModificationForm.approveButton"));
+    }
+
+    private Component configuredEntryInformationContainer() {
+
+        var container = new VerticalLayout();
+        container.setSizeUndefined();
+        container.setPadding(true);
+        container.setSpacing(true);
+
+        var badgeWidth = "130px";
+
+        var horizontalLayout1 = new HorizontalLayout(attendanceText, attendanceStatusDisplay);
+        horizontalLayout1.setWidthFull();
+        horizontalLayout1.setAlignItems(FlexComponent.Alignment.START);
+
+        attendanceText.getElement().getThemeList().add("badge small contrast");
+        attendanceText.getStyle().set("font-size", "1.0em");
+        attendanceText.getStyle().set("padding", "0.2em 0.4em");
+        attendanceText.getStyle().set("border-radius", "8px");
+        attendanceText.getStyle().set("border-style", "solid");
+        attendanceText.getStyle().set("border", "1px solid #B0B0B0");
+
+        attendanceText.getStyle().set("width", badgeWidth);
+        attendanceText.getStyle().set("flex-shrink", "0");
+
+        attendanceStatusDisplay.getStyle().set("font-weight", "bold");
+        attendanceStatusDisplay.getStyle().set("line-height", "1.5");
+        attendanceStatusDisplay.getStyle().set("flex-grow", "1");
+
+        var horizontalLayout2 = new HorizontalLayout(entryStatusText, entryStatusDisplay);
+        horizontalLayout2.setWidthFull();
+        horizontalLayout2.setAlignItems(FlexComponent.Alignment.START);
+
+        entryStatusText.getElement().getThemeList().add("badge small contrast");
+        entryStatusText.getStyle().set("font-size", "1.0em");
+        entryStatusText.getStyle().set("padding", "0.2em 0.4em");
+        entryStatusText.getStyle().set("border-radius", "8px");
+        entryStatusText.getStyle().set("border-style", "solid");
+        entryStatusText.getStyle().set("border", "1px solid #B0B0B0");
+
+        entryStatusText.getStyle().set("width", badgeWidth);
+        entryStatusText.getStyle().set("flex-shrink", "0");
+
+        entryStatusDisplay.getStyle().set("font-weight", "bold");
+        entryStatusDisplay.getStyle().set("line-height", "1.5");
+        entryStatusDisplay.getStyle().set("flex-grow", "1");
+
+        container.add(horizontalLayout1, horizontalLayout2);
+
+        return container;
+    }
+
+    public void updateState() {
+        boolean userIsShiftLeader = authenticationResolver.principalHasShiftLeaderPermission();
+        boolean userIsManager = authenticationResolver.principalHasManagerPermission();
+
+        setAllButtonsVisible(false);
+
+        String entryInfoText;
+        String tooltipText;
+        DailyEntryStatus entryStatus;
+
+        if (dailyEntryDTO == null) {
+            entryStatus = EMPTY;
+            setAttendanceStatus(DailyAttendanceStatus.NULL);
+        } else {
+            if (dailyEntryDTO.status().equals(DRAFT) && shiftEndsMoreThanOneHourAgo()) {
+                entryStatus = PENDING;
+            } else {
+                entryStatus = dailyEntryDTO.status();
+            }
+            setAttendanceStatus(dailyEntryDTO.attendance());
+        }
+
+        switch (entryStatus) {
+                // todo : Zmieniające się kolory informacji w zależności od statusu wpisu
+            case EMPTY -> {
+                entryStatusDisplay.getStyle().set("color", "gray");
+                entryInfoText = getTranslation("dailyTimeline.noEntry");
+                tooltipText = getTranslation("dailyModificationForm.status.empty.tooltip");
+                addButton.setVisible(true);
+            }
+
+            case DRAFT -> {
+                entryStatusDisplay.getStyle().set("color", "white");
+                entryInfoText = getTranslation("dailyModificationForm.status.draft.info");
+                tooltipText = getTranslation("dailyModificationForm.status.draft.tooltip");
+
+                LocalDate entryDate = dailyEntryDTO.entryDate();
+                boolean isFutureEntry = entryDate.isAfter(LocalDate.now());
+
+                if (isFutureEntry) {
+                    if (userIsShiftLeader) {
+                        changeTimesheetButton.setVisible(true);
+                        changeAttendanceButton.setVisible(true);
+                    }
+                } else {
+                    changeTimesheetButton.setVisible(true);
+
+                    if (dailyEntryDTO.attendance() == NULL
+                            || dailyEntryDTO.attendance() == OTHER
+                            || dailyEntryDTO.attendance() == null) {
+                        confirmPresenceButton.setVisible(true);
+                    }
+
+                    if (userIsShiftLeader) {
+                        changeAttendanceButton.setVisible(true);
+                    }
+                }
+            }
+
+            case PENDING -> {
+                entryStatusDisplay.getStyle().set("color", "white");
+                entryInfoText = getTranslation("dailyModificationForm.status.pending.info");
+                tooltipText = getTranslation("dailyModificationForm.status.pending.tooltip");
+
+                changeTimesheetButton.setVisible(true);
+
+                if (dailyEntryDTO.attendance() == NULL
+                        || dailyEntryDTO.attendance() == OTHER
+                        || dailyEntryDTO.attendance() == null) {
+                    confirmPresenceButton.setVisible(true);
+                }
+
+                if (userIsShiftLeader) {
+                    changeAttendanceButton.setVisible(true);
+                    if (!dailyEntryDTO.entryDate().isAfter(LocalDate.now())
+                            && (dailyEntryDTO.attendance() != null && dailyEntryDTO.attendance() != NULL)) {
+                        approveButton.setVisible(true);
+                    }
+                }
+            }
+            case APPROVED -> {
+                entryStatusDisplay.getStyle().set("color", "#10D965"); // LUMO SUCCESS green color
+                entryInfoText = getTranslation("dailyModificationForm.status.approved.info");
+                tooltipText = getTranslation("dailyModificationForm.status.approved.tooltip");
+
+                changeTimesheetButton.setVisible(true);
+
+                if (userIsManager) {
+                    changeAttendanceButton.setVisible(true);
+                }
+            }
+            case MANUAL_EDITED -> {
+                entryStatusDisplay.getStyle().set("color", "white");
+                entryInfoText = getTranslation("dailyModificationForm.status.manualEdited.info");
+                tooltipText = getTranslation("dailyModificationForm.status.manualEdited.tooltip");
+
+                LocalDate entryDate = dailyEntryDTO.entryDate();
+                boolean isFutureEntry = entryDate.isAfter(LocalDate.now());
+
+                if (isFutureEntry) {
+                    if (userIsShiftLeader) {
+                        changeTimesheetButton.setVisible(true);
+                        changeAttendanceButton.setVisible(true);
+                    }
+                } else {
+                    changeTimesheetButton.setVisible(true);
+
+                    if (dailyEntryDTO.attendance() == NULL
+                            || dailyEntryDTO.attendance() == OTHER
+                            || dailyEntryDTO.attendance() == null) {
+                        confirmPresenceButton.setVisible(true);
+                    }
+
+                    if (userIsShiftLeader) {
+                        changeAttendanceButton.setVisible(true);
+                    }
+                    if (userIsManager) {
+                        approveButton.setVisible(true);
+                    }
+                }
+            }
+            case AUTO_GENERATED -> {
+                entryStatusDisplay.getStyle().set("color", "white");
+                entryInfoText = getTranslation("dailyModificationForm.status.autoGenerated.info");
+                tooltipText = getTranslation("dailyModificationForm.status.autoGenerated.tooltip");
+
+                changeTimesheetButton.setVisible(true);
+
+                if (dailyEntryDTO.attendance() == NULL
+                        || dailyEntryDTO.attendance() == OTHER
+                        || dailyEntryDTO.attendance() == null) {
+                    confirmPresenceButton.setVisible(true);
+                }
+
+                if (userIsShiftLeader) {
+                    changeAttendanceButton.setVisible(true);
+                    if (!dailyEntryDTO.entryDate().isAfter(LocalDate.now())
+                            && (dailyEntryDTO.attendance() != null
+                                    && dailyEntryDTO.attendance() != OTHER
+                                    && dailyEntryDTO.attendance() != NULL)) {
+                        approveButton.setVisible(true);
+                    }
+                }
+            }
+            default -> {
+                entryStatusDisplay.getStyle().set("color", "white");
+                entryInfoText = getTranslation("dailyModificationForm.status.unknown.info");
+                tooltipText = getTranslation("dailyModificationForm.status.unknown.tooltip");
+            }
+        }
+        entryStatusDisplay.setText(entryInfoText);
+    }
+
+    public void setAttendanceStatus(DailyAttendanceStatus status) {
+
+        attendanceStatusDisplay.getStyle().remove("color");
+        attendanceStatusDisplay.getStyle().set("font-weight", "bold");
+
+        switch (status) {
+            case PRESENT -> {
+                attendanceStatusDisplay.getStyle().set("color", "#10D965"); // LUMO_SUCCESS green like
+                attendanceStatusDisplay.setText(getTranslation("dailyTimeline.present"));
+            }
+            case VACATION -> {
+                attendanceStatusDisplay.getStyle().set("color", "#007bff"); // Blue
+                attendanceStatusDisplay.setText(getTranslation("dailyTimeline.vacation"));
+            }
+            case SICK_LEAVE -> {
+                attendanceStatusDisplay.getStyle().set("color", "#007bff"); // Blue
+                attendanceStatusDisplay.setText(getTranslation("dailyTimeline.sickLeave"));
+            }
+            case ABSENT -> {
+                attendanceStatusDisplay.getStyle().set("color", "red");
+                attendanceStatusDisplay.setText(getTranslation("dailyTimeline.absent"));
+            }
+            case OTHER -> {
+                attendanceStatusDisplay.getStyle().set("color", "gray");
+                attendanceStatusDisplay.setText(getTranslation("dailyTimeline.other"));
+            }
+            case NULL -> {
+                attendanceStatusDisplay.getStyle().set("color", "gray");
+                attendanceStatusDisplay.setText(getTranslation("dailyTimeline.noEntry"));
+            }
+        }
     }
 
     private static Div spacer() {
@@ -138,154 +381,6 @@ public class DailyModificationForm extends PanelCustom {
     public void setDailyEntry(DailyEntryDTO dailyEntryDTO) {
         this.dailyEntryDTO = dailyEntryDTO;
         updateState();
-    }
-
-    public void updateState() {
-        boolean userIsShiftLeader = authenticationResolver.principalHasShiftLeaderPermission();
-        boolean userIsManager = authenticationResolver.principalHasManagerPermission();
-
-        setAllButtonsVisible(false);
-
-        String entryInfoText;
-        String tooltipText;
-        DailyEntryStatus entryStatus;
-
-        if (dailyEntryDTO == null) {
-            entryStatus = EMPTY;
-        } else {
-            if (dailyEntryDTO.status().equals(DRAFT) && shiftEndsMoreThanOneHourAgo()) {
-                entryStatus = PENDING;
-            } else {
-                entryStatus = dailyEntryDTO.status();
-            }
-        }
-
-        switch (entryStatus) {
-                // todo : Zmieniające się kolory informacji w zależności od statusu wpisu
-            case EMPTY -> {
-                entryInfoText = getTranslation("dailyModificationForm.status.empty.info");
-                tooltipText = getTranslation("dailyModificationForm.status.empty.tooltip");
-                addButton.setVisible(true);
-            }
-
-            case DRAFT -> {
-                entryInfoText = getTranslation("dailyModificationForm.status.draft.info");
-                tooltipText = getTranslation("dailyModificationForm.status.draft.tooltip");
-
-                LocalDate entryDate = dailyEntryDTO.entryDate();
-                boolean isFutureEntry = entryDate.isAfter(LocalDate.now());
-
-                if (isFutureEntry) {
-                    if (userIsShiftLeader) {
-                        changeTimesheetButton.setVisible(true);
-                        changeAttendanceButton.setVisible(true);
-                    }
-                } else {
-                    changeTimesheetButton.setVisible(true);
-
-                    if (dailyEntryDTO.attendance() == NULL
-                            || dailyEntryDTO.attendance() == OTHER
-                            || dailyEntryDTO.attendance() == null) {
-                        confirmPresenceButton.setVisible(true);
-                    }
-
-                    if (userIsShiftLeader) {
-                        changeAttendanceButton.setVisible(true);
-                    }
-                }
-            }
-
-            case PENDING -> {
-                entryInfoText = getTranslation("dailyModificationForm.status.pending.info");
-                tooltipText = getTranslation("dailyModificationForm.status.pending.tooltip");
-
-                changeTimesheetButton.setVisible(true);
-
-                if (dailyEntryDTO.attendance() == NULL
-                        || dailyEntryDTO.attendance() == OTHER
-                        || dailyEntryDTO.attendance() == null) {
-                    confirmPresenceButton.setVisible(true);
-                }
-
-                if (userIsShiftLeader) {
-                    changeAttendanceButton.setVisible(true);
-                    if (!dailyEntryDTO.entryDate().isAfter(LocalDate.now())
-                            && (dailyEntryDTO.attendance() != null
-                                    && dailyEntryDTO.attendance() != OTHER
-                                    && dailyEntryDTO.attendance() != NULL)) {
-                        approveButton.setVisible(true);
-                    }
-                }
-            }
-            case APPROVED -> {
-                entryInfoText = getTranslation("dailyModificationForm.status.approved.info");
-                tooltipText = getTranslation("dailyModificationForm.status.approved.tooltip");
-
-                changeTimesheetButton.setVisible(true);
-
-                if (userIsManager) {
-                    changeAttendanceButton.setVisible(true);
-                }
-            }
-            case MANUAL_EDITED -> {
-                entryInfoText = getTranslation("dailyModificationForm.status.manualEdited.info");
-                tooltipText = getTranslation("dailyModificationForm.status.manualEdited.tooltip");
-
-                LocalDate entryDate = dailyEntryDTO.entryDate();
-                boolean isFutureEntry = entryDate.isAfter(LocalDate.now());
-
-                if (isFutureEntry) {
-                    if (userIsShiftLeader) {
-                        changeTimesheetButton.setVisible(true);
-                        changeAttendanceButton.setVisible(true);
-                    }
-                } else {
-                    changeTimesheetButton.setVisible(true);
-
-                    if (dailyEntryDTO.attendance() == NULL
-                            || dailyEntryDTO.attendance() == OTHER
-                            || dailyEntryDTO.attendance() == null) {
-                        confirmPresenceButton.setVisible(true);
-                    }
-
-                    if (userIsShiftLeader) {
-                        changeAttendanceButton.setVisible(true);
-                    }
-                    if (userIsManager) {
-                        approveButton.setVisible(true);
-                    }
-                }
-            }
-            case AUTO_GENERATED -> {
-                entryInfoText = getTranslation("dailyModificationForm.status.autoGenerated.info");
-                tooltipText = getTranslation("dailyModificationForm.status.autoGenerated.tooltip");
-
-                changeTimesheetButton.setVisible(true);
-
-                if (dailyEntryDTO.attendance() == NULL
-                        || dailyEntryDTO.attendance() == OTHER
-                        || dailyEntryDTO.attendance() == null) {
-                    confirmPresenceButton.setVisible(true);
-                }
-
-                if (userIsShiftLeader) {
-                    changeAttendanceButton.setVisible(true);
-                    if (!dailyEntryDTO.entryDate().isAfter(LocalDate.now())
-                            && (dailyEntryDTO.attendance() != null
-                                    && dailyEntryDTO.attendance() != OTHER
-                                    && dailyEntryDTO.attendance() != NULL)) {
-                        approveButton.setVisible(true);
-                    }
-                }
-            }
-            default -> {
-                entryInfoText = getTranslation("dailyModificationForm.status.unknown.info");
-                tooltipText = getTranslation("dailyModificationForm.status.unknown.tooltip");
-            }
-        }
-        entryStatusInformation.setText(entryInfoText);
-
-        //        Tooltip.forComponent(helpIcon).setText(tooltipText);
     }
 
     private boolean shiftEndsMoreThanOneHourAgo() {

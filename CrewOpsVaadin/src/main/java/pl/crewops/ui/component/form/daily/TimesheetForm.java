@@ -1,5 +1,6 @@
 package pl.crewops.ui.component.form.daily;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -20,10 +21,17 @@ import java.util.stream.Collectors;
 import pl.crewops.enums.DateState;
 import pl.crewops.enums.OvertimeInterval;
 import pl.crewops.enums.OvertimeInterval.OvertimeValue;
+import pl.crewops.exceptions.NotAuthenticatedException;
+import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.ui.component.custom.PanelCustom;
+import pl.crewops.ui.component.notification.NotAuthenticatedNotification;
+import pl.crewops.util.SpringContextBridge;
 
 public class TimesheetForm extends PanelCustom {
+
+    private final Select<JobPositionDTO> jobPosition = new Select<>();
 
     private final TimePicker from = new TimePicker();
     private final Span dateFromSpan = new Span();
@@ -53,9 +61,24 @@ public class TimesheetForm extends PanelCustom {
 
         var formContainer = configuredMainContainer();
 
-        formContainer.add(fromLayout, toLayout, overtimeLayout, spacer());
+        formContainer.add(configuredJobPosition(), fromLayout, toLayout, overtimeLayout, spacer());
 
         setContent(formContainer);
+    }
+
+    private Component configuredJobPosition() {
+        updateJobPosition();
+
+        jobPosition.setWidthFull();
+        jobPosition.setItemLabelGenerator(jobPosition -> {
+            if (jobPosition.machine() != null) {
+                return jobPosition.name() + " (" + jobPosition.machine().registerNumber() + ")";
+            } else {
+                return jobPosition.name();
+            }
+        });
+
+        return jobPosition;
     }
 
     public void setStartTimePickerInvalid(boolean state) {
@@ -68,24 +91,33 @@ public class TimesheetForm extends PanelCustom {
         return spacer;
     }
 
-    public void setDailyEntry(DailyEntryDTO dailyEntryDTO) {
-        if (dailyEntryDTO == null) {
+    public void setDailyEntry(DailyEntryDTO dailyEntry) {
+        if (dailyEntry == null) {
+            jobPosition.setValue(null);
             from.setValue(null);
             to.setValue(null);
             return;
         }
 
-        if (dailyEntryDTO.startTime() != null) {
-            from.setValue(LocalTime.ofInstant(dailyEntryDTO.startTime(), ZoneId.systemDefault()));
-        }
-        if (dailyEntryDTO.endTime() != null) {
-            to.setValue(LocalTime.ofInstant(dailyEntryDTO.endTime(), ZoneId.systemDefault()));
+        if (dailyEntry.jobPosition() != null) {
+            jobPosition.setValue(dailyEntry.jobPosition());
         }
 
-        OvertimeInterval overtimeValue = getOvertimeIntervalByHours(dailyEntryDTO.overTime());
+        if (dailyEntry.startTime() != null) {
+            from.setValue(LocalTime.ofInstant(dailyEntry.startTime(), ZoneId.systemDefault()));
+        }
+        if (dailyEntry.endTime() != null) {
+            to.setValue(LocalTime.ofInstant(dailyEntry.endTime(), ZoneId.systemDefault()));
+        }
+
+        OvertimeInterval overtimeValue = getOvertimeIntervalByHours(dailyEntry.overTime());
         overtime.setValue(overtimeValue);
 
         updateHoursSummary();
+    }
+
+    public JobPositionDTO getJobPosition() {
+        return jobPosition.getValue();
     }
 
     public void updateDependsOnSelectedDate(LocalDate localDate) {
@@ -158,6 +190,17 @@ public class TimesheetForm extends PanelCustom {
         long minutes = ov.hours() * 60L + ov.minutes();
 
         return new BigDecimal(minutes).divide(new BigDecimal(60), 2, RoundingMode.HALF_UP);
+    }
+
+    private void updateJobPosition() {
+        var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
+
+        try {
+            List<JobPositionDTO> allJobPositions = coreAPI.getAllJobPositions();
+            jobPosition.setItems(allJobPositions);
+        } catch (NotAuthenticatedException e) {
+            new NotAuthenticatedNotification(e.getMessage());
+        }
     }
 
     private void configureOvertime() {
@@ -380,6 +423,7 @@ public class TimesheetForm extends PanelCustom {
     }
 
     private void localize() {
+        jobPosition.setLabel(getTranslation("dailyTimeline.jobPositionLabel"));
         from.setLabel(getTranslation("timesheetForm.from"));
         to.setLabel(getTranslation("timesheetForm.to"));
     }

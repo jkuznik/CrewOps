@@ -208,3 +208,23 @@ span, p, label, div {
     height: auto;
     margin: 0;
 }
+
+
+
+
+
+
+/* Plik: styles/mainStyles/main-layout.css */
+
+.main-layout {
+    /* Ustawienie ciemnego, kosmicznego gradientu jako tło */
+    background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+
+    /* Gwarantuje, że tło pokrywa cały obszar AppLayout */
+    height: 100%;
+    width: 100%;
+
+    /* Opcjonalnie: ukrywa paski przewijania, jeśli to możliwe */
+    overflow: hidden;
+}
+

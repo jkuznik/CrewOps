@@ -273,7 +273,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
                 .startTime(timesheetForm.getStartTime())
                 .endTime(timesheetForm.getEndTime())
                 .overTime(timesheetForm.getOvertime())
-                .jobPositionDTO(timeline.getJobPosition())
+                .jobPositionDTO(timesheetForm.getJobPosition())
                 .attendance(OTHER)
                 .build();
 
@@ -300,7 +300,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
         Instant endTime = timesheetForm.getEndTime();
         BigDecimal formOvertime = timesheetForm.getOvertime();
         BigDecimal entryOvertime = dailyEntry.overTime();
-        JobPositionDTO jobPosition = timeline.getJobPosition();
+        JobPositionDTO jobPosition = timesheetForm.getJobPosition();
 
         boolean changed = !Objects.equals(startTime, dailyEntry.startTime())
                 || !Objects.equals(endTime, dailyEntry.endTime())

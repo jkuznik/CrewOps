@@ -3,9 +3,7 @@ package pl.crewops.ui.component.form.daily; // Zmieniamy pakiet na form/daily dl
 import com.vaadin.componentfactory.timeline.Timeline;
 import com.vaadin.componentfactory.timeline.model.Item;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,16 +12,9 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import pl.crewops.enums.DailyAttendanceStatus;
-import pl.crewops.exceptions.NotAuthenticatedException;
-import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
-import pl.crewops.model.dto.jobPosition.JobPositionDTO;
-import pl.crewops.ui.component.custom.ComboBoxCustom;
 import pl.crewops.ui.component.custom.PanelCustom;
 import pl.crewops.ui.component.custom.TimelineCustom;
-import pl.crewops.ui.component.notification.NotAuthenticatedNotification;
-import pl.crewops.util.SpringContextBridge;
 
 public class DailyTimeline extends PanelCustom {
 
@@ -31,113 +22,18 @@ public class DailyTimeline extends PanelCustom {
 
     private final Timeline timeline = new TimelineCustom();
 
-    private final Span attendanceHeaderTextLabel = new Span();
-    private final Span statusDisplay = new Span();
-    private final ComboBoxCustom<JobPositionDTO> jobPosition = new ComboBoxCustom<>();
-
-    private DailyEntryDTO dailyEntry;
-
     public DailyTimeline(DailyEntryDTO dailyEntry) {
-
-        this.dailyEntry = dailyEntry;
 
         var panelContent = configuredPanelContent();
         setContent(panelContent);
-
-        if (dailyEntry != null) {
-            setAttendanceStatus(dailyEntry.attendance());
-        } else {
-            setAttendanceStatus(DailyAttendanceStatus.NULL);
-        }
     }
 
     private Component configuredPanelContent() {
-        var mainLayout = new HorizontalLayout(configuredTimeline(), configuredAttendanceContainer());
+        var mainLayout = new HorizontalLayout(configuredTimeline());
         mainLayout.setWidthFull();
-        mainLayout.setSpacing(true);
-        mainLayout.getStyle().set("padding", "10px");
         mainLayout.setMaxHeight(TIMELINE_CONTAINER_HEIGHT_PX + "px");
 
         return mainLayout;
-    }
-
-    private void updateJobPositionComboBox() {
-        var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
-
-        try {
-            List<JobPositionDTO> allJobPositions = coreAPI.getAllJobPositions();
-            jobPosition.setItems(allJobPositions);
-        } catch (NotAuthenticatedException e) {
-            new NotAuthenticatedNotification(e.getMessage());
-        }
-    }
-
-    private Component configuredAttendanceContainer() {
-
-        var container = new VerticalLayout();
-        container.setSizeUndefined();
-        container.setPadding(true);
-        container.setSpacing(false);
-
-        attendanceHeaderTextLabel.setText(getTranslation("dailyTimeline.attendanceStatusHeader"));
-        statusDisplay.getStyle().set("font-weight", "bold");
-        statusDisplay.getStyle().set("line-height", "1.5");
-
-        jobPosition.setLabel(getTranslation("dailyTimeline.jobPositionLabel"));
-        updateJobPositionComboBox();
-
-        jobPosition.setItemLabelGenerator(jobPosition -> {
-            if (jobPosition.machine() != null) {
-                return jobPosition.name() + " (" + jobPosition.machine().registerNumber() + ")";
-            } else {
-                return jobPosition.name();
-            }
-        });
-
-        if (dailyEntry != null && dailyEntry.jobPosition() != null) {
-            jobPosition.setValue(dailyEntry.jobPosition());
-        }
-
-        container.add(attendanceHeaderTextLabel, statusDisplay, jobPosition);
-
-        return container;
-    }
-
-    public JobPositionDTO getJobPosition() {
-        return jobPosition.getValue();
-    }
-
-    public void setAttendanceStatus(DailyAttendanceStatus status) {
-
-        statusDisplay.getStyle().remove("color");
-        statusDisplay.getStyle().set("font-weight", "bold");
-
-        switch (status) {
-            case PRESENT -> {
-                statusDisplay.getStyle().set("color", "#10D965"); // LUMO_SUCCESS green like
-                statusDisplay.setText(getTranslation("dailyTimeline.present"));
-            }
-            case VACATION -> {
-                statusDisplay.getStyle().set("color", "#007bff"); // Blue
-                statusDisplay.setText(getTranslation("dailyTimeline.vacation"));
-            }
-            case SICK_LEAVE -> {
-                statusDisplay.getStyle().set("color", "#007bff"); // Blue
-                statusDisplay.setText(getTranslation("dailyTimeline.sickLeave"));
-            }
-            case ABSENT -> {
-                statusDisplay.getStyle().set("color", "red");
-                statusDisplay.setText(getTranslation("dailyTimeline.absent"));
-            }
-            case OTHER -> {
-                statusDisplay.getStyle().set("color", "gray");
-                statusDisplay.setText(getTranslation("dailyTimeline.other"));
-            }
-            case NULL -> {
-                statusDisplay.getStyle().set("color", "gray");
-                statusDisplay.setText(getTranslation("dailyTimeline.noEntry"));
-            }
-        }
     }
 
     private Timeline configuredTimeline() {
@@ -150,10 +46,8 @@ public class DailyTimeline extends PanelCustom {
     public void updateTimeline(DailyEntryDTO dailyEntry, LocalDate date) {
         if (dailyEntry == null) {
             setSummaryText(getTranslation("dailyTimeline.header", date.toString()));
-            jobPosition.setValue(null);
             timeline.setItems(List.of());
             timeline.setTimelineRange(LocalDateTime.of(date, LocalTime.MIN), LocalDateTime.of(date, LocalTime.MAX));
-            setAttendanceStatus(DailyAttendanceStatus.NULL);
             return;
         }
 
@@ -161,14 +55,6 @@ public class DailyTimeline extends PanelCustom {
         setSummaryText(getTranslation("dailyTimeline.header", from.toString()));
 
         final ZoneId ZONE_ID = ZoneId.systemDefault();
-
-        setAttendanceStatus(dailyEntry.attendance());
-
-        if (dailyEntry.jobPosition() != null) {
-            jobPosition.setValue(dailyEntry.jobPosition());
-        } else {
-            jobPosition.setValue(null);
-        }
 
         if (dailyEntry.endTime() != null) {
             LocalDateTime to = LocalDateTime.ofInstant(dailyEntry.endTime(), ZONE_ID);
