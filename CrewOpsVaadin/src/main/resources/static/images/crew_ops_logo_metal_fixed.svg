@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="200" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Crew Ops logo">
+  <defs>
+
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+
+    <linearGradient id="gearBlueGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="50%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#1E40AF"/>
+    </linearGradient>
+
+    <linearGradient id="gearOrangeGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F97316"/>
+      <stop offset="50%" stop-color="#FACC15"/>
+      <stop offset="100%" stop-color="#DC2626"/>
+    </linearGradient>
+
+    <filter id="blueGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="orangeGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <linearGradient id="textBlue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0EA5E9"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+    <linearGradient id="textOrange" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F97316"/>
+      <stop offset="100%" stop-color="#DC2626"/>
+    </linearGradient>
+
+    <g id="gearShape">
+      <circle cx="0" cy="0" r="25" fill="url(#gearBlueGradient)" stroke="#93C5FD" stroke-width="2"/>
+      <path d="M0,-35 L5,-30 L15,-32 L18,-25 L28,-20 L25,-10 L32,0 L25,10 L28,20 L18,25 L15,32 L5,30 L0,35
+               L-5,30 L-15,32 L-18,25 L-28,20 L-25,10 L-32,0 L-25,-10 L-28,-20 L-18,-25 L-15,-32 L-5,-30 Z"
+            fill="url(#gearBlueGradient)" stroke="#0EA5E9" stroke-width="1.5" opacity="0.95"/>
+      <circle cx="0" cy="0" r="8" fill="#0F172A" stroke="#38BDF8" stroke-width="2"/>
+    </g>
+
+    <g id="processorShape">
+      <rect x="-15" y="-15" width="30" height="30" rx="4" ry="4" fill="#60A5FA" stroke="#BFDBFE" stroke-width="2"/>
+      <line x1="-20" y1="-10" x2="-15" y2="-10" stroke="#BFDBFE" stroke-width="1.5"/>
+      <line x1="-20" y1="-5" x2="-15" y2="-5" stroke="#BFDBFE" stroke-width="1.5"/>
+      <line x1="-20" y1="0" x2="-15" y2="0" stroke="#BFDBFE" stroke-width="1.5"/>
+      <line x1="-20" y1="5" x2="-15" y2="5" stroke="#BFDBFE" stroke-width="1.5"/>
+      <line x1="-20" y1="10" x2="-15" y2="10" stroke="#BFDBFE" stroke-width="1.5"/>
+      <line x1="15" y1="-10" x2="20" y2="-10" stroke="#BFDBFE" stroke-width="1.5"/>
+      <line x1="15" y1="-5" x2="20" y2="-5" stroke="#BFDBFE" stroke-width="1.5"/>
+      <line x1="15" y1="0" x2="20" y2="0" stroke="#BFDBFE" stroke-width="1.5"/>
+      <line x1="15" y1="5" x2="20" y2="5" stroke="#BFDBFE" stroke-width="1.5"/>
+      <line x1="15" y1="10" x2="20" y2="10" stroke="#BFDBFE" stroke-width="1.5"/>
+      <circle fill="#BFDBFE" cx="-10" cy="-10" r="1.5"/>
+    </g>
+
+    <g id="calculatorShape">
+      <rect x="-12" y="-18" width="24" height="36" rx="4" ry="4" fill="#3B82F6" stroke="#93C5FD" stroke-width="2"/>
+      <rect x="-8" y="-14" width="16" height="6" rx="1" fill="#1E293B"/>
+      <circle cx="-5" cy="-5" r="2" fill="#0EA5E9"/>
+      <circle cx="0" cy="-5" r="2" fill="#0EA5E9"/>
+      <circle cx="5" cy="-5" r="2" fill="#0EA5E9"/>
+
+      <circle cx="-5" cy="0" r="2" fill="#0EA5E9"/>
+      <circle cx="0" cy="0" r="2" fill="#0EA5E9"/>
+      <circle cx="5" cy="0" r="2" fill="#0EA5E9"/>
+
+      <circle cx="-5" cy="5" r="2" fill="#0EA5E9"/>
+      <circle cx="0" cy="5" r="2" fill="#F97316"/>
+      <circle cx="5" cy="5" r="2" fill="#0EA5E9"/>
+    </g>
+
+    <style>
+      @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+      }
+      .gear-rotate-slow {
+      animation: spin 12s linear infinite;
+      transform-origin: center;
+      }
+      .gear-rotate-rev {
+      animation: spin 12s linear infinite reverse;
+      transform-origin: center;
+      }
+    </style>
+  </defs>
+
+  <g transform="translate(75,100)">
+    <g class="gear-rotate-slow" filter="url(#blueGlow)">
+      <use href="#gearShape"/>
+    </g>
+  </g>
+
+  <g transform="translate(110, 105) scale(0.8)">
+    <use href="#processorShape" filter="url(#blueGlow)"/>
+  </g>
+
+  <g transform="translate(150, 85) scale(0.8)">
+    <use href="#calculatorShape" filter="url(#blueGlow)"/>
+  </g>
+
+  <g transform="translate(140,105) scale(0.7)">
+    <g class="gear-rotate-rev" filter="url(#orangeGlow)">
+      <use href="#gearShape" fill="url(#gearOrangeGradient)" stroke="#FACC15"/>
+      <path d="M0,-35 L5,-30 L15,-32 L18,-25 L28,-20 L25,-10 L32,0 L25,10 L28,20 L18,25 L15,32 L5,30 L0,35
+               L-5,30 L-15,32 L-18,25 L-28,20 L-25,10 L-32,0 L-25,-10 L-28,-20 L-18,-25 L-15,-32 L-5,-30 Z"
+            fill="url(#gearOrangeGradient)" stroke="#FACC15" stroke-width="1.5" opacity="0.95"/>
+      <circle cx="0" cy="0" r="8" fill="#0F172A" stroke="#F97316" stroke-width="2"/>
+    </g>
+  </g>
+
+  <text x="195" y="95" font-family="Segoe UI, Arial, sans-serif" font-size="46" font-weight="700" text-anchor="start">
+    <tspan fill="url(#textBlue)" filter="url(#blueGlow)">Crew</tspan>
+    <tspan dx="8" fill="url(#textOrange)" filter="url(#orangeGlow)">Ops</tspan>
+  </text>
+
+  <text x="195" y="125" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#0EA5E9" filter="url(#blueGlow)">
+    Where Industry Meets Intelligence
+  </text>
+</svg>

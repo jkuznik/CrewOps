@@ -52,7 +52,6 @@ public class QualificationGrid extends VerticalLayout {
         updateGrid();
         closeEditor();
 
-        setSizeFull();
         add(gridToolbar, getContent());
     }
 
@@ -102,14 +101,14 @@ public class QualificationGrid extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.setSizeFull();
-
         grid.addColumn(QualificationFormModel::getDescription).setKey("description");
         grid.addColumn(QualificationFormModel::getEmployeesAmount).setKey("employeesAmount");
 
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 
         grid.asSingleSelect().addValueChangeListener(event -> editQualification(event.getValue()));
+
+        grid.setAllRowsVisible(true);
     }
 
     private void configureForm() {

@@ -12,7 +12,6 @@
     color: #FFFFFF;
     border-bottom: 1px solid #777777;
 
-    padding: 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -20,7 +19,6 @@
     overflow: hidden;
 }
 
-/* Lekka nakładka i rozmycie dla czytelności */
 .main-navbar::before {
     content: "";
     position: absolute;
@@ -44,7 +42,7 @@
 }
 
 vaadin-drawer-toggle {
-    color: #1B7678; /* Używam ciemniejszego koloru dla ikony toggle */
+    color: #FFFFFF;
 }
 
 .main-navbar a {
@@ -54,4 +52,43 @@ vaadin-drawer-toggle {
 
 .main-navbar a:hover {
     color: #1B7678;
+}
+
+/* --- KONFIGURACJA WRAPPERA DLA KOMPONENTÓW AUTORYZACJI (.auth-wrapper) --- */
+.auth-wrapper {
+    /* To tło zastąpi tło LoggedUserInfoComponent/LoginForm */
+    background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%) !important;
+
+    /* Usunięto padding z prawej strony (40px) i zastąpiono krótszym,
+       aby zminimalizować efekt marginesu. */
+    padding: 15px 40px !important;
+
+
+    box-sizing: border-box;
+
+    mask-image:
+            linear-gradient(to right, transparent 0%, black 20px);
+
+    mask-composite: intersect;
+}
+
+/* Dodatkowy styl dla elementów wewnątrz LoggedUserInfoComponent, aby ich tło było przezroczyste */
+.auth-wrapper > vaadin-vertical-layout,
+.auth-wrapper vaadin-horizontal-layout {
+    background: transparent !important;
+}
+
+/* Wymuszenie przezroczystości dla pól tekstowych i przycisków wewnątrz LoggedUserInfoComponent */
+.auth-wrapper .logged-user-info::part(input-field) {
+    background: transparent !important;
+}
+
+.left-side-mask {
+    mask-image:
+
+            linear-gradient(to right, black 80%, transparent 100%),
+            linear-gradient(to bottom, black 80%, transparent 100%),
+            linear-gradient(to top, black 80%, transparent 100%);
+
+    mask-composite: intersect;
 }

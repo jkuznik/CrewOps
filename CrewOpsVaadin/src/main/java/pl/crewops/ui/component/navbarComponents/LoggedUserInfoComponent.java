@@ -37,6 +37,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
     public LoggedUserInfoComponent(
             CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         addClassName("logged-user-info");
+        setMargin(true);
 
         if (authenticationResolver.principalIsAuthenticated()) {
             add(loggedUserInfo(coreAPI, jwtService, authenticationResolver));
@@ -48,16 +49,14 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
     private Component loggedUserInfo(
             CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         var infoLayout = new VerticalLayout();
-        infoLayout.setWidthFull();
         infoLayout.setSpacing(true);
         infoLayout.setAlignItems(FlexComponent.Alignment.END);
+        infoLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         Button logoutButton = new Button(getTranslation("loggedUserInfo.logout"));
         logoutButton.addClickListener(event -> logout(authenticationResolver));
         logoutButton.addThemeVariants(ButtonVariant.LUMO_WARNING);
         logoutButton.setWidth("160px");
-
-        //        logoutButton.getElement().getStyle().set("color", "#FF0000");
 
         var logoutButtonAndLanguageSelector = new HorizontalLayout();
         logoutButtonAndLanguageSelector.setSpacing(true);

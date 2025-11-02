@@ -61,7 +61,6 @@ public class EmployeeGrid extends VerticalLayout {
         updateGrid();
         closeEditor();
 
-        setSizeFull();
         add(gridToolbar, getContent());
     }
 
@@ -133,8 +132,6 @@ public class EmployeeGrid extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.setSizeFull();
-
         grid.addColumn(EmployeeFormModel::getFirstName).setKey("firstName");
         grid.addColumn(EmployeeFormModel::getLastName).setKey("lastName");
         grid.addColumn(employee -> employee.getDepartments().stream()
@@ -176,8 +173,8 @@ public class EmployeeGrid extends VerticalLayout {
                 });
 
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
-
         grid.asSingleSelect().addValueChangeListener(event -> editEmployee(event.getValue()));
+        grid.setAllRowsVisible(true);
     }
 
     private void configureForm() {

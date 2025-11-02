@@ -6,7 +6,6 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -38,7 +37,6 @@ import pl.crewops.ui.component.navbarComponents.LanguageSelectorComponent;
 import pl.crewops.ui.component.notification.FailNotification;
 
 @SpringComponent
-@CssImport("./styles/component/login-form.css")
 @Slf4j
 public class LoginForm extends FormLayout {
 

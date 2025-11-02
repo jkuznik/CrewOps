@@ -53,7 +53,6 @@ public class BreakdownGrid extends VerticalLayout {
         updateBreakdownGrid();
         closeEditor();
 
-        setSizeFull();
         add(gridToolbar, getContent());
     }
 
@@ -101,8 +100,6 @@ public class BreakdownGrid extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.setSizeFull();
-
         grid.addColumn(model -> model.getMachine() != null ? model.getMachine().registerNumber() : "-")
                 .setKey("registrationNumber");
 
@@ -164,6 +161,7 @@ public class BreakdownGrid extends VerticalLayout {
         });
 
         grid.asSingleSelect().addValueChangeListener(event -> editBreakdown(event.getValue()));
+        grid.setAllRowsVisible(true);
     }
 
     private void configureForm() {

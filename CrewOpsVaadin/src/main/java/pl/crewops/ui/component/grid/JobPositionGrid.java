@@ -43,8 +43,6 @@ public class JobPositionGrid extends VerticalLayout {
         this.coreAPI = coreAPI;
         this.authenticationResolver = authenticationResolver;
 
-        setSizeFull();
-
         configureGrid();
         configureForm();
 
@@ -91,8 +89,6 @@ public class JobPositionGrid extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.setSizeFull();
-
         grid.addColumn(JobPositionFormModel::getName).setKey("name");
 
         grid.addColumn(model -> model.getMachine() != null
@@ -106,6 +102,8 @@ public class JobPositionGrid extends VerticalLayout {
             form.setBean(e.getValue());
             form.setVisible(true);
         });
+
+        grid.setAllRowsVisible(true);
 
         updateGrid();
     }
