@@ -26,7 +26,6 @@ public class DailyNoteTestFactory {
         Note note = Note.builder()
                 .type(NoteType.PRIVATE)
                 .content("Test content")
-                .dailyEntry(dailyEntry)
                 .reportedByEmployeeId(reportedBy)
                 .build();
         note.setId(id);
@@ -53,7 +52,6 @@ public class DailyNoteTestFactory {
 
     public static CreateNoteDTO createDailyNoteDTO(UUID dailyEntryId, UUID reportedByEmployeeId) {
         return CreateNoteDTO.builder()
-                .dailyEntryId(dailyEntryId)
                 .reportedByEmployeeId(reportedByEmployeeId)
                 .type(NoteType.PRIVATE)
                 .content("Test content for creation")
@@ -65,7 +63,6 @@ public class DailyNoteTestFactory {
     public static NoteDTO dailyNoteDTO(UUID id, UUID dailyEntryId, UUID reportedByEmployeeId) {
         return NoteDTO.builder()
                 .id(id)
-                .dailyEntryId(dailyEntryId)
                 .reportedByEmployeeId(reportedByEmployeeId)
                 .type(NoteType.PRIVATE)
                 .content("Test content for creation")

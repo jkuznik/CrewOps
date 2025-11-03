@@ -27,7 +27,7 @@ import pl.crewops.ui.component.custom.PanelCustom;
 import pl.crewops.ui.component.dialog.dailyEntryDialog.AttendanceSelectorDialog;
 import pl.crewops.util.AuthenticationResolver;
 
-public class DailyModificationForm extends PanelCustom {
+public class DailyModificationPanel extends PanelCustom {
 
     private final AuthenticationResolver authenticationResolver;
 
@@ -45,7 +45,7 @@ public class DailyModificationForm extends PanelCustom {
     private DailyEntryDTO dailyEntryDTO =
             DailyEntryDTO.builder().status(EMPTY).attendance(NULL).build();
 
-    public DailyModificationForm(AuthenticationResolver authenticationResolver) {
+    public DailyModificationPanel(AuthenticationResolver authenticationResolver) {
 
         this.authenticationResolver = authenticationResolver;
 
@@ -400,26 +400,26 @@ public class DailyModificationForm extends PanelCustom {
         button.setIcon(new Icon(iconType));
     }
 
-    public abstract static class DailyModificationFormEvent extends ComponentEvent<DailyModificationForm> {
-        public DailyModificationFormEvent(DailyModificationForm source) {
+    public abstract static class DailyModificationFormEvent extends ComponentEvent<DailyModificationPanel> {
+        public DailyModificationFormEvent(DailyModificationPanel source) {
             super(source, false);
         }
     }
 
     public static class CreateDailyEntryEvent extends DailyModificationFormEvent {
-        public CreateDailyEntryEvent(DailyModificationForm source) {
+        public CreateDailyEntryEvent(DailyModificationPanel source) {
             super(source);
         }
     }
 
     public static class UpdateDailyEntryEvent extends DailyModificationFormEvent {
-        public UpdateDailyEntryEvent(DailyModificationForm source) {
+        public UpdateDailyEntryEvent(DailyModificationPanel source) {
             super(source);
         }
     }
 
     public static class ConfirmAttendanceEvent extends DailyModificationFormEvent {
-        public ConfirmAttendanceEvent(DailyModificationForm source) {
+        public ConfirmAttendanceEvent(DailyModificationPanel source) {
             super(source);
         }
     }
@@ -428,14 +428,14 @@ public class DailyModificationForm extends PanelCustom {
         @Getter
         private final DailyAttendanceStatus status;
 
-        public ChangeAttendanceEvent(DailyModificationForm source, DailyAttendanceStatus status) {
+        public ChangeAttendanceEvent(DailyModificationPanel source, DailyAttendanceStatus status) {
             super(source);
             this.status = status;
         }
     }
 
     public static class ApproveDailyEntryEvent extends DailyModificationFormEvent {
-        public ApproveDailyEntryEvent(DailyModificationForm source) {
+        public ApproveDailyEntryEvent(DailyModificationPanel source) {
             super(source);
         }
     }

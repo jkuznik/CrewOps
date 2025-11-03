@@ -1,26 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="800" height="200" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Crew Ops logo">
   <defs>
-
     <linearGradient id="bgGradient" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#0F172A"/>
       <stop offset="100%" stop-color="#1E293B"/>
     </linearGradient>
 
-    <linearGradient id="gearBlueGradient" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#3B82F6"/>
-      <stop offset="50%" stop-color="#06B6D4"/>
-      <stop offset="100%" stop-color="#1E40AF"/>
+    <linearGradient id="textBlue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#70E5FF"/>
+      <stop offset="50%" stop-color="#34B3FF"/>
+      <stop offset="100%" stop-color="#1A7CFF"/>
     </linearGradient>
 
-    <linearGradient id="gearOrangeGradient" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#F97316"/>
-      <stop offset="50%" stop-color="#FACC15"/>
-      <stop offset="100%" stop-color="#DC2626"/>
+    <linearGradient id="textOrange" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFC064"/>
+      <stop offset="50%" stop-color="#FF9900"/>
+      <stop offset="100%" stop-color="#FF3300"/>
     </linearGradient>
+
+    <radialGradient id="metalGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F9FAFB"/>
+      <stop offset="30%" stop-color="#D1D5DB"/>
+      <stop offset="70%" stop-color="#9CA3AF"/>
+      <stop offset="100%" stop-color="#4B5563"/>
+    </radialGradient>
 
     <filter id="blueGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
@@ -28,59 +34,109 @@
     </filter>
 
     <filter id="orangeGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
 
-    <linearGradient id="textBlue" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0EA5E9"/>
-      <stop offset="100%" stop-color="#3B82F6"/>
-    </linearGradient>
-    <linearGradient id="textOrange" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#F97316"/>
-      <stop offset="100%" stop-color="#DC2626"/>
-    </linearGradient>
+    <g id="gearShapeMetalBlue">
+      <circle cx="0" cy="0" r="22" fill="url(#metalGradient)" stroke="#9CA3AF" stroke-width="2"/>
 
-    <g id="gearShape">
-      <circle cx="0" cy="0" r="25" fill="url(#gearBlueGradient)" stroke="#93C5FD" stroke-width="2"/>
-      <path d="M0,-35 L5,-30 L15,-32 L18,-25 L28,-20 L25,-10 L32,0 L25,10 L28,20 L18,25 L15,32 L5,30 L0,35
-               L-5,30 L-15,32 L-18,25 L-28,20 L-25,10 L-32,0 L-25,-10 L-28,-20 L-18,-25 L-15,-32 L-5,-30 Z"
-            fill="url(#gearBlueGradient)" stroke="#0EA5E9" stroke-width="1.5" opacity="0.95"/>
-      <circle cx="0" cy="0" r="8" fill="#0F172A" stroke="#38BDF8" stroke-width="2"/>
+      <g fill="url(#metalGradient)" stroke="#E5E7EB" stroke-width="0.8">
+        <g transform="rotate(0)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(30)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(60)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(90)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(120)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(150)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(180)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(210)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(240)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(270)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(300)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(330)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+      </g>
+
+      <circle cx="0" cy="0" r="15" fill="none" stroke="#00FFFF" stroke-width="0.8"/>
+      <circle cx="0" cy="0" r="7" fill="#1E293B" stroke="#9CA3AF" stroke-width="1.5"/>
+    </g>
+
+    <g id="gearShapeMetalOrange">
+      <circle cx="0" cy="0" r="22" fill="url(#metalGradient)" stroke="#9CA3AF" stroke-width="2"/>
+
+      <g fill="url(#metalGradient)" stroke="#E5E7EB" stroke-width="0.8">
+        <g transform="rotate(0)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(30)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(60)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(90)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(120)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(150)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(180)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(210)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(240)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(270)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(300)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(330)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+      </g>
+
+      <circle cx="0" cy="0" r="15" fill="none" stroke="#FF9900" stroke-width="0.8"/>
+      <circle cx="0" cy="0" r="7" fill="#1E293B" stroke="#9CA3AF" stroke-width="1.5"/>
     </g>
 
     <g id="processorShape">
-      <rect x="-15" y="-15" width="30" height="30" rx="4" ry="4" fill="#60A5FA" stroke="#BFDBFE" stroke-width="2"/>
-      <line x1="-20" y1="-10" x2="-15" y2="-10" stroke="#BFDBFE" stroke-width="1.5"/>
-      <line x1="-20" y1="-5" x2="-15" y2="-5" stroke="#BFDBFE" stroke-width="1.5"/>
-      <line x1="-20" y1="0" x2="-15" y2="0" stroke="#BFDBFE" stroke-width="1.5"/>
-      <line x1="-20" y1="5" x2="-15" y2="5" stroke="#BFDBFE" stroke-width="1.5"/>
-      <line x1="-20" y1="10" x2="-15" y2="10" stroke="#BFDBFE" stroke-width="1.5"/>
-      <line x1="15" y1="-10" x2="20" y2="-10" stroke="#BFDBFE" stroke-width="1.5"/>
-      <line x1="15" y1="-5" x2="20" y2="-5" stroke="#BFDBFE" stroke-width="1.5"/>
-      <line x1="15" y1="0" x2="20" y2="0" stroke="#BFDBFE" stroke-width="1.5"/>
-      <line x1="15" y1="5" x2="20" y2="5" stroke="#BFDBFE" stroke-width="1.5"/>
-      <line x1="15" y1="10" x2="20" y2="10" stroke="#BFDBFE" stroke-width="1.5"/>
-      <circle fill="#BFDBFE" cx="-10" cy="-10" r="1.5"/>
+      <rect x="-15" y="-15" width="30" height="30" rx="3" ry="3" fill="#0A1420" stroke="#34B3FF" stroke-width="0.8"/>
+
+      <rect x="-12" y="-12" width="24" height="24" rx="2" ry="2" fill="none" stroke="#34B3FF" stroke-width="0.3"/>
+
+      <path d="M -10 -9 L 10 -9 M -10 -5 L 10 -5 M -10 -1 L 10 -1 M -10 3 L 10 3 M -10 7 L 10 7" stroke="#34B3FF" stroke-width="0.2"/>
+      <path d="M -7 -10 L -7 10 M -3 -10 L -3 10 M 1 -10 L 1 10 M 5 -10 L 5 10 M 9 -10 L 9 10" stroke="#34B3FF" stroke-width="0.2"/>
+
+      <g stroke="#34B3FF" stroke-width="0.8">
+        <line x1="-20" y1="-10" x2="-15" y2="-10"/>
+        <line x1="-20" y1="-5" x2="-15" y2="-5"/>
+        <line x1="-20" y1="0" x2="-15" y2="0"/>
+        <line x1="-20" y1="5" x2="-15" y2="5"/>
+        <line x1="-20" y1="10" x2="-15" y2="10"/>
+
+        <line x1="15" y1="-10" x2="20" y2="-10"/>
+        <line x1="15" y1="-5" x2="20" y2="-5"/>
+        <line x1="15" y1="0" x2="20" y2="0"/>
+        <line x1="15" y1="5" x2="20" y2="5"/>
+        <line x1="15" y1="10" x2="20" y2="10"/>
+      </g>
+
+      <g stroke="#34B3FF" stroke-width="0.5">
+        <line x1="-10" y1="-15" x2="-10" y2="-20"/>
+        <line x1="0" y1="-15" x2="0" y2="-20"/>
+        <line x1="10" y1="-15" x2="10" y2="-20"/>
+        <line x1="-10" y1="15" x2="-10" y2="20"/>
+        <line x1="0" y1="15" x2="0" y2="20"/>
+        <line x1="10" y1="15" x2="10" y2="20"/>
+      </g>
+
+      <circle fill="#34B3FF" cx="-10" cy="-10" r="1.0"/>
     </g>
 
     <g id="calculatorShape">
-      <rect x="-12" y="-18" width="24" height="36" rx="4" ry="4" fill="#3B82F6" stroke="#93C5FD" stroke-width="2"/>
-      <rect x="-8" y="-14" width="16" height="6" rx="1" fill="#1E293B"/>
-      <circle cx="-5" cy="-5" r="2" fill="#0EA5E9"/>
-      <circle cx="0" cy="-5" r="2" fill="#0EA5E9"/>
-      <circle cx="5" cy="-5" r="2" fill="#0EA5E9"/>
+      <polygon points="-12,-18 12,-18 10,18 -10,18" fill="#0A1420" stroke="#34B3FF" stroke-width="0.8"/>
 
-      <circle cx="-5" cy="0" r="2" fill="#0EA5E9"/>
-      <circle cx="0" cy="0" r="2" fill="#0EA5E9"/>
-      <circle cx="5" cy="0" r="2" fill="#0EA5E9"/>
+      <rect x="-8" y="-14" width="16" height="6" rx="1" fill="#000000" stroke="#00FFFF" stroke-width="0.2"/>
+      <text x="0" y="-10.5" text-anchor="middle" font-size="4" fill="#00FFFF" font-family="monospace" font-weight="bold">88:88</text>
+      <text x="0" y="-10.5" text-anchor="middle" font-size="4" fill="#34B3FF" font-family="monospace" font-weight="bold">11:18</text>
 
-      <circle cx="-5" cy="5" r="2" fill="#0EA5E9"/>
-      <circle cx="0" cy="5" r="2" fill="#F97316"/>
-      <circle cx="5" cy="5" r="2" fill="#0EA5E9"/>
+      <rect x="-10" y="-8" width="20" height="25" rx="2" ry="2" fill="none" stroke="#34B3FF" stroke-width="0.3"/>
+
+      <g transform="translate(0, 5)">
+        <circle cx="-5" cy="-5" r="2.5" fill="#1E293B" stroke="#3B82F6" stroke-width="0.3"/>
+        <circle cx="0" cy="-5" r="2.5" fill="#1E293B" stroke="#3B82F6" stroke-width="0.3"/>
+        <circle cx="5" cy="-5" r="2.5" fill="#1E293B" stroke="#3B82F6" stroke-width="0.3"/>
+        <circle cx="-5" cy="0" r="2.5" fill="#1E293B" stroke="#3B82F6" stroke-width="0.3"/>
+        <circle cx="0" cy="0" r="2.5" fill="#1E293B" stroke="#FF9900" stroke-width="0.3"/> <circle cx="5" cy="0" r="2.5" fill="#1E293B" stroke="#3B82F6" stroke-width="0.3"/>
+        <circle cx="-5" cy="5" r="2.5" fill="#1E293B" stroke="#3B82F6" stroke-width="0.3"/>
+        <circle cx="0" cy="5" r="2.5" fill="#1E293B" stroke="#FF9900" stroke-width="0.3"/> <circle cx="5" cy="5" r="2.5" fill="#1E293B" stroke="#3B82F6" stroke-width="0.3"/>
+      </g>
     </g>
 
     <style>
@@ -88,39 +144,35 @@
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
       }
-      .gear-rotate-slow {
-      animation: spin 12s linear infinite;
+      .gear-rotate-slow-inner {
+      animation: spin 18s linear infinite;
       transform-origin: center;
       }
-      .gear-rotate-rev {
-      animation: spin 12s linear infinite reverse;
+      .gear-rotate-rev-inner {
+      animation: spin 18s linear infinite reverse;
       transform-origin: center;
       }
     </style>
   </defs>
 
-  <g transform="translate(75,100)">
-    <g class="gear-rotate-slow" filter="url(#blueGlow)">
-      <use href="#gearShape"/>
+  <g transform="translate(90,100)">
+    <g class="gear-rotate-slow-inner" filter="url(#blueGlow)">
+      <use href="#gearShapeMetalBlue"/>
     </g>
-  </g>
-
-  <g transform="translate(110, 105) scale(0.8)">
-    <use href="#processorShape" filter="url(#blueGlow)"/>
-  </g>
-
-  <g transform="translate(150, 85) scale(0.8)">
-    <use href="#calculatorShape" filter="url(#blueGlow)"/>
   </g>
 
   <g transform="translate(140,105) scale(0.7)">
-    <g class="gear-rotate-rev" filter="url(#orangeGlow)">
-      <use href="#gearShape" fill="url(#gearOrangeGradient)" stroke="#FACC15"/>
-      <path d="M0,-35 L5,-30 L15,-32 L18,-25 L28,-20 L25,-10 L32,0 L25,10 L28,20 L18,25 L15,32 L5,30 L0,35
-               L-5,30 L-15,32 L-18,25 L-28,20 L-25,10 L-32,0 L-25,-10 L-28,-20 L-18,-25 L-15,-32 L-5,-30 Z"
-            fill="url(#gearOrangeGradient)" stroke="#FACC15" stroke-width="1.5" opacity="0.95"/>
-      <circle cx="0" cy="0" r="8" fill="#0F172A" stroke="#F97316" stroke-width="2"/>
+    <g class="gear-rotate-rev-inner" filter="url(#orangeGlow)">
+      <use href="#gearShapeMetalOrange"/>
     </g>
+  </g>
+
+  <g transform="translate(135, 80) scale(0.9)">
+    <use href="#processorShape" filter="url(#blueGlow)"/>
+  </g>
+
+  <g transform="translate(150, 105) scale(0.9)">
+    <use href="#calculatorShape" filter="url(#blueGlow)"/>
   </g>
 
   <text x="195" y="95" font-family="Segoe UI, Arial, sans-serif" font-size="46" font-weight="700" text-anchor="start">
@@ -128,7 +180,7 @@
     <tspan dx="8" fill="url(#textOrange)" filter="url(#orangeGlow)">Ops</tspan>
   </text>
 
-  <text x="195" y="125" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#0EA5E9" filter="url(#blueGlow)">
+  <text x="195" y="125" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#B0B0B0">
     Where Industry Meets Intelligence
   </text>
 </svg>

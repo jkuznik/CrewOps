@@ -1,0 +1,62 @@
+/* ============================================= */
+/* Animacja pulsowania na żółto (dla readNotes) */
+/* ============================================= */
+@keyframes pulse {
+    0% {
+        background-color: var(--lumo-contrast-5pct);
+        box-shadow: 0 0 0 rgba(255, 255, 0, 0); /* Brak cienia */
+    }
+    50% {
+
+        background-color: var(--lumo-contrast-10pct);
+        box-shadow: 0 0 10px var(--lumo-contrast-10pct);
+    }
+    100% {
+        background-color: var(--lumo-contrast-5pct);
+        box-shadow: 0 0 0 rgba(255, 255, 0, 0);
+    }
+}
+
+.pulse-animation {
+    /* Ustawienie płynnego przejścia dla tła i cienia, aby animacja była gładka */
+    transition: background-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+
+    /* Zastosowanie animacji: nazwa, czas, typ, powtarzanie nieskończone */
+    animation: pulse 2s ease-in-out infinite;
+}
+
+
+/* ============================================= */
+/* Animacja pulsowania na czerwono (dla readSafetyRaport) */
+/* ============================================= */
+@keyframes pulse-red {
+    0% {
+        /* Stan spoczynku: Kolor tła bardzo delikatny */
+        background-color: var(--lumo-contrast-5pct);
+        box-shadow: 0 0 0 rgba(255, 0, 0, 0);
+    }
+    50% {
+        /* Szczyt pulsowania: Czerwony kolor błędu Lumo */
+        background-color: var(--lumo-error-color-50pct); /* np. lekko czerwony */
+        box-shadow: 0 0 10px var(--lumo-error-color-10pct); /* Delikatny czerwony cień */
+    }
+    100% {
+        background-color: var(--lumo-contrast-5pct);
+        box-shadow: 0 0 0 rgba(255, 0, 0, 0);
+    }
+}
+
+.pulse-red-animation {
+    /* Ustawienie płynnego przejścia dla tła i cienia */
+    transition: background-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+
+    /* Zastosowanie animacji: nazwa, czas, typ, powtarzanie nieskończone */
+    animation: pulse-red 2s ease-in-out infinite;
+}
+
+/* Opcjonalne: Upewnienie się, że domyślne style Vaadin nie kolidują */
+/* Button.lumo[theme~="tertiary"].pulse-yellow-animation,
+Button.lumo[theme~="tertiary"].pulse-red-animation {
+    --lumo-button-text-color: var(--lumo-contrast-100pct);
+    --lumo-button-icon-color: var(--lumo-contrast-100pct);
+} */

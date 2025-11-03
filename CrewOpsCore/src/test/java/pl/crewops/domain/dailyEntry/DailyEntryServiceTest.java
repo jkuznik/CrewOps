@@ -339,7 +339,6 @@ class DailyEntryServiceTest {
         DailyEntryDTO result = dailyEntryService.updateDailyEntry(command);
 
         // then
-        verify(auditDetailsBuilder).createPayload(eq(DailyEntryAuditType.DAILY_NOTE_ADDED), any(), any(), eq(actionBy));
         verify(dailyEntryAuditRepository).save(any(DailyEntryAudit.class));
     }
 

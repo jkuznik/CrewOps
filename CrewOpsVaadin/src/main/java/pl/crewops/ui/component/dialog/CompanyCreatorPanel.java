@@ -2,7 +2,6 @@ package pl.crewops.ui.component.dialog;
 
 import static pl.crewops.model.dto.registration.PreRegisterResponse.PreRegisterResponseCode.*;
 
-import com.vaadin.flow.component.dialog.Dialog;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,18 +24,19 @@ import pl.crewops.model.dto.registration.CreateCustomerResult;
 import pl.crewops.model.dto.registration.PreRegisterResponse;
 import pl.crewops.model.dto.registration.VerifyEmailRequest;
 import pl.crewops.model.dto.tenant.CreateTenantDTO;
+import pl.crewops.ui.component.custom.PanelCustom;
 import pl.crewops.ui.component.form.CompanyCreatorForm;
 import pl.crewops.ui.component.form.EmailVerificationForm;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.component.notification.SuccessNotification;
 import pl.crewops.util.SpringContextBridge;
 
-public class CompanyCreatorDialog extends Dialog {
+public class CompanyCreatorPanel extends PanelCustom {
 
     private final CompanyCreatorForm companyCreatorForm = new CompanyCreatorForm();
     private final EmailVerificationForm emailVerificationForm = new EmailVerificationForm();
 
-    public CompanyCreatorDialog() {
+    public CompanyCreatorPanel() {
         addClassName("company-creator-notification");
         var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
         companyCreatorForm.setVisible(true);
@@ -46,10 +46,14 @@ public class CompanyCreatorDialog extends Dialog {
             companyCreatorForm.validate();
             createNewTenant(coreAPI, event.getCompanyInformation());
         });
-        companyCreatorForm.addCloseListener(event -> close());
+        companyCreatorForm.addCloseListener(event -> this.setVisible(false));
 
-        add(companyCreatorForm, emailVerificationForm);
-        open();
+        addContent(companyCreatorForm, emailVerificationForm);
+    }
+
+    public void setRegistrationFormVisibleTrue() {
+        this.setVisible(true);
+        companyCreatorForm.setVisible(true);
     }
 
     private void createNewTenant(CoreAPI coreAPI, CompanyInformation companyInformation) {
@@ -71,12 +75,6 @@ public class CompanyCreatorDialog extends Dialog {
                 .createEmployeeDTO(createEmployeeDTO)
                 .build();
         try {
-            //            new Notification(
-            //                            "Możliwość rejestrowania nowych użytkowników jest tymczasowo zablokowana do
-            // czasu wprowadzenia zasad polityki prywatności. Twoje dane obecnie nie są w żaden sposób przetwarzane. W
-            // celu przetestowania aktualnych funkcji systemu spróbuj się zalogować z wykorzystaniem danych: test/admin
-            // lub emp/emp. Pozdrawiam")
-            //                    .open();
             Optional<PreRegisterResponse> preRegisterResponse = coreAPI.registerNewCustomer(createCustomerCommand);
             if (preRegisterResponse.isPresent()
                     && preRegisterResponse.get().code().equals(EMAIL_VERIFICATION_REQUIRED)) {
@@ -95,7 +93,7 @@ public class CompanyCreatorDialog extends Dialog {
                             bodyTemplate));
 
                     createCustomerResult.ifPresent(customerResult -> {
-                        close();
+                        this.setVisible(false);
                         new SuccessNotification(getTranslation("companyCreatorDialog.successNotification")
                                 + " "
                                 + customerResult.companyDTO().name());
@@ -103,14 +101,14 @@ public class CompanyCreatorDialog extends Dialog {
                 });
 
                 emailVerificationForm.addCancelEmailListener(event -> {
-                    close();
+                    emailVerificationForm.setVisible(false);
+                    this.setVisible(false);
                 });
+
             } else {
-                //                            new
-                // FailNotification(getTranslation("companyCreatorDialog.taxIdAlreadyExists"));
-                new FailNotification(getTranslation("updateCredentialsDialog.failNotification"));
             }
         } catch (Exception e) {
+            new FailNotification(getTranslation("failNotification"));
             System.out.println("Error creating new customer with initial employee");
         }
     }

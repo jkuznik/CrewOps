@@ -74,6 +74,8 @@ public class MainNavbar extends HorizontalLayout implements AfterNavigationObser
         Image crewOpsLogoSvg = new Image("images/crew_ops_logo_metal_fixed.svg", "CrewOps Logo");
         crewOpsLogoSvg.getStyle().set("object-fit", "contain");
 
+        crewOpsLogoSvg.setVisible(!authenticationResolver.principalIsAuthenticated());
+
         logoLayout.add(drawerToggleButton, crewOpsLogoSvg);
 
         logoLayout

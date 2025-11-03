@@ -43,20 +43,28 @@ public class HomeView extends MainLayout {
 
     private Component getCurrentContent() {
         var layout = new VerticalLayout();
+        //        final String IMAGE_PATH = "images/crew_ops_future_static_logo.png";
 
         layout.setId("view-content");
-
         layout.setWidthFull();
         layout.setPadding(true);
         layout.setSpacing(true);
         layout.getStyle().set("overflow", "auto");
 
         if (!authenticationResolver.principalIsAuthenticated()) {
+            layout.getStyle().set("background-size", "cover");
+            layout.getStyle().set("background-position", "center");
+
+            //            String overlayAndImage = "linear-gradient(rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.95)), url('" +
+            // IMAGE_PATH + "')";
+
+            //            layout.getStyle().set("background-image", overlayAndImage);
+            //            layout.getStyle().set("background-repeat", "no-repeat");
+
             layout.add(new RegistryContent());
         } else {
             HomeContent homeContent = new HomeContent();
             homeContent.setWidthFull();
-
             layout.add(homeContent);
         }
         return layout;

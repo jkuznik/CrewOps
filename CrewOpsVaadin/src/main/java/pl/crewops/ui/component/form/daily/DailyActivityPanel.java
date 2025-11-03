@@ -4,6 +4,7 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.icon.Icon;
@@ -18,7 +19,8 @@ import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.ui.component.custom.PanelCustom;
 import pl.crewops.util.AuthenticationResolver;
 
-public class DailyActivityForm extends PanelCustom {
+@CssImport("./styles/component/dailyView/dailyActivityForm.css")
+public class DailyActivityPanel extends PanelCustom {
 
     private final AuthenticationResolver authenticationResolver;
 
@@ -33,7 +35,7 @@ public class DailyActivityForm extends PanelCustom {
     @Setter
     private DailyEntryDTO dailyEntry = null;
 
-    public DailyActivityForm(AuthenticationResolver authenticationResolver) {
+    public DailyActivityPanel(AuthenticationResolver authenticationResolver) {
         this.authenticationResolver = authenticationResolver;
 
         localize();
@@ -70,7 +72,9 @@ public class DailyActivityForm extends PanelCustom {
         requestLeave.setIcon(new Icon(VaadinIcon.CALENDAR_CLOCK));
 
         readNotes.setIcon(new Icon(VaadinIcon.RECORDS));
+        readNotes.addClassName("pulse-animation");
         readSafetyRaport.setIcon(new Icon(VaadinIcon.WARNING));
+        readSafetyRaport.addClassName("pulse-red-animation");
 
         applyButtonStyles(checkSubordinates);
         applyButtonStyles(jobRaport);
@@ -84,9 +88,8 @@ public class DailyActivityForm extends PanelCustom {
             actionsLayout.add(checkSubordinates);
         }
 
-        Hr separator = new Hr();
+        actionsLayout.add(jobRaport, addNote, safetyRaport, requestLeave, new Hr(), readNotes, readSafetyRaport);
 
-        actionsLayout.add(jobRaport, addNote, safetyRaport, requestLeave, separator, readNotes, readSafetyRaport);
         return actionsLayout;
     }
 
@@ -100,8 +103,8 @@ public class DailyActivityForm extends PanelCustom {
         requestLeave.setText(getTranslation("dailyActivityForm.requestLeave"));
 
         // todo i18n
-        readNotes.setText("Uwagi i zalecenia");
-        readSafetyRaport.setText("Zgłoszone uwagi BHP");
+        readNotes.setText("Zalecenia");
+        readSafetyRaport.setText("Uwagi BHP");
     }
 
     private static VerticalLayout configuredMainContainer() {
@@ -160,16 +163,26 @@ public class DailyActivityForm extends PanelCustom {
         addNote.setVisible(visible);
         safetyRaport.setVisible(visible);
         requestLeave.setVisible(visible);
+        readNotes.setVisible(visible);
+        readSafetyRaport.setVisible(visible);
     }
 
-    public abstract static class DailyActivityFormEvents extends ComponentEvent<DailyActivityForm> {
-        public DailyActivityFormEvents(DailyActivityForm source) {
+    public void setReadNotesVisible() {
+        readNotes.setVisible(true);
+    }
+
+    public void setReadSafetyRaportVisible() {
+        readSafetyRaport.setVisible(true);
+    }
+
+    public abstract static class DailyActivityFormEvents extends ComponentEvent<DailyActivityPanel> {
+        public DailyActivityFormEvents(DailyActivityPanel source) {
             super(source, false);
         }
     }
 
     public static class AddNoteEvent extends DailyActivityFormEvents {
-        public AddNoteEvent(DailyActivityForm source) {
+        public AddNoteEvent(DailyActivityPanel source) {
             super(source);
         }
     }

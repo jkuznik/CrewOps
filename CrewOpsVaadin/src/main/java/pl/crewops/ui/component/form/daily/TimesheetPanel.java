@@ -29,7 +29,7 @@ import pl.crewops.ui.component.custom.PanelCustom;
 import pl.crewops.ui.component.notification.NotAuthenticatedNotification;
 import pl.crewops.util.SpringContextBridge;
 
-public class TimesheetForm extends PanelCustom {
+public class TimesheetPanel extends PanelCustom {
 
     private final Select<JobPositionDTO> jobPosition = new Select<>();
 
@@ -48,7 +48,7 @@ public class TimesheetForm extends PanelCustom {
     private LocalDate selectedDate = LocalDate.now();
     private LocalDate calculatedDateTo = LocalDate.now();
 
-    public TimesheetForm() {
+    public TimesheetPanel() {
 
         localize();
 

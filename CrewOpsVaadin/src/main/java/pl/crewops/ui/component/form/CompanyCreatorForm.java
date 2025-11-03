@@ -7,7 +7,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 import lombok.Getter;
-import pl.crewops.ui.component.dialog.CompanyCreatorDialog;
+import pl.crewops.ui.component.dialog.CompanyCreatorPanel;
 
 public class CompanyCreatorForm extends FormLayout {
     // company
@@ -20,8 +20,8 @@ public class CompanyCreatorForm extends FormLayout {
     private final TextField street = new TextField();
     private final TextField localNumber = new TextField();
     // binder
-    private final Binder<CompanyCreatorDialog.CompanyInformation> binder =
-            new Binder<>(CompanyCreatorDialog.CompanyInformation.class);
+    private final Binder<CompanyCreatorPanel.CompanyInformation> binder =
+            new Binder<>(CompanyCreatorPanel.CompanyInformation.class);
 
     public CompanyCreatorForm() {
         addClassName("company-creator-form");
@@ -58,8 +58,8 @@ public class CompanyCreatorForm extends FormLayout {
                         name -> name != null && name.length() >= 1 && name.length() <= 63,
                         getTranslation("companyCreatorForm.companyName.size", 1, 63))
                 .bind(
-                        CompanyCreatorDialog.CompanyInformation::getCompanyName,
-                        CompanyCreatorDialog.CompanyInformation::setCompanyName);
+                        CompanyCreatorPanel.CompanyInformation::getCompanyName,
+                        CompanyCreatorPanel.CompanyInformation::setCompanyName);
 
         binder.forField(companyEmail)
                 .asRequired(getTranslation("companyCreatorForm.validation.companyEmail"))
@@ -67,44 +67,42 @@ public class CompanyCreatorForm extends FormLayout {
                         email -> email != null && email.contains("@"),
                         getTranslation("companyCreatorForm.companyEmail.invalid"))
                 .bind(
-                        CompanyCreatorDialog.CompanyInformation::getCompanyEmail,
-                        CompanyCreatorDialog.CompanyInformation::setCompanyEmail);
+                        CompanyCreatorPanel.CompanyInformation::getCompanyEmail,
+                        CompanyCreatorPanel.CompanyInformation::setCompanyEmail);
 
         binder.forField(companyTaxId)
                 .asRequired(getTranslation("companyCreatorForm.validation.companyTaxId"))
                 .bind(
-                        CompanyCreatorDialog.CompanyInformation::getCompanyTaxId,
-                        CompanyCreatorDialog.CompanyInformation::setCompanyTaxId);
+                        CompanyCreatorPanel.CompanyInformation::getCompanyTaxId,
+                        CompanyCreatorPanel.CompanyInformation::setCompanyTaxId);
 
         binder.forField(postalCode)
                 .asRequired(getTranslation("companyCreatorForm.validation.postalCode"))
                 .bind(
-                        CompanyCreatorDialog.CompanyInformation::getPostalCode,
-                        CompanyCreatorDialog.CompanyInformation::setPostalCode);
+                        CompanyCreatorPanel.CompanyInformation::getPostalCode,
+                        CompanyCreatorPanel.CompanyInformation::setPostalCode);
 
         binder.forField(city)
                 .asRequired(getTranslation("companyCreatorForm.validation.city"))
-                .bind(
-                        CompanyCreatorDialog.CompanyInformation::getCity,
-                        CompanyCreatorDialog.CompanyInformation::setCity);
+                .bind(CompanyCreatorPanel.CompanyInformation::getCity, CompanyCreatorPanel.CompanyInformation::setCity);
 
         binder.forField(street)
                 .asRequired(getTranslation("companyCreatorForm.validation.street"))
                 .bind(
-                        CompanyCreatorDialog.CompanyInformation::getStreet,
-                        CompanyCreatorDialog.CompanyInformation::setStreet);
+                        CompanyCreatorPanel.CompanyInformation::getStreet,
+                        CompanyCreatorPanel.CompanyInformation::setStreet);
 
         binder.forField(localNumber)
                 .asRequired(getTranslation("companyCreatorForm.validation.localNumber"))
                 .bind(
-                        CompanyCreatorDialog.CompanyInformation::getLocalNumber,
-                        CompanyCreatorDialog.CompanyInformation::setLocalNumber);
+                        CompanyCreatorPanel.CompanyInformation::getLocalNumber,
+                        CompanyCreatorPanel.CompanyInformation::setLocalNumber);
 
         binder.validate();
     }
 
-    private CompanyCreatorDialog.CompanyInformation getCompanyInformationFromEvent(EmployeeForm.SaveEvent event) {
-        return CompanyCreatorDialog.CompanyInformation.builder()
+    private CompanyCreatorPanel.CompanyInformation getCompanyInformationFromEvent(EmployeeForm.SaveEvent event) {
+        return CompanyCreatorPanel.CompanyInformation.builder()
                 .companyName(companyName.getValue())
                 .companyEmail(companyEmail.getValue())
                 .companyTaxId(companyTaxId.getValue())
@@ -124,9 +122,9 @@ public class CompanyCreatorForm extends FormLayout {
 
     public static class SaveEvent extends CompanyCreatorFormEvent {
         @Getter
-        private final CompanyCreatorDialog.CompanyInformation companyInformation;
+        private final CompanyCreatorPanel.CompanyInformation companyInformation;
 
-        public SaveEvent(CompanyCreatorForm source, CompanyCreatorDialog.CompanyInformation companyInformation) {
+        public SaveEvent(CompanyCreatorForm source, CompanyCreatorPanel.CompanyInformation companyInformation) {
             super(source);
             this.companyInformation = companyInformation;
         }

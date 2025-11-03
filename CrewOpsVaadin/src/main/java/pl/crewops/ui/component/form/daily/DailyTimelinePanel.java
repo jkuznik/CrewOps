@@ -16,13 +16,13 @@ import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.ui.component.custom.PanelCustom;
 import pl.crewops.ui.component.custom.TimelineCustom;
 
-public class DailyTimeline extends PanelCustom {
+public class DailyTimelinePanel extends PanelCustom {
 
     public static final int TIMELINE_CONTAINER_HEIGHT_PX = 200;
 
     private final Timeline timeline = new TimelineCustom();
 
-    public DailyTimeline(DailyEntryDTO dailyEntry) {
+    public DailyTimelinePanel(DailyEntryDTO dailyEntry) {
 
         var panelContent = configuredPanelContent();
         setContent(panelContent);
