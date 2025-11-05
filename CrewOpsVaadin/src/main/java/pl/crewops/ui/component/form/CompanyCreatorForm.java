@@ -1,15 +1,13 @@
 package pl.crewops.ui.component.form;
 
-import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.shared.Registration;
-import lombok.Getter;
+import java.util.Optional;
 import pl.crewops.ui.component.dialog.CompanyCreatorPanel;
 
-public class CompanyCreatorForm extends FormLayout {
+public class CompanyCreatorForm extends VerticalLayout {
     // company
     private final TextField companyName = new TextField();
     private final TextField companyEmail = new TextField();
@@ -19,22 +17,20 @@ public class CompanyCreatorForm extends FormLayout {
     private final TextField city = new TextField();
     private final TextField street = new TextField();
     private final TextField localNumber = new TextField();
-    // binder
+
     private final Binder<CompanyCreatorPanel.CompanyInformation> binder =
             new Binder<>(CompanyCreatorPanel.CompanyInformation.class);
 
     public CompanyCreatorForm() {
         addClassName("company-creator-form");
-
-        var employeeForm = new EmployeeForm();
         localize();
 
         configureBinder();
 
-        employeeForm.setFormModeSave();
-        employeeForm.addSaveListener(event -> fireEvent(new SaveEvent(this, getCompanyInformationFromEvent(event))));
-        employeeForm.addCloseListener(event -> fireEvent(new CloseEvent(this)));
-        add(companyName, companyEmail, companyTaxId, postalCode, city, street, localNumber, employeeForm);
+        var companyForm = new FormLayout();
+        companyForm.add(companyName, companyEmail, companyTaxId, postalCode, localNumber, city, street);
+
+        add(companyForm);
     }
 
     public boolean validate() {
@@ -101,46 +97,19 @@ public class CompanyCreatorForm extends FormLayout {
         binder.validate();
     }
 
-    private CompanyCreatorPanel.CompanyInformation getCompanyInformationFromEvent(EmployeeForm.SaveEvent event) {
-        return CompanyCreatorPanel.CompanyInformation.builder()
-                .companyName(companyName.getValue())
-                .companyEmail(companyEmail.getValue())
-                .companyTaxId(companyTaxId.getValue())
-                .postalCode(postalCode.getValue())
-                .city(city.getValue())
-                .street(street.getValue())
-                .localNumber(localNumber.getValue())
-                .initialEmployeeInfo(event.getEmployee())
-                .build();
-    }
-
-    public abstract static class CompanyCreatorFormEvent extends ComponentEvent<CompanyCreatorForm> {
-        public CompanyCreatorFormEvent(CompanyCreatorForm source) {
-            super(source, false);
+    public Optional<CompanyCreatorPanel.CompanyInformation> getCompanyInformation() {
+        if (!binder.validate().hasErrors()) {
+            return Optional.of(CompanyCreatorPanel.CompanyInformation.builder()
+                    .companyName(companyName.getValue())
+                    .companyEmail(companyEmail.getValue())
+                    .companyTaxId(companyTaxId.getValue())
+                    .postalCode(postalCode.getValue())
+                    .city(city.getValue())
+                    .street(street.getValue())
+                    .localNumber(localNumber.getValue())
+                    .build());
+        } else {
+            return Optional.empty();
         }
-    }
-
-    public static class SaveEvent extends CompanyCreatorFormEvent {
-        @Getter
-        private final CompanyCreatorPanel.CompanyInformation companyInformation;
-
-        public SaveEvent(CompanyCreatorForm source, CompanyCreatorPanel.CompanyInformation companyInformation) {
-            super(source);
-            this.companyInformation = companyInformation;
-        }
-    }
-
-    public static class CloseEvent extends CompanyCreatorFormEvent {
-        public CloseEvent(CompanyCreatorForm source) {
-            super(source);
-        }
-    }
-
-    public Registration addSaveListener(ComponentEventListener<SaveEvent> listener) {
-        return addListener(SaveEvent.class, listener);
-    }
-
-    public Registration addCloseListener(ComponentEventListener<CloseEvent> listener) {
-        return addListener(CloseEvent.class, listener);
     }
 }

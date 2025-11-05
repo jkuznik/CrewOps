@@ -2,6 +2,7 @@ package pl.crewops.ui.component.dialog;
 
 import static pl.crewops.model.dto.registration.PreRegisterResponse.PreRegisterResponseCode.*;
 
+import com.vaadin.flow.shared.Registration;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,58 +28,41 @@ import pl.crewops.model.dto.tenant.CreateTenantDTO;
 import pl.crewops.ui.component.custom.PanelCustom;
 import pl.crewops.ui.component.form.CompanyCreatorForm;
 import pl.crewops.ui.component.form.EmailVerificationForm;
+import pl.crewops.ui.component.form.EmployeeForm;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.component.notification.SuccessNotification;
 import pl.crewops.util.SpringContextBridge;
 
 public class CompanyCreatorPanel extends PanelCustom {
 
+    private static final String INDIVIDUAL = "Individual Customer";
+
     private final CompanyCreatorForm companyCreatorForm = new CompanyCreatorForm();
+    private final EmployeeForm employeeForm = new EmployeeForm();
     private final EmailVerificationForm emailVerificationForm = new EmailVerificationForm();
+
+    private Registration createTenantRegistration;
 
     public CompanyCreatorPanel() {
         addClassName("company-creator-notification");
-        var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
-        companyCreatorForm.setVisible(true);
         emailVerificationForm.setVisible(false);
 
-        companyCreatorForm.addSaveListener(event -> {
-            companyCreatorForm.validate();
-            createNewTenant(coreAPI, event.getCompanyInformation());
-        });
-        companyCreatorForm.addCloseListener(event -> this.setVisible(false));
+        configureEmployeeForm();
 
-        addContent(companyCreatorForm, emailVerificationForm);
+        addContent(companyCreatorForm, employeeForm, emailVerificationForm);
     }
 
-    public void setRegistrationFormVisibleTrue() {
-        this.setVisible(true);
-        companyCreatorForm.setVisible(true);
-    }
+    private void createNewTenant(CompanyInformation companyInformation) {
+        var coreAPI = SpringContextBridge.getBean(CoreAPI.class);
+        var createCustomerCommand = getCreateCustomerCommand(companyInformation);
 
-    private void createNewTenant(CoreAPI coreAPI, CompanyInformation companyInformation) {
-        var createTenantDTO = getCreateTenantDTO(companyInformation);
-        var createEmployeeDTO = CreateEmployeeDTO.builder()
-                // TODO: to fix this is required remove constraint or create brand new object for FE
-                //  or just accept as it is
-                .companyId(UUID.randomUUID())
-                // This companyId value is set only to satisfy constraints validations.
-                // Proper value of companyId is set on BE side after dynamic generated
-                // value when new record is saved in Company table in persist layer.
-                .firstName(companyInformation.initialEmployeeInfo.getFirstName())
-                .lastName(companyInformation.initialEmployeeInfo.getLastName())
-                .phoneNumber(companyInformation.initialEmployeeInfo.getPhoneNumber())
-                .roles(companyAdminRoles())
-                .build();
-        var createCustomerCommand = CreateCustomerCommand.builder()
-                .createTenantDTO(createTenantDTO)
-                .createEmployeeDTO(createEmployeeDTO)
-                .build();
         try {
             Optional<PreRegisterResponse> preRegisterResponse = coreAPI.registerNewCustomer(createCustomerCommand);
             if (preRegisterResponse.isPresent()
                     && preRegisterResponse.get().code().equals(EMAIL_VERIFICATION_REQUIRED)) {
+
                 companyCreatorForm.setVisible(false);
+                employeeForm.setVisible(false);
                 emailVerificationForm.setVisible(true);
 
                 String subject =
@@ -106,6 +90,8 @@ public class CompanyCreatorPanel extends PanelCustom {
                 });
 
             } else {
+                new FailNotification(getTranslation("failNotification"));
+                System.out.println("Error creating new customer with initial employee");
             }
         } catch (Exception e) {
             new FailNotification(getTranslation("failNotification"));
@@ -113,10 +99,82 @@ public class CompanyCreatorPanel extends PanelCustom {
         }
     }
 
-    private Set<RoleDTO> companyAdminRoles() {
-        return Set.of(
-                RoleDTO.builder().name(RoleType.COMPANY_ADMIN.name()).build(),
-                RoleDTO.builder().name(RoleType.EMPLOYEE.name()).build());
+    private void configureEmployeeForm() {
+        employeeForm.setFormModeSave();
+
+        createTenantRegistration = employeeForm.addSaveListener(saveEvent -> {
+            if (companyCreatorForm.validate()) {
+                Optional<CompanyInformation> companyInformation = companyCreatorForm.getCompanyInformation();
+                CompanyInformation newTenant = companyInformation.orElseThrow(
+                        () -> new IllegalArgumentException("Company information is null"));
+                newTenant.setInitialEmployeeInfo(saveEvent.getEmployee());
+                createNewTenant(newTenant);
+            }
+        });
+        employeeForm.addCloseListener(event -> {
+            this.setVisible(false);
+        });
+    }
+
+    public void setCompanyRegistrationMode() {
+        if (createTenantRegistration != null) {
+            createTenantRegistration.remove();
+        }
+
+        this.setVisible(true);
+        emailVerificationForm.setVisible(false);
+
+        companyCreatorForm.setVisible(true);
+        employeeForm.setVisible(true);
+        employeeForm.setEmailRequired(false);
+
+        createTenantRegistration = employeeForm.addSaveListener(saveEvent -> {
+            if (companyCreatorForm.validate()) {
+                Optional<CompanyInformation> companyInformation = companyCreatorForm.getCompanyInformation();
+                CompanyInformation newTenant = companyInformation.orElseThrow(
+                        () -> new IllegalArgumentException("Company information is null"));
+                newTenant.setInitialEmployeeInfo(saveEvent.getEmployee());
+                createNewTenant(newTenant);
+            }
+        });
+    }
+
+    public void setIndividualRegistrationMode() {
+        if (createTenantRegistration != null) {
+            createTenantRegistration.remove();
+        }
+
+        this.setVisible(true);
+        emailVerificationForm.setVisible(false);
+
+        companyCreatorForm.setVisible(false);
+        employeeForm.setVisible(true);
+        employeeForm.setEmailRequired(true);
+
+        createTenantRegistration = employeeForm.addSaveListener(saveEvent -> {
+            var newTenant = CompanyInformation.builder()
+                    .companyName(INDIVIDUAL)
+                    .companyEmail(saveEvent.getEmployee().getEmail())
+                    .companyTaxId(INDIVIDUAL)
+                    .street(INDIVIDUAL)
+                    .postalCode(INDIVIDUAL)
+                    .localNumber(INDIVIDUAL)
+                    .city(INDIVIDUAL)
+                    .initialEmployeeInfo(saveEvent.getEmployee())
+                    .build();
+
+            createNewTenant(newTenant);
+        });
+    }
+
+    private CreateCustomerCommand getCreateCustomerCommand(CompanyInformation companyInformation) {
+        var createTenantDTO = getCreateTenantDTO(companyInformation);
+        var createEmployeeDTO = getCreateEmployeeDTO(companyInformation);
+
+        return CreateCustomerCommand.builder()
+                .createTenantDTO(createTenantDTO)
+                .createEmployeeDTO(createEmployeeDTO)
+                .build();
     }
 
     private CreateTenantDTO getCreateTenantDTO(CompanyInformation companyInformation) {
@@ -135,6 +193,27 @@ public class CompanyCreatorPanel extends PanelCustom {
                 .build();
     }
 
+    private CreateEmployeeDTO getCreateEmployeeDTO(CompanyInformation companyInformation) {
+        return CreateEmployeeDTO.builder()
+                // TODO: to fix this is required remove constraint or create brand new object for FE
+                //  or just accept as it is
+                .companyId(UUID.randomUUID())
+                // This companyId value is set only to satisfy constraints validations.
+                // Proper value of companyId is set on BE side after dynamic generated
+                // value when new record is saved in Company table in persist layer.
+                .firstName(companyInformation.initialEmployeeInfo.getFirstName())
+                .lastName(companyInformation.initialEmployeeInfo.getLastName())
+                .phoneNumber(companyInformation.initialEmployeeInfo.getPhoneNumber())
+                .roles(companyAdminRoles())
+                .build();
+    }
+
+    private Set<RoleDTO> companyAdminRoles() {
+        return Set.of(
+                RoleDTO.builder().name(RoleType.COMPANY_ADMIN.name()).build(),
+                RoleDTO.builder().name(RoleType.EMPLOYEE.name()).build());
+    }
+
     @Getter
     @Setter
     @Builder
@@ -142,29 +221,29 @@ public class CompanyCreatorPanel extends PanelCustom {
         @NotNull
         @NotBlank
         @Size(min = 1, max = 63, message = "Company name must be between 1 and 63 characters")
-        String companyName;
+        private String companyName;
 
         @NotNull
         @Email
-        String companyEmail;
+        private String companyEmail;
 
         @NotNull
         @NotBlank
-        String companyTaxId;
+        private String companyTaxId;
 
         @NotNull
-        String postalCode;
+        private String postalCode;
 
         @NotNull
-        String city;
+        private String city;
 
         @NotNull
-        String street;
+        private String street;
 
         @NotNull
-        String localNumber;
+        private String localNumber;
 
         @NotNull
-        EmployeeFormModel initialEmployeeInfo;
+        private EmployeeFormModel initialEmployeeInfo;
     }
 }

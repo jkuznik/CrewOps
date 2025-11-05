@@ -1,0 +1,167 @@
+/*
+ * registry-content.css
+ * Efekt split-screen z jednym kontenerem, dwoma obrazami (bez luki).
+ * Obrazy są stałe, ale odsłaniane przez clip-path – zero rozciągania.
+ * Wersja: mocno oddalone zdjęcia w stanie początkowym + delikatny zoom przy hoverze.
+ */
+
+:root {
+    --transition-duration: 0.6s;
+
+    /* Początkowy podział – środek */
+    --split-top-default: 45%;
+    --split-bottom-default: 55%;
+
+    /* Hover na lewą stronę */
+    --split-top-hover-left: 90%;
+    --split-bottom-hover-left: 100%;
+
+    /* Hover na prawą stronę */
+    --split-top-hover-right: 0%;
+    --split-bottom-hover-right: 15%;
+
+    /* Skala obrazów */
+    --image-scale-default: 65%;   /* mocno oddalone zdjęcia */
+    --image-scale-hover: 75%;     /* lekki zoom przy hoverze */
+}
+
+/* GŁÓWNY KONTENER */
+.registry-content-main {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.split-layout {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    transition: all var(--transition-duration) ease-in-out;
+}
+
+/* 🔹 TŁA OBRAZÓW */
+.split-layout::before,
+.split-layout::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-size: var(--image-scale-default) auto; /* 👈 mniejsze zdjęcia */
+    background-repeat: no-repeat;
+    background-position: center;
+    transition:
+            clip-path var(--transition-duration) ease-in-out,
+            background-size 1s ease-in-out;
+    z-index: 1;
+}
+
+/* 🔹 LEWY OBRAZ (::before) */
+.split-layout::before {
+    background-image: url('../images/usmiechniety-rzemieslnik-z-wiertarka-elektryczna.jpg');
+    clip-path: polygon(0 0,
+    var(--split-top-default) 0,
+    var(--split-bottom-default) 100%,
+    0 100%);
+}
+
+/* 🔹 PRAWY OBRAZ (::after) */
+.split-layout::after {
+    background-image: url('../images/blondynka-wykonawczy-pozuje-z-usmiechem-i-rekami-skrzyzowanymi-podczas-burzy-mozgow-z-kierownikami-kryty-portret-studenta-europejskiego-spedzajacego-czas-w-hali-z-przyjaciolmi-z-azji-i-afryki.jpg');
+    clip-path: polygon(var(--split-top-default) 0,
+    100% 0,
+    100% 100%,
+    var(--split-bottom-default) 100%);
+}
+
+/* 🔹 EFEKT HOVER – LEWA STRONA POWIĘKSZA SIĘ */
+.split-layout.hover-company::before {
+    clip-path: polygon(0 0,
+    var(--split-top-hover-left) 0,
+    var(--split-bottom-hover-left) 100%,
+    0 100%);
+    z-index: 2;
+    background-size: var(--image-scale-hover) auto; /* delikatny zoom */
+}
+
+.split-layout.hover-company::after {
+    clip-path: polygon(var(--split-top-hover-left) 0,
+    100% 0,
+    100% 100%,
+    var(--split-bottom-hover-left) 100%);
+    z-index: 1;
+}
+
+/* 🔹 EFEKT HOVER – PRAWA STRONA POWIĘKSZA SIĘ */
+.split-layout.hover-individual::after {
+    clip-path: polygon(var(--split-top-hover-right) 0,
+    100% 0,
+    100% 100%,
+    var(--split-bottom-hover-right) 100%);
+    z-index: 2;
+    background-size: var(--image-scale-hover) auto; /* delikatny zoom */
+}
+
+.split-layout.hover-individual::before {
+    clip-path: polygon(0 0,
+    var(--split-top-hover-right) 0,
+    var(--split-bottom-hover-right) 100%,
+    0 100%);
+    z-index: 1;
+}
+
+/* 🔹 TREŚĆ (guziki, tekst) */
+.content-overlay {
+    position: relative;
+    z-index: 5;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem;
+    color: white;
+}
+
+/* Kolumny */
+.column {
+    width: 50%;
+    text-align: center;
+    transition: transform var(--transition-duration) ease-in-out;
+}
+
+.split-layout.hover-company .column:first-child {
+    transform: scale(1.05);
+}
+
+.split-layout.hover-individual .column:last-child {
+    transform: scale(1.05);
+}
+
+/* Teksty i przyciski */
+.column h2 {
+    font-size: 3rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+    margin-bottom: 1rem;
+}
+
+.column hr {
+    width: 50%;
+    border-color: rgba(255,255,255,0.5);
+    margin: 1rem auto;
+}
+
+.column button {
+    background-color: var(--lumo-primary-color);
+    color: var(--lumo-primary-text-color);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    padding: 1rem 2rem;
+    font-size: 1.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.column button:hover {
+    transform: scale(1.1);
+}

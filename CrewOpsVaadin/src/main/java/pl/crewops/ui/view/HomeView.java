@@ -12,7 +12,6 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.ui.component.content.HomeContent;
 import pl.crewops.ui.component.content.RegistryContent;
-import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.view.layout.MainLayout;
 import pl.crewops.util.AuthenticationResolver;
 
@@ -24,21 +23,21 @@ public class HomeView extends MainLayout {
         super(coreAPI, jwtService, authenticationResolver);
         addClassName("home-view");
 
-        try {
-            mainContent.removeAll();
-            listeners.forEach(Registration::remove);
+        //        try {
+        mainContent.removeAll();
+        listeners.forEach(Registration::remove);
 
-            if (!authenticationResolver.principalIsAuthenticated()) {
-                setDrawerOpened(false);
-            }
-
-            var currentContent = getCurrentContent();
-
-            mainContent.add(currentContent, mainFooter);
-            mainContent.setFlexGrow(1, currentContent);
-        } catch (Exception e) {
-            new FailNotification(getTranslation("dailyView.failNotification"));
+        if (!authenticationResolver.principalIsAuthenticated()) {
+            setDrawerOpened(false);
         }
+
+        var currentContent = getCurrentContent();
+
+        mainContent.add(currentContent, mainFooter);
+        mainContent.setFlexGrow(1, currentContent);
+        //        } catch (Exception e) {
+        //            new FailNotification(getTranslation("dailyView.failNotification"));
+        //        }
     }
 
     private Component getCurrentContent() {

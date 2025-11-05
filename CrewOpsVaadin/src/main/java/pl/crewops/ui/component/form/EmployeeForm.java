@@ -10,9 +10,11 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.validator.EmailValidator;
+import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.shared.Registration;
 import java.util.*;
 import pl.crewops.model.EmployeeFormModel;
@@ -38,7 +40,32 @@ public class EmployeeForm extends FormLayout {
     private final Button delete = new Button();
     private final Button close = new Button();
 
-    private final Binder<EmployeeFormModel> binder = new BeanValidationBinder<>(EmployeeFormModel.class);
+    private final Binder<EmployeeFormModel> binder = new Binder<>(EmployeeFormModel.class);
+
+    private boolean isEmailRequired = false;
+
+    private final Validator<String> emailRequiredValidator = (value, context) -> {
+        if (isEmailRequired && (value == null || value.trim().isEmpty())) {
+            return ValidationResult.error(getTranslation("employeeForm.email.required"));
+        }
+        if (value != null && !value.isEmpty()) {
+            EmailValidator emailValidator = new EmailValidator(getTranslation("employeeForm.email.invalid"));
+            return emailValidator.apply(value, context);
+        }
+        return ValidationResult.ok();
+    };
+
+    private final Validator<String> optionalPhoneNumberValidator = (value, context) -> {
+        if (value == null || value.trim().isEmpty()) {
+            return ValidationResult.ok();
+        }
+
+        final String PHONE_REGEX = "^\\+?[0-9\\s]{6,20}$";
+        RegexpValidator regexpValidator =
+                new RegexpValidator(getTranslation("employeeForm.phoneNumber.invalid"), PHONE_REGEX);
+
+        return regexpValidator.apply(value, context);
+    };
 
     public EmployeeForm() {
         addClassName("employee-form");
@@ -50,16 +77,29 @@ public class EmployeeForm extends FormLayout {
 
         localize();
 
-        binder.bindInstanceFields(this);
+        binder.forField(firstName)
+                .withValidator(
+                        value -> value != null && !value.trim().isEmpty(),
+                        getTranslation("employeeForm.firstName.required")) // Wymagane
+                .withValidator(
+                        value -> value == null || value.length() >= 2,
+                        getTranslation("employeeForm.firstName.tooShort"))
+                .bind(EmployeeFormModel::getFirstName, EmployeeFormModel::setFirstName);
+
+        binder.forField(lastName)
+                .withValidator(
+                        value -> value != null && !value.trim().isEmpty(),
+                        getTranslation("employeeForm.lastName.required")) // Wymagane
+                .withValidator(
+                        value -> value == null || value.length() >= 2, getTranslation("employeeForm.lastName.tooShort"))
+                .bind(EmployeeFormModel::getLastName, EmployeeFormModel::setLastName);
+
+        binder.forField(phoneNumber)
+                .withValidator(optionalPhoneNumberValidator)
+                .bind(EmployeeFormModel::getPhoneNumber, EmployeeFormModel::setPhoneNumber);
 
         binder.forField(email)
-                .withValidator(
-                        value -> value == null
-                                || value.isEmpty()
-                                || !new EmailValidator(getTranslation("profileForm.email.invalid"))
-                                        .apply(value, null)
-                                        .isError(),
-                        getTranslation("profileForm.email.invalid"))
+                .withValidator(emailRequiredValidator)
                 .bind(EmployeeFormModel::getEmail, EmployeeFormModel::setEmail);
 
         add(
@@ -72,11 +112,23 @@ public class EmployeeForm extends FormLayout {
                 qualifications,
                 machines,
                 roleAccordion);
+
+        setEmailRequired(false);
+    }
+
+    /**
+     * Ustawia, czy pole email jest wymagane.
+     * Użycie tej metody wymusza ponowną walidację pola email.
+     * @param required true, jeśli email jest wymagany; false, jeśli opcjonalny.
+     */
+    public void setEmailRequired(boolean required) {
+        this.isEmailRequired = required;
+        email.setRequiredIndicatorVisible(required);
+        binder.validate();
     }
 
     private DepartmentAccordion getConfiguredDepartmentsMultiSelectedComboBox() {
         final var departmentAccordion = new DepartmentAccordion();
-
         departmentAccordion.addUpdateDepartmentListener(event -> {
             var employeeFormModel = EmployeeFormModel.toEmployeeFormModel(event.getEmployeeDTO());
             setBinderValue(employeeFormModel);
@@ -88,7 +140,6 @@ public class EmployeeForm extends FormLayout {
 
     private QualificationAccordion getConfiguredQualificationsAccordion() {
         final var qualificationAccordion = new QualificationAccordion();
-
         qualificationAccordion.addUpdateQualificationsListener(event -> {
             var employeeFormModel = EmployeeFormModel.toEmployeeFormModel(event.getEmployeeDTO());
             setBinderValue(employeeFormModel);
@@ -122,8 +173,11 @@ public class EmployeeForm extends FormLayout {
 
     private void localize() {
         firstName.setLabel(getTranslation("employeeForm.firstName"));
+        firstName.setRequiredIndicatorVisible(true);
         lastName.setLabel(getTranslation("employeeForm.lastName"));
+        lastName.setRequiredIndicatorVisible(true);
         phoneNumber.setLabel(getTranslation("employeeForm.phoneNumber"));
+        phoneNumber.setRequiredIndicatorVisible(false);
         email.setLabel(getTranslation("employeeForm.email"));
 
         save.setText(getTranslation("employeeForm.save"));
@@ -182,15 +236,7 @@ public class EmployeeForm extends FormLayout {
     }
 
     private void validateAndSave() {
-        var employeeFormModel = EmployeeFormModel.builder()
-                .firstName(firstName.getValue())
-                .lastName(lastName.getValue())
-                .phoneNumber(phoneNumber.getValue())
-                .machinesSet(Set.of())
-                .qualificationsSet(Set.of())
-                .departments(Set.of())
-                .roles(Set.of())
-                .build();
+        var employeeFormModel = new EmployeeFormModel();
 
         if (binder.writeBeanIfValid(employeeFormModel)) {
             fireEvent(new SaveEvent(this, employeeFormModel));

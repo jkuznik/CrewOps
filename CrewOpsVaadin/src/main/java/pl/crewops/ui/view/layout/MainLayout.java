@@ -42,9 +42,14 @@ public class MainLayout extends AppLayout {
         mainContent.setSpacing(true);
         mainContent.setPadding(true);
         mainContent.setVisible(true);
+        //
+        //        if (authenticationResolver.principalIsAuthenticated()) {
+        //            addClassName("authenticated");
+        //        } else {
+        addClassName("unauthenticated");
+        //        }
 
         setContent(mainContent);
-
         addToNavbar(navbar);
         addToDrawer(drawer);
     }
