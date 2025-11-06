@@ -5,7 +5,6 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import pl.crewops.ui.component.dialog.CompanyCreatorPanel;
@@ -49,34 +48,42 @@ public class RegistryContent extends VerticalLayout {
         contentOverlay.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
         // Kolumny
-        companyColumn.addClassName("column");
         individualColumn.addClassName("column");
 
-        configureColumn(
-                registerCompany, companyColumn, "registryContent.infoIndividual", "registryContent.registerButton1");
-        configureColumn(
-                registerIndividual, individualColumn, "registryContent.infoCompany", "registryContent.registerButton");
+        companyColumn.addClassName("column");
+
+        configureColumn(registerIndividual, individualColumn, "registryContent.infoCompany");
+        configureColumn(registerCompany, companyColumn, "registryContent.infoIndividual");
+
+        configureButtons();
+        companyCreatorPanel.setVisible(false);
 
         contentOverlay.add(companyColumn, individualColumn);
         splitLayout.add(contentOverlay);
 
-        add(splitLayout);
+        add(splitLayout, companyCreatorPanel);
         setFlexGrow(1, splitLayout);
 
         // Hover efekty (dodawane do splitLayout)
         configureHoverEvents();
     }
 
-    private void configureColumn(Button button, VerticalLayout column, String headerKey, String buttonKey) {
+    private void configureColumn(Button button, VerticalLayout column, String headerKey) {
         H2 title = new H2(getTranslation(headerKey));
-        Hr hr = new Hr();
-        button.setText(getTranslation(buttonKey));
-        button.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        button.getStyle().set("font-size", "1.5rem").set("padding", "1rem 2rem");
+        button.setText(getTranslation("registryContent.registerButton"));
+
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        button.addClassName("glass-button");
+
+        // 🚨 KOREKTA ROZMIARU W JAVIE: Zwiększamy rozmiar czcionki i padding
+        button.getStyle()
+                .set("font-size", "1.75rem")
+                .set("padding", "1.25rem 3rem"); // Zwiększamy padding dla rozmiaru XL
 
         column.setAlignItems(Alignment.CENTER);
         column.setJustifyContentMode(JustifyContentMode.CENTER);
-        column.add(title, hr, button);
+
+        column.add(title, button);
     }
 
     private void configureHoverEvents() {
@@ -87,5 +94,17 @@ public class RegistryContent extends VerticalLayout {
         individualColumn
                 .getElement()
                 .addEventListener("mouseleave", e -> splitLayout.removeClassName("hover-individual"));
+    }
+
+    private void configureButtons() {
+        registerIndividual.addClickListener(event -> {
+            companyCreatorPanel.setIndividualRegistrationMode();
+            companyCreatorPanel.setVisible(true);
+        });
+
+        registerCompany.addClickListener(event -> {
+            companyCreatorPanel.setCompanyRegistrationMode();
+            companyCreatorPanel.setVisible(true);
+        });
     }
 }

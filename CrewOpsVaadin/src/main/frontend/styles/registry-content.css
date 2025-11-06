@@ -18,7 +18,7 @@
 
     /* Hover na prawą stronę */
     --split-top-hover-right: 0%;
-    --split-bottom-hover-right: 15%;
+    --split-bottom-hover-right: 10%;
 
     /* Skala obrazów */
     --image-scale-default: 65%;   /* mocno oddalone zdjęcia */
@@ -163,5 +163,35 @@
 }
 
 .column button:hover {
+    transform: scale(1.1);
+}
+
+.column .glass-button {
+    /* 1. Przezroczyste tło i rozmycie */
+    background-color: rgba(255, 255, 255, 0.05); /* Prawie czyste tło z blur */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    /* 2. Stylizacja obramowania i cienia */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+
+    /* 3. Kolor i kontrast tekstu */
+    color: #60D980;
+
+    /* 💡 WZMACNIAMY CIEŃ TEKSTU dla maksymalnej wyrazistości */
+    text-shadow: 0 0 8px rgba(0, 0, 0, 1), 0 0 2px #000;
+
+    /* 4. Nadpisanie stylu Lumo Success */
+    --lumo-primary-color: transparent !important;
+
+    border-radius: 0.5rem;
+    transition: background-color 0.2s, box-shadow 0.2s, transform 0.3s;
+}
+
+/* 2. Stan najechany (HOVER) */
+.column .glass-button:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
     transform: scale(1.1);
 }

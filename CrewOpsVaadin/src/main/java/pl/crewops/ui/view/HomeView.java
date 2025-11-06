@@ -98,11 +98,22 @@ public class HomeView extends MainLayout {
 
     @ClientCallable
     public void showFooter(boolean show) {
+        // 🚨 KOREKTA: Zamiast sterowania widocznością, sterujemy klasą CSS
+
+        // Używamy tej samej logiki opacitiy, ale dodajemy też klasę
         if (show) {
+            // Dodaj klasę, aby stopka się POKAZAŁA (rozwinięcie i opacitiy 1)
+            mainFooter.addClassName("footer-visible");
+            mainFooter.removeClassName("footer-hidden"); // Opcjonalnie, ale czystsze
             mainFooter.getStyle().set("opacity", "1");
         } else {
+            // Dodaj klasę, aby stopka się UKRYŁA (zwinięcie i opacitiy 0)
+            mainFooter.removeClassName("footer-visible");
+            mainFooter.addClassName("footer-hidden");
             mainFooter.getStyle().set("opacity", "0");
         }
-        mainFooter.setVisible(show);
+
+        // UWAGA: mainFooter.setVisible(show) MUSI zostać USUNIĘTE,
+        // jeśli było wcześniej (nie ma go w tym fragmencie, ale warto upewnić się, że nie jest w mainLayout)
     }
 }
