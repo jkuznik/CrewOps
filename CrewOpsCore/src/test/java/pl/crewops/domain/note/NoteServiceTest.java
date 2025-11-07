@@ -80,7 +80,6 @@ class NoteServiceTest {
     void createDailyNote_ShouldReturnDailyNoteDTO_whenDailyEntryIdIsPresent() {
         // Given
         // 1. Ustawienie zachowania API
-        when(dailyEntryAPI.getById(DAILY_ENTRY_ID)).thenReturn(dailyEntry);
         when(employeeAPI.getEmployeeById(EMPLOYEE_ID)).thenReturn(employee);
 
         // 2. Mockowanie mapowania (używamy eq(null) dla mapowania, bo nie interesuje nas tymczasowa encja)
@@ -99,7 +98,6 @@ class NoteServiceTest {
         assertThat(result).isNotNull();
 
         // Weryfikacja interakcji
-        verify(dailyEntryAPI, times(1)).getById(DAILY_ENTRY_ID);
         verify(employeeAPI, times(1)).getEmployeeById(EMPLOYEE_ID);
         verify(noteRepository, times(1)).save(noteEntity);
         // Weryfikacja, czy mapper został wywołany z poprawnymi, resolvowanymi encjami

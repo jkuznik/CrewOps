@@ -134,7 +134,7 @@ class RegistrationControllerTest {
     @DisplayName("POST /verify should return 200 and CreateCustomerResult when valid")
     void finalizeRegisterCustomer_ShouldReturn200_WhenVerificationIsValid() throws Exception {
         UUID registrationId = UUID.randomUUID();
-        var verifyEmailRequest = new VerifyEmailRequest(registrationId, "12345", "subject", "body");
+        var verifyEmailRequest = new VerifyEmailRequest(registrationId, 12345, "subject", "body");
 
         UUID companyId = UUID.randomUUID();
         UUID employeeId = UUID.randomUUID();

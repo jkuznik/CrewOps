@@ -67,7 +67,7 @@
 
 /* 🔹 PRAWY OBRAZ (::after) */
 .split-layout::after {
-    background-image: url('../images/blondynka-wykonawczy-pozuje-z-usmiechem-i-rekami-skrzyzowanymi-podczas-burzy-mozgow-z-kierownikami-kryty-portret-studenta-europejskiego-spedzajacego-czas-w-hali-z-przyjaciolmi-z-azji-i-afryki.jpg');
+    background-image: url('../images/menedzerowie-firm-odwiedzaja-swoich-pracownikow-w-fabryce-szczesliwa-afroamerykanka-podaje-dlon-jednemu-pracownikowi.jpg');
     clip-path: polygon(var(--split-top-default) 0,
     100% 0,
     100% 100%,
