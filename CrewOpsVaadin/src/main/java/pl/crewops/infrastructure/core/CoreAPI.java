@@ -32,6 +32,7 @@ import pl.crewops.model.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.dto.message.MessageDTO;
 import pl.crewops.model.dto.message.SendMessageCommand;
 import pl.crewops.model.dto.note.CreateNoteDTO;
+import pl.crewops.model.dto.note.FetchNotesRequest;
 import pl.crewops.model.dto.note.NoteDTO;
 import pl.crewops.model.dto.option.AuthUserOptionDTO;
 import pl.crewops.model.dto.qualification.CreateQualificationDTO;
@@ -176,7 +177,8 @@ public interface CoreAPI {
 
     Optional<NoteDTO> createNote(@Valid @NotNull CreateNoteDTO createNoteDTO) throws NotAuthenticatedException;
 
-    List<NoteDTO> getAllPublicNotesByDate(@NotNull LocalDate localDate) throws NotAuthenticatedException;
+    List<NoteDTO> getAllPublicAndPrincipalPrivateNotesByDate(@NotNull FetchNotesRequest fetchNotesRequest)
+            throws NotAuthenticatedException;
 
     // ---- JOB POSITION ---
 

@@ -1,4 +1,4 @@
-package pl.crewops.ui.component.form.daily;
+package pl.crewops.ui.component.panel.daily;
 
 import static pl.crewops.enums.DailyAttendanceStatus.*;
 import static pl.crewops.enums.DailyEntryStatus.*;

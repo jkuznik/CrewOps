@@ -2,7 +2,7 @@ package pl.crewops.ui.component.custom;
 
 import com.vaadin.componentfactory.timeline.Timeline;
 import com.vaadin.flow.component.dependency.CssImport;
-import pl.crewops.ui.component.form.daily.DailyTimelinePanel;
+import pl.crewops.ui.component.panel.daily.DailyTimelinePanel;
 
 @CssImport("./styles/component/timeline.css")
 public class TimelineCustom extends Timeline {

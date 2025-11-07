@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="800" height="200" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Crew Ops logo">
+<svg width="800" height="100" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Crew Ops logo">
   <defs>
     <linearGradient id="bgGradient" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#0F172A"/>
@@ -119,24 +119,44 @@
       <circle fill="#34B3FF" cx="-10" cy="-10" r="1.0"/>
     </g>
 
-    <g id="calculatorShape">
-      <polygon points="-12,-18 12,-18 10,18 -10,18" fill="#0A1420" stroke="#34B3FF" stroke-width="0.8"/>
+    <g id="abacusShape">
+      <rect x="-25" y="-30" width="50" height="60" rx="4" ry="4" fill="#1E293B" stroke="#70E5FF" stroke-width="0.8"/>
 
-      <rect x="-8" y="-14" width="16" height="6" rx="1" fill="#000000" stroke="#00FFFF" stroke-width="0.2"/>
-      <text x="0" y="-10.5" text-anchor="middle" font-size="4" fill="#00FFFF" font-family="monospace" font-weight="bold">88:88</text>
-      <text x="0" y="-10.5" text-anchor="middle" font-size="4" fill="#34B3FF" font-family="monospace" font-weight="bold">11:18</text>
+      <line x1="-20" y1="-15" x2="20" y2="-15" stroke="#34B3FF" stroke-width="0.3"/>
+      <line x1="-20" y1="-5" x2="20" y2="-5" stroke="#34B3FF" stroke-width="0.3"/>
+      <line x1="-20" y1="5" x2="20" y2="5" stroke="#34B3FF" stroke-width="0.3"/>
+      <line x1="-20" y1="15" x2="20" y2="15" stroke="#34B3FF" stroke-width="0.3"/>
+      <line x1="-20" y1="25" x2="20" y2="25" stroke="#34B3FF" stroke-width="0.3"/>
 
-      <rect x="-10" y="-8" width="20" height="25" rx="2" ry="2" fill="none" stroke="#34B3FF" stroke-width="0.3"/>
+      <circle cx="-17" cy="-15" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-12" cy="-15" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-7" cy="-15" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-2" cy="-15" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="3" cy="-15" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
 
-      <g transform="translate(0, 5)">
-        <circle cx="-5" cy="-5" r="2.5" fill="#1E293B" stroke="#3B82F6" stroke-width="0.3"/>
-        <circle cx="0" cy="-5" r="2.5" fill="#1E293B" stroke="#3B82F6" stroke-width="0.3"/>
-        <circle cx="5" cy="-5" r="2.5" fill="#1E293B" stroke="#3B82F6" stroke-width="0.3"/>
-        <circle cx="-5" cy="0" r="2.5" fill="#1E293B" stroke="#3B82F6" stroke-width="0.3"/>
-        <circle cx="0" cy="0" r="2.5" fill="#1E293B" stroke="#FF9900" stroke-width="0.3"/> <circle cx="5" cy="0" r="2.5" fill="#1E293B" stroke="#3B82F6" stroke-width="0.3"/>
-        <circle cx="-5" cy="5" r="2.5" fill="#1E293B" stroke="#3B82F6" stroke-width="0.3"/>
-        <circle cx="0" cy="5" r="2.5" fill="#1E293B" stroke="#FF9900" stroke-width="0.3"/> <circle cx="5" cy="5" r="2.5" fill="#1E293B" stroke="#3B82F6" stroke-width="0.3"/>
-      </g>
+      <circle cx="17" cy="-5" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+      <circle cx="12" cy="-5" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+      <circle cx="7" cy="-5" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+      <circle cx="2" cy="-5" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+      <circle cx="-3" cy="-5" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+
+      <circle cx="-17" cy="5" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-12" cy="5" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-7" cy="5" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-2" cy="5" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="3" cy="5" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+
+      <circle cx="17" cy="15" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+      <circle cx="12" cy="15" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+      <circle cx="7" cy="15" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+      <circle cx="2" cy="15" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+      <circle cx="-3" cy="15" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+
+      <circle cx="-17" cy="25" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-12" cy="25" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-7" cy="25" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-2" cy="25" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="3" cy="25" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
     </g>
 
     <style>
@@ -155,32 +175,33 @@
     </style>
   </defs>
 
-  <g transform="translate(90,100)">
-    <g class="gear-rotate-slow-inner" filter="url(#blueGlow)">
-      <use href="#gearShapeMetalBlue"/>
+  <g transform="translate(115, 65)">
+    <g transform="translate(-25, -15)">
+      <g class="gear-rotate-slow-inner" filter="url(#blueGlow)">
+        <use href="#gearShapeMetalBlue"/>
+      </g>
     </g>
-  </g>
 
-  <g transform="translate(140,105) scale(0.7)">
-    <g class="gear-rotate-rev-inner" filter="url(#orangeGlow)">
-      <use href="#gearShapeMetalOrange"/>
+    <g transform="translate(25, -10) scale(0.7)">
+      <g class="gear-rotate-rev-inner" filter="url(#orangeGlow)">
+        <use href="#gearShapeMetalOrange"/>
+      </g>
     </g>
+
+    <g transform="translate(20, -20) scale(0.9)">
+      <use href="#processorShape" filter="url(#blueGlow)"/>
+    </g>
+
+    <g transform="translate(45, 15) scale(0.9)">
+      <use href="#abacusShape" filter="url(#blueGlow)"/> </g>
   </g>
 
-  <g transform="translate(135, 80) scale(0.9)">
-    <use href="#processorShape" filter="url(#blueGlow)"/>
-  </g>
-
-  <g transform="translate(150, 105) scale(0.9)">
-    <use href="#calculatorShape" filter="url(#blueGlow)"/>
-  </g>
-
-  <text x="195" y="95" font-family="Segoe UI, Arial, sans-serif" font-size="46" font-weight="700" text-anchor="start">
+  <text x="195" y="105" font-family="Segoe UI, Arial, sans-serif" font-size="65" font-weight="700" text-anchor="start">
     <tspan fill="url(#textBlue)" filter="url(#blueGlow)">Crew</tspan>
-    <tspan dx="8" fill="url(#textOrange)" filter="url(#orangeGlow)">Ops</tspan>
+    <tspan dx="-25" fill="url(#textOrange)" filter="url(#orangeGlow)">Ops</tspan>
   </text>
 
-  <text x="195" y="125" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start" fill="#B0B0B0">
+  <text x="195" y="155" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="400" text-anchor="start" fill="#B0B0B0">
     Where Industry Meets Intelligence
   </text>
 </svg>

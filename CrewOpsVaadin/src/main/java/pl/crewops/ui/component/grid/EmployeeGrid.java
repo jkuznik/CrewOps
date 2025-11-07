@@ -173,8 +173,8 @@ public class EmployeeGrid extends VerticalLayout {
                 });
 
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
-        grid.asSingleSelect().addValueChangeListener(event -> editEmployee(event.getValue()));
         grid.setAllRowsVisible(true);
+        grid.asSingleSelect().addValueChangeListener(event -> editEmployee(event.getValue()));
     }
 
     private void configureForm() {

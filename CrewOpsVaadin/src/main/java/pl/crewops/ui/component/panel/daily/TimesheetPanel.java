@@ -1,4 +1,4 @@
-package pl.crewops.ui.component.form.daily;
+package pl.crewops.ui.component.panel.daily;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;

@@ -7,6 +7,7 @@ import static pl.crewops.util.CacheResolver.GET_ALL_MACHINE_TYPES;
 import static pl.crewops.util.CacheResolver.GET_ALL_QUALIFICATIONS;
 import static pl.crewops.util.CacheResolver.GET_ALL_QUALIFICATIONS_WITH_EXPIRATION_TIME;
 
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,7 @@ import pl.crewops.model.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.dto.message.MessageDTO;
 import pl.crewops.model.dto.message.SendMessageCommand;
 import pl.crewops.model.dto.note.CreateNoteDTO;
+import pl.crewops.model.dto.note.FetchNotesRequest;
 import pl.crewops.model.dto.note.NoteDTO;
 import pl.crewops.model.dto.option.AuthUserOptionDTO;
 import pl.crewops.model.dto.qualification.CreateQualificationDTO;
@@ -240,8 +242,9 @@ class CoreService implements CoreAPI {
     }
 
     @Override
-    public List<NoteDTO> getAllPublicNotesByDate(LocalDate localDate) throws NotAuthenticatedException {
-        return domainNoteClient.getPublicNotesByDate(localDate);
+    public List<NoteDTO> getAllPublicAndPrincipalPrivateNotesByDate(@NotNull FetchNotesRequest fetchNotesRequest)
+            throws NotAuthenticatedException {
+        return domainNoteClient.getAllPublicAndPrincipalPrivateNotesByDate(fetchNotesRequest);
     }
 
     // --- DOMAIN DEPARTMENT CLIENT (Działy) ---

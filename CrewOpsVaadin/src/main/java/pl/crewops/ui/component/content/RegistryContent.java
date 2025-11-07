@@ -17,11 +17,11 @@ public class RegistryContent extends VerticalLayout {
     private final Div splitLayout = new Div();
     private final HorizontalLayout contentOverlay = new HorizontalLayout();
 
-    private final VerticalLayout companyColumn = new VerticalLayout();
     private final VerticalLayout individualColumn = new VerticalLayout();
+    private final VerticalLayout companyColumn = new VerticalLayout();
 
-    private final Button registerCompany = new Button();
     private final Button registerIndividual = new Button();
+    private final Button registerCompany = new Button();
 
     public RegistryContent() {
         addClassName("registry-content-main");
@@ -48,17 +48,17 @@ public class RegistryContent extends VerticalLayout {
         contentOverlay.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
         // Kolumny
-        individualColumn.addClassName("column");
-
         companyColumn.addClassName("column");
 
-        configureColumn(registerIndividual, individualColumn, "registryContent.infoCompany");
-        configureColumn(registerCompany, companyColumn, "registryContent.infoIndividual");
+        individualColumn.addClassName("column");
+
+        configureColumn(registerCompany, companyColumn, "registryContent.infoCompany");
+        configureColumn(registerIndividual, individualColumn, "registryContent.infoIndividual");
 
         configureButtons();
         companyCreatorPanel.setVisible(false);
 
-        contentOverlay.add(companyColumn, individualColumn);
+        contentOverlay.add(individualColumn, companyColumn);
         splitLayout.add(contentOverlay);
 
         add(splitLayout, companyCreatorPanel);
@@ -87,23 +87,21 @@ public class RegistryContent extends VerticalLayout {
     }
 
     private void configureHoverEvents() {
-        companyColumn.getElement().addEventListener("mouseenter", e -> splitLayout.addClassName("hover-company"));
-        companyColumn.getElement().addEventListener("mouseleave", e -> splitLayout.removeClassName("hover-company"));
+        individualColumn.getElement().addEventListener("mouseenter", e -> splitLayout.addClassName("hover-company"));
+        individualColumn.getElement().addEventListener("mouseleave", e -> splitLayout.removeClassName("hover-company"));
 
-        individualColumn.getElement().addEventListener("mouseenter", e -> splitLayout.addClassName("hover-individual"));
-        individualColumn
-                .getElement()
-                .addEventListener("mouseleave", e -> splitLayout.removeClassName("hover-individual"));
+        companyColumn.getElement().addEventListener("mouseenter", e -> splitLayout.addClassName("hover-individual"));
+        companyColumn.getElement().addEventListener("mouseleave", e -> splitLayout.removeClassName("hover-individual"));
     }
 
     private void configureButtons() {
-        registerIndividual.addClickListener(event -> {
-            companyCreatorPanel.setIndividualRegistrationMode();
+        registerCompany.addClickListener(event -> {
+            companyCreatorPanel.setCompanyRegistrationMode();
             companyCreatorPanel.setVisible(true);
         });
 
-        registerCompany.addClickListener(event -> {
-            companyCreatorPanel.setCompanyRegistrationMode();
+        registerIndividual.addClickListener(event -> {
+            companyCreatorPanel.setIndividualRegistrationMode();
             companyCreatorPanel.setVisible(true);
         });
     }

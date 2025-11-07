@@ -63,11 +63,7 @@ public class EmployeeFormModel {
             UserPrincipal principal,
             String translatedSubject,
             String translatedBody) {
-        Set<RoleDTO> createRoles = employeeFormModel.roles.stream()
-                .map(role -> RoleDTO.builder().name(role.name()).build())
-                .collect(Collectors.toSet());
-
-        createRoles.add(new RoleDTO(RoleType.EMPLOYEE.name()));
+        Set<RoleDTO> createRoles = Set.of(new RoleDTO(RoleType.EMPLOYEE.name()));
 
         CreateEmployeeDTO.NewEmployeeInformation newEmployeeInformation =
                 CreateEmployeeDTO.NewEmployeeInformation.builder()
@@ -81,7 +77,6 @@ public class EmployeeFormModel {
                 .firstName(employeeFormModel.getFirstName())
                 .lastName(employeeFormModel.getLastName())
                 .phoneNumber(employeeFormModel.getPhoneNumber())
-                .departments(mapToDepartmentDTOs(employeeFormModel.getDepartments()))
                 .roles(createRoles)
                 .companyId(principal.getCompanyId())
                 .build();

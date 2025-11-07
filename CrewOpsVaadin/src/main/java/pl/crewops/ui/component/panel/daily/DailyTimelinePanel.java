@@ -1,4 +1,4 @@
-package pl.crewops.ui.component.form.daily; // Zmieniamy pakiet na form/daily dla spójności
+package pl.crewops.ui.component.panel.daily; // Zmieniamy pakiet na form/daily dla spójności
 
 import com.vaadin.componentfactory.timeline.Timeline;
 import com.vaadin.componentfactory.timeline.model.Item;

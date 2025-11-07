@@ -7,6 +7,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -23,21 +24,19 @@ import pl.crewops.enums.DailyAttendanceStatus;
 import pl.crewops.enums.DailyEntryStatus;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.model.NoteFormModel;
 import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.model.dto.dailyEntry.UpdateDailyEntryCommand;
 import pl.crewops.model.dto.jobPosition.JobPositionDTO;
+import pl.crewops.model.dto.note.FetchNotesRequest;
 import pl.crewops.model.dto.note.NoteDTO;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.ui.component.dialog.dailyEntryDialog.DateSelectorDialog;
-import pl.crewops.ui.component.form.daily.CreateDailyNotePanel;
-import pl.crewops.ui.component.form.daily.DailyActivityPanel;
-import pl.crewops.ui.component.form.daily.DailyModificationPanel;
-import pl.crewops.ui.component.form.daily.DailyTimelinePanel;
-import pl.crewops.ui.component.form.daily.TimesheetPanel;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.component.notification.NotAuthenticatedNotification;
 import pl.crewops.ui.component.notification.SuccessNotification;
+import pl.crewops.ui.component.panel.daily.*;
 import pl.crewops.ui.view.layout.MainLayout;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.BrowserResolver;
@@ -48,46 +47,25 @@ import pl.crewops.util.BrowserResolver;
 @PageTitle("Daily Entry")
 public final class DailyView extends MainLayout implements BeforeEnterObserver {
 
-    /**
-     * Defines the minimum required width (in pixels) for forms in the Daily View
-     * to ensure they stick together seamlessly when placed side-by-side.
-     * <p>
-     * This constant is the base value used to calculate the final width that prevents
-     * visual separation (the "gap") between adjacent form components.
-     */
-    private static final int ENSURE_STICK_FORMS = 540;
-
-    /**
-     * The final, calculated width string for all forms in the daily view.
-     * <p>
-     * The dependency between this field and {@link #ENSURE_STICK_FORMS} ensures that
-     * the current configuration prevents visual gaps, allowing adjacent forms in the
-     * Daily View to be perfectly aligned and "stuck" together.
-     * The additional offset (e.g., +10) often accounts for padding, borders, or
-     * minimum component requirements established by the UI framework (Vaadin).
-     */
-    public static final String FORMS_WIDTH = ENSURE_STICK_FORMS - 10 + "px";
-
-    public static final String FORMS_HEIGHT = "450px";
-    public static final String FORMS_BORDER_PX = "3px";
-
-    private static final String WIDTH_PX = "1600px";
+    private static final String MAIN_CONTENT_WIDTH_PX = "1600px";
 
     private final Button currentDay = new Button();
     private final Button calendar = new Button();
     private final DateSelectorDialog dateSelectorDialog = new DateSelectorDialog();
 
     // strange behavior of third part component like Timeline has described with initialize this object
-    private DailyTimelinePanel timeline;
+    private DailyTimelinePanel timelinePanel;
 
     private final TimesheetPanel timesheetPanel;
     private final DailyActivityPanel dailyActivityPanel;
     private final CreateDailyNotePanel createDailyNotePanel;
     private final DailyModificationPanel dailyModificationPanel;
 
+    private final ReadNotesPanel readNotesPanel = new ReadNotesPanel();
+
     private final boolean isMobile = BrowserResolver.isMobile();
 
-    private final List<NoteDTO> selectedDateNotes = new ArrayList<>();
+    private List<NoteDTO> selectedDateNotes = new ArrayList<>();
     private Optional<DailyEntryDTO> dailyEntryDTO = Optional.empty();
     private LocalDate selectedDate = LocalDate.now();
 
@@ -116,7 +94,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
     }
 
     private void buildContent() {
-        timeline = new DailyTimelinePanel(dailyEntryDTO.orElse(null));
+        timelinePanel = new DailyTimelinePanel(dailyEntryDTO.orElse(null));
 
         localize();
 
@@ -130,12 +108,12 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
         // allow to set timeline setWidthFull() and control that size by mainContainer.setWidth options ℹ️
         var mainContainer = new VerticalLayout();
 
-        var paddingForTimeline = new VerticalLayout(timeline);
-        paddingForTimeline.setSpacing(true);
-        paddingForTimeline.setPadding(true);
+        var timeline = new VerticalLayout(timelinePanel);
+        timeline.setSpacing(true);
+        timeline.setPadding(true);
 
-        mainContainer.add(getToolbar(), paddingForTimeline, getLayoutDependsOnUserDevice());
-        mainContainer.setMaxWidth(WIDTH_PX);
+        mainContainer.add(getToolbar(), timeline, getLayoutDependsOnUserDevice());
+        mainContainer.setMaxWidth(MAIN_CONTENT_WIDTH_PX);
 
         mainContent.setAlignItems(FlexComponent.Alignment.CENTER);
         mainContent.add(mainContainer);
@@ -149,13 +127,13 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
 
             if (dailyEntryDTO.isPresent()) {
                 var dailyEntry = dailyEntryDTO.get();
-                timeline.updateTimeline(dailyEntry, null);
+                timelinePanel.updateTimeline(dailyEntry, null);
                 timesheetPanel.setDailyEntry(dailyEntry);
                 dailyActivityPanel.setDailyEntry(dailyEntry);
                 dailyModificationPanel.setDailyEntry(dailyEntry);
 
             } else {
-                timeline.updateTimeline(null, date);
+                timelinePanel.updateTimeline(null, date);
                 timesheetPanel.setDailyEntry(null);
                 dailyActivityPanel.setDailyEntry(null);
                 dailyModificationPanel.setDailyEntry(null);
@@ -165,11 +143,19 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
             dailyActivityPanel.updateDependsOnSelectedDate(date);
             createDailyNotePanel.setDate(date);
 
-            List<NoteDTO> allNotesByDate = coreAPI.getAllPublicNotesByDate(selectedDate);
+            var fetchNotesRequest = FetchNotesRequest.builder()
+                    .employeeId(authenticationResolver.getPrincipal().getEmployeeId())
+                    .date(selectedDate)
+                    .build();
 
-            if (!allNotesByDate.isEmpty()) {
+            selectedDateNotes = coreAPI.getAllPublicAndPrincipalPrivateNotesByDate(fetchNotesRequest);
+
+            if (!selectedDateNotes.isEmpty()) {
                 dailyActivityPanel.setReadNotesVisible();
                 dailyActivityPanel.setReadSafetyRaportVisible();
+                readNotesPanel.updateGrid(selectedDateNotes.stream()
+                        .map(NoteFormModel::toNoteFormModel)
+                        .toList());
             }
         } catch (NotAuthenticatedException e) {
             new NotAuthenticatedNotification(e.getMessage());
@@ -177,7 +163,10 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
     }
 
     private Component getLayoutDependsOnUserDevice() {
+
         createDailyNotePanel.setVisible(false);
+        readNotesPanel.setVisible(false);
+
         if (isMobile) {
             var verticalLayout = new VerticalLayout();
             verticalLayout.setSizeFull();
@@ -188,31 +177,37 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
 
             return verticalLayout;
         } else {
-            final String FORM_HEIGHT = "500px";
-            final String FORM_WIDTH = ENSURE_STICK_FORMS + "px";
+            final String PANEL_HEIGHT = "540px";
+            final String PANEL_WIDTH = "540px";
 
             var horizontalLayout = new HorizontalLayout();
             horizontalLayout.setSpacing(true);
             horizontalLayout.setPadding(true);
 
-            horizontalLayout.setMaxWidth(WIDTH_PX);
+            horizontalLayout.setMaxWidth(MAIN_CONTENT_WIDTH_PX);
             horizontalLayout.setWidthFull();
 
-            timesheetPanel.setWidth(FORM_WIDTH);
-            timesheetPanel.setHeight(FORM_HEIGHT);
+            timesheetPanel.setWidth(PANEL_WIDTH);
+            timesheetPanel.setHeight(PANEL_HEIGHT);
 
-            createDailyNotePanel.setWidth(FORM_WIDTH);
-            createDailyNotePanel.setHeight(FORM_HEIGHT);
+            createDailyNotePanel.setWidth(PANEL_WIDTH);
+            createDailyNotePanel.setHeight(PANEL_HEIGHT);
 
-            dailyActivityPanel.setWidth(FORM_WIDTH);
-            dailyActivityPanel.setHeight(FORM_HEIGHT);
+            dailyActivityPanel.setWidth(PANEL_WIDTH);
+            dailyActivityPanel.setHeight(PANEL_HEIGHT);
 
-            dailyModificationPanel.setWidth(FORM_WIDTH);
-            dailyModificationPanel.setHeight(FORM_HEIGHT);
+            dailyModificationPanel.setWidth(PANEL_WIDTH);
+            dailyModificationPanel.setHeight(PANEL_HEIGHT);
 
             horizontalLayout.add(timesheetPanel, createDailyNotePanel, dailyActivityPanel, dailyModificationPanel);
 
-            return horizontalLayout;
+            var panelRows = new VerticalLayout();
+            panelRows.setSpacing(true);
+            panelRows.setPadding(true);
+
+            panelRows.add(horizontalLayout, readNotesPanel);
+
+            return panelRows;
         }
     }
 
@@ -250,6 +245,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
                 currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
                 calendar.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
             }
+            readNotesPanel.setVisible(false);
             dateSelectorDialog.close();
         });
         listeners.add(registration2);
@@ -424,7 +420,26 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
     private void addDailyActivityFormListeners() {
         listeners.add(openCreateNotePanel());
 
+        listeners.add(createNote());
+
         listeners.add(closeCreateNotePanel());
+
+        listeners.add(openReadNotePanel());
+    }
+
+    private Registration openReadNotePanel() {
+        return dailyActivityPanel.addReadNotesListener(event -> {
+            readNotesPanel.configurePanel(VaadinIcon.RECORDS, getTranslation("dailyActivityForm.readNotes"));
+            readNotesPanel.setVisible(true);
+        });
+    }
+
+    private Registration createNote() {
+        return createDailyNotePanel.addCreateNoteListener(event -> {
+            createDailyNotePanel.setVisible(false);
+            dailyActivityPanel.setVisible(true);
+            updateDependsOnSelectedDate(selectedDate);
+        });
     }
 
     private Registration openCreateNotePanel() {
@@ -435,7 +450,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
     }
 
     private Registration closeCreateNotePanel() {
-        return createDailyNotePanel.addCloseEvent(event -> {
+        return createDailyNotePanel.addCloseListener(event -> {
             createDailyNotePanel.setVisible(false);
             dailyActivityPanel.setVisible(true);
         });

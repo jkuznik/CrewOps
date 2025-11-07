@@ -1,4 +1,4 @@
-package pl.crewops.ui.component.form.daily;
+package pl.crewops.ui.component.panel.daily;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -99,6 +99,7 @@ public class CreateDailyNotePanel extends PanelCustom {
                 } else {
                     new FailNotification("failNotification");
                 }
+                fireEvent(new CreateNoteEvent(this));
             } catch (NotAuthenticatedException e) {
                 new NotAuthenticatedNotification(e.getMessage()).open();
             }
@@ -123,13 +124,23 @@ public class CreateDailyNotePanel extends PanelCustom {
         }
     }
 
+    public static class CreateNoteEvent extends CreateDailyNoteDialogEvent {
+        public CreateNoteEvent(CreateDailyNotePanel source) {
+            super(source);
+        }
+    }
+
     public static class CloseEvent extends CreateDailyNoteDialogEvent {
         public CloseEvent(CreateDailyNotePanel source) {
             super(source);
         }
     }
 
-    public Registration addCloseEvent(ComponentEventListener<CloseEvent> listener) {
+    public Registration addCreateNoteListener(ComponentEventListener<CreateNoteEvent> listener) {
+        return addListener(CreateNoteEvent.class, listener);
+    }
+
+    public Registration addCloseListener(ComponentEventListener<CloseEvent> listener) {
         return addListener(CloseEvent.class, listener);
     }
 }

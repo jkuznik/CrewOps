@@ -1,4 +1,4 @@
-package pl.crewops.ui.component.form.daily;
+package pl.crewops.ui.component.panel.daily;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -73,6 +73,9 @@ public class DailyActivityPanel extends PanelCustom {
 
         readNotes.setIcon(new Icon(VaadinIcon.RECORDS));
         readNotes.addClassName("pulse-animation");
+        readNotes.addClickListener(event -> {
+            fireEvent(new ReadNotesEvent(this));
+        });
         readSafetyRaport.setIcon(new Icon(VaadinIcon.WARNING));
         readSafetyRaport.addClassName("pulse-red-animation");
 
@@ -101,10 +104,8 @@ public class DailyActivityPanel extends PanelCustom {
         addNote.setText(getTranslation("dailyActivityForm.addNote"));
         safetyRaport.setText(getTranslation("dailyActivityForm.safetyRaport"));
         requestLeave.setText(getTranslation("dailyActivityForm.requestLeave"));
-
-        // todo i18n
-        readNotes.setText("Zalecenia");
-        readSafetyRaport.setText("Uwagi BHP");
+        readNotes.setText(getTranslation("dailyActivityForm.readNotes"));
+        readSafetyRaport.setText(getTranslation("dailyActivityForm.readSafetyRaport"));
     }
 
     private static VerticalLayout configuredMainContainer() {
@@ -175,19 +176,29 @@ public class DailyActivityPanel extends PanelCustom {
         readSafetyRaport.setVisible(true);
     }
 
-    public abstract static class DailyActivityFormEvents extends ComponentEvent<DailyActivityPanel> {
-        public DailyActivityFormEvents(DailyActivityPanel source) {
+    public abstract static class DailyActivityPanelEvents extends ComponentEvent<DailyActivityPanel> {
+        public DailyActivityPanelEvents(DailyActivityPanel source) {
             super(source, false);
         }
     }
 
-    public static class AddNoteEvent extends DailyActivityFormEvents {
+    public static class AddNoteEvent extends DailyActivityPanelEvents {
         public AddNoteEvent(DailyActivityPanel source) {
+            super(source);
+        }
+    }
+
+    public static class ReadNotesEvent extends DailyActivityPanelEvents {
+        public ReadNotesEvent(DailyActivityPanel source) {
             super(source);
         }
     }
 
     public Registration addCreateNoteListener(ComponentEventListener<AddNoteEvent> listener) {
         return addListener(AddNoteEvent.class, listener);
+    }
+
+    public Registration addReadNotesListener(ComponentEventListener<ReadNotesEvent> listener) {
+        return addListener(ReadNotesEvent.class, listener);
     }
 }

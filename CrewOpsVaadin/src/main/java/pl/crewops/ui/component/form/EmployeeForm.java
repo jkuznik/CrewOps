@@ -46,10 +46,11 @@ public class EmployeeForm extends FormLayout {
 
     private final Validator<String> emailRequiredValidator = (value, context) -> {
         if (isEmailRequired && (value == null || value.trim().isEmpty())) {
-            return ValidationResult.error(getTranslation("employeeForm.email.required"));
+            return ValidationResult.error(getTranslation("validation.required"));
         }
         if (value != null && !value.isEmpty()) {
-            EmailValidator emailValidator = new EmailValidator(getTranslation("employeeForm.email.invalid"));
+            EmailValidator emailValidator =
+                    new EmailValidator(getTranslation("companyCreatorForm.companyEmail.invalid"));
             return emailValidator.apply(value, context);
         }
         return ValidationResult.ok();
@@ -62,7 +63,7 @@ public class EmployeeForm extends FormLayout {
 
         final String PHONE_REGEX = "^\\+?[0-9\\s]{6,20}$";
         RegexpValidator regexpValidator =
-                new RegexpValidator(getTranslation("employeeForm.phoneNumber.invalid"), PHONE_REGEX);
+                new RegexpValidator(getTranslation("companyCreatorForm.companyEmail.invalid"), PHONE_REGEX);
 
         return regexpValidator.apply(value, context);
     };
@@ -80,18 +81,19 @@ public class EmployeeForm extends FormLayout {
         binder.forField(firstName)
                 .withValidator(
                         value -> value != null && !value.trim().isEmpty(),
-                        getTranslation("employeeForm.firstName.required")) // Wymagane
+                        getTranslation("validation.required")) // Wymagane
                 .withValidator(
                         value -> value == null || value.length() >= 2,
-                        getTranslation("employeeForm.firstName.tooShort"))
+                        getTranslation("validation.length.optional", 2, 50))
                 .bind(EmployeeFormModel::getFirstName, EmployeeFormModel::setFirstName);
 
         binder.forField(lastName)
                 .withValidator(
                         value -> value != null && !value.trim().isEmpty(),
-                        getTranslation("employeeForm.lastName.required")) // Wymagane
+                        getTranslation("validation.required")) // Wymagane
                 .withValidator(
-                        value -> value == null || value.length() >= 2, getTranslation("employeeForm.lastName.tooShort"))
+                        value -> value == null || value.length() >= 2,
+                        getTranslation("validation.length.optional", 2, 50))
                 .bind(EmployeeFormModel::getLastName, EmployeeFormModel::setLastName);
 
         binder.forField(phoneNumber)

@@ -9,7 +9,6 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.server.VaadinService;
@@ -43,6 +42,7 @@ public class LoginForm extends FormLayout {
     private final TextField username = new TextField();
     private final PasswordField password = new PasswordField();
     private final Button login = new Button();
+    private final LanguageSelectorComponent languageSelectorComponent = new LanguageSelectorComponent();
 
     public LoginForm(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
         addClassName("login-form");
@@ -62,17 +62,15 @@ public class LoginForm extends FormLayout {
     }
 
     private Component createLoginForm(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
-        var layout = new VerticalLayout();
+        var layout = new HorizontalLayout();
         layout.setSpacing(true);
+        layout.setMargin(false);
         layout.addClassName("login-form-layout");
 
-        var buttonAndLanguageSelector = new HorizontalLayout();
-        buttonAndLanguageSelector.setSpacing(true);
-        buttonAndLanguageSelector.add(login, new LanguageSelectorComponent());
-
         configureLoginButton(coreAPI, jwtService);
-        layout.add(username, password, buttonAndLanguageSelector);
-        layout.setAlignSelf(FlexComponent.Alignment.END, login);
+        layout.add(username, password, login, languageSelectorComponent);
+        layout.setAlignItems(FlexComponent.Alignment.END);
+        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         return layout;
     }
 
