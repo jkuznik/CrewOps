@@ -58,3 +58,11 @@
         file: db/changelog/create/tenantSchema/018-create-table-srt.yaml
     - include:
         file: db/changelog/create/tenantSchema/019-create-table-safety-report.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/020-create-join-table-safety-report-srt.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/021-create-join-table-safety-report-department.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/022-create-join-table-safety-report-job-position.yaml
+    - include:
+        file: db/changelog/insert/004-insert-srt-initial-values.yaml

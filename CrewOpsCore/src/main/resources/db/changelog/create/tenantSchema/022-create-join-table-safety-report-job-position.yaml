@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-join-table-safety-report-job-position
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: safety_report_job_position
+            columns:
+              - column:
+                  name: safety_report_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: job_position_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+
+        - addPrimaryKey:
+            columnNames: safety_report_id, job_position_id
+            tableName: safety_report_job_position
+            constraintName: pk_safety_report_job_position
+
+        - addForeignKeyConstraint:
+            baseTableName: safety_report_job_position
+            baseColumnNames: safety_report_id
+            referencedTableName: safety_report
+            referencedColumnNames: id
+            constraintName: fk_srjp_safety_report_id
+            onDelete: CASCADE # Jeśli raport jest usuwany, wpisy łączące są usuwane
+
+        - addForeignKeyConstraint:
+            baseTableName: safety_report_job_position
+            baseColumnNames: job_position_id
+            referencedTableName: job_position
+            referencedColumnNames: id
+            constraintName: fk_srjp_job_position_id
+            onDelete: CASCADE # Jeśli pozycja jest usuwana, wpisy łączące są usuwane

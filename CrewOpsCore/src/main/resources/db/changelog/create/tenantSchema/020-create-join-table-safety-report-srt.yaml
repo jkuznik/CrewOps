@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-join-table-safety-report-srt
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: safety_report_srt
+            columns:
+              - column:
+                  name: safety_report_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: srt_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+
+        - addPrimaryKey:
+            columnNames: safety_report_id, srt_id
+            tableName: safety_report_srt
+            constraintName: pk_safety_report_srt
+
+        - addForeignKeyConstraint:
+            baseTableName: safety_report_srt
+            baseColumnNames: safety_report_id
+            referencedTableName: safety_report
+            referencedColumnNames: id
+            constraintName: fk_srsrt_safety_report_id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: safety_report_srt
+            baseColumnNames: srt_id
+            referencedTableName: srt
+            referencedColumnNames: id
+            constraintName: fk_srsrt_srt_id
+            onDelete: RESTRICT # Zapobiegamy usunięciu typu raportu, jeśli jest używany

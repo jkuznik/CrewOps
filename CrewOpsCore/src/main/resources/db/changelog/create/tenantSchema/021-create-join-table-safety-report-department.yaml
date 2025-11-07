@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-join-table-safety-report-department
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: safety_report_department
+            columns:
+              - column:
+                  name: safety_report_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: department_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+
+        - addPrimaryKey:
+            columnNames: safety_report_id, department_id
+            tableName: safety_report_department
+            constraintName: pk_safety_report_department
+
+        - addForeignKeyConstraint:
+            baseTableName: safety_report_department
+            baseColumnNames: safety_report_id
+            referencedTableName: safety_report
+            referencedColumnNames: id
+            constraintName: fk_srd_safety_report_id
+            onDelete: CASCADE # Jeśli raport jest usuwany, wpisy łączące są usuwane
+
+        - addForeignKeyConstraint:
+            baseTableName: safety_report_department
+            baseColumnNames: department_id
+            referencedTableName: department
+            referencedColumnNames: id
+            constraintName: fk_srd_department_id
+            onDelete: CASCADE # Jeśli dział jest usuwany, wpisy łączące są usuwane

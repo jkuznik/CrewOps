@@ -1,0 +1,92 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-insert-initial-srt-data
+      author: jkuznik
+      logicalFilePath: changelog/initial-data/srt-data.yaml
+      changes:
+
+        # Incident Records (is_incident: true)
+        - insert:
+            tableName: srt
+            columns:
+              - column: {name: id, value: "6a209e07-41e6-45e0-9518-1d27c2132b0d"}
+              - column: {name: name, value: "Minor accident"}
+              - column: {name: is_incident, valueBoolean: true}
+              - column: {name: is_hazard, valueBoolean: false}
+              - column: {name: requires_action, valueBoolean: false}
+        - insert:
+            tableName: srt
+            columns:
+              - column: {name: id, value: "c9f79e3f-8677-4e19-a05a-2dea7c7b78b3"}
+              - column: {name: name, value: "Serious accident"}
+              - column: {name: is_incident, valueBoolean: true}
+              - column: {name: is_hazard, valueBoolean: false}
+              - column: {name: requires_action, valueBoolean: false}
+        - insert:
+            tableName: srt
+            columns:
+              - column: {name: id, value: "10224f33-8575-4d8b-819d-4021517f1f8c"}
+              - column: {name: name, value: "Collective accident"}
+              - column: {name: is_incident, valueBoolean: true}
+              - column: {name: is_hazard, valueBoolean: false}
+              - column: {name: requires_action, valueBoolean: false}
+        - insert:
+            tableName: srt
+            columns:
+              - column: {name: id, value: "3ae9efc4-bf25-4675-8697-0c55ff29a03b"}
+              - column: {name: name, value: "Fatal accident"}
+              - column: {name: is_incident, valueBoolean: true}
+              - column: {name: is_hazard, valueBoolean: false}
+              - column: {name: requires_action, valueBoolean: false}
+
+        # Hazard Records (is_hazard: true)
+        - insert:
+            tableName: srt
+            columns:
+              - column: {name: id, value: "199c4e4e-a892-46d9-88cf-3c3a7d60d0a5"}
+              - column: {name: name, value: "Near miss"}
+              - column: {name: is_incident, valueBoolean: false}
+              - column: {name: is_hazard, valueBoolean: true}
+              - column: {name: requires_action, valueBoolean: false}
+        - insert:
+            tableName: srt
+            columns:
+              - column: {name: id, value: "bb313b50-8e95-4cd1-911f-90b484cbe635"}
+              - column: {name: name, value: "Unsafe act"}
+              - column: {name: is_incident, valueBoolean: false}
+              - column: {name: is_hazard, valueBoolean: true}
+              - column: {name: requires_action, valueBoolean: false}
+        - insert:
+            tableName: srt
+            columns:
+              - column: {name: id, value: "4425d58f-4c52-4bb0-b872-2af058ccd176"}
+              - column: {name: name, value: "HAZOB"}
+              - column: {name: is_incident, valueBoolean: false}
+              - column: {name: is_hazard, valueBoolean: true}
+              - column: {name: requires_action, valueBoolean: false}
+
+        # Action Required Records (requires_action: true)
+        - insert:
+            tableName: srt
+            columns:
+              - column: {name: id, value: "9ddf7291-93e9-4f88-a65a-7446bf9ab7df"}
+              - column: {name: name, value: "Violation"}
+              - column: {name: is_incident, valueBoolean: false}
+              - column: {name: is_hazard, valueBoolean: false}
+              - column: {name: requires_action, valueBoolean: true}
+        - insert:
+            tableName: srt
+            columns:
+              - column: {name: id, value: "ccf267a8-3a0f-4e1c-bbc9-5d7275720aed"}
+              - column: {name: name, value: "Non-compliance"}
+              - column: {name: is_incident, valueBoolean: false}
+              - column: {name: is_hazard, valueBoolean: false}
+              - column: {name: requires_action, valueBoolean: true}
+        - insert:
+            tableName: srt
+            columns:
+              - column: {name: id, value: "ee712492-123a-4eb5-ae17-4a1fd488c235"}
+              - column: {name: name, value: "Non-conformance"}
+              - column: {name: is_incident, valueBoolean: false}
+              - column: {name: is_hazard, valueBoolean: false}
+              - column: {name: requires_action, valueBoolean: true}
