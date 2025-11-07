@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-safety-report-status-enum
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            stripComments: false
+            sql: |
+              DO $$
+              BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'safety_report_status') THEN
+                  CREATE TYPE safety_report_status AS ENUM ('ACTIVE', 'ARCHIVED');
+                END IF;
+              END;
+              $$;

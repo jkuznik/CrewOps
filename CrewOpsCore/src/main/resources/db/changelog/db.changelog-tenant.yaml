@@ -54,3 +54,7 @@
         file: db/changelog/create/tenantSchema/016-create-table-daily-note.yaml
     - include:
         file: db/changelog/create/tenantSchema/017-create-table-daily-entry-audit.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/018-create-table-srt.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/019-create-table-safety-report.yaml
