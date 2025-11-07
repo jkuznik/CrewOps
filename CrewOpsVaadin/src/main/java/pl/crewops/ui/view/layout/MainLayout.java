@@ -43,8 +43,13 @@ public class MainLayout extends AppLayout {
         mainContent.setPadding(true);
         mainContent.setVisible(true);
 
-        setContent(mainContent);
+        if (authenticationResolver.principalIsAuthenticated()) {
+            addClassName("authenticated");
+        } else {
+            addClassName("unauthenticated");
+        }
 
+        setContent(mainContent);
         addToNavbar(navbar);
         addToDrawer(drawer);
     }

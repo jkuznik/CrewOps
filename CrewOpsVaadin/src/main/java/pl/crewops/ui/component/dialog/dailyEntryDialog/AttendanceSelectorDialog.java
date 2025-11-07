@@ -3,13 +3,15 @@ package pl.crewops.ui.component.dialog.dailyEntryDialog;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.shared.Registration;
 import java.time.LocalDate;
+import java.util.Arrays;
 import lombok.Getter;
 import pl.crewops.enums.DailyAttendanceStatus;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
@@ -24,46 +26,53 @@ public class AttendanceSelectorDialog extends Dialog {
     public AttendanceSelectorDialog(DailyEntryDTO dailyEntryDTO) {
         this.dailyEntryDTO = dailyEntryDTO;
         configureDialog();
-        var buttonLayout = configuredButtonContainer();
-        var mainContainer = configuredMainContainer(buttonLayout);
-        add(mainContainer);
+        configuredButtonContainer();
+        add(configuredMainContainer());
         open();
+
+        getFooter().add(cancelButton);
     }
 
     private void configureDialog() {
         setHeaderTitle(getTranslation("attendanceSelectorDialog.headerTitle")); // np. "Wybierz status obecności"
         setCloseOnEsc(true);
+
+        attendanceSelector.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
     }
 
-    private VerticalLayout configuredMainContainer(HorizontalLayout buttonLayout) {
-        VerticalLayout content = new VerticalLayout(attendanceSelector, buttonLayout);
+    private VerticalLayout configuredMainContainer() {
+        VerticalLayout content = new VerticalLayout(attendanceSelector, confirmButton);
+        content.setPadding(true);
+        content.setAlignItems(FlexComponent.Alignment.CENTER);
 
         attendanceSelector.setLabel(getTranslation("attendanceSelectorDialog.status.label")); // np. "Status"
         if (dailyEntryDTO.entryDate().isAfter(LocalDate.now())) {
-            attendanceSelector.setItems(
-                    DailyAttendanceStatus.VACATION,
-                    DailyAttendanceStatus.SICK_LEAVE,
-                    DailyAttendanceStatus.OTHER,
-                    DailyAttendanceStatus.ABSENT);
+            attendanceSelector.setItems(Arrays.stream(DailyAttendanceStatus.values())
+                    .filter(status -> {
+                        return !status.equals(dailyEntryDTO.attendance())
+                                && !status.equals(DailyAttendanceStatus.PRESENT)
+                                && !status.equals(DailyAttendanceStatus.NULL);
+                    })
+                    .toList());
         } else {
-            attendanceSelector.setItems(
-                    DailyAttendanceStatus.PRESENT,
-                    DailyAttendanceStatus.VACATION,
-                    DailyAttendanceStatus.SICK_LEAVE,
-                    DailyAttendanceStatus.OTHER,
-                    DailyAttendanceStatus.ABSENT);
+            attendanceSelector.setItems(Arrays.stream(DailyAttendanceStatus.values())
+                    .filter(status -> {
+                        return !status.equals(dailyEntryDTO.attendance()) && !status.equals(DailyAttendanceStatus.NULL);
+                    })
+                    .toList());
         }
 
         attendanceSelector.setItemLabelGenerator(this::getTranslatedLabel);
 
-        attendanceSelector.addValueChangeListener(e -> confirmButton.setEnabled(e.getValue() != null));
-        content.setPadding(true);
+        attendanceSelector.addValueChangeListener(e -> {
+            confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            confirmButton.setEnabled(e.getValue() != null);
+        });
+
         return content;
     }
 
-    private HorizontalLayout configuredButtonContainer() {
-        HorizontalLayout buttonLayout = new HorizontalLayout(confirmButton, cancelButton);
-
+    private void configuredButtonContainer() {
         confirmButton.setText(getTranslation("attendanceSelectorDialog.button.confirm"));
         cancelButton.setText(getTranslation("attendanceSelectorDialog.button.cancel"));
 
@@ -82,10 +91,6 @@ public class AttendanceSelectorDialog extends Dialog {
             fireEvent(new DialogCloseActionEvent(this, true));
             close();
         });
-
-        buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-        buttonLayout.setWidthFull();
-        return buttonLayout;
     }
 
     private String getTranslatedLabel(DailyAttendanceStatus status) {

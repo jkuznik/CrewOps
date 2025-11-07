@@ -1,7 +1,5 @@
 package pl.crewops.domain.address;
 
-import static pl.crewops.domain.address.AddressMapper.mapToEntity;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,12 +13,12 @@ import pl.crewops.model.tenantSchema.Address;
 class AddressService implements AddressAPI {
 
     private final AddressRepository addressRepository;
+    private final AddressMapper addressMapper;
 
     @Override
     @Transactional
     public Address createAddress(CreateAddressDTO createAddressDTO) {
-        var address = mapToEntity(createAddressDTO);
-        System.out.println("update");
+        var address = addressMapper.toEntity(createAddressDTO);
         return addressRepository.save(address);
     }
 }

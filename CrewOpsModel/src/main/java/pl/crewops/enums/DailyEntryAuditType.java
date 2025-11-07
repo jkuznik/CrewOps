@@ -8,9 +8,6 @@ public enum DailyEntryAuditType {
     /** Zdarzenie: Status obecności został zmieniony. */
     ATTENDANCE_STATUS_CHANGED,
 
-    /** Zdarzenie: Dodano nową notatkę (DailyNote) do wpisu (inną niż BHP). */
-    DAILY_NOTE_ADDED,
-
     /** Zdarzenie: Dodano nową notatkę, która jest uwagą BHP/Safety. */
     SAFETY_NOTE_ADDED, // NOWY TYP
 

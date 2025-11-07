@@ -1,6 +1,5 @@
 package pl.crewops.ui.view;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H3;
@@ -9,8 +8,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
@@ -22,26 +19,18 @@ import pl.crewops.util.AuthenticationResolver;
 
 @Route(value = "contact")
 @PageTitle("Contact - Crew Ops")
-public class ContactView extends MainLayout implements BeforeEnterObserver {
+public class ContactView extends MainLayout {
 
     public ContactView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         super(coreAPI, jwtService, authenticationResolver);
         addClassName("contact-view");
-    }
 
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        if (authenticationResolver.principalIsAuthenticated()) {
-            try {
-                mainContent.removeAll();
-                listeners.forEach(Registration::remove);
-                buildContent();
-            } catch (Exception e) {
-                new FailNotification(getTranslation("dailyView.failNotification"));
-            }
-        } else {
-            event.forwardTo(HomeView.class);
-            UI.getCurrent().getPage().setLocation("/");
+        try {
+            mainContent.removeAll();
+            listeners.forEach(Registration::remove);
+            buildContent();
+        } catch (Exception e) {
+            new FailNotification(getTranslation("dailyView.failNotification"));
         }
     }
 

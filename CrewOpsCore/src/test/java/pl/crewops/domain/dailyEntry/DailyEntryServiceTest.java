@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static pl.crewops.enums.DailyEntryStatus.APPROVED;
+import static pl.crewops.enums.DailyEntryStatus.DRAFT;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -332,14 +333,13 @@ class DailyEntryServiceTest {
                 .thenReturn(Optional.of(dailyEntry));
         when(dailyEntryRepository.save(any(DailyEntry.class))).thenAnswer(i -> i.getArgument(0));
 
-        UpdateDailyEntryCommand.AddDailyNote command = new UpdateDailyEntryCommand.AddDailyNote(
+        UpdateDailyEntryCommand.AddSafetyNote command = new UpdateDailyEntryCommand.AddSafetyNote(
                 employeeId, entryDate, actionBy, "New note", "Added daily note");
 
         // when
         DailyEntryDTO result = dailyEntryService.updateDailyEntry(command);
 
         // then
-        verify(auditDetailsBuilder).createPayload(eq(DailyEntryAuditType.DAILY_NOTE_ADDED), any(), any(), eq(actionBy));
         verify(dailyEntryAuditRepository).save(any(DailyEntryAudit.class));
     }
 
@@ -408,14 +408,19 @@ class DailyEntryServiceTest {
         // given
         UUID employeeId = UUID.randomUUID();
         LocalDate entryDate = LocalDate.now();
+        Instant startTime = Instant.parse("2025-01-01T08:00:00Z");
+        Instant endTime = Instant.parse("2025-01-01T16:00:00Z");
+        BigDecimal overtime = BigDecimal.ZERO.setScale(4);
         UUID actionBy = UUID.randomUUID();
         String comment = "Approved by manager";
 
         DailyEntry draftEntry = DailyEntry.builder()
                 .employeeId(employeeId)
                 .entryDate(entryDate)
+                .startTime(startTime)
+                .endTime(endTime)
+                .overtime(overtime)
                 .status(DailyEntryStatus.DRAFT)
-                .overtime(BigDecimal.ZERO.setScale(4))
                 .build();
         draftEntry.setId(UUID.randomUUID());
 
@@ -423,8 +428,8 @@ class DailyEntryServiceTest {
                 .thenReturn(Optional.of(draftEntry));
         when(dailyEntryRepository.save(any(DailyEntry.class))).thenAnswer(i -> i.getArgument(0));
 
-        UpdateDailyEntryCommand command =
-                new UpdateDailyEntryCommand.ChangeEntryStatus(employeeId, entryDate, actionBy, APPROVED, comment);
+        UpdateDailyEntryCommand command = new UpdateDailyEntryCommand.ApproveEntry(
+                employeeId, entryDate, startTime, endTime, overtime, DRAFT, actionBy, APPROVED, comment);
 
         // when
         DailyEntryDTO result = dailyEntryService.approveDailyEntry(command);

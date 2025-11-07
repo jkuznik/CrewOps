@@ -123,11 +123,6 @@ class RegistrationService {
                 .firstName(createCustomerCommand.createEmployeeDTO().firstName())
                 .lastName(createCustomerCommand.createEmployeeDTO().lastName())
                 .phoneNumber(createCustomerCommand.createEmployeeDTO().phoneNumber())
-                //                .birthDate(createCustomerCommand
-                //                        .createEmployeeDTO()
-                //                        .birthDate() // <-- LocalDate
-                //                        .atStartOfDay(ZoneId.systemDefault()) // LocalDateTime
-                //                        .toInstant())
                 .build();
     }
 
@@ -135,6 +130,11 @@ class RegistrationService {
         Registration registration = registrationRepository
                 .findById(request.registrationId())
                 .orElseThrow(() -> new NotFoundPendingRegistrationException(request.registrationId()));
+
+        if (registration.getVerificationCode() != request.verificationCode()) {
+            log.warn("Verification code do not match");
+            return null;
+        }
 
         DefaultTransactionDefinition def = new DefaultTransactionDefinition();
         def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);

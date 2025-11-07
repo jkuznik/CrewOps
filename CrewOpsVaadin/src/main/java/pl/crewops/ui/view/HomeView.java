@@ -12,7 +12,6 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.ui.component.content.HomeContent;
 import pl.crewops.ui.component.content.RegistryContent;
-import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.view.layout.MainLayout;
 import pl.crewops.util.AuthenticationResolver;
 
@@ -24,39 +23,47 @@ public class HomeView extends MainLayout {
         super(coreAPI, jwtService, authenticationResolver);
         addClassName("home-view");
 
-        try {
-            mainContent.removeAll();
-            listeners.forEach(Registration::remove);
+        //        try {
+        mainContent.removeAll();
+        listeners.forEach(Registration::remove);
 
-            if (!authenticationResolver.principalIsAuthenticated()) {
-                setDrawerOpened(false);
-            }
-
-            var currentContent = getCurrentContent();
-
-            mainContent.add(currentContent, mainFooter);
-            mainContent.setFlexGrow(1, currentContent);
-        } catch (Exception e) {
-            new FailNotification(getTranslation("dailyView.failNotification"));
+        if (!authenticationResolver.principalIsAuthenticated()) {
+            setDrawerOpened(false);
         }
+
+        var currentContent = getCurrentContent();
+
+        mainContent.add(currentContent, mainFooter);
+        mainContent.setFlexGrow(1, currentContent);
+        //        } catch (Exception e) {
+        //            new FailNotification(getTranslation("dailyView.failNotification"));
+        //        }
     }
 
     private Component getCurrentContent() {
         var layout = new VerticalLayout();
+        //        final String IMAGE_PATH = "images/crew_ops_future_static_logo.png";
 
         layout.setId("view-content");
-
         layout.setWidthFull();
         layout.setPadding(true);
         layout.setSpacing(true);
         layout.getStyle().set("overflow", "auto");
 
         if (!authenticationResolver.principalIsAuthenticated()) {
+            layout.getStyle().set("background-size", "cover");
+            layout.getStyle().set("background-position", "center");
+
+            //            String overlayAndImage = "linear-gradient(rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.95)), url('" +
+            // IMAGE_PATH + "')";
+
+            //            layout.getStyle().set("background-image", overlayAndImage);
+            //            layout.getStyle().set("background-repeat", "no-repeat");
+
             layout.add(new RegistryContent());
         } else {
             HomeContent homeContent = new HomeContent();
             homeContent.setWidthFull();
-
             layout.add(homeContent);
         }
         return layout;
@@ -91,11 +98,22 @@ public class HomeView extends MainLayout {
 
     @ClientCallable
     public void showFooter(boolean show) {
+        // 🚨 KOREKTA: Zamiast sterowania widocznością, sterujemy klasą CSS
+
+        // Używamy tej samej logiki opacitiy, ale dodajemy też klasę
         if (show) {
+            // Dodaj klasę, aby stopka się POKAZAŁA (rozwinięcie i opacitiy 1)
+            mainFooter.addClassName("footer-visible");
+            mainFooter.removeClassName("footer-hidden"); // Opcjonalnie, ale czystsze
             mainFooter.getStyle().set("opacity", "1");
         } else {
+            // Dodaj klasę, aby stopka się UKRYŁA (zwinięcie i opacitiy 0)
+            mainFooter.removeClassName("footer-visible");
+            mainFooter.addClassName("footer-hidden");
             mainFooter.getStyle().set("opacity", "0");
         }
-        mainFooter.setVisible(show);
+
+        // UWAGA: mainFooter.setVisible(show) MUSI zostać USUNIĘTE,
+        // jeśli było wcześniej (nie ma go w tym fragmencie, ale warto upewnić się, że nie jest w mainLayout)
     }
 }

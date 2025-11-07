@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="100" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Crew Ops logo">
+  <defs>
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+
+    <linearGradient id="textBlue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#70E5FF"/>
+      <stop offset="50%" stop-color="#34B3FF"/>
+      <stop offset="100%" stop-color="#1A7CFF"/>
+    </linearGradient>
+
+    <linearGradient id="textOrange" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFC064"/>
+      <stop offset="50%" stop-color="#FF9900"/>
+      <stop offset="100%" stop-color="#FF3300"/>
+    </linearGradient>
+
+    <radialGradient id="metalGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F9FAFB"/>
+      <stop offset="30%" stop-color="#D1D5DB"/>
+      <stop offset="70%" stop-color="#9CA3AF"/>
+      <stop offset="100%" stop-color="#4B5563"/>
+    </radialGradient>
+
+    <filter id="blueGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="orangeGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <g id="gearShapeMetalBlue">
+      <circle cx="0" cy="0" r="22" fill="url(#metalGradient)" stroke="#9CA3AF" stroke-width="2"/>
+
+      <g fill="url(#metalGradient)" stroke="#E5E7EB" stroke-width="0.8">
+        <g transform="rotate(0)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(30)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(60)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(90)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(120)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(150)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(180)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(210)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(240)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(270)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(300)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(330)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+      </g>
+
+      <circle cx="0" cy="0" r="15" fill="none" stroke="#00FFFF" stroke-width="0.8"/>
+      <circle cx="0" cy="0" r="7" fill="#1E293B" stroke="#9CA3AF" stroke-width="1.5"/>
+    </g>
+
+    <g id="gearShapeMetalOrange">
+      <circle cx="0" cy="0" r="22" fill="url(#metalGradient)" stroke="#9CA3AF" stroke-width="2"/>
+
+      <g fill="url(#metalGradient)" stroke="#E5E7EB" stroke-width="0.8">
+        <g transform="rotate(0)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(30)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(60)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(90)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(120)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(150)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(180)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(210)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(240)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(270)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(300)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+        <g transform="rotate(330)"><polygon points="-2.5,-27 2.5,-27 3.5,-24.5 -3.5,-24.5"/></g>
+      </g>
+
+      <circle cx="0" cy="0" r="15" fill="none" stroke="#FF9900" stroke-width="0.8"/>
+      <circle cx="0" cy="0" r="7" fill="#1E293B" stroke="#9CA3AF" stroke-width="1.5"/>
+    </g>
+
+    <g id="processorShape">
+      <rect x="-15" y="-15" width="30" height="30" rx="3" ry="3" fill="#0A1420" stroke="#34B3FF" stroke-width="0.8"/>
+
+      <rect x="-12" y="-12" width="24" height="24" rx="2" ry="2" fill="none" stroke="#34B3FF" stroke-width="0.3"/>
+
+      <path d="M -10 -9 L 10 -9 M -10 -5 L 10 -5 M -10 -1 L 10 -1 M -10 3 L 10 3 M -10 7 L 10 7" stroke="#34B3FF" stroke-width="0.2"/>
+      <path d="M -7 -10 L -7 10 M -3 -10 L -3 10 M 1 -10 L 1 10 M 5 -10 L 5 10 M 9 -10 L 9 10" stroke="#34B3FF" stroke-width="0.2"/>
+
+      <g stroke="#34B3FF" stroke-width="0.8">
+        <line x1="-20" y1="-10" x2="-15" y2="-10"/>
+        <line x1="-20" y1="-5" x2="-15" y2="-5"/>
+        <line x1="-20" y1="0" x2="-15" y2="0"/>
+        <line x1="-20" y1="5" x2="-15" y2="5"/>
+        <line x1="-20" y1="10" x2="-15" y2="10"/>
+
+        <line x1="15" y1="-10" x2="20" y2="-10"/>
+        <line x1="15" y1="-5" x2="20" y2="-5"/>
+        <line x1="15" y1="0" x2="20" y2="0"/>
+        <line x1="15" y1="5" x2="20" y2="5"/>
+        <line x1="15" y1="10" x2="20" y2="10"/>
+      </g>
+
+      <g stroke="#34B3FF" stroke-width="0.5">
+        <line x1="-10" y1="-15" x2="-10" y2="-20"/>
+        <line x1="0" y1="-15" x2="0" y2="-20"/>
+        <line x1="10" y1="-15" x2="10" y2="-20"/>
+        <line x1="-10" y1="15" x2="-10" y2="20"/>
+        <line x1="0" y1="15" x2="0" y2="20"/>
+        <line x1="10" y1="15" x2="10" y2="20"/>
+      </g>
+
+      <circle fill="#34B3FF" cx="-10" cy="-10" r="1.0"/>
+    </g>
+
+    <g id="abacusShape">
+      <rect x="-25" y="-30" width="50" height="60" rx="4" ry="4" fill="#1E293B" stroke="#70E5FF" stroke-width="0.8"/>
+
+      <line x1="-20" y1="-15" x2="20" y2="-15" stroke="#34B3FF" stroke-width="0.3"/>
+      <line x1="-20" y1="-5" x2="20" y2="-5" stroke="#34B3FF" stroke-width="0.3"/>
+      <line x1="-20" y1="5" x2="20" y2="5" stroke="#34B3FF" stroke-width="0.3"/>
+      <line x1="-20" y1="15" x2="20" y2="15" stroke="#34B3FF" stroke-width="0.3"/>
+      <line x1="-20" y1="25" x2="20" y2="25" stroke="#34B3FF" stroke-width="0.3"/>
+
+      <circle cx="-17" cy="-15" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-12" cy="-15" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-7" cy="-15" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-2" cy="-15" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="3" cy="-15" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+
+      <circle cx="17" cy="-5" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+      <circle cx="12" cy="-5" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+      <circle cx="7" cy="-5" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+      <circle cx="2" cy="-5" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+      <circle cx="-3" cy="-5" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+
+      <circle cx="-17" cy="5" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-12" cy="5" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-7" cy="5" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-2" cy="5" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="3" cy="5" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+
+      <circle cx="17" cy="15" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+      <circle cx="12" cy="15" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+      <circle cx="7" cy="15" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+      <circle cx="2" cy="15" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+      <circle cx="-3" cy="15" r="2.5" fill="#70E5FF" stroke="#34B3FF" stroke-width="0.5"/>
+
+      <circle cx="-17" cy="25" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-12" cy="25" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-7" cy="25" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="-2" cy="25" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+      <circle cx="3" cy="25" r="2.5" fill="#FFC064" stroke="#FF9900" stroke-width="0.5"/>
+    </g>
+
+    <style>
+      @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+      }
+      .gear-rotate-slow-inner {
+      animation: spin 18s linear infinite;
+      transform-origin: center;
+      }
+      .gear-rotate-rev-inner {
+      animation: spin 18s linear infinite reverse;
+      transform-origin: center;
+      }
+    </style>
+  </defs>
+
+  <g transform="translate(115, 65)">
+    <g transform="translate(-25, -15)">
+      <g class="gear-rotate-slow-inner" filter="url(#blueGlow)">
+        <use href="#gearShapeMetalBlue"/>
+      </g>
+    </g>
+
+    <g transform="translate(25, -10) scale(0.7)">
+      <g class="gear-rotate-rev-inner" filter="url(#orangeGlow)">
+        <use href="#gearShapeMetalOrange"/>
+      </g>
+    </g>
+
+    <g transform="translate(20, -20) scale(0.9)">
+      <use href="#processorShape" filter="url(#blueGlow)"/>
+    </g>
+
+    <g transform="translate(45, 15) scale(0.9)">
+      <use href="#abacusShape" filter="url(#blueGlow)"/> </g>
+  </g>
+
+  <text x="195" y="105" font-family="Segoe UI, Arial, sans-serif" font-size="65" font-weight="700" text-anchor="start">
+    <tspan fill="url(#textBlue)" filter="url(#blueGlow)">Crew</tspan>
+    <tspan dx="-25" fill="url(#textOrange)" filter="url(#orangeGlow)">Ops</tspan>
+  </text>
+
+  <text x="195" y="155" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="400" text-anchor="start" fill="#B0B0B0">
+    Where Industry Meets Intelligence
+  </text>
+</svg>

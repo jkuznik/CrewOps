@@ -21,7 +21,6 @@ public record DailyEntryDTO(
         Instant endTime,
         BigDecimal overTime,
         JobPositionDTO jobPosition,
-        Set<DailyNoteDTO> dailyNotes,
         Set<DailyEntryAuditDTO> auditEvents,
         DailyAttendanceStatus attendance,
         DailyEntryStatus status)

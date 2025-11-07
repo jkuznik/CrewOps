@@ -1,23 +1,272 @@
+/*
+ * main-layout.css
+ * Kompletny styl głównego układu aplikacji Vaadin (MainLayout)
+ * WERSJA: Integracja Tła SVG (unauthenticated) z Ciemnym Gradientem (authenticated)
+ */
+
+/* =======================================================
+   REKONFIGURACJA CIEMNEGO MOTYWU (ZMIENNE)
+   Zmienne kluczowe dla prawidłowego działania stylów komponentów Vaadin
+======================================================= */
+
+:root {
+    /* Wprowadzamy zmienne, które są używane w dalszej części kodu CSS */
+    --main-background-color: #1e1e1e;
+    --main-text-color: #B0B0B0;
+    --lumo-body-text-color: #ffffff;
+    --lumo-contrast: #ffffff;
+    --lumo-icon-color: #ffffff;
+}
+
+/* =======================================================
+   RESET / PODSTAWOWE STYLOWANIE
+======================================================= */
+
 html, body {
-    background-color: var(--lumo-base-color);
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: var(--lumo-font-family, "Inter", sans-serif);
+    /* Domyślne tło zostanie nadpisane przez .main-layout */
+    background: var(--lumo-base-color);
     color: var(--lumo-body-text-color);
 }
 
-:root {
-    --lumo-body-text-color: #ffffff;             /* główny kolor tekstu */
-    --lumo-secondary-text-color: #cccccc;        /* np. placeholdery */
-    --lumo-primary-text-color: #ffffff;          /* tekst np. w buttonach primary */
-    --lumo-header-text-color: #ffffff;           /* np. nagłówki w accordionie */
-    --lumo-tertiary-text-color: #999999;         /* np. ikonki w disabled stanie */
-    --lumo-disabled-text-color: #777777;         /* np. nieaktywne elementy */
-    --lumo-contrast: #ffffff;
-    --lumo-icon-color: #ffffff;              /* ogólny kolor ikon, np. strzałki Accordiona */
-    --lumo-contrast-70pct: rgba(255, 255, 255, 0.7);
-    --combo-bg-color: var(--lumo-base-color, #2b2b2b); /* lub inny ciemny kolor */
-    --combo-text-color: var(--lumo-body-text-color, #ffffff);
-    --main-background-color: #1e1e1e;
-    --main-text-color: #B0B0B0;
+.main-layout {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--lumo-base-color);
+    overflow: hidden;
+    position: relative;
+    transition: background 0.6s ease-in-out, color 0.4s ease;
 }
+
+/* =======================================================
+   WIDOK NIEZALOGOWANEGO UŻYTKOWNIKA (JASNE TŁO SVG)
+======================================================= */
+
+.main-layout.unauthenticated {
+    background: url('../../images/not-authenticated.svg') no-repeat center center fixed;
+    background-size: cover;
+    background-color: #f5f7fa; /* fallback */
+    color: #1a1a1a;
+    animation: fadeInBackground 1.2s ease-in;
+}
+
+.main-layout.unauthenticated .v-vertical-layout,
+.main-layout.unauthenticated .v-app-layout,
+.main-layout.unauthenticated [part="content"] {
+    background: transparent !important;
+    box-shadow: none;
+}
+
+.main-layout.unauthenticated button {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #333;
+    border-radius: 0.5rem;
+    border: none;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.main-layout.unauthenticated button:hover {
+    background-color: rgba(255, 255, 255, 0.95);
+    transform: translateY(-2px);
+}
+
+/* =======================================================
+   WIDOK ZALOGOWANEGO UŻYTKOWNIKA (CIEMNY GRADIENT)
+======================================================= */
+
+.main-layout.authenticated {
+    /* 🚨 KLUCZOWA ZMIANA: Ciemny gradient tła dla zalogowanych */
+    background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+    animation: fadeInBackground 1.2s ease-in;
+
+    /* Ustawienie bazowego koloru tekstu na jasny */
+    color: var(--main-text-color);
+}
+
+.main-layout.authenticated .v-vertical-layout,
+.main-layout.authenticated .v-app-layout,
+.main-layout.authenticated .main-content,
+.main-layout.authenticated [part="content"] {
+    /* Upewnienie się, że wewnętrzne kontenery są przezroczyste, by było widać gradient */
+    background: transparent !important;
+    box-shadow: none;
+    padding: var(--lumo-space-m);
+    box-sizing: border-box;
+}
+
+/* Przywrócenie kolorów tekstu dla zalogowanych */
+.main-layout.authenticated h1, h2, h3, h4, h5, h6 {
+    color: white !important;
+}
+.main-layout.authenticated vaadin-vertical-layout,
+.main-layout.authenticated vaadin-horizontal-layout,
+.main-layout.authenticated , p, label, div {
+    color: white !important;
+}
+
+
+/* =======================================================
+   NAWIGACJA (NAVBAR / DRAWER)
+======================================================= */
+
+.main-layout .navbar {
+    width: 100%;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--lumo-space-m);
+
+    /* Domyślny jasny styl */
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    z-index: 100;
+}
+
+.main-layout.unauthenticated .navbar {
+    background-color: rgba(255, 255, 255, 0.5);
+    box-shadow: none;
+}
+
+/* 🚨 CIEMNY NAVBAR DLA ZALOGOWANYCH */
+.main-layout.authenticated .navbar {
+    background-color: rgba(30, 30, 30, 0.9);
+    color: white;
+}
+
+.main-layout .navbar h1,
+.main-layout .navbar h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.main-layout .drawer {
+    background-color: #fff;
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+    height: 100%;
+    padding-top: var(--lumo-space-m);
+}
+
+.main-layout.unauthenticated .drawer {
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+/* 🚨 CIEMNY DRAWER DLA ZALOGOWANYCH */
+.main-layout.authenticated .drawer {
+    background-color: #2a2a2a;
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
+    color: var(--main-text-color);
+}
+
+/* =======================================================
+   STOPKA
+======================================================= */
+
+.main-layout footer {
+    width: 100%;
+    min-height: 160px;
+    padding: 0 0.75rem;
+    opacity: 0;
+
+    transition:
+            max-height 0.4s ease-in,
+            padding 0.4s ease-in,
+            opacity 0.4s ease;
+
+    background-color: rgba(255, 255, 255, 0.85);
+    color: #333;
+    text-align: center;
+    font-size: 0.9rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    overflow: hidden;
+}
+
+/* KLASA KONTROLNA: Definiuje rozwinięty stan stopki */
+.main-layout footer.footer-visible {
+    padding: 0.75rem;
+    opacity: 1;
+}
+
+/* 🚨 CIEMNA STOPKA DLA ZALOGOWANYCH */
+.main-layout.authenticated footer {
+    background-color: rgba(30, 30, 30, 0.9);
+    color: var(--main-text-color);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.main-layout.unauthenticated footer {
+    background-color: rgba(255, 255, 255, 0.6);
+    color: #222;
+}
+
+/* =======================================================
+   GŁÓWNA ZAWARTOŚĆ (SCROLLBAR)
+======================================================= */
+
+.main-layout .v-vertical-layout.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.main-layout .v-vertical-layout.main-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.main-layout .v-vertical-layout.main-content::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+/* =======================================================
+   DROBNE ELEMENTY I EFEKTY
+======================================================= */
+
+.main-layout hr {
+    border: none;
+    /* Domyślna linia */
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 1rem 0;
+}
+
+/* 🚨 CIEMNY HR DLA ZALOGOWANYCH */
+.main-layout.authenticated hr {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* =======================================================
+   ANIMACJE I RESZTA (NIEZMIENIONE)
+======================================================= */
+
+@keyframes fadeInBackground {
+    from { opacity: 0; transform: scale(1.02); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ... (Sekcje RESPONSYWNOŚĆ i TRYB CIEMNY (opcjonalny) - pozostawiam bez zmian) ... */
+
 
 ::part(checkbox) {
     border: 1px solid #B0B0B0;
@@ -30,35 +279,24 @@ html, body {
     background-color: #B0B0B0;
 }
 
-.main-layout {
-    background-color: var(--main-background-color);
-    color: var(--main-text-color);
+vaadin-checkbox::part(label) {
+    color: #B0B0B0;
 }
 
-.main-layout > * {
-    background-color: inherit;
-    color: inherit;
-}
+/* =======================================================
+   GLOBALNE STYLE DLA PÓL WEJŚCIA (FORMULARZE)
+======================================================= */
 
-/* Styl głównego kontenera widoku (wewnątrz mainContent) */
-.view-content {
-    background-color: var(--main-background-color);
-    color: var(--main-text-color);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-/* GLOBALNE STYLE DLA FORMULARZY */
-
+/* Pole wyboru (Combo Box) */
 vaadin-combo-box-overlay::part(content),
 vaadin-combo-box-overlay::part(dropdown) {
+    /* Ustawienie jasnego tła dla wysuwanej listy (jest to intencjonalnie jasne, aby się wyróżniało lub jest to błąd i powinno być ciemne) */
     background-color: #f5f5f5;
 }
 
+/* Tło i obramowanie wszystkich pól tekstowych */
 vaadin-text-field::part(input-field),
-vaadin-email-field::part(input-field), /* ✅ added */
+vaadin-email-field::part(input-field),
 vaadin-date-picker::part(input-field),
 vaadin-combo-box::part(input-field),
 vaadin-password-field::part(input-field),
@@ -70,16 +308,18 @@ vaadin-text-area::part(input-field) {
     transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 
+/* Focus: Tło i obramowanie po kliknięciu/focusie */
 vaadin-text-field::part(input-field):focus-within,
-vaadin-email-field::part(input-field):focus-within, /* ✅ added */
+vaadin-email-field::part(input-field):focus-within,
 vaadin-date-picker::part(input-field):focus-within,
 vaadin-password-field::part(input-field):focus-within {
     background-color: #1e1e1e;
-    border: 1px solid #00adb5; /* opcjonalnie: użyj #B0B0B0, jeśli nie chcesz akcentu */
+    border: 1px solid #00adb5;
 }
 
+/* Kolor tekstu wpisywanego i kursora (caret) */
 vaadin-text-field::part(input),
-vaadin-email-field::part(input), /* ✅ added */
+vaadin-email-field::part(input),
 vaadin-password-field::part(input),
 vaadin-date-picker::part(input),
 vaadin-text-area::part(input) {
@@ -87,25 +327,24 @@ vaadin-text-area::part(input) {
     caret-color: #B0B0B0;
 }
 
+/* Kolor etykiet (Label) */
 vaadin-text-field::part(label),
-vaadin-email-field::part(label), /* ✅ added */
+vaadin-email-field::part(label),
 vaadin-password-field::part(label),
 vaadin-date-picker::part(label),
 vaadin-text-area::part(label) {
     color: #B0B0B0;
 }
 
-/* Styl przycisku pokaż/ukryj hasło (shadow part) */
+/* Przycisk pokaż/ukryj hasło */
 vaadin-password-field::part(reveal-button) {
     color: #B0B0B0;
 }
-
-/* Dla starszych wersji Vaadin (fallback) */
 vaadin-password-field vaadin-password-field-button {
     color: #B0B0B0;
 }
 
-/* Styl dla pól autouzupełnianych przez przeglądarkę */
+/* Styl dla pól autouzupełnianych przez przeglądarkę (ważne dla Dark Mode) */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
@@ -113,23 +352,22 @@ input:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0px 1000px #1e1e1e inset !important;
     -webkit-text-fill-color: #B0B0B0 !important;
     caret-color: #B0B0B0 !important;
-    transition: background-color 5000s ease-in-out 0s; /* ukrywa "flashnięcie" */
+    transition: background-color 5000s ease-in-out 0s;
 }
 
-/* Checkbox */
-vaadin-checkbox::part(label) {
-    color: #B0B0B0;
-}
+/* =======================================================
+   PRZYCISKI (BUTTONS)
+======================================================= */
 
-/* Przyciski */
 vaadin-button {
     font-weight: 500;
 }
 
-vaadin-button[theme~="primary"] {
-    background-color: #00adb5;
-    color: white;
-}
+/* nie usuwaj tego, zostawiam to aby pozniej przypomniec sobie jak to zmodyfikowac */
+/*vaadin-button[theme~="primary"] {*/
+/*    background-color: #00adb5;*/
+/*    color: white;*/
+/*}*/
 
 vaadin-button[theme~="error"] {
     background-color: #d9534f;
@@ -140,7 +378,10 @@ vaadin-button[theme~="tertiary"] {
     color: #B0B0B0;
 }
 
-/* Date picker popup background (opcjonalne) */
+/* =======================================================
+   DATE PICKER (Popup)
+======================================================= */
+
 vaadin-date-picker-overlay::part(content) {
     background-color: #2a2a2a;
     color: #B0B0B0;
@@ -150,20 +391,21 @@ vaadin-date-picker::part(toggle-button) {
     color: #B0B0B0;
 }
 
-/* GRID - ciemne tło i jasny tekst */
+/* =======================================================
+   GRID (TABELA)
+======================================================= */
+
 vaadin-grid {
     background-color: #1e1e1e;
     color: #B0B0B0;
     border: 1px solid #2a2a2a;
 }
 
-/* Wiersze siatki - delikatnie jaśniejsze tło przy najechaniu */
 vaadin-grid::part(row) {
     background-color: #1e1e1e;
     border-bottom: 1px solid #2a2a2a;
 }
 
-/* Nagłówki kolumn */
 vaadin-grid::part(header-cell) {
     background-color: #2a2a2a;
     color: #B0B0B0;
@@ -176,27 +418,31 @@ vaadin-grid::part(body-cell) {
     border-bottom: 1px solid #2a2a2a;
 }
 
-/* Wiersz po najechaniu */
 vaadin-grid::part(row):hover {
     background-color: #2a2a2a;
 }
 
-/* Wybrany wiersz */
 vaadin-grid::part(selected-row) {
     background-color: #333333;
 }
 
-/* Nagłówki */
+/* =======================================================
+   NAGŁÓWKI I TEKST
+======================================================= */
+
 h1, h2, h3, h4, h5, h6 {
     color: white;
 }
 
-/* Inne tekstowe komponenty */
 vaadin-vertical-layout,
 vaadin-horizontal-layout,
 span, p, label, div {
     color: white;
 }
+
+/* =======================================================
+   NOTIFICATION
+======================================================= */
 
 .notification-layout {
     background-color: #333333 !important;
@@ -207,4 +453,14 @@ span, p, label, div {
     width: 300px;
     height: auto;
     margin: 0;
+}
+
+/* =======================================================
+   DROBNE ELEMENTY
+======================================================= */
+
+hr {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 1rem 0;
 }

@@ -1,4 +1,24 @@
-/* Plik CSS (np. styles/component/timeline.css) */
+/* Plik CSS: Usuwa tylko dolną krawędź z Vaadin Timeline (vis-timeline) */
+
+/* ========================================================================= */
+/* --- 0. FIX: USUNIĘCIE TYLKO DOLNEJ KRAWĘDZI KOMPONENTU --- */
+/* ========================================================================= */
+
+/* 1. Usunięcie dolnej krawędzi z głównego kontenera vis-timeline */
+.vis-timeline {
+    border-bottom: none !important;
+}
+
+/* 2. Usunięcie dolnej krawędzi z kontenera treści/siatki */
+/* To jest kluczowe, ponieważ to on często renderuje linię */
+.vis-timeline .vis-content {
+    border-bottom: none !important;
+}
+
+/* 3. Usunięcie dolnej krawędzi z osi czasu (skala dat) */
+.vis-timeline .vis-time-axis {
+    border-bottom: none !important;
+}
 
 /* ========================================================================= */
 /* --- 1. Ustawienia globalne dla elementów klikalnych i krótkich --- */
@@ -23,7 +43,6 @@
 
 /* --- Element Domyślny ("Praca") --- */
 .timeline-item-default {
-    /* Ustawienie bazowego, jasnoniebieskiego koloru (zgodnie z Twoim życzeniem) */
     background-color: #B3E5FC !important; /* Jasny niebieski */
     border-color: #03A9F4 !important;    /* Ramka niebieska */
 }
@@ -45,9 +64,14 @@
 .timeline-item-note {
     background-color: #4CAF50 !important; /* Zielony */
     border-color: #388E3C !important;
+    border-radius: 5px;
+    height: 10px;
+    margin-top: -5px;
 }
 .timeline-item-note .vis-item-content {
     color: white !important;
+    padding: 0 4px !important;
+    line-height: 10px !important;
 }
 
 
@@ -57,7 +81,6 @@
 
 /* --- Wybrany Element Domyślny ("Praca") --- */
 .timeline-item-default.vis-selected {
-    /* Wymuszamy wizualne wyróżnienie po kliknięciu (np. ciemniejszy niebieski) */
     background-color: #03A9F4 !important;
     border-color: #01579B !important;
     border-width: 2px !important;
@@ -69,7 +92,6 @@
 
 /* --- Wybrane "Nadgodziny" --- */
 .timeline-item-overtime.vis-selected {
-    /* Zmiana na ciemniejszy pomarańczowy, aby pokazać stan wybrany */
     background-color: #f57c00 !important;
     border-color: #c45c00 !important;
     border-width: 2px !important;
@@ -77,18 +99,21 @@
 
 /* --- Wybrana "Notatka" --- */
 .timeline-item-note.vis-selected {
-    /* Zmiana na ciemniejszą zieleń */
     background-color: #388E3C !important;
     border-color: #1B5E20 !important;
     border-width: 2px !important;
 }
 
+/* ========================================================================= */
+/* --- 4. Element "Ongoing" (Aktualnie trwająca praca) --- */
+/* ========================================================================= */
+
 .timeline-item-ongoing {
-    position: relative; /* To jest klucz! Bez tego ::after nie działa */
-    background-color: #B3E5FC !important; /* ten sam kolor co .timeline-item-default */
+    position: relative;
+    background-color: #B3E5FC !important;
     border-color: #03A9F4 !important;
 
-    /* efekt zanikania tła ku prawej */
+    /* Efekt zanikania tła ku prawej */
     -webkit-mask-image: linear-gradient(to right, black 40%, rgba(0,0,0,0) 100%);
     mask-image: linear-gradient(to right, black 40%, rgba(0,0,0,0) 100%);
     -webkit-mask-repeat: no-repeat;
@@ -101,4 +126,41 @@
 /* Ustawienie koloru tekstu dla itemu ongoing */
 .timeline-item-ongoing .vis-item-content {
     color: #333 !important;
+}
+
+/* --- Element "Notatka" (Zielony) --- */
+.timeline-item-note {
+    background-color: #4CAF50 !important; /* Zielony */
+    border-color: #388E3C !important;
+}
+.timeline-item-note .vis-item-content {
+    color: white !important;
+}
+
+/* --- Wybrana "Notatka" --- */
+.timeline-item-note.vis-selected {
+    /* Zmiana na ciemniejszą zieleń */
+    background-color: #388E3C !important;
+    border-color: #1B5E20 !important;
+    border-width: 2px !important;
+}
+
+/* ========================================================================= */
+/* --- Dodatkowe/Alternatywne style dla notatki (jako punkt/słupek) --- */
+/* ========================================================================= */
+
+/* Ustawienie elementu jako punkt, np. kółko lub mały pionowy słupek */
+/* UWAGA: Ten styl Zastępuje styl zielony z sekcji 2, jeśli zostanie zaimportowany później */
+.timeline-item-note-point {
+    background-color: #ff9800; /* Kolor pomarańczowy */
+    border: 2px solid #e65100;
+    border-radius: 5px; /* Kwadratowe elementy dla punktów */
+    height: 10px; /* Wysokość elementu na linii czasu */
+    margin-top: -5px; /* Wyśrodkowanie na linii czasu (jeśli height jest 10px) */
+}
+
+/* Możesz też użyć stylizacji dla tylko tła, aby było bardziej subtelne */
+.timeline-item-note-subtle.vis-item-content {
+    background-color: rgba(255, 152, 0, 0.4); /* Półprzezroczysty kolor */
+    border: none;
 }

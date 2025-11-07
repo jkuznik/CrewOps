@@ -67,7 +67,6 @@ public class MachineGrid extends VerticalLayout {
         updateMachineGrid();
         closeEditor();
 
-        setSizeFull();
         add(gridToolbar, getContent());
     }
 
@@ -126,7 +125,6 @@ public class MachineGrid extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.setSizeFull();
         grid.removeAllColumns();
 
         grid.addColumn(MachineFormModel::getMachineType).setKey("machineType");
@@ -155,6 +153,8 @@ public class MachineGrid extends VerticalLayout {
             selectedModel = event.getValue();
             editMachine(event.getValue());
         });
+
+        grid.setAllRowsVisible(true);
     }
 
     private void configureForm() {

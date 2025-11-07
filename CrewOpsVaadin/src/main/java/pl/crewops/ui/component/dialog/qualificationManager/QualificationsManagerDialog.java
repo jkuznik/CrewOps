@@ -30,15 +30,17 @@ public class QualificationsManagerDialog extends Dialog {
 
         qualificationManagerGrid.setSizeFull();
 
-        Button closeButton = new Button(getTranslation("qualificationManagerDialog.closeButton"), event -> close());
-        closeButton.addClickShortcut(Key.ESCAPE);
-
-        var layout = new VerticalLayout(qualificationManagerGrid, addQualificationForm, closeButton);
+        var layout = new VerticalLayout(qualificationManagerGrid, addQualificationForm);
         layout.setSizeFull();
         layout.setSpacing(true);
         layout.setPadding(true);
 
+        Button closeButton = new Button(getTranslation("qualificationManagerDialog.closeButton"), event -> close());
+        closeButton.addClickShortcut(Key.ESCAPE);
+
         add(layout);
+
+        getFooter().add(closeButton);
     }
 
     private AddQualificationForm getConfiguredAddQualificationForm(EmployeeFormModel employeeFormModel) {

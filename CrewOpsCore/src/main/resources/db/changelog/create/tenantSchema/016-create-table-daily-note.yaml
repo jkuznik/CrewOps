@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: 001-create-table-daily-note
+      id: 001-create-table-note
       author: jkuznik
       changes:
         - createTable:
-            tableName: daily_note
+            tableName: note
             columns:
               - column:
                   name: id
@@ -19,10 +19,8 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: daily_entry_id
-                  type: uuid
-                  constraints:
-                    nullable: false
+                  name: date
+                  type: date
               - column:
                   name: reported_by_employee_id
                   type: uuid
@@ -30,7 +28,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: type
-                  type: public.daily_note_type
+                  type: public.note_type
                   constraints:
                     nullable: false
               - column:
@@ -52,30 +50,22 @@ databaseChangeLog:
                     nullable: false
 
         - addForeignKeyConstraint:
-            baseTableName: daily_note
-            baseColumnNames: daily_entry_id
-            referencedTableName: daily_entry
-            referencedColumnNames: id
-            constraintName: fk_daily_note_daily_entry
-            onDelete: CASCADE
-
-        - addForeignKeyConstraint:
-            baseTableName: daily_note
+            baseTableName: note
             baseColumnNames: reported_by_employee_id
             referencedTableName: employee
             referencedColumnNames: id
-            constraintName: fk_daily_note_reported_by
+            constraintName: fk_note_reported_by
             onDelete: RESTRICT
 
   - changeSet:
-      id: 002-create-daily_note-updated_at-trigger
+      id: 002-create-note-updated_at-trigger
       author: jkuznik
       changes:
         - sql:
             dbms: postgresql
             sql: |
-              DROP TRIGGER IF EXISTS daily_note_updated_at_trigger ON daily_note;
-              CREATE TRIGGER daily_note_updated_at_trigger
-              BEFORE UPDATE ON daily_note
+              DROP TRIGGER IF EXISTS note_updated_at_trigger ON note;
+              CREATE TRIGGER note_updated_at_trigger
+              BEFORE UPDATE ON note
               FOR EACH ROW
               EXECUTE FUNCTION update_updated_at();

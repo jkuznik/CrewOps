@@ -7,4 +7,8 @@ public class DailyEntryNotFoundException extends RuntimeException {
     public DailyEntryNotFoundException(UUID employee, LocalDate entryDate) {
         super("Employee with id: " + employee + " has not registered entry  for date: " + entryDate);
     }
+
+    public DailyEntryNotFoundException(UUID uuid) {
+        super("Daily entry with id: " + uuid + " not found");
+    }
 }

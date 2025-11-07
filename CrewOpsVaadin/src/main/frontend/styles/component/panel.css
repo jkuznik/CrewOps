@@ -1,0 +1,8 @@
+/* Plik CSS: nadpisywanie koloru tekstu nagłówka w PanelCustom */
+
+/* Selektor celuje w element Span z tytułem wewnątrz PanelCustom (custom-timeline-panel) */
+/* Używamy ogólnej ścieżki, która obejmuje nagłówek w komponentach Vaadin */
+.custom-timeline-panel overcoded-panel-summary vaadin-horizontal-layout > span {
+    /* Ustawiamy ciemny kolor tekstu Lumo. To nadpisze pomarańczowy ustawiony w Javie. */
+    color: var(--lumo-primary-text-color) !important;
+}

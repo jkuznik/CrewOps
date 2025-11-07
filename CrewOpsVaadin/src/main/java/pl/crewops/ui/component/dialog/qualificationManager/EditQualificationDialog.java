@@ -2,6 +2,8 @@ package pl.crewops.ui.component.dialog.qualificationManager;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.shared.Registration;
 import lombok.Getter;
@@ -23,7 +25,13 @@ public class EditQualificationDialog extends Dialog {
 
         configureEditQualificationForm();
 
+        // i18n same as QualificationManagerDialog, update if needed
+        var closeButton = new Button(getTranslation("qualificationManagerDialog.closeButton"), event -> close());
+        closeButton.addClickShortcut(Key.ESCAPE);
+
         add(editQualificationForm);
+
+        getFooter().add(closeButton);
     }
 
     // this setters has responsibility to pass values from parent component to child component
@@ -41,9 +49,6 @@ public class EditQualificationDialog extends Dialog {
     private EditQualificationForm configureEditQualificationForm() {
         editQualificationForm.addUpdateEventListener(event -> {
             fireEvent(new UpdateEvent(this, event.getEmployeeDTO()));
-            close();
-        });
-        editQualificationForm.addCancelEventListener(event -> {
             close();
         });
         return editQualificationForm;

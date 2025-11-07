@@ -6,16 +6,15 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.shared.Registration;
 import lombok.Getter;
 
 public class EmailVerificationForm extends FormLayout {
 
     private final Span infoText = new Span();
-    private final TextField verificationCode = new TextField();
+    private final NumberField verificationCode = new NumberField();
     private final Button verify = new Button();
     private final Button cancel = new Button();
 
@@ -25,25 +24,15 @@ public class EmailVerificationForm extends FormLayout {
         localize();
 
         configInfoText();
-        configVerificationCodeComponent();
         configVerifyButton();
         configCancelButton();
 
-        var horizontalLayout = new HorizontalLayout(verify, cancel);
-        horizontalLayout.setSizeFull();
-        horizontalLayout.setSpacing(true);
-        horizontalLayout.setPadding(false);
-        horizontalLayout.setWidthFull();
-        horizontalLayout.setFlexGrow(1, verify);
-        horizontalLayout.setFlexGrow(1, cancel);
-
-        var verticalLayout = new VerticalLayout(infoText, verificationCode, horizontalLayout);
+        var verticalLayout = new VerticalLayout(infoText, verificationCode, verify, cancel);
         verticalLayout.setSizeUndefined();
         verticalLayout.setSpacing(true);
         verticalLayout.setPadding(false);
 
         add(verticalLayout);
-        setResponsiveSteps(new ResponsiveStep("0", 1));
     }
 
     private void localize() {
@@ -59,24 +48,21 @@ public class EmailVerificationForm extends FormLayout {
                 .set("color", "var(--lumo-secondary-text-color)")
                 .set("max-width", "400px") // or any width that fits your design
                 .set("white-space", "normal");
-    }
 
-    private void configVerificationCodeComponent() {
-        verificationCode.setWidth("200px");
-        verificationCode.getStyle().set("margin", "0 auto");
+        verificationCode.setWidthFull();
     }
 
     private void configVerifyButton() {
-        verify.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        verify.setWidth(null);
+        verify.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        verify.setWidthFull();
         verify.addClickListener(event -> {
-            fireEvent(new VerifyEmailEvent(this, verificationCode.getValue()));
+            fireEvent(new VerifyEmailEvent(this, verificationCode.getValue().intValue()));
         });
     }
 
     private void configCancelButton() {
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        cancel.setWidth(null);
+        cancel.setWidthFull();
         cancel.addClickListener(event -> {
             fireEvent(new CancelEvent(this));
         });
@@ -92,9 +78,9 @@ public class EmailVerificationForm extends FormLayout {
     public static class VerifyEmailEvent extends EmailVerificationFormEvent {
 
         @Getter
-        private final String verificationCode;
+        private final int verificationCode;
 
-        public VerifyEmailEvent(EmailVerificationForm source, String verificationCode) {
+        public VerifyEmailEvent(EmailVerificationForm source, int verificationCode) {
             super(source);
             this.verificationCode = verificationCode;
         }

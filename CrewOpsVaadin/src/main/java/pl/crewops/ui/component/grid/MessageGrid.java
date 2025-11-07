@@ -61,7 +61,6 @@ public class MessageGrid extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.setSizeFull();
         List<EmployeeDTO> allEmployees = new ArrayList<>();
         try {
             allEmployees = coreAPI.getAllEmployees();
@@ -152,6 +151,8 @@ public class MessageGrid extends VerticalLayout {
                 }
             }
         });
+
+        grid.setAllRowsVisible(true);
     }
 
     private HorizontalLayout getToolbar() {

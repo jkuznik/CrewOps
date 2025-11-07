@@ -141,8 +141,8 @@ public class AuditDetailsBuilder {
                     newValues.put("status", newEntry.getStatus());
                 }
             }
-            case DAILY_NOTE_ADDED, SAFETY_NOTE_ADDED -> {
-                newValues.put("noteAdded", newEntry.getDailyNotes());
+            case SAFETY_NOTE_ADDED -> {
+                //                newValues.put("noteAdded", newEntry.getDailyNotes());
             }
             case REPORT_STATUS_CHANGED -> {
                 oldValues.put("reportStatus", oldEntry != null ? oldEntry.getStatus() : null);

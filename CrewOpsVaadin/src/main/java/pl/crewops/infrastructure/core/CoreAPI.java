@@ -3,25 +3,46 @@ package pl.crewops.infrastructure.core;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.model.dto.auth.*;
-import pl.crewops.model.dto.breakdown.*;
+import pl.crewops.model.dto.breakdown.BreakdownDTO;
+import pl.crewops.model.dto.breakdown.CreateBreakdownDTO;
+import pl.crewops.model.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.model.dto.company.CompanyDTO;
-import pl.crewops.model.dto.dailyEntry.*;
+import pl.crewops.model.dto.dailyEntry.CreateDailyEntryDTO;
+import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
+import pl.crewops.model.dto.dailyEntry.UpdateDailyEntryCommand;
 import pl.crewops.model.dto.department.DepartmentDTO;
-import pl.crewops.model.dto.employee.*;
+import pl.crewops.model.dto.employee.CreateEmployeeDTO;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
 import pl.crewops.model.dto.jobPosition.CreateJobPositionDTO;
 import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.jobPosition.UpdateJobPositionDTO;
-import pl.crewops.model.dto.machine.*;
+import pl.crewops.model.dto.machine.CreateMachineDTO;
+import pl.crewops.model.dto.machine.MachineDTO;
+import pl.crewops.model.dto.machine.UpdateMachineDTO;
 import pl.crewops.model.dto.machineType.MachineTypeDTO;
-import pl.crewops.model.dto.message.*;
+import pl.crewops.model.dto.message.MessageDTO;
+import pl.crewops.model.dto.message.SendMessageCommand;
+import pl.crewops.model.dto.note.CreateNoteDTO;
+import pl.crewops.model.dto.note.FetchNotesRequest;
+import pl.crewops.model.dto.note.NoteDTO;
 import pl.crewops.model.dto.option.AuthUserOptionDTO;
-import pl.crewops.model.dto.qualification.*;
-import pl.crewops.model.dto.registration.*;
+import pl.crewops.model.dto.qualification.CreateQualificationDTO;
+import pl.crewops.model.dto.qualification.QualificationDTO;
+import pl.crewops.model.dto.qualification.UpdateQualificationDTO;
+import pl.crewops.model.dto.qualification.UpdateQualificationExpiredAtDTO;
+import pl.crewops.model.dto.registration.CreateCustomerCommand;
+import pl.crewops.model.dto.registration.CreateCustomerResult;
+import pl.crewops.model.dto.registration.PreRegisterResponse;
+import pl.crewops.model.dto.registration.VerifyEmailRequest;
 
 @Repository
 @Validated
@@ -152,6 +173,13 @@ public interface CoreAPI {
     Optional<DailyEntryDTO> approveDailyEntry(@Valid @NotNull UpdateDailyEntryCommand updateDailyEntryCommand)
             throws NotAuthenticatedException;
 
+    // --- DAILY NOTE ---
+
+    Optional<NoteDTO> createNote(@Valid @NotNull CreateNoteDTO createNoteDTO) throws NotAuthenticatedException;
+
+    List<NoteDTO> getAllPublicAndPrincipalPrivateNotesByDate(@NotNull FetchNotesRequest fetchNotesRequest)
+            throws NotAuthenticatedException;
+
     // ---- JOB POSITION ---
 
     JobPositionDTO createJobPosition(@NotNull @Valid CreateJobPositionDTO createJobPositionDTO)
@@ -162,5 +190,5 @@ public interface CoreAPI {
     JobPositionDTO updateJobPosition(@NotNull @Valid UpdateJobPositionDTO updateJobPositionDTO)
             throws NotAuthenticatedException;
 
-    void deleteById(@NotNull UUID id) throws NotAuthenticatedException;
+    void deleteJobPositionById(@NotNull UUID id) throws NotAuthenticatedException;
 }

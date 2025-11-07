@@ -8,7 +8,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.WeakHashMap;
@@ -37,27 +36,26 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
     public LoggedUserInfoComponent(
             CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
         addClassName("logged-user-info");
+        setMargin(true);
 
         if (authenticationResolver.principalIsAuthenticated()) {
-            add(loggedUserInfo(coreAPI, jwtService, authenticationResolver));
+            loggedUserInfo(coreAPI, jwtService, authenticationResolver);
         } else {
             add(new LoginForm(coreAPI, jwtService));
         }
     }
 
-    private Component loggedUserInfo(
+    private void loggedUserInfo(
             CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
-        var infoLayout = new VerticalLayout();
-        infoLayout.setWidthFull();
-        infoLayout.setSpacing(true);
-        infoLayout.setAlignItems(FlexComponent.Alignment.END);
+        //        var infoLayout = new VerticalLayout();
+        //        infoLayout.setSpacing(true);
+        //        infoLayout.setAlignItems(FlexComponent.Alignment.END);
+        //        infoLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         Button logoutButton = new Button(getTranslation("loggedUserInfo.logout"));
         logoutButton.addClickListener(event -> logout(authenticationResolver));
         logoutButton.addThemeVariants(ButtonVariant.LUMO_WARNING);
         logoutButton.setWidth("160px");
-
-        //        logoutButton.getElement().getStyle().set("color", "#FF0000");
 
         var logoutButtonAndLanguageSelector = new HorizontalLayout();
         logoutButtonAndLanguageSelector.setSpacing(true);
@@ -65,8 +63,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
 
         final var token = authenticationResolver.getPrincipal().getToken();
         UserInformation userInformation = getInfo(coreAPI, jwtService, token);
-        infoLayout.add(userProfileComponent(userInformation, authenticationResolver), logoutButtonAndLanguageSelector);
-        return infoLayout;
+        add(userProfileComponent(userInformation, authenticationResolver), logoutButtonAndLanguageSelector);
     }
 
     private UserInformation getInfo(CoreAPI coreAPI, JwtServiceVaadin jwtService, String token) {

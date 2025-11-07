@@ -30,16 +30,18 @@ public class MachineManagerDialog extends Dialog {
 
         machineManagerGrid.setSizeFull();
 
-        // i18n same as QualificationManagerDialog, update if needed
-        var closeButton = new Button(getTranslation("qualificationManagerDialog.closeButton"), event -> close());
-        closeButton.addClickShortcut(Key.ESCAPE);
-
-        var layout = new VerticalLayout(machineManagerGrid, addMachineForm, closeButton);
+        var layout = new VerticalLayout(machineManagerGrid, addMachineForm);
         layout.setSizeFull();
         layout.setSpacing(true);
         layout.setPadding(true);
 
+        // i18n same as QualificationManagerDialog, update if needed
+        var closeButton = new Button(getTranslation("qualificationManagerDialog.closeButton"), event -> close());
+        closeButton.addClickShortcut(Key.ESCAPE);
+
         add(layout);
+
+        getFooter().add(closeButton);
     }
 
     private AddMachineForm getConfiguredAddMachineForm(EmployeeFormModel employeeFormModel) {

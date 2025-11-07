@@ -18,7 +18,7 @@ interface QualificationRepository extends JpaRepository<Qualification, UUID> {
 
     @Query(
             """
-    SELECT QualificationDTO(
+    SELECT new pl.crewops.model.dto.qualification.QualificationDTO(
         q.id,
         q.description,
         eq.expiredAt,

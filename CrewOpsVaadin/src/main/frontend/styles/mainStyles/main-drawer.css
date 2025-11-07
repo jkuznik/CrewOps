@@ -1,32 +1,30 @@
+/* --- MAIN DRAWER (TŁO: Ujednolicone z MainLayout, wzmocniony gradient) --- */
 .main-drawer {
     position: relative;
-    background-color: #000000;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='20' viewBox='0 0 1000 120'%3E%3Cg fill='none' stroke='%232B2B2B' stroke-width='23.1' %3E%3Cpath d='M-500 75c0 0 125-30 250-30S0 75 0 75s125 30 250 30s250-30 250-30s125-30 250-30s250 30 250 30s125 30 250 30s250-30 250-30'/%3E%3Cpath d='M-500 45c0 0 125-30 250-30S0 45 0 45s125 30 250 30s250-30 250-30s125-30 250-30s250 30 250 30s125 30 250 30s250-30 250-30'/%3E%3Cpath d='M-500 105c0 0 125-30 250-30S0 105 0 105s125 30 250 30s250-30 250-30s125-30 250-30s250 30 250 30s125 30 250 30s250-30 250-30'/%3E%3Cpath d='M-500 15c0 0 125-30 250-30S0 15 0 15s125 30 250 30s250-30 250-30s125-30 250-30s250 30 250 30s125 30 250 30s250-30 250-30'/%3E%3Cpath d='M-500-15c0 0 125-30 250-30S0-15 0-15s125 30 250 30s250-30 250-30s125-30 250-30s250 30 250 30s125 30 250 30s250-30 250-30'/%3E%3Cpath d='M-500 135c0 0 125-30 250-30S0 135 0 135s125 30 250 30s250-30 250-30s125-30 250-30s250 30 250 30s125 30 250 30s250-30 250-30'/%3E%3C/g%3E%3C/svg%3E");
-    background-repeat: no-repeat;
+
+    /* Bardziej widoczny gradient liniowy */
+    background: linear-gradient(180deg, #1B2735 0%, #090A0F 100%) !important;
+    background-color: #090A0F !important; /* Fallback na czarny, najciemniejszy kolor */
+
+    background-image: none;
+    background-attachment: fixed;
     background-size: cover;
 
-    background-color: #0f0f0f;
-    color: #B0B0B0;
+    /* Utrzymanie stylów dla spójności */
+    color: #FFFFFF;
+    border-right: 2px solid #777777;
+
     padding: 1rem;
-
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    border-bottom: 2px solid #B0B0B0;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: auto;
 }
 
 .main-drawer::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    pointer-events: none;
-    z-index: 0;
+    content: none;
 }
 
 .main-drawer > * {
@@ -34,15 +32,60 @@
     z-index: 1;
 }
 
-.main-drawer vaadin-router-link,
-.main-drawer a {
-    color: #B0B0B0;
-    font-weight: 500;
-    text-decoration: none;
-    position: relative;
-    z-index: 1;
+/* --- STYLIZACJA POJEDYNCZEGO LINKU (TŁO + EFEKT HOVER) --- */
+
+/* Link ma klasę "drawer-link-with-icon" */
+.drawer-link-with-icon {
+    width: 100%;
+
+    /* Delikatne tło linków (subtelna poświata) */
+    background-color: rgba(255, 255, 255, 0.05);
+
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-bottom: 8px !important;
+
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+
+    transition: background-color 0.2s, box-shadow 0.2s;
+    text-decoration: none; /* Domyślnie brak podkreślenia */
 }
 
-.main-drawer a:hover {
-    color: #00adb5;
+/* Pogrubienie czcionki dla tekstu wewnątrz linków (Span) */
+.drawer-link-with-icon span {
+    font-weight: bold;
+}
+
+
+/* EFEKT HOVER */
+.drawer-link-with-icon:hover {
+    /* Kolor akcentujący (#00adb5 z MainLayout) dla hover */
+    background-color: rgba(0, 173, 181, 0.40);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+    /* Usunięcie podkreślenia na hover */
+    text-decoration: none;
+}
+
+/* Nasilona odcień turkusu dla aktywnego linku */
+.drawer-link-with-icon.active,
+.drawer-link-with-icon.current-page {
+    /* Używamy koloru #00adb5 (turkus) z większą nieprzezroczystością (0.55),
+       aby tło było mocno widoczne */
+    background-color: rgba(0, 173, 181, 0.55) !important;
+    box-shadow: 0 0 10px rgba(0, 173, 181, 0.5); /* Dodatkowy blask */
+}
+
+/* --- STYLE STOPKI (dla spójności) --- */
+
+.drawer-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    width: 100%;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.drawer-footer-text {
+    /* Kolor jest ustawiony w Javie, ten styl jest rezerwa */
+    color: #777777;
+    font-size: 0.85rem;
 }

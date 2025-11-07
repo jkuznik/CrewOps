@@ -24,7 +24,7 @@ import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.view.HomeView;
 import pl.crewops.util.SpringContextBridge;
 
-public class DepartmentManagerGrid extends VerticalLayout {
+class DepartmentManagerGrid extends VerticalLayout {
     private final Grid<DepartmentFormModel> grid = new Grid<>();
 
     public DepartmentManagerGrid(EmployeeFormModel employeeFormModel, AddDepartmentForm addDepartmentForm) {

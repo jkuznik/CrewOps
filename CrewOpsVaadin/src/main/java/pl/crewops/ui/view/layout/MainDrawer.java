@@ -36,6 +36,8 @@ public class MainDrawer extends VerticalLayout {
     private final Span employeeTextSpan = new Span();
     private final Span machineTextSpan = new Span();
 
+    private static final String DRAWER_COLOR = "white";
+
     public MainDrawer(AuthenticationResolver authenticationResolver) {
         this.authenticationResolver = authenticationResolver;
 
@@ -83,6 +85,12 @@ public class MainDrawer extends VerticalLayout {
 
         Icon icon = new Icon(iconType);
 
+        // Ustawienie koloru dla Ikony Vaadin
+        icon.getStyle().set("color", DRAWER_COLOR);
+
+        // Ustawienie koloru dla tekstu Span
+        textSpan.getStyle().set("color", DRAWER_COLOR);
+
         content.add(icon, textSpan);
 
         link.getElement().appendChild(content.getElement());
@@ -90,7 +98,6 @@ public class MainDrawer extends VerticalLayout {
     }
 
     private void localize() {
-
         homeTextSpan.setText(getTranslation("mainDrawer.link.home"));
         dailyTextSpan.setText(getTranslation("mainDrawer.link.daily"));
         employeeTextSpan.setText(getTranslation("mainDrawer.link.employee"));
@@ -104,6 +111,8 @@ public class MainDrawer extends VerticalLayout {
         footer.addClassName("drawer-footer");
 
         footerText.addClassName("drawer-footer-text");
+        // Ustawienie koloru dla tekstu stopki
+        footerText.getStyle().set("color", DRAWER_COLOR);
 
         footer.add(footerText);
         return footer;

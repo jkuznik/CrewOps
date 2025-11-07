@@ -45,10 +45,7 @@ public class DailyEntry extends AbstractEntity {
     @JoinColumn(name = "job_position_id")
     private JobPosition jobPosition;
 
-    @OneToMany(mappedBy = "dailyEntry", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<DailyNote> dailyNotes = new HashSet<>();
-
-    @OneToMany(mappedBy = "dailyEntry", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "dailyEntry", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DailyEntryAudit> auditEvents = new HashSet<>();
 
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)

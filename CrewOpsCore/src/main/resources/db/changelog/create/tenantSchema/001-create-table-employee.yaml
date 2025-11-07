@@ -33,8 +33,6 @@ databaseChangeLog:
               - column:
                   name: birth_date
                   type: date
-                  constraints:
-                    nullable: false
               - column:
                   name: phone_number
                   type: varchar(15)

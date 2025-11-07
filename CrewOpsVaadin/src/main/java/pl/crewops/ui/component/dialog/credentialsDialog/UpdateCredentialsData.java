@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class UpdateCredentialsData {
+class UpdateCredentialsData {
     private String username;
     private String repeatUsername;
     private String password;
