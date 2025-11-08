@@ -10,7 +10,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 import lombok.extern.slf4j.Slf4j;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.ui.component.grid.BreakdownGrid;
 import pl.crewops.ui.component.grid.MachineGrid;
 import pl.crewops.ui.component.notification.FailNotification;
@@ -25,8 +24,8 @@ public class MachineView extends MainLayout implements BeforeEnterObserver {
     private MachineGrid machineGrid;
     private BreakdownGrid breakdownGrid;
 
-    public MachineView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
-        super(coreAPI, jwtService, authenticationResolver);
+    public MachineView(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
+        super(coreAPI, authenticationResolver);
     }
 
     @Override

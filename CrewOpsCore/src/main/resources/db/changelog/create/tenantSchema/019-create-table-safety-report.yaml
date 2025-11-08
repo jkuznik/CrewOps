@@ -1,0 +1,78 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-table-safety-report
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: safety_report
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: version
+                  type: integer
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content
+                  type: varchar(32767)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: public.safety_report_status
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reported_by_employee_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: severity_level
+                  type: integer
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+              - column:
+                  name: secret
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+
+        - addForeignKeyConstraint:
+            baseTableName: safety_report
+            baseColumnNames: reported_by_employee_id
+            referencedTableName: employee
+            referencedColumnNames: id
+            constraintName: fk_sr_reported_by
+            # updatable = false (z JPA) jest w logice aplikacji, tutaj używamy RESTRICT
+            onDelete: RESTRICT
+
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS safety_report_updated_at_trigger ON safety_report;
+              CREATE TRIGGER safety_report_updated_at_trigger
+              BEFORE UPDATE ON safety_report
+              FOR EACH ROW
+              EXECUTE FUNCTION update_updated_at();

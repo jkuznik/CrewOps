@@ -12,7 +12,6 @@ import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.ProfileFormModel;
 import pl.crewops.model.dto.employee.EmployeeDTO;
-import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.ui.component.form.ProfileForm;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.component.notification.NotAuthenticatedNotification;
@@ -23,8 +22,8 @@ import pl.crewops.util.AuthenticationResolver;
 @PageTitle("Profile configuration")
 public class ProfileView extends MainLayout implements BeforeEnterObserver {
 
-    public ProfileView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
-        super(coreAPI, jwtService, authenticationResolver);
+    public ProfileView(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
+        super(coreAPI, authenticationResolver);
     }
 
     @Override

@@ -1,0 +1,80 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-table-srt
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: srt
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: version
+                  type: integer
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_incident
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_hazard
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: requires_action
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            columnNames: name
+            constraintName: uq_srt_name
+            tableName: srt
+
+        - sql:
+            dbms: postgresql
+            sql: |
+              ALTER TABLE srt 
+              ADD CONSTRAINT srt_exclusive_type_check 
+              CHECK ((is_incident::int + is_hazard::int + requires_action::int) = 1);
+
+  - changeSet:
+      id: 004-create-srt-updated_at-trigger
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS srt_updated_at_trigger ON srt;
+              CREATE TRIGGER srt_updated_at_trigger
+              BEFORE UPDATE ON srt
+              FOR EACH ROW
+              EXECUTE FUNCTION update_updated_at();

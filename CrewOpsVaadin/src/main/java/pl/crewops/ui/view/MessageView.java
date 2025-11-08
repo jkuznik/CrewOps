@@ -7,7 +7,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.ui.component.grid.MessageGrid;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.view.layout.MainLayout;
@@ -19,8 +18,8 @@ public class MessageView extends MainLayout implements BeforeEnterObserver {
 
     private MessageGrid messageGrid;
 
-    public MessageView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
-        super(coreAPI, jwtService, authenticationResolver);
+    public MessageView(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
+        super(coreAPI, authenticationResolver);
     }
 
     @Override

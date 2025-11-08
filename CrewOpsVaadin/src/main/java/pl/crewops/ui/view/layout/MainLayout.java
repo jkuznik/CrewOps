@@ -10,7 +10,6 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import java.util.HashSet;
 import java.util.Set;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.util.AuthenticationResolver;
 
 @SpringComponent
@@ -19,7 +18,6 @@ import pl.crewops.util.AuthenticationResolver;
 public class MainLayout extends AppLayout {
 
     protected final CoreAPI coreAPI;
-    protected final JwtServiceVaadin jwtService;
     protected final AuthenticationResolver authenticationResolver;
 
     protected final VerticalLayout mainContent = new VerticalLayout();
@@ -29,13 +27,12 @@ public class MainLayout extends AppLayout {
 
     protected final Set<Registration> listeners = new HashSet<>();
 
-    public MainLayout(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
+    public MainLayout(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
         addClassName("main-layout");
 
         this.coreAPI = coreAPI;
-        this.jwtService = jwtService;
         this.authenticationResolver = authenticationResolver;
-        this.navbar = new MainNavbar(coreAPI, jwtService, authenticationResolver);
+        this.navbar = new MainNavbar(coreAPI, authenticationResolver);
         this.drawer = new MainDrawer(authenticationResolver);
 
         mainContent.setSizeFull();

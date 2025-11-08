@@ -12,7 +12,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.view.layout.MainLayout;
 import pl.crewops.util.AuthenticationResolver;
@@ -21,8 +20,8 @@ import pl.crewops.util.AuthenticationResolver;
 @PageTitle("Contact - Crew Ops")
 public class ContactView extends MainLayout {
 
-    public ContactView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
-        super(coreAPI, jwtService, authenticationResolver);
+    public ContactView(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
+        super(coreAPI, authenticationResolver);
         addClassName("contact-view");
 
         try {

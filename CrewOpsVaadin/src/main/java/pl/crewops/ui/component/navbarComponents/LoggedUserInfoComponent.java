@@ -18,7 +18,6 @@ import lombok.extern.log4j.Log4j2;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.company.CompanyDTO;
-import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.ui.component.form.LoginForm;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.component.notification.auth.EndSessionNotification;
@@ -30,30 +29,29 @@ import pl.crewops.util.AuthenticationResolver;
 
 @Log4j2
 public class LoggedUserInfoComponent extends HorizontalLayout {
+    private final CoreAPI coreAPI;
+    private final AuthenticationResolver authenticationResolver;
+
     private static final Map<UI, Boolean> startedMap = new WeakHashMap<>();
     private boolean sessionEnded = false;
 
-    public LoggedUserInfoComponent(
-            CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
+    public LoggedUserInfoComponent(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
+        this.coreAPI = coreAPI;
+        this.authenticationResolver = authenticationResolver;
+
         addClassName("logged-user-info");
         setMargin(true);
 
         if (authenticationResolver.principalIsAuthenticated()) {
-            loggedUserInfo(coreAPI, jwtService, authenticationResolver);
+            loggedUserInfo();
         } else {
-            add(new LoginForm(coreAPI, jwtService));
+            add(new LoginForm(coreAPI, authenticationResolver));
         }
     }
 
-    private void loggedUserInfo(
-            CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
-        //        var infoLayout = new VerticalLayout();
-        //        infoLayout.setSpacing(true);
-        //        infoLayout.setAlignItems(FlexComponent.Alignment.END);
-        //        infoLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-
+    private void loggedUserInfo() {
         Button logoutButton = new Button(getTranslation("loggedUserInfo.logout"));
-        logoutButton.addClickListener(event -> logout(authenticationResolver));
+        logoutButton.addClickListener(event -> logout());
         logoutButton.addThemeVariants(ButtonVariant.LUMO_WARNING);
         logoutButton.setWidth("160px");
 
@@ -62,32 +60,39 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         logoutButtonAndLanguageSelector.add(logoutButton, new LanguageSelectorComponent());
 
         final var token = authenticationResolver.getPrincipal().getToken();
-        UserInformation userInformation = getInfo(coreAPI, jwtService, token);
-        add(userProfileComponent(userInformation, authenticationResolver), logoutButtonAndLanguageSelector);
+        UserInformation userInformation = getInfo(token);
+        add(userProfileComponent(userInformation), logoutButtonAndLanguageSelector);
     }
 
-    private UserInformation getInfo(CoreAPI coreAPI, JwtServiceVaadin jwtService, String token) {
+    private UserInformation getInfo(String token) {
         log.info("Getting loggedUserInfo");
 
         try {
-            CompanyDTO companyDTO = coreAPI.getCompanyById(jwtService.extractCompanyId(token))
+            CompanyDTO companyDTO = coreAPI.getCompanyById(authenticationResolver.extractCompanyIdFromToken(token))
                     .orElseThrow(() -> new RuntimeException("Can't retrieve company name for logged user info"));
             var companyName = companyDTO.name();
 
-            var employeeDTO = coreAPI.getEmployeeById(jwtService.extractEmployeeId(token))
+            var employeeDTO = coreAPI.getEmployeeById(authenticationResolver.extractEmployeeIdFromToken(token))
                     .orElseThrow(NoSuchElementException::new);
             return new UserInformation(
                     companyName,
                     employeeDTO.firstName(),
                     employeeDTO.lastName(),
-                    jwtService.extractExpiresAt(token).toInstant().getEpochSecond());
+                    authenticationResolver
+                            .extractExpiresAtFromToken(token)
+                            .toInstant()
+                            .getEpochSecond());
         } catch (RuntimeException e) {
             new FailNotification(e.getMessage());
+            UI.getCurrent().getPage().setLocation("/");
             return new UserInformation(
                     null,
                     "system",
                     "issue",
-                    jwtService.extractExpiresAt(token).toInstant().getEpochSecond());
+                    authenticationResolver
+                            .extractExpiresAtFromToken(token)
+                            .toInstant()
+                            .getEpochSecond());
         } catch (NotAuthenticatedException e) {
             log.error("JWT token not authenticated during retrieve user info" + e.getMessage());
             UI.getCurrent().navigate(EmployeeView.class);
@@ -95,12 +100,14 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                     null,
                     "system",
                     "issue",
-                    jwtService.extractExpiresAt(token).toInstant().getEpochSecond());
+                    authenticationResolver
+                            .extractExpiresAtFromToken(token)
+                            .toInstant()
+                            .getEpochSecond());
         }
     }
 
-    private Component userProfileComponent(
-            UserInformation userInformation, AuthenticationResolver authenticationResolver) {
+    private Component userProfileComponent(UserInformation userInformation) {
         // Message button
         Button messageButton = new Button();
         messageButton.setIcon(VaadinIcon.ENVELOPE.create());
@@ -159,7 +166,7 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
         return userLayout;
     }
 
-    private void logout(AuthenticationResolver authenticationResolver) {
+    private void logout() {
         UI ui = UI.getCurrent();
         authenticationResolver.unauthenticatePrincipal();
         String currentLocation = ui.getInternals().getActiveViewLocation().getPath();

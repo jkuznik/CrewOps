@@ -9,7 +9,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.ui.component.grid.EmployeeGrid;
 import pl.crewops.ui.component.grid.JobPositionGrid;
 import pl.crewops.ui.component.grid.QualificationGrid;
@@ -24,8 +23,8 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
     private QualificationGrid qualificationGrid;
     private JobPositionGrid jobPositionGrid;
 
-    public EmployeeView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
-        super(coreAPI, jwtService, authenticationResolver);
+    public EmployeeView(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
+        super(coreAPI, authenticationResolver);
     }
 
     @Override

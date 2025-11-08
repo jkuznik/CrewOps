@@ -78,14 +78,28 @@
 /* --- STYLE STOPKI (dla spójności) --- */
 
 .drawer-footer {
-    margin-top: auto;
+    /* Nadpisujemy potencjalnie globalne min-height, które mogło pozostać */
+    min-height: unset !important;
+
+    margin-top: auto; /* Kluczowe, by przykleić stopkę do dołu drawer */
     padding-top: 1rem;
     width: 100%;
+
+    /* Ciemny gradient tła (już jest w .main-drawer, ale warto dodać fallback) */
+    background-color: transparent !important;
+
+    /* Linia oddzielająca jest bardziej subtelna */
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+    /* Stopka w drawerze powinna być domyślnie widoczna, więc nie ustawiamy opacity: 0 */
+    opacity: 1 !important;
 }
 
 .drawer-footer-text {
     /* Kolor jest ustawiony w Javie, ten styl jest rezerwa */
     color: #777777;
     font-size: 0.85rem;
+    font-weight: 300; /* Lżejsza czcionka, by nie konkurować z linkami */
+    text-align: left;
+    display: block; /* Zapewnienie, że Span poprawnie wypełnia przestrzeń */
 }

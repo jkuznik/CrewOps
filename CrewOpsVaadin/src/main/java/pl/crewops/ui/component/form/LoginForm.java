@@ -31,20 +31,25 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.auth.AuthRequest;
 import pl.crewops.model.dto.auth.AuthResponse;
 import pl.crewops.security.custom.UserPrincipal;
-import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.ui.component.navbarComponents.LanguageSelectorComponent;
 import pl.crewops.ui.component.notification.FailNotification;
+import pl.crewops.util.AuthenticationResolver;
 
 @SpringComponent
 @Slf4j
 public class LoginForm extends FormLayout {
+
+    private final CoreAPI coreAPI;
+    private final AuthenticationResolver authenticationResolver;
 
     private final TextField username = new TextField();
     private final PasswordField password = new PasswordField();
     private final Button login = new Button();
     private final LanguageSelectorComponent languageSelectorComponent = new LanguageSelectorComponent();
 
-    public LoginForm(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
+    public LoginForm(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
+        this.coreAPI = coreAPI;
+        this.authenticationResolver = authenticationResolver;
         addClassName("login-form");
 
         username.addClassName("login-input");
@@ -52,7 +57,7 @@ public class LoginForm extends FormLayout {
         login.addClassName("login-button");
         login.addClickShortcut(Key.ENTER);
 
-        add(createLoginForm(coreAPI, jwtService));
+        add(createLoginForm(coreAPI));
     }
 
     private void localize() {
@@ -61,25 +66,25 @@ public class LoginForm extends FormLayout {
         login.setText(getTranslation("loginForm.login"));
     }
 
-    private Component createLoginForm(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
+    private Component createLoginForm(CoreAPI coreAPI) {
         var layout = new HorizontalLayout();
         layout.setSpacing(true);
         layout.setMargin(false);
         layout.addClassName("login-form-layout");
 
-        configureLoginButton(coreAPI, jwtService);
+        configureLoginButton();
         layout.add(username, password, login, languageSelectorComponent);
         layout.setAlignItems(FlexComponent.Alignment.END);
         layout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         return layout;
     }
 
-    private void configureLoginButton(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
+    private void configureLoginButton() {
         login.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        login.addClickListener(event -> loginAction(coreAPI, jwtService));
+        login.addClickListener(event -> loginAction());
     }
 
-    private void loginAction(CoreAPI coreAPI, JwtServiceVaadin jwtService) {
+    private void loginAction() {
         var authRequest = new AuthRequest(username.getValue(), password.getValue());
 
         try {
@@ -89,9 +94,9 @@ public class LoginForm extends FormLayout {
 
             String token = authResponse.token();
 
-            UUID companyId = jwtService.extractCompanyId(token);
-            UUID employeeId = jwtService.extractEmployeeId(token);
-            var authorities = jwtService.extractAuthorities(token);
+            UUID companyId = authenticationResolver.extractCompanyIdFromToken(token);
+            UUID employeeId = authenticationResolver.extractEmployeeIdFromToken(token);
+            var authorities = authenticationResolver.extractAuthoritiesFromToken(token);
 
             var userPrincipal = new UserPrincipal(companyId, username.getValue(), authorities);
             userPrincipal.setToken(token);
