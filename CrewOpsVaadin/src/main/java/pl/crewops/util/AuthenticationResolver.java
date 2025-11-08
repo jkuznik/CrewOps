@@ -2,7 +2,9 @@ package pl.crewops.util;
 
 import static pl.crewops.model.auth.RoleType.*;
 
+import java.util.Date;
 import java.util.Set;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +18,22 @@ import pl.crewops.security.jwt.JwtServiceVaadin;
 public class AuthenticationResolver {
 
     private final JwtServiceVaadin jwtService;
+
+    public UUID extractCompanyIdFromToken(String token) {
+        return jwtService.extractCompanyId(token);
+    }
+
+    public UUID extractEmployeeIdFromToken(String token) {
+        return jwtService.extractEmployeeId(token);
+    }
+
+    public Date extractExpiresAtFromToken(String token) {
+        return jwtService.extractExpiresAt(token);
+    }
+
+    public Set<RoleGrantedAuthority> extractAuthoritiesFromToken(String token) {
+        return jwtService.extractAuthorities(token);
+    }
 
     public boolean principalIsAuthenticated() {
         return getAuthenticationPrincipal() instanceof UserPrincipal;

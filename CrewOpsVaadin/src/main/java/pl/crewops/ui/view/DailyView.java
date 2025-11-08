@@ -31,7 +31,6 @@ import pl.crewops.model.dto.dailyEntry.UpdateDailyEntryCommand;
 import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.note.FetchNotesRequest;
 import pl.crewops.model.dto.note.NoteDTO;
-import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.ui.component.dialog.dailyEntryDialog.DateSelectorDialog;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.component.notification.NotAuthenticatedNotification;
@@ -69,8 +68,8 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
     private Optional<DailyEntryDTO> dailyEntryDTO = Optional.empty();
     private LocalDate selectedDate = LocalDate.now();
 
-    public DailyView(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
-        super(coreAPI, jwtService, authenticationResolver);
+    public DailyView(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
+        super(coreAPI, authenticationResolver);
         this.timesheetPanel = new TimesheetPanel();
         this.dailyActivityPanel = new DailyActivityPanel(authenticationResolver);
         this.createDailyNotePanel = new CreateDailyNotePanel();
@@ -152,7 +151,6 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
 
             if (!selectedDateNotes.isEmpty()) {
                 dailyActivityPanel.setReadNotesVisible();
-                dailyActivityPanel.setReadSafetyRaportVisible();
                 readNotesPanel.updateGrid(selectedDateNotes.stream()
                         .map(NoteFormModel::toNoteFormModel)
                         .toList());

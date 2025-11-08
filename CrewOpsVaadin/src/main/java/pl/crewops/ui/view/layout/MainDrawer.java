@@ -12,10 +12,7 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import pl.crewops.ui.component.notification.FailNotification;
-import pl.crewops.ui.view.DailyView;
-import pl.crewops.ui.view.EmployeeView;
-import pl.crewops.ui.view.HomeView;
-import pl.crewops.ui.view.MachineView;
+import pl.crewops.ui.view.*;
 import pl.crewops.util.AuthenticationResolver;
 
 @SpringComponent
@@ -28,6 +25,7 @@ public class MainDrawer extends VerticalLayout {
     private final RouterLink dailyLink = new RouterLink(DailyView.class);
     private final RouterLink employeeLink = new RouterLink(EmployeeView.class);
     private final RouterLink machineLink = new RouterLink(MachineView.class);
+    private final RouterLink safetyLink = new RouterLink(HSEView.class);
 
     private final Span footerText = new Span();
 
@@ -35,6 +33,7 @@ public class MainDrawer extends VerticalLayout {
     private final Span dailyTextSpan = new Span();
     private final Span employeeTextSpan = new Span();
     private final Span machineTextSpan = new Span();
+    private final Span safetyTextSpan = new Span();
 
     private static final String DRAWER_COLOR = "white";
 
@@ -56,7 +55,7 @@ public class MainDrawer extends VerticalLayout {
             linksLayout.setSizeFull();
             linksLayout.setPadding(true);
             linksLayout.setSpacing(true);
-            linksLayout.add(homeLink, dailyLink, employeeLink, machineLink);
+            linksLayout.add(homeLink, dailyLink, employeeLink, machineLink, safetyLink);
 
             add(linksLayout, createDrawerFooter());
             setFlexGrow(1, linksLayout);
@@ -76,6 +75,7 @@ public class MainDrawer extends VerticalLayout {
         addIconAndPlaceholder(dailyLink, VaadinIcon.CALENDAR_CLOCK, dailyTextSpan);
         addIconAndPlaceholder(employeeLink, VaadinIcon.USERS, employeeTextSpan);
         addIconAndPlaceholder(machineLink, VaadinIcon.TOOLS, machineTextSpan);
+        addIconAndPlaceholder(safetyLink, VaadinIcon.SHIELD, safetyTextSpan);
     }
 
     private void addIconAndPlaceholder(RouterLink link, VaadinIcon iconType, Span textSpan) {
@@ -102,6 +102,7 @@ public class MainDrawer extends VerticalLayout {
         dailyTextSpan.setText(getTranslation("mainDrawer.link.daily"));
         employeeTextSpan.setText(getTranslation("mainDrawer.link.employee"));
         machineTextSpan.setText(getTranslation("mainDrawer.link.machine"));
+        safetyTextSpan.setText(getTranslation("mainDrawer.link.safety"));
 
         footerText.setText(getTranslation("mainDrawer.footer.text"));
     }
@@ -110,8 +111,9 @@ public class MainDrawer extends VerticalLayout {
         Footer footer = new Footer();
         footer.addClassName("drawer-footer");
 
+        footer.addClassName("footer-visible");
+
         footerText.addClassName("drawer-footer-text");
-        // Ustawienie koloru dla tekstu stopki
         footerText.getStyle().set("color", DRAWER_COLOR);
 
         footer.add(footerText);
@@ -122,6 +124,7 @@ public class MainDrawer extends VerticalLayout {
         dailyLink.setVisible(false);
         employeeLink.setVisible(false);
         machineLink.setVisible(false);
+        safetyLink.setVisible(false);
     }
 
     private void displayLinksDependsOnRoles() {

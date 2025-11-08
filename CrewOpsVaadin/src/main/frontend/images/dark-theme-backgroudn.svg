@@ -1,0 +1,17 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'><defs><linearGradient id='a' x1='0' x2='0' y1='1' y2='0' gradientTransform='rotate(0,0.5,0.5)'><stop offset='0' stop-color='#0FF'/><stop offset='1' stop-color='#CF6'/></linearGradient><linearGradient id='b' x1='0' x2='0' y1='0' y2='1' gradientTransform='rotate(0,0.5,0.5)'><stop offset='0' stop-color='#F00'/><stop offset='1' stop-color='#FC0'/></linearGradient></defs><g fill='#FFF' fill-opacity='0' stroke-miterlimit='10'><g stroke='url(#a)' stroke-width='3.3'><path transform='' d='M1409 581 1450.35 511 1490 581z'/><circle stroke-width='1.1' transform='' cx='500' cy='100' r='40'/><path transform='' d='M400.86 735.5h-83.73c0-23.12 18.74-41.87 41.87-41.87S400.86 712.38 400.86 735.5z'/></g><g stroke='url(#b)' stroke-width='1'><path transform='' d='M149.8 345.2 118.4 389.8 149.8 434.4 181.2 389.8z'/><rect stroke-width='2.2' transform='' x='1039' y='709' width='100' height='100'/><path transform='' d='M1426.8 132.4 1405.7 168.8 1363.7 168.8 1342.7 132.4 1363.7 96 1405.7 96z'/></g><g stroke-width='3.3'><path transform='' d='M100.5 0.5 0.38 89.98 100.5 179.45 200.62 89.98z'/><path transform='' d='M200 450 120 490 120 410z'/><path transform='' d='M320 0 250 40 250 160 320 200 390 160 390 40z'/></g></g></svg>
+
+<!--        .main-layout.authenticated {-->
+<!--        /* 🚨 KLUCZOWA ZMIANA: Dodajemy warstwę SVG jako pierwszą, powtarzającą się warstwę tła */-->
+<!--        background-image:-->
+<!--        url('../../images/dark-theme-backgroudn.svg'),-->
+<!--        radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%) ;-->
+
+<!--        background-repeat: no-repeat, no-repeat;-->
+<!--        background-size: cover, cover;-->
+<!--        background-attachment: fixed, fixed;-->
+
+<!--        animation: fadeInBackground 1.2s ease-in;-->
+
+<!--        /* Ustawienie bazowego koloru tekstu na jasny */-->
+<!--        color: var(&#45;&#45;main-text-color);-->
+<!--        }-->

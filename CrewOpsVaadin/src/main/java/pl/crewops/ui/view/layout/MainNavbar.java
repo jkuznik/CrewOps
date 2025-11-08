@@ -14,7 +14,6 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.security.jwt.JwtServiceVaadin;
 import pl.crewops.ui.component.navbarComponents.LoggedUserInfoComponent;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.util.AuthenticationResolver;
@@ -25,16 +24,14 @@ import pl.crewops.util.AuthenticationResolver;
 public class MainNavbar extends HorizontalLayout implements AfterNavigationObserver {
 
     private final CoreAPI coreAPI;
-    private final JwtServiceVaadin jwtService;
     private final AuthenticationResolver authenticationResolver;
 
     private final Button drawerToggleButton = new Button();
     private final Icon menuIcon = VaadinIcon.MENU.create();
     private final Icon replyIcon = VaadinIcon.REPLY.create();
 
-    public MainNavbar(CoreAPI coreAPI, JwtServiceVaadin jwtService, AuthenticationResolver authenticationResolver) {
+    public MainNavbar(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
         this.coreAPI = coreAPI;
-        this.jwtService = jwtService;
         this.authenticationResolver = authenticationResolver;
 
         addClassName("main-navbar");
@@ -99,7 +96,7 @@ public class MainNavbar extends HorizontalLayout implements AfterNavigationObser
         wrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         wrapper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
-        wrapper.add(new LoggedUserInfoComponent(coreAPI, jwtService, authenticationResolver));
+        wrapper.add(new LoggedUserInfoComponent(coreAPI, authenticationResolver));
 
         return wrapper;
     }

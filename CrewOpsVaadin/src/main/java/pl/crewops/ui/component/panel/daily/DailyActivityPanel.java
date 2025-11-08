@@ -27,10 +27,8 @@ public class DailyActivityPanel extends PanelCustom {
     private final Button checkSubordinates = new Button();
     private final Button jobRaport = new Button();
     private final Button addNote = new Button();
-    private final Button safetyRaport = new Button();
     private final Button requestLeave = new Button();
     private final Button readNotes = new Button();
-    private final Button readSafetyRaport = new Button();
 
     @Setter
     private DailyEntryDTO dailyEntry = null;
@@ -68,7 +66,6 @@ public class DailyActivityPanel extends PanelCustom {
             fireEvent(new AddNoteEvent(this));
         });
 
-        safetyRaport.setIcon(new Icon(VaadinIcon.SHIELD));
         requestLeave.setIcon(new Icon(VaadinIcon.CALENDAR_CLOCK));
 
         readNotes.setIcon(new Icon(VaadinIcon.RECORDS));
@@ -76,22 +73,18 @@ public class DailyActivityPanel extends PanelCustom {
         readNotes.addClickListener(event -> {
             fireEvent(new ReadNotesEvent(this));
         });
-        readSafetyRaport.setIcon(new Icon(VaadinIcon.WARNING));
-        readSafetyRaport.addClassName("pulse-red-animation");
 
         applyButtonStyles(checkSubordinates);
         applyButtonStyles(jobRaport);
         applyButtonStyles(addNote);
-        applyButtonStyles(safetyRaport);
         applyButtonStyles(requestLeave);
         applyButtonStyles(readNotes);
-        applyButtonStyles(readSafetyRaport);
 
         if (authenticationResolver.principalHasShiftLeaderPermission()) {
             actionsLayout.add(checkSubordinates);
         }
 
-        actionsLayout.add(jobRaport, addNote, safetyRaport, requestLeave, new Hr(), readNotes, readSafetyRaport);
+        actionsLayout.add(jobRaport, addNote, requestLeave, new Hr(), readNotes);
 
         return actionsLayout;
     }
@@ -102,10 +95,8 @@ public class DailyActivityPanel extends PanelCustom {
         checkSubordinates.setText(getTranslation("dailyActivityForm.checkSubordinates"));
         jobRaport.setText(getTranslation("dailyActivityForm.jobRaport"));
         addNote.setText(getTranslation("dailyActivityForm.addNote"));
-        safetyRaport.setText(getTranslation("dailyActivityForm.safetyRaport"));
         requestLeave.setText(getTranslation("dailyActivityForm.requestLeave"));
         readNotes.setText(getTranslation("dailyActivityForm.readNotes"));
-        readSafetyRaport.setText(getTranslation("dailyActivityForm.readSafetyRaport"));
     }
 
     private static VerticalLayout configuredMainContainer() {
@@ -143,7 +134,6 @@ public class DailyActivityPanel extends PanelCustom {
                     requestLeave.setVisible(true);
                 }
                 addNote.setVisible(true);
-                safetyRaport.setVisible(true);
             }
             case FUTURE -> {
                 addNote.setVisible(true);
@@ -162,18 +152,12 @@ public class DailyActivityPanel extends PanelCustom {
         checkSubordinates.setVisible(visible);
         jobRaport.setVisible(visible);
         addNote.setVisible(visible);
-        safetyRaport.setVisible(visible);
         requestLeave.setVisible(visible);
         readNotes.setVisible(visible);
-        readSafetyRaport.setVisible(visible);
     }
 
     public void setReadNotesVisible() {
         readNotes.setVisible(true);
-    }
-
-    public void setReadSafetyRaportVisible() {
-        readSafetyRaport.setVisible(true);
     }
 
     public abstract static class DailyActivityPanelEvents extends ComponentEvent<DailyActivityPanel> {
