@@ -93,7 +93,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
     }
 
     private void buildContent() {
-        timelinePanel = new DailyTimelinePanel(dailyEntryDTO.orElse(null));
+        timelinePanel = new DailyTimelinePanel();
 
         localize();
 

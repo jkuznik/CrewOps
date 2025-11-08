@@ -22,7 +22,7 @@ public class DailyTimelinePanel extends PanelCustom {
 
     private final Timeline timeline = new TimelineCustom();
 
-    public DailyTimelinePanel(DailyEntryDTO dailyEntry) {
+    public DailyTimelinePanel() {
 
         var panelContent = configuredPanelContent();
         setContent(panelContent);
