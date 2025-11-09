@@ -6,6 +6,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.IconFactory;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import java.time.ZoneId;
 import java.util.List;
@@ -39,6 +40,8 @@ public class ReadNotesPanel extends PanelCustom {
         close.addClickListener(event -> {
             this.setVisible(false);
         });
+
+        this.configurePanel(VaadinIcon.COPY, getTranslation("dailyActivityForm.readNotes"));
 
         addContent(mainContainer, close);
     }

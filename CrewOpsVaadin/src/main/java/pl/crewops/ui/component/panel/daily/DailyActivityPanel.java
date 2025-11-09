@@ -68,7 +68,7 @@ public class DailyActivityPanel extends PanelCustom {
 
         requestLeave.setIcon(new Icon(VaadinIcon.CALENDAR_CLOCK));
 
-        readNotes.setIcon(new Icon(VaadinIcon.RECORDS));
+        readNotes.setIcon(new Icon(VaadinIcon.COPY));
         readNotes.addClassName("pulse-animation");
         readNotes.addClickListener(event -> {
             fireEvent(new ReadNotesEvent(this));

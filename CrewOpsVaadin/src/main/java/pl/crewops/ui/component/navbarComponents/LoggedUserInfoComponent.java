@@ -21,7 +21,6 @@ import pl.crewops.model.dto.company.CompanyDTO;
 import pl.crewops.ui.component.form.LoginForm;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.component.notification.auth.EndSessionNotification;
-import pl.crewops.ui.view.EmployeeView;
 import pl.crewops.ui.view.HomeView;
 import pl.crewops.ui.view.MessageView;
 import pl.crewops.ui.view.ProfileView;
@@ -84,7 +83,6 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                             .getEpochSecond());
         } catch (RuntimeException e) {
             new FailNotification(e.getMessage());
-            UI.getCurrent().getPage().setLocation("/");
             return new UserInformation(
                     null,
                     "system",
@@ -95,7 +93,6 @@ public class LoggedUserInfoComponent extends HorizontalLayout {
                             .getEpochSecond());
         } catch (NotAuthenticatedException e) {
             log.error("JWT token not authenticated during retrieve user info" + e.getMessage());
-            UI.getCurrent().navigate(EmployeeView.class);
             return new UserInformation(
                     null,
                     "system",

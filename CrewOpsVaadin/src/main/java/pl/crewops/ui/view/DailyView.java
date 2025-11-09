@@ -7,7 +7,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -93,7 +92,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
     }
 
     private void buildContent() {
-        timelinePanel = new DailyTimelinePanel();
+        timelinePanel = new DailyTimelinePanel(dailyEntryDTO.orElse(null));
 
         localize();
 
@@ -427,7 +426,6 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
 
     private Registration openReadNotePanel() {
         return dailyActivityPanel.addReadNotesListener(event -> {
-            readNotesPanel.configurePanel(VaadinIcon.RECORDS, getTranslation("dailyActivityForm.readNotes"));
             readNotesPanel.setVisible(true);
         });
     }

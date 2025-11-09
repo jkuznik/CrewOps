@@ -164,3 +164,67 @@
     background-color: rgba(255, 152, 0, 0.4); /* Półprzezroczysty kolor */
     border: none;
 }
+
+/* ========================================================================= */
+/* --- 5. STYLE DLA ELEMENTÓW AUDYTOWYCH (Przesunięcie pionowe!) --- */
+/* ========================================================================= */
+
+/* Definicja przesunięcia */
+.vis-item.timeline-item-audit-default,
+.vis-item.timeline-item-audit-info,
+.vis-item.timeline-item-audit-warning,
+.vis-item.timeline-item-audit-error,
+.vis-item.timeline-item-audit-process,
+.vis-item.timeline-item-audit-financial,
+.vis-item.timeline-item-audit-success {
+    /* 1. Używamy selektora z .vis-item, aby zwiększyć specyficzność */
+    position: relative !important; /* Ważne, aby kontrolować 'top' */
+
+    /* 2. Przesunięcie w dół o wysokość bloku pracy (~24px) */
+    /* Zastosowanie 'top: 24px' lub 'transform: translateY(24px)' */
+    top: 64px !important;
+
+    /* 3. Dodatkowe korekty, aby były widoczne jako małe paski */
+    min-width: 5px !important;
+    width: 5px !important;
+    height: 30px !important; /* Mniejsza wysokość, aby wyglądały jak znaczniki */
+    border-radius: 1px !important; /* Lekkie zaokrąglenie dla lepszej widoczności */
+    opacity: 1 !important; /* Pełna widoczność */
+    z-index: 100 !important; /* Upewnij się, że są na wierzchu */
+}
+
+/* 1. INFORMATION_MODIFIED -> Info (Niebieski/Informacyjny) */
+.timeline-item-audit-info {
+    background-color: var(--lumo-primary-color) !important; /* WAŻNE */
+    border-color: var(--lumo-primary-color) !important;     /* WAŻNE */
+}
+
+/* 2. ATTENDANCE_STATUS_CHANGED -> Warning (Żółty/Ostrzegawczy) */
+.timeline-item-audit-warning {
+    background-color: var(--lumo-warning-color) !important; /* WAŻNE */
+    border-color: var(--lumo-warning-color) !important;     /* WAŻNE */
+}
+
+/* 3. SAFETY_NOTE_ADDED -> Error (Czerwony/Krytyczny) */
+.timeline-item-audit-error {
+    background-color: var(--lumo-error-color) !important; /* WAŻNE */
+    border-color: var(--lumo-error-color) !important;     /* WAŻNE */
+}
+
+/* 4. REPORT_STATUS_CHANGED -> Process (Cyjan/Proces) */
+.timeline-item-audit-process {
+    background-color: #00bcd4 !important; /* WAŻNE */
+    border-color: #00bcd4 !important;     /* WAŻNE */
+}
+
+/* 5. OVERTIME_MODIFIED -> Financial (Różowy/Finanse) */
+.timeline-item-audit-financial {
+    background-color: #ff4081 !important; /* WAŻNE */
+    border-color: #ff4081 !important;     /* WAŻNE */
+}
+
+/* 6. ENTRY_STATUS_CHANGED -> Success (Zielony/Sukces) */
+.timeline-item-audit-success {
+    background-color: var(--lumo-success-color) !important; /* WAŻNE */
+    border-color: var(--lumo-success-color) !important;     /* WAŻNE */
+}
