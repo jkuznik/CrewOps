@@ -146,30 +146,10 @@
 }
 
 /* ========================================================================= */
-/* --- Dodatkowe/Alternatywne style dla notatki (jako punkt/słupek) --- */
-/* ========================================================================= */
-
-/* Ustawienie elementu jako punkt, np. kółko lub mały pionowy słupek */
-/* UWAGA: Ten styl Zastępuje styl zielony z sekcji 2, jeśli zostanie zaimportowany później */
-.timeline-item-note-point {
-    background-color: #ff9800; /* Kolor pomarańczowy */
-    border: 2px solid #e65100;
-    border-radius: 5px; /* Kwadratowe elementy dla punktów */
-    height: 10px; /* Wysokość elementu na linii czasu */
-    margin-top: -5px; /* Wyśrodkowanie na linii czasu (jeśli height jest 10px) */
-}
-
-/* Możesz też użyć stylizacji dla tylko tła, aby było bardziej subtelne */
-.timeline-item-note-subtle.vis-item-content {
-    background-color: rgba(255, 152, 0, 0.4); /* Półprzezroczysty kolor */
-    border: none;
-}
-
-/* ========================================================================= */
 /* --- 5. STYLE DLA ELEMENTÓW AUDYTOWYCH (Przesunięcie pionowe!) --- */
 /* ========================================================================= */
 
-/* Definicja przesunięcia */
+/* Definicja przesunięcia (STAN DOMYŚLNY) */
 .vis-item.timeline-item-audit-default,
 .vis-item.timeline-item-audit-info,
 .vis-item.timeline-item-audit-warning,
@@ -177,54 +157,115 @@
 .vis-item.timeline-item-audit-process,
 .vis-item.timeline-item-audit-financial,
 .vis-item.timeline-item-audit-success {
-    /* 1. Używamy selektora z .vis-item, aby zwiększyć specyficzność */
-    position: relative !important; /* Ważne, aby kontrolować 'top' */
+    /* KLUCZOWA ZMIANA: position: absolute! Wyklucza element z mechanizmu kolizji vis-timeline */
+    position: absolute !important;
 
-    /* 2. Przesunięcie w dół o wysokość bloku pracy (~24px) */
-    /* Zastosowanie 'top: 24px' lub 'transform: translateY(24px)' */
+    /* Twoje obecne, pożądane położenie i wymiary */
     top: 64px !important;
-
-    /* 3. Dodatkowe korekty, aby były widoczne jako małe paski */
     min-width: 5px !important;
     width: 5px !important;
-    height: 30px !important; /* Mniejsza wysokość, aby wyglądały jak znaczniki */
-    border-radius: 1px !important; /* Lekkie zaokrąglenie dla lepszej widoczności */
-    opacity: 1 !important; /* Pełna widoczność */
-    z-index: 100 !important; /* Upewnij się, że są na wierzchu */
+    height: 30px !important;
+    border-radius: 1px !important;
+    opacity: 1 !important;
+    z-index: 100 !important;
+
+    /* Ukrycie tekstu (bez zmian) */
+    font-size: 0 !important;
+    line-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
+
+/* ------------------------------------------------------------------------- */
+/* --- STANY WYBRANE (PO KLIKNIĘCIU) --- */
+/* ------------------------------------------------------------------------- */
+
+/* Przywrócenie pełnej widoczności bloku i tekstu dla WYBRANYCH elementów audytu */
+.vis-item.timeline-item-audit-default.vis-selected,
+.vis-item.timeline-item-audit-info.vis-selected,
+.vis-item.timeline-item-audit-warning.vis-selected,
+.vis-item.timeline-item-audit-error.vis-selected,
+.vis-item.timeline-item-audit-process.vis-selected,
+.vis-item.timeline-item-audit-financial.vis-selected,
+.vis-item.timeline-item-audit-success.vis-selected {
+    z-index: 101 !important;
+
+    /* Ważne: Wymuś 'absolute', aby utrzymać pozycję */
+    position: absolute !important;
+
+    /* Zwiększ wysokość i szerokość, aby pomieścić tekst */
+    height: 40px !important;
+    width: auto !important;
+    min-width: 100px !important;
+
+    /* Korekta 'top': 64px (domyślny) - 5px (połowa różnicy wysokości 40px-30px) = 59px. */
+    /* Użycie 59px zapewni, że środek elementu (w pionie) jest ten sam w obu stanach. */
+    top: 59px !important;
+
+    /* Wymuś, aby tekst był widoczny */
+    font-size: var(--lumo-font-size-xs) !important;
+    line-height: var(--lumo-line-height-xs) !important;
+    padding: 5px !important;
+    white-space: normal !important;
+
+    border-width: 2px !important;
+    transform: none !important;
+}
+
+/* ------------------------------------------------------------------------- */
+/* --- Definicje kolorów (pozostają bez zmian) --- */
+/* ------------------------------------------------------------------------- */
 
 /* 1. INFORMATION_MODIFIED -> Info (Niebieski/Informacyjny) */
 .timeline-item-audit-info {
-    background-color: var(--lumo-primary-color) !important; /* WAŻNE */
-    border-color: var(--lumo-primary-color) !important;     /* WAŻNE */
+    background-color: var(--lumo-primary-color) !important;
+    border-color: var(--lumo-primary-color) !important;
+}
+.timeline-item-audit-info.vis-selected {
+    border-color: var(--lumo-primary-text-color) !important;
 }
 
 /* 2. ATTENDANCE_STATUS_CHANGED -> Warning (Żółty/Ostrzegawczy) */
 .timeline-item-audit-warning {
-    background-color: var(--lumo-warning-color) !important; /* WAŻNE */
-    border-color: var(--lumo-warning-color) !important;     /* WAŻNE */
+    background-color: var(--lumo-warning-color) !important;
+    border-color: var(--lumo-warning-color) !important;
+}
+.timeline-item-audit-warning.vis-selected {
+    border-color: #e65100 !important;
 }
 
 /* 3. SAFETY_NOTE_ADDED -> Error (Czerwony/Krytyczny) */
 .timeline-item-audit-error {
-    background-color: var(--lumo-error-color) !important; /* WAŻNE */
-    border-color: var(--lumo-error-color) !important;     /* WAŻNE */
+    background-color: var(--lumo-error-color) !important;
+    border-color: var(--lumo-error-color) !important;
+}
+.timeline-item-audit-error.vis-selected {
+    border-color: var(--lumo-error-text-color) !important;
 }
 
 /* 4. REPORT_STATUS_CHANGED -> Process (Cyjan/Proces) */
 .timeline-item-audit-process {
-    background-color: #00bcd4 !important; /* WAŻNE */
-    border-color: #00bcd4 !important;     /* WAŻNE */
+    background-color: #00bcd4 !important;
+    border-color: #00bcd4 !important;
+}
+.timeline-item-audit-process.vis-selected {
+    border-color: #006064 !important;
 }
 
 /* 5. OVERTIME_MODIFIED -> Financial (Różowy/Finanse) */
 .timeline-item-audit-financial {
-    background-color: #ff4081 !important; /* WAŻNE */
-    border-color: #ff4081 !important;     /* WAŻNE */
+    background-color: #ff4081 !important;
+    border-color: #ff4081 !important;
+}
+.timeline-item-audit-financial.vis-selected {
+    border-color: #880e4f !important;
 }
 
 /* 6. ENTRY_STATUS_CHANGED -> Success (Zielony/Sukces) */
 .timeline-item-audit-success {
-    background-color: var(--lumo-success-color) !important; /* WAŻNE */
-    border-color: var(--lumo-success-color) !important;     /* WAŻNE */
+    background-color: var(--lumo-success-color) !important;
+    border-color: var(--lumo-success-color) !important;
+}
+.timeline-item-audit-success.vis-selected {
+    border-color: var(--lumo-success-text-color) !important;
 }
