@@ -23,14 +23,16 @@ import pl.crewops.model.dto.dailyEntry.DailyEntryAuditDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.ui.component.custom.PanelCustom;
 import pl.crewops.ui.component.custom.TimelineCustom;
+import pl.crewops.ui.component.grid.DailyAuditGrid;
 
 public class DailyTimelinePanel extends PanelCustom {
 
     // Zwiększamy wysokość kontenera, aby zmieścić pasek narzędzi z przyciskiem audytu
     public static final int TIMELINE_CONTAINER_HEIGHT_PX = 240;
 
-    private final Timeline timeline = new TimelineCustom();
     private final Button auditToggleButton = new Button();
+    private final Timeline timeline = new TimelineCustom();
+    private final DailyAuditGrid grid = new DailyAuditGrid();
 
     // Zmienne stanu do zarządzania widokiem
     private DailyEntryDTO currentDailyEntry;
@@ -49,9 +51,10 @@ public class DailyTimelinePanel extends PanelCustom {
     private Component configuredPanelContent() {
 
         // Konfiguracja przycisku audytu (i18n)
-        auditToggleButton.setText(getTranslation("dailyTimeline.toggleAudit"));
+        auditToggleButton.setText(getTranslation("dailyTimeline.toggleAuditOn"));
         auditToggleButton.setIcon(VaadinIcon.FILE_TREE_SUB.create());
-        auditToggleButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+        auditToggleButton.addThemeVariants(ButtonVariant.LUMO_WARNING);
+        //        auditToggleButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
 
         // Listener przełączający stan i styl przycisku
         auditToggleButton.addClickListener(event -> {
@@ -60,9 +63,15 @@ public class DailyTimelinePanel extends PanelCustom {
 
             // Zmiana stylu przycisku
             if (newState) {
+                auditToggleButton.removeThemeVariants(ButtonVariant.LUMO_WARNING);
                 auditToggleButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                auditToggleButton.setText(getTranslation("dailyTimeline.toggleAuditOff"));
+                grid.setVisible(true);
             } else {
                 auditToggleButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                auditToggleButton.addThemeVariants(ButtonVariant.LUMO_WARNING);
+                auditToggleButton.setText(getTranslation("dailyTimeline.toggleAuditOn"));
+                grid.setVisible(false);
             }
         });
 
@@ -73,11 +82,13 @@ public class DailyTimelinePanel extends PanelCustom {
         headerLayout.setPadding(false);
         headerLayout.setSpacing(false);
 
-        // Główny kontener: Przycisk + Oś czasu
-        var contentLayout = new VerticalLayout(headerLayout, configuredTimeline());
-        contentLayout.setWidthFull();
-        contentLayout.setMaxHeight(TIMELINE_CONTAINER_HEIGHT_PX + "px");
-        contentLayout.setSpacing(false);
+        // Główny kontener: Przycisk + Oś czasu + Siatka
+        var contentLayout = new VerticalLayout(headerLayout, configuredTimeline(), grid);
+        grid.setVisible(false);
+        //        contentLayout.setWidthFull();
+        //        contentLayout.setMaxHeight(TIMELINE_CONTAINER_HEIGHT_PX + "px");
+        contentLayout.setSizeFull();
+        contentLayout.setSpacing(true);
         contentLayout.setPadding(false);
 
         return contentLayout;
@@ -96,6 +107,7 @@ public class DailyTimelinePanel extends PanelCustom {
     private void updateTimelineItemsAndRange() {
         if (currentDailyEntry == null) {
             setSummaryText(getTranslation("dailyTimeline.header", currentDate.toString()));
+            auditToggleButton.setVisible(false);
             timeline.setItems(List.of());
             timeline.setTimelineRange(
                     LocalDateTime.of(currentDate, LocalTime.MIN), LocalDateTime.of(currentDate, LocalTime.MAX));
@@ -104,6 +116,9 @@ public class DailyTimelinePanel extends PanelCustom {
 
         var from = currentDailyEntry.entryDate();
         setSummaryText(getTranslation("dailyTimeline.header", from.toString()));
+
+        auditToggleButton.setVisible(true);
+        grid.updateGrid(currentDailyEntry.auditEvents());
 
         final ZoneId ZONE_ID = ZoneId.systemDefault();
         var items = new ArrayList<Item>();

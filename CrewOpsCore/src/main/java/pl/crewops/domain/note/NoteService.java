@@ -1,6 +1,5 @@
 package pl.crewops.domain.note;
 
-import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -41,7 +40,7 @@ class NoteService implements NoteAPI {
 
     @Override
     @Transactional
-    public List<NoteDTO> getPublicAndPrincipalPrivateNotesByDate(@NotNull FetchNotesRequest fetchNotesRequest) {
+    public List<NoteDTO> getPublicAndPrincipalPrivateNotesByDate(FetchNotesRequest fetchNotesRequest) {
 
         Employee employeeById = employeeAPI.getEmployeeById(fetchNotesRequest.employeeId());
 
