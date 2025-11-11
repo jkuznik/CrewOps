@@ -3,19 +3,36 @@ package pl.crewops.ui.component.grid;
 import static pl.crewops.util.LocalDateTimeFormater.DATE_TIME_HUMAN_READABLE_FORMATTER;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 import pl.crewops.enums.DailyEntryAuditType;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.dailyEntry.DailyEntryAuditDTO;
+import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.util.DailyEntryAuditReconstructor;
 import pl.crewops.util.SpringContextBridge;
 
 public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
 
     private final CoreAPI coreAPI;
+    private final DailyEntryAuditReconstructor reconstructor;
+    private List<DailyEntryAuditDTO> currentAudits = Collections.emptyList();
+
+    // NOWE POLE: \u015aledzenie ostatnio otwartego wiersza
+    private DailyEntryAuditDTO lastOpenedItem = null;
+
+    // Format dla daty i czasu w szczeg\u00f3\u0142ach
+    private static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss").withZone(ZoneId.systemDefault());
 
     private static final String COLOR_INFO = "var(--lumo-primary-color)";
     private static final String COLOR_WARNING = "var(--lumo-warning-color)";
@@ -27,27 +44,33 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
 
     public DailyAuditGrid() {
         this.coreAPI = SpringContextBridge.getBean(CoreAPI.class);
+        this.reconstructor = new DailyEntryAuditReconstructor();
 
         setSizeFull();
+        addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_COMPACT);
         configureGrid();
     }
 
+    public void openLastEventDetails() {
+        setDetailsVisible(currentAudits.getLast(), true);
+        // 🔧 Workaround: delay refresh to avoid empty space after first details open
+        getElement().executeJs("setTimeout(() => { this.requestContentUpdate && this.requestContentUpdate(); }, 50);");
+    }
+
     public void updateGrid(Set<DailyEntryAuditDTO> dailyAudits) {
-
-        List<DailyEntryAuditDTO> sorted = dailyAudits.stream()
+        currentAudits = dailyAudits.stream()
                 .sorted(Comparator.comparing(DailyEntryAuditDTO::createdAt))
-                .toList();
+                .collect(Collectors.toList());
 
-        setItems(sorted);
+        setItems(currentAudits);
     }
 
     private void configureGrid() {
-        // --- 1. Kolumna: Czas Zmiany (createdAt) ---
+        // --- Definicje Kolumn (bez zmian) ---
         addColumn(auditDTO -> {
                     if (auditDTO.createdAt() == null) {
                         return "-";
                     }
-                    // ZM: Formatowanie daty, jak wcześniej
                     return auditDTO.createdAt()
                             .atZone(ZoneId.systemDefault())
                             .format(DATE_TIME_HUMAN_READABLE_FORMATTER);
@@ -66,17 +89,13 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
                 .setFlexGrow(1)
                 .setResizable(true);
 
-        // --- 2. Kolumna: Typ Zdarzenia (eventType - Badge) ---
         addComponentColumn(auditDTO -> {
                     DailyEntryAuditType type = auditDTO.eventType();
-
-                    // POBIERANIE PRZETŁUMACZONEJ NAZWY Z i18n
                     String typeName = Objects.nonNull(type)
                             ? getTranslation("dailyAudit.eventType." + type.name())
                             : getTranslation("dailyAuditGrid.eventType.UNKNOWN");
 
                     Span typeLabel = new Span(typeName);
-
                     String backgroundColor = getBackgroundColorForType(type);
 
                     typeLabel.getElement().getThemeList().add("badge small contrast");
@@ -85,7 +104,6 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
                     typeLabel.getStyle().set("border-radius", "8px");
                     typeLabel.getStyle().set("border", "1px solid " + getBorderColorForType(type));
                     typeLabel.getStyle().set("border-style", "solid");
-
                     typeLabel.getStyle().set("background-color", backgroundColor);
 
                     if (COLOR_WARNING.equals(backgroundColor) || COLOR_DEFAULT.equals(backgroundColor)) {
@@ -98,7 +116,6 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
                     typeLabel.getStyle().set("overflow", "hidden");
                     typeLabel.getStyle().set("text-overflow", "ellipsis");
                     typeLabel.getStyle().set("max-width", "200px");
-
                     return typeLabel;
                 })
                 .setKey("eventType")
@@ -106,21 +123,88 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
                 .setFlexGrow(1)
                 .setResizable(true);
 
-        // --- 4. Kolumna: Szczegóły Zmiany (oldValues -> newValues) ---
         addColumn(auditDTO -> formatChangeDetails(auditDTO.payload()))
                 .setKey("changeDetails")
                 .setHeader(getTranslation("dailyAuditGrid.changeDetails"))
                 .setFlexGrow(3)
                 .setResizable(true);
 
-        // --- 5. Kolumna: Komentarz (comment) ---
         addColumn(DailyEntryAuditDTO::comment)
                 .setKey("comment")
                 .setHeader(getTranslation("dailyAuditGrid.comment"))
                 .setFlexGrow(0)
                 .setResizable(true);
 
+        // Ustawienie renderera szczeg\u00f3\u0142\u00f3w
+        setItemDetailsRenderer(new ComponentRenderer<>(this::createDetailsComponent));
+
+        // ZMIENIONA LOGIKA KLIKNI\u0118CIA
+        addItemClickListener(event -> {
+            DailyEntryAuditDTO clickedItem = event.getItem();
+
+            if (clickedItem == null) return;
+
+            // 1. Sprawdzenie, czy klikni\u0119to w ten sam wiersz
+            if (clickedItem.equals(lastOpenedItem)) {
+                // Je\u015Bli klikni\u0119to w ten sam wiersz, zamykamy go
+                setDetailsVisible(clickedItem, false);
+                lastOpenedItem = null;
+            } else {
+                // 2. Je\u015Bli poprzedni wiersz by\u0142 otwarty, zamykamy go
+                if (lastOpenedItem != null) {
+                    setDetailsVisible(lastOpenedItem, false);
+                }
+
+                // 3. Otwieramy nowy wiersz
+                setDetailsVisible(clickedItem, true);
+
+                // 4. Ustawiamy nowy wiersz jako ostatnio otwarty
+                lastOpenedItem = clickedItem;
+            }
+        });
+
         setAllRowsVisible(true);
+    }
+
+    /**
+     * Tworzy komponent z szczeg\u00f3\u0142ami zrekonstruowanego stanu DailyEntry.
+     * Logika ta zosta\u0142a zachowana bez zmian.
+     */
+    private Component createDetailsComponent(DailyEntryAuditDTO auditDTO) {
+        // 1. Rekonstrukcja stanu na moment tego audytu
+        DailyEntryDTO state = reconstructor.reconstructState(auditDTO, currentAudits);
+
+        // 2. Formatowanie danych
+        String startTime = state.startTime() != null ? DATE_TIME_FORMATTER.format(state.startTime()) : "-";
+        String endTime = state.endTime() != null ? DATE_TIME_FORMATTER.format(state.endTime()) : "-";
+        String overTime = state.overTime() != null ? state.overTime().toPlainString() : "0";
+        String attendance = state.attendance() != null ? state.attendance().toString() : "-";
+        String status = state.status() != null ? state.status().toString() : "-";
+
+        // 3. Budowa layoutu
+        VerticalLayout layout = new VerticalLayout();
+        layout.setPadding(true);
+        layout.setSpacing(true);
+        layout.getStyle().set("border-left", "4px solid var(--lumo-primary-color)");
+        layout.getStyle().set("border-radius", "8px");
+        layout.getStyle().set("margin", "0 0 0 20px");
+        layout.getStyle().set("padding", "0.5em 1em");
+
+        // Zrekonstruowany Stan Wpisu
+        Span titleSpan = new Span(getTranslation("dailyAuditGrid.details.reconstructedStateTitle"));
+        titleSpan.getStyle().set("font-weight", "bold");
+        titleSpan.getStyle().set("font-size", "1.1em");
+
+        // Dodawanie sformatowanych danych do layoutu
+        layout.add(
+                titleSpan,
+                new Span(getTranslation("dailyAuditGrid.details.startTime") + ": " + startTime),
+                new Span(getTranslation("dailyAuditGrid.details.endTime") + ": " + endTime),
+                new Span(getTranslation("dailyAuditGrid.details.overtime") + ": " + overTime),
+                new Span(getTranslation("dailyAuditGrid.details.attendanceStatus") + ": " + attendance),
+                new Span(getTranslation("dailyAuditGrid.details.entryStatus") + ": " + status));
+
+        return layout;
     }
 
     /**
@@ -145,7 +229,7 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
     }
 
     /**
-     * Formatuje szczegóły zmian (oldValues -> newValues) w czytelnym formacie.
+     * Formatuje szczeg\u00f3\u0142y zmian (oldValues -> newValues) w czytelnym formacie.
      */
     private String formatChangeDetails(JsonNode payload) {
         if (payload == null) {
@@ -158,8 +242,6 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
         StringBuilder details = new StringBuilder();
 
         if (newValues != null && newValues.isObject()) {
-            // Iterujemy tylko po nowych wartościach, zakładając, że jeśli coś się zmieniło,
-            // to jest to reprezentowane w newValues/oldValues.
             Iterator<Map.Entry<String, JsonNode>> fields = newValues.fields();
             boolean first = true;
 
@@ -171,7 +253,6 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
                         ? oldValues.get(fieldName).asText()
                         : "-";
 
-                // Pomijamy 'operationType', bo to widać w eventType
                 if (fieldName.equals("operationType")) {
                     continue;
                 }
@@ -180,7 +261,6 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
                     details.append("; ");
                 }
 
-                // Formatuje: pole (stara wartość -> nowa wartość)
                 details.append(fieldName)
                         .append(" (")
                         .append(oldValue)
@@ -192,7 +272,6 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
             }
         }
 
-        // Jeśli nie ma newValues, a jest tylko operationType, zwracamy typ operacji.
         if (details.isEmpty() && payload.has("operationType")) {
             return payload.get("operationType").asText();
         }
@@ -200,10 +279,7 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
         return details.toString();
     }
 
-    // --- Metody pomocnicze do kolorowania badge (bez zmian) ---
-
     private String getBackgroundColorForType(DailyEntryAuditType type) {
-        // ... (Kod bez zmian)
         if (type == null) {
             return COLOR_DEFAULT;
         }
@@ -218,7 +294,6 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
     }
 
     private String getBorderColorForType(DailyEntryAuditType type) {
-        // ... (Kod bez zmian)
         if (type == null) {
             return "#616161";
         }

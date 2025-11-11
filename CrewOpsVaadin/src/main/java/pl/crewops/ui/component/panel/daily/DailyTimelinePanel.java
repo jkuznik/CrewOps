@@ -67,6 +67,7 @@ public class DailyTimelinePanel extends PanelCustom {
                 auditToggleButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
                 auditToggleButton.setText(getTranslation("dailyTimeline.toggleAuditOff"));
                 grid.setVisible(true);
+                grid.openLastEventDetails();
             } else {
                 auditToggleButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
                 auditToggleButton.addThemeVariants(ButtonVariant.LUMO_WARNING);
@@ -85,8 +86,6 @@ public class DailyTimelinePanel extends PanelCustom {
         // Główny kontener: Przycisk + Oś czasu + Siatka
         var contentLayout = new VerticalLayout(headerLayout, configuredTimeline(), grid);
         grid.setVisible(false);
-        //        contentLayout.setWidthFull();
-        //        contentLayout.setMaxHeight(TIMELINE_CONTAINER_HEIGHT_PX + "px");
         contentLayout.setSizeFull();
         contentLayout.setSpacing(true);
         contentLayout.setPadding(false);
