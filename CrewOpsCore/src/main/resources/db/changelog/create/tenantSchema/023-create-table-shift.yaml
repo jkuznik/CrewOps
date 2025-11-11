@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-table-shift
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: shift
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: version
+                  type: integer
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(63) # Zgodnie z @Size(max = 63)
+                  constraints:
+                    nullable: false
+                    unique: true # Nazwa zmiany powinna by\u0107 unikalna
+              - column:
+                  name: variation # Pole z ostatniej encji
+                  type: integer
+                  constraints:
+                    nullable: false
+                    unique: true # Zak\u0142adam, \u017Ce variation te\u017C powinno by\u0107 unikalne
+
+        - sql:
+            dbms: postgresql
+            sql: |
+              DROP TRIGGER IF EXISTS shift_updated_at_trigger ON shift;
+              CREATE TRIGGER shift_updated_at_trigger
+              BEFORE UPDATE ON shift
+              FOR EACH ROW
+              EXECUTE FUNCTION update_updated_at();

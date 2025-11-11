@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-join-table-shift-job-position
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: shift_job_position
+            columns:
+              - column:
+                  name: shift_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: job_position_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: assigned_employee_id
+                  type: uuid
+                  constraints:
+                    nullable: true
+              - column:
+                  name: critical
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+        - addPrimaryKey:
+            columnNames: shift_id, job_position_id
+            tableName: shift_job_position
+            constraintName: pk_shift_job_position
+
+        - addForeignKeyConstraint:
+            baseTableName: shift_job_position
+            baseColumnNames: shift_id
+            referencedTableName: shift
+            referencedColumnNames: id
+            constraintName: fk_sjp_shift_id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: shift_job_position
+            baseColumnNames: job_position_id
+            referencedTableName: job_position
+            referencedColumnNames: id
+            constraintName: fk_sjp_job_position_id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: shift_job_position
+            baseColumnNames: assigned_employee_id
+            referencedTableName: employee
+            referencedColumnNames: id
+            constraintName: fk_sjp_employee_id
+            onDelete: SET NULL

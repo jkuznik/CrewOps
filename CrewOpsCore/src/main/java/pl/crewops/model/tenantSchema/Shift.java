@@ -1,0 +1,34 @@
+package pl.crewops.model.tenantSchema;
+
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import lombok.*;
+import pl.crewops.model.AbstractEntity;
+import pl.crewops.util.serializer.JobPositionSetSerializer;
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+public class Shift extends AbstractEntity {
+
+    @Size(max = 63)
+    @NotNull
+    @Column(nullable = false)
+    private String name;
+
+    @Builder.Default
+    @JsonSerialize(using = JobPositionSetSerializer.class)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "shift_job_position",
+            joinColumns = @JoinColumn(name = "shift_id"),
+            inverseJoinColumns = @JoinColumn(name = "job_position_id"))
+    private Set<JobPosition> jobPositions = new LinkedHashSet<>();
+}
