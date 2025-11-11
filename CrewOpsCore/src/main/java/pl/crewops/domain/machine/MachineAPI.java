@@ -27,5 +27,5 @@ public interface MachineAPI {
 
     List<MachineDTO> getMachinesIn(@NotNull Set<UUID> machineIds);
 
-    void deleteMachine(@NotNull UUID vachineId);
+    void deleteMachine(@NotNull UUID machineId);
 }

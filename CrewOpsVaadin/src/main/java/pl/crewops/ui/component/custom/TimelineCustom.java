@@ -11,7 +11,7 @@ public class TimelineCustom extends Timeline {
         setClassName("crewops-timeline");
 
         setWidthFull();
-        setHeight(DailyTimelinePanel.TIMELINE_CONTAINER_HEIGHT_PX - 2 + "px");
+        setHeight(DailyTimelinePanel.TIMELINE_CONTAINER_HEIGHT_PX - 40 + "px");
         setMoveable(true);
         setZoomable(true);
         setShowCurentTime(true);

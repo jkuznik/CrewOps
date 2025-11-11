@@ -98,7 +98,7 @@ class CoreService implements CoreAPI {
 
     @Caching(
             evict = {
-                @CacheEvict(value = GET_EMPLOYEE_BY_ID, allEntries = true),
+                //                @CacheEvict(value = GET_EMPLOYEE_BY_ID, allEntries = true),
                 @CacheEvict(value = GET_COMPANY_BY_ID, allEntries = true),
                 @CacheEvict(value = GET_ALL_EMPLOYEES, allEntries = true),
                 @CacheEvict(value = GET_ALL_QUALIFICATIONS, allEntries = true),
