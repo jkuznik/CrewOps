@@ -31,8 +31,14 @@ public class ShiftJobPosition {
     private JobPosition jobPosition;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "employee_id")
+    @JoinColumn(name = "assigned_employee_id")
     private Employee assignedEmployee;
 
     private boolean critical;
+
+    public ShiftJobPosition() {}
+
+    public ShiftJobPosition(SJPID id) {
+        this.id = id;
+    }
 }

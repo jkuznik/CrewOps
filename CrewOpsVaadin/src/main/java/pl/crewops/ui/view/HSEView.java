@@ -11,6 +11,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.ui.component.custom.PoCShiftCreator;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.view.layout.MainLayout;
 import pl.crewops.util.AuthenticationResolver;
@@ -51,7 +52,7 @@ public class HSEView extends MainLayout implements BeforeEnterObserver {
         readSafetyRaport.addClassName("pulse-red-animation");
         applyButtonStyles(readSafetyRaport);
 
-        mainContent.add(safetyRaport, readSafetyRaport);
+        mainContent.add(safetyRaport, readSafetyRaport, new PoCShiftCreator());
     }
 
     private void applyButtonStyles(Button button) {

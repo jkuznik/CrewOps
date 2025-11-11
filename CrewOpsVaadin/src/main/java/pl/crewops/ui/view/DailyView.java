@@ -5,11 +5,11 @@ import static pl.crewops.enums.DailyAttendanceStatus.PRESENT;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.Tab; // NOWY IMPORT
+import com.vaadin.flow.component.tabs.Tabs; // NOWY IMPORT
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -39,16 +39,14 @@ import pl.crewops.ui.view.layout.MainLayout;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.BrowserResolver;
 
-// TODO: dodać opcję 'historia zmian wpisu' w komponencie zarządzania wpisem
-
 @Route("daily")
 @PageTitle("Daily Entry")
 public final class DailyView extends MainLayout implements BeforeEnterObserver {
 
     private static final String MAIN_CONTENT_WIDTH_PX = "1600px";
 
-    private final Button currentDay = new Button();
-    private final Button calendar = new Button();
+    private final Tab currentDayTab;
+    private final Tab calendarTab;
     private final DateSelectorDialog dateSelectorDialog = new DateSelectorDialog();
 
     // strange behavior of third part component like Timeline has described with initialize this object
@@ -69,6 +67,9 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
 
     public DailyView(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
         super(coreAPI, authenticationResolver);
+        this.currentDayTab = new Tab(getTranslation("dailyView.currentDay"));
+        this.calendarTab = new Tab(getTranslation("dailyView.calendar"));
+
         this.timesheetPanel = new TimesheetPanel();
         this.dailyActivityPanel = new DailyActivityPanel(authenticationResolver);
         this.createDailyNotePanel = new CreateDailyNotePanel();
@@ -93,8 +94,6 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
 
     private void buildContent() {
         timelinePanel = new DailyTimelinePanel(dailyEntryDTO.orElse(null));
-
-        localize();
 
         updateDependsOnSelectedDate(selectedDate);
 
@@ -208,48 +207,51 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
         }
     }
 
-    private HorizontalLayout getToolbar() {
-        var toolbar = new HorizontalLayout();
+    private Tabs getToolbar() {
+        Tabs tabs = new Tabs(currentDayTab, calendarTab);
+        tabs.setFlexGrowForEnclosedTabs(2);
 
-        currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        calendar.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        currentDay.setWidth("160px");
+        updateDependsOnSelectedDate(LocalDate.now());
+        tabs.setSelectedTab(currentDayTab);
 
-        calendar.setWidth("160px");
+        var registration = tabs.addSelectedChangeListener(event -> {
+            Tab selectedTab = event.getSelectedTab();
 
-        var registration = currentDay.addClickListener(event -> {
-            updateDependsOnSelectedDate(LocalDate.now());
-
-            dateSelectorDialog.setDate(selectedDate);
-            currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            calendar.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            if (selectedTab.equals(currentDayTab)) {
+                handleCurrentDaySelection();
+            } else if (selectedTab.equals(calendarTab)) {
+                handleCalendarSelection();
+            }
         });
         listeners.add(registration);
-
-        var registration1 = calendar.addClickListener(event -> {
-            dateSelectorDialog.open();
-        });
-        listeners.add(registration1);
 
         var registration2 = dateSelectorDialog.addSelectDateListener(selectedDateEvent -> {
             selectedDate = selectedDateEvent.getSelectedDate();
             updateDependsOnSelectedDate(selectedDate);
 
-            calendar.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            currentDay.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-
             if (selectedDateEvent.getSelectedDate().equals(LocalDate.now())) {
-                currentDay.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-                calendar.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                tabs.setSelectedTab(currentDayTab);
+            } else {
+                tabs.setSelectedTab(calendarTab);
             }
+
             readNotesPanel.setVisible(false);
             dateSelectorDialog.close();
         });
         listeners.add(registration2);
 
-        toolbar.add(currentDay, calendar);
+        return tabs;
+    }
 
-        return toolbar;
+    // Nowa, wyodr\u0119bniona logika dla Tab\u00f3w
+    private void handleCurrentDaySelection() {
+        updateDependsOnSelectedDate(LocalDate.now());
+        dateSelectorDialog.setDate(selectedDate);
+    }
+
+    // Nowa, wyodr\u0119bniona logika dla Tab\u00f3w
+    private void handleCalendarSelection() {
+        dateSelectorDialog.open();
     }
 
     private void createDailyLogic() {
@@ -321,11 +323,11 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
     }
 
     /**
-     * Sprawdza, czy wartości nadgodzin różnią się, traktując poprawnie przypadki null i BigDecimal.
-     * * Ta logika zapewnia, że zmiana z wartości dodatniej na ZERO jest uznawana za zmianę.
+     * Sprawdza, czy warto\u015Bci nadgodzin r\u00f3\u017Cni\u0105 si\u0119, traktuj\u0105c poprawnie przypadki null i BigDecimal.
+     * * Ta logika zapewnia, \u017Ce zmiana z warto\u015Bci dodatniej na ZERO jest uznawana za zmian\u0119.
      * * @param entryOvertime Nadgodziny z aktualnego DTO (entryDaily.overTime()).
      * @param formOvertime Nadgodziny z formularza (timesheetForm.getOvertime()).
-     * @return true, jeśli wartości są różne (uwzględniając null/0); false w przeciwnym razie.
+     * @return true, je\u015Bli warto\u015Bci s\u0105 r\u00f3\u017Cne (uwzgl\u0119dniaj\u0105c null/0); false w przeciwnym razie.
      */
     private boolean isOvertimeChanged(BigDecimal entryOvertime, BigDecimal formOvertime) {
         if (entryOvertime == null && formOvertime == null) {
@@ -336,8 +338,9 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
             return true;
         }
 
-        // C. Żadna nie jest null, porównujemy wartości liczbowe (0 vs 0 -> NIE jest zmianą, 2 vs 0 -> JEST zmianą)
-        // BigDecimal.compareTo() jest prawidłowym sposobem porównywania wartości BigDecimals.
+        // C. \u017Badna nie jest null, por\u00f3wnujemy warto\u015Bci liczbowe (0 vs 0 -> NIE jest zmian\u0105, 2 vs 0
+        // -> JEST zmian\u0105)
+        // BigDecimal.compareTo() jest prawid\u0142owym sposobem por\u0142wnywania warto\u015Bci BigDecimals.
         return entryOvertime.compareTo(formOvertime) != 0;
     }
 
@@ -391,9 +394,10 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
                 updateDependsOnSelectedDate(dailyEntryDTO1.get().entryDate());
                 new SuccessNotification(getTranslation("dailyView.updateTimesheetSuccess"));
             } else {
-                // todo : dodać komunikat o MOŻLIWEJ przyczynie niepowodzenia z powodu modyfikacji wpisu w
-                //  międzyczasie oraz dodać podstawowe informacje które pomogą to zweryfikować takie jak czas
-                //  ostatniej modyfikacji (albo nawet przeliczyc i podać czas w minutach od ostatniej modyfikacji)
+                // todo : doda\u0107 komunikat o MO\u017BLIWEJ przyczynie niepowodzenia z powodu modyfikacji wpisu w
+                //  mi\u0119dzyczasie oraz doda\u0107 podstawowe informacje kt\u00f3re pomog\u0105 to zweryfikowa\u0107
+                // takie jak czas
+                //  ostatniej modyfikacji (albo nawet przeliczyc i poda\u0107 czas w minutach od ostatniej modyfikacji)
                 new FailNotification(getTranslation("dailyView.failNotification"));
             }
         } catch (NotAuthenticatedException e) {
@@ -407,11 +411,6 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
             UI.getCurrent().refreshCurrentRoute(true);
             return null;
         });
-    }
-
-    private void localize() {
-        currentDay.setText(getTranslation("dailyView.currentDay"));
-        calendar.setText(getTranslation("dailyView.calendar"));
     }
 
     private void addDailyActivityFormListeners() {

@@ -36,12 +36,6 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     unique: true # Nazwa zmiany powinna by\u0107 unikalna
-              - column:
-                  name: variation # Pole z ostatniej encji
-                  type: integer
-                  constraints:
-                    nullable: false
-                    unique: true # Zak\u0142adam, \u017Ce variation te\u017C powinno by\u0107 unikalne
 
         - sql:
             dbms: postgresql

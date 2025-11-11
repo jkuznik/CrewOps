@@ -51,6 +51,8 @@ import pl.crewops.model.dto.registration.CreateCustomerCommand;
 import pl.crewops.model.dto.registration.CreateCustomerResult;
 import pl.crewops.model.dto.registration.PreRegisterResponse;
 import pl.crewops.model.dto.registration.VerifyEmailRequest;
+import pl.crewops.model.dto.shift.CreateShiftDTO;
+import pl.crewops.model.dto.shift.ShiftDTO;
 
 @Slf4j
 @Service
@@ -68,6 +70,7 @@ class CoreService implements CoreAPI {
     private final DomainNoteClient domainNoteClient;
     private final DomainOptionClient domainOptionClient;
     private final DomainQualificationClient deleteQualificationClient;
+    private final ShiftClient shiftClient;
 
     public CoreService(CoreClient coreClient) {
         this.domainAuthClient = new DomainAuthClient(coreClient.getAuthorizationProvider(), coreClient.getCoreClient());
@@ -82,6 +85,7 @@ class CoreService implements CoreAPI {
         this.domainNoteClient = new DomainNoteClient(coreClient.getAuthorizationProvider());
         this.domainOptionClient = new DomainOptionClient(coreClient.getAuthorizationProvider());
         this.deleteQualificationClient = new DomainQualificationClient(coreClient.getAuthorizationProvider());
+        this.shiftClient = new ShiftClient(coreClient.getAuthorizationProvider());
     }
 
     // --- DOMAIN AUTH CLIENT (Rejestracja, Logowanie, Aktualizacje Autoryzacji) ---
@@ -577,5 +581,10 @@ class CoreService implements CoreAPI {
     @Override
     public void deleteQualification(UUID qualificationId) throws NotAuthenticatedException {
         deleteQualificationClient.deleteQualification(qualificationId);
+    }
+
+    @Override
+    public ShiftDTO createShift(CreateShiftDTO createShiftDTO) throws NotAuthenticatedException {
+        return shiftClient.createShift(createShiftDTO);
     }
 }

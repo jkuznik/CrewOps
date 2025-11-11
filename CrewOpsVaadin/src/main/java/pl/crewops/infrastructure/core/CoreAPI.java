@@ -43,6 +43,8 @@ import pl.crewops.model.dto.registration.CreateCustomerCommand;
 import pl.crewops.model.dto.registration.CreateCustomerResult;
 import pl.crewops.model.dto.registration.PreRegisterResponse;
 import pl.crewops.model.dto.registration.VerifyEmailRequest;
+import pl.crewops.model.dto.shift.CreateShiftDTO;
+import pl.crewops.model.dto.shift.ShiftDTO;
 
 @Repository
 @Validated
@@ -191,4 +193,8 @@ public interface CoreAPI {
             throws NotAuthenticatedException;
 
     void deleteJobPositionById(@NotNull UUID id) throws NotAuthenticatedException;
+
+    // ---- SHIFT ----
+
+    ShiftDTO createShift(@NotNull @Valid CreateShiftDTO createShiftDTO) throws NotAuthenticatedException;
 }
