@@ -1,6 +1,6 @@
 package pl.crewops.ui.component.grid;
 
-import static pl.crewops.util.LocalDateTimeFormater.DATE_TIME_HUMAN_READABLE_FORMATTER;
+import static pl.crewops.util.LocalDateTimeFormater.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vaadin.flow.component.Component;
@@ -9,8 +9,8 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import java.time.Instant;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import pl.crewops.enums.DailyEntryAuditType;
@@ -30,9 +30,16 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
     // NOWE POLE: \u015aledzenie ostatnio otwartego wiersza
     private DailyEntryAuditDTO lastOpenedItem = null;
 
-    // Format dla daty i czasu w szczeg\u00f3\u0142ach
-    private static final DateTimeFormatter DATE_TIME_FORMATTER =
-            DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss").withZone(ZoneId.systemDefault());
+    private static final Map<String, String> FIELD_NAME_TRANSLATIONS = Map.of(
+            "startTime", "dailyAuditGrid.field.startTime",
+            "endTime", "dailyAuditGrid.field.endTime",
+            "overtime", "dailyAuditGrid.field.overtime",
+            "attendance", "dailyAuditGrid.field.attendance",
+            "status", "dailyAuditGrid.field.status",
+            "jobPosition", "dailyAuditGrid.field.jobPosition");
+
+    private static final List<String> PREFERRED_FIELD_ORDER =
+            List.of("startTime", "endTime", "overtime", "jobPosition", "attendance", "status");
 
     private static final String COLOR_INFO = "var(--lumo-primary-color)";
     private static final String COLOR_WARNING = "var(--lumo-warning-color)";
@@ -52,9 +59,12 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
     }
 
     public void openLastEventDetails() {
-        setDetailsVisible(currentAudits.getLast(), true);
-        // 🔧 Workaround: delay refresh to avoid empty space after first details open
-        getElement().executeJs("setTimeout(() => { this.requestContentUpdate && this.requestContentUpdate(); }, 50);");
+        if (!currentAudits.isEmpty()) {
+            setDetailsVisible(currentAudits.getLast(), true);
+            // 🔧 Workaround: delay refresh to avoid empty space after first details open
+            getElement()
+                    .executeJs("setTimeout(() => { this.requestContentUpdate && this.requestContentUpdate(); }, 50);");
+        }
     }
 
     public void updateGrid(Set<DailyEntryAuditDTO> dailyAudits) {
@@ -170,16 +180,23 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
      * Tworzy komponent z szczeg\u00f3\u0142ami zrekonstruowanego stanu DailyEntry.
      * Logika ta zosta\u0142a zachowana bez zmian.
      */
+    /**
+     * Tworzy komponent z szczeg\u00f3\u0142ami zrekonstruowanego stanu DailyEntry.
+     */
     private Component createDetailsComponent(DailyEntryAuditDTO auditDTO) {
-        // 1. Rekonstrukcja stanu na moment tego audytu
         DailyEntryDTO state = reconstructor.reconstructState(auditDTO, currentAudits);
 
-        // 2. Formatowanie danych
-        String startTime = state.startTime() != null ? DATE_TIME_FORMATTER.format(state.startTime()) : "-";
-        String endTime = state.endTime() != null ? DATE_TIME_FORMATTER.format(state.endTime()) : "-";
+        String jobPosition = state.jobPosition() != null ? state.jobPosition().name() : "-";
+        String startTime = state.startTime() != null ? TIME_FORMATTER.format(state.startTime()) : "-";
+        String endTime = state.endTime() != null ? TIME_FORMATTER.format(state.endTime()) : "-";
         String overTime = state.overTime() != null ? state.overTime().toPlainString() : "0";
-        String attendance = state.attendance() != null ? state.attendance().toString() : "-";
-        String status = state.status() != null ? state.status().toString() : "-";
+        String attendance = state.attendance() != null
+                ? getTranslation(
+                        "dailyAudit.attendanceStatus." + state.attendance().name())
+                : "-";
+        String status = state.status() != null
+                ? getTranslation("dailyAudit.entryStatus." + state.status().name())
+                : "-";
 
         // 3. Budowa layoutu
         VerticalLayout layout = new VerticalLayout();
@@ -190,19 +207,20 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
         layout.getStyle().set("margin", "0 0 0 20px");
         layout.getStyle().set("padding", "0.5em 1em");
 
-        // Zrekonstruowany Stan Wpisu
         Span titleSpan = new Span(getTranslation("dailyAuditGrid.details.reconstructedStateTitle"));
         titleSpan.getStyle().set("font-weight", "bold");
         titleSpan.getStyle().set("font-size", "1.1em");
 
-        // Dodawanie sformatowanych danych do layoutu
+        // DODAWANIE STANOWISKA PRACY
         layout.add(
                 titleSpan,
-                new Span(getTranslation("dailyAuditGrid.details.startTime") + ": " + startTime),
-                new Span(getTranslation("dailyAuditGrid.details.endTime") + ": " + endTime),
-                new Span(getTranslation("dailyAuditGrid.details.overtime") + ": " + overTime),
-                new Span(getTranslation("dailyAuditGrid.details.attendanceStatus") + ": " + attendance),
-                new Span(getTranslation("dailyAuditGrid.details.entryStatus") + ": " + status));
+                new Span(getTranslation(FIELD_NAME_TRANSLATIONS.get("startTime")) + ": " + startTime),
+                new Span(getTranslation(FIELD_NAME_TRANSLATIONS.get("endTime")) + ": " + endTime),
+                new Span(getTranslation(FIELD_NAME_TRANSLATIONS.get("overtime")) + ": " + overTime),
+                new Span(getTranslation(FIELD_NAME_TRANSLATIONS.get("jobPosition")) + ": "
+                        + jobPosition), // NOWY ELEMENT
+                new Span(getTranslation(FIELD_NAME_TRANSLATIONS.get("attendance")) + ": " + attendance),
+                new Span(getTranslation(FIELD_NAME_TRANSLATIONS.get("status")) + ": " + status));
 
         return layout;
     }
@@ -228,9 +246,6 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
         return getTranslation("dailyAuditGrid.system");
     }
 
-    /**
-     * Formatuje szczeg\u00f3\u0142y zmian (oldValues -> newValues) w czytelnym formacie.
-     */
     private String formatChangeDetails(JsonNode payload) {
         if (payload == null) {
             return getTranslation("dailyAuditGrid.noDetails");
@@ -239,44 +254,112 @@ public class DailyAuditGrid extends Grid<DailyEntryAuditDTO> {
         JsonNode oldValues = payload.has("oldValues") ? payload.get("oldValues") : null;
         JsonNode newValues = payload.has("newValues") ? payload.get("newValues") : null;
 
-        StringBuilder details = new StringBuilder();
-
-        if (newValues != null && newValues.isObject()) {
-            Iterator<Map.Entry<String, JsonNode>> fields = newValues.fields();
-            boolean first = true;
-
-            while (fields.hasNext()) {
-                Map.Entry<String, JsonNode> field = fields.next();
-                String fieldName = field.getKey();
-                String newValue = field.getValue().asText();
-                String oldValue = oldValues != null && oldValues.has(fieldName)
-                        ? oldValues.get(fieldName).asText()
-                        : "-";
-
-                if (fieldName.equals("operationType")) {
-                    continue;
+        if (newValues == null || !newValues.isObject() || newValues.isEmpty()) {
+            if (payload.has("operationType")) {
+                try {
+                    DailyEntryAuditType type = DailyEntryAuditType.valueOf(
+                            payload.get("operationType").asText());
+                    return getTranslation("dailyAudit.eventType." + type.name());
+                } catch (IllegalArgumentException e) {
+                    return payload.get("operationType").asText();
                 }
+            }
+            return getTranslation("dailyAuditGrid.noDetails");
+        }
 
-                if (!first) {
-                    details.append("; ");
-                }
+        List<String> detailsList = new ArrayList<>();
 
-                details.append(fieldName)
-                        .append(" (")
-                        .append(oldValue)
-                        .append(" -> ")
-                        .append(newValue)
-                        .append(")");
-
-                first = false;
+        // Zbudowanie zbioru zmienionych kluczy (PRAWID\u0141OWA LOGIKA DLA JsonNode)
+        Set<String> changedFields = new HashSet<>();
+        if (newValues.isObject()) {
+            Iterator<String> fieldNames = newValues.fieldNames();
+            while (fieldNames.hasNext()) {
+                changedFields.add(fieldNames.next());
             }
         }
 
-        if (details.isEmpty() && payload.has("operationType")) {
-            return payload.get("operationType").asText();
+        // 1. ITERACJA PO PREDEFINIOWANEJ KOLEJNO\u015ACI
+        for (String fieldNameKey : PREFERRED_FIELD_ORDER) {
+            // Sprawd\u017A, czy to pole by\u0142o faktycznie zmienione w tym audycie
+            if (changedFields.contains(fieldNameKey)) {
+
+                String i18nKey = FIELD_NAME_TRANSLATIONS.getOrDefault(fieldNameKey, fieldNameKey);
+                String fieldName = getTranslation(i18nKey);
+
+                // 3. Pobranie i sformatowanie warto\u015Bci
+                String newValueRaw = newValues.get(fieldNameKey).asText();
+                String oldValueRaw = oldValues != null && oldValues.has(fieldNameKey)
+                        ? oldValues.get(fieldNameKey).asText()
+                        : null;
+
+                // Sprawdzenie, czy surowe warto\u015Bci s\u0105 null/puste (co odpowiada '-')
+                boolean isOldValueNullOrBlank =
+                        oldValueRaw == null || oldValueRaw.isBlank() || oldValueRaw.equals("null");
+                boolean isNewValueNullOrBlank =
+                        newValueRaw == null || newValueRaw.isBlank() || newValueRaw.equals("null");
+
+                String newValueFormatted = isNewValueNullOrBlank ? "-" : formatValue(fieldNameKey, newValueRaw);
+
+                String oldValueFormatted = isOldValueNullOrBlank ? "-" : formatValue(fieldNameKey, oldValueRaw);
+
+                // 4. BUDOWA CI\u0104GU ZNAK\u00d3W Z LOGIK\u0104 DLA NULL/PUSTYCH WARTOSCI
+                String changeDetail;
+
+                if (isOldValueNullOrBlank && isNewValueNullOrBlank) {
+                    // Obie puste/null - pomijamy lub zwracamy pusty ci\u0105g (cho\u0107 to nie powinno si\u0119
+                    // zdarzy\u0107, je\u015Bli jest w changedFields)
+                    continue;
+                } else if (isOldValueNullOrBlank) {
+                    // Warto\u015B\u0107 ustawiona (np. Czas zako\u0144czenia: 08:15)
+                    changeDetail = String.format("%s: %s", fieldName, newValueFormatted);
+                } else if (isNewValueNullOrBlank) {
+                    // Warto\u015B\u0107 usuni\u0119ta/wyczyszczona (np. Czas zako\u0144czenia: (08:15 \u2192 -))
+                    // W tym przypadku zachowujemy pe\u0142ny format, ale mo\u017Cna upro\u015Bci\u0107
+                    // Zostawmy pe\u0142ny format dla usuni\u0119cia (mo\u017Ce by\u0107 u\u017Cyteczne)
+                    changeDetail = String.format("%s: (%s \u2192 %s)", fieldName, oldValueFormatted, newValueFormatted);
+                } else {
+                    // Pe\u0142na zmiana (np. Czas rozpocz\u0119cia: (01:30 \u2192 01:45))
+                    changeDetail = String.format("%s: (%s \u2192 %s)", fieldName, oldValueFormatted, newValueFormatted);
+                }
+
+                detailsList.add(changeDetail);
+            }
         }
 
-        return details.toString();
+        // Po\u0142\u0105czenie wszystkich zmian \u015Brednikiem i spacj\u0105
+        return String.join("; ", detailsList);
+    }
+
+    private String formatValue(String fieldNameKey, String valueRaw) {
+        if (valueRaw == null || valueRaw.isBlank()) {
+            return "-";
+        }
+
+        return switch (fieldNameKey) {
+            case "startTime", "endTime" -> {
+                try {
+                    yield TIME_FORMATTER.format(Instant.parse(valueRaw));
+                } catch (Exception e) {
+                    yield valueRaw;
+                }
+            }
+
+            case "attendance" -> {
+                try {
+                    yield getTranslation("dailyAudit.attendanceStatus." + valueRaw.toUpperCase());
+                } catch (Exception e) {
+                    yield valueRaw;
+                }
+            }
+            case "status" -> {
+                try {
+                    yield getTranslation("dailyAudit.entryStatus." + valueRaw.toUpperCase());
+                } catch (Exception e) {
+                    yield valueRaw;
+                }
+            }
+            default -> valueRaw;
+        };
     }
 
     private String getBackgroundColorForType(DailyEntryAuditType type) {

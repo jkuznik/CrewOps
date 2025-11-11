@@ -11,6 +11,7 @@ import pl.crewops.enums.DailyAttendanceStatus;
 import pl.crewops.enums.DailyEntryStatus;
 import pl.crewops.model.dto.dailyEntry.DailyEntryAuditDTO;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 
 /**
  * Odtwarza stan DailyEntry (startTime, endTime, statusy) w momencie wyst\u0105pienia danego audytu.
@@ -58,7 +59,9 @@ public class DailyEntryAuditReconstructor {
 
         JsonNode newValues = payload.get("newValues");
 
-        // Aplikuj zmiany z newValues
+        if (newValues.has("jobPosition")) {
+            stateBuilder.jobPosition(parseJobPositionDTO(newValues.get("jobPosition")));
+        }
         if (newValues.has("startTime")) {
             stateBuilder.startTime(parseInstant(newValues.get("startTime")));
         }
@@ -77,6 +80,15 @@ public class DailyEntryAuditReconstructor {
     }
 
     // --- Metody pomocnicze ---
+
+    private JobPositionDTO parseJobPositionDTO(JsonNode node) {
+        if (node.isTextual() && !node.asText().isBlank()) {
+            String jobName = node.asText();
+
+            return JobPositionDTO.builder().id(UUID.randomUUID()).name(jobName).build();
+        }
+        return null;
+    }
 
     private Instant parseInstant(JsonNode node) {
         if (node.isTextual()) {

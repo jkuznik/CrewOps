@@ -187,7 +187,7 @@ public class DailyTimelinePanel extends PanelCustom {
             if (dailyEntry.endTime() != null) {
                 LocalDateTime workEnd = LocalDateTime.ofInstant(dailyEntry.endTime(), ZONE_ID);
 
-                var workItem = new Item(workStart, workEnd, "Praca"); // todo: i18n
+                var workItem = new Item(workStart, workEnd, getTranslation("dailyTimeline.item.work"));
                 workItem.setId(UUID.randomUUID().toString());
                 workItem.setClassName("timeline-item-default");
                 workItem.setEditable(false);
@@ -197,7 +197,7 @@ public class DailyTimelinePanel extends PanelCustom {
             } else {
                 LocalDateTime softEnd = workStart.plusHours(4);
 
-                var ongoingItem = new Item(workStart, softEnd, "Praca"); // todo: i18n
+                var ongoingItem = new Item(workStart, softEnd, getTranslation("dailyTimeline.item.work"));
                 ongoingItem.setId(UUID.randomUUID().toString());
                 ongoingItem.setClassName("timeline-item-ongoing");
                 ongoingItem.setEditable(false);
@@ -236,7 +236,6 @@ public class DailyTimelinePanel extends PanelCustom {
             LocalDateTime eventStart = LocalDateTime.ofInstant(audit.createdAt(), ZONE_ID);
             LocalDateTime eventEnd = eventStart.plusMinutes(1);
 
-            // todo: i18n
             String titleKey = "dailyAudit.eventType." + audit.eventType().name();
             String title = getTranslation(titleKey, audit.eventType().toString());
 
@@ -311,7 +310,7 @@ public class DailyTimelinePanel extends PanelCustom {
         long overtimeMinutes = overtimeHours.multiply(BigDecimal.valueOf(60)).longValue();
         LocalDateTime start = end.minusMinutes(overtimeMinutes);
 
-        Item overtimeItem = new Item(start, end, "Praca - Nadgodziny"); // todo: i18n
+        Item overtimeItem = new Item(start, end, getTranslation("dailyTimeline.item.overtime"));
         overtimeItem.setId("overtime");
         overtimeItem.setClassName("timeline-item-overtime");
 
