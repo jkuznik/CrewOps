@@ -8,8 +8,8 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.tabs.Tab; // NOWY IMPORT
-import com.vaadin.flow.component.tabs.Tabs; // NOWY IMPORT
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -105,11 +105,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
         // allow to set timeline setWidthFull() and control that size by mainContainer.setWidth options ℹ️
         var mainContainer = new VerticalLayout();
 
-        var timeline = new VerticalLayout(timelinePanel);
-        timeline.setSpacing(true);
-        timeline.setPadding(true);
-
-        mainContainer.add(getToolbar(), timeline, getLayoutDependsOnUserDevice());
+        mainContainer.add(getToolbar(), timelinePanel, getLayoutDependsOnUserDevice());
         mainContainer.setMaxWidth(MAIN_CONTENT_WIDTH_PX);
 
         mainContent.setAlignItems(FlexComponent.Alignment.CENTER);

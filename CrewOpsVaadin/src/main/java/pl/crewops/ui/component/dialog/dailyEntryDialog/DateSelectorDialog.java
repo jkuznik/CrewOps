@@ -3,6 +3,7 @@ package pl.crewops.ui.component.dialog.dailyEntryDialog;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.shared.Registration;
@@ -10,31 +11,52 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Locale;
 import lombok.Getter;
+import pl.crewops.ui.component.custom.FullCalendarCustom;
 
 public class DateSelectorDialog extends Dialog {
 
-    private final DatePicker datePicker = new DatePicker();
+    private final FullCalendarCustom calendar = new FullCalendarCustom();
+    private final Button close = new Button("close");
 
     public DateSelectorDialog() {
+        setSizeFull();
         localize();
 
-        datePicker.addValueChangeListener(event -> {
-            fireEvent(new SelectDateEvent(this, event.getValue()));
+        calendar.addSelectedDateListener(event -> {
+            // Zdarzenie z FullCalendarCustom jest wywoływane w Javie,
+            // co powoduje wyemitowanie zdarzenia SelectDateEvent i zamknięcie dialogu.
+            this.close();
+            fireEvent(new SelectDateEvent(this, event.getSelectedDate()));
         });
 
-        add(datePicker);
+        close.addClickListener(event -> {
+            this.close();
+        });
+
+        // KLUCZOWA ZMIANA: Dodanie listenera na otwarcie dialogu
+        this.addOpenedChangeListener(event -> {
+            if (event.isOpened()) {
+                // Gdy dialog się otworzy (czyli komponent jest w DOM), wstrzykujemy JS.
+                // Używamy UI.getCurrent().beforeClientResponse, aby mieć pewność, że komponent JS jest gotowy.
+                UI.getCurrent().beforeClientResponse(this, executionContext -> {
+                    calendar.injectDateClickListener();
+                });
+            }
+        });
+
+        add(calendar, close);
     }
 
     public void setDate(LocalDate localDate) {
-        datePicker.setValue(localDate);
+        calendar.gotoDate(localDate);
     }
 
     private void localize() {
         // Ustawienie tekstu placeholder
-        datePicker.setPlaceholder(getTranslation("dateSelectorDialog.placeholder"));
+        //        datePicker.setPlaceholder(getTranslation("dateSelectorDialog.placeholder"));
 
         // Ustawienie dynamicznej konfiguracji I18n dla DatePickera
-        datePicker.setI18n(createI18n());
+        calendar.setLocale(Locale.getDefault());
     }
 
     private DatePicker.DatePickerI18n createI18n() {
