@@ -125,6 +125,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
                 dailyActivityPanel.setDailyEntry(dailyEntry);
                 dailyModificationPanel.setDailyEntry(dailyEntry);
 
+                dateSelectorDialog.setDailyEntries(List.of(dailyEntry));
             } else {
                 timelinePanel.updateTimeline(null, date);
                 timesheetPanel.setDailyEntry(null);

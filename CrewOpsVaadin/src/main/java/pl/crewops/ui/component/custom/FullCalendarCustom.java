@@ -5,44 +5,135 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.shared.Registration;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
+import org.vaadin.stefan.fullcalendar.model.Header;
+import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
+import org.vaadin.stefan.fullcalendar.model.HeaderFooterPart;
+import org.vaadin.stefan.fullcalendar.model.HeaderFooterPartPosition;
+import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
 
 public class FullCalendarCustom extends FullCalendar {
 
     public FullCalendarCustom() {
         super();
-        setHeight("800px");
-        setWidth("100%");
+        setWeekNumbersVisible(false);
+        setSizeFull();
+        setHeight("100%");
 
-        // UWAGA: Logika JS została usunięta z konstruktora
+        setHeaderToolbar(createCustomHeaderToolbar());
+    }
+
+    public void setDailyEntries(Collection<DailyEntryDTO> dailyEntries) {
+        List<Entry> entries = new ArrayList<>();
+
+        if (dailyEntries != null) {
+            for (DailyEntryDTO dto : dailyEntries) {
+                // Entry dla attendance
+                if (dto.attendance() != null) {
+                    Entry attendanceEntry = new Entry(UUID.randomUUID().toString());
+                    attendanceEntry.setTitle("Attendance: " + dto.attendance().name());
+                    attendanceEntry.setAllDay(true);
+                    attendanceEntry.setStart(
+                            dto.entryDate().atStartOfDay(ZoneOffset.UTC).toInstant());
+                    attendanceEntry.setEnd(dto.entryDate()
+                            .plusDays(1)
+                            .atStartOfDay(ZoneOffset.UTC)
+                            .toInstant());
+                    entries.add(attendanceEntry);
+                }
+
+                // Entry dla status
+                if (dto.status() != null) {
+                    Entry statusEntry = new Entry(UUID.randomUUID().toString());
+                    statusEntry.setTitle("Status: " + dto.status().name());
+                    statusEntry.setAllDay(true);
+                    statusEntry.setStart(
+                            dto.entryDate().atStartOfDay(ZoneOffset.UTC).toInstant());
+                    statusEntry.setEnd(dto.entryDate()
+                            .plusDays(1)
+                            .atStartOfDay(ZoneOffset.UTC)
+                            .toInstant());
+                    entries.add(statusEntry);
+                }
+            }
+        }
+
+        // Ustawiamy provider z wszystkimi Entry
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
+        provider.addEntries(entries);
+        setEntryProvider(provider);
     }
 
     /**
-     * Wstrzykuje kod JavaScript nasłuchujący na natywne zdarzenie 'dateClick'
-     * i mapujący je na metodę Javy (@ClientCallable).
-     * * Ta metoda jest wywoływana z okna dialogowego po jego otwarciu,
-     * aby upewnić się, że komponent FullCalendar jest gotowy do interakcji.
+     * Tworzy i konfiguruje Header Toolbar z nawigacją i wyborem widoków.
+     *
+     * @return skonfigurowany obiekt Header
+     */
+    private Header createCustomHeaderToolbar() {
+        Header header = new Header();
+
+        HeaderFooterPart endPart = new HeaderFooterPart(HeaderFooterPartPosition.END);
+        endPart.addItem(HeaderFooterItem.BUTTON_PREVIOUS_YEAR);
+        endPart.addItem(HeaderFooterItem.BUTTON_PREVIOUS);
+        endPart.addItem(HeaderFooterItem.BUTTON_TODAY);
+        endPart.addItem(HeaderFooterItem.BUTTON_NEXT);
+        endPart.addItem(HeaderFooterItem.BUTTON_NEXT_YEAR);
+        header.addPart(endPart);
+
+        return header;
+    }
+
+    /**
+     * Wstrzykuje kod JavaScript nasłuchujący na natywne zdarzenie 'dateClick'.
      */
     public void injectDateClickListener() {
-        // Opcja 'selectable' musi być włączona, aby event 'dateClick' zadziałał
-        setOption("selectable", true);
+        setOption(Option.SELECTABLE, true);
 
-        // Używamy executeJs do wstrzyknięcia listenera
         getElement()
                 .executeJs(
                         """
-            this.calendar.on('dateClick', (info) => {
-                // Wywołanie metody Javy 'onDateClick' z datą w formacie ISO (np. 'YYYY-MM-DD')
-                this.$server.onDateClick(info.dateStr);
+                        const calendar = this.calendar;
+                        if (calendar && !this.__dateClickInjected) {
+                            this.__dateClickInjected = true;
+                            calendar.on('dateClick', (info) => {
+                                this.$server.onDateClick(info.dateStr);
+                            });
+                        }
+                        """);
 
-                // Wizualna zmiana, którą widziałeś, jest efektem ubocznym 'dateClick',
-                // ale ten kod gwarantuje wywołanie serwera.
-            });
-        """);
+        getElement()
+                .executeJs(
+                        """
+                const el = this;
+                const calendar = this.calendar;
+                if (calendar) {
+                    // Ukryj kalendarz na moment
+                    el.style.visibility = 'hidden';
+
+                    requestAnimationFrame(() => {
+                        // Poczekaj aż DOM się ustabilizuje, a potem przelicz i pokaż
+                        setTimeout(() => {
+                            try {
+                                calendar.updateSize();
+                            } catch (e) {
+                                console.warn('FullCalendar updateSize error:', e);
+                            }
+                            el.style.visibility = 'visible';
+                        }, 200);
+                    });
+                }
+                """);
     }
 
     // -------------------------------------------------------------------------
-    // Metoda Javy Odbierająca Wywołanie z JS
+    // Metoda Javy odbierająca wywołanie z JS
     // -------------------------------------------------------------------------
 
     /**
@@ -55,7 +146,7 @@ public class FullCalendarCustom extends FullCalendar {
     }
 
     // -------------------------------------------------------------------------
-    // Definicja Zdarzenia Flow
+    // Definicja zdarzenia Flow
     // -------------------------------------------------------------------------
 
     /**
