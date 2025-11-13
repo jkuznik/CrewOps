@@ -51,7 +51,7 @@ public class DomainNoteClient extends DomainAbstractClient {
                     .body(new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
             log.error("Get daily note error for date {}", fetchNotesRequest.date(), e);
-            return null;
+            return List.of();
         }
     }
 }

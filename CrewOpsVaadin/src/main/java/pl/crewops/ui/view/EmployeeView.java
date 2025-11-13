@@ -62,9 +62,11 @@ public class EmployeeView extends MainLayout implements BeforeEnterObserver {
         // Definicja zakładek
         Tab employeeListTab = new Tab(getTranslation("employeeView.employeeList"));
         Tab qualificationsTab = new Tab(getTranslation("employeeView.qualifications"));
+        Tab documentationTab = new Tab("Medycyna pracy");
+        Tab contractTab = new Tab("Dokumentacja");
         Tab jobPositionsTab = new Tab(getTranslation("employeeView.jobPositions"));
 
-        Tabs tabs = new Tabs(employeeListTab, qualificationsTab, jobPositionsTab);
+        Tabs tabs = new Tabs(employeeListTab, qualificationsTab, documentationTab, contractTab, jobPositionsTab);
         tabs.setFlexGrowForEnclosedTabs(2);
 
         // Domyślnie wybieramy pierwszą zakładkę i pokazujemy listę pracowników

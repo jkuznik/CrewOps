@@ -25,7 +25,6 @@ public class FullCalendarCustom extends FullCalendar {
         super();
         setWeekNumbersVisible(false);
         setSizeFull();
-        setHeight("100%");
 
         setHeaderToolbar(createCustomHeaderToolbar());
     }

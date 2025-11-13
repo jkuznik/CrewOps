@@ -5,6 +5,8 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -20,16 +22,35 @@ public class DateSelectorDialog extends Dialog {
 
     public DateSelectorDialog() {
         setSizeFull();
+        setModal(true);
 
         localize();
-
         configureCalendar();
 
-        close.addClickListener(event -> {
-            this.close();
-        });
+        close.setWidth("200px");
+        close.addClickListener(event -> this.close());
 
-        add(calendar, close);
+        VerticalLayout content = new VerticalLayout();
+        content.setSizeFull();
+        content.setPadding(true);
+        content.setSpacing(true);
+        content.setAlignItems(FlexComponent.Alignment.CENTER);
+        content.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+
+        calendar.setWidthFull();
+        calendar.setHeightFull();
+
+        VerticalLayout calendarContainer = new VerticalLayout(calendar);
+        calendarContainer.setSizeFull();
+        calendarContainer.setPadding(false);
+        calendarContainer.setSpacing(false);
+        calendarContainer.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        content.add(calendarContainer, close);
+        content.setFlexGrow(1, calendarContainer); // kalendarz wypełnia całą dostępną przestrzeń
+        content.setFlexGrow(0, close); // przycisk zajmuje minimalną przestrzeń
+
+        add(content);
     }
 
     public void setDailyEntries(Collection<DailyEntryDTO> dailyEntries) {
@@ -37,8 +58,6 @@ public class DateSelectorDialog extends Dialog {
     }
 
     private void configureCalendar() {
-        calendar.setWidth("80%");
-        calendar.setHeight("60%");
 
         this.addOpenedChangeListener(event -> {
             if (event.isOpened()) {

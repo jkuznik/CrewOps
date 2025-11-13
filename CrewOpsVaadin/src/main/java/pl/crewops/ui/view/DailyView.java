@@ -3,7 +3,6 @@ package pl.crewops.ui.view;
 import static pl.crewops.enums.DailyAttendanceStatus.OTHER;
 import static pl.crewops.enums.DailyAttendanceStatus.PRESENT;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -18,7 +17,10 @@ import com.vaadin.flow.shared.Registration;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import pl.crewops.enums.DailyAttendanceStatus;
 import pl.crewops.enums.DailyEntryStatus;
 import pl.crewops.exceptions.NotAuthenticatedException;
@@ -45,34 +47,32 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
 
     private static final String MAIN_CONTENT_WIDTH_PX = "1600px";
 
-    private final Tab currentDayTab;
-    private final Tab calendarTab;
+    private final boolean isMobile = BrowserResolver.isMobile();
+
+    private final Tab currentDayTab = new Tab(getTranslation("dailyView.currentDay"));
+    ;
+    private final Tab calendarTab = new Tab(getTranslation("dailyView.calendar"));
+    ;
+    private final Tabs tabs = new Tabs(currentDayTab, calendarTab);
     private final DateSelectorDialog dateSelectorDialog = new DateSelectorDialog();
 
     // strange behavior of third part component like Timeline has described with initialize this object
     private DailyTimelinePanel timelinePanel;
-
-    private final TimesheetPanel timesheetPanel;
+    private final TimesheetPanel timesheetPanel = new TimesheetPanel();
+    ;
     private final DailyActivityPanel dailyActivityPanel;
-    private final CreateDailyNotePanel createDailyNotePanel;
+    private final CreateDailyNotePanel createDailyNotePanel = new CreateDailyNotePanel();
+    ;
     private final DailyModificationPanel dailyModificationPanel;
-
     private final ReadNotesPanel readNotesPanel = new ReadNotesPanel();
 
-    private final boolean isMobile = BrowserResolver.isMobile();
-
-    private List<NoteDTO> selectedDateNotes = new ArrayList<>();
     private Optional<DailyEntryDTO> dailyEntryDTO = Optional.empty();
     private LocalDate selectedDate = LocalDate.now();
 
     public DailyView(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
         super(coreAPI, authenticationResolver);
-        this.currentDayTab = new Tab(getTranslation("dailyView.currentDay"));
-        this.calendarTab = new Tab(getTranslation("dailyView.calendar"));
 
-        this.timesheetPanel = new TimesheetPanel();
         this.dailyActivityPanel = new DailyActivityPanel(authenticationResolver);
-        this.createDailyNotePanel = new CreateDailyNotePanel();
         this.dailyModificationPanel = new DailyModificationPanel(authenticationResolver);
     }
 
@@ -100,12 +100,14 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
         addDailyActivityFormListeners();
         addDailyModificationFormListeners();
 
+        configureDateSelector();
+
         // INFO: main container:
         // aggregate all components of this view
         // allow to set timeline setWidthFull() and control that size by mainContainer.setWidth options ℹ️
         var mainContainer = new VerticalLayout();
 
-        mainContainer.add(getToolbar(), timelinePanel, getLayoutDependsOnUserDevice());
+        mainContainer.add(getToolbar(), getSelectedDayContentDependsOnDevice());
         mainContainer.setMaxWidth(MAIN_CONTENT_WIDTH_PX);
 
         mainContent.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -124,7 +126,12 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
                 timesheetPanel.setDailyEntry(dailyEntry);
                 dailyActivityPanel.setDailyEntry(dailyEntry);
                 dailyModificationPanel.setDailyEntry(dailyEntry);
-
+                // todo: zaimplementować metody pozwalające na wypełnienie całego miesiąca w fullcalendar informacjami
+                // na temat istniejących daily entry
+                //  dodac na ta potrzebe dedykowany model posiadajacy ograniczone informacje na temat DATY, STANU
+                // OBECNOSCI, STATUSU WPISU
+                //  na temat daily entry oraz endpoint do pobierania tych informacji - to powinno przyspieszyc akcje
+                // pobierania info na temat calego miesiaca
                 dateSelectorDialog.setDailyEntries(List.of(dailyEntry));
             } else {
                 timelinePanel.updateTimeline(null, date);
@@ -142,7 +149,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
                     .date(selectedDate)
                     .build();
 
-            selectedDateNotes = coreAPI.getAllPublicAndPrincipalPrivateNotesByDate(fetchNotesRequest);
+            List<NoteDTO> selectedDateNotes = coreAPI.getAllPublicAndPrincipalPrivateNotesByDate(fetchNotesRequest);
 
             if (!selectedDateNotes.isEmpty()) {
                 dailyActivityPanel.setReadNotesVisible();
@@ -155,7 +162,30 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
         }
     }
 
-    private Component getLayoutDependsOnUserDevice() {
+    private void configureDateSelector() {
+        dateSelectorDialog.setWidth("75%");
+        dateSelectorDialog.setHeight("75%");
+
+        var registration2 = dateSelectorDialog.addSelectDateListener(selectedDateEvent -> {
+            selectedDate = selectedDateEvent.getSelectedDate();
+            updateDependsOnSelectedDate(selectedDate);
+
+            if (selectedDateEvent.getSelectedDate().equals(LocalDate.now())) {
+                tabs.setSelectedTab(currentDayTab);
+            } else {
+                try {
+                    tabs.setSelectedTab(null);
+                } catch (NullPointerException ignored) {
+                }
+            }
+
+            readNotesPanel.setVisible(false);
+            dateSelectorDialog.close();
+        });
+        listeners.add(registration2);
+    }
+
+    private VerticalLayout getSelectedDayContentDependsOnDevice() {
 
         createDailyNotePanel.setVisible(false);
         readNotesPanel.setVisible(false);
@@ -166,7 +196,8 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
             verticalLayout.setSpacing(true);
             verticalLayout.setPadding(true);
 
-            verticalLayout.add(timesheetPanel, createDailyNotePanel, dailyActivityPanel, dailyModificationPanel);
+            verticalLayout.add(
+                    timelinePanel, timesheetPanel, createDailyNotePanel, dailyActivityPanel, dailyModificationPanel);
 
             return verticalLayout;
         } else {
@@ -198,15 +229,14 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
             panelRows.setSpacing(true);
             panelRows.setPadding(true);
 
-            panelRows.add(horizontalLayout, readNotesPanel);
+            panelRows.add(timelinePanel, horizontalLayout, readNotesPanel);
 
             return panelRows;
         }
     }
 
     private Tabs getToolbar() {
-        Tabs tabs = new Tabs(currentDayTab, calendarTab);
-        tabs.setFlexGrowForEnclosedTabs(2);
+        tabs.setFlexGrowForEnclosedTabs(3);
 
         updateDependsOnSelectedDate(LocalDate.now());
         tabs.setSelectedTab(currentDayTab);
@@ -222,31 +252,14 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
         });
         listeners.add(registration);
 
-        var registration2 = dateSelectorDialog.addSelectDateListener(selectedDateEvent -> {
-            selectedDate = selectedDateEvent.getSelectedDate();
-            updateDependsOnSelectedDate(selectedDate);
-
-            if (selectedDateEvent.getSelectedDate().equals(LocalDate.now())) {
-                tabs.setSelectedTab(currentDayTab);
-            } else {
-                tabs.setSelectedTab(calendarTab);
-            }
-
-            readNotesPanel.setVisible(false);
-            dateSelectorDialog.close();
-        });
-        listeners.add(registration2);
-
         return tabs;
     }
 
-    // Nowa, wyodr\u0119bniona logika dla Tab\u00f3w
     private void handleCurrentDaySelection() {
         updateDependsOnSelectedDate(LocalDate.now());
         dateSelectorDialog.setDate(selectedDate);
     }
 
-    // Nowa, wyodr\u0119bniona logika dla Tab\u00f3w
     private void handleCalendarSelection() {
         dateSelectorDialog.open();
     }
@@ -319,13 +332,6 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
         sharedUpdateDailyEntryLogic(updateCommand);
     }
 
-    /**
-     * Sprawdza, czy warto\u015Bci nadgodzin r\u00f3\u017Cni\u0105 si\u0119, traktuj\u0105c poprawnie przypadki null i BigDecimal.
-     * * Ta logika zapewnia, \u017Ce zmiana z warto\u015Bci dodatniej na ZERO jest uznawana za zmian\u0119.
-     * * @param entryOvertime Nadgodziny z aktualnego DTO (entryDaily.overTime()).
-     * @param formOvertime Nadgodziny z formularza (timesheetForm.getOvertime()).
-     * @return true, je\u015Bli warto\u015Bci s\u0105 r\u00f3\u017Cne (uwzgl\u0119dniaj\u0105c null/0); false w przeciwnym razie.
-     */
     private boolean isOvertimeChanged(BigDecimal entryOvertime, BigDecimal formOvertime) {
         if (entryOvertime == null && formOvertime == null) {
             return false;
@@ -335,9 +341,6 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
             return true;
         }
 
-        // C. \u017Badna nie jest null, por\u00f3wnujemy warto\u015Bci liczbowe (0 vs 0 -> NIE jest zmian\u0105, 2 vs 0
-        // -> JEST zmian\u0105)
-        // BigDecimal.compareTo() jest prawid\u0142owym sposobem por\u0142wnywania warto\u015Bci BigDecimals.
         return entryOvertime.compareTo(formOvertime) != 0;
     }
 

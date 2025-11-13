@@ -19,23 +19,26 @@ import pl.crewops.util.AuthenticationResolver;
 @UIScope
 @CssImport("./styles/mainStyles/main-drawer.css")
 public class MainDrawer extends VerticalLayout {
+
+    private static final String DRAWER_COLOR = "white";
+
     private final AuthenticationResolver authenticationResolver;
 
     private final RouterLink homeLink = new RouterLink(HomeView.class);
+    private final RouterLink safetyLink = new RouterLink(HSEView.class);
     private final RouterLink dailyLink = new RouterLink(DailyView.class);
     private final RouterLink employeeLink = new RouterLink(EmployeeView.class);
     private final RouterLink machineLink = new RouterLink(MachineView.class);
-    private final RouterLink safetyLink = new RouterLink(HSEView.class);
-
-    private final Span footerText = new Span();
+    private final RouterLink organizationLink = new RouterLink(OrganizationView.class);
 
     private final Span homeTextSpan = new Span();
+    private final Span safetyTextSpan = new Span();
     private final Span dailyTextSpan = new Span();
     private final Span employeeTextSpan = new Span();
     private final Span machineTextSpan = new Span();
-    private final Span safetyTextSpan = new Span();
+    private final Span organizationTextSpan = new Span();
 
-    private static final String DRAWER_COLOR = "white";
+    private final Span footerText = new Span();
 
     public MainDrawer(AuthenticationResolver authenticationResolver) {
         this.authenticationResolver = authenticationResolver;
@@ -55,7 +58,7 @@ public class MainDrawer extends VerticalLayout {
             linksLayout.setSizeFull();
             linksLayout.setPadding(true);
             linksLayout.setSpacing(true);
-            linksLayout.add(homeLink, dailyLink, employeeLink, machineLink, safetyLink);
+            linksLayout.add(homeLink, safetyLink, dailyLink, employeeLink, machineLink, organizationLink);
 
             add(linksLayout, createDrawerFooter());
             setFlexGrow(1, linksLayout);
@@ -72,10 +75,11 @@ public class MainDrawer extends VerticalLayout {
 
     private void customizeLinks() {
         addIconAndPlaceholder(homeLink, VaadinIcon.HOME, homeTextSpan);
+        addIconAndPlaceholder(safetyLink, VaadinIcon.SHIELD, safetyTextSpan);
         addIconAndPlaceholder(dailyLink, VaadinIcon.CALENDAR_CLOCK, dailyTextSpan);
         addIconAndPlaceholder(employeeLink, VaadinIcon.USERS, employeeTextSpan);
         addIconAndPlaceholder(machineLink, VaadinIcon.TOOLS, machineTextSpan);
-        addIconAndPlaceholder(safetyLink, VaadinIcon.SHIELD, safetyTextSpan);
+        addIconAndPlaceholder(organizationLink, VaadinIcon.COMPILE, organizationTextSpan);
     }
 
     private void addIconAndPlaceholder(RouterLink link, VaadinIcon iconType, Span textSpan) {
@@ -99,10 +103,12 @@ public class MainDrawer extends VerticalLayout {
 
     private void localize() {
         homeTextSpan.setText(getTranslation("mainDrawer.link.home"));
+        safetyTextSpan.setText(getTranslation("mainDrawer.link.safety"));
         dailyTextSpan.setText(getTranslation("mainDrawer.link.daily"));
         employeeTextSpan.setText(getTranslation("mainDrawer.link.employee"));
         machineTextSpan.setText(getTranslation("mainDrawer.link.machine"));
-        safetyTextSpan.setText(getTranslation("mainDrawer.link.safety"));
+        // todo i18n
+        organizationTextSpan.setText("Struktury organizacyjne");
 
         footerText.setText(getTranslation("mainDrawer.footer.text"));
     }
@@ -121,17 +127,20 @@ public class MainDrawer extends VerticalLayout {
     }
 
     private void hideLinksRequiredAuthentication() {
+        safetyLink.setVisible(false);
         dailyLink.setVisible(false);
         employeeLink.setVisible(false);
         machineLink.setVisible(false);
-        safetyLink.setVisible(false);
+        organizationLink.setVisible(false);
     }
 
     private void displayLinksDependsOnRoles() {
         if (authenticationResolver.principalHasManagerPermission()) {
             employeeLink.setVisible(true);
+            organizationLink.setVisible(true);
         } else {
             employeeLink.setVisible(false);
+            organizationLink.setVisible(false);
         }
     }
 }
