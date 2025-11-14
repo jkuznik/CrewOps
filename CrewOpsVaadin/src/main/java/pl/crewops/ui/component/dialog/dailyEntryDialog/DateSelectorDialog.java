@@ -75,10 +75,6 @@ public class DateSelectorDialog extends Dialog {
         });
     }
 
-    public void setDate(LocalDate localDate) {
-        calendar.gotoDate(localDate);
-    }
-
     private void localize() {
         // Ustawienie tekstu placeholder
         //        datePicker.setPlaceholder(getTranslation("dateSelectorDialog.placeholder"));

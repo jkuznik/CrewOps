@@ -34,17 +34,14 @@ public class DailyTimelinePanel extends PanelCustom {
     private final Timeline timeline = new TimelineCustom();
     private final DailyAuditGrid grid = new DailyAuditGrid();
 
-    // Zmienne stanu do zarządzania widokiem
-    private DailyEntryDTO currentDailyEntry;
-    private LocalDate currentDate;
+    private DailyEntryDTO currentDailyEntry = null;
+    private LocalDate currentDate = LocalDate.now();
+    ;
     private boolean showAuditEvents = false;
 
-    public DailyTimelinePanel(DailyEntryDTO dailyEntry) {
+    public DailyTimelinePanel() {
         var panelContent = configuredPanelContent();
         setContent(panelContent);
-        // Ustawienie początkowego stanu na podstawie danych
-        this.currentDailyEntry = dailyEntry;
-        this.currentDate = dailyEntry != null ? dailyEntry.entryDate() : LocalDate.now();
         updateTimelineItemsAndRange();
     }
 
@@ -76,7 +73,6 @@ public class DailyTimelinePanel extends PanelCustom {
             }
         });
 
-        // Pasek na przycisk audytu (wyrównany do prawej)
         var headerLayout = new HorizontalLayout(auditToggleButton);
         headerLayout.setWidthFull();
         headerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
@@ -276,7 +272,6 @@ public class DailyTimelinePanel extends PanelCustom {
             }
 
             auditItem.setClassName(auditClassName);
-            // ===========================================
 
             auditItem.setEditable(false);
             auditItem.setUpdateTime(false);
@@ -287,7 +282,6 @@ public class DailyTimelinePanel extends PanelCustom {
         return auditItems;
     }
 
-    // Metoda przyjmująca nowe dane i wywołująca odświeżanie
     public void updateTimeline(DailyEntryDTO dailyEntry, LocalDate date) {
         this.currentDailyEntry = dailyEntry;
         this.currentDate = date;
@@ -328,9 +322,5 @@ public class DailyTimelinePanel extends PanelCustom {
             this.showAuditEvents = showAuditEvents;
             updateTimelineItemsAndRange(); // Ponowne przeliczenie elementów i zakresu
         }
-    }
-
-    public boolean getShowAuditEvents() {
-        return showAuditEvents;
     }
 }
