@@ -123,6 +123,7 @@ public class DailyEntryContent extends VerticalLayout {
             final String PANEL_WIDTH = "540px";
 
             var horizontalLayout = new HorizontalLayout();
+            horizontalLayout.setSizeFull();
             horizontalLayout.setSpacing(true);
             horizontalLayout.setPadding(true);
 
@@ -141,6 +142,7 @@ public class DailyEntryContent extends VerticalLayout {
             horizontalLayout.add(timesheetPanel, createDailyNotePanel, dailyActivityPanel, dailyModificationPanel);
 
             var panelRows = new VerticalLayout();
+            panelRows.setSizeFull();
             panelRows.setSpacing(true);
             panelRows.setPadding(true);
 

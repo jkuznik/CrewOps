@@ -13,6 +13,7 @@ import com.vaadin.flow.shared.Registration;
 import java.time.LocalDate;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.ui.component.content.DailyEntryContent;
+import pl.crewops.ui.component.content.ScheduleContent;
 import pl.crewops.ui.component.dialog.dailyEntryDialog.DateSelectorDialog;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.view.layout.MainLayout;
@@ -22,18 +23,27 @@ import pl.crewops.util.AuthenticationResolver;
 @PageTitle("Daily Entry")
 public final class DailyView extends MainLayout implements BeforeEnterObserver {
 
-    private static final String MAIN_CONTENT_WIDTH_PX = "1600px";
+    public static final String MAIN_CONTENT_WIDTH_PX = "1600px";
 
     private final Tab currentDayTab = new Tab(getTranslation("dailyView.currentDay"));
     private final Tab calendarTab = new Tab(getTranslation("dailyView.calendar"));
-    private final Tabs tabs = new Tabs(currentDayTab, calendarTab);
+    private final Tab scheduleTab = new Tab(getTranslation("dailyView.schedule"));
+    private final Tabs tabs;
 
     private final DateSelectorDialog dateSelectorDialog = new DateSelectorDialog();
 
     private DailyEntryContent dailyEntryContent;
 
+    private final ScheduleContent scheduleContent = new ScheduleContent();
+
     public DailyView(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
         super(coreAPI, authenticationResolver);
+
+        if (authenticationResolver.principalHasManagerPermission()) {
+            tabs = new Tabs(currentDayTab, calendarTab, scheduleTab);
+        } else {
+            tabs = new Tabs(currentDayTab, calendarTab);
+        }
     }
 
     @Override
@@ -57,6 +67,9 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
 
         dailyEntryContent.updateDependsOnSelectedDate(LocalDate.now());
 
+        scheduleContent.setVisible(false);
+
+        configureToolbar();
         configureDateSelector();
         addDailyActivityFormListeners();
         addDailyModificationFormListeners();
@@ -65,8 +78,7 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
         // aggregate all components of this view
         // allow to set timeline setWidthFull() and control that size by mainContainer.setWidth options ℹ️
         var mainContainer = new VerticalLayout();
-
-        mainContainer.add(getToolbar(), dailyEntryContent);
+        mainContainer.add(tabs, dailyEntryContent, scheduleContent);
         mainContainer.setMaxWidth(MAIN_CONTENT_WIDTH_PX);
 
         mainContent.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -112,12 +124,13 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
             }
 
             dailyEntryContent.setReadNotesVisible(false);
+            dailyEntryContent.setVisible(true);
             dateSelectorDialog.close();
         });
         listeners.add(registration2);
     }
 
-    private Tabs getToolbar() {
+    private void configureToolbar() {
         tabs.setFlexGrowForEnclosedTabs(3);
         tabs.setSelectedTab(currentDayTab);
 
@@ -128,22 +141,30 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
                 handleCurrentDaySelection();
             } else if (selectedTab.equals(calendarTab)) {
                 handleCalendarSelection();
+            } else if (selectedTab.equals(scheduleTab)) {
+                handleScheduleSelection();
             }
         });
         listeners.add(registration);
-
-        return tabs;
     }
 
     private void handleCurrentDaySelection() {
         dailyEntryContent.updateDependsOnSelectedDate(LocalDate.now());
+        dailyEntryContent.setVisible(true);
+        scheduleContent.setVisible(false);
     }
 
     private void handleCalendarSelection() {
         dateSelectorDialog.open();
+        scheduleContent.setVisible(false);
         try {
             tabs.setSelectedTab(null);
         } catch (NullPointerException ignored) {
         }
+    }
+
+    private void handleScheduleSelection() {
+        dailyEntryContent.setVisible(false);
+        scheduleContent.setVisible(true);
     }
 }
