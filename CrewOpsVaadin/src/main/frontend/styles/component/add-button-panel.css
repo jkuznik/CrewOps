@@ -1,0 +1,19 @@
+.custom-add-panel {
+    border: 2px dashed rgba(150, 150, 150, 0.7);
+    border-radius: 12px;
+
+    /* Glass effect – mocniejszy */
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+
+    /* Podkreślenie efektu szkła */
+    box-shadow:
+            0 8px 24px rgba(0, 0, 0, 0.12),
+            inset 0 0 20px rgba(255, 255, 255, 0.25); /* poświata szkła */
+}
+
+.custom-add-panel:hover {
+    box-shadow:
+            0 10px 30px rgba(0, 0, 0, 0.18),
+            inset 0 0 26px rgba(255, 255, 255, 0.28);
+}
