@@ -40,6 +40,8 @@ public class DailyEntryContent extends VerticalLayout {
     private final DailyTimelinePanel timelinePanel = new DailyTimelinePanel();
     private final TimesheetPanel timesheetPanel = new TimesheetPanel();
 
+    // todo: potwierdzeine obecnosci nie powinno byc mozliwe przed rozpoczeciem pracy
+    // todo: zapisz zmiany powinno byc enabled false jesli nic sie nie zmienilo
     private final DailyActivityPanel dailyActivityPanel;
     private final CreateDailyNotePanel createDailyNotePanel = new CreateDailyNotePanel();
     private final DailyModificationPanel dailyModificationPanel;

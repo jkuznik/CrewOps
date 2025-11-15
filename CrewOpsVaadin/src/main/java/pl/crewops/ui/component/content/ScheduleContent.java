@@ -64,6 +64,9 @@ public class ScheduleContent extends VerticalLayout {
                 modeSelectContainer.setMinHeight("200px");
                 panelTimeline.onClickModification("200px", "150px");
                 panelIndividual.onClickModification("200px", "150px");
+
+                shiftsLayout.setVisible(false);
+                addButtonPanel.setVisible(false);
             }
         });
 
