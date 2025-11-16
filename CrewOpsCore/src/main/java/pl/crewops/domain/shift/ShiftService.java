@@ -1,7 +1,6 @@
 package pl.crewops.domain.shift;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,6 +14,7 @@ import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.shift.CreateShiftDTO;
 import pl.crewops.model.dto.shift.ShiftConfig;
 import pl.crewops.model.dto.shift.ShiftDTO;
+import pl.crewops.model.dto.shift.UpdateShiftDTO;
 import pl.crewops.model.joinTable.ShiftJobPosition;
 import pl.crewops.model.tenantSchema.Employee;
 import pl.crewops.model.tenantSchema.JobPosition;
@@ -38,22 +38,23 @@ class ShiftService implements ShiftAPI {
 
         Shift saved = shiftRepository.save(mapper.toEntity(createShiftDTO));
 
-        if (createShiftDTO.jobPositions() != null) {
-            Set<JobPosition> declaredJobPositions = createShiftDTO.jobPositions().stream()
-                    .map(jobPositionDTO -> findJobPosition(jobPositionDTO.id()))
-                    .collect(Collectors.toSet());
+        if (createShiftDTO.configs() != null) {
+            List<JobPosition> declaredJobPositions = createShiftDTO.configs().stream()
+                    .map(shiftConfig ->
+                            findJobPosition(shiftConfig.jopPosition().id()))
+                    .toList();
 
             saved.setJobPositions(declaredJobPositions);
 
             shiftRepository.flush();
 
-            Set<ShiftJobPosition> configureShift = declaredJobPositions.stream()
+            List<ShiftJobPosition> configureShift = declaredJobPositions.stream()
                     .map(jobPosition -> sjpRepository
                             .findById(new SJPID(jobPosition.getId(), saved.getId()))
                             .orElseGet(() -> {
                                 return new ShiftJobPosition(new SJPID(jobPosition.getId(), saved.getId()));
                             }))
-                    .collect(Collectors.toSet());
+                    .toList();
 
             configureShift.forEach(shiftJobPositionRecord -> {
                 Optional<ShiftConfig> first = createShiftDTO.configs().stream()
@@ -122,5 +123,10 @@ class ShiftService implements ShiftAPI {
 
     private JobPosition findJobPosition(UUID id) {
         return jobPositionAPI.findById(id).orElseThrow(() -> new JobPositionNotFoundException(id));
+    }
+
+    @Override
+    public ShiftDTO updateShift(UpdateShiftDTO updateShiftDTO) {
+        return null;
     }
 }

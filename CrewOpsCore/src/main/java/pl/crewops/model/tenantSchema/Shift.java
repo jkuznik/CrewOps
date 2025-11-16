@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.*;
 import pl.crewops.model.AbstractEntity;
 import pl.crewops.util.serializer.JobPositionSetSerializer;
@@ -30,5 +30,5 @@ public class Shift extends AbstractEntity {
             name = "shift_job_position",
             joinColumns = @JoinColumn(name = "shift_id"),
             inverseJoinColumns = @JoinColumn(name = "job_position_id"))
-    private Set<JobPosition> jobPositions = new LinkedHashSet<>();
+    private List<JobPosition> jobPositions = new ArrayList<>();
 }

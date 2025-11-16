@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.shift.CreateShiftDTO;
 import pl.crewops.model.dto.shift.ShiftConfig;
 import pl.crewops.model.dto.shift.ShiftDTO;
@@ -237,10 +236,6 @@ public class ShiftPanel extends PanelCustom {
                 if (!sel.validate()) return;
             }
 
-            Set<JobPositionDTO> jobPositionsSet = activeSelectors.stream()
-                    .map(JobPositionSelector::getSelectedJobPosition)
-                    .collect(Collectors.toSet());
-
             Set<ShiftConfig> configs = activeSelectors.stream()
                     .map(sel -> ShiftConfig.builder()
                             .jopPosition(sel.getSelectedJobPosition())
@@ -251,7 +246,6 @@ public class ShiftPanel extends PanelCustom {
 
             CreateShiftDTO createShiftDTO = CreateShiftDTO.builder()
                     .name(name.getValue().trim())
-                    .jobPositions(jobPositionsSet)
                     .configs(configs)
                     .build();
 

@@ -1,6 +1,6 @@
 package pl.crewops.domain.shift;
 
-import java.util.Set;
+import java.util.List;
 import org.mapstruct.Mapper;
 import pl.crewops.domain.jobPosition.JobPositionMapperStruct;
 import pl.crewops.model.dto.shift.CreateShiftDTO;
@@ -17,7 +17,7 @@ public interface ShiftMapper {
 
     Shift toEntity(CreateShiftDTO createShiftDTO);
 
-    default Shift toEntity(CreateShiftDTO createShiftDTO, Set<JobPosition> jobPositions) {
+    default Shift toEntity(CreateShiftDTO createShiftDTO, List<JobPosition> jobPositions) {
         Shift shift = toEntity(createShiftDTO);
 
         shift.setJobPositions(jobPositions);

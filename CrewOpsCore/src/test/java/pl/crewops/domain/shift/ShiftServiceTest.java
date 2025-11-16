@@ -82,7 +82,6 @@ class ShiftServiceTest {
         // 2. DTO wej\u015Bciowe
         CreateShiftDTO inputDto = CreateShiftDTO.builder()
                 .name("Popo\u0142udniowa Zmiana")
-                .jobPositions(jobPositionDtos)
                 .configs(Set.of())
                 .build();
 
