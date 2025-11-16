@@ -10,7 +10,7 @@ import io.overcoded.vaadin.panel.Panel;
 import io.overcoded.vaadin.panel.PanelType;
 
 @CssImport("./styles/component/panel.css")
-public class SchedulePanel extends Panel implements ClickNotifier<SchedulePanel> {
+public class ScheduleChoicePanel extends Panel implements ClickNotifier<ScheduleChoicePanel> {
 
     private final VerticalLayout summary = new VerticalLayout();
     private final Span descriptionSpan = new Span();
@@ -19,7 +19,7 @@ public class SchedulePanel extends Panel implements ClickNotifier<SchedulePanel>
 
     private boolean onceClicked = false;
 
-    public SchedulePanel(String description) {
+    public ScheduleChoicePanel(String description) {
         super(
                 PanelType.PRIMARY.getConfig().toBuilder()
                         .collapsable(false)

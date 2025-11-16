@@ -22,7 +22,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%); /* Idealne centrowanie */
-    font-size: 10em; /* Bardzo duży rozmiar plusa */
+    font-size: 7em; /* Bardzo duży rozmiar plusa */
     color: var(--lumo-contrast-10pct); /* Bardzo jasny, subtelny kolor (Lumo) */
     opacity: 0.8;
     pointer-events: none; /* Aby nie blokował kliknięć */

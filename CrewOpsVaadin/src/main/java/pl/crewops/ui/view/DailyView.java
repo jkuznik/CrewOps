@@ -34,10 +34,11 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
 
     private DailyEntryContent dailyEntryContent;
 
-    private final ScheduleContent scheduleContent = new ScheduleContent();
+    private final ScheduleContent scheduleContent;
 
     public DailyView(CoreAPI coreAPI, AuthenticationResolver authenticationResolver) {
         super(coreAPI, authenticationResolver);
+        this.scheduleContent = new ScheduleContent(coreAPI);
 
         if (authenticationResolver.principalHasManagerPermission()) {
             tabs = new Tabs(currentDayTab, calendarTab, scheduleTab);

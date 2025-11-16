@@ -1,5 +1,6 @@
 package pl.crewops.domain.shift;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -76,6 +77,12 @@ class ShiftService implements ShiftAPI {
         }
 
         return mapper.toDTO(saved);
+    }
+
+    @Override
+    @Transactional
+    public List<ShiftDTO> getAllShifts() {
+        return shiftRepository.findAll().stream().map(mapper::toDTO).collect(Collectors.toList());
     }
 
     private JobPosition findJobPosition(UUID id) {

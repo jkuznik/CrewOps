@@ -70,7 +70,7 @@ class CoreService implements CoreAPI {
     private final DomainNoteClient domainNoteClient;
     private final DomainOptionClient domainOptionClient;
     private final DomainQualificationClient deleteQualificationClient;
-    private final ShiftClient shiftClient;
+    private final DomainShiftClient domainShiftClient;
 
     public CoreService(CoreClient coreClient) {
         this.domainAuthClient = new DomainAuthClient(coreClient.getAuthorizationProvider(), coreClient.getCoreClient());
@@ -85,7 +85,7 @@ class CoreService implements CoreAPI {
         this.domainNoteClient = new DomainNoteClient(coreClient.getAuthorizationProvider());
         this.domainOptionClient = new DomainOptionClient(coreClient.getAuthorizationProvider());
         this.deleteQualificationClient = new DomainQualificationClient(coreClient.getAuthorizationProvider());
-        this.shiftClient = new ShiftClient(coreClient.getAuthorizationProvider());
+        this.domainShiftClient = new DomainShiftClient(coreClient.getAuthorizationProvider());
     }
 
     // --- DOMAIN AUTH CLIENT (Rejestracja, Logowanie, Aktualizacje Autoryzacji) ---
@@ -585,6 +585,11 @@ class CoreService implements CoreAPI {
 
     @Override
     public ShiftDTO createShift(CreateShiftDTO createShiftDTO) throws NotAuthenticatedException {
-        return shiftClient.createShift(createShiftDTO);
+        return domainShiftClient.createShift(createShiftDTO);
+    }
+
+    @Override
+    public List<ShiftDTO> getAllShifts() throws NotAuthenticatedException {
+        return domainShiftClient.getAllShifts();
     }
 }

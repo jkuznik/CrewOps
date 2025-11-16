@@ -2,34 +2,27 @@ package pl.crewops.ui.component.content;
 
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.FlexLayout;
-import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexWrap;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import java.util.ArrayList;
-import java.util.List;
-import pl.crewops.ui.component.custom.AddButtonPanel;
-import pl.crewops.ui.component.custom.SchedulePanel;
-import pl.crewops.ui.component.notification.SuccessNotification;
-import pl.crewops.ui.component.panel.ShiftPanel;
+// Importy zredukowane, ponieważ ShiftConfigurationPanel obsługuje logikę zmian
+import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.ui.component.custom.ScheduleChoicePanel;
+import pl.crewops.ui.component.custom.ShiftConfigurationComponent;
 
 public class ScheduleContent extends VerticalLayout {
 
-    private final SchedulePanel panelTimeline =
-            new SchedulePanel("Tryb planowania oparty na gotowych harmonogramach zmian...");
-    private final SchedulePanel panelIndividual =
-            new SchedulePanel("Tryb, w którym ręcznie tworzysz i modyfikujesz godziny pracy...");
+    private final ScheduleChoicePanel panelTimeline =
+            new ScheduleChoicePanel("Tryb planowania oparty na gotowych harmonogramach zmian...");
+    private final ScheduleChoicePanel panelIndividual =
+            new ScheduleChoicePanel("Tryb, w którym ręcznie tworzysz i modyfikujesz godziny pracy...");
     private final HorizontalLayout modeSelectContainer = new HorizontalLayout(panelTimeline, panelIndividual);
 
-    private final List<VerticalLayout> shiftContainers = new ArrayList<>();
+    /** Nowy, osobny komponent do zarządzania panelami zmian. */
+    private final ShiftConfigurationComponent shiftConfigurationComponent;
 
-    private final AddButtonPanel addButtonPanel = new AddButtonPanel();
-
-    /** layout z kontenerami shiftów. Używamy FlexLayout do zawijania w wierszach. */
-    private final FlexLayout shiftsLayout = new FlexLayout(); // ZMIENIONO: Używamy FlexLayout
-
-    public ScheduleContent() {
+    public ScheduleContent(CoreAPI coreAPI) {
+        this.shiftConfigurationComponent = new ShiftConfigurationComponent(coreAPI);
 
         setSizeFull();
         setPadding(true);
@@ -49,12 +42,9 @@ public class ScheduleContent extends VerticalLayout {
                 panelTimeline.onClickModification("200px", "150px");
                 panelIndividual.onClickModification("200px", "150px");
 
-                shiftsLayout.setVisible(true);
-                addButtonPanel.setVisible(true);
-
-                if (shiftContainers.isEmpty()) {
-                    addShiftPanel(); // Dodaj pierwszy panel + przycisk ADD
-                }
+                // Ujawnij nowy, kompletny panel konfiguracji
+                shiftConfigurationComponent.setVisible(true);
+                shiftConfigurationComponent.ensureFirstShiftPanelExists(); // Dodaj pierwszy, jeśli go nie ma
             }
         });
 
@@ -65,72 +55,18 @@ public class ScheduleContent extends VerticalLayout {
                 panelTimeline.onClickModification("200px", "150px");
                 panelIndividual.onClickModification("200px", "150px");
 
-                shiftsLayout.setVisible(false);
-                addButtonPanel.setVisible(false);
+                // Ukryj cały panel konfiguracji zmian
+                shiftConfigurationComponent.setVisible(false);
             }
         });
 
-        addButtonPanel.setVisible(false);
-        addButtonPanel.addClickListener(event -> addShiftPanel());
-        VerticalLayout buttonContainer = createContainer();
-        buttonContainer.setMargin(true);
-        buttonContainer.add(addButtonPanel);
-        buttonContainer.setHeight("550px");
+        // Ukryj panel konfiguracji zmian na starcie
+        shiftConfigurationComponent.setVisible(false);
 
-        shiftsLayout.setVisible(false);
-        shiftsLayout.setWidthFull();
-        shiftsLayout.setFlexWrap(FlexWrap.WRAP);
-        shiftsLayout.setJustifyContentMode(FlexLayout.JustifyContentMode.START);
-        shiftsLayout.setAlignItems(FlexComponent.Alignment.START);
-        shiftsLayout.addClassNames(LumoUtility.Gap.MEDIUM);
-        shiftsLayout.add(buttonContainer);
-
-        add(modeSelectContainer, shiftsLayout);
+        // Dodaj nowy komponent do głównego układu
+        add(modeSelectContainer, shiftConfigurationComponent);
     }
 
-    private VerticalLayout createContainer() {
-        VerticalLayout container = new VerticalLayout();
-        container.setPadding(false);
-        container.setSpacing(false);
-        container.setAlignItems(FlexComponent.Alignment.CENTER);
-        container.setWidth("300px");
-
-        container.addClassNames(LumoUtility.Border.ALL, LumoUtility.Padding.MEDIUM, LumoUtility.Margin.Bottom.MEDIUM);
-
-        return container;
-    }
-
-    private void addShiftPanel() {
-
-        ShiftPanel shift = new ShiftPanel();
-
-        // --- Listener zamykania / usuwania ---
-        shift.addCloseListener(event -> {
-
-            // Znajdź kontener, w którym jest ten shiftPanel
-            VerticalLayout containerToRemove = shiftContainers.stream()
-                    .filter(container -> container.getChildren().anyMatch(c -> c == shift))
-                    .findFirst()
-                    .orElse(null);
-
-            if (containerToRemove != null) {
-                // Usuń z listy i układu
-                shiftContainers.remove(containerToRemove);
-                shiftsLayout.remove(containerToRemove);
-
-                new SuccessNotification("Usunięto zmianę").open();
-            }
-        });
-
-        VerticalLayout shiftContainer = createContainer();
-        shiftContainer.setMargin(true);
-        shiftContainer.add(shift);
-
-        shiftContainers.add(shiftContainer);
-
-        // dodaj kontener tuż przed kontenerem guzika (który jest na końcu FlexLayout)
-        shiftsLayout.addComponentAtIndex(shiftsLayout.getComponentCount() - 1, shiftContainer);
-
-        new SuccessNotification("Dodano zmianę").open();
-    }
+    // Usunięto zbędne metody: createContainer() i addShiftPanel() oraz pola shiftContainers, shiftsLayout,
+    // addButtonPanel
 }

@@ -1,8 +1,10 @@
 package pl.crewops.domain.shift;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +17,11 @@ import pl.crewops.model.dto.shift.ShiftDTO;
 class ShiftController {
 
     private final ShiftAPI shiftAPI;
+
+    @GetMapping(ControllerURL.SHIFTS)
+    public ResponseEntity<List<ShiftDTO>> getAllShifts() {
+        return ResponseEntity.ok(shiftAPI.getAllShifts());
+    }
 
     @PostMapping(ControllerURL.SHIFTS)
     public ResponseEntity<ShiftDTO> createShift(@RequestBody CreateShiftDTO createShiftDTO) {
