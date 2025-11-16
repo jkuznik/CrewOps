@@ -11,10 +11,17 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
 import java.util.List;
 import java.util.Optional;
+import pl.crewops.exceptions.NotAuthenticatedException;
+import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.jobPosition.JobPositionDTO;
+import pl.crewops.model.dto.shift.ShiftConfig;
+import pl.crewops.ui.component.notification.FailNotification;
+import pl.crewops.util.SpringContextBridge;
 
 public class JobPositionSelector extends VerticalLayout {
+
+    private final CoreAPI coreAPI;
 
     private final Span orderNumberSpan = new Span();
     private final Checkbox criticalCheckbox = new Checkbox("Kluczowe stanowisko");
@@ -24,12 +31,20 @@ public class JobPositionSelector extends VerticalLayout {
     private final ComboBoxCustom<EmployeeDTO> employeeCombo = new ComboBoxCustom<>();
 
     public JobPositionSelector() {
+        this.coreAPI = SpringContextBridge.getBean(CoreAPI.class);
         setSpacing(false);
         setPadding(false);
 
         orderNumberSpan.getStyle().set("font-weight", "bold");
 
         localize();
+
+        try {
+            setJobPositions(coreAPI.getAllJobPositions());
+            setEmployees(coreAPI.getAllEmployees());
+        } catch (NotAuthenticatedException e) {
+            new FailNotification(e.getMessage());
+        }
 
         HorizontalLayout comboLayout = new HorizontalLayout(jobPositionCombo, employeeCombo);
         comboLayout.setSpacing(true);
@@ -50,16 +65,12 @@ public class JobPositionSelector extends VerticalLayout {
         add(firstRow, comboLayout);
     }
 
-    public void selectJobPosition(JobPositionDTO position) {
-        jobPositionCombo.setValue(position);
-    }
-
-    public void selectEmployee(EmployeeDTO employee) {
-        employeeCombo.setValue(employee);
-    }
-
-    public void setCritical(boolean isCritical) {
-        criticalCheckbox.setValue(isCritical);
+    public void configureExistingJobPositions(ShiftConfig shiftConfig) {
+        jobPositionCombo.setValue(shiftConfig.jopPosition());
+        if (shiftConfig.relatedEmployee() != null) {
+            employeeCombo.setValue(shiftConfig.relatedEmployee());
+        }
+        criticalCheckbox.setValue(shiftConfig.critical());
     }
 
     private void localize() {

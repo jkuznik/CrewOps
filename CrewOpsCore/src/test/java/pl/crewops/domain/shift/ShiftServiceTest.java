@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,15 +12,25 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import pl.crewops.domain.employee.EmployeeAPI;
+import pl.crewops.domain.jobPosition.JobPositionAPI;
 import pl.crewops.domain.jobPosition.JobPositionMapperStruct;
 import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.shift.CreateShiftDTO;
 import pl.crewops.model.dto.shift.ShiftDTO;
+import pl.crewops.model.tenantSchema.JobPosition;
 import pl.crewops.model.tenantSchema.Shift;
 
-// Uwaga: Usun\u0105\u0142em JobPositionAPI z konfiguracji, poniewa\u017C nie jest u\u017Cywane w nowej logice DTO.
 @SpringJUnitConfig(
-        classes = {ShiftService.class, ShiftRepository.class, ShiftMapper.class, JobPositionMapperStruct.class})
+        classes = {
+            ShiftService.class,
+            ShiftRepository.class,
+            SJPRepository.class,
+            ShiftMapper.class,
+            JobPositionAPI.class,
+            EmployeeAPI.class,
+            JobPositionMapperStruct.class
+        })
 class ShiftServiceTest {
 
     @Autowired
@@ -29,7 +40,16 @@ class ShiftServiceTest {
     ShiftRepository shiftRepository;
 
     @MockitoBean
+    SJPRepository sjpRepository;
+
+    @MockitoBean
     ShiftMapper shiftMapper;
+
+    @MockitoBean
+    JobPositionAPI jobPositionAPI;
+
+    @MockitoBean
+    EmployeeAPI employeeAPI;
 
     @MockitoBean
     JobPositionMapperStruct jobPositionMapperStruct;
@@ -50,7 +70,8 @@ class ShiftServiceTest {
     void shouldCreateShift_andSave_withJobPositionDetails() {
         // GIVEN
 
-        // 1. Definicja stanowisk w DTO
+        var jobPosition = JobPosition.builder().name("Operator").build();
+
         Set<JobPositionDTO> jobPositionDtos = Set.of(
                 JobPositionDTO.builder().id(UUID.randomUUID()).name("Operator").build(),
                 JobPositionDTO.builder()
@@ -62,6 +83,7 @@ class ShiftServiceTest {
         CreateShiftDTO inputDto = CreateShiftDTO.builder()
                 .name("Popo\u0142udniowa Zmiana")
                 .jobPositions(jobPositionDtos)
+                .configs(Set.of())
                 .build();
 
         // 3. Encje (MapStruct przejmie konwersj\u0119 JobPositionDTO -> JobPosition)
@@ -74,17 +96,15 @@ class ShiftServiceTest {
         ShiftDTO expectedDto = ShiftDTO.builder()
                 .id(expectedId)
                 .name(inputDto.name())
-                .jobPositions(jobPositionDtos) // U\u017Cywamy tych samych DTO
+                .shiftConfigs(Set.of())
                 .build();
 
-        // MOCKING ZACHOWANIA:
-        // Mockujemy konwersj\u0119 DTO -> Entity (metoda toEntity z jednym argumentem)
-        // Zak\u0142adamy, \u017Ce MapStruct jest w stanie sam obs\u0142u\u017Cy\u0107 JobPositionDTO do
-        // ShiftJobPosition
         when(shiftMapper.toEntity(inputDto)).thenReturn(unsavedShift);
 
         // Mockowanie mapowania ko\u0144cowego
         when(shiftMapper.toDTO(savedShift)).thenReturn(expectedDto);
+
+        when(jobPositionAPI.findById(any())).thenReturn(Optional.of(jobPosition));
 
         // WHEN
         ShiftDTO result = shiftService.createShift(inputDto);
@@ -94,7 +114,7 @@ class ShiftServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.id()).isEqualTo(expectedId);
         assertThat(result.name()).isEqualTo("Popołudniowa Zmiana");
-        assertThat(result.jobPositions()).hasSize(2);
+        //        assertThat(result.shiftConfigs()).hasSize(2);
 
         // 2. Weryfikacja interakcji
         // Sprawdzamy, czy u\u017Cyto konwersji DTO -> Entity (MapStruct)

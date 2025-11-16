@@ -17,9 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.shift.CreateShiftDTO;
 import pl.crewops.model.dto.shift.ShiftConfig;
@@ -50,14 +48,11 @@ public class ShiftPanel extends PanelCustom {
 
     private final List<VerticalLayout> positionContainers = new ArrayList<>();
 
-    public ShiftPanel() {
+    public ShiftPanel(ShiftDTO shiftDTO) {
         this.coreAPI = SpringContextBridge.getBean(CoreAPI.class);
-
-        setSummary(VaadinIcon.MEDAL, "Konfiguracja szablonu..");
         setSizeFull();
 
         name.setWidthFull();
-        name.setPlaceholder("Podaj nazwę zmiany..");
 
         configureButtons();
 
@@ -83,21 +78,52 @@ public class ShiftPanel extends PanelCustom {
 
         positionsLayout.add(wrappedAddButton);
 
-        addNewPositionSelector();
+        if (shiftDTO == null) {
+            setSummary(VaadinIcon.MEDAL, "Konfiguracja szablonu..");
+            name.setPlaceholder("Podaj nazwę zmiany..");
+            addNewPositionSelector();
+        } else {
+            setSummary(VaadinIcon.MEDAL, shiftDTO.name());
+            name.setValue(shiftDTO.name());
+            save.setVisible(false);
+            close.setVisible(false);
+            update.setVisible(true);
+            delete.setVisible(true);
+            shiftDTO.shiftConfigs().forEach(shiftConfig -> {
+                JobPositionSelector existingJobPosition = new JobPositionSelector();
+                existingJobPosition.configureExistingJobPositions(shiftConfig);
+
+                VerticalLayout positionContainer = createPositionContainer();
+                positionContainer.setSpacing(true);
+                positionContainer.setPadding(true);
+                positionContainer.setAlignItems(FlexComponent.Alignment.STRETCH);
+
+                HorizontalLayout selectorRow = new HorizontalLayout(existingJobPosition);
+                selectorRow.setWidthFull();
+                selectorRow.setSpacing(true);
+                selectorRow.setAlignItems(FlexComponent.Alignment.CENTER);
+                selectorRow.expand(existingJobPosition);
+
+                positionContainer.add(selectorRow);
+
+                // --- Listener usuwania ---
+                existingJobPosition.addRemoveListener(ev -> {
+                    positionContainers.remove(positionContainer);
+                    positionsLayout.remove(positionContainer);
+                    updateOrderNumbers(); // Aktualizacja numerów po usunięciu
+                });
+
+                positionContainers.add(positionContainer);
+
+                existingJobPosition.setOrderNumber(positionContainers.size());
+
+                positionsLayout.addComponentAtIndex(positionsLayout.getComponentCount() - 1, positionContainer);
+            });
+        }
 
         mainContainer.add(name, positionsLayout, configuredButtonLayout());
 
         addContent(mainContainer);
-    }
-
-    public void update(ShiftDTO shiftDTO) {
-        name.setValue(shiftDTO.name());
-        shiftDTO.jobPositions().forEach(jobPositionDTO -> {
-            var existedPosition = createPositionContainer();
-            var jobPositionSelector = new JobPositionSelector();
-            jobPositionSelector.selectJobPosition(jobPositionDTO);
-            positionsLayout.add(existedPosition);
-        });
     }
 
     private void updateOrderNumbers() {
@@ -137,27 +163,28 @@ public class ShiftPanel extends PanelCustom {
 
         configureSaveButton();
 
+        update.addClickListener(event -> {
+            fireEvent(new UpdateEvent(this));
+        });
+
         close.addClickListener(event -> {
             this.setVisible(false);
             fireEvent(new CloseEvent(this));
         });
+
+        delete.addClickListener(event -> {
+            this.setVisible(false);
+            fireEvent(new DeleteEvent(this));
+        });
     }
 
     private void addNewPositionSelector() {
-        JobPositionSelector selector = new JobPositionSelector();
-
-        try {
-            selector.setJobPositions(coreAPI.getAllJobPositions());
-            selector.setEmployees(coreAPI.getAllEmployees());
-        } catch (NotAuthenticatedException e) {
-            new FailNotification(e.getMessage());
-        }
-
         VerticalLayout positionContainer = createPositionContainer();
         positionContainer.setSpacing(true);
         positionContainer.setPadding(true);
         positionContainer.setAlignItems(FlexComponent.Alignment.STRETCH);
 
+        JobPositionSelector selector = new JobPositionSelector();
         HorizontalLayout selectorRow = new HorizontalLayout(selector);
         selectorRow.setWidthFull();
         selectorRow.setSpacing(true);
@@ -216,11 +243,9 @@ public class ShiftPanel extends PanelCustom {
 
             Set<ShiftConfig> configs = activeSelectors.stream()
                     .map(sel -> ShiftConfig.builder()
-                            .jopPositionId(sel.getSelectedJobPosition().id())
+                            .jopPosition(sel.getSelectedJobPosition())
                             .critical(sel.isCritical())
-                            .relatedEmployeeId(sel.getSelectedEmployee()
-                                    .map(EmployeeDTO::id)
-                                    .orElse(null))
+                            .relatedEmployee(sel.getSelectedEmployee().orElse(null))
                             .build())
                     .collect(Collectors.toSet());
 
@@ -237,11 +262,11 @@ public class ShiftPanel extends PanelCustom {
                 new FailNotification(getTranslation("failNotification"));
                 return;
             }
+            setSummary(VaadinIcon.MEDAL, name.getValue().trim());
             save.setVisible(false);
             close.setVisible(false);
             update.setVisible(true);
             delete.setVisible(true);
-            setSummary(VaadinIcon.MEDAL, name.getValue().trim());
         });
     }
 
@@ -266,8 +291,20 @@ public class ShiftPanel extends PanelCustom {
         }
     }
 
+    public static class UpdateEvent extends ShiftPanelEvent {
+        public UpdateEvent(PanelCustom source) {
+            super(source);
+        }
+    }
+
     public static class CloseEvent extends ShiftPanelEvent {
         public CloseEvent(PanelCustom source) {
+            super(source);
+        }
+    }
+
+    public static class DeleteEvent extends ShiftPanelEvent {
+        public DeleteEvent(PanelCustom source) {
             super(source);
         }
     }
@@ -276,7 +313,15 @@ public class ShiftPanel extends PanelCustom {
         return addListener(SaveEvent.class, listener);
     }
 
+    public Registration addUpdateListener(ComponentEventListener<UpdateEvent> listener) {
+        return addListener(UpdateEvent.class, listener);
+    }
+
     public Registration addCloseListener(ComponentEventListener<CloseEvent> listener) {
         return addListener(CloseEvent.class, listener);
+    }
+
+    public Registration addDeleteListener(ComponentEventListener<DeleteEvent> listener) {
+        return addListener(DeleteEvent.class, listener);
     }
 }

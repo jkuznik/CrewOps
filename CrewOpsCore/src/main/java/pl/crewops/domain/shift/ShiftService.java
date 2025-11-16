@@ -1,9 +1,6 @@
 package pl.crewops.domain.shift;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +10,8 @@ import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.jobPosition.JobPositionAPI;
 import pl.crewops.exception.domain.jobPosition.JobPositionNotFoundException;
 import pl.crewops.model.compositePK.SJPID;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.shift.CreateShiftDTO;
 import pl.crewops.model.dto.shift.ShiftConfig;
 import pl.crewops.model.dto.shift.ShiftDTO;
@@ -59,7 +58,8 @@ class ShiftService implements ShiftAPI {
             configureShift.forEach(shiftJobPositionRecord -> {
                 Optional<ShiftConfig> first = createShiftDTO.configs().stream()
                         .filter(config -> {
-                            return config.jopPositionId()
+                            return config.jopPosition()
+                                    .id()
                                     .equals(shiftJobPositionRecord
                                             .getJobPosition()
                                             .getId());
@@ -68,8 +68,9 @@ class ShiftService implements ShiftAPI {
                 if (first.isPresent()) {
                     ShiftConfig jobPositionConfig = first.get();
                     shiftJobPositionRecord.setCritical(jobPositionConfig.critical());
-                    if (jobPositionConfig.relatedEmployeeId() != null) {
-                        Employee employeeById = employeeAPI.getEmployeeById(jobPositionConfig.relatedEmployeeId());
+                    if (jobPositionConfig.relatedEmployee() != null) {
+                        Employee employeeById = employeeAPI.getEmployeeById(
+                                jobPositionConfig.relatedEmployee().id());
                         shiftJobPositionRecord.setAssignedEmployee(employeeById);
                     }
                 }
@@ -82,7 +83,41 @@ class ShiftService implements ShiftAPI {
     @Override
     @Transactional
     public List<ShiftDTO> getAllShifts() {
-        return shiftRepository.findAll().stream().map(mapper::toDTO).collect(Collectors.toList());
+        List<ShiftDTO> result = new ArrayList<>();
+        List<Shift> shifts = shiftRepository.findAll();
+        shifts.forEach(shift -> {
+            List<ShiftJobPosition> shiftJobPositions = new ArrayList<>();
+            shift.getJobPositions().forEach(jobPosition -> {
+                Optional<ShiftJobPosition> byId = sjpRepository.findById(new SJPID(jobPosition.getId(), shift.getId()));
+                byId.ifPresent(shiftJobPositions::add);
+            });
+            Set<ShiftConfig> shiftConfigs = new HashSet<>();
+            shiftJobPositions.forEach(shiftJobPosition -> {
+                var jobPositionDTO = JobPositionDTO.builder()
+                        .id(shiftJobPosition.getJobPosition().getId())
+                        .name(shiftJobPosition.getJobPosition().getName())
+                        .build();
+
+                EmployeeDTO employeeDTO = null;
+                if (shiftJobPosition.getAssignedEmployee() != null) {
+                    employeeDTO = EmployeeDTO.builder()
+                            .id(shiftJobPosition.getAssignedEmployee().getId())
+                            .firstName(shiftJobPosition.getAssignedEmployee().getFirstName())
+                            .lastName(shiftJobPosition.getAssignedEmployee().getLastName())
+                            .build();
+                }
+
+                shiftConfigs.add(new ShiftConfig(jobPositionDTO, employeeDTO, shiftJobPosition.isCritical()));
+            });
+            var shiftDTO = ShiftDTO.builder()
+                    .id(shift.getId())
+                    .name(shift.getName())
+                    .shiftConfigs(shiftConfigs)
+                    .build();
+            result.add(shiftDTO);
+        });
+
+        return result;
     }
 
     private JobPosition findJobPosition(UUID id) {

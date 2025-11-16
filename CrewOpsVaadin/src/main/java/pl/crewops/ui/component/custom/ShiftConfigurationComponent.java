@@ -19,6 +19,8 @@ import pl.crewops.ui.component.panel.ShiftPanel;
 @CssImport("./styles/component/shift-configuration-component.css")
 public class ShiftConfigurationComponent extends VerticalLayout {
 
+    private final CoreAPI coreAPI;
+
     private static final String PANEL_HEIGHT = "550px";
     private static final String PANEL_WIDTH = "400px";
 
@@ -27,12 +29,14 @@ public class ShiftConfigurationComponent extends VerticalLayout {
     private final FlexLayout shiftsLayout = new FlexLayout();
 
     private final VerticalLayout contentContainer = new VerticalLayout();
-    private final Button toggleVisibilityButton = new Button(VaadinIcon.ANGLE_UP.create());
+    private final Button toggleVisibilityButton = new Button(VaadinIcon.ANGLE_DOWN.create());
     private final HorizontalLayout toolbar = createToolbar();
 
-    private boolean isContentVisible = true;
+    private boolean isContentVisible = false;
+    private boolean isFirstOpen = true;
 
     public ShiftConfigurationComponent(CoreAPI coreAPI) {
+        this.coreAPI = coreAPI;
         addClassName("shift-content-border");
         setWidthFull();
         setPadding(false);
@@ -47,23 +51,17 @@ public class ShiftConfigurationComponent extends VerticalLayout {
         contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
         contentContainer.setJustifyContentMode(JustifyContentMode.CENTER);
 
-        updateShiftsLayout(coreAPI);
-
         shiftsLayout.setWidthFull();
         shiftsLayout.setFlexWrap(FlexLayout.FlexWrap.WRAP);
         shiftsLayout.setJustifyContentMode(FlexLayout.JustifyContentMode.START);
         shiftsLayout.setAlignItems(FlexComponent.Alignment.START);
 
-        VerticalLayout addShiftButtonContainer = createContainer();
-        addShiftButtonContainer.setMargin(true);
-        addShiftButtonContainer.add(addButtonPanel);
-
-        shiftsLayout.add(addShiftButtonContainer);
-        addButtonPanel.addClickListener(event -> addShiftPanel());
         contentContainer.add(shiftsLayout);
 
         // Ustawienie początkowej widoczności
         contentContainer.setVisible(isContentVisible);
+
+        addButtonPanel.addClickListener(event -> addShiftPanel());
     }
 
     // ------------------ ZMODYFIKOWANA METODA: createToolbar() ------------------
@@ -88,9 +86,50 @@ public class ShiftConfigurationComponent extends VerticalLayout {
         return bar;
     }
 
-    private void updateShiftsLayout(CoreAPI coreAPI) {
+    public void updateShiftsLayout() {
+        shiftsLayout.removeAll();
+        shiftContainers.clear();
+
+        // 2. Dodanie przycisku dodawania (który ma być na końcu)
+        VerticalLayout addShiftButtonContainer = createContainer();
+        addShiftButtonContainer.setMargin(true);
+        addShiftButtonContainer.add(addButtonPanel);
+        shiftsLayout.add(addShiftButtonContainer);
+
         try {
             List<ShiftDTO> allShifts = coreAPI.getAllShifts();
+
+            allShifts.forEach(shift -> {
+                VerticalLayout existedShiftContainer = createContainer();
+                existedShiftContainer.setMargin(true); // Dodaj margines dla spójności
+
+                var existedShift = new ShiftPanel(shift);
+
+                existedShift.addUpdateListener(event -> {
+                    // todo Update medtod
+                });
+
+                existedShift.addDeleteListener(event -> {
+
+                    // todo implement delete guardian notification
+                    VerticalLayout containerToRemove = shiftContainers.stream()
+                            .filter(container -> container.getChildren().anyMatch(c -> c == existedShift))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (containerToRemove != null) {
+                        shiftContainers.remove(containerToRemove);
+                        shiftsLayout.remove(containerToRemove);
+                    }
+                });
+
+                existedShiftContainer.add(existedShift);
+
+                shiftContainers.add(existedShiftContainer);
+
+                shiftsLayout.addComponentAtIndex(shiftsLayout.getComponentCount() - 1, existedShiftContainer);
+            });
+
         } catch (NotAuthenticatedException e) {
             new FailNotification(e.getMessage());
         }
@@ -98,6 +137,10 @@ public class ShiftConfigurationComponent extends VerticalLayout {
 
     private void toggleContentVisibility() {
         isContentVisible = !isContentVisible;
+        if (isFirstOpen) {
+            updateShiftsLayout();
+            isFirstOpen = false;
+        }
         contentContainer.setVisible(isContentVisible);
 
         toggleVisibilityButton.setIcon(
@@ -114,7 +157,7 @@ public class ShiftConfigurationComponent extends VerticalLayout {
     }
 
     private void addShiftPanel() {
-        ShiftPanel shift = new ShiftPanel();
+        ShiftPanel shift = new ShiftPanel(null);
 
         shift.addCloseListener(event -> {
             VerticalLayout containerToRemove = shiftContainers.stream()

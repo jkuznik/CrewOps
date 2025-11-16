@@ -1,7 +1,8 @@
 package pl.crewops.model.dto.shift;
 
-import java.util.UUID;
 import lombok.Builder;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 
 @Builder
-public record ShiftConfig(UUID jopPositionId, UUID relatedEmployeeId, boolean critical) {}
+public record ShiftConfig(JobPositionDTO jopPosition, EmployeeDTO relatedEmployee, boolean critical) {}
