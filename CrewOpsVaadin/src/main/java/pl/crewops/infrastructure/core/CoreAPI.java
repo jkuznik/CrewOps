@@ -197,7 +197,7 @@ public interface CoreAPI {
 
     // ---- SHIFT ----
 
-    ShiftDTO createShift(@NotNull @Valid CreateShiftDTO createShiftDTO) throws NotAuthenticatedException;
+    Optional<ShiftDTO> createShift(@NotNull @Valid CreateShiftDTO createShiftDTO) throws NotAuthenticatedException;
 
     List<ShiftDTO> getAllShifts() throws NotAuthenticatedException;
 

@@ -5,68 +5,75 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-// Importy zredukowane, ponieważ ShiftConfigurationPanel obsługuje logikę zmian
 import pl.crewops.infrastructure.core.CoreAPI;
-import pl.crewops.ui.component.custom.ScheduleChoicePanel;
-import pl.crewops.ui.component.custom.ShiftConfigurationComponent;
+import pl.crewops.ui.component.custom.schedule.ScheduleChoicePanel;
+import pl.crewops.ui.component.custom.schedule.ScheduleConfigurationComponent;
+import pl.crewops.ui.component.custom.schedule.ShiftConfigurationComponent;
 
 public class ScheduleContent extends VerticalLayout {
 
-    private final ScheduleChoicePanel panelTimeline =
+    // todo i18n
+    private final ScheduleChoicePanel shiftBasedGenerator =
             new ScheduleChoicePanel("Tryb planowania oparty na gotowych harmonogramach zmian...");
-    private final ScheduleChoicePanel panelIndividual =
+    private final ScheduleChoicePanel individualGenerator =
             new ScheduleChoicePanel("Tryb, w którym ręcznie tworzysz i modyfikujesz godziny pracy...");
-    private final HorizontalLayout modeSelectContainer = new HorizontalLayout(panelTimeline, panelIndividual);
+    private final HorizontalLayout modeSelectorContainer =
+            new HorizontalLayout(shiftBasedGenerator, individualGenerator);
 
-    /** Nowy, osobny komponent do zarządzania panelami zmian. */
+    /** Shift based generator components */
     private final ShiftConfigurationComponent shiftConfigurationComponent;
 
+    private final ScheduleConfigurationComponent scheduleConfigurationComponent;
+
+    /** Individual generator components */
+
+    // todo i18n
     public ScheduleContent(CoreAPI coreAPI) {
         this.shiftConfigurationComponent = new ShiftConfigurationComponent(coreAPI);
+        this.scheduleConfigurationComponent = new ScheduleConfigurationComponent(coreAPI);
 
         setSizeFull();
         setPadding(true);
         setSpacing(true);
         setAlignItems(FlexComponent.Alignment.CENTER);
 
-        modeSelectContainer.setMinHeight("400px");
-        modeSelectContainer.addClassNames(LumoUtility.Gap.LARGE, LumoUtility.Width.FULL);
-        modeSelectContainer.setAlignItems(FlexComponent.Alignment.CENTER);
-        modeSelectContainer.setFlexGrow(1, panelTimeline, panelIndividual);
-        modeSelectContainer.getStyle().set("align-items", "stretch");
+        configureModeSelectorContainer();
 
-        panelTimeline.setSummary(VaadinIcon.CALENDAR, "Planowanie harmonogramu zmianowego");
-        panelTimeline.addClickListener(event -> {
-            if (event.getButton() == 0) {
-                modeSelectContainer.setMinHeight("200px");
-                panelTimeline.onClickModification("200px", "150px");
-                panelIndividual.onClickModification("200px", "150px");
-
-                // Ujawnij nowy, kompletny panel konfiguracji
-                shiftConfigurationComponent.setVisible(true);
-                shiftConfigurationComponent.ensureFirstShiftPanelExists(); // Dodaj pierwszy, jeśli go nie ma
-            }
-        });
-
-        panelIndividual.setSummary(VaadinIcon.DATE_INPUT, "Planowanie indywidualne i ad-hoc");
-        panelIndividual.addClickListener(event -> {
-            if (event.getButton() == 0) {
-                modeSelectContainer.setMinHeight("200px");
-                panelTimeline.onClickModification("200px", "150px");
-                panelIndividual.onClickModification("200px", "150px");
-
-                // Ukryj cały panel konfiguracji zmian
-                shiftConfigurationComponent.setVisible(false);
-            }
-        });
-
-        // Ukryj panel konfiguracji zmian na starcie
         shiftConfigurationComponent.setVisible(false);
+        scheduleConfigurationComponent.setVisible(false);
 
-        // Dodaj nowy komponent do głównego układu
-        add(modeSelectContainer, shiftConfigurationComponent);
+        add(modeSelectorContainer, shiftConfigurationComponent, scheduleConfigurationComponent);
     }
 
-    // Usunięto zbędne metody: createContainer() i addShiftPanel() oraz pola shiftContainers, shiftsLayout,
-    // addButtonPanel
+    private void configureModeSelectorContainer() {
+        modeSelectorContainer.setMinHeight("400px");
+        modeSelectorContainer.addClassNames(LumoUtility.Gap.LARGE, LumoUtility.Width.FULL);
+        modeSelectorContainer.setAlignItems(Alignment.CENTER);
+        modeSelectorContainer.setFlexGrow(1, shiftBasedGenerator, individualGenerator);
+        modeSelectorContainer.getStyle().set("align-items", "stretch");
+
+        shiftBasedGenerator.setSummary(VaadinIcon.CALENDAR, "Planowanie harmonogramu zmianowego");
+        shiftBasedGenerator.addClickListener(event -> {
+            if (event.getButton() == 0) {
+                modeSelectorContainer.setMinHeight("200px");
+                shiftBasedGenerator.onClickModification("200px", "150px");
+                individualGenerator.onClickModification("200px", "150px");
+
+                shiftConfigurationComponent.setVisible(true);
+                scheduleConfigurationComponent.setVisible(true);
+            }
+        });
+
+        individualGenerator.setSummary(VaadinIcon.DATE_INPUT, "Planowanie indywidualne i ad-hoc");
+        individualGenerator.addClickListener(event -> {
+            if (event.getButton() == 0) {
+                modeSelectorContainer.setMinHeight("200px");
+                shiftBasedGenerator.onClickModification("200px", "150px");
+                individualGenerator.onClickModification("200px", "150px");
+
+                shiftConfigurationComponent.setVisible(false);
+                scheduleConfigurationComponent.setVisible(false);
+            }
+        });
+    }
 }

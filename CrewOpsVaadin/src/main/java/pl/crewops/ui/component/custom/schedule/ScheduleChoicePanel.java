@@ -1,4 +1,4 @@
-package pl.crewops.ui.component.custom;
+package pl.crewops.ui.component.custom.schedule;
 
 import com.vaadin.flow.component.ClickNotifier;
 import com.vaadin.flow.component.Component;

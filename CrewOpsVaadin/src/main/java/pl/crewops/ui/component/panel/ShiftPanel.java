@@ -25,8 +25,8 @@ import pl.crewops.model.dto.shift.ShiftConfig;
 import pl.crewops.model.dto.shift.ShiftDTO;
 import pl.crewops.model.dto.shift.UpdateShiftDTO;
 import pl.crewops.ui.component.custom.AddButtonPanel;
-import pl.crewops.ui.component.custom.JobPositionSelector;
 import pl.crewops.ui.component.custom.PanelCustom;
+import pl.crewops.ui.component.custom.schedule.JobPositionSelector;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.component.notification.SuccessNotification;
 import pl.crewops.util.SpringContextBridge;
@@ -43,6 +43,7 @@ public class ShiftPanel extends PanelCustom {
     private final FlexLayout positionsLayout = new FlexLayout();
     private final AddButtonPanel addPositionButton = new AddButtonPanel();
 
+    // todo i18n
     private final Button save = new Button("Save");
     private final Button update = new Button("Update");
     private final Button close = new Button("Close");
@@ -51,7 +52,7 @@ public class ShiftPanel extends PanelCustom {
     private final List<VerticalLayout> positionContainers = new ArrayList<>();
 
     private final List<JobPositionDTO> allAvailablePositions;
-    private final ShiftDTO shiftDTO;
+    private ShiftDTO shiftDTO;
 
     public ShiftPanel(ShiftDTO shiftDTO, List<JobPositionDTO> allAvailablePositions) {
         this.coreAPI = SpringContextBridge.getBean(CoreAPI.class);
@@ -61,9 +62,8 @@ public class ShiftPanel extends PanelCustom {
 
         name.setWidthFull();
 
+        configurePositionsLayout();
         configureButtons();
-
-        addPositionButton.addClickListener(event -> addNewPositionSelector());
 
         var mainContainer = new VerticalLayout();
         mainContainer.setSizeFull();
@@ -71,75 +71,87 @@ public class ShiftPanel extends PanelCustom {
         mainContainer.setPadding(true);
         mainContainer.setAlignItems(FlexComponent.Alignment.STRETCH);
 
+        configureShiftPanelDependsShiftDTO();
+
+        mainContainer.add(name, positionsLayout, configuredButtonLayout());
+
+        addContent(mainContainer);
+    }
+
+    private void configureShiftPanelDependsShiftDTO() {
+        if (shiftDTO == null) {
+            this.addClassName("config-mode");
+
+            setSummary(VaadinIcon.MEDAL, "Konfiguracja szablonu..");
+            name.setPlaceholder("Podaj nazwę zmiany..");
+
+            addJobPositionRow(new JobPositionSelector(allAvailablePositions));
+
+            save.setVisible(true);
+            close.setVisible(true);
+        } else {
+            setSummary(VaadinIcon.MEDAL, shiftDTO.name());
+            name.setValue(shiftDTO.name());
+
+            shiftDTO.shiftConfigs().forEach(shiftConfig -> {
+                JobPositionSelector existingConfiguredJobPosition = new JobPositionSelector(allAvailablePositions);
+                existingConfiguredJobPosition.configureExistingJobPositions(shiftConfig);
+
+                addJobPositionRow(existingConfiguredJobPosition);
+            });
+
+            update.setVisible(true);
+            delete.setVisible(true);
+        }
+    }
+
+    private void addJobPositionRow(JobPositionSelector jobPositionSelector) {
+        var existedJobPositionContainer = new HorizontalLayout(jobPositionSelector);
+        existedJobPositionContainer.setWidthFull();
+        existedJobPositionContainer.setSpacing(true);
+        existedJobPositionContainer.setAlignItems(FlexComponent.Alignment.CENTER);
+        existedJobPositionContainer.expand(jobPositionSelector);
+
+        var positionContainer = createPositionContainer(existedJobPositionContainer);
+        positionContainer.setSpacing(true);
+        positionContainer.setPadding(true);
+        positionContainer.setAlignItems(FlexComponent.Alignment.STRETCH);
+
+        addJobPositionSelectorsListeners(jobPositionSelector, positionContainer);
+
+        positionContainers.add(positionContainer);
+        jobPositionSelector.setOrderNumber(positionContainers.size());
+        positionsLayout.addComponentAtIndex(positionsLayout.getComponentCount() - 1, positionContainer);
+    }
+
+    private void addJobPositionSelectorsListeners(
+            JobPositionSelector jobPositionSelector, VerticalLayout positionContainer) {
+        jobPositionSelector.addSelectionJobPositionListener(this::handleJobPositionValueChange);
+
+        jobPositionSelector.addRemoveListener(ev -> {
+            positionContainers.remove(positionContainer);
+            positionsLayout.remove(positionContainer);
+
+            updateOrderNumbers();
+            handleAddPositionToItems(ev);
+        });
+    }
+
+    private void configurePositionsLayout() {
         positionsLayout.setWidthFull();
         positionsLayout.setFlexWrap(FlexLayout.FlexWrap.WRAP);
         positionsLayout.addClassNames(LumoUtility.Gap.SMALL);
         positionsLayout.setMaxHeight(MAX_POSITIONS_HEIGHT);
         positionsLayout.getStyle().set("overflow-y", "auto");
+    }
 
-        VerticalLayout wrappedAddButton = createPositionContainer();
-        wrappedAddButton.setMargin(true);
-        wrappedAddButton.setMinHeight("50px");
-        wrappedAddButton.setHeight("70px");
-        wrappedAddButton.add(addPositionButton);
-
-        positionsLayout.add(wrappedAddButton);
-
-        if (shiftDTO.name() == null) {
-            this.addClassName("config-mode");
-
-            setSummary(VaadinIcon.MEDAL, "Konfiguracja szablonu..");
-            name.setPlaceholder("Podaj nazwę zmiany..");
-            addNewPositionSelector();
-            // todo this logic has to be refactor !! now there is duplication of code for create ShiftPanel of existing
-            // shifts in db and
-            //  for empty ShiftPanel dedicated to create new shift record - below there is duplication of ShiftPanel
-            // configuration code
-        } else {
-            setSummary(VaadinIcon.MEDAL, shiftDTO.name());
-            name.setValue(shiftDTO.name());
-            save.setVisible(false);
-            close.setVisible(false);
-            update.setVisible(true);
-            delete.setVisible(true);
-            shiftDTO.shiftConfigs().forEach(shiftConfig -> {
-                JobPositionSelector existingJobPosition = new JobPositionSelector(allAvailablePositions);
-                existingJobPosition.configureExistingJobPositions(shiftConfig);
-
-                VerticalLayout positionContainer = createPositionContainer();
-                positionContainer.setSpacing(true);
-                positionContainer.setPadding(true);
-                positionContainer.setAlignItems(FlexComponent.Alignment.STRETCH);
-
-                HorizontalLayout selectorRow = new HorizontalLayout(existingJobPosition);
-                selectorRow.setWidthFull();
-                selectorRow.setSpacing(true);
-                selectorRow.setAlignItems(FlexComponent.Alignment.CENTER);
-                selectorRow.expand(existingJobPosition);
-
-                positionContainer.add(selectorRow);
-
-                existingJobPosition.addSelectionJobPositionListener(this::handleJobPositionValueChange);
-
-                existingJobPosition.addRemoveListener(ev -> {
-                    positionContainers.remove(positionContainer);
-                    positionsLayout.remove(positionContainer);
-
-                    updateOrderNumbers(); // Aktualizacja numerów po usunięciu
-                    handleAddPositionToItems(ev);
-                });
-
-                positionContainers.add(positionContainer);
-
-                existingJobPosition.setOrderNumber(positionContainers.size());
-
-                positionsLayout.addComponentAtIndex(positionsLayout.getComponentCount() - 1, positionContainer);
-            });
-        }
-
-        mainContainer.add(name, positionsLayout, configuredButtonLayout());
-
-        addContent(mainContainer);
+    private void configureAddPositionButton() {
+        VerticalLayout addButtonWrapper = createPositionContainer(addPositionButton);
+        addButtonWrapper.setMargin(true);
+        addButtonWrapper.setMinHeight("50px");
+        addButtonWrapper.setHeight("70px");
+        addPositionButton.addClickListener(event -> addJobPositionRow(new JobPositionSelector(allAvailablePositions)));
+        positionsLayout.add(addButtonWrapper);
     }
 
     private void handleAddPositionToItems(JobPositionSelector.RemoveEvent event) {
@@ -203,8 +215,8 @@ public class ShiftPanel extends PanelCustom {
         }
     }
 
-    private VerticalLayout createPositionContainer() {
-        VerticalLayout container = new VerticalLayout();
+    private VerticalLayout createPositionContainer(Component component) {
+        VerticalLayout container = new VerticalLayout(component);
         container.setPadding(false);
         container.setSpacing(false);
         container.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -216,20 +228,20 @@ public class ShiftPanel extends PanelCustom {
     }
 
     private void configureButtons() {
+        configureAddPositionButton();
+
         save.setWidth("50%");
         close.setWidth("50%");
         update.setWidth("50%");
         delete.setWidth("50%");
+        save.setVisible(false);
+        close.setVisible(false);
         update.setVisible(false);
         delete.setVisible(false);
 
         configureSaveButton();
 
         configureUpdateButton();
-
-        update.addClickListener(event -> {
-            fireEvent(new UpdateEvent(this));
-        });
 
         close.addClickListener(event -> {
             this.setVisible(false);
@@ -245,42 +257,6 @@ public class ShiftPanel extends PanelCustom {
             fireEvent(new DeleteEvent(this));
             this.removeFromParent();
         });
-    }
-
-    private void addNewPositionSelector() {
-        VerticalLayout positionContainer = createPositionContainer();
-        positionContainer.setSpacing(true);
-        positionContainer.setPadding(true);
-        positionContainer.setAlignItems(FlexComponent.Alignment.STRETCH);
-
-        JobPositionSelector selector = new JobPositionSelector(allAvailablePositions);
-        HorizontalLayout selectorRow = new HorizontalLayout(selector);
-        selectorRow.setWidthFull();
-        selectorRow.setSpacing(true);
-        selectorRow.setAlignItems(FlexComponent.Alignment.CENTER);
-        selectorRow.expand(selector);
-
-        positionContainer.add(selectorRow);
-
-        selector.addSelectionJobPositionListener(event -> {
-            handleJobPositionValueChange(event);
-        });
-
-        // --- Listener usuwania ---
-        selector.addRemoveListener(ev -> {
-            positionContainers.remove(positionContainer);
-            positionsLayout.remove(positionContainer);
-            updateOrderNumbers(); // Aktualizacja numerów po usunięciu
-            handleAddPositionToItems(ev);
-        });
-
-        positionContainers.add(positionContainer);
-
-        // NADANIE NUMERU PRZED DODANIEM
-        selector.setOrderNumber(positionContainers.size());
-
-        // DODANIE: Dodaj kontener tuż przed kontenerem guzika (który jest na końcu FlexLayout)
-        positionsLayout.addComponentAtIndex(positionsLayout.getComponentCount() - 1, positionContainer);
     }
 
     private void configureSaveButton() {
@@ -325,7 +301,7 @@ public class ShiftPanel extends PanelCustom {
                     .build();
 
             try {
-                coreAPI.createShift(createShiftDTO);
+                shiftDTO = coreAPI.createShift(createShiftDTO).orElse(shiftDTO);
                 new SuccessNotification("Pomyślnie utworzono zmianę");
             } catch (Exception ex) {
                 new FailNotification(getTranslation("failNotification"));
@@ -386,11 +362,11 @@ public class ShiftPanel extends PanelCustom {
             try {
                 coreAPI.updateShift(updateShiftDTO);
                 new SuccessNotification("Pomyślnie zaktualizowano zmianę");
+                fireEvent(new UpdateEvent(this));
+                setSummary(VaadinIcon.MEDAL, name.getValue().trim());
             } catch (Exception ex) {
                 new FailNotification(getTranslation("failNotification"));
-                return;
             }
-            setSummary(VaadinIcon.MEDAL, name.getValue().trim());
         });
     }
 

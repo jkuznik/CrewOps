@@ -585,8 +585,8 @@ class CoreService implements CoreAPI {
     }
 
     @Override
-    public ShiftDTO createShift(CreateShiftDTO createShiftDTO) throws NotAuthenticatedException {
-        return domainShiftClient.createShift(createShiftDTO);
+    public Optional<ShiftDTO> createShift(CreateShiftDTO createShiftDTO) throws NotAuthenticatedException {
+        return Optional.ofNullable(domainShiftClient.createShift(createShiftDTO));
     }
 
     @Override

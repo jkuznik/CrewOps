@@ -1,4 +1,4 @@
-package pl.crewops.ui.component.custom;
+package pl.crewops.ui.component.custom.schedule;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -16,6 +16,7 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.shift.ShiftConfig;
+import pl.crewops.ui.component.custom.ComboBoxCustom;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.util.SpringContextBridge;
 
@@ -90,7 +91,6 @@ public class JobPositionSelector extends VerticalLayout {
     }
 
     public void configureExistingJobPositions(ShiftConfig shiftConfig) {
-
         jobPositionCombo.setValue(shiftConfig.jopPosition());
         currentSelectedJobPosition = shiftConfig.jopPosition();
 
