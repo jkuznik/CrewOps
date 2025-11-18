@@ -4,8 +4,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -28,6 +28,7 @@ import pl.crewops.ui.component.custom.AddButtonPanel;
 import pl.crewops.ui.component.custom.PanelCustom;
 import pl.crewops.ui.component.custom.schedule.JobPositionSelector;
 import pl.crewops.ui.component.notification.FailNotification;
+import pl.crewops.ui.component.notification.InfoNotification;
 import pl.crewops.ui.component.notification.SuccessNotification;
 import pl.crewops.util.SpringContextBridge;
 
@@ -43,11 +44,10 @@ public class ShiftPanel extends PanelCustom {
     private final FlexLayout positionsLayout = new FlexLayout();
     private final AddButtonPanel addPositionButton = new AddButtonPanel();
 
-    // todo i18n
-    private final Button save = new Button("Save");
-    private final Button update = new Button("Update");
-    private final Button close = new Button("Close");
-    private final Button delete = new Button("Delete");
+    private final Button save = new Button(getTranslation("saveButton"));
+    private final Button update = new Button(getTranslation("updateButton"));
+    private final Button close = new Button(getTranslation("closeButton"));
+    private final Button delete = new Button(getTranslation("deleteButton"));
 
     private final List<VerticalLayout> positionContainers = new ArrayList<>();
 
@@ -82,8 +82,8 @@ public class ShiftPanel extends PanelCustom {
         if (shiftDTO == null) {
             this.addClassName("config-mode");
 
-            setSummary(VaadinIcon.MEDAL, "Konfiguracja szablonu..");
-            name.setPlaceholder("Podaj nazwę zmiany..");
+            setSummary(VaadinIcon.MEDAL, getTranslation("shiftPanel.configMode"));
+            name.setPlaceholder(getTranslation("shiftPanel.name"));
 
             addJobPositionRow(new JobPositionSelector(allAvailablePositions));
 
@@ -110,30 +110,29 @@ public class ShiftPanel extends PanelCustom {
         existedJobPositionContainer.setWidthFull();
         existedJobPositionContainer.setSpacing(true);
         existedJobPositionContainer.setAlignItems(FlexComponent.Alignment.CENTER);
-        existedJobPositionContainer.expand(jobPositionSelector);
 
         var positionContainer = createPositionContainer(existedJobPositionContainer);
         positionContainer.setSpacing(true);
         positionContainer.setPadding(true);
         positionContainer.setAlignItems(FlexComponent.Alignment.STRETCH);
 
-        addJobPositionSelectorsListeners(jobPositionSelector, positionContainer);
+        configureJobPositionSelectorsListeners(jobPositionSelector, positionContainer);
 
         positionContainers.add(positionContainer);
         jobPositionSelector.setOrderNumber(positionContainers.size());
         positionsLayout.addComponentAtIndex(positionsLayout.getComponentCount() - 1, positionContainer);
     }
 
-    private void addJobPositionSelectorsListeners(
+    private void configureJobPositionSelectorsListeners(
             JobPositionSelector jobPositionSelector, VerticalLayout positionContainer) {
         jobPositionSelector.addSelectionJobPositionListener(this::handleJobPositionValueChange);
 
-        jobPositionSelector.addRemoveListener(ev -> {
+        jobPositionSelector.addRemoveListener(event -> {
             positionContainers.remove(positionContainer);
             positionsLayout.remove(positionContainer);
 
             updateOrderNumbers();
-            handleAddPositionToItems(ev);
+            revertPositionToItems(event.getSource(), event.getValue());
         });
     }
 
@@ -146,56 +145,46 @@ public class ShiftPanel extends PanelCustom {
     }
 
     private void configureAddPositionButton() {
-        VerticalLayout addButtonWrapper = createPositionContainer(addPositionButton);
-        addButtonWrapper.setMargin(true);
+        var spacer = new Span();
+        spacer.setMinHeight("30px");
+        VerticalLayout addButtonWrapper = createPositionContainer(spacer);
+        addButtonWrapper.add(addPositionButton);
         addButtonWrapper.setMinHeight("50px");
-        addButtonWrapper.setHeight("70px");
+        addButtonWrapper.setHeight("80px");
         addPositionButton.addClickListener(event -> addJobPositionRow(new JobPositionSelector(allAvailablePositions)));
         positionsLayout.add(addButtonWrapper);
-    }
-
-    private void handleAddPositionToItems(JobPositionSelector.RemoveEvent event) {
-        var positionToRevert = event.getValue();
-        if (positionToRevert != null) {
-            // Przywróć starą wartość we wszystkich INNYCH selektorach
-            positionContainers.stream()
-                    .flatMap(Component::getChildren)
-                    .filter(c -> c instanceof HorizontalLayout)
-                    .flatMap(Component::getChildren)
-                    .filter(c -> c instanceof JobPositionSelector)
-                    .map(c -> (JobPositionSelector) c)
-                    .filter(selector -> selector != event.getSource()) // Pominięcie aktualnego selektora
-                    .forEach(selector -> selector.addJobPositionToItems(positionToRevert));
-        }
     }
 
     private void handleJobPositionValueChange(JobPositionSelector.SelectedJobPositionEvent event) {
         JobPositionDTO oldValue = event.getOldValue();
         JobPositionDTO newValue = event.getNewValue();
 
-        // 1. ZWOLNIENIE starego stanowiska
-        if (oldValue != null) {
-            // Przywróć starą wartość we wszystkich INNYCH selektorach
-            positionContainers.stream()
-                    .flatMap(Component::getChildren)
-                    .filter(c -> c instanceof HorizontalLayout)
-                    .flatMap(Component::getChildren)
-                    .filter(c -> c instanceof JobPositionSelector)
-                    .map(c -> (JobPositionSelector) c)
-                    .filter(selector -> selector != event.getSource()) // Pominięcie aktualnego selektora
-                    .forEach(selector -> selector.addJobPositionToItems(oldValue));
-        }
+        revertPositionToItems(event.getSource(), oldValue);
+        removePositionFromItems(event.getSource(), newValue);
+    }
 
-        // 2. REZERWACJA nowego stanowiska
-        if (newValue != null) {
-            // Usuń nową wartość ze wszystkich INNYCH selektorów
+    private void revertPositionToItems(JobPositionSelector source, JobPositionDTO jobPositionDTO) {
+        if (jobPositionDTO != null) {
             positionContainers.stream()
                     .flatMap(Component::getChildren)
                     .filter(c -> c instanceof HorizontalLayout)
                     .flatMap(Component::getChildren)
                     .filter(c -> c instanceof JobPositionSelector)
                     .map(c -> (JobPositionSelector) c)
-                    .filter(selector -> selector != event.getSource()) // Pominięcie aktualnego selektora
+                    .filter(selector -> selector != source) // Pominięcie aktualnego selektora
+                    .forEach(selector -> selector.addJobPositionToItems(jobPositionDTO));
+        }
+    }
+
+    private void removePositionFromItems(JobPositionSelector source, JobPositionDTO newValue) {
+        if (newValue != null) {
+            positionContainers.stream()
+                    .flatMap(Component::getChildren)
+                    .filter(c -> c instanceof HorizontalLayout)
+                    .flatMap(Component::getChildren)
+                    .filter(c -> c instanceof JobPositionSelector)
+                    .map(c -> (JobPositionSelector) c)
+                    .filter(selector -> selector != source)
                     .forEach(selector -> selector.removeJobPositionFromItems(newValue));
         }
     }
@@ -239,15 +228,13 @@ public class ShiftPanel extends PanelCustom {
         update.setVisible(false);
         delete.setVisible(false);
 
-        configureSaveButton();
+        saveButtonListener();
+        updateButtonListener();
+        closeButtonListener();
+        deleteButtonListener();
+    }
 
-        configureUpdateButton();
-
-        close.addClickListener(event -> {
-            this.setVisible(false);
-            fireEvent(new CloseEvent(this));
-        });
-
+    private void deleteButtonListener() {
         delete.addClickListener(event -> {
             try {
                 coreAPI.deleteShiftById(shiftDTO.id());
@@ -259,11 +246,18 @@ public class ShiftPanel extends PanelCustom {
         });
     }
 
-    private void configureSaveButton() {
+    private void closeButtonListener() {
+        close.addClickListener(event -> {
+            this.setVisible(false);
+            fireEvent(new CloseEvent(this));
+        });
+    }
+
+    private void saveButtonListener() {
         save.addClickListener(e -> {
             if (name.getValue() == null || name.getValue().trim().isEmpty()) {
                 name.focus();
-                name.setErrorMessage("Nazwa zespołu jest wymagana");
+                name.setErrorMessage(getTranslation("validation.required"));
                 name.setInvalid(true);
                 return;
             } else {
@@ -279,7 +273,7 @@ public class ShiftPanel extends PanelCustom {
                     .toList();
 
             if (activeSelectors.isEmpty()) {
-                Notification.show("Dodaj przynajmniej jedno stanowisko");
+                new InfoNotification(getTranslation("shiftPanel.oneJobPositionAtLeast"));
                 return;
             }
 
@@ -288,10 +282,11 @@ public class ShiftPanel extends PanelCustom {
             }
 
             Set<ShiftConfig> configs = activeSelectors.stream()
-                    .map(sel -> ShiftConfig.builder()
-                            .jopPosition(sel.getSelectedJobPosition())
-                            .critical(sel.isCritical())
-                            .relatedEmployee(sel.getSelectedEmployee().orElse(null))
+                    .map(jobPositionSelector -> ShiftConfig.builder()
+                            .jopPosition(jobPositionSelector.getSelectedJobPosition())
+                            .critical(jobPositionSelector.isCritical())
+                            .relatedEmployee(
+                                    jobPositionSelector.getSelectedEmployee().orElse(null))
                             .build())
                     .collect(Collectors.toSet());
 
@@ -302,7 +297,7 @@ public class ShiftPanel extends PanelCustom {
 
             try {
                 shiftDTO = coreAPI.createShift(createShiftDTO).orElse(shiftDTO);
-                new SuccessNotification("Pomyślnie utworzono zmianę");
+                new SuccessNotification(getTranslation("shiftPanel.addShiftSuccess"));
             } catch (Exception ex) {
                 new FailNotification(getTranslation("failNotification"));
                 return;
@@ -317,11 +312,11 @@ public class ShiftPanel extends PanelCustom {
         });
     }
 
-    private void configureUpdateButton() {
+    private void updateButtonListener() {
         update.addClickListener(event -> {
             if (name.getValue() == null || name.getValue().trim().isEmpty()) {
                 name.focus();
-                name.setErrorMessage("Nazwa zespołu jest wymagana");
+                name.setErrorMessage(getTranslation("validation.required"));
                 name.setInvalid(true);
                 return;
             } else {
@@ -337,7 +332,7 @@ public class ShiftPanel extends PanelCustom {
                     .toList();
 
             if (activeSelectors.isEmpty()) {
-                Notification.show("Dodaj przynajmniej jedno stanowisko");
+                new InfoNotification(getTranslation("shiftPanel.oneJobPositionAtLeast"));
                 return;
             }
 
@@ -361,7 +356,7 @@ public class ShiftPanel extends PanelCustom {
 
             try {
                 coreAPI.updateShift(updateShiftDTO);
-                new SuccessNotification("Pomyślnie zaktualizowano zmianę");
+                new SuccessNotification(getTranslation("shiftPanel.updateShiftSuccess"));
                 fireEvent(new UpdateEvent(this));
                 setSummary(VaadinIcon.MEDAL, name.getValue().trim());
             } catch (Exception ex) {

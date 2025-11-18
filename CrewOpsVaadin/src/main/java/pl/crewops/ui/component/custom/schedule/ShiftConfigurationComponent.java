@@ -185,7 +185,6 @@ public class ShiftConfigurationComponent extends VerticalLayout {
         panelsLayout.add(addShiftButtonContainer);
     }
 
-    // todo i18n
     private HorizontalLayout createToolbar(Button button) {
         HorizontalLayout bar = new HorizontalLayout();
         bar.setWidthFull();
@@ -195,7 +194,7 @@ public class ShiftConfigurationComponent extends VerticalLayout {
         bar.getStyle().set("background-color", "transparent");
 
         Span title = new Span();
-        title.setText("Konfiguracja szablonów zmian pracowniczych");
+        title.setText(getTranslation("shiftConfigurationComponent.title"));
         title.getStyle().set("font-weight", "bold");
 
         button.addClickListener(e -> toggleContentVisibility());

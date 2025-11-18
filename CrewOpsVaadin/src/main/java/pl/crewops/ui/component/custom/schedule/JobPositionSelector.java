@@ -25,7 +25,7 @@ public class JobPositionSelector extends VerticalLayout {
     private final CoreAPI coreAPI;
     private final Span orderNumberSpan = new Span();
 
-    private final Checkbox criticalCheckbox = new Checkbox("Kluczowe stanowisko");
+    private final Checkbox criticalCheckbox = new Checkbox(getTranslation("jobPositionSelector.criticalPosition"));
     private final Button remove = new Button(VaadinIcon.TRASH.create());
     private final HorizontalLayout comboLayout = new HorizontalLayout();
 
@@ -142,8 +142,8 @@ public class JobPositionSelector extends VerticalLayout {
     }
 
     private void localize() {
-        jobPositionCombo.setPlaceholder("Stanowisko *");
-        employeeCombo.setPlaceholder("");
+        jobPositionCombo.setPlaceholder(getTranslation("jobPositionSelector.jobPosition"));
+        employeeCombo.setPlaceholder(getTranslation("jobPositionSelector.employee"));
     }
 
     public void setOrderNumber(int number) {
@@ -171,7 +171,7 @@ public class JobPositionSelector extends VerticalLayout {
     public boolean validate() {
         if (jobPositionCombo.getValue() == null) {
             jobPositionCombo.focus();
-            jobPositionCombo.setErrorMessage("Job position is required");
+            jobPositionCombo.setErrorMessage(getTranslation("validation.required"));
             jobPositionCombo.setInvalid(true);
             return false;
         } else {

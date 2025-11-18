@@ -12,11 +12,10 @@ import pl.crewops.ui.component.custom.schedule.ShiftConfigurationComponent;
 
 public class ScheduleContent extends VerticalLayout {
 
-    // todo i18n
     private final ScheduleChoicePanel shiftBasedGenerator =
-            new ScheduleChoicePanel("Tryb planowania oparty na gotowych harmonogramach zmian...");
+            new ScheduleChoicePanel(getTranslation("scheduleContent.shiftBasedGenerator"));
     private final ScheduleChoicePanel individualGenerator =
-            new ScheduleChoicePanel("Tryb, w którym ręcznie tworzysz i modyfikujesz godziny pracy...");
+            new ScheduleChoicePanel(getTranslation("scheduleContent.individualGenerator"));
     private final HorizontalLayout modeSelectorContainer =
             new HorizontalLayout(shiftBasedGenerator, individualGenerator);
 
@@ -26,8 +25,6 @@ public class ScheduleContent extends VerticalLayout {
     private final ScheduleConfigurationComponent scheduleConfigurationComponent;
 
     /** Individual generator components */
-
-    // todo i18n
     public ScheduleContent(CoreAPI coreAPI) {
         this.shiftConfigurationComponent = new ShiftConfigurationComponent(coreAPI);
         this.scheduleConfigurationComponent = new ScheduleConfigurationComponent(coreAPI);
@@ -52,7 +49,7 @@ public class ScheduleContent extends VerticalLayout {
         modeSelectorContainer.setFlexGrow(1, shiftBasedGenerator, individualGenerator);
         modeSelectorContainer.getStyle().set("align-items", "stretch");
 
-        shiftBasedGenerator.setSummary(VaadinIcon.CALENDAR, "Planowanie harmonogramu zmianowego");
+        shiftBasedGenerator.setSummary(VaadinIcon.CALENDAR, getTranslation("scheduleContent.shiftBasedGeneratorLabel"));
         shiftBasedGenerator.addClickListener(event -> {
             if (event.getButton() == 0) {
                 modeSelectorContainer.setMinHeight("200px");
@@ -64,7 +61,8 @@ public class ScheduleContent extends VerticalLayout {
             }
         });
 
-        individualGenerator.setSummary(VaadinIcon.DATE_INPUT, "Planowanie indywidualne i ad-hoc");
+        individualGenerator.setSummary(
+                VaadinIcon.DATE_INPUT, getTranslation("scheduleContent.individualGeneratorLabel"));
         individualGenerator.addClickListener(event -> {
             if (event.getButton() == 0) {
                 modeSelectorContainer.setMinHeight("200px");
