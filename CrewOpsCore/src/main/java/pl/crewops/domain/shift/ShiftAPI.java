@@ -3,6 +3,7 @@ package pl.crewops.domain.shift;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.validation.annotation.Validated;
 import pl.crewops.model.dto.shift.CreateShiftDTO;
 import pl.crewops.model.dto.shift.ShiftDTO;
@@ -16,4 +17,6 @@ public interface ShiftAPI {
     List<ShiftDTO> getAllShifts();
 
     ShiftDTO updateShift(@NotNull @Valid UpdateShiftDTO updateShiftDTO);
+
+    void deleteShift(@NotNull UUID id);
 }

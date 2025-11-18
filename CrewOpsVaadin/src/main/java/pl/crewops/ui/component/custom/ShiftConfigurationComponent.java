@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.shift.ShiftDTO;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.component.panel.ShiftPanel;
@@ -35,8 +36,15 @@ public class ShiftConfigurationComponent extends VerticalLayout {
     private boolean isContentVisible = false;
     private boolean isFirstOpen = true;
 
+    private List<JobPositionDTO> allAvailableJobPositions = new ArrayList<>();
+
     public ShiftConfigurationComponent(CoreAPI coreAPI) {
         this.coreAPI = coreAPI;
+        try {
+            this.allAvailableJobPositions = coreAPI.getAllJobPositions();
+        } catch (NotAuthenticatedException e) {
+            new FailNotification(e.getMessage());
+        }
         addClassName("shift-content-border");
         setWidthFull();
         setPadding(false);
@@ -57,6 +65,11 @@ public class ShiftConfigurationComponent extends VerticalLayout {
         shiftsLayout.setAlignItems(FlexComponent.Alignment.START);
 
         contentContainer.add(shiftsLayout);
+
+        VerticalLayout addShiftButtonContainer = createContainer();
+        addShiftButtonContainer.setMargin(true);
+        addShiftButtonContainer.add(addButtonPanel);
+        shiftsLayout.add(addShiftButtonContainer);
 
         // Ustawienie początkowej widoczności
         contentContainer.setVisible(isContentVisible);
@@ -90,7 +103,6 @@ public class ShiftConfigurationComponent extends VerticalLayout {
         shiftsLayout.removeAll();
         shiftContainers.clear();
 
-        // 2. Dodanie przycisku dodawania (który ma być na końcu)
         VerticalLayout addShiftButtonContainer = createContainer();
         addShiftButtonContainer.setMargin(true);
         addShiftButtonContainer.add(addButtonPanel);
@@ -103,7 +115,7 @@ public class ShiftConfigurationComponent extends VerticalLayout {
                 VerticalLayout existedShiftContainer = createContainer();
                 existedShiftContainer.setMargin(true); // Dodaj margines dla spójności
 
-                var existedShift = new ShiftPanel(shift);
+                var existedShift = new ShiftPanel(shift, new ArrayList<>(allAvailableJobPositions));
 
                 existedShift.addUpdateListener(event -> {
                     // todo Update medtod
@@ -157,7 +169,8 @@ public class ShiftConfigurationComponent extends VerticalLayout {
     }
 
     private void addShiftPanel() {
-        ShiftPanel shift = new ShiftPanel(null);
+        ShiftPanel shift =
+                new ShiftPanel(ShiftDTO.builder().name(null).build(), new ArrayList<>(allAvailableJobPositions));
 
         shift.addCloseListener(event -> {
             VerticalLayout containerToRemove = shiftContainers.stream()

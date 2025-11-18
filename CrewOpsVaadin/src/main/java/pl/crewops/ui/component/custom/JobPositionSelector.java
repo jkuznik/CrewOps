@@ -9,8 +9,10 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import lombok.Getter;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.employee.EmployeeDTO;
@@ -24,116 +26,241 @@ public class JobPositionSelector extends VerticalLayout {
     private final CoreAPI coreAPI;
 
     private final Span orderNumberSpan = new Span();
+
     private final Checkbox criticalCheckbox = new Checkbox("Kluczowe stanowisko");
+
     private final Button remove = new Button(VaadinIcon.TRASH.create());
 
-    private final ComboBoxCustom<JobPositionDTO> jobPositionCombo = new ComboBoxCustom<>();
+    private final HorizontalLayout comboLayout = new HorizontalLayout();
+
+    private ComboBoxCustom<JobPositionDTO> jobPositionCombo = new ComboBoxCustom<>();
+
     private final ComboBoxCustom<EmployeeDTO> employeeCombo = new ComboBoxCustom<>();
 
-    public JobPositionSelector() {
+    private List<JobPositionDTO> allAvailableJobPositions;
+
+    private JobPositionDTO currentSelectedJobPosition = null;
+
+    public JobPositionSelector(List<JobPositionDTO> allAvailableJobPositions) {
+
         this.coreAPI = SpringContextBridge.getBean(CoreAPI.class);
+
+        this.allAvailableJobPositions = allAvailableJobPositions;
+
         setSpacing(false);
+
         setPadding(false);
 
         orderNumberSpan.getStyle().set("font-weight", "bold");
 
-        localize();
+        configureJobPositionComboBox();
 
         try {
-            setJobPositions(coreAPI.getAllJobPositions());
+
             setEmployees(coreAPI.getAllEmployees());
+
         } catch (NotAuthenticatedException e) {
+
             new FailNotification(e.getMessage());
         }
 
-        HorizontalLayout comboLayout = new HorizontalLayout(jobPositionCombo, employeeCombo);
         comboLayout.setSpacing(true);
+
         comboLayout.setWidthFull();
-        jobPositionCombo.setWidth("50%");
+
+        comboLayout.add(jobPositionCombo, employeeCombo);
+
         employeeCombo.setWidth("50%");
 
         HorizontalLayout firstRow = new HorizontalLayout(orderNumberSpan, criticalCheckbox, remove);
+
         firstRow.setWidthFull();
+
         firstRow.setAlignItems(Alignment.CENTER);
+
         firstRow.setJustifyContentMode(JustifyContentMode.END);
+
         firstRow.setSpacing(true);
 
         remove.addClickListener(event -> {
-            fireEvent(new RemoveEvent(this));
+            fireEvent(new RemoveEvent(this, currentSelectedJobPosition));
         });
 
         add(firstRow, comboLayout);
     }
 
+    private void configureJobPositionComboBox() {
+
+        jobPositionCombo.setWidth("50%");
+
+        jobPositionCombo.setItems(allAvailableJobPositions);
+
+        jobPositionCombo.setItemLabelGenerator(JobPositionDTO::name);
+
+        jobPositionCombo.addValueChangeListener(event -> {
+            currentSelectedJobPosition = event.getValue();
+
+            fireEvent(new SelectedJobPositionEvent(this, event.getOldValue(), event.getValue()));
+        });
+
+        localize();
+    }
+
     public void configureExistingJobPositions(ShiftConfig shiftConfig) {
+
         jobPositionCombo.setValue(shiftConfig.jopPosition());
+
+        currentSelectedJobPosition = shiftConfig.jopPosition();
+
         if (shiftConfig.relatedEmployee() != null) {
+
             employeeCombo.setValue(shiftConfig.relatedEmployee());
         }
+
         criticalCheckbox.setValue(shiftConfig.critical());
     }
 
+    public void removeJobPositionFromItems(JobPositionDTO position) {
+
+        allAvailableJobPositions.remove(position);
+
+        jobPositionCombo.setItems(allAvailableJobPositions);
+
+        if (currentSelectedJobPosition != null) {
+
+            jobPositionCombo.setValue(allAvailableJobPositions.stream()
+                    .filter(jobPositionDTO -> jobPositionDTO.id().equals(currentSelectedJobPosition.id()))
+                    .findFirst()
+                    .orElse(null));
+        }
+    }
+
+    public void addJobPositionToItems(JobPositionDTO position) {
+
+        if (!allAvailableJobPositions.contains(position)) {
+
+            allAvailableJobPositions.add(position);
+
+            allAvailableJobPositions.sort(Comparator.comparing(JobPositionDTO::name));
+
+            jobPositionCombo.setItems(allAvailableJobPositions);
+
+            if (currentSelectedJobPosition != null) {
+
+                jobPositionCombo.setValue(allAvailableJobPositions.stream()
+                        .filter(jobPositionDTO -> jobPositionDTO.id().equals(currentSelectedJobPosition.id()))
+                        .findFirst()
+                        .orElse(null));
+            }
+        }
+    }
+
     private void localize() {
+
         jobPositionCombo.setPlaceholder("Stanowisko *");
+
         employeeCombo.setPlaceholder("");
     }
 
     // NOWA METODA: Ustawianie numeru porządkowego
+
     public void setOrderNumber(int number) {
+
         orderNumberSpan.setText(number + ".");
     }
 
-    public void setJobPositions(List<JobPositionDTO> positions) {
-        jobPositionCombo.setItems(positions);
-        jobPositionCombo.setItemLabelGenerator(JobPositionDTO::name);
-    }
+    private void setEmployees(List<EmployeeDTO> employees) {
 
-    public void setEmployees(List<EmployeeDTO> employees) {
         employeeCombo.setItems(employees);
+
         employeeCombo.setItemLabelGenerator(EmployeeDTO::firstName);
     }
 
     public boolean isJobPositionSelected() {
+
         return jobPositionCombo.getValue() != null;
     }
 
     public JobPositionDTO getSelectedJobPosition() {
+
         return jobPositionCombo.getValue();
     }
 
     public Optional<EmployeeDTO> getSelectedEmployee() {
+
         return Optional.ofNullable(employeeCombo.getValue());
     }
 
     public boolean isCritical() {
+
         return criticalCheckbox.getValue();
     }
 
     public boolean validate() {
+
         if (jobPositionCombo.getValue() == null) {
+
             jobPositionCombo.focus();
+
             jobPositionCombo.setErrorMessage("Job position is required");
+
             jobPositionCombo.setInvalid(true);
+
             return false;
+
         } else {
+
             jobPositionCombo.setInvalid(false);
+
             return true;
         }
     }
 
     public abstract static class JobPositionSelectorEvent extends ComponentEvent<JobPositionSelector> {
+
         public JobPositionSelectorEvent(JobPositionSelector source) {
+
             super(source, false);
         }
     }
 
-    public static class RemoveEvent extends JobPositionSelectorEvent {
-        public RemoveEvent(JobPositionSelector source) {
+    @Getter
+    public static class SelectedJobPositionEvent extends JobPositionSelectorEvent {
+
+        private final JobPositionDTO oldValue;
+
+        private final JobPositionDTO newValue;
+
+        public SelectedJobPositionEvent(JobPositionSelector source, JobPositionDTO oldValue, JobPositionDTO newValue) {
+
             super(source);
+
+            this.oldValue = oldValue;
+
+            this.newValue = newValue;
         }
     }
 
+    @Getter
+    public static class RemoveEvent extends JobPositionSelectorEvent {
+
+        private final JobPositionDTO value;
+
+        public RemoveEvent(JobPositionSelector source, JobPositionDTO value) {
+
+            super(source);
+
+            this.value = value;
+        }
+    }
+
+    public Registration addSelectionJobPositionListener(ComponentEventListener<SelectedJobPositionEvent> listener) {
+
+        return addListener(SelectedJobPositionEvent.class, listener);
+    }
+
     public Registration addRemoveListener(ComponentEventListener<RemoveEvent> listener) {
+
         return addListener(RemoveEvent.class, listener);
     }
 }

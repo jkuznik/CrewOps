@@ -45,6 +45,7 @@ import pl.crewops.model.dto.registration.PreRegisterResponse;
 import pl.crewops.model.dto.registration.VerifyEmailRequest;
 import pl.crewops.model.dto.shift.CreateShiftDTO;
 import pl.crewops.model.dto.shift.ShiftDTO;
+import pl.crewops.model.dto.shift.UpdateShiftDTO;
 
 @Repository
 @Validated
@@ -199,4 +200,8 @@ public interface CoreAPI {
     ShiftDTO createShift(@NotNull @Valid CreateShiftDTO createShiftDTO) throws NotAuthenticatedException;
 
     List<ShiftDTO> getAllShifts() throws NotAuthenticatedException;
+
+    ShiftDTO updateShift(@NotNull @Valid UpdateShiftDTO updateShiftDTO) throws NotAuthenticatedException;
+
+    void deleteShiftById(@NotNull UUID id) throws NotAuthenticatedException;
 }

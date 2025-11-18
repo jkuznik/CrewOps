@@ -1,0 +1,32 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <circle id="dot" cx="100" cy="30" r="5" fill="#ffffff">
+            <animate attributeName="opacity" values="0;1;0" keyTimes="0;0.1;1" dur="2s" repeatCount="indefinite" />
+        </circle>
+    </defs>
+
+    <g transform="translate(0,0)">
+        <use href="#dot" transform="rotate(0 100 100)" />
+        <use href="#dot" transform="rotate(45 100 100)">
+            <animate attributeName="opacity" values="0;1;0" keyTimes="0;0.1;1" dur="2s" begin="0.25s" repeatCount="indefinite" />
+        </use>
+        <use href="#dot" transform="rotate(90 100 100)">
+            <animate attributeName="opacity" values="0;1;0" keyTimes="0;0.1;1" dur="2s" begin="0.5s" repeatCount="indefinite" />
+        </use>
+        <use href="#dot" transform="rotate(135 100 100)">
+            <animate attributeName="opacity" values="0;1;0" keyTimes="0;0.1;1" dur="2s" begin="0.75s" repeatCount="indefinite" />
+        </use>
+        <use href="#dot" transform="rotate(180 100 100)">
+            <animate attributeName="opacity" values="0;1;0" keyTimes="0;0.1;1" dur="2s" begin="1s" repeatCount="indefinite" />
+        </use>
+        <use href="#dot" transform="rotate(225 100 100)">
+            <animate attributeName="opacity" values="0;1;0" keyTimes="0;0.1;1" dur="2s" begin="1.25s" repeatCount="indefinite" />
+        </use>
+        <use href="#dot" transform="rotate(270 100 100)">
+            <animate attributeName="opacity" values="0;1;0" keyTimes="0;0.1;1" dur="2s" begin="1.5s" repeatCount="indefinite" />
+        </use>
+        <use href="#dot" transform="rotate(315 100 100)">
+            <animate attributeName="opacity" values="0;1;0" keyTimes="0;0.1;1" dur="2s" begin="1.75s" repeatCount="indefinite" />
+        </use>
+    </g>
+</svg>

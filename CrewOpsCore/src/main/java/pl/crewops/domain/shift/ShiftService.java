@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.jobPosition.JobPositionAPI;
 import pl.crewops.exception.domain.jobPosition.JobPositionNotFoundException;
+import pl.crewops.exception.domain.shift.ShiftNotFoundException;
 import pl.crewops.model.compositePK.SJPID;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.jobPosition.JobPositionDTO;
@@ -126,7 +127,60 @@ class ShiftService implements ShiftAPI {
     }
 
     @Override
+    @Transactional
     public ShiftDTO updateShift(UpdateShiftDTO updateShiftDTO) {
-        return null;
+        Shift existedShift = shiftRepository
+                .findById(updateShiftDTO.id())
+                .orElseThrow(() -> new ShiftNotFoundException(updateShiftDTO.id()));
+
+        existedShift.setName(updateShiftDTO.name());
+
+        if (updateShiftDTO.configs() != null) {
+            List<JobPosition> declaredJobPositions = updateShiftDTO.configs().stream()
+                    .map(shiftConfig ->
+                            findJobPosition(shiftConfig.jopPosition().id()))
+                    .toList();
+
+            existedShift.setJobPositions(declaredJobPositions);
+
+            shiftRepository.flush();
+
+            List<ShiftJobPosition> configureShift = declaredJobPositions.stream()
+                    .map(jobPosition -> sjpRepository
+                            .findById(new SJPID(jobPosition.getId(), existedShift.getId()))
+                            .orElseGet(() -> {
+                                return new ShiftJobPosition(new SJPID(jobPosition.getId(), existedShift.getId()));
+                            }))
+                    .toList();
+
+            configureShift.forEach(shiftJobPositionRecord -> {
+                Optional<ShiftConfig> first = updateShiftDTO.configs().stream()
+                        .filter(config -> {
+                            return config.jopPosition()
+                                    .id()
+                                    .equals(shiftJobPositionRecord
+                                            .getJobPosition()
+                                            .getId());
+                        })
+                        .findFirst();
+                if (first.isPresent()) {
+                    ShiftConfig jobPositionConfig = first.get();
+                    shiftJobPositionRecord.setCritical(jobPositionConfig.critical());
+                    if (jobPositionConfig.relatedEmployee() != null) {
+                        Employee employeeById = employeeAPI.getEmployeeById(
+                                jobPositionConfig.relatedEmployee().id());
+                        shiftJobPositionRecord.setAssignedEmployee(employeeById);
+                    }
+                }
+            });
+        }
+
+        return ShiftDTO.builder().build();
+    }
+
+    @Override
+    @Transactional
+    public void deleteShift(UUID id) {
+        shiftRepository.deleteById(id);
     }
 }

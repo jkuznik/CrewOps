@@ -6,4 +6,4 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record UpdateShiftDTO(@NotNull UUID id, String name, Set<ShiftConfig> shiftConfigs) {}
+public record UpdateShiftDTO(@NotNull UUID id, String name, Set<ShiftConfig> configs) {}

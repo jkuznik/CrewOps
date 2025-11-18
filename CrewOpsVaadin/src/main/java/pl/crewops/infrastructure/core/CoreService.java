@@ -53,6 +53,7 @@ import pl.crewops.model.dto.registration.PreRegisterResponse;
 import pl.crewops.model.dto.registration.VerifyEmailRequest;
 import pl.crewops.model.dto.shift.CreateShiftDTO;
 import pl.crewops.model.dto.shift.ShiftDTO;
+import pl.crewops.model.dto.shift.UpdateShiftDTO;
 
 @Slf4j
 @Service
@@ -591,5 +592,15 @@ class CoreService implements CoreAPI {
     @Override
     public List<ShiftDTO> getAllShifts() throws NotAuthenticatedException {
         return domainShiftClient.getAllShifts();
+    }
+
+    @Override
+    public ShiftDTO updateShift(UpdateShiftDTO updateShiftDTO) throws NotAuthenticatedException {
+        return domainShiftClient.updateShift(updateShiftDTO);
+    }
+
+    @Override
+    public void deleteShiftById(UUID id) throws NotAuthenticatedException {
+        domainShiftClient.deleteShift(id);
     }
 }

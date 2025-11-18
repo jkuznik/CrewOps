@@ -11,6 +11,7 @@
     "@fullcalendar/moment-timezone": "6.1.9",
     "@fullcalendar/multimonth": "6.1.9",
     "@fullcalendar/timegrid": "6.1.9",
+    "@polymer/iron-iconset-svg": "3.0.1",
     "@polymer/polymer": "3.5.2",
     "@vaadin/bundles": "24.7.1",
     "@vaadin/common-frontend": "0.0.19",
@@ -63,6 +64,7 @@
       "@fullcalendar/moment-timezone": "6.1.9",
       "@fullcalendar/multimonth": "6.1.9",
       "@fullcalendar/timegrid": "6.1.9",
+      "@polymer/iron-iconset-svg": "3.0.1",
       "@polymer/polymer": "3.5.2",
       "@vaadin/bundles": "24.7.1",
       "@vaadin/common-frontend": "0.0.19",
@@ -105,7 +107,7 @@
       "workbox-core": "7.3.0",
       "workbox-precaching": "7.3.0"
     },
-    "hash": "b65a90caf27920f7da56ca7a4e0628a001b45e8ca79345073a608ac324fb5dfe"
+    "hash": "b7c25f1704da53d8e9a9d613985e5c5263ac41bb02017697225587a7c2670f5b"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
@@ -135,6 +137,7 @@
     "@fullcalendar/multimonth": "$@fullcalendar/multimonth",
     "@fullcalendar/moment": "$@fullcalendar/moment",
     "@fullcalendar/moment-timezone": "$@fullcalendar/moment-timezone",
-    "@fullcalendar/daygrid": "$@fullcalendar/daygrid"
+    "@fullcalendar/daygrid": "$@fullcalendar/daygrid",
+    "@polymer/iron-iconset-svg": "$@polymer/iron-iconset-svg"
   }
 }

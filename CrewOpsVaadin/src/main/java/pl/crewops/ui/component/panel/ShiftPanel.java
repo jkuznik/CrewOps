@@ -17,10 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.shift.CreateShiftDTO;
 import pl.crewops.model.dto.shift.ShiftConfig;
 import pl.crewops.model.dto.shift.ShiftDTO;
+import pl.crewops.model.dto.shift.UpdateShiftDTO;
 import pl.crewops.ui.component.custom.AddButtonPanel;
 import pl.crewops.ui.component.custom.JobPositionSelector;
 import pl.crewops.ui.component.custom.PanelCustom;
@@ -47,8 +50,13 @@ public class ShiftPanel extends PanelCustom {
 
     private final List<VerticalLayout> positionContainers = new ArrayList<>();
 
-    public ShiftPanel(ShiftDTO shiftDTO) {
+    private final List<JobPositionDTO> allAvailablePositions;
+    private final ShiftDTO shiftDTO;
+
+    public ShiftPanel(ShiftDTO shiftDTO, List<JobPositionDTO> allAvailablePositions) {
         this.coreAPI = SpringContextBridge.getBean(CoreAPI.class);
+        this.shiftDTO = shiftDTO;
+        this.allAvailablePositions = allAvailablePositions;
         setSizeFull();
 
         name.setWidthFull();
@@ -77,7 +85,7 @@ public class ShiftPanel extends PanelCustom {
 
         positionsLayout.add(wrappedAddButton);
 
-        if (shiftDTO == null) {
+        if (shiftDTO.name() == null) {
             setSummary(VaadinIcon.MEDAL, "Konfiguracja szablonu..");
             name.setPlaceholder("Podaj nazwę zmiany..");
             addNewPositionSelector();
@@ -89,7 +97,7 @@ public class ShiftPanel extends PanelCustom {
             update.setVisible(true);
             delete.setVisible(true);
             shiftDTO.shiftConfigs().forEach(shiftConfig -> {
-                JobPositionSelector existingJobPosition = new JobPositionSelector();
+                JobPositionSelector existingJobPosition = new JobPositionSelector(allAvailablePositions);
                 existingJobPosition.configureExistingJobPositions(shiftConfig);
 
                 VerticalLayout positionContainer = createPositionContainer();
@@ -105,10 +113,12 @@ public class ShiftPanel extends PanelCustom {
 
                 positionContainer.add(selectorRow);
 
-                // --- Listener usuwania ---
+                existingJobPosition.addSelectionJobPositionListener(this::handleJobPositionValueChange);
+
                 existingJobPosition.addRemoveListener(ev -> {
                     positionContainers.remove(positionContainer);
                     positionsLayout.remove(positionContainer);
+
                     updateOrderNumbers(); // Aktualizacja numerów po usunięciu
                 });
 
@@ -123,6 +133,37 @@ public class ShiftPanel extends PanelCustom {
         mainContainer.add(name, positionsLayout, configuredButtonLayout());
 
         addContent(mainContainer);
+    }
+
+    private void handleJobPositionValueChange(JobPositionSelector.SelectedJobPositionEvent event) {
+        JobPositionDTO oldValue = event.getOldValue();
+        JobPositionDTO newValue = event.getNewValue();
+
+        // 1. ZWOLNIENIE starego stanowiska
+        if (oldValue != null) {
+            // Przywróć starą wartość we wszystkich INNYCH selektorach
+            positionContainers.stream()
+                    .flatMap(Component::getChildren)
+                    .filter(c -> c instanceof HorizontalLayout)
+                    .flatMap(Component::getChildren)
+                    .filter(c -> c instanceof JobPositionSelector)
+                    .map(c -> (JobPositionSelector) c)
+                    .filter(selector -> selector != event.getSource()) // Pominięcie aktualnego selektora
+                    .forEach(selector -> selector.addJobPositionToItems(oldValue));
+        }
+
+        // 2. REZERWACJA nowego stanowiska
+        if (newValue != null) {
+            // Usuń nową wartość ze wszystkich INNYCH selektorów
+            positionContainers.stream()
+                    .flatMap(Component::getChildren)
+                    .filter(c -> c instanceof HorizontalLayout)
+                    .flatMap(Component::getChildren)
+                    .filter(c -> c instanceof JobPositionSelector)
+                    .map(c -> (JobPositionSelector) c)
+                    .filter(selector -> selector != event.getSource()) // Pominięcie aktualnego selektora
+                    .forEach(selector -> selector.removeJobPositionFromItems(newValue));
+        }
     }
 
     private void updateOrderNumbers() {
@@ -162,6 +203,8 @@ public class ShiftPanel extends PanelCustom {
 
         configureSaveButton();
 
+        configureUpdateButton();
+
         update.addClickListener(event -> {
             fireEvent(new UpdateEvent(this));
         });
@@ -172,8 +215,13 @@ public class ShiftPanel extends PanelCustom {
         });
 
         delete.addClickListener(event -> {
-            this.setVisible(false);
+            try {
+                coreAPI.deleteShiftById(shiftDTO.id());
+            } catch (NotAuthenticatedException e) {
+                new FailNotification(e.getMessage());
+            }
             fireEvent(new DeleteEvent(this));
+            this.removeFromParent();
         });
     }
 
@@ -183,7 +231,7 @@ public class ShiftPanel extends PanelCustom {
         positionContainer.setPadding(true);
         positionContainer.setAlignItems(FlexComponent.Alignment.STRETCH);
 
-        JobPositionSelector selector = new JobPositionSelector();
+        JobPositionSelector selector = new JobPositionSelector(allAvailablePositions);
         HorizontalLayout selectorRow = new HorizontalLayout(selector);
         selectorRow.setWidthFull();
         selectorRow.setSpacing(true);
@@ -191,6 +239,10 @@ public class ShiftPanel extends PanelCustom {
         selectorRow.expand(selector);
 
         positionContainer.add(selectorRow);
+
+        selector.addSelectionJobPositionListener(event -> {
+            handleJobPositionValueChange(event);
+        });
 
         // --- Listener usuwania ---
         selector.addRemoveListener(ev -> {
@@ -261,6 +313,59 @@ public class ShiftPanel extends PanelCustom {
             close.setVisible(false);
             update.setVisible(true);
             delete.setVisible(true);
+        });
+    }
+
+    private void configureUpdateButton() {
+        update.addClickListener(event -> {
+            if (name.getValue() == null || name.getValue().trim().isEmpty()) {
+                name.focus();
+                name.setErrorMessage("Nazwa zespołu jest wymagana");
+                name.setInvalid(true);
+                return;
+            } else {
+                name.setInvalid(false);
+            }
+
+            List<JobPositionSelector> activeSelectors = positionContainers.stream()
+                    .flatMap(Component::getChildren)
+                    .filter(c -> c instanceof HorizontalLayout)
+                    .flatMap(Component::getChildren)
+                    .filter(c -> c instanceof JobPositionSelector)
+                    .map(c -> (JobPositionSelector) c)
+                    .toList();
+
+            if (activeSelectors.isEmpty()) {
+                Notification.show("Dodaj przynajmniej jedno stanowisko");
+                return;
+            }
+
+            for (JobPositionSelector sel : activeSelectors) {
+                if (!sel.validate()) return;
+            }
+
+            Set<ShiftConfig> configs = activeSelectors.stream()
+                    .map(sel -> ShiftConfig.builder()
+                            .jopPosition(sel.getSelectedJobPosition())
+                            .critical(sel.isCritical())
+                            .relatedEmployee(sel.getSelectedEmployee().orElse(null))
+                            .build())
+                    .collect(Collectors.toSet());
+
+            UpdateShiftDTO updateShiftDTO = UpdateShiftDTO.builder()
+                    .id(shiftDTO.id())
+                    .name(name.getValue().trim())
+                    .configs(configs)
+                    .build();
+
+            try {
+                coreAPI.updateShift(updateShiftDTO);
+                new SuccessNotification("Pomyślnie zaktualizowano zmianę");
+            } catch (Exception ex) {
+                new FailNotification(getTranslation("failNotification"));
+                return;
+            }
+            setSummary(VaadinIcon.MEDAL, name.getValue().trim());
         });
     }
 
