@@ -36,13 +36,14 @@ public class ShiftConfigurationComponent extends VerticalLayout {
     private boolean isContentVisible = false;
     private boolean isFirstOpen = true;
 
-    private List<JobPositionDTO> allAvailableJobPositions = new ArrayList<>();
+    private final List<JobPositionDTO> allAvailableJobPositions = new ArrayList<>();
 
     public ShiftConfigurationComponent(CoreAPI coreAPI) {
         this.coreAPI = coreAPI;
         try {
-            this.allAvailableJobPositions = coreAPI.getAllJobPositions();
+            this.allAvailableJobPositions.addAll(coreAPI.getAllJobPositions());
         } catch (NotAuthenticatedException e) {
+
             new FailNotification(e.getMessage());
         }
         addClassName("shift-content-border");

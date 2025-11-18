@@ -86,9 +86,15 @@ public class ShiftPanel extends PanelCustom {
         positionsLayout.add(wrappedAddButton);
 
         if (shiftDTO.name() == null) {
+            this.addClassName("config-mode");
+
             setSummary(VaadinIcon.MEDAL, "Konfiguracja szablonu..");
             name.setPlaceholder("Podaj nazwę zmiany..");
             addNewPositionSelector();
+            // todo this logic has to be refactor !! now there is duplication of code for create ShiftPanel of existing
+            // shifts in db and
+            //  for empty ShiftPanel dedicated to create new shift record - below there is duplication of ShiftPanel
+            // configuration code
         } else {
             setSummary(VaadinIcon.MEDAL, shiftDTO.name());
             name.setValue(shiftDTO.name());
@@ -120,6 +126,7 @@ public class ShiftPanel extends PanelCustom {
                     positionsLayout.remove(positionContainer);
 
                     updateOrderNumbers(); // Aktualizacja numerów po usunięciu
+                    handleAddPositionToItems(ev);
                 });
 
                 positionContainers.add(positionContainer);
@@ -133,6 +140,21 @@ public class ShiftPanel extends PanelCustom {
         mainContainer.add(name, positionsLayout, configuredButtonLayout());
 
         addContent(mainContainer);
+    }
+
+    private void handleAddPositionToItems(JobPositionSelector.RemoveEvent event) {
+        var positionToRevert = event.getValue();
+        if (positionToRevert != null) {
+            // Przywróć starą wartość we wszystkich INNYCH selektorach
+            positionContainers.stream()
+                    .flatMap(Component::getChildren)
+                    .filter(c -> c instanceof HorizontalLayout)
+                    .flatMap(Component::getChildren)
+                    .filter(c -> c instanceof JobPositionSelector)
+                    .map(c -> (JobPositionSelector) c)
+                    .filter(selector -> selector != event.getSource()) // Pominięcie aktualnego selektora
+                    .forEach(selector -> selector.addJobPositionToItems(positionToRevert));
+        }
     }
 
     private void handleJobPositionValueChange(JobPositionSelector.SelectedJobPositionEvent event) {
@@ -249,6 +271,7 @@ public class ShiftPanel extends PanelCustom {
             positionContainers.remove(positionContainer);
             positionsLayout.remove(positionContainer);
             updateOrderNumbers(); // Aktualizacja numerów po usunięciu
+            handleAddPositionToItems(ev);
         });
 
         positionContainers.add(positionContainer);
@@ -308,6 +331,8 @@ public class ShiftPanel extends PanelCustom {
                 new FailNotification(getTranslation("failNotification"));
                 return;
             }
+
+            this.removeClassName("config-mode");
             setSummary(VaadinIcon.MEDAL, name.getValue().trim());
             save.setVisible(false);
             close.setVisible(false);
