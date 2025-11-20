@@ -392,41 +392,6 @@ vaadin-date-picker::part(toggle-button) {
 }
 
 /* =======================================================
-   GRID (TABELA)
-======================================================= */
-
-vaadin-grid {
-    background-color: #1e1e1e;
-    color: #B0B0B0;
-    border: 1px solid #2a2a2a;
-}
-
-vaadin-grid::part(row) {
-    background-color: #1e1e1e;
-    border-bottom: 1px solid #2a2a2a;
-}
-
-vaadin-grid::part(header-cell) {
-    background-color: #2a2a2a;
-    color: #B0B0B0;
-    border-bottom: 1px solid #3a3a3a;
-}
-
-vaadin-grid::part(body-cell) {
-    background-color: #1e1e1e !important;
-    color: #B0B0B0 !important;
-    border-bottom: 1px solid #2a2a2a;
-}
-
-vaadin-grid::part(row):hover {
-    background-color: #2a2a2a;
-}
-
-vaadin-grid::part(selected-row) {
-    background-color: #333333;
-}
-
-/* =======================================================
    NAGŁÓWKI I TEKST
 ======================================================= */
 

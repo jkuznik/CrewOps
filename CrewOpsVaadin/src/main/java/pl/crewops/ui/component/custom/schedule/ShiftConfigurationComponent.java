@@ -20,7 +20,7 @@ import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.component.notification.InfoNotification;
 import pl.crewops.ui.component.panel.ShiftPanel;
 
-@CssImport("./styles/component/shift-configuration-component.css")
+@CssImport("./styles/component/schedule-content-component.css")
 public class ShiftConfigurationComponent extends VerticalLayout {
 
     private final CoreAPI coreAPI;
@@ -48,21 +48,21 @@ public class ShiftConfigurationComponent extends VerticalLayout {
 
             new FailNotification(e.getMessage());
         }
-        addClassName("shift-content-border");
+        addClassName("component-content-border");
         setWidthFull();
         setPadding(false);
         setSpacing(false);
         setAlignItems(FlexComponent.Alignment.CENTER);
 
-        add(createToolbar(toggleVisibilityButton), scrollableContainer);
+        add(createToolbar(), scrollableContainer);
 
         configureScrollableContainer();
-        configureShiftsLayour();
+        configureShiftsLayout();
 
         generateShiftPanelsForExistedShifts();
     }
 
-    private void configureShiftsLayour() {
+    private void configureShiftsLayout() {
         panelsLayout.setWidthFull();
         panelsLayout.setFlexWrap(FlexLayout.FlexWrap.WRAP);
         panelsLayout.setJustifyContentMode(JustifyContentMode.START);
@@ -185,7 +185,7 @@ public class ShiftConfigurationComponent extends VerticalLayout {
         panelsLayout.add(addShiftButtonContainer);
     }
 
-    private HorizontalLayout createToolbar(Button button) {
+    private HorizontalLayout createToolbar() {
         HorizontalLayout bar = new HorizontalLayout();
         bar.setWidthFull();
         bar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
@@ -197,10 +197,12 @@ public class ShiftConfigurationComponent extends VerticalLayout {
         title.setText(getTranslation("shiftConfigurationComponent.title"));
         title.getStyle().set("font-weight", "bold");
 
-        button.addClickListener(e -> toggleContentVisibility());
+        title.setWidth("50%");
+        toggleVisibilityButton.setWidth("50%");
+        toggleVisibilityButton.addClickListener(e -> toggleContentVisibility());
 
-        bar.add(title, button);
-        bar.setFlexGrow(1, button);
+        bar.add(title, toggleVisibilityButton);
+        bar.setFlexGrow(1, toggleVisibilityButton);
 
         return bar;
     }
