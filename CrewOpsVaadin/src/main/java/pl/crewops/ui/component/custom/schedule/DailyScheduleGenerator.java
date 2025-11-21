@@ -1,9 +1,13 @@
 package pl.crewops.ui.component.custom.schedule;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.dnd.DropEffect;
+import com.vaadin.flow.component.dnd.DropTarget;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import java.util.UUID;
 import pl.crewops.enums.TimeSlot;
 
 public class DailyScheduleGenerator extends VerticalLayout {
@@ -16,19 +20,15 @@ public class DailyScheduleGenerator extends VerticalLayout {
         HorizontalLayout palette = new HorizontalLayout(
                 new Div("Drag target test components:"),
                 // Zmieniamy wywołania na nową metodę
-                createShiftDragSource("Test A", "A", 30), // Np. 60 minut
-                createShiftDragSource("Test B", "B", 30) // Np. 30 minut
+                createShiftDragSource("Test A", "A", 60), // Np. 60 minut
+                createShiftDragSource("Test B", "B", 60) // Np. 30 minut
                 );
 
-        // Uzupełnienie logiki przycisku
         add(palette, grid);
     }
 
     public Component createShiftDragSource(String label, String dataValue, int durationMinutes) {
-        // 1. Obliczenie durationInSlots
-        // Długość w minutach (np. 30, 60) dzielona przez 15 minut na slot.
-        // Używamy stałej intervalDurationMinutes = 15 z DailyScheduleGrid.
-        int intervalDurationMinutes = 15; // Zakładamy dostęp lub używamy stałej z DailyScheduleGrid
+        int intervalDurationMinutes = 15;
 
         // Upewnij się, że durationMinutes jest wielokrotnością 15, jeśli to możliwe
         if (durationMinutes % intervalDurationMinutes != 0) {
@@ -43,7 +43,7 @@ public class DailyScheduleGenerator extends VerticalLayout {
         TimeSlot startSlotForPalette = TimeSlot.H00_00;
 
         // 3. Utwórz nowy ShiftResource używając nowego konstruktora
-        ShiftResource resource = new ShiftResource(dataValue, startSlotForPalette, durationInSlots);
+        ShiftResource resource = new ShiftResource(UUID.randomUUID(), startSlotForPalette, durationInSlots);
 
         // 4. Tworzymy DragTimeBar na podstawie tego ShiftResource
         // NOTE: Pamiętaj, że DragTimeBar nadal musi wiedzieć, jak obliczyć szerokość paska wizualizacji.
@@ -80,6 +80,68 @@ public class DailyScheduleGenerator extends VerticalLayout {
 
         return dragItem;
     }
+}
 
-    // Usuń starą metodę createDragSourceComponent(String label, String dataValue)
+class DailyDropTimeBar extends TimeBar {
+
+    private final ScheduleDay day;
+    private final Grid<ScheduleDay> grid;
+    private final TimeSlot targetSlot;
+
+    // NOWY KONSTRUKTOR
+    public DailyDropTimeBar(TimeSlot slot, ScheduleDay day, Grid<ScheduleDay> grid) {
+        super();
+        this.targetSlot = slot;
+        this.day = day;
+        this.grid = grid;
+
+        getStyle()
+                .set("background-color", "#f0f0f0")
+                .set("border", "2px dashed #aaa")
+                .set("box-sizing", "border-box");
+
+        addClassName("schedule-drop-target");
+
+        // Listener dla zdarzenia 'dragenter'
+        getElement().addEventListener("dragenter", event -> {
+            // Dodaj klasę, gdy przeciągany element wejdzie na DropTarget
+            getElement().getClassList().add("schedule-drop-active");
+        });
+
+        // Listener dla zdarzenia 'dragleave'
+        getElement().addEventListener("dragleave", event -> {
+            // Usuń klasę, gdy przeciągany element opuści DropTarget
+            getElement().getClassList().remove("schedule-drop-active");
+        });
+
+        // Ważne: Zdarzenie 'drop' samo w sobie nie powoduje automatycznego usunięcia klasy,
+        // więc musimy to zrobić ręcznie po zakończeniu upuszczania.
+
+        // *****************************************************************
+        // Logika DropTarget (pozostaje zaimplementowana w Vaadin Java API)
+        DropTarget<DailyDropTimeBar> dropTarget = DropTarget.create(this);
+        dropTarget.setDropEffect(DropEffect.COPY);
+
+        dropTarget.addDropListener(event -> {
+            getElement().getClassList().remove("schedule-drop-active");
+
+            event.getDragData().ifPresent(data -> {
+                if (data instanceof ShiftResource droppedResource) {
+
+                    // 1. Zidentyfikuj slot startowy z tego DropTarget
+                    TimeSlot newShiftStartSlot = this.targetSlot;
+
+                    // 2. Pobierz długość w slotach z przeciąganego obiektu
+                    int newDurationInSlots = droppedResource.getDurationInSlots();
+
+                    ShiftResource newShift =
+                            new ShiftResource(droppedResource.getId(), newShiftStartSlot, newDurationInSlots);
+
+                    day.addShift(newShift);
+
+                    grid.getDataProvider().refreshAll();
+                }
+            });
+        });
+    }
 }

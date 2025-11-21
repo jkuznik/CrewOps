@@ -4,12 +4,12 @@ import static pl.crewops.ui.component.custom.schedule.DailyScheduleGrid.interval
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.ArrayList;
@@ -27,14 +27,12 @@ class DailyScheduleGrid extends VerticalLayout {
     private int dayCounter = 1;
 
     private final Grid<ScheduleDay> grid = new Grid<>();
-    private final Button addButton;
+    // todo i18n
+    private final Button addButton = new Button("Next day");
+    private final Button removeButton = new Button("Remove day");
 
     public DailyScheduleGrid() {
         setWidthFull();
-
-        addButton = new Button("Next day", e -> {
-            nextDay(new ScheduleDay(++dayCounter));
-        });
 
         grid.setAllRowsVisible(true);
         grid.setSelectionMode(SelectionMode.NONE);
@@ -47,20 +45,35 @@ class DailyScheduleGrid extends VerticalLayout {
                 .setAutoWidth(true)
                 .setFrozen(true);
 
-        // Zastępujemy 24 kolumny jedną złożoną kolumną
-        grid.addComponentColumn(day -> new DayScheduleVisualization(day, grid)) // Używamy nowego komponentu
+        grid.addComponentColumn(day -> new DayScheduleVisualization(day, grid))
                 .setHeader(createScheduleHeader())
-                //                .setAutoWidth(true)
                 .setFlexGrow(10);
 
-        grid.addComponentColumn(this::createRemoveButton)
-                .setFlexGrow(0)
-                .setAutoWidth(true)
-                .setFrozenToEnd(true);
+        add(grid, configuredButtons());
 
-        add(grid, addButton);
+        nextDay(new ScheduleDay(dayCounter));
+    }
 
-        nextDay(new ScheduleDay(1));
+    private HorizontalLayout configuredButtons() {
+        addButton.setWidth("50%");
+        removeButton.setWidth("50%");
+
+        addButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        addButton.addClickListener(e -> {
+            nextDay(new ScheduleDay(++dayCounter));
+        });
+
+        removeButton.addThemeVariants(ButtonVariant.LUMO_WARNING);
+        removeButton.addClickListener(event -> {
+            removeDay();
+        });
+        var buttonContainer = new HorizontalLayout();
+        buttonContainer.setWidthFull();
+        buttonContainer.setSpacing(true);
+        buttonContainer.setPadding(true);
+        buttonContainer.add(addButton, removeButton);
+
+        return buttonContainer;
     }
 
     public void nextDay(ScheduleDay scheduleDay) {
@@ -74,58 +87,45 @@ class DailyScheduleGrid extends VerticalLayout {
         dayCounter--;
     }
 
-    private Component createRemoveButton(ScheduleDay day) {
-        var removeRowButton = new Button();
-        removeRowButton.addClickListener(event -> {
-            removeDay();
-        });
-        removeRowButton.setIcon(VaadinIcon.TRASH.create());
-
-        return removeRowButton;
-    }
-
     private HorizontalLayout createScheduleHeader() {
         HorizontalLayout header = new HorizontalLayout();
         header.setWidthFull();
-        header.setHeight("20px");
         header.setSpacing(false);
         header.setPadding(false);
-        header.addClassName("schedule-header-row"); // Klasa CSS do opcjonalnego stylizowania nagłówka
 
-        // Iterujemy przez 96 slotów
         for (int index = 0; index < intervalsPerDay; index++) {
             TimeSlot slot = TimeSlot.fromIndex(index);
 
-            // Pełna godzina jest co 4 sloty (00:00, 01:00, 02:00 itd.)
-            boolean isHourStart = index % 4 == 0;
+            if (index % 4 == 0) {
+                int hours = slot.getValue().hours();
+                String formattedHour = String.valueOf(hours);
 
-            Div headerCell = new Div();
-            // KLUCZOWY PUNKT: Każda komórka nagłówka musi mieć flex-grow: 1,
-            // aby zajmowała dokładnie taką samą szerokość jak slot poniżej.
-            headerCell.getStyle().set("flex-grow", "1");
-            headerCell.getStyle().set("flex-shrink", "0");
-            headerCell.getStyle().set("width", "auto");
+                Span label = new Span(formattedHour);
+                label.getStyle().set("font-size", "15px");
+                label.getStyle().set("font-weight", "bold");
 
-            // Wyrównanie: tekst na początku komórki
-            headerCell.getStyle().set("text-align", "left");
-            headerCell.addClassName("schedule-header-cell");
-
-            if (isHourStart) {
-                // Generowanie etykiety godziny (np. "12")
-                int hours = slot.getValue().hours(); // Zakładam, że TimeSlot.getValue() dostarcza hours()
-                String formattedHour = String.valueOf(hours); // Format liczbowy (np. 12 zamiast 12:00)
+                header.add(label);
+            } else if (index % 4 == 2) {
+                String formattedHour = "30";
 
                 Span label = new Span(formattedHour);
                 label.getStyle().set("font-size", "10px");
                 label.getStyle().set("font-weight", "bold");
 
-                headerCell.add(label);
+                header.add(label);
+            } else {
+                Div headerCell = new Div();
+                // KLUCZOWY PUNKT: Każda komórka nagłówka musi mieć flex-grow: 1,
+                // aby zajmowała dokładnie taką samą szerokość jak slot poniżej.
+                headerCell.getStyle().set("flex-grow", "1");
+                headerCell.getStyle().set("flex-shrink", "0");
+                headerCell.getStyle().set("width", "auto");
 
-                // Opcjonalnie: wizualne oddzielenie godzin
-                headerCell.getStyle().set("border-left", "1px solid #ccc");
+                // Wyrównanie: tekst na początku komórki
+                headerCell.getStyle().set("text-align", "left");
+                headerCell.addClassName("schedule-header-cell");
+                header.add(headerCell);
             }
-
-            header.add(headerCell);
         }
         return header;
     }
@@ -137,7 +137,6 @@ final class ScheduleDay {
     @Setter
     int dayNumber;
 
-    // Dodana lista zasobów dla danego dnia
     private final List<ShiftResource> shifts = new ArrayList<>();
 
     public ScheduleDay(int dayNumber) {
@@ -145,7 +144,6 @@ final class ScheduleDay {
     }
 
     public void addShift(ShiftResource shift) {
-        // Możesz dodać logikę sprawdzania kolizji przed dodaniem
         this.shifts.add(shift);
     }
 }
@@ -155,7 +153,6 @@ class DayScheduleVisualization extends VerticalLayout {
     private final ScheduleDay day;
     private final Grid<ScheduleDay> grid; // Potrzebny do odświeżania
 
-    // Lista wierszy (pasów/ścieżek) w tym dniu
     private final List<HorizontalLayout> scheduleRows = new ArrayList<>();
 
     public DayScheduleVisualization(ScheduleDay day, Grid<ScheduleDay> grid) {
@@ -165,47 +162,25 @@ class DayScheduleVisualization extends VerticalLayout {
         setWidthFull();
         setSpacing(false);
         setPadding(false);
-        addClassName("schedule-day-visualization"); // Klasa CSS dla kontenera dnia
+        addClassName("schedule-day-visualization");
 
-        // Utwórz pierwszy (domyślny) wiersz pasma
-        addNewShiftRow();
-
-        // Na razie pomijamy logikę dodawania pustego pasma 'czyszczącego',
-        // skupimy się na jednym pasie. Logikę dynamicznego dodawania pasów dodamy później.
-
-        // Renderuj istniejące zmiany (na razie wszystkie w pierwszym pasie)
         renderSchedule();
+
+        addNewShiftRow();
     }
 
     public void renderSchedule() {
-        // Logika renderowania staje się bardziej złożona w przypadku wielu pasów,
-        // ale na początku wszystkie zmiany renderujemy w pierwszym pasie.
-
-        // Wyczyść i przebuduj komponenty. W przyszłości to będzie zarządzane przez
-        // dedykowaną logikę alokacji pasów.
         removeAll();
         scheduleRows.clear();
-
-        // Zapewnij istnienie co najmniej jednego wiersza
-        HorizontalLayout firstRow = createNewShiftRow(day);
-        scheduleRows.add(firstRow);
-        add(firstRow);
-
-        // Upewnij się, że element DropTimeBar jest zawsze obecny na końcu,
-        // aby można było upuścić na puste sloty.
     }
 
-    // Metoda dodająca nowy, pusty wiersz (używany dynamicznie)
     private void addNewShiftRow() {
-        HorizontalLayout newRow = createNewShiftRow(day);
+        HorizontalLayout newRow = createNewShiftRow();
         scheduleRows.add(newRow);
         add(newRow);
     }
 
-    // --- KLUCZOWA METODA TWORZĄCA WERSZ 96 KOMPONENTÓW ---
-    // W DayScheduleVisualization::createNewShiftRow
-
-    private HorizontalLayout createNewShiftRow(ScheduleDay day) {
+    private HorizontalLayout createNewShiftRow() {
         HorizontalLayout row = new HorizontalLayout();
         row.setWidthFull();
         row.setHeight("18px");
@@ -224,7 +199,7 @@ class DayScheduleVisualization extends VerticalLayout {
             // 1. Sprawdzenie, czy slot jest zajęty
             ShiftResource existingShift = day.getShifts().stream()
                     .filter(shift -> {
-                        int shiftStartIndex = shift.getStartSlot().getIndex();
+                        int shiftStartIndex = shift.getStartSlotIndex();
                         int shiftEndIndex = shift.getEndSlotIndex();
                         return shiftStartIndex <= currentSlotIndexGlobal && shiftEndIndex > currentSlotIndexGlobal;
                     })
@@ -259,8 +234,7 @@ class DayScheduleVisualization extends VerticalLayout {
                 }
 
             } else {
-                // JEŚLI JEST WOLNY: Rysujemy DropTimeBar (cel upuszczania)
-                DropTimeBar dropBar = new DropTimeBar(currentSlot, day, grid);
+                DailyDropTimeBar dropBar = new DailyDropTimeBar(currentSlot, day, grid);
 
                 dropBar.getStyle().set("flex-grow", "1"); // Zajmuje dokładnie 1 slot
                 dropBar.getStyle().set("flex-shrink", "0");
