@@ -4,7 +4,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import java.time.LocalDateTime;
+import pl.crewops.enums.TimeSlot;
 
 public class DailyScheduleGenerator extends VerticalLayout {
 
@@ -25,15 +25,28 @@ public class DailyScheduleGenerator extends VerticalLayout {
     }
 
     public Component createShiftDragSource(String label, String dataValue, int durationMinutes) {
-        // 1. Tworzymy tymczasowy ShiftResource, aby nadać mu czas trwania i typ.
-        // Czas startu i końca jest tu bez znaczenia, liczy się TYP i DŁUGOŚĆ.
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime from = now;
-        LocalDateTime to = now.plusMinutes(durationMinutes);
+        // 1. Obliczenie durationInSlots
+        // Długość w minutach (np. 30, 60) dzielona przez 15 minut na slot.
+        // Używamy stałej intervalDurationMinutes = 15 z DailyScheduleGrid.
+        int intervalDurationMinutes = 15; // Zakładamy dostęp lub używamy stałej z DailyScheduleGrid
 
-        ShiftResource resource = new ShiftResource(dataValue, from, to);
+        // Upewnij się, że durationMinutes jest wielokrotnością 15, jeśli to możliwe
+        if (durationMinutes % intervalDurationMinutes != 0) {
+            throw new IllegalArgumentException("Duration must be a multiple of 15 minutes.");
+        }
 
-        // 2. Tworzymy DragTimeBar na podstawie tego ShiftResource
+        int durationInSlots = durationMinutes / intervalDurationMinutes; // np. 30/15 = 2 sloty, 60/15 = 4 sloty
+
+        // 2. Definicja fikcyjnego TimeSlot startowego.
+        // Czas startu jest tu nieistotny, bo to jest źródło na palecie, ale musi być poprawnym TimeSlot.
+        // Używamy H00_00 jako uniwersalnego startu dla elementu palety.
+        TimeSlot startSlotForPalette = TimeSlot.H00_00;
+
+        // 3. Utwórz nowy ShiftResource używając nowego konstruktora
+        ShiftResource resource = new ShiftResource(dataValue, startSlotForPalette, durationInSlots);
+
+        // 4. Tworzymy DragTimeBar na podstawie tego ShiftResource
+        // NOTE: Pamiętaj, że DragTimeBar nadal musi wiedzieć, jak obliczyć szerokość paska wizualizacji.
         DragTimeBar dragItem = new DragTimeBar(resource);
 
         // Ustawienie etykiety

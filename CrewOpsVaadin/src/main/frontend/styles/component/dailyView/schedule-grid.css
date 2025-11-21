@@ -14,6 +14,18 @@
     padding: 0;
 }
 
+.v-grid-cell-content[part~="header-cell-content"] {
+    padding: 0 !important;
+}
+
+/* Wymuś zerowe marginesy i padding w kontenerze DayScheduleVisualization */
+.schedule-day-visualization {
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex; /* Zapewnia prawidłowy układ VerticalLayout */
+    flex-direction: column;
+}
+
 /* W pliku: ./styles/component/dailyView/schedule-grid.css */
 
 /* Styl aktywowany, gdy przeciągany element jest nad DropTimeBar */

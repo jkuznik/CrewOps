@@ -1,7 +1,5 @@
 package pl.crewops.ui.component.custom.schedule;
 
-import static pl.crewops.ui.component.custom.schedule.ScheduleConfigurationComponent.minutePixelWidth;
-
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dnd.DragSource;
@@ -18,9 +16,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import lombok.Getter;
+import pl.crewops.enums.TimeSlot;
 import pl.crewops.infrastructure.core.CoreAPI;
 
 @CssImport("./styles/component/schedule-content-component.css")
@@ -85,27 +82,44 @@ public class ScheduleConfigurationComponent extends VerticalLayout {
 @Getter
 final class ShiftResource {
     private final String type;
-    private LocalDateTime from;
-    private LocalDateTime to;
+    private final TimeSlot startSlot;
+    private final int durationInSlots;
 
-    public ShiftResource(String type, LocalDateTime from, LocalDateTime to) {
+    public ShiftResource(String type, TimeSlot startSlot, int durationInSlots) {
         this.type = type;
-        this.from = from;
-        this.to = to;
+        this.startSlot = startSlot;
+        this.durationInSlots = durationInSlots;
+    }
+
+    // Metoda kluczowa: Zwraca indeks slotu, w którym zmiana się kończy (może być > 96)
+    public int getEndSlotIndex() {
+        // Używamy zdefiniowanej metody getIndex()
+        return startSlot.getIndex() + durationInSlots;
+    }
+
+    // Inne metody powinny być dostosowane do nowej logiki getIndex()
+    // np. getEndSlotForDay
+    public TimeSlot getEndSlotForDay() {
+        int endSlotIndex = getEndSlotIndex();
+        // 96 to liczba slotów (H00_00 do H23_45)
+        int slotsPerDay = 96;
+
+        // Indeks końca w Dniu 1 (np. 120 slots % 96 = 24)
+        int indexInDay = endSlotIndex % slotsPerDay;
+
+        // Zwracamy slot, używając skorygowanej metody fromIndex
+        return TimeSlot.fromIndex(indexInDay);
     }
 }
 
 abstract class TimeBar extends Div {
+    final int PIXELS_PER_SLOT = 15 * 2;
 
-    public TimeBar(LocalDateTime from, LocalDateTime to) {
-        var timeBetweenSeconds = to.toEpochSecond(ZoneOffset.UTC) - from.toEpochSecond(ZoneOffset.UTC);
-        var timeBetweenMinutes = timeBetweenSeconds / 60; // Prawidłowe obliczenie minut
-
-        // Szerokość w pikselach = minuty * minutePixelWidth
-        var width = timeBetweenMinutes * minutePixelWidth + "px";
-
-        setWidth(width);
-        setHeight("16px");
+    public TimeBar() {
+        getStyle()
+                .set("box-sizing", "border-box") // Krytyczne dla marginesów/paddingów
+                .set("margin", "0") // Zapobieganie domyślnym marginesom Vaadin
+                .set("padding", "0");
     }
 }
 
@@ -113,19 +127,21 @@ class DragTimeBar extends TimeBar {
 
     private Tooltip tooltip;
 
-    public DragTimeBar(ShiftResource shiftResource) {
-        super(shiftResource.getFrom(), shiftResource.getTo());
+    public DragTimeBar(ShiftResource resource) {
+        super();
 
-        // Dodaj proste style, aby pasek był widoczny
+        int durationInSlots = resource.getDurationInSlots();
+        var width = durationInSlots * PIXELS_PER_SLOT + "px";
+        setWidth(width);
+
         getStyle()
                 .set("background-color", "#3e70d6")
                 .set("color", "white")
                 .set("border-radius", "3px")
-                .set("margin-left", "1px")
                 .set("text-align", "center");
 
         DragSource<Div> dragSource = DragSource.create(this);
-        dragSource.setDragData(shiftResource);
+        dragSource.setDragData(resource);
         dragSource.setEffectAllowed(EffectAllowed.COPY_MOVE);
         dragSource.addDragStartListener(event -> {});
 
@@ -134,22 +150,24 @@ class DragTimeBar extends TimeBar {
 }
 
 class DropTimeBar extends TimeBar {
-    private Tooltip tooltip;
-    // Wewnątrz klasy DropTimeBar
-    public DropTimeBar(LocalDateTime from, LocalDateTime to, ScheduleDay day, Grid<ScheduleDay> grid) {
-        super(from, to);
-        // Styling bazowy
+
+    private final ScheduleDay day;
+    private final Grid<ScheduleDay> grid;
+    private final TimeSlot targetSlot; // Zmienione pole
+
+    // NOWY KONSTRUKTOR
+    public DropTimeBar(TimeSlot slot, ScheduleDay day, Grid<ScheduleDay> grid) {
+        super();
+        this.targetSlot = slot;
+        this.day = day;
+        this.grid = grid;
+
         getStyle()
                 .set("background-color", "#f0f0f0")
-                .set("border", "1px dashed #aaa")
+                .set("border", "2px dashed #aaa")
                 .set("box-sizing", "border-box");
 
-        // Nadajemy klasę bazową dla naszego DropTimeBar, aby móc ją modyfikować
         addClassName("schedule-drop-target");
-
-        // *****************************************************************
-        // KLUCZOWA ZMIANA: Dodanie słuchaczy zdarzeń DOM do elementu
-        // *****************************************************************
 
         // Listener dla zdarzenia 'dragenter'
         getElement().addEventListener("dragenter", event -> {
@@ -172,34 +190,27 @@ class DropTimeBar extends TimeBar {
         dropTarget.setDropEffect(DropEffect.COPY);
 
         dropTarget.addDropListener(event -> {
-            // Usuń klasę aktywną po udanym upuszczeniu
             getElement().getClassList().remove("schedule-drop-active");
 
             event.getDragData().ifPresent(data -> {
                 if (data instanceof ShiftResource droppedResource) {
 
-                    // 1. Zapisz oryginalne dane przed utworzeniem nowego elementu
-                    LocalDateTime originalFrom = droppedResource.getFrom();
+                    // 1. Zidentyfikuj slot startowy z tego DropTarget
+                    TimeSlot newShiftStartSlot = this.targetSlot;
 
-                    // 2. Utwórz nowy ShiftResource
-                    LocalDateTime newShiftFrom = from;
-                    long durationSeconds = droppedResource.getTo().toEpochSecond(ZoneOffset.UTC)
-                            - droppedResource.getFrom().toEpochSecond(ZoneOffset.UTC);
-                    LocalDateTime newShiftTo = newShiftFrom.plusSeconds(durationSeconds);
+                    // 2. Pobierz długość w slotach z przeciąganego obiektu
+                    int newDurationInSlots = droppedResource.getDurationInSlots();
 
-                    // Dodaj nowy ShiftResource do dnia
-                    day.addShift(new ShiftResource(droppedResource.getType(), newShiftFrom, newShiftTo));
+                    // 3. Utwórz nowy ShiftResource
+                    ShiftResource newShift =
+                            new ShiftResource(droppedResource.getType(), newShiftStartSlot, newDurationInSlots);
 
-                    // 3. Sprawdź, czy operacja to MOVE (usuwanie starego elementu)
-                    if (event.getDropEffect().equals(DropEffect.MOVE)) {
-                        // Usuń oryginalny element z kolekcji day
-                        day.getShifts()
-                                .removeIf(shift -> shift.getType().equals(droppedResource.getType())
-                                        && shift.getFrom().isEqual(originalFrom));
-                    }
+                    // 4. Dodaj nowy ShiftResource do dnia
+                    day.addShift(newShift);
 
-                    // 4. Odśwież widok
-                    grid.getDataProvider().refreshItem(day);
+                    // 5. Odśwież widok
+                    // Używamy refreshAll(), bo logika wizualizacji jest w DayScheduleVisualization
+                    grid.getDataProvider().refreshAll();
                 }
             });
         });
