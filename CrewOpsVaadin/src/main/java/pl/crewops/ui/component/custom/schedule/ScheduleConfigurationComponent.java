@@ -80,11 +80,13 @@ final class ShiftResource {
     private final UUID id;
     private TimeSlot startSlot;
     private int durationInSlots;
+    private int trackIndex;
 
-    public ShiftResource(UUID id, TimeSlot startSlot, int durationInSlots) {
+    public ShiftResource(UUID id, TimeSlot startSlot, int durationInSlots, int trackIndex) {
         this.id = id;
         this.startSlot = startSlot;
         this.durationInSlots = durationInSlots;
+        this.trackIndex = trackIndex;
     }
 
     public int getStartSlotIndex() {
@@ -97,8 +99,6 @@ final class ShiftResource {
 
     public int getNextDayEndSlotForShift() {
         int endSlotIndex = getEndSlotIndex();
-
-        // Indeks końca w Dniu 1 (np. 120 slots % 96 = 24)
         return endSlotIndex % 96;
     }
 }

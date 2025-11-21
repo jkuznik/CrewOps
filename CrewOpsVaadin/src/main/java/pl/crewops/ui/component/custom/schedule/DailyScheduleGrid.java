@@ -132,10 +132,10 @@ class DailyScheduleGrid extends VerticalLayout {
 }
 
 @Getter
+@Setter
 final class ScheduleDay {
 
-    @Setter
-    int dayNumber;
+    private int dayNumber;
 
     private final List<ShiftResource> shifts = new ArrayList<>();
 
@@ -151,9 +151,7 @@ final class ScheduleDay {
 class DayScheduleVisualization extends VerticalLayout {
 
     private final ScheduleDay day;
-    private final Grid<ScheduleDay> grid; // Potrzebny do odświeżania
-
-    private final List<HorizontalLayout> scheduleRows = new ArrayList<>();
+    private final Grid<ScheduleDay> grid;
 
     public DayScheduleVisualization(ScheduleDay day, Grid<ScheduleDay> grid) {
         this.day = day;
@@ -165,22 +163,32 @@ class DayScheduleVisualization extends VerticalLayout {
         addClassName("schedule-day-visualization");
 
         renderSchedule();
-
-        addNewShiftRow();
     }
 
     public void renderSchedule() {
         removeAll();
-        scheduleRows.clear();
+
+        int maxTrackIndex = day.getShifts().stream()
+                .mapToInt(ShiftResource::getTrackIndex)
+                .max()
+                .orElse(-1);
+
+        int tracksToRender = maxTrackIndex + 1;
+
+        // 1. Renderuj wszystkie istniejące pasy ze zmianami
+        for (int trackIndex = 0; trackIndex < tracksToRender; trackIndex++) {
+            add(createNewShiftRow(trackIndex, false));
+        }
+
+        // 2. Dodaj OSTATNI, PUSTY PAS jako cel do upuszczania (Drop Track)
+        int newTrackIndex = tracksToRender;
+
+        HorizontalLayout dropRow = createNewShiftRow(newTrackIndex, true);
+
+        add(dropRow);
     }
 
-    private void addNewShiftRow() {
-        HorizontalLayout newRow = createNewShiftRow();
-        scheduleRows.add(newRow);
-        add(newRow);
-    }
-
-    private HorizontalLayout createNewShiftRow() {
+    private HorizontalLayout createNewShiftRow(int trackIndex, boolean isDropTargetTrack) {
         HorizontalLayout row = new HorizontalLayout();
         row.setWidthFull();
         row.setHeight("18px");
@@ -190,56 +198,50 @@ class DayScheduleVisualization extends VerticalLayout {
         row.getStyle().set("display", "flex");
         row.getStyle().set("margin", "0");
 
-        // Używamy tradycyjnej pętli FOR, aby móc manipulować licznikiem 'index'
         for (int index = 0; index < intervalsPerDay; index++) {
 
             TimeSlot currentSlot = TimeSlot.fromIndex(index);
             int currentSlotIndexGlobal = index;
 
-            // 1. Sprawdzenie, czy slot jest zajęty
+            // 1. Filtruj zmiany TYLKO dla tego trackIndex
             ShiftResource existingShift = day.getShifts().stream()
-                    .filter(shift -> {
-                        int shiftStartIndex = shift.getStartSlotIndex();
-                        int shiftEndIndex = shift.getEndSlotIndex();
-                        return shiftStartIndex <= currentSlotIndexGlobal && shiftEndIndex > currentSlotIndexGlobal;
-                    })
+                    .filter(shift -> shift.getTrackIndex() == trackIndex)
+                    .filter(shift -> shift.getStartSlotIndex() <= currentSlotIndexGlobal
+                            && shift.getEndSlotIndex() > currentSlotIndexGlobal)
                     .findFirst()
                     .orElse(null);
 
             Component cellComponent;
+
             if (existingShift != null) {
-                // JEŚLI JEST ZAJĘTY
-
                 if (existingShift.getStartSlot().getIndex() == index) {
-                    // JEST TO SLOT STARTOWY: Rysujemy DragTimeBar i rozciągamy go.
                     DragTimeBar dragBar = new DragTimeBar(existingShift);
-
                     int duration = existingShift.getDurationInSlots();
 
-                    // Ustaw Flexbox, aby zajął odpowiednią liczbę slotów
                     dragBar.getStyle().set("flex-grow", String.valueOf(duration));
                     dragBar.getStyle().set("flex-shrink", "0");
                     dragBar.getStyle().set("width", "auto");
 
                     cellComponent = dragBar;
-
-                    // KLUCZOWA LOGIKA: Przesuń licznik pętli, aby pominąć sloty środkowe.
-                    // Odejmujemy 1, ponieważ na końcu pętli 'for' index i tak zostanie zwiększony.
                     index += duration - 1;
-
                 } else {
-                    // Slot zajęty, ale nie jest slotem startowym (jest to środek zmiany),
-                    // więc kontynuujemy do następnego (slot zostanie zajęty przez flex-grow).
                     continue;
                 }
 
             } else {
-                DailyDropTimeBar dropBar = new DailyDropTimeBar(currentSlot, day, grid);
+                // JEŚLI JEST WOLNY: ZAWSZE rysuj DropTimeBar
+                DailyDropTimeBar dropBar = new DailyDropTimeBar(currentSlot, day, grid, trackIndex);
 
-                dropBar.getStyle().set("flex-grow", "1"); // Zajmuje dokładnie 1 slot
+                dropBar.getStyle().set("flex-grow", "1");
                 dropBar.getStyle().set("flex-shrink", "0");
-
                 dropBar.addClassName("schedule-slot-drop-target");
+
+                // Wizualizacja: Odróżnienie pasa zmian od pasa DropTarget
+                if (!isDropTargetTrack) {
+                    dropBar.getStyle().set("background-color", "transparent");
+                    dropBar.getStyle().set("border", "1px dashed #ddd");
+                }
+
                 cellComponent = dropBar;
             }
 
