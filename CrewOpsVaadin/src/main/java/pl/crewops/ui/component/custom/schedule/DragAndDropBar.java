@@ -130,9 +130,43 @@ class ShiftResourceDropBar extends DragAndDropBar {
 
     public void updateStyleForContent() {
         if (this.droppedResource != null) {
-            getStyle().set("background-color", "#3e70d6").set("border", "none");
+            setStyleForFilled();
         } else {
-            getStyle().set("background-color", "#f0f0f0").set("border", "2px dashed #aaa");
+            setStyleForEmpty();
+        }
+    }
+
+    private void setStyleForFilled() {
+        // Style wizualne dla bloku zmiany (zapełniony)
+        getStyle().set("background-color", "#3e70d6").set("border", "none");
+    }
+
+    private void setStyleForEmpty() {
+        // Style wizualne dla pustego bloku (Drop Target)
+        getStyle().set("background-color", "#f0f0f0").set("border", "2px dashed #aaa");
+    }
+
+    public void applyStyles(boolean isDropTargetTrack, int duration) {
+        // A. Ustawienia Flex (Rozmiar slotu)
+        getStyle().set("flex-grow", String.valueOf(duration));
+        getStyle().set("flex-shrink", "0");
+        getStyle().set("width", "auto");
+
+        // B. Ustawienia roli (Drop Target lub Wypełniony blok)
+        if (this.droppedResource != null) {
+            // 1. Bar zmiany (wypełniony)
+            removeClassName("schedule-slot-drop-target");
+            // Ustawia kolor tła i brak obramowania dla wypełnionego bloku
+            setStyleForFilled();
+        } else {
+            // 2. Bar pusty (Zawsze wyglądający jak Drop Target, niezależnie od wiersza)
+
+            // Dodajemy klasę Drop Target, aby był celem upuszczania i miał odpowiednie style hover
+            addClassName("schedule-slot-drop-target");
+
+            // Ustawiamy ujednolicony wygląd dla każdego pustego slotu:
+            // używamy domyślnego stylu pustego Drop Targetu
+            setStyleForEmpty();
         }
     }
 

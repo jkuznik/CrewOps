@@ -107,9 +107,9 @@ class DailyScheduleGrid extends VerticalLayout {
 
                 header.add(label);
             } else if (index % 4 == 2) {
-                String formattedHour = "30";
+                String halfHourPresentation = "30";
 
-                Span label = new Span(formattedHour);
+                Span label = new Span(halfHourPresentation);
                 label.getStyle().set("font-size", "10px");
                 label.getStyle().set("font-weight", "bold");
 
@@ -207,13 +207,9 @@ class DayScheduleVisualization extends VerticalLayout {
         HorizontalLayout row = createBaseRow();
 
         for (int index = 0; index < DailyScheduleGrid.intervalsPerDay; index++) {
-            // Drop Target Track jest pusty (droppedResource == null)
             var dropBar = new ShiftResourceDropBar(day, index);
 
-            dropBar.getStyle().set("flex-grow", "1");
-            dropBar.getStyle().set("flex-shrink", "0");
-            dropBar.addClassName("schedule-slot-drop-target");
-            dropBar.updateStyleForContent();
+            dropBar.applyStyles(true, 1);
 
             dropBar.addDropListener(e -> renderSchedule());
 
@@ -226,7 +222,7 @@ class DayScheduleVisualization extends VerticalLayout {
     private HorizontalLayout createBaseRow() {
         HorizontalLayout row = new HorizontalLayout();
         row.setWidthFull();
-        row.setHeight("18px");
+        row.setHeight("30px");
         row.setSpacing(false);
         row.setPadding(false);
         row.addClassName("schedule-shift-row");
@@ -238,34 +234,19 @@ class DayScheduleVisualization extends VerticalLayout {
     private Div createShiftBar(ShiftResource shift) {
         var dropBar = new ShiftResourceDropBar(day, shift.getStartSlotIndex());
         dropBar.setDroppedResource(shift);
-        dropBar.updateStyleForContent();
 
         int duration = shift.getDurationInSlots();
 
-        dropBar.getStyle().set("flex-grow", String.valueOf(duration));
-        dropBar.getStyle().set("flex-shrink", "0");
-        dropBar.getStyle().set("width", "auto");
-
-        dropBar.removeClassName("schedule-slot-drop-target");
+        dropBar.applyStyles(false, duration);
 
         return dropBar;
     }
 
-    // W klasie DayScheduleVisualization
     private Div createEmptySlot(int index, boolean isDropTargetTrack) {
-        // Używamy przekazanego indeksu, a nie stałej '0'
         var dropBar = new ShiftResourceDropBar(day, index);
         dropBar.setDroppedResource(null);
-        dropBar.updateStyleForContent();
 
-        dropBar.getStyle().set("flex-grow", "1");
-        dropBar.getStyle().set("flex-shrink", "0");
-        dropBar.addClassName("schedule-slot-drop-target");
-
-        if (!isDropTargetTrack) {
-            dropBar.getStyle().set("background-color", "transparent");
-            dropBar.getStyle().set("border", "1px dashed #ddd");
-        }
+        dropBar.applyStyles(isDropTargetTrack, 1);
 
         return dropBar;
     }
@@ -282,9 +263,9 @@ class DayScheduleVisualization extends VerticalLayout {
         for (ShiftResource newShift : allShifts) {
             boolean requireNewRow = true;
 
-            for (List<ShiftResource> row : rows) {
-                if (!shiftsOverlap(row, newShift)) {
-                    row.add(newShift);
+            for (List<ShiftResource> alreadyExistingRow : rows) {
+                if (!shiftsOverlap(alreadyExistingRow, newShift)) {
+                    alreadyExistingRow.add(newShift);
                     requireNewRow = false;
                     break;
                 }
