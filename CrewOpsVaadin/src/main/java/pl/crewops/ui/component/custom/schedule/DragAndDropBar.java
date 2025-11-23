@@ -125,29 +125,14 @@ class ShiftResourceDropBar extends DragAndDropBar {
             });
         });
 
-        // Ustawienie początkowego stylu (domyślnie pusty slot)
         updateStyleForContent();
     }
 
-    // Nowa metoda do zarządzania stylami na podstawie zawartości
     public void updateStyleForContent() {
         if (this.droppedResource != null) {
-            // ZASÓB JEST USTAWIONY (WIZUALIZACJA ZMIANY)
-            getStyle().set("background-color", "#3e70d6").set("border", "none").set("color", "white");
-
-            // Ustawienie tekstu w widoku zmiany
-            if (this.droppedResource.getShiftDTO() != null) {
-                setText(this.droppedResource.getShiftDTO().name());
-            }
-
+            getStyle().set("background-color", "#3e70d6").set("border", "none");
         } else {
-            // BRAK ZASOBU (PUSTY SLOT DO UPUSZCZANIA)
-            getStyle()
-                    .set("background-color", "#f0f0f0")
-                    .set("border", "2px dashed #aaa")
-                    .set("color", "initial");
-
-            setText(null);
+            getStyle().set("background-color", "#f0f0f0").set("border", "2px dashed #aaa");
         }
     }
 

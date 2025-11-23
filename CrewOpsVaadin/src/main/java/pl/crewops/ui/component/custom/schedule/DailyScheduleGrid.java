@@ -14,7 +14,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import lombok.Getter;
 import pl.crewops.enums.TimeSlot;
 
@@ -147,20 +146,84 @@ class DayScheduleVisualization extends VerticalLayout {
         setPadding(false);
         addClassName("schedule-day-visualization");
 
-        rows.add(createNewShiftRow(true));
-
-        rows.forEach(this::add);
+        renderSchedule();
     }
 
-    //    public void renderSchedule() {
-    //        removeAll();
-    //
-    //        HorizontalLayout dropRow = createNewShiftRow(true);
-    //
-    //        add(dropRow);
-    //    }
+    private void renderSchedule() {
+        removeAll();
 
-    private HorizontalLayout createNewShiftRow(boolean isDropTargetTrack) {
+        List<ShiftResource> shifts = day.getShifts();
+
+        // this line create a kind of matrix structure with package mechanism that try to put any ShiftResource to
+        // any empty space in existing Drop Target Track (row of drop target's) and if can't create a new row
+        List<List<ShiftResource>> packedRows = packShiftsIntoRows(shifts);
+
+        // then after packaging create rows with shifts data
+        packedRows.stream()
+                .map(this::createShiftContentRow)
+                .forEach(this::add); // this mean add to component parent which is VerticalLayout
+
+        var dropTrack = createDropTargetTrack();
+
+        add(dropTrack);
+    }
+
+    private HorizontalLayout createShiftContentRow(List<ShiftResource> rowShifts) {
+        HorizontalLayout row = createBaseRow();
+
+        rowShifts.sort(Comparator.comparingInt(ShiftResource::getStartSlotIndex));
+
+        int currentSlotIndex = 0;
+
+        for (ShiftResource shift : rowShifts) {
+            int shiftStart = shift.getStartSlotIndex();
+            int shiftEnd = shift.getEndSlotIndex();
+
+            // 1. Puste sloty PRZED obecną zmianą
+            if (shiftStart > currentSlotIndex) {
+                for (int i = currentSlotIndex; i < shiftStart; i++) {
+                    // PRZEKAZUJEMY PRAWIDŁOWY INDEKS: i
+                    row.add(createEmptySlot(i, false));
+                }
+            }
+
+            // 2. Blok zmiany
+            row.add(createShiftBar(shift));
+
+            // Uaktualniamy wskaźnik do końca obecnej zmiany
+            currentSlotIndex = shiftEnd;
+        }
+
+        // 3. Puste sloty PO ostatniej zmianie (aż do końca dnia)
+        for (int i = currentSlotIndex; i < DailyScheduleGrid.intervalsPerDay; i++) {
+            // PRZEKAZUJEMY PRAWIDŁOWY INDEKS: i
+            row.add(createEmptySlot(i, false));
+        }
+
+        return row;
+    }
+
+    private HorizontalLayout createDropTargetTrack() {
+        HorizontalLayout row = createBaseRow();
+
+        for (int index = 0; index < DailyScheduleGrid.intervalsPerDay; index++) {
+            // Drop Target Track jest pusty (droppedResource == null)
+            var dropBar = new ShiftResourceDropBar(day, index);
+
+            dropBar.getStyle().set("flex-grow", "1");
+            dropBar.getStyle().set("flex-shrink", "0");
+            dropBar.addClassName("schedule-slot-drop-target");
+            dropBar.updateStyleForContent();
+
+            dropBar.addDropListener(e -> renderSchedule());
+
+            row.add(dropBar);
+        }
+
+        return row;
+    }
+
+    private HorizontalLayout createBaseRow() {
         HorizontalLayout row = new HorizontalLayout();
         row.setWidthFull();
         row.setHeight("18px");
@@ -169,65 +232,86 @@ class DayScheduleVisualization extends VerticalLayout {
         row.addClassName("schedule-shift-row");
         row.getStyle().set("display", "flex");
         row.getStyle().set("margin", "0");
+        return row;
+    }
 
-        List<ShiftResource> shifts = day.getShifts();
+    private Div createShiftBar(ShiftResource shift) {
+        var dropBar = new ShiftResourceDropBar(day, shift.getStartSlotIndex());
+        dropBar.setDroppedResource(shift);
+        dropBar.updateStyleForContent();
 
-        if (shifts.isEmpty()) {
-            for (int index = 0; index < intervalsPerDay; index++) {
-                var dropBar = new ShiftResourceDropBar(day, index);
+        int duration = shift.getDurationInSlots();
 
-                dropBar.getStyle().set("flex-grow", "1");
-                dropBar.getStyle().set("flex-shrink", "0");
-                dropBar.addClassName("schedule-slot-drop-target");
+        dropBar.getStyle().set("flex-grow", String.valueOf(duration));
+        dropBar.getStyle().set("flex-shrink", "0");
+        dropBar.getStyle().set("width", "auto");
 
-                if (!isDropTargetTrack) {
-                    dropBar.getStyle().set("background-color", "transparent");
-                    dropBar.getStyle().set("border", "1px dashed #ddd");
-                }
+        dropBar.removeClassName("schedule-slot-drop-target");
 
-                row.add(dropBar);
-            }
-        } else {
-            shifts.sort(Comparator.comparingInt(ShiftResource::getStartSlotIndex));
-            for (int i = 0; i < intervalsPerDay; i++) {
+        return dropBar;
+    }
 
-                final int index = i;
-                Optional<ShiftResource> shiftThatStartsAtCurrentIndex = shifts.stream()
-                        .filter(shiftResource -> shiftResource.getStartSlotIndex() == index)
-                        .findFirst();
+    // W klasie DayScheduleVisualization
+    private Div createEmptySlot(int index, boolean isDropTargetTrack) {
+        // Używamy przekazanego indeksu, a nie stałej '0'
+        var dropBar = new ShiftResourceDropBar(day, index);
+        dropBar.setDroppedResource(null);
+        dropBar.updateStyleForContent();
 
-                if (shiftThatStartsAtCurrentIndex.isPresent()) {
-                    var shift = shiftThatStartsAtCurrentIndex.get();
-                    var dropBar = new ShiftResourceDropBar(day, index);
-                    dropBar.setDroppedResource(shift);
-                    dropBar.updateStyleForContent();
+        dropBar.getStyle().set("flex-grow", "1");
+        dropBar.getStyle().set("flex-shrink", "0");
+        dropBar.addClassName("schedule-slot-drop-target");
 
-                    int duration = shift.getDurationInSlots();
-
-                    dropBar.getStyle().set("flex-grow", String.valueOf(duration));
-                    dropBar.getStyle().set("flex-shrink", "0");
-                    dropBar.getStyle().set("width", "auto");
-
-                    row.add(dropBar);
-
-                    i += duration - 1;
-                } else {
-                    var dropBar = new ShiftResourceDropBar(day, index);
-                    dropBar.setDroppedResource(null);
-                    dropBar.getStyle().set("flex-grow", "1");
-                    dropBar.getStyle().set("flex-shrink", "0");
-                    dropBar.addClassName("schedule-slot-drop-target");
-
-                    if (!isDropTargetTrack) {
-                        dropBar.getStyle().set("background-color", "transparent");
-                        dropBar.getStyle().set("border", "1px dashed #ddd");
-                    }
-
-                    row.add(dropBar);
-                }
-            }
+        if (!isDropTargetTrack) {
+            dropBar.getStyle().set("background-color", "transparent");
+            dropBar.getStyle().set("border", "1px dashed #ddd");
         }
 
-        return row;
+        return dropBar;
+    }
+
+    private List<List<ShiftResource>> packShiftsIntoRows(List<ShiftResource> allShifts) {
+        if (allShifts.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        allShifts.sort(Comparator.comparingInt(ShiftResource::getStartSlotIndex));
+
+        List<List<ShiftResource>> rows = new ArrayList<>();
+
+        for (ShiftResource newShift : allShifts) {
+            boolean requireNewRow = true;
+
+            for (List<ShiftResource> row : rows) {
+                if (!shiftsOverlap(row, newShift)) {
+                    row.add(newShift);
+                    requireNewRow = false;
+                    break;
+                }
+            }
+
+            if (requireNewRow) {
+                List<ShiftResource> newRow = new ArrayList<>();
+                newRow.add(newShift);
+                rows.add(newRow);
+            }
+        }
+        return rows;
+    }
+
+    private boolean shiftsOverlap(List<ShiftResource> existingShifts, ShiftResource newShift) {
+        int start1 = newShift.getStartSlotIndex();
+        int end1 = newShift.getEndSlotIndex();
+
+        for (ShiftResource existing : existingShifts) {
+            int start2 = existing.getStartSlotIndex();
+            int end2 = existing.getEndSlotIndex();
+
+            // Nakładanie zachodzi, jeśli (Start1 < End2) i (End1 > Start2)
+            if (start1 < end2 && end1 > start2) {
+                return true;
+            }
+        }
+        return false;
     }
 }
