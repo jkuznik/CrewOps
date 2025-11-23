@@ -39,6 +39,11 @@ public class ScheduleContent extends VerticalLayout {
         shiftConfigurationComponent.setVisible(false);
         scheduleConfigurationComponent.setVisible(false);
 
+        shiftConfigurationComponent.getExistedShifts().forEach(scheduleConfigurationComponent::addShiftResourceDragBar);
+        shiftConfigurationComponent.addDisplayExistingShiftListener(event -> {
+            scheduleConfigurationComponent.addShiftResourceDragBar(event.getShiftDTO());
+        });
+
         add(modeSelectorContainer, shiftConfigurationComponent, scheduleConfigurationComponent);
     }
 

@@ -2,7 +2,6 @@ package pl.crewops.ui.component.custom.schedule;
 
 import static pl.crewops.ui.component.custom.schedule.DailyScheduleGrid.intervalsPerDay;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -13,9 +12,10 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import lombok.Getter;
-import lombok.Setter;
 import pl.crewops.enums.TimeSlot;
 
 @CssImport("./styles/component/dailyView/schedule-grid.css")
@@ -26,6 +26,7 @@ class DailyScheduleGrid extends VerticalLayout {
     private final List<ScheduleDay> dayList = new ArrayList<>();
     private int dayCounter = 1;
 
+    @Getter
     private final Grid<ScheduleDay> grid = new Grid<>();
     // todo i18n
     private final Button addButton = new Button("Next day");
@@ -45,7 +46,7 @@ class DailyScheduleGrid extends VerticalLayout {
                 .setAutoWidth(true)
                 .setFrozen(true);
 
-        grid.addComponentColumn(day -> new DayScheduleVisualization(day, grid))
+        grid.addComponentColumn(DayScheduleVisualization::new)
                 .setHeader(createScheduleHeader())
                 .setFlexGrow(10);
 
@@ -131,31 +132,12 @@ class DailyScheduleGrid extends VerticalLayout {
     }
 }
 
-@Getter
-@Setter
-final class ScheduleDay {
-
-    private int dayNumber;
-
-    private final List<ShiftResource> shifts = new ArrayList<>();
-
-    public ScheduleDay(int dayNumber) {
-        this.dayNumber = dayNumber;
-    }
-
-    public void addShift(ShiftResource shift) {
-        this.shifts.add(shift);
-    }
-}
-
 class DayScheduleVisualization extends VerticalLayout {
 
     private final ScheduleDay day;
-    private final Grid<ScheduleDay> grid;
 
-    public DayScheduleVisualization(ScheduleDay day, Grid<ScheduleDay> grid) {
+    public DayScheduleVisualization(ScheduleDay day) {
         this.day = day;
-        this.grid = grid;
 
         setWidthFull();
         setSpacing(false);
@@ -168,27 +150,12 @@ class DayScheduleVisualization extends VerticalLayout {
     public void renderSchedule() {
         removeAll();
 
-        int maxTrackIndex = day.getShifts().stream()
-                .mapToInt(ShiftResource::getTrackIndex)
-                .max()
-                .orElse(-1);
-
-        int tracksToRender = maxTrackIndex + 1;
-
-        // 1. Renderuj wszystkie istniejące pasy ze zmianami
-        for (int trackIndex = 0; trackIndex < tracksToRender; trackIndex++) {
-            add(createNewShiftRow(trackIndex, false));
-        }
-
-        // 2. Dodaj OSTATNI, PUSTY PAS jako cel do upuszczania (Drop Track)
-        int newTrackIndex = tracksToRender;
-
-        HorizontalLayout dropRow = createNewShiftRow(newTrackIndex, true);
+        HorizontalLayout dropRow = createNewShiftRow(true);
 
         add(dropRow);
     }
 
-    private HorizontalLayout createNewShiftRow(int trackIndex, boolean isDropTargetTrack) {
+    private HorizontalLayout createNewShiftRow(boolean isDropTargetTrack) {
         HorizontalLayout row = new HorizontalLayout();
         row.setWidthFull();
         row.setHeight("18px");
@@ -198,54 +165,62 @@ class DayScheduleVisualization extends VerticalLayout {
         row.getStyle().set("display", "flex");
         row.getStyle().set("margin", "0");
 
-        for (int index = 0; index < intervalsPerDay; index++) {
+        List<ShiftResource> shifts = day.getShifts();
 
-            TimeSlot currentSlot = TimeSlot.fromIndex(index);
-            int currentSlotIndexGlobal = index;
-
-            // 1. Filtruj zmiany TYLKO dla tego trackIndex
-            ShiftResource existingShift = day.getShifts().stream()
-                    .filter(shift -> shift.getTrackIndex() == trackIndex)
-                    .filter(shift -> shift.getStartSlotIndex() <= currentSlotIndexGlobal
-                            && shift.getEndSlotIndex() > currentSlotIndexGlobal)
-                    .findFirst()
-                    .orElse(null);
-
-            Component cellComponent;
-
-            if (existingShift != null) {
-                if (existingShift.getStartSlot().getIndex() == index) {
-                    DragTimeBar dragBar = new DragTimeBar(existingShift);
-                    int duration = existingShift.getDurationInSlots();
-
-                    dragBar.getStyle().set("flex-grow", String.valueOf(duration));
-                    dragBar.getStyle().set("flex-shrink", "0");
-                    dragBar.getStyle().set("width", "auto");
-
-                    cellComponent = dragBar;
-                    index += duration - 1;
-                } else {
-                    continue;
-                }
-
-            } else {
-                // JEŚLI JEST WOLNY: ZAWSZE rysuj DropTimeBar
-                DailyDropTimeBar dropBar = new DailyDropTimeBar(currentSlot, day, grid, trackIndex);
+        if (shifts.isEmpty()) {
+            for (int index = 0; index < intervalsPerDay; index++) {
+                var dropBar = new ShiftResourceDropBar(day, index);
 
                 dropBar.getStyle().set("flex-grow", "1");
                 dropBar.getStyle().set("flex-shrink", "0");
                 dropBar.addClassName("schedule-slot-drop-target");
 
-                // Wizualizacja: Odróżnienie pasa zmian od pasa DropTarget
                 if (!isDropTargetTrack) {
                     dropBar.getStyle().set("background-color", "transparent");
                     dropBar.getStyle().set("border", "1px dashed #ddd");
                 }
 
-                cellComponent = dropBar;
+                row.add(dropBar);
             }
+        } else {
+            shifts.sort(Comparator.comparingInt(ShiftResource::getStartSlotIndex));
+            for (int i = 0; i < intervalsPerDay; i++) {
 
-            row.add(cellComponent);
+                final int index = i;
+                Optional<ShiftResource> shiftThatStartsAtCurrentIndex = shifts.stream()
+                        .filter(shiftResource -> shiftResource.getStartSlotIndex() == index)
+                        .findFirst();
+
+                if (shiftThatStartsAtCurrentIndex.isPresent()) {
+                    var shift = shiftThatStartsAtCurrentIndex.get();
+                    var dropBar = new ShiftResourceDropBar(day, index);
+                    dropBar.setDroppedResource(shift);
+                    dropBar.updateStyleForContent();
+
+                    int duration = shift.getDurationInSlots();
+
+                    dropBar.getStyle().set("flex-grow", String.valueOf(duration));
+                    dropBar.getStyle().set("flex-shrink", "0");
+                    dropBar.getStyle().set("width", "auto");
+
+                    row.add(dropBar);
+
+                    i += duration - 1;
+                } else {
+                    var dropBar = new ShiftResourceDropBar(day, index);
+                    dropBar.setDroppedResource(null);
+                    dropBar.getStyle().set("flex-grow", "1");
+                    dropBar.getStyle().set("flex-shrink", "0");
+                    dropBar.addClassName("schedule-slot-drop-target");
+
+                    if (!isDropTargetTrack) {
+                        dropBar.getStyle().set("background-color", "transparent");
+                        dropBar.getStyle().set("border", "1px dashed #ddd");
+                    }
+
+                    row.add(dropBar);
+                }
+            }
         }
 
         return row;

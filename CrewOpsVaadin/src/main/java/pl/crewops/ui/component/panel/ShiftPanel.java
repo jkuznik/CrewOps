@@ -16,8 +16,9 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
-import pl.crewops.exceptions.NotAuthenticatedException;
+import lombok.Getter;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.shift.CreateShiftDTO;
@@ -236,12 +237,7 @@ public class ShiftPanel extends PanelCustom {
 
     private void deleteButtonListener() {
         delete.addClickListener(event -> {
-            try {
-                coreAPI.deleteShiftById(shiftDTO.id());
-            } catch (NotAuthenticatedException e) {
-                new FailNotification(e.getMessage());
-            }
-            fireEvent(new DeleteEvent(this));
+            fireEvent(new DeleteEvent(this, shiftDTO.id()));
             this.removeFromParent();
         });
     }
@@ -296,10 +292,8 @@ public class ShiftPanel extends PanelCustom {
                     .build();
 
             try {
-                shiftDTO = coreAPI.createShift(createShiftDTO).orElse(shiftDTO);
-                new SuccessNotification(getTranslation("shiftPanel.addShiftSuccess"));
+                fireEvent(new SaveEvent(this, createShiftDTO));
             } catch (Exception ex) {
-                new FailNotification(getTranslation("failNotification"));
                 return;
             }
 
@@ -381,8 +375,13 @@ public class ShiftPanel extends PanelCustom {
     }
 
     public static class SaveEvent extends ShiftPanelEvent {
-        public SaveEvent(PanelCustom source) {
+
+        @Getter
+        private final CreateShiftDTO createShiftDTO;
+
+        public SaveEvent(PanelCustom source, CreateShiftDTO createShiftDTO) {
             super(source);
+            this.createShiftDTO = createShiftDTO;
         }
     }
 
@@ -399,8 +398,13 @@ public class ShiftPanel extends PanelCustom {
     }
 
     public static class DeleteEvent extends ShiftPanelEvent {
-        public DeleteEvent(PanelCustom source) {
+
+        @Getter
+        private final UUID shiftId;
+
+        public DeleteEvent(PanelCustom source, UUID shiftId) {
             super(source);
+            this.shiftId = shiftId;
         }
     }
 
