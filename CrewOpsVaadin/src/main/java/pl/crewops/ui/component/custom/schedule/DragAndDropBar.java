@@ -93,10 +93,8 @@ class ShiftResourceDropBar extends DragAndDropBar {
         this.day = day;
         this.index = index;
 
-        getStyle()
-                .set("background-color", "#f0f0f0")
-                .set("border", "2px dashed #aaa")
-                .set("box-sizing", "border-box");
+        getStyle().set("box-sizing", "border-box");
+        // Inne style zostaną ustawione przez updateStyleForContent()
 
         addClassName("schedule-drop-target");
 
@@ -121,21 +119,35 @@ class ShiftResourceDropBar extends DragAndDropBar {
                     newShiftResource.setStartSlot(TimeSlot.fromIndex(index));
 
                     day.addShift(newShiftResource);
+                    // Emitujemy DropEvent, aby DayScheduleVisualization wiedział, że musi się przeładować
                     fireEvent(new DropEvent(this, day));
                 }
             });
         });
+
+        // Ustawienie początkowego stylu (domyślnie pusty slot)
+        updateStyleForContent();
     }
 
+    // Nowa metoda do zarządzania stylami na podstawie zawartości
     public void updateStyleForContent() {
         if (this.droppedResource != null) {
+            // ZASÓB JEST USTAWIONY (WIZUALIZACJA ZMIANY)
             getStyle().set("background-color", "#3e70d6").set("border", "none").set("color", "white");
 
+            // Ustawienie tekstu w widoku zmiany
+            if (this.droppedResource.getShiftDTO() != null) {
+                setText(this.droppedResource.getShiftDTO().name());
+            }
+
         } else {
+            // BRAK ZASOBU (PUSTY SLOT DO UPUSZCZANIA)
             getStyle()
                     .set("background-color", "#f0f0f0")
                     .set("border", "2px dashed #aaa")
                     .set("color", "initial");
+
+            setText(null);
         }
     }
 

@@ -10,7 +10,7 @@ import pl.crewops.model.dto.shift.ShiftDTO;
 final class ShiftResource {
     private final ShiftDTO shiftDTO;
     private TimeSlot startSlot;
-    private int durationInSlots = 1;
+    private int durationInSlots = 10;
 
     public ShiftResource(ShiftDTO shiftDTO) {
         this.shiftDTO = shiftDTO;

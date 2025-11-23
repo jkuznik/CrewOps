@@ -24,13 +24,14 @@ class DailyScheduleGrid extends VerticalLayout {
     static final int intervalsPerDay = 96;
 
     private final List<ScheduleDay> dayList = new ArrayList<>();
-    private int dayCounter = 1;
 
     @Getter
     private final Grid<ScheduleDay> grid = new Grid<>();
     // todo i18n
     private final Button addButton = new Button("Next day");
     private final Button removeButton = new Button("Remove day");
+
+    private int dayCounter = 1;
 
     public DailyScheduleGrid() {
         setWidthFull();
@@ -136,6 +137,8 @@ class DayScheduleVisualization extends VerticalLayout {
 
     private final ScheduleDay day;
 
+    private final List<HorizontalLayout> rows = new ArrayList<>();
+
     public DayScheduleVisualization(ScheduleDay day) {
         this.day = day;
 
@@ -144,16 +147,18 @@ class DayScheduleVisualization extends VerticalLayout {
         setPadding(false);
         addClassName("schedule-day-visualization");
 
-        renderSchedule();
+        rows.add(createNewShiftRow(true));
+
+        rows.forEach(this::add);
     }
 
-    public void renderSchedule() {
-        removeAll();
-
-        HorizontalLayout dropRow = createNewShiftRow(true);
-
-        add(dropRow);
-    }
+    //    public void renderSchedule() {
+    //        removeAll();
+    //
+    //        HorizontalLayout dropRow = createNewShiftRow(true);
+    //
+    //        add(dropRow);
+    //    }
 
     private HorizontalLayout createNewShiftRow(boolean isDropTargetTrack) {
         HorizontalLayout row = new HorizontalLayout();
