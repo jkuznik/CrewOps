@@ -5,6 +5,8 @@ import static pl.crewops.ui.component.custom.schedule.DailyScheduleGrid.interval
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dnd.DragSource;
+import com.vaadin.flow.component.dnd.EffectAllowed;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Div;
@@ -234,6 +236,13 @@ class DayScheduleVisualization extends VerticalLayout {
     private Div createShiftBar(ShiftResource shift) {
         var dropBar = new ShiftResourceDropBar(day, shift.getStartSlotIndex());
         dropBar.setDroppedResource(shift);
+        dropBar.addDropListener(e -> renderSchedule());
+
+        // --- KONFIGURACJA DRAG SOURCE DLA OPERACJI PRZENOSZENIA (MOVE) ---
+        DragSource<ShiftResourceDropBar> dragSource = DragSource.create(dropBar);
+        dragSource.setDragData(shift); // Przekazujemy referencję do istniejącego obiektu
+        dragSource.setEffectAllowed(EffectAllowed.MOVE);
+        // -------------------------------------------------------------------
 
         int duration = shift.getDurationInSlots();
 
@@ -245,6 +254,7 @@ class DayScheduleVisualization extends VerticalLayout {
     private Div createEmptySlot(int index, boolean isDropTargetTrack) {
         var dropBar = new ShiftResourceDropBar(day, index);
         dropBar.setDroppedResource(null);
+        dropBar.addDropListener(e -> renderSchedule());
 
         dropBar.applyStyles(isDropTargetTrack, 1);
 

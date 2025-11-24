@@ -94,7 +94,6 @@ class ShiftResourceDropBar extends DragAndDropBar {
         this.index = index;
 
         getStyle().set("box-sizing", "border-box");
-        // Inne style zostaną ustawione przez updateStyleForContent()
 
         addClassName("schedule-drop-target");
 
@@ -107,7 +106,8 @@ class ShiftResourceDropBar extends DragAndDropBar {
         });
 
         DropTarget<ShiftResourceDropBar> dropTarget = DropTarget.create(this);
-        dropTarget.setDropEffect(DropEffect.COPY);
+        // Zezwalamy na MOVE i COPY. MOVE jest preferowane, jeśli jest to przeniesienie z harmonogramu.
+        dropTarget.setDropEffect(DropEffect.MOVE);
 
         dropTarget.addDropListener(event -> {
             getElement().getClassList().remove("schedule-drop-active");
@@ -115,10 +115,25 @@ class ShiftResourceDropBar extends DragAndDropBar {
             event.getDragData().ifPresent(data -> {
                 if (data instanceof ShiftResource shiftResource) {
 
+                    // Sprawdzamy, czy Vaadin potwierdził operację MOVE
+                    boolean isMoveOperation = event.getDropEffect() != null
+                            && event.getDropEffect().equals(DropEffect.MOVE);
+
+                    // 1. Tworzymy nowy zasób z nowym slotem startowym.
+                    // (Tworzenie nowego obiektu jest konieczne, aby nowy start slot był poprawny)
                     var newShiftResource = new ShiftResource(shiftResource.getShiftDTO());
                     newShiftResource.setStartSlot(TimeSlot.fromIndex(index));
+                    // WAŻNE: Zachowujemy czas trwania
+                    newShiftResource.setDurationInSlots(shiftResource.getDurationInSlots());
 
+                    // 2. Jeśli to była operacja MOVE (czyli przeciągamy z harmonogramu), usuwamy stary zasób.
+                    if (isMoveOperation && day.getShifts().contains(shiftResource)) {
+                        day.getShifts().remove(shiftResource);
+                    }
+
+                    // 3. Dodajemy nowy zasób do dnia
                     day.addShift(newShiftResource);
+
                     // Emitujemy DropEvent, aby DayScheduleVisualization wiedział, że musi się przeładować
                     fireEvent(new DropEvent(this, day));
                 }
