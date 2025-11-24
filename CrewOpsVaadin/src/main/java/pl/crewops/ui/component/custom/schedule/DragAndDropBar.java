@@ -82,6 +82,8 @@ class ShiftResourceDragBar extends DragAndDropBar {
 class ShiftResourceDropBar extends DragAndDropBar {
 
     private final ScheduleDay day;
+
+    @Getter
     private final int index;
 
     @Getter
@@ -97,22 +99,22 @@ class ShiftResourceDropBar extends DragAndDropBar {
 
         addClassName("schedule-drop-target");
 
-        getElement().addEventListener("dragenter", event -> {
-            getElement().getClassList().add("schedule-drop-active");
-        });
-
-        getElement().addEventListener("dragleave", event -> {
-            getElement().getClassList().remove("schedule-drop-active");
-        });
-
         DropTarget<ShiftResourceDropBar> dropTarget = DropTarget.create(this);
-        // Zezwalamy na MOVE i COPY. MOVE jest preferowane, jeśli jest to przeniesienie z harmonogramu.
         dropTarget.setDropEffect(DropEffect.MOVE);
 
         dropTarget.addDropListener(event -> {
             getElement().getClassList().remove("schedule-drop-active");
 
             event.getDragData().ifPresent(data -> {
+
+                // --- 1. FILTROWANIE OPERACJI RESIZE (nowa logika) ---
+                if (data instanceof ResizeDragData resizeData) {
+                    // TO JEST OPERACJA RESIZE (z uchwytu)
+                    handleResizeDropInternal(resizeData);
+                    return; // Zakończ, jeśli obsłużono RESIZE
+                }
+
+                // --- 2. OPERACJA MOVE / COPY (oryginalna logika przenoszenia/kopiowania) ---
                 if (data instanceof ShiftResource shiftResource) {
 
                     // Sprawdzamy, czy Vaadin potwierdził operację MOVE
@@ -120,13 +122,11 @@ class ShiftResourceDropBar extends DragAndDropBar {
                             && event.getDropEffect().equals(DropEffect.MOVE);
 
                     // 1. Tworzymy nowy zasób z nowym slotem startowym.
-                    // (Tworzenie nowego obiektu jest konieczne, aby nowy start slot był poprawny)
                     var newShiftResource = new ShiftResource(shiftResource.getShiftDTO());
-                    newShiftResource.setStartSlot(TimeSlot.fromIndex(index));
-                    // WAŻNE: Zachowujemy czas trwania
+                    newShiftResource.setStartSlot(TimeSlot.fromIndex(index)); // Używamy 'this.index'
                     newShiftResource.setDurationInSlots(shiftResource.getDurationInSlots());
 
-                    // 2. Jeśli to była operacja MOVE (czyli przeciągamy z harmonogramu), usuwamy stary zasób.
+                    // 2. Usuwamy stary zasób, jeśli to była operacja MOVE
                     if (isMoveOperation && day.getShifts().contains(shiftResource)) {
                         day.getShifts().remove(shiftResource);
                     }
@@ -143,6 +143,50 @@ class ShiftResourceDropBar extends DragAndDropBar {
         updateStyleForContent();
     }
 
+    private void handleResizeDropInternal(ResizeDragData resizeData) {
+        ShiftResource shiftToModify = resizeData.getShift();
+        ShiftResizeHandle.ResizeEdge edge = resizeData.getEdge();
+
+        int dropSlotIndex = this.index;
+        int originalStartIndex = shiftToModify.getStartSlotIndex();
+        int originalEndIndex = originalStartIndex + shiftToModify.getDurationInSlots();
+
+        int newStartIndex = originalStartIndex;
+        int newDuration;
+
+        if (edge == ShiftResizeHandle.ResizeEdge.END) {
+            // ZMIANA KOŃCA (ROZCIĄGANIE W PRAWO)
+            // Kończymy na końcu slotu, na który upuszczono.
+            int newEndIndex = dropSlotIndex + 1;
+            newDuration = newEndIndex - originalStartIndex;
+
+        } else { // edge == ShiftResizeHandle.ResizeEdge.START
+            // ZMIANA STARTU (ROZCIĄGANIE W LEWO)
+            newStartIndex = dropSlotIndex; // Nowy start to slot, na który upuszczono
+            newDuration = originalEndIndex - newStartIndex;
+        }
+
+        // --- WALIDACJA ---
+        if (newDuration < 2) {
+            // Minimalna długość 2 slotów (dla uchwytów)
+            System.err.println("RESIZE ERROR: Nowa długość (" + newDuration + ") jest za krótka.");
+            return;
+        }
+
+        // Nie możemy zacząć później niż koniec, ani skończyć wcześniej niż początek
+        if (newStartIndex >= originalEndIndex || newStartIndex >= (originalStartIndex + newDuration)) {
+            System.err.println("RESIZE ERROR: Nieprawidłowa zmiana. Start przekroczył koniec.");
+            return;
+        }
+
+        if (newStartIndex != originalStartIndex) {
+            shiftToModify.setStartSlot(TimeSlot.fromIndex(newStartIndex));
+        }
+        shiftToModify.setDurationInSlots(newDuration);
+
+        fireEvent(new DropEvent(this, day));
+    }
+
     public void updateStyleForContent() {
         if (this.droppedResource != null) {
             setStyleForFilled();
@@ -152,35 +196,24 @@ class ShiftResourceDropBar extends DragAndDropBar {
     }
 
     private void setStyleForFilled() {
-        // Style wizualne dla bloku zmiany (zapełniony)
         getStyle().set("background-color", "#3e70d6").set("border", "none");
     }
 
     private void setStyleForEmpty() {
-        // Style wizualne dla pustego bloku (Drop Target)
         getStyle().set("background-color", "#f0f0f0").set("border", "2px dashed #aaa");
     }
 
     public void applyStyles(boolean isDropTargetTrack, int duration) {
-        // A. Ustawienia Flex (Rozmiar slotu)
+
         getStyle().set("flex-grow", String.valueOf(duration));
         getStyle().set("flex-shrink", "0");
         getStyle().set("width", "auto");
 
-        // B. Ustawienia roli (Drop Target lub Wypełniony blok)
         if (this.droppedResource != null) {
-            // 1. Bar zmiany (wypełniony)
             removeClassName("schedule-slot-drop-target");
-            // Ustawia kolor tła i brak obramowania dla wypełnionego bloku
             setStyleForFilled();
         } else {
-            // 2. Bar pusty (Zawsze wyglądający jak Drop Target, niezależnie od wiersza)
-
-            // Dodajemy klasę Drop Target, aby był celem upuszczania i miał odpowiednie style hover
             addClassName("schedule-slot-drop-target");
-
-            // Ustawiamy ujednolicony wygląd dla każdego pustego slotu:
-            // używamy domyślnego stylu pustego Drop Targetu
             setStyleForEmpty();
         }
     }
@@ -197,5 +230,75 @@ class ShiftResourceDropBar extends DragAndDropBar {
 
     public Registration addDropListener(ComponentEventListener<DropEvent> listener) {
         return addListener(DropEvent.class, listener);
+    }
+}
+
+class ShiftResizeHandle extends Div implements DragSource<ShiftResizeHandle> {
+
+    public enum ResizeEdge {
+        START,
+        END
+    }
+
+    public ShiftResizeHandle(ShiftResource shift, ResizeEdge edge) {
+
+        setWidth("5px");
+        setHeightFull();
+        getStyle()
+                .set("background-color", "#ffffff")
+                .set("opacity", "0.6")
+                .set("cursor", "ew-resize")
+                .set("position", "absolute")
+                .set("top", "0")
+                .set("z-index", "10");
+
+        // Pozycjonowanie krawędzi
+        if (edge == ResizeEdge.START) {
+            getStyle().set("left", "0");
+        } else {
+            getStyle().set("right", "0");
+        }
+
+        // Konfiguracja DragSource
+        DragSource.create(this);
+        // Przekazujemy klucz identyfikujący: obiekt zmiany + informacja o krawędzi
+        setDragData(new ResizeDragData(shift, edge));
+        setEffectAllowed(EffectAllowed.MOVE);
+
+        // KLUCZOWY IDENTYFIKATOR DLA FILTROWANIA W handleResizeDrop
+        addClassName("resize-drag-source");
+
+        // ----------------------------------------------------------------------
+        // KLUCZOWA POPRAWKA: Zatrzymanie propagacji za pomocą bezpośredniego JS.
+        // Gwarantuje to, że kliknięcie na uchwycie nie uruchomi DragSource na rodzicu.
+        getElement()
+                .executeJs("this.addEventListener('mousedown', function(e) { " + "    e.stopPropagation(); "
+                        + "}, true);");
+        // ----------------------------------------------------------------------
+
+        // Opcjonalne efekty wizualne na hover
+        getElement().addEventListener("mouseenter", e -> getStyle().set("opacity", "1.0"));
+        getElement().addEventListener("mouseleave", e -> getStyle().set("opacity", "0.6"));
+    }
+}
+
+// KLASA ResizeDragData.java (MUSIMY STWORZYĆ TĘ KLASĘ JAKO NOŚNIK DANYCH)
+// Zapewnia, że w DropListenerze wiemy, co zmieniamy (start czy koniec).
+// To jest konieczne, ponieważ bez tego nie wiemy, z której strony przyszło zdarzenie.
+class ResizeDragData {
+    private final ShiftResource shift;
+    private final ShiftResizeHandle.ResizeEdge edge;
+
+    public ResizeDragData(ShiftResource shift, ShiftResizeHandle.ResizeEdge edge) {
+        this.shift = shift;
+        this.edge = edge;
+    }
+
+    public ShiftResource getShift() {
+        return shift;
+    }
+
+    public ShiftResizeHandle.ResizeEdge getEdge() {
+        return edge;
     }
 }

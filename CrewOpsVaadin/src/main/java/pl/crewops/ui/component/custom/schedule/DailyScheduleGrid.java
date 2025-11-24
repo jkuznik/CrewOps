@@ -5,8 +5,7 @@ import static pl.crewops.ui.component.custom.schedule.DailyScheduleGrid.interval
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dnd.DragSource;
-import com.vaadin.flow.component.dnd.EffectAllowed;
+import com.vaadin.flow.component.dnd.*;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Div;
@@ -170,6 +169,46 @@ class DayScheduleVisualization extends VerticalLayout {
         add(dropTrack);
     }
 
+    // W DayScheduleVisualization
+
+    /** Tworzy kontener zmiany (Korpus), który jest DragSource dla MOVE i zawiera uchwyty RESIZE. */
+    private Div createShiftMoveResizeContainer(ShiftResource shift) {
+        var container = new ShiftResourceDropBar(day, shift.getStartSlotIndex()); // Używamy DropBar jako bazę
+        container.setDroppedResource(shift);
+
+        // --- 1. KONFIGURACJA DRAG SOURCE DLA PRZENOSZENIA (MOVE) ---
+        DragSource<ShiftResourceDropBar> dragSource = DragSource.create(container);
+        dragSource.setDragData(shift); // Przekazujemy referencję do istniejącego obiektu
+        dragSource.setEffectAllowed(EffectAllowed.MOVE);
+
+        // Dodajemy klasę, aby łatwiej celować stylem kursora (chwytanie)
+        container.addClassName("shift-move-container");
+
+        // Ukrywanie elementu podczas przeciągania
+        dragSource.addDragStartListener(event -> container.getStyle().set("visibility", "hidden"));
+        dragSource.addDragEndListener(event -> container.getStyle().set("visibility", "visible"));
+
+        // --- 2. DODANIE UCHWYTÓW ZMIANY ROZMIARU (RESIZE) ---
+
+        // Musimy ustawić kontener na 'position: relative', aby uchwyty działały na 'position: absolute'
+        container.getStyle().set("position", "relative");
+
+        // Uchwyt Lewy (Zmiana Start Slotu)
+        container.add(new ShiftResizeHandle(shift, ShiftResizeHandle.ResizeEdge.START));
+
+        // Uchwyt Prawy (Zmiana Długości)
+        container.add(new ShiftResizeHandle(shift, ShiftResizeHandle.ResizeEdge.END));
+
+        // --- 3. STYLOWANIE ---
+        int duration = shift.getDurationInSlots();
+        container.applyStyles(false, duration);
+
+        // Zostawiamy listener odświeżający na DropBar, który wciąż jest DropTargetem
+        container.addDropListener(e -> renderSchedule());
+
+        return container;
+    }
+
     private HorizontalLayout createShiftContentRow(List<ShiftResource> rowShifts) {
         HorizontalLayout row = createBaseRow();
 
@@ -190,7 +229,7 @@ class DayScheduleVisualization extends VerticalLayout {
             }
 
             // 2. Blok zmiany
-            row.add(createShiftBar(shift));
+            row.add(createShiftMoveResizeContainer(shift));
 
             // Uaktualniamy wskaźnik do końca obecnej zmiany
             currentSlotIndex = shiftEnd;
@@ -231,24 +270,6 @@ class DayScheduleVisualization extends VerticalLayout {
         row.getStyle().set("display", "flex");
         row.getStyle().set("margin", "0");
         return row;
-    }
-
-    private Div createShiftBar(ShiftResource shift) {
-        var dropBar = new ShiftResourceDropBar(day, shift.getStartSlotIndex());
-        dropBar.setDroppedResource(shift);
-        dropBar.addDropListener(e -> renderSchedule());
-
-        // --- KONFIGURACJA DRAG SOURCE DLA OPERACJI PRZENOSZENIA (MOVE) ---
-        DragSource<ShiftResourceDropBar> dragSource = DragSource.create(dropBar);
-        dragSource.setDragData(shift); // Przekazujemy referencję do istniejącego obiektu
-        dragSource.setEffectAllowed(EffectAllowed.MOVE);
-        // -------------------------------------------------------------------
-
-        int duration = shift.getDurationInSlots();
-
-        dropBar.applyStyles(false, duration);
-
-        return dropBar;
     }
 
     private Div createEmptySlot(int index, boolean isDropTargetTrack) {
