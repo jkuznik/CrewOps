@@ -1,7 +1,5 @@
 package pl.crewops.ui.component.custom.schedule;
 
-import static pl.crewops.ui.component.custom.schedule.DailyScheduleGrid.intervalsPerDay;
-
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -117,13 +115,10 @@ class DailyScheduleGrid extends VerticalLayout {
                 header.add(label);
             } else {
                 Div headerCell = new Div();
-                // KLUCZOWY PUNKT: Każda komórka nagłówka musi mieć flex-grow: 1,
-                // aby zajmowała dokładnie taką samą szerokość jak slot poniżej.
                 headerCell.getStyle().set("flex-grow", "1");
                 headerCell.getStyle().set("flex-shrink", "0");
                 headerCell.getStyle().set("width", "auto");
 
-                // Wyrównanie: tekst na początku komórki
                 headerCell.getStyle().set("text-align", "left");
                 headerCell.addClassName("schedule-header-cell");
                 header.add(headerCell);
@@ -136,8 +131,6 @@ class DailyScheduleGrid extends VerticalLayout {
 class DayScheduleVisualization extends VerticalLayout {
 
     private final ScheduleDay day;
-
-    private final List<HorizontalLayout> rows = new ArrayList<>();
 
     public DayScheduleVisualization(ScheduleDay day) {
         this.day = day;
@@ -164,49 +157,9 @@ class DayScheduleVisualization extends VerticalLayout {
                 .map(this::createShiftContentRow)
                 .forEach(this::add); // this mean add to component parent which is VerticalLayout
 
-        var dropTrack = createDropTargetTrack();
+        var dropTrack = createEmptyDropTargetRow();
 
         add(dropTrack);
-    }
-
-    // W DayScheduleVisualization
-
-    /** Tworzy kontener zmiany (Korpus), który jest DragSource dla MOVE i zawiera uchwyty RESIZE. */
-    private Div createShiftMoveResizeContainer(ShiftResource shift) {
-        var container = new ShiftResourceDropBar(day, shift.getStartSlotIndex()); // Używamy DropBar jako bazę
-        container.setDroppedResource(shift);
-
-        // --- 1. KONFIGURACJA DRAG SOURCE DLA PRZENOSZENIA (MOVE) ---
-        DragSource<ShiftResourceDropBar> dragSource = DragSource.create(container);
-        dragSource.setDragData(shift); // Przekazujemy referencję do istniejącego obiektu
-        dragSource.setEffectAllowed(EffectAllowed.MOVE);
-
-        // Dodajemy klasę, aby łatwiej celować stylem kursora (chwytanie)
-        container.addClassName("shift-move-container");
-
-        // Ukrywanie elementu podczas przeciągania
-        dragSource.addDragStartListener(event -> container.getStyle().set("visibility", "hidden"));
-        dragSource.addDragEndListener(event -> container.getStyle().set("visibility", "visible"));
-
-        // --- 2. DODANIE UCHWYTÓW ZMIANY ROZMIARU (RESIZE) ---
-
-        // Musimy ustawić kontener na 'position: relative', aby uchwyty działały na 'position: absolute'
-        container.getStyle().set("position", "relative");
-
-        // Uchwyt Lewy (Zmiana Start Slotu)
-        container.add(new ShiftResizeHandle(shift, ShiftResizeHandle.ResizeEdge.START));
-
-        // Uchwyt Prawy (Zmiana Długości)
-        container.add(new ShiftResizeHandle(shift, ShiftResizeHandle.ResizeEdge.END));
-
-        // --- 3. STYLOWANIE ---
-        int duration = shift.getDurationInSlots();
-        container.applyStyles(false, duration);
-
-        // Zostawiamy listener odświeżający na DropBar, który wciąż jest DropTargetem
-        container.addDropListener(e -> renderSchedule());
-
-        return container;
     }
 
     private HorizontalLayout createShiftContentRow(List<ShiftResource> rowShifts) {
@@ -223,13 +176,12 @@ class DayScheduleVisualization extends VerticalLayout {
             // 1. Puste sloty PRZED obecną zmianą
             if (shiftStart > currentSlotIndex) {
                 for (int i = currentSlotIndex; i < shiftStart; i++) {
-                    // PRZEKAZUJEMY PRAWIDŁOWY INDEKS: i
-                    row.add(createEmptySlot(i, false));
+                    row.add(createEmptySlot(i));
                 }
             }
 
-            // 2. Blok zmiany
-            row.add(createShiftMoveResizeContainer(shift));
+            // 2. Blok zmiany (teraz podzielony na sloty)
+            createShiftSlottedBar(shift).forEach(row::add);
 
             // Uaktualniamy wskaźnik do końca obecnej zmiany
             currentSlotIndex = shiftEnd;
@@ -237,21 +189,96 @@ class DayScheduleVisualization extends VerticalLayout {
 
         // 3. Puste sloty PO ostatniej zmianie (aż do końca dnia)
         for (int i = currentSlotIndex; i < DailyScheduleGrid.intervalsPerDay; i++) {
-            // PRZEKAZUJEMY PRAWIDŁOWY INDEKS: i
-            row.add(createEmptySlot(i, false));
+            row.add(createEmptySlot(i));
         }
 
         return row;
     }
 
-    private HorizontalLayout createDropTargetTrack() {
-        HorizontalLayout row = createBaseRow();
+    private Div createMoveZoneOverlay(ShiftResource shift) {
+        var zone = new Div();
+        zone.setWidthFull();
+        zone.setHeightFull();
+        zone.getStyle()
+                .set("position", "absolute")
+                .set("top", "0")
+                .set("left", "0")
+                .set("cursor", "grab")
+                .set("background-color", "transparent")
+                .set("z-index", "4"); // ZMIANA: Niższy niż RESIZE (15), aby RESIZE miało priorytet.
+
+        // KONFIGURACJA DRAG SOURCE DLA PRZENOSZENIA
+        DragSource<Div> dragSource = DragSource.create(zone);
+        dragSource.setDragData(shift);
+        dragSource.setEffectAllowed(EffectAllowed.MOVE);
+
+        // Słuchacze: Ukrywanie Div, który jest źródłem przeciągania
+        dragSource.addDragStartListener(event -> {
+            Div sourceDiv = event.getSource();
+            sourceDiv.getStyle().set("visibility", "hidden");
+        });
+
+        dragSource.addDragEndListener(event -> {
+            Div sourceDiv = event.getSource();
+            sourceDiv.getStyle().set("visibility", "visible");
+        });
+
+        // Zatrzymanie propagacji: Zapobiega wywoływaniu zdarzeń na rodzicu (DropBarze)
+        zone.getElement()
+                .executeJs("this.addEventListener('mousedown', function(e) { " + "    e.stopPropagation(); "
+                        + "}, true);");
+
+        return zone;
+    }
+
+    private List<Div> createShiftSlottedBar(ShiftResource shift) {
+        List<Div> shiftSlots = new ArrayList<>();
+
+        int startSlotIndex = shift.getStartSlotIndex();
+        int duration = shift.getDurationInSlots();
+
+        for (int i = 0; i < duration; i++) {
+            int currentSlotIndex = startSlotIndex + i;
+            var dropBar = new ShiftResourceDropBar(day, currentSlotIndex);
+
+            dropBar.setDroppedResource(shift);
+            dropBar.applyStyles(1);
+
+            dropBar.getStyle().set("background-color", "#3e70d6");
+            dropBar.getStyle().set("border", "none");
+            dropBar.getStyle().set("position", "relative");
+
+            // --- KONFIGURACJA D&D I UCHWYTÓW ---
+
+            // A. Uchwyt Przenoszenia (MOVE): NA KAŻDYM SLOCIE. Z-index 4, aby był pod RESIZE.
+            dropBar.add(createMoveZoneOverlay(shift));
+
+            // B. Uchwyty Rozciągania (RESIZE): Z-index 15.
+            // Krawędź START (Lewy uchwyt): Tylko na Pierwszym Slocie
+            if (i == 0) {
+                dropBar.add(new ShiftResizeHandle(shift, ShiftResizeHandle.ResizeEdge.START));
+            }
+
+            // Krawędź END (Prawy uchwyt): Tylko na Ostatnim Slocie
+            if (i == duration - 1) {
+                dropBar.add(new ShiftResizeHandle(shift, ShiftResizeHandle.ResizeEdge.END));
+            }
+
+            // C. Aktywny DropListener: Niezbędny do odświeżenia widoku po RESIZE/MOVE w obrębie bloku.
+            dropBar.addDropListener(e -> renderSchedule());
+
+            shiftSlots.add(dropBar);
+        }
+        return shiftSlots;
+    }
+
+    private HorizontalLayout createEmptyDropTargetRow() {
+        var row = createBaseRow();
 
         for (int index = 0; index < DailyScheduleGrid.intervalsPerDay; index++) {
             var dropBar = new ShiftResourceDropBar(day, index);
 
-            dropBar.applyStyles(true, 1);
-
+            dropBar.applyStyles(1);
             dropBar.addDropListener(e -> renderSchedule());
 
             row.add(dropBar);
@@ -260,24 +287,13 @@ class DayScheduleVisualization extends VerticalLayout {
         return row;
     }
 
-    private HorizontalLayout createBaseRow() {
-        HorizontalLayout row = new HorizontalLayout();
-        row.setWidthFull();
-        row.setHeight("30px");
-        row.setSpacing(false);
-        row.setPadding(false);
-        row.addClassName("schedule-shift-row");
-        row.getStyle().set("display", "flex");
-        row.getStyle().set("margin", "0");
-        return row;
-    }
-
-    private Div createEmptySlot(int index, boolean isDropTargetTrack) {
+    private Div createEmptySlot(int index) {
         var dropBar = new ShiftResourceDropBar(day, index);
+
         dropBar.setDroppedResource(null);
         dropBar.addDropListener(e -> renderSchedule());
 
-        dropBar.applyStyles(isDropTargetTrack, 1);
+        dropBar.applyStyles(1);
 
         return dropBar;
     }
@@ -309,6 +325,18 @@ class DayScheduleVisualization extends VerticalLayout {
             }
         }
         return rows;
+    }
+
+    private HorizontalLayout createBaseRow() {
+        HorizontalLayout row = new HorizontalLayout();
+        row.setWidthFull();
+        row.setHeight("30px");
+        row.setSpacing(false);
+        row.setPadding(false);
+        row.addClassName("schedule-shift-row");
+        row.getStyle().set("display", "flex");
+        row.getStyle().set("margin", "0");
+        return row;
     }
 
     private boolean shiftsOverlap(List<ShiftResource> existingShifts, ShiftResource newShift) {

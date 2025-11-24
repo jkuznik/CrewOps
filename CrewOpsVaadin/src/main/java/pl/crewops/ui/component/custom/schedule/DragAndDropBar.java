@@ -203,7 +203,7 @@ class ShiftResourceDropBar extends DragAndDropBar {
         getStyle().set("background-color", "#f0f0f0").set("border", "2px dashed #aaa");
     }
 
-    public void applyStyles(boolean isDropTargetTrack, int duration) {
+    public void applyStyles(int duration) {
 
         getStyle().set("flex-grow", String.valueOf(duration));
         getStyle().set("flex-shrink", "0");
@@ -282,9 +282,6 @@ class ShiftResizeHandle extends Div implements DragSource<ShiftResizeHandle> {
     }
 }
 
-// KLASA ResizeDragData.java (MUSIMY STWORZYĆ TĘ KLASĘ JAKO NOŚNIK DANYCH)
-// Zapewnia, że w DropListenerze wiemy, co zmieniamy (start czy koniec).
-// To jest konieczne, ponieważ bez tego nie wiemy, z której strony przyszło zdarzenie.
 class ResizeDragData {
     private final ShiftResource shift;
     private final ShiftResizeHandle.ResizeEdge edge;
