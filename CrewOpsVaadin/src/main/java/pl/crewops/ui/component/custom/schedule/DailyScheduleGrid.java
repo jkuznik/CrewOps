@@ -1,5 +1,7 @@
 package pl.crewops.ui.component.custom.schedule;
 
+import com.vaadin.flow.component.ComponentEvent;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -10,6 +12,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.shared.Registration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -45,7 +48,63 @@ class DailyScheduleGrid extends VerticalLayout {
                 .setAutoWidth(true)
                 .setFrozen(true);
 
-        grid.addComponentColumn(DayScheduleVisualization::new)
+        grid.addComponentColumn(scheduleDay -> {
+                    DayScheduleVisualization visualization = new DayScheduleVisualization(scheduleDay);
+
+                    visualization.addShiftCrossesMidnightEvent(event -> {
+                        int currentDayNumber = event.getSource().getDay().getDayNumber();
+                        int nextDayNumber = currentDayNumber + 1;
+                        if (!hasDay(nextDayNumber)) {
+                            nextDay(new ScheduleDay(nextDayNumber));
+                        }
+
+                        var nextDay = dayList.stream()
+                                .filter(d -> d.getDayNumber() == nextDayNumber)
+                                .findFirst()
+                                .orElse(null);
+
+                        if (nextDay != null) {
+                            var originalShift = event.getShift();
+                            boolean segmentExists = nextDay.getShifts().stream()
+                                    .anyMatch(s -> s.isCrossMidnightSegment()
+                                            && s.getShiftDTO().equals(originalShift.getShiftDTO()));
+
+                            if (!segmentExists) {
+                                var nextDaySegment = new ShiftResource(originalShift.getShiftDTO());
+                                nextDaySegment.setStartSlot(TimeSlot.H00_00);
+                                nextDaySegment.setDurationInSlots(
+                                        originalShift.getStartSlot().getIndex()
+                                                + originalShift.getDurationInSlots()
+                                                - 96);
+                                nextDaySegment.setCrossMidnightSegment(true);
+                                nextDay.getShifts().add(nextDaySegment);
+
+                                grid.setItems(dayList);
+                            }
+                        }
+                    });
+
+                    visualization.addShiftNoLongerCrossesMidnightEvent(event -> {
+                        int currentDayNumber = event.getSource().getDay().getDayNumber();
+                        int nextDayNumber = currentDayNumber + 1;
+                        ShiftResource originalShift = event.getShift();
+
+                        dayList.stream()
+                                .filter(d -> d.getDayNumber() == nextDayNumber)
+                                .findFirst()
+                                .ifPresent(nextDay -> {
+                                    nextDay.getShifts()
+                                            .removeIf(s -> s.isCrossMidnightSegment()
+                                                    && s.getShiftDTO().equals(originalShift.getShiftDTO()));
+                                    // Odświeżenie Grid
+                                    grid.setItems(dayList);
+                                });
+
+                        removeDay(nextDayNumber);
+                    });
+
+                    return visualization;
+                })
                 .setHeader(createScheduleHeader())
                 .setFlexGrow(10);
 
@@ -65,7 +124,7 @@ class DailyScheduleGrid extends VerticalLayout {
 
         removeButton.addThemeVariants(ButtonVariant.LUMO_WARNING);
         removeButton.addClickListener(event -> {
-            removeDay();
+            removeDay(dayCounter);
         });
         var buttonContainer = new HorizontalLayout();
         buttonContainer.setWidthFull();
@@ -81,10 +140,40 @@ class DailyScheduleGrid extends VerticalLayout {
         grid.setItems(dayList);
     }
 
-    public void removeDay() {
-        dayList.removeLast();
-        grid.setItems(dayList);
-        dayCounter--;
+    // DODAJ TĘ NOWĄ METODĘ
+    public void removeDay(int dayNumber) {
+        ScheduleDay dayToRemove = dayList.stream()
+                .filter(d -> d.getDayNumber() == dayNumber)
+                .findFirst()
+                .orElse(null);
+
+        if (dayToRemove != null) {
+            // Sprawdzanie bezpieczeństwa: Czy dzień ma jakieś 'prawdziwe' zmiany, które nie są tylko wizualizacją?
+            boolean hasRealShifts = dayToRemove.getShifts().stream()
+                    // Używamy zaimplementowanej wcześniej flagi
+                    .anyMatch(shift -> !shift.isCrossMidnightSegment());
+
+            // Usuwamy tylko, jeśli dzień jest pusty (nie ma własnych, prawdziwych zmian)
+            if (!hasRealShifts) {
+                dayList.remove(dayToRemove);
+                grid.setItems(dayList);
+
+                // Aktualizacja dayCounter w sekwencyjnym systemie
+                // Jeśli usunęliśmy ten dzień, który był ostatni w kolekcji (czyli dayCounter), musimy go
+                // zdekrementować.
+                if (dayNumber == dayCounter) {
+                    dayCounter--;
+                }
+                System.out.println("LOG: Dzień " + dayNumber + " usunięty automatycznie.");
+            } else {
+                // Dzień jest potrzebny ze względu na inne zmiany
+                System.out.println("LOG: Anulowano usunięcie Dnia " + dayNumber + ". Posiada inne przypisane zmiany.");
+            }
+        }
+    }
+
+    public boolean hasDay(int dayNumber) {
+        return dayList.stream().anyMatch(d -> d.getDayNumber() == dayNumber);
     }
 
     private HorizontalLayout createScheduleHeader() {
@@ -130,7 +219,10 @@ class DailyScheduleGrid extends VerticalLayout {
 
 class DayScheduleVisualization extends VerticalLayout {
 
+    @Getter
     private final ScheduleDay day;
+
+    private boolean wasMidnightCrossed = false;
 
     public DayScheduleVisualization(ScheduleDay day) {
         this.day = day;
@@ -145,6 +237,9 @@ class DayScheduleVisualization extends VerticalLayout {
 
     private void renderSchedule() {
         removeAll();
+
+        // NOWE: Sprawdzanie kolizji i wywoływanie eventów (dodawanie/usuwanie dni)
+        checkMidnightCrossingsAndFireEvents();
 
         List<ShiftResource> shifts = day.getShifts();
 
@@ -353,5 +448,75 @@ class DayScheduleVisualization extends VerticalLayout {
             }
         }
         return false;
+    }
+
+    // W KLASIE DayScheduleVisualization, ZASTĄP CAŁĄ METODĘ PONIŻSZYM KODEM:
+    private void checkMidnightCrossingsAndFireEvents() {
+        // 1. Sprawdzamy aktualny stan
+        boolean anyShiftCrossesMidnight = day.getShifts().stream()
+                // Weryfikujemy tylko "prawdziwe" zmiany
+                .filter(shift -> !shift.isCrossMidnightSegment())
+                .anyMatch(shift -> shift.getEndSlotIndex() > DailyScheduleGrid.intervalsPerDay);
+
+        // 2. Porównujemy ze stanem poprzednim (wasMidnightCrossed) i reagujemy tylko na ZMIANĘ stanu
+
+        if (anyShiftCrossesMidnight && !wasMidnightCrossed) {
+            // ZMIANA STANU: Z FALSZ na PRAWDA (zaczął krzyżować północ)
+            // Musimy dodać następny dzień do Grid.
+
+            // Znajdujemy jeden ShiftResource do przekazania w Evencie.
+            day.getShifts().stream()
+                    .filter(shift -> !shift.isCrossMidnightSegment()
+                            && shift.getEndSlotIndex() > DailyScheduleGrid.intervalsPerDay)
+                    .findFirst()
+                    .ifPresent(shift -> {
+                        fireEvent(new ShiftCrossesMidnightEvent(this, shift));
+                        System.out.println("FireEvent: ShiftCrossesMidnightEvent dla Dnia " + day.getDayNumber());
+                    });
+
+        } else if (!anyShiftCrossesMidnight && wasMidnightCrossed) {
+            // ZMIANA STANU: Z PRAWDA na FALSZ (przestał krzyżować północ)
+            // Musimy dać Grid informację, że następny dzień może być do usunięcia.
+
+            // Przekazujemy dowolny shift, ponieważ Grid patrzy na numer dnia.
+            day.getShifts().stream().findFirst().ifPresent(shift -> {
+                fireEvent(new ShiftNoLongerCrossesMidnightEvent(this, shift));
+                System.out.println("FireEvent: ShiftNoLongerCrossesMidnightEvent dla Dnia " + day.getDayNumber());
+            });
+        }
+
+        // 3. Aktualizujemy stan na koniec renderowania
+        wasMidnightCrossed = anyShiftCrossesMidnight;
+    }
+
+    abstract static class DayScheduleVisualisationEvent extends ComponentEvent<DayScheduleVisualization> {
+        @Getter
+        private final ShiftResource shift;
+
+        public DayScheduleVisualisationEvent(DayScheduleVisualization source, ShiftResource shift) {
+            super(source, false);
+            this.shift = shift;
+        }
+    }
+
+    static class ShiftCrossesMidnightEvent extends DayScheduleVisualisationEvent {
+        public ShiftCrossesMidnightEvent(DayScheduleVisualization source, ShiftResource shift) {
+            super(source, shift);
+        }
+    }
+
+    static class ShiftNoLongerCrossesMidnightEvent extends DayScheduleVisualisationEvent {
+        public ShiftNoLongerCrossesMidnightEvent(DayScheduleVisualization source, ShiftResource shift) {
+            super(source, shift);
+        }
+    }
+
+    public Registration addShiftCrossesMidnightEvent(ComponentEventListener<ShiftCrossesMidnightEvent> listener) {
+        return addListener(ShiftCrossesMidnightEvent.class, listener);
+    }
+
+    public Registration addShiftNoLongerCrossesMidnightEvent(
+            ComponentEventListener<ShiftNoLongerCrossesMidnightEvent> listener) {
+        return addListener(ShiftNoLongerCrossesMidnightEvent.class, listener);
     }
 }
