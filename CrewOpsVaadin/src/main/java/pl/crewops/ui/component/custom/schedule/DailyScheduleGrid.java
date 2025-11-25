@@ -63,6 +63,8 @@ class DailyScheduleGrid extends VerticalLayout {
                                 .findFirst()
                                 .orElse(null);
 
+                        // todo: poprawa zachowania jeśli wystąpił cross midnight event to shift resource
+                        //  z flaga isCrossMidnight musi reagować na przesunięcia orginalnego ShiftResource
                         if (nextDay != null) {
                             var originalShift = event.getShift();
                             boolean segmentExists = nextDay.getShifts().stream()
@@ -290,7 +292,20 @@ class DayScheduleVisualization extends VerticalLayout {
         return row;
     }
 
+    // W KLASIE DayScheduleVisualization
     private Div createMoveZoneOverlay(ShiftResource shift) {
+        // 1. BLOKADA PRZENOSZENIA DLA SEGMENTÓW WIZUALNYCH
+        if (shift.isCrossMidnightSegment()) {
+            // Jeśli to jest segment wizualny, nie chcemy, aby można go było przenosić.
+            var zone = new Div();
+            zone.setWidthFull();
+            zone.setHeightFull();
+            // Ustawiamy z-index nisko, aby nie kolidowało, ale nie dodajemy logiki drag and drop.
+            zone.getStyle().set("z-index", "1");
+            return zone;
+        }
+
+        // 2. STANDARDOWA LOGIKA PRZENOSZENIA DLA 'PRAWDZIWYCH' SHIFTÓW
         var zone = new Div();
         zone.setWidthFull();
         zone.setHeightFull();
@@ -300,7 +315,7 @@ class DayScheduleVisualization extends VerticalLayout {
                 .set("left", "0")
                 .set("cursor", "grab")
                 .set("background-color", "transparent")
-                .set("z-index", "4"); // ZMIANA: Niższy niż RESIZE (15), aby RESIZE miało priorytet.
+                .set("z-index", "4");
 
         // KONFIGURACJA DRAG SOURCE DLA PRZENOSZENIA
         DragSource<Div> dragSource = DragSource.create(zone);
@@ -318,7 +333,7 @@ class DayScheduleVisualization extends VerticalLayout {
             sourceDiv.getStyle().set("visibility", "visible");
         });
 
-        // Zatrzymanie propagacji: Zapobiega wywoływaniu zdarzeń na rodzicu (DropBarze)
+        // Zatrzymanie propagacji
         zone.getElement()
                 .executeJs("this.addEventListener('mousedown', function(e) { " + "    e.stopPropagation(); "
                         + "}, true);");
@@ -326,16 +341,25 @@ class DayScheduleVisualization extends VerticalLayout {
         return zone;
     }
 
+    // W KLASIE DayScheduleVisualization
     private List<Div> createShiftSlottedBar(ShiftResource shift) {
         List<Div> shiftSlots = new ArrayList<>();
 
         int startSlotIndex = shift.getStartSlotIndex();
         int duration = shift.getDurationInSlots();
 
+        // NOWA LOGIKA: Flaga kontrolująca, czy to segment wizualny
+        boolean isCrossMidnightSegment = shift.isCrossMidnightSegment();
+
         for (int i = 0; i < duration; i++) {
             int currentSlotIndex = startSlotIndex + i;
+            // WAŻNE: DropBar nadal musi mieć referencję do ScheduleDay,
+            // ale musi być świadomy, że to element wizualny (później do modyfikacji DropBar)
             var dropBar = new ShiftResourceDropBar(day, currentSlotIndex);
 
+            // Jeśli to jest segment, przypisujemy mu oryginalny ShiftResource,
+            // aby ResizeHandle mógł znaleźć pierwotny Shift (w Dniu N).
+            // Zakładamy, że ShiftResource ma metodę do pobrania oryginalnego DTO.
             dropBar.setDroppedResource(shift);
             dropBar.applyStyles(1);
 
@@ -345,21 +369,39 @@ class DayScheduleVisualization extends VerticalLayout {
 
             // --- KONFIGURACJA D&D I UCHWYTÓW ---
 
-            // A. Uchwyt Przenoszenia (MOVE): NA KAŻDYM SLOCIE. Z-index 4, aby był pod RESIZE.
+            // A. Uchwyt Przenoszenia (MOVE): Zablokowany dla segmentów w createMoveZoneOverlay.
             dropBar.add(createMoveZoneOverlay(shift));
 
             // B. Uchwyty Rozciągania (RESIZE): Z-index 15.
+
             // Krawędź START (Lewy uchwyt): Tylko na Pierwszym Slocie
-            if (i == 0) {
+            // NOWA LOGIKA: BLOKUJEMY CHWYTAK, JEŚLI TO SEGMENT PRZEKRACZAJĄCY PÓŁNOC
+            if (i == 0 && !isCrossMidnightSegment) {
                 dropBar.add(new ShiftResizeHandle(shift, ShiftResizeHandle.ResizeEdge.START));
             }
 
             // Krawędź END (Prawy uchwyt): Tylko na Ostatnim Slocie
             if (i == duration - 1) {
-                dropBar.add(new ShiftResizeHandle(shift, ShiftResizeHandle.ResizeEdge.END));
+                // TERAZ MUSIMY PRAWY CHWYTAK SKIEROWAĆ NA ORYGINALNY SHIFT
+
+                // Jeśli to segment, musimy użyć innej logiki w ShiftResizeHandle
+                if (isCrossMidnightSegment) {
+                    // W tym miejscu musielibyśmy stworzyć nową implementację
+                    // ResizeHandle, która wywołuje specjalny event.
+                    // ZAKŁADAMY, ŻE NA BE W ShiftResizeHandle LOGIKA D&D JEST JEDNA
+                    // I OBSŁUGUJE KLON.
+
+                    // Na razie: dodajemy zwykły uchwyt, a logika modyfikacji
+                    // ShiftResource z flagą isCrossMidnightSegment MUSI być obsłużona
+                    // wewnątrz ResizeHandle.
+                    dropBar.add(new ShiftResizeHandle(shift, ShiftResizeHandle.ResizeEdge.END));
+                } else {
+                    // Standardowy Shift
+                    dropBar.add(new ShiftResizeHandle(shift, ShiftResizeHandle.ResizeEdge.END));
+                }
             }
 
-            // C. Aktywny DropListener: Niezbędny do odświeżenia widoku po RESIZE/MOVE w obrębie bloku.
+            // C. Aktywny DropListener: Niezbędny do odświeżenia widoku po RESIZE/MOVE
             dropBar.addDropListener(e -> renderSchedule());
 
             shiftSlots.add(dropBar);
