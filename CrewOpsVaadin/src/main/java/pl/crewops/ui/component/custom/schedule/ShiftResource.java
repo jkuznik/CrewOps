@@ -1,5 +1,7 @@
 package pl.crewops.ui.component.custom.schedule;
 
+import static pl.crewops.ui.component.custom.schedule.DailyScheduleGrid.INTERVALS_PER_DAY;
+
 import lombok.Getter;
 import lombok.Setter;
 import pl.crewops.enums.TimeSlot;
@@ -28,7 +30,7 @@ final class ShiftResource {
 
     public int getNextDayEndSlotForShift() {
         int endSlotIndex = getEndSlotIndex();
-        return endSlotIndex - 96;
+        return endSlotIndex - INTERVALS_PER_DAY;
     }
 
     public static ShiftResource createNextDaySegment(ShiftResource originalShift) {

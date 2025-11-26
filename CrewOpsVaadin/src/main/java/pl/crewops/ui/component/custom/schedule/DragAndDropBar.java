@@ -106,35 +106,20 @@ class ShiftResourceDropBar extends DragAndDropBar {
             getElement().getClassList().remove("schedule-drop-active");
 
             event.getDragData().ifPresent(data -> {
-
-                // --- 1. FILTROWANIE OPERACJI RESIZE (nowa logika) ---
                 if (data instanceof ResizeDragData resizeData) {
-                    // TO JEST OPERACJA RESIZE (z uchwytu)
                     handleResizeDropInternal(resizeData);
-                    return; // Zakończ, jeśli obsłużono RESIZE
+                    return;
                 }
 
-                // --- 2. OPERACJA MOVE / COPY (oryginalna logika przenoszenia/kopiowania) ---
                 if (data instanceof ShiftResource shiftResource) {
 
-                    // Sprawdzamy, czy Vaadin potwierdził operację MOVE
-                    boolean isMoveOperation = event.getDropEffect() != null
-                            && event.getDropEffect().equals(DropEffect.MOVE);
-
-                    // 1. Tworzymy nowy zasób z nowym slotem startowym.
                     var newShiftResource = new ShiftResource(shiftResource.getShiftDTO());
-                    newShiftResource.setStartSlot(TimeSlot.fromIndex(index)); // Używamy 'this.index'
+                    newShiftResource.setStartSlot(TimeSlot.fromIndex(index));
                     newShiftResource.setDurationInSlots(shiftResource.getDurationInSlots());
 
-                    // 2. Usuwamy stary zasób, jeśli to była operacja MOVE
-                    if (isMoveOperation && day.getShifts().contains(shiftResource)) {
-                        day.getShifts().remove(shiftResource);
-                    }
-
-                    // 3. Dodajemy nowy zasób do dnia
+                    day.getShifts().remove(shiftResource);
                     day.addShift(newShiftResource);
 
-                    // Emitujemy DropEvent, aby DayScheduleVisualization wiedział, że musi się przeładować
                     fireEvent(new DropEvent(this, day));
                 }
             });
