@@ -2,6 +2,7 @@ package pl.crewops.ui.component.custom.schedule;
 
 import static pl.crewops.ui.component.custom.schedule.DailyScheduleGrid.INTERVALS_PER_DAY;
 
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import pl.crewops.enums.TimeSlot;
@@ -12,7 +13,7 @@ import pl.crewops.model.dto.shift.ShiftDTO;
 final class ShiftResource {
     private final ShiftDTO shiftDTO;
     private TimeSlot startSlot;
-    private int durationInSlots = 4;
+    private int durationInSlots = 84;
 
     private boolean isCrossMidnightSegment = false;
 
@@ -33,11 +34,14 @@ final class ShiftResource {
         return endSlotIndex - INTERVALS_PER_DAY;
     }
 
-    public static ShiftResource createNextDaySegment(ShiftResource originalShift) {
-        var shiftResource = new ShiftResource(originalShift.getShiftDTO());
-        shiftResource.setStartSlot(TimeSlot.H00_00);
-        shiftResource.setDurationInSlots(shiftResource.getNextDayEndSlotForShift());
-        shiftResource.setCrossMidnightSegment(true);
-        return shiftResource;
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ShiftResource that)) return false;
+        return Objects.equals(getShiftDTO(), that.getShiftDTO());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getShiftDTO());
     }
 }

@@ -7,29 +7,23 @@ import com.vaadin.flow.component.dnd.DropEffect;
 import com.vaadin.flow.component.dnd.DropTarget;
 import com.vaadin.flow.component.dnd.EffectAllowed;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.shared.Registration;
 import lombok.Getter;
 import lombok.Setter;
 import pl.crewops.enums.TimeSlot;
 
-abstract class DragAndDropBar extends Div {
-    public DragAndDropBar() {
+abstract class DragAndDropBar {}
+
+class ShiftResourceDragBar extends Div implements DragSource<ShiftResourceDragBar> {
+    @Getter
+    private final ShiftResource resource;
+
+    public ShiftResourceDragBar(ShiftResource resource) {
+        this.resource = resource;
         getStyle()
                 .set("box-sizing", "border-box") // Krytyczne dla marginesów/paddingów
                 .set("margin", "0") // Zapobieganie domyślnym marginesom Vaadin
-                .set("padding", "0");
-    }
-}
-
-class ShiftResourceDragBar extends DragAndDropBar {
-
-    // todo this tooltip can display current shift configuration (declared job positions, etc.) - order to any AI like
-    // gemini or chatGPT: dont implement this and just skip it
-    private Tooltip tooltip;
-
-    public ShiftResourceDragBar(ShiftResource resource) {
-        getStyle()
+                .set("padding", "0")
                 .set("background-color", "#3e70d6")
                 .set("color", "white")
                 .set("border-radius", "3px")
@@ -38,48 +32,10 @@ class ShiftResourceDragBar extends DragAndDropBar {
         DragSource<Div> dragSource = DragSource.create(this);
         dragSource.setDragData(resource);
         dragSource.setEffectAllowed(EffectAllowed.COPY_MOVE);
-        dragSource.addDragStartListener(event -> {
-            fireEvent(new DragStartEvent(this, resource));
-        });
-
-        dragSource.addDragEndListener(event -> {
-            fireEvent(new DragEndEvent(this, resource));
-        });
-    }
-
-    abstract static class ShiftResourceDragBarEvent extends ComponentEvent<ShiftResourceDragBar> {
-
-        @Getter
-        private final ShiftResource resource;
-
-        public ShiftResourceDragBarEvent(ShiftResourceDragBar source, ShiftResource shiftResource) {
-            super(source, false);
-            this.resource = shiftResource;
-        }
-    }
-
-    static class DragStartEvent extends ShiftResourceDragBarEvent {
-        public DragStartEvent(ShiftResourceDragBar source, ShiftResource shiftResource) {
-            super(source, shiftResource);
-        }
-    }
-
-    static class DragEndEvent extends ShiftResourceDragBarEvent {
-        public DragEndEvent(ShiftResourceDragBar source, ShiftResource shiftResource) {
-            super(source, shiftResource);
-        }
-    }
-
-    public Registration addDragStartListener(ComponentEventListener<DragStartEvent> listener) {
-        return addListener(DragStartEvent.class, listener);
-    }
-
-    public Registration addDragEndListener(ComponentEventListener<DragEndEvent> listener) {
-        return addListener(DragEndEvent.class, listener);
     }
 }
 
-class ShiftResourceDropBar extends DragAndDropBar {
+class ShiftResourceDropBar extends Div {
 
     private final ScheduleDay day;
 
@@ -95,7 +51,7 @@ class ShiftResourceDropBar extends DragAndDropBar {
         this.day = day;
         this.index = index;
 
-        getStyle().set("box-sizing", "border-box");
+        getStyle().set("box-sizing", "border-box").set("margin", "0").set("padding", "0");
 
         addClassName("schedule-drop-target");
 
@@ -106,7 +62,7 @@ class ShiftResourceDropBar extends DragAndDropBar {
             getElement().getClassList().remove("schedule-drop-active");
 
             event.getDragData().ifPresent(data -> {
-                if (data instanceof ResizeDragData resizeData) {
+                if (data instanceof ShiftResourceResizeBar resizeData) {
                     handleResizeDropInternal(resizeData);
                     return;
                 }
@@ -119,8 +75,6 @@ class ShiftResourceDropBar extends DragAndDropBar {
 
                     day.getShifts().remove(shiftResource);
                     day.addShift(newShiftResource);
-
-                    fireEvent(new DropEvent(this, day));
                 }
             });
         });
@@ -128,9 +82,9 @@ class ShiftResourceDropBar extends DragAndDropBar {
         updateStyleForContent();
     }
 
-    private void handleResizeDropInternal(ResizeDragData resizeData) {
+    private void handleResizeDropInternal(ShiftResourceResizeBar resizeData) {
         ShiftResource shiftToModify = resizeData.getShift();
-        ShiftResizeHandle.ResizeEdge edge = resizeData.getEdge();
+        ShiftResourceResizeBar.ResizeEdge edge = resizeData.getEdge();
 
         int dropSlotIndex = this.index;
         int originalStartIndex = shiftToModify.getStartSlotIndex();
@@ -139,23 +93,20 @@ class ShiftResourceDropBar extends DragAndDropBar {
         int newStartIndex = originalStartIndex;
         int newDuration;
 
-        if (edge == ShiftResizeHandle.ResizeEdge.END) {
+        if (edge == ShiftResourceResizeBar.ResizeEdge.END) {
             // ZMIANA KOŃCA (ROZCIĄGANIE W PRAWO)
             // Kończymy na końcu slotu, na który upuszczono.
             int newEndIndex = dropSlotIndex + 1;
             newDuration = newEndIndex - originalStartIndex;
+            if (shiftToModify.isCrossMidnightSegment()) {
+                fireEvent(new CrossMidnightResizeEvent(
+                        this, shiftToModify, newDuration - shiftToModify.getDurationInSlots()));
+            }
 
         } else { // edge == ShiftResizeHandle.ResizeEdge.START
             // ZMIANA STARTU (ROZCIĄGANIE W LEWO)
             newStartIndex = dropSlotIndex; // Nowy start to slot, na który upuszczono
             newDuration = originalEndIndex - newStartIndex;
-        }
-
-        // --- WALIDACJA ---
-        if (newDuration < 2) {
-            // Minimalna długość 2 slotów (dla uchwytów)
-            System.err.println("RESIZE ERROR: Nowa długość (" + newDuration + ") jest za krótka.");
-            return;
         }
 
         // Nie możemy zacząć później niż koniec, ani skończyć wcześniej niż początek
@@ -168,8 +119,6 @@ class ShiftResourceDropBar extends DragAndDropBar {
             shiftToModify.setStartSlot(TimeSlot.fromIndex(newStartIndex));
         }
         shiftToModify.setDurationInSlots(newDuration);
-
-        fireEvent(new DropEvent(this, day));
     }
 
     public void updateStyleForContent() {
@@ -203,32 +152,39 @@ class ShiftResourceDropBar extends DragAndDropBar {
         }
     }
 
-    static class DropEvent extends ComponentEvent<ShiftResourceDropBar> {
-        @Getter
-        private final ScheduleDay day;
+    @Getter
+    static class CrossMidnightResizeEvent extends ComponentEvent<ShiftResourceDropBar> {
 
-        public DropEvent(ShiftResourceDropBar source, ScheduleDay day) {
+        private final ShiftResource shiftResource;
+        private final int value;
+
+        public CrossMidnightResizeEvent(ShiftResourceDropBar source, ShiftResource shiftResource, int value) {
             super(source, false);
-            this.day = day;
+            this.shiftResource = shiftResource;
+            this.value = value;
         }
     }
 
-    public Registration addDropListener(ComponentEventListener<DropEvent> listener) {
-        return addListener(DropEvent.class, listener);
+    public Registration addCrossMidnightResizeEvent(ComponentEventListener<CrossMidnightResizeEvent> listener) {
+        return addListener(CrossMidnightResizeEvent.class, listener);
     }
 }
 
-class ShiftResizeHandle extends Div implements DragSource<ShiftResizeHandle> {
+@Getter
+class ShiftResourceResizeBar extends Div implements DragSource<ShiftResourceResizeBar> {
 
-    public enum ResizeEdge {
-        START,
-        END
-    }
+    private final ShiftResource shift;
+    private final ResizeEdge edge;
 
-    public ShiftResizeHandle(ShiftResource shift, ResizeEdge edge) {
+    public ShiftResourceResizeBar(ShiftResource shift, ResizeEdge edge) {
+        this.shift = shift;
+        this.edge = edge;
+
+        addClassName("resize-drag-source");
 
         setWidth("5px");
         setHeightFull();
+
         getStyle()
                 .set("background-color", "#ffffff")
                 .set("opacity", "0.6")
@@ -237,21 +193,15 @@ class ShiftResizeHandle extends Div implements DragSource<ShiftResizeHandle> {
                 .set("top", "0")
                 .set("z-index", "10");
 
-        // Pozycjonowanie krawędzi
         if (edge == ResizeEdge.START) {
             getStyle().set("left", "0");
         } else {
             getStyle().set("right", "0");
         }
 
-        // Konfiguracja DragSource
         DragSource.create(this);
-        // Przekazujemy klucz identyfikujący: obiekt zmiany + informacja o krawędzi
-        setDragData(new ResizeDragData(shift, edge));
+        setDragData(this);
         setEffectAllowed(EffectAllowed.MOVE);
-
-        // KLUCZOWY IDENTYFIKATOR DLA FILTROWANIA W handleResizeDrop
-        addClassName("resize-drag-source");
 
         // ----------------------------------------------------------------------
         // KLUCZOWA POPRAWKA: Zatrzymanie propagacji za pomocą bezpośredniego JS.
@@ -265,22 +215,9 @@ class ShiftResizeHandle extends Div implements DragSource<ShiftResizeHandle> {
         getElement().addEventListener("mouseenter", e -> getStyle().set("opacity", "1.0"));
         getElement().addEventListener("mouseleave", e -> getStyle().set("opacity", "0.6"));
     }
-}
 
-class ResizeDragData {
-    private final ShiftResource shift;
-    private final ShiftResizeHandle.ResizeEdge edge;
-
-    public ResizeDragData(ShiftResource shift, ShiftResizeHandle.ResizeEdge edge) {
-        this.shift = shift;
-        this.edge = edge;
-    }
-
-    public ShiftResource getShift() {
-        return shift;
-    }
-
-    public ShiftResizeHandle.ResizeEdge getEdge() {
-        return edge;
+    public enum ResizeEdge {
+        START,
+        END
     }
 }
