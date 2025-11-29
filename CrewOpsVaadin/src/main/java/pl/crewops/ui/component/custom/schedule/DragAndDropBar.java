@@ -1,7 +1,10 @@
 package pl.crewops.ui.component.custom.schedule;
 
+import static pl.crewops.ui.component.custom.schedule.DailyScheduleGrid.INTERVALS_PER_DAY;
+
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dnd.DragSource;
 import com.vaadin.flow.component.dnd.DropEffect;
 import com.vaadin.flow.component.dnd.DropTarget;
@@ -23,18 +26,20 @@ class ShiftResourceDragBar extends Div implements DragSource<ShiftResourceDragBa
         getStyle()
                 .set("box-sizing", "border-box") // Krytyczne dla marginesów/paddingów
                 .set("margin", "0") // Zapobieganie domyślnym marginesom Vaadin
-                .set("padding", "0")
-                .set("background-color", "#3e70d6")
-                .set("color", "white")
-                .set("border-radius", "3px")
-                .set("text-align", "center");
+                .set("padding", "0");
+
+        addClassName("shift-base-style");
 
         DragSource<Div> dragSource = DragSource.create(this);
         dragSource.setDragData(resource);
         dragSource.setEffectAllowed(EffectAllowed.COPY_MOVE);
+
+        dragSource.addDragStartListener(e -> getElement().getClassList().add("dragged-item"));
+        dragSource.addDragEndListener(e -> getElement().getClassList().remove("dragged-item"));
     }
 }
 
+@CssImport("./styles/component/dailyView/drag-and-drop.css")
 class ShiftResourceDropBar extends Div {
 
     private final ScheduleDay day;
@@ -68,13 +73,33 @@ class ShiftResourceDropBar extends Div {
                 }
 
                 if (data instanceof ShiftResource shiftResource) {
+                    shiftResource.setStartSlot(TimeSlot.fromIndex(index));
 
-                    var newShiftResource = new ShiftResource(shiftResource.getShiftDTO());
-                    newShiftResource.setStartSlot(TimeSlot.fromIndex(index));
-                    newShiftResource.setDurationInSlots(shiftResource.getDurationInSlots());
+                    if (shiftResource.hasCrossMidnightSegment()) {
+                        if (shiftResource.getEndSlotIndex() < INTERVALS_PER_DAY) {
+                            fireEvent(new ShiftNoLongerCrossesMidnightEvent(this, shiftResource));
+                        } else {
+                            int beforeMoveStartSlot = shiftResource.getBeforeMoveStartSlot();
+                            int newStartSlot = shiftResource.getStartSlot().getIndex();
 
-                    day.getShifts().remove(shiftResource);
-                    day.addShift(newShiftResource);
+                            int value;
+                            if (newStartSlot >= beforeMoveStartSlot) {
+                                value = newStartSlot - beforeMoveStartSlot;
+                            } else {
+                                value = -(beforeMoveStartSlot - newStartSlot);
+                            }
+                            fireEvent(new CrossMidnightResizeEvent(this, shiftResource, value));
+                        }
+                    } else {
+                        if (shiftResource.getEndSlotIndex() > INTERVALS_PER_DAY) {
+                            fireEvent(new ShiftCrossMidnightEvent(this, shiftResource));
+                        }
+                    }
+
+                    shiftResource.setBeforeMoveStartSlot(index);
+                    if (!day.getShifts().contains(shiftResource)) {
+                        day.getShifts().add(shiftResource);
+                    }
                 }
             });
         });
@@ -94,8 +119,6 @@ class ShiftResourceDropBar extends Div {
         int newDuration;
 
         if (edge == ShiftResourceResizeBar.ResizeEdge.END) {
-            // ZMIANA KOŃCA (ROZCIĄGANIE W PRAWO)
-            // Kończymy na końcu slotu, na który upuszczono.
             int newEndIndex = dropSlotIndex + 1;
             newDuration = newEndIndex - originalStartIndex;
             if (shiftToModify.isCrossMidnightSegment()) {
@@ -103,8 +126,7 @@ class ShiftResourceDropBar extends Div {
                         this, shiftToModify, newDuration - shiftToModify.getDurationInSlots()));
             }
 
-        } else { // edge == ShiftResizeHandle.ResizeEdge.START
-            // ZMIANA STARTU (ROZCIĄGANIE W LEWO)
+        } else {
             newStartIndex = dropSlotIndex; // Nowy start to slot, na który upuszczono
             newDuration = originalEndIndex - newStartIndex;
         }
@@ -129,38 +151,73 @@ class ShiftResourceDropBar extends Div {
         }
     }
 
+    // 🔥 MODYFIKUJEMY: setStyleForFilled
     private void setStyleForFilled() {
-        getStyle().set("background-color", "#3e70d6").set("border", "none");
+        // 🔥 USUŃ removeClassName("slot-style-empty");
+        addClassName("slot-style-filled");
     }
 
+    // 🔥 MODYFIKUJEMY: setStyleForEmpty (teraz ustawia brak stylu wizualnego)
     private void setStyleForEmpty() {
-        getStyle().set("background-color", "#f0f0f0").set("border", "2px dashed #aaa");
+        removeClassName("slot-style-filled");
+        // 🔥 NIE DODAJEMY TUTAJ ŻADNEJ KLASY (Domyślnie jest niewidoczny/przezroczysty)
+        // Należy jednak usunąć to, co zostało po starej klasie.
     }
 
+    // 🔥 MODYFIKUJEMY: applyStyles
     public void applyStyles(int duration) {
-
         getStyle().set("flex-grow", String.valueOf(duration));
         getStyle().set("flex-shrink", "0");
         getStyle().set("width", "auto");
 
         if (this.droppedResource != null) {
-            removeClassName("schedule-slot-drop-target");
+            removeClassName("schedule-slot-drop-target"); // Nie jest już celem upuszczenia
             setStyleForFilled();
         } else {
+            // Dodajemy tylko klasę targetu
             addClassName("schedule-slot-drop-target");
-            setStyleForEmpty();
+            setStyleForEmpty(); // Po prostu usuwa klasę filled
         }
     }
 
-    @Getter
-    static class CrossMidnightResizeEvent extends ComponentEvent<ShiftResourceDropBar> {
-
+    abstract static class ShiftResourceDropBarEvent extends ComponentEvent<ShiftResourceDropBar> {
+        @Getter
         private final ShiftResource shiftResource;
+
+        public ShiftResourceDropBarEvent(ShiftResourceDropBar source, ShiftResource shiftResource) {
+            super(source, false);
+            this.shiftResource = shiftResource;
+        }
+    }
+
+    static class ShiftCrossMidnightEvent extends ShiftResourceDropBarEvent {
+        public ShiftCrossMidnightEvent(ShiftResourceDropBar source, ShiftResource shiftResource) {
+            super(source, shiftResource);
+        }
+    }
+
+    public Registration addCrossMidnightEvent(ComponentEventListener<ShiftCrossMidnightEvent> listener) {
+        return addListener(ShiftCrossMidnightEvent.class, listener);
+    }
+
+    static class ShiftNoLongerCrossesMidnightEvent extends ShiftResourceDropBarEvent {
+        public ShiftNoLongerCrossesMidnightEvent(ShiftResourceDropBar source, ShiftResource shift) {
+            super(source, shift);
+        }
+    }
+
+    public Registration addShiftNoLongerCrossesMidnightEvent(
+            ComponentEventListener<ShiftNoLongerCrossesMidnightEvent> listener) {
+        return addListener(ShiftNoLongerCrossesMidnightEvent.class, listener);
+    }
+
+    @Getter
+    static class CrossMidnightResizeEvent extends ShiftResourceDropBarEvent {
+
         private final int value;
 
         public CrossMidnightResizeEvent(ShiftResourceDropBar source, ShiftResource shiftResource, int value) {
-            super(source, false);
-            this.shiftResource = shiftResource;
+            super(source, shiftResource);
             this.value = value;
         }
     }
@@ -199,7 +256,7 @@ class ShiftResourceResizeBar extends Div implements DragSource<ShiftResourceResi
             getStyle().set("right", "0");
         }
 
-        DragSource.create(this);
+        DragSource<ShiftResourceResizeBar> dragSource = DragSource.create(this);
         setDragData(this);
         setEffectAllowed(EffectAllowed.MOVE);
 
@@ -214,6 +271,9 @@ class ShiftResourceResizeBar extends Div implements DragSource<ShiftResourceResi
         // Opcjonalne efekty wizualne na hover
         getElement().addEventListener("mouseenter", e -> getStyle().set("opacity", "1.0"));
         getElement().addEventListener("mouseleave", e -> getStyle().set("opacity", "0.6"));
+
+        dragSource.addDragStartListener(e -> getElement().getClassList().add("dragged-handle"));
+        dragSource.addDragEndListener(e -> getElement().getClassList().remove("dragged-handle"));
     }
 
     public enum ResizeEdge {

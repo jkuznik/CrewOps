@@ -14,8 +14,4 @@ final class ScheduleDay {
     public ScheduleDay(int dayNumber) {
         this.dayNumber = dayNumber;
     }
-
-    public void addShift(ShiftResource shift) {
-        this.shifts.add(shift);
-    }
 }

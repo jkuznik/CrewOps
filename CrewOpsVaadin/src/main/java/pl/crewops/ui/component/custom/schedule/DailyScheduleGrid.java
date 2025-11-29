@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import pl.crewops.enums.TimeSlot;
 
 @CssImport("./styles/component/dailyView/schedule-grid.css")
@@ -38,8 +39,8 @@ class DailyScheduleGrid extends VerticalLayout {
     private int dayCounter = 1;
 
     public DailyScheduleGrid() {
-        //        setWidthFull();
-        setWidth("2100px");
+        setWidthFull();
+        //        setWidth("2100px");
 
         grid.setAllRowsVisible(true);
         grid.setSelectionMode(SelectionMode.NONE);
@@ -70,6 +71,7 @@ class DailyScheduleGrid extends VerticalLayout {
                         }
 
                         var originalShift = event.getShift();
+                        originalShift.setHasCrossMidnightSegment(true);
 
                         Optional<ShiftResource> crossMidnightShift = nextDay.getShifts().stream()
                                 .filter(shift -> shift.getShiftDTO()
@@ -81,39 +83,42 @@ class DailyScheduleGrid extends VerticalLayout {
                             var nextDaySegment = crossMidnightShift.get();
                             nextDaySegment.setDurationInSlots(originalShift.getNextDayEndSlotForShift());
 
-                            grid.setItems(dayList);
                         } else {
                             var nextDaySegment = new ShiftResource(originalShift.getShiftDTO());
                             nextDaySegment.setStartSlot(TimeSlot.H00_00);
-                            nextDaySegment.setDurationInSlots(
-                                    originalShift.getStartSlot().getIndex() + originalShift.getDurationInSlots() - 96);
-                            nextDaySegment.setCrossMidnightSegment(true);
-                            nextDay.getShifts().add(nextDaySegment);
+                            nextDaySegment.setDurationInSlots(originalShift.getNextDayEndSlotForShift());
 
-                            grid.setItems(dayList);
+                            nextDaySegment.setCrossMidnightSegment(true);
+
+                            nextDay.getShifts().add(nextDaySegment);
                         }
+                        grid.setItems(dayList);
                     });
 
                     visualization.addShiftNoLongerCrossesMidnightEvent(event -> {
                         int currentDayNumber = event.getSource().getDay().getDayNumber();
                         int nextDayNumber = currentDayNumber + 1;
-                        ShiftResource originalShift = event.getShift();
+
+                        var originalShift = event.getShift();
 
                         dayList.stream()
                                 .filter(d -> d.getDayNumber() == nextDayNumber)
                                 .findFirst()
                                 .ifPresent(nextDay -> {
                                     nextDay.getShifts()
-                                            .removeIf(s -> s.isCrossMidnightSegment()
-                                                    && s.getShiftDTO().equals(originalShift.getShiftDTO()));
+                                            .removeIf(shift ->
+                                                    shift.isCrossMidnightSegment() && shift.equals(originalShift));
 
-                                    grid.setItems(dayList);
+                                    if (nextDay.getShifts().isEmpty()) {
+                                        removeDay(nextDayNumber);
+                                    }
                                 });
 
-                        removeDay(nextDayNumber);
+                        originalShift.setHasCrossMidnightSegment(false);
+                        grid.setItems(dayList);
                     });
 
-                    visualization.addShiftUpdatedListener(event -> {
+                    visualization.addShiftResizeListener(event -> {
                         dayList.stream()
                                 .flatMap(d -> d.getShifts().stream())
                                 .filter(shiftResource -> event.getShift().equals(shiftResource))
@@ -121,6 +126,7 @@ class DailyScheduleGrid extends VerticalLayout {
                                     shiftResource.setDurationInSlots(
                                             shiftResource.getDurationInSlots() + event.getValue());
                                 });
+                        grid.setItems(dayList);
                     });
 
                     return visualization;
@@ -167,26 +173,15 @@ class DailyScheduleGrid extends VerticalLayout {
                 .orElse(null);
 
         if (dayToRemove != null) {
-            // Sprawdzanie bezpieczeństwa: Czy dzień ma jakieś 'prawdziwe' zmiany, które nie są tylko wizualizacją?
-            boolean hasRealShifts = dayToRemove.getShifts().stream()
-                    // Używamy zaimplementowanej wcześniej flagi
-                    .anyMatch(shift -> !shift.isCrossMidnightSegment());
+            boolean hasRealShifts = dayToRemove.getShifts().stream().anyMatch(shift -> !shift.isCrossMidnightSegment());
 
-            // Usuwamy tylko, jeśli dzień jest pusty (nie ma własnych, prawdziwych zmian)
             if (!hasRealShifts) {
                 dayList.remove(dayToRemove);
                 grid.setItems(dayList);
 
-                // Aktualizacja dayCounter w sekwencyjnym systemie
-                // Jeśli usunęliśmy ten dzień, który był ostatni w kolekcji (czyli dayCounter), musimy go
-                // zdekrementować.
                 if (dayNumber == dayCounter) {
                     dayCounter--;
                 }
-                System.out.println("LOG: Dzień " + dayNumber + " usunięty automatycznie.");
-            } else {
-                // Dzień jest potrzebny ze względu na inne zmiany
-                System.out.println("LOG: Anulowano usunięcie Dnia " + dayNumber + ". Posiada inne przypisane zmiany.");
             }
         }
     }
@@ -236,10 +231,14 @@ class DailyScheduleGrid extends VerticalLayout {
     }
 }
 
+@CssImport("./styles/component/dailyView/daily-schedule-visualization.css")
+@Slf4j
 class DayScheduleVisualization extends VerticalLayout {
 
     @Getter
     private final ScheduleDay day;
+
+    private final List<Registration> listeners = new ArrayList<>();
 
     public DayScheduleVisualization(ScheduleDay day) {
         this.day = day;
@@ -254,8 +253,8 @@ class DayScheduleVisualization extends VerticalLayout {
 
     private void renderSchedule() {
         removeAll();
-
-        checkMidnightCrossingsAndFireEvents();
+        listeners.forEach(Registration::remove);
+        listeners.clear();
 
         List<ShiftResource> shifts = day.getShifts();
 
@@ -309,7 +308,6 @@ class DayScheduleVisualization extends VerticalLayout {
 
     private Div createDragShiftSlot(ShiftResource shift) {
         if (shift.isCrossMidnightSegment()) {
-            // Jeśli to jest segment wizualny, nie chcemy, aby można go było przenosić.
             var zone = new Div();
             zone.setWidthFull();
             zone.setHeightFull();
@@ -317,7 +315,6 @@ class DayScheduleVisualization extends VerticalLayout {
             return zone;
         }
 
-        // 2. STANDARDOWA LOGIKA PRZENOSZENIA DLA 'PRAWDZIWYCH' SHIFTÓW
         var zone = new Div();
         zone.setWidthFull();
         zone.setHeightFull();
@@ -334,17 +331,18 @@ class DayScheduleVisualization extends VerticalLayout {
         dragSource.setDragData(shift);
         dragSource.setEffectAllowed(EffectAllowed.MOVE);
 
-        // Słuchacze: Ukrywanie Div, który jest źródłem przeciągania
-        dragSource.addDragStartListener(event -> {
+        Registration dragStartListener = dragSource.addDragStartListener(event -> {
             Div sourceDiv = event.getSource();
             sourceDiv.getStyle().set("visibility", "hidden");
         });
+        listeners.add(dragStartListener);
 
-        dragSource.addDragEndListener(event -> {
+        Registration dragEndListener = dragSource.addDragEndListener(event -> {
             Div sourceDiv = event.getSource();
             sourceDiv.getStyle().set("visibility", "visible");
             renderSchedule();
         });
+        listeners.add(dragEndListener);
 
         // Zatrzymanie propagacji
         zone.getElement()
@@ -354,21 +352,26 @@ class DayScheduleVisualization extends VerticalLayout {
         return zone;
     }
 
-    // W KLASIE DayScheduleVisualization
     private Div createShiftSlottedBar(ShiftResource shift, int index) {
 
         var dropBar = new ShiftResourceDropBar(day, index);
-        dropBar.addCrossMidnightResizeEvent(event -> {
-            fireEvent(new ShiftUpdatedEvent(this, event.getShiftResource(), event.getValue()));
-        });
+        //        dropBar.add(new Span("" + index));
 
-        dropBar.add(new Span("" + index));
+        Registration crossMidnightEvent = dropBar.addCrossMidnightEvent(event -> {
+            fireEvent(new ShiftCrossesMidnightEvent(this, event.getShiftResource()));
+        });
+        listeners.add(crossMidnightEvent);
+        Registration shiftNoLongerCrossesMidnightEvent = dropBar.addShiftNoLongerCrossesMidnightEvent(event -> {
+            fireEvent(new ShiftNoLongerCrossesMidnightEvent(this, event.getShiftResource()));
+        });
+        listeners.add(shiftNoLongerCrossesMidnightEvent);
+        Registration crossMidnightResizeEvent = dropBar.addCrossMidnightResizeEvent(event -> {
+            fireEvent(new ShiftResizeEvent(this, event.getShiftResource(), event.getValue()));
+        });
+        listeners.add(crossMidnightResizeEvent);
 
         dropBar.setDroppedResource(shift);
         dropBar.applyStyles(1);
-
-        dropBar.getStyle().set("background-color", "#3e70d6");
-        dropBar.getStyle().set("border", "none");
         dropBar.getStyle().set("position", "relative");
 
         dropBar.add(createDragShiftSlot(shift));
@@ -378,18 +381,20 @@ class DayScheduleVisualization extends VerticalLayout {
         if (index == shift.getStartSlotIndex() && !isCrossMidnightSegment) {
             ShiftResourceResizeBar shiftResourceResizeBar =
                     new ShiftResourceResizeBar(shift, ShiftResourceResizeBar.ResizeEdge.START);
-            shiftResourceResizeBar.addDragEndListener(event -> {
+            Registration dragEndListener = shiftResourceResizeBar.addDragEndListener(event -> {
                 renderSchedule();
             });
+            listeners.add(dragEndListener);
             dropBar.add(shiftResourceResizeBar);
         }
 
         if (index == shift.getEndSlotIndex() - 1) {
             ShiftResourceResizeBar shiftResourceResizeBar =
                     new ShiftResourceResizeBar(shift, ShiftResourceResizeBar.ResizeEdge.END);
-            shiftResourceResizeBar.addDragEndListener(event -> {
+            Registration dragEndListener = shiftResourceResizeBar.addDragEndListener(event -> {
                 renderSchedule();
             });
+            listeners.add(dragEndListener);
             dropBar.add(shiftResourceResizeBar);
         }
 
@@ -398,12 +403,21 @@ class DayScheduleVisualization extends VerticalLayout {
 
     private Div createEmptySlot(int index) {
         var dropBar = new ShiftResourceDropBar(day, index);
+        //        dropBar.add(new Span("" + index));
 
         dropBar.setDroppedResource(null);
-        dropBar.add(new Span("" + index));
-        dropBar.addCrossMidnightResizeEvent(event -> {
-            fireEvent(new ShiftUpdatedEvent(this, event.getShiftResource(), event.getValue()));
+        Registration crossMidnightEvent = dropBar.addCrossMidnightEvent(event -> {
+            fireEvent(new ShiftCrossesMidnightEvent(this, event.getShiftResource()));
         });
+        listeners.add(crossMidnightEvent);
+        Registration shiftNoLongerCrossesMidnightEvent = dropBar.addShiftNoLongerCrossesMidnightEvent(event -> {
+            fireEvent(new ShiftNoLongerCrossesMidnightEvent(this, event.getShiftResource()));
+        });
+        listeners.add(shiftNoLongerCrossesMidnightEvent);
+        Registration crossMidnightResizeEvent = dropBar.addCrossMidnightResizeEvent(event -> {
+            fireEvent(new ShiftResizeEvent(this, event.getShiftResource(), event.getValue()));
+        });
+        listeners.add(crossMidnightResizeEvent);
 
         dropBar.applyStyles(1);
 
@@ -469,42 +483,11 @@ class DayScheduleVisualization extends VerticalLayout {
             int start2 = existing.getStartSlotIndex();
             int end2 = existing.getEndSlotIndex();
 
-            // Nakładanie zachodzi, jeśli (Start1 < End2) i (End1 > Start2)
             if (start1 < end2 && end1 > start2) {
                 return true;
             }
         }
         return false;
-    }
-
-    private void checkMidnightCrossingsAndFireEvents() {
-        boolean anyShiftCrossesMidnight = day.getShifts().stream()
-                .filter(shift -> !shift.isCrossMidnightSegment())
-                .anyMatch(shift -> shift.getEndSlotIndex() > INTERVALS_PER_DAY);
-
-        if (anyShiftCrossesMidnight) {
-            // ZMIANA STANU: Z FALSZ na PRAWDA (zaczął krzyżować północ)
-            // Musimy dodać następny dzień do Grid.
-
-            // Znajdujemy jeden ShiftResource do przekazania w Evencie.
-            day.getShifts().stream()
-                    .filter(shift -> !shift.isCrossMidnightSegment() && shift.getEndSlotIndex() > INTERVALS_PER_DAY)
-                    .findFirst()
-                    .ifPresent(shift -> {
-                        fireEvent(new ShiftCrossesMidnightEvent(this, shift));
-                        System.out.println("FireEvent: ShiftCrossesMidnightEvent dla Dnia " + day.getDayNumber());
-                    });
-
-        } else {
-            // ZMIANA STANU: Z PRAWDA na FALSZ (przestał krzyżować północ)
-            // Musimy dać Grid informację, że następny dzień może być do usunięcia.
-
-            // Przekazujemy dowolny shift, ponieważ Grid patrzy na numer dnia.
-            day.getShifts().stream().findFirst().ifPresent(shift -> {
-                fireEvent(new ShiftNoLongerCrossesMidnightEvent(this, shift));
-                System.out.println("FireEvent: ShiftNoLongerCrossesMidnightEvent dla Dnia " + day.getDayNumber());
-            });
-        }
     }
 
     abstract static class DayScheduleVisualisationEvent extends ComponentEvent<DayScheduleVisualization> {
@@ -529,11 +512,11 @@ class DayScheduleVisualization extends VerticalLayout {
         }
     }
 
-    static class ShiftUpdatedEvent extends DayScheduleVisualisationEvent {
+    static class ShiftResizeEvent extends DayScheduleVisualisationEvent {
         @Getter
         private final int value;
 
-        public ShiftUpdatedEvent(DayScheduleVisualization source, ShiftResource shift, int value) {
+        public ShiftResizeEvent(DayScheduleVisualization source, ShiftResource shift, int value) {
             super(source, shift);
             this.value = value;
         }
@@ -548,7 +531,7 @@ class DayScheduleVisualization extends VerticalLayout {
         return addListener(ShiftNoLongerCrossesMidnightEvent.class, listener);
     }
 
-    public Registration addShiftUpdatedListener(ComponentEventListener<ShiftUpdatedEvent> listener) {
-        return addListener(ShiftUpdatedEvent.class, listener);
+    public Registration addShiftResizeListener(ComponentEventListener<ShiftResizeEvent> listener) {
+        return addListener(ShiftResizeEvent.class, listener);
     }
 }

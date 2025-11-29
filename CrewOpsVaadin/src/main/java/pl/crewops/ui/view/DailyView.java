@@ -22,6 +22,9 @@ import pl.crewops.util.AuthenticationResolver;
 @PageTitle("Daily Entry")
 public final class DailyView extends MainLayout implements BeforeEnterObserver {
 
+    // todo: bud w prezentacji aktualnego stanu dniowki w tabeli audytowej - brak prezentacji wartosci ktore byly
+    // wybrane w momencie tworzenia wpisu
+    //  prezentowane sa jedynie wartosci zmieniane
     public static final String MAIN_CONTENT_WIDTH_PX = "1600px";
 
     private final Tab currentDayTab = new Tab(getTranslation("dailyView.currentDay"));

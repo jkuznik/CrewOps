@@ -15,10 +15,16 @@ final class ShiftResource {
     private TimeSlot startSlot;
     private int durationInSlots = 84;
 
-    private boolean isCrossMidnightSegment = false;
+    private int beforeMoveStartSlot;
+    private boolean hasCrossMidnightSegment = false; // this is info for original shift resource
+    private boolean isCrossMidnightSegment = false; // this is info for 'next day' visualisation shift
 
     public ShiftResource(ShiftDTO shiftDTO) {
         this.shiftDTO = shiftDTO;
+    }
+
+    public boolean hasCrossMidnightSegment() {
+        return hasCrossMidnightSegment;
     }
 
     public int getStartSlotIndex() {

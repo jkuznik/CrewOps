@@ -1,0 +1,53 @@
+/*
+ * Plik CSS dla komponentów Drag and Drop (ShiftResourceDropBar, ShiftResourceDragBar, ShiftResourceResizeBar).
+ * Wykorzystuje klasy i atrybuty automatycznie dodawane przez Vaadin D&D.
+ */
+
+/* --- Baza dla Celów Upuszczenia (Drop Target) --- */
+
+.schedule-drop-target {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+
+    /* 🔥 KLUCZOWA ZMIANA: Usuwamy domyślne tło i obramowanie */
+    background-color: transparent;
+    border: none;
+
+    transition: all 0.1s ease-in-out;
+}
+
+/* --- Aktywny Cel Upuszczenia (Reakcja na najazd) --- */
+
+/* Klasa dodawana automatycznie przez Vaadin, gdy element jest przeciągany nad celem upuszczenia */
+.schedule-drop-target[vaadin-dnd-enter] {
+    /* To teraz nada wizualne tło i obramowanie TYLKO w trakcie przeciągania */
+    background-color: #d1e7f3 !important;
+    border: 2px solid #3e70d6 !important;
+    box-shadow: 0 0 8px rgba(62, 112, 214, 0.5);
+}
+
+/* --- Elementy Przeciągane (Drag Source) --- */
+
+/* Przenoszony shift (ShiftResourceDragBar) */
+.dragged-item {
+    opacity: 0.7; /* Lekkie przyciemnienie */
+    transform: scale(0.95); /* Lekkie zmniejszenie */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    cursor: grabbing; /* Zmiana kursora, gdy element jest złapany */
+}
+
+/* --- Uchwyt Resize (ShiftResourceResizeBar) --- */
+
+.resize-drag-source {
+    /* Domyślny styl uchwytu resize, upewnienie się, że jest na wierzchu */
+    z-index: 100;
+}
+
+/* Uchwyt, gdy jest przeciągany (DragStart w Javie dodaje klasę dragged-handle) */
+.dragged-handle {
+    background-color: #3e70d6 !important; /* Zmiana koloru na kolor shifta */
+    opacity: 1.0 !important;
+    box-shadow: 0 0 10px rgba(62, 112, 214, 0.8);
+    cursor: grabbing !important;
+}
