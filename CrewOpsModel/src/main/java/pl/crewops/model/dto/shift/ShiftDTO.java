@@ -6,7 +6,7 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record ShiftDTO(UUID id, String name, Set<ShiftConfig> shiftConfigs) {
+public record ShiftDTO(UUID id, String name, Set<ShiftConfig> shiftConfigs, String color) {
 
     @Override
     public boolean equals(Object o) {

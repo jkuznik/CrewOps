@@ -36,6 +36,11 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     unique: true # Nazwa zmiany powinna by\u0107 unikalna
+              - column:
+                  name: color
+                  type: varchar(63)
+                  constraints:
+                    nullable: false
 
         - sql:
             dbms: postgresql

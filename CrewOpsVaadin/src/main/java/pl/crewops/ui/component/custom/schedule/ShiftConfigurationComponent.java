@@ -13,6 +13,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
@@ -22,8 +23,6 @@ import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.shift.ShiftDTO;
 import pl.crewops.ui.component.custom.AddButtonPanel;
 import pl.crewops.ui.component.notification.FailNotification;
-import pl.crewops.ui.component.notification.InfoNotification;
-import pl.crewops.ui.component.notification.SuccessNotification;
 import pl.crewops.ui.component.panel.ShiftPanel;
 
 @CssImport("./styles/component/schedule-content-component.css")
@@ -31,7 +30,7 @@ public class ShiftConfigurationComponent extends VerticalLayout {
 
     private final CoreAPI coreAPI;
 
-    private static final String PANEL_HEIGHT = "550px";
+    private static final String PANEL_HEIGHT = "600px";
     private static final String PANEL_WIDTH = "400px";
 
     private final Button toggleVisibilityButton = new Button(VaadinIcon.ANGLE_DOWN.create());
@@ -94,6 +93,7 @@ public class ShiftConfigurationComponent extends VerticalLayout {
 
         try {
             List<ShiftDTO> allShifts = coreAPI.getAllShifts();
+            allShifts.sort(Comparator.comparing(ShiftDTO::name));
 
             if (!allShifts.isEmpty()) {
                 allShifts.forEach(shift -> {
@@ -105,8 +105,10 @@ public class ShiftConfigurationComponent extends VerticalLayout {
                     shiftContainers.add(existedShiftContainer);
                     panelsLayout.addComponentAtIndex(panelsLayout.getComponentCount() - 1, existedShiftContainer);
 
-                    shiftPanelDeleteShiftListener(existedShift);
+                    configureUpdateButtonListener(existedShift);
+                    configureDeleteButtonListener(existedShift);
                     existedShifts.add(shift);
+                    existedShifts.sort(Comparator.comparing(ShiftDTO::name));
                 });
             } else {
                 addShiftPanel();
@@ -117,31 +119,29 @@ public class ShiftConfigurationComponent extends VerticalLayout {
         }
     }
 
-    private void displayCreatedShiftListener(ShiftPanel shiftPanel) {
+    private void configureSaveButtonListener(ShiftPanel shiftPanel) {
         shiftPanel.addSaveListener(event -> {
-            ShiftDTO shiftDTO;
             try {
-                var createShiftDTO = event.getCreateShiftDTO();
-                shiftDTO = coreAPI.createShift(createShiftDTO).orElseThrow(RuntimeException::new);
-
-                new SuccessNotification(getTranslation("shiftPanel.addShiftSuccess"));
-
-                fireEvent(new DisplayExistingShiftEvent(this, shiftDTO));
-                existedShifts.add(shiftDTO);
+                fireEvent(new DisplayExistingShiftEvent(this, event.getShiftDTO()));
+                existedShifts.add(event.getShiftDTO());
             } catch (Exception ex) {
                 new FailNotification(getTranslation("failNotification"));
             }
         });
     }
 
-    private void shiftPanelDeleteShiftListener(ShiftPanel existedShift) {
+    private void configureUpdateButtonListener(ShiftPanel shiftPanel) {
+        shiftPanel.addUpdateListener(event -> {
+            try {
+                fireEvent(new UpdateShiftEvent(this, event.getShiftDTO()));
+            } catch (Exception e) {
+                new FailNotification(getTranslation("failNotification"));
+            }
+        });
+    }
+
+    private void configureDeleteButtonListener(ShiftPanel existedShift) {
         existedShift.addDeleteListener(event -> {
-
-            // todo implement delete guardian notification
-            new InfoNotification("Cała logika zwiazana z zapytaniem do BE jest zawarta bezpośrednio w ShiftPanel, "
-                    + "a reszta związana z zmianą widoku dzieję się w ShiftConfigurationComponent, zastanowić się czy nie przenieść całości "
-                    + "tutaj i dodać GuardianNotification");
-
             try {
                 coreAPI.deleteShiftById(event.getShiftId());
             } catch (NotAuthenticatedException e) {
@@ -178,8 +178,9 @@ public class ShiftConfigurationComponent extends VerticalLayout {
 
     private void addShiftPanel() {
         var configurableShiftPanel = new ShiftPanel(null, new ArrayList<>(allAvailableJobPositions));
-        displayCreatedShiftListener(configurableShiftPanel);
-        shiftPanelDeleteShiftListener(configurableShiftPanel);
+        configureSaveButtonListener(configurableShiftPanel);
+        configureUpdateButtonListener(configurableShiftPanel);
+        configureDeleteButtonListener(configurableShiftPanel);
 
         configurableShiftPanel.addCloseListener(event -> {
             VerticalLayout shiftContainerToRemove = shiftContainers.stream()
@@ -258,6 +259,17 @@ public class ShiftConfigurationComponent extends VerticalLayout {
         }
     }
 
+    public class UpdateShiftEvent extends ShiftConfigurationComponentEvents {
+
+        @Getter
+        private final ShiftDTO shiftDTO;
+
+        public UpdateShiftEvent(ShiftConfigurationComponent source, ShiftDTO shiftDTO) {
+            super(source);
+            this.shiftDTO = shiftDTO;
+        }
+    }
+
     public class DeleteShiftEvent extends ShiftConfigurationComponentEvents {
 
         @Getter
@@ -271,6 +283,10 @@ public class ShiftConfigurationComponent extends VerticalLayout {
 
     public Registration addDisplayExistingShiftListener(ComponentEventListener<DisplayExistingShiftEvent> listener) {
         return addListener(DisplayExistingShiftEvent.class, listener);
+    }
+
+    public Registration addUpdateShiftListener(ComponentEventListener<UpdateShiftEvent> listener) {
+        return addListener(UpdateShiftEvent.class, listener);
     }
 
     public Registration addDeleteShiftListener(ComponentEventListener<DeleteShiftEvent> listener) {

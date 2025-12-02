@@ -10,6 +10,7 @@ import com.vaadin.flow.component.dnd.DropEffect;
 import com.vaadin.flow.component.dnd.DropTarget;
 import com.vaadin.flow.component.dnd.EffectAllowed;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.shared.Registration;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,21 +22,42 @@ class ShiftResourceDragBar extends Div implements DragSource<ShiftResourceDragBa
     @Getter
     private final ShiftResource resource;
 
+    private final Span label = new Span();
+
     public ShiftResourceDragBar(ShiftResource resource) {
         this.resource = resource;
-        getStyle()
-                .set("box-sizing", "border-box") // Krytyczne dla marginesów/paddingów
-                .set("margin", "0") // Zapobieganie domyślnym marginesom Vaadin
-                .set("padding", "0");
+
+        getStyle().set("box-sizing", "border-box").set("margin", "0").set("padding", "0");
 
         addClassName("shift-base-style");
 
+        // Dodajemy label jako kontrolowany element tekstowy
+        label.getStyle().set("display", "inline-block");
+        add(label);
+
+        // Drag & Drop
         DragSource<Div> dragSource = DragSource.create(this);
         dragSource.setDragData(resource);
         dragSource.setEffectAllowed(EffectAllowed.COPY_MOVE);
 
         dragSource.addDragStartListener(e -> getElement().getClassList().add("dragged-item"));
         dragSource.addDragEndListener(e -> getElement().getClassList().remove("dragged-item"));
+    }
+
+    public void setText(String text) {
+        label.setText(text);
+    }
+
+    // Ustawia kolor tekstu bezpośrednio na label z !important, aby przebić zewnętrzne reguły
+    public void setTextColor(String color) {
+        // zabezpieczenie: gdy color null lub pusty -> usuń właściwość
+        if (color == null || color.isBlank()) {
+            // usuń inline style important
+            label.getElement().executeJs("this.style.removeProperty('color');");
+        } else {
+            // ustaw z priorytetem 'important'
+            label.getElement().executeJs("this.style.setProperty('color', $0, 'important');", color);
+        }
     }
 }
 

@@ -115,6 +115,7 @@ class ShiftService implements ShiftAPI {
                     .id(shift.getId())
                     .name(shift.getName())
                     .shiftConfigs(shiftConfigs)
+                    .color(shift.getColor())
                     .build();
             result.add(shiftDTO);
         });
@@ -134,6 +135,7 @@ class ShiftService implements ShiftAPI {
                 .orElseThrow(() -> new ShiftNotFoundException(updateShiftDTO.id()));
 
         existedShift.setName(updateShiftDTO.name());
+        existedShift.setColor(updateShiftDTO.color());
 
         if (updateShiftDTO.configs() != null) {
             List<JobPosition> declaredJobPositions = updateShiftDTO.configs().stream()
@@ -175,7 +177,7 @@ class ShiftService implements ShiftAPI {
             });
         }
 
-        return ShiftDTO.builder().build();
+        return mapper.toDTO(existedShift);
     }
 
     @Override

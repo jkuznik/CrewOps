@@ -451,7 +451,7 @@ class DayScheduleVisualization extends VerticalLayout {
             return new ArrayList<>();
         }
 
-        allShifts.sort(Comparator.comparingInt(ShiftResource::getStartSlotIndex));
+        allShifts.sort(Comparator.comparingInt(ShiftResource::getBeforeMoveStartSlot));
 
         List<List<ShiftResource>> rows = new ArrayList<>();
 

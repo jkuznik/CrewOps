@@ -2,7 +2,6 @@ package pl.crewops.model.tenantSchema;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +18,6 @@ import pl.crewops.util.serializer.JobPositionSetSerializer;
 public class Shift extends AbstractEntity {
 
     @Size(max = 63)
-    @NotNull
     @Column(nullable = false)
     private String name;
 
@@ -31,4 +29,7 @@ public class Shift extends AbstractEntity {
             joinColumns = @JoinColumn(name = "shift_id"),
             inverseJoinColumns = @JoinColumn(name = "job_position_id"))
     private List<JobPosition> jobPositions = new ArrayList<>();
+
+    @Column(nullable = false)
+    private String color;
 }

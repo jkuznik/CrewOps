@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -11,14 +12,13 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import pl.crewops.enums.ShiftPanelColor;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.shift.CreateShiftDTO;
@@ -26,6 +26,7 @@ import pl.crewops.model.dto.shift.ShiftConfig;
 import pl.crewops.model.dto.shift.ShiftDTO;
 import pl.crewops.model.dto.shift.UpdateShiftDTO;
 import pl.crewops.ui.component.custom.AddButtonPanel;
+import pl.crewops.ui.component.custom.ComboBoxCustom;
 import pl.crewops.ui.component.custom.PanelCustom;
 import pl.crewops.ui.component.custom.schedule.JobPositionSelector;
 import pl.crewops.ui.component.notification.FailNotification;
@@ -41,6 +42,7 @@ public class ShiftPanel extends PanelCustom {
     private final CoreAPI coreAPI;
 
     private final TextField name = new TextField();
+    private final ColorSelector colorSelector = new ColorSelector();
 
     private final FlexLayout positionsLayout = new FlexLayout();
     private final AddButtonPanel addPositionButton = new AddButtonPanel();
@@ -62,6 +64,7 @@ public class ShiftPanel extends PanelCustom {
         setSizeFull();
 
         name.setWidthFull();
+        colorSelector.setValue(ShiftPanelColor.BLACK);
 
         configurePositionsLayout();
         configureButtons();
@@ -74,7 +77,7 @@ public class ShiftPanel extends PanelCustom {
 
         configureShiftPanelDependsShiftDTO();
 
-        mainContainer.add(name, positionsLayout, configuredButtonLayout());
+        mainContainer.add(name, colorSelector, positionsLayout, configuredButtonLayout());
 
         addContent(mainContainer);
     }
@@ -93,6 +96,7 @@ public class ShiftPanel extends PanelCustom {
         } else {
             setSummary(VaadinIcon.MEDAL, shiftDTO.name());
             name.setValue(shiftDTO.name());
+            colorSelector.setValue(ShiftPanelColor.fromHex(shiftDTO.color()));
 
             shiftDTO.shiftConfigs().forEach(shiftConfig -> {
                 JobPositionSelector existingConfiguredJobPosition = new JobPositionSelector(allAvailablePositions);
@@ -236,6 +240,7 @@ public class ShiftPanel extends PanelCustom {
     }
 
     private void deleteButtonListener() {
+        // todo implement delete guardian notification
         delete.addClickListener(event -> {
             fireEvent(new DeleteEvent(this, shiftDTO.id()));
             this.removeFromParent();
@@ -289,10 +294,16 @@ public class ShiftPanel extends PanelCustom {
             CreateShiftDTO createShiftDTO = CreateShiftDTO.builder()
                     .name(name.getValue().trim())
                     .configs(configs)
+                    .color(colorSelector.getValue().getHex())
                     .build();
 
             try {
-                fireEvent(new SaveEvent(this, createShiftDTO));
+                Optional<ShiftDTO> createdShift = coreAPI.createShift(createShiftDTO);
+                if (createdShift.isPresent()) {
+                    fireEvent(new SaveEvent(this, createdShift.get()));
+                    new SuccessNotification(getTranslation("shiftPanel.addShiftSuccess"));
+                    shiftDTO = createdShift.get();
+                }
             } catch (Exception ex) {
                 return;
             }
@@ -346,12 +357,13 @@ public class ShiftPanel extends PanelCustom {
                     .id(shiftDTO.id())
                     .name(name.getValue().trim())
                     .configs(configs)
+                    .color(colorSelector.getValue().getHex())
                     .build();
 
             try {
-                coreAPI.updateShift(updateShiftDTO);
+                var updatedShiftDTO = coreAPI.updateShift(updateShiftDTO);
                 new SuccessNotification(getTranslation("shiftPanel.updateShiftSuccess"));
-                fireEvent(new UpdateEvent(this));
+                fireEvent(new UpdateEvent(this, updatedShiftDTO));
                 setSummary(VaadinIcon.MEDAL, name.getValue().trim());
             } catch (Exception ex) {
                 new FailNotification(getTranslation("failNotification"));
@@ -377,17 +389,22 @@ public class ShiftPanel extends PanelCustom {
     public static class SaveEvent extends ShiftPanelEvent {
 
         @Getter
-        private final CreateShiftDTO createShiftDTO;
+        private final ShiftDTO shiftDTO;
 
-        public SaveEvent(PanelCustom source, CreateShiftDTO createShiftDTO) {
+        public SaveEvent(PanelCustom source, ShiftDTO shiftDTO) {
             super(source);
-            this.createShiftDTO = createShiftDTO;
+            this.shiftDTO = shiftDTO;
         }
     }
 
     public static class UpdateEvent extends ShiftPanelEvent {
-        public UpdateEvent(PanelCustom source) {
+
+        @Getter
+        private final ShiftDTO shiftDTO;
+
+        public UpdateEvent(PanelCustom source, ShiftDTO shiftDTO) {
             super(source);
+            this.shiftDTO = shiftDTO;
         }
     }
 
@@ -422,5 +439,33 @@ public class ShiftPanel extends PanelCustom {
 
     public Registration addDeleteListener(ComponentEventListener<DeleteEvent> listener) {
         return addListener(DeleteEvent.class, listener);
+    }
+}
+
+class ColorSelector extends ComboBoxCustom<ShiftPanelColor> {
+
+    public ColorSelector() {
+        setItems(ShiftPanelColor.values());
+
+        setItemLabelGenerator(color -> getTranslation(color.getTranslationKey()));
+
+        setRenderer(new ComponentRenderer<>(color -> {
+            Div dot = new Div();
+            dot.getStyle().set("width", "18px");
+            dot.getStyle().set("height", "18px");
+            dot.getStyle().set("border-radius", "50%");
+            dot.getStyle().set("background-color", color.getHex());
+            dot.getStyle().set("border", "1px solid #000");
+
+            Span text = new Span(getTranslation(color.getTranslationKey()));
+            text.getStyle().set("margin-left", "8px");
+
+            HorizontalLayout layout = new HorizontalLayout(dot, text);
+            layout.setPadding(false);
+            layout.setSpacing(true);
+            layout.setAlignItems(FlexComponent.Alignment.CENTER);
+
+            return layout;
+        }));
     }
 }

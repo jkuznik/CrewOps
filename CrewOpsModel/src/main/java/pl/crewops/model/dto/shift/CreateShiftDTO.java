@@ -6,4 +6,5 @@ import java.util.Set;
 import lombok.Builder;
 
 @Builder
-public record CreateShiftDTO(@NotNull @Size(max = 63) String name, Set<ShiftConfig> configs) {}
+public record CreateShiftDTO(
+        @NotNull @Size(max = 63) String name, Set<ShiftConfig> configs, @NotNull @Size(max = 63) String color) {}
