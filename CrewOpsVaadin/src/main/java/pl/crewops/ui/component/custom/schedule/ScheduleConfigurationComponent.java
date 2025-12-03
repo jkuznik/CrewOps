@@ -18,6 +18,9 @@ public class ScheduleConfigurationComponent extends VerticalLayout {
 
     private final CoreAPI coreAPI;
 
+    private final Tab dailySchedule = new Tab(getTranslation("scheduleConfigurationComponent.dailySchedule"));
+    private final Tab weeklySchedule = new Tab(getTranslation("scheduleConfigurationComponent.weeklySchedule"));
+    private final Tabs tabs = new Tabs(dailySchedule, weeklySchedule);
     private final Button toggleVisibilityButton = new Button(VaadinIcon.ANGLE_UP.create());
 
     private final DailyScheduleGenerator dailyScheduleGenerator = new DailyScheduleGenerator();
@@ -27,13 +30,11 @@ public class ScheduleConfigurationComponent extends VerticalLayout {
 
     public ScheduleConfigurationComponent(CoreAPI coreAPI) {
         this.coreAPI = coreAPI;
-        // todo i18n
-        final Tab dailySchedule = new Tab("Daily schedule");
-        final Tab weeklySchedule = new Tab("Weekly schedule");
-        var tabs = new Tabs(dailySchedule, weeklySchedule);
         this.contentContainer = new VerticalLayout(tabs, dailyScheduleGenerator);
 
         addClassName("component-content-border");
+
+        configureTabs();
 
         setSizeFull();
         add(createToolbar(), contentContainer);
@@ -61,14 +62,6 @@ public class ScheduleConfigurationComponent extends VerticalLayout {
         return bar;
     }
 
-    private void toggleContentVisibility() {
-        isContentVisible = !isContentVisible;
-        contentContainer.setVisible(isContentVisible);
-
-        toggleVisibilityButton.setIcon(
-                isContentVisible ? VaadinIcon.ANGLE_UP.create() : VaadinIcon.ANGLE_DOWN.create());
-    }
-
     public void addShiftResourceDragBar(ShiftDTO shiftDTO) {
         dailyScheduleGenerator.addShiftResourceDragBar(shiftDTO);
     }
@@ -79,5 +72,24 @@ public class ScheduleConfigurationComponent extends VerticalLayout {
 
     public void removeShiftResourceDragBar(UUID shiftId) {
         dailyScheduleGenerator.removeShiftResourceDragBar(shiftId);
+    }
+
+    private void toggleContentVisibility() {
+        isContentVisible = !isContentVisible;
+        contentContainer.setVisible(isContentVisible);
+
+        toggleVisibilityButton.setIcon(
+                isContentVisible ? VaadinIcon.ANGLE_UP.create() : VaadinIcon.ANGLE_DOWN.create());
+    }
+
+    private void configureTabs() {
+        tabs.addSelectedChangeListener(event -> {
+            Tab selectedTab = event.getSelectedTab();
+            if (selectedTab.equals(dailySchedule)) {
+                dailyScheduleGenerator.setVisible(true);
+            } else {
+                dailyScheduleGenerator.setVisible(false);
+            }
+        });
     }
 }

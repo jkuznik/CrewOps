@@ -32,15 +32,14 @@ class DailyScheduleGrid extends VerticalLayout {
 
     @Getter
     private final Grid<ScheduleDay> grid = new Grid<>();
-    // todo i18n
-    private final Button addButton = new Button("Next day");
-    private final Button removeButton = new Button("Remove day");
+
+    private final Button addButton = new Button(getTranslation("dailyScheduleGrid.nextDayButton"));
+    private final Button removeButton = new Button(getTranslation("dailyScheduleGrid.removeDayButton"));
 
     private int dayCounter = 1;
 
     public DailyScheduleGrid() {
         setWidthFull();
-        //        setWidth("2100px");
 
         grid.setAllRowsVisible(true);
         grid.setSelectionMode(SelectionMode.NONE);
@@ -48,7 +47,7 @@ class DailyScheduleGrid extends VerticalLayout {
         grid.setRowsDraggable(false);
 
         grid.addColumn(ScheduleDay::getDayNumber)
-                .setHeader("Dzień")
+                .setHeader(getTranslation("dailyScheduleGrid.day"))
                 .setFlexGrow(0)
                 .setAutoWidth(true)
                 .setFrozen(true);
@@ -355,7 +354,6 @@ class DayScheduleVisualization extends VerticalLayout {
     private Div createShiftSlottedBar(ShiftResource shift, int index) {
 
         var dropBar = new ShiftResourceDropBar(day, index);
-        //        dropBar.add(new Span("" + index));
 
         Registration crossMidnightEvent = dropBar.addCrossMidnightEvent(event -> {
             fireEvent(new ShiftCrossesMidnightEvent(this, event.getShiftResource()));
@@ -403,7 +401,6 @@ class DayScheduleVisualization extends VerticalLayout {
 
     private Div createEmptySlot(int index) {
         var dropBar = new ShiftResourceDropBar(day, index);
-        //        dropBar.add(new Span("" + index));
 
         dropBar.setDroppedResource(null);
         Registration crossMidnightEvent = dropBar.addCrossMidnightEvent(event -> {
