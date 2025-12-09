@@ -26,6 +26,7 @@
 
             implementation("org.vaadin.addons.componentfactory:vcf-timeline:1.0.2")
             implementation("io.overcoded:panel-for-vaadin:24.3.0")
+            implementation("org.vaadin.stefan:fullcalendar2:6.3.1")
 
             implementation(project(":CrewOpsModel"))
             implementation(project(":CrewOpsSecurity"))

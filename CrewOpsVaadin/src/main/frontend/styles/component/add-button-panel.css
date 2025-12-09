@@ -1,0 +1,40 @@
+.custom-add-panel {
+    border: 2px dashed rgba(150, 150, 150, 0.7);
+    border-radius: 12px;
+
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+
+    box-shadow:
+            0 8px 24px rgba(0, 0, 0, 0.12),
+            inset 0 0 20px rgba(255, 255, 255, 0.25); /* poświata szkła */
+
+    position: relative;
+    overflow: hidden;
+
+    transition: 0.2s transform, 0.2s box-shadow, 0.2s border-color;
+    opacity: 0.95;
+}
+
+.custom-add-panel::before {
+    content: "+";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Idealne centrowanie */
+    font-size: 7em; /* Bardzo duży rozmiar plusa */
+    color: var(--lumo-contrast-10pct); /* Bardzo jasny, subtelny kolor (Lumo) */
+    opacity: 0.8;
+    pointer-events: none; /* Aby nie blokował kliknięć */
+    z-index: 0; /* Zapewnia, że plus jest pod tekstem */
+}
+
+/* Twoje ustawienia na najechanie kursorem */
+.custom-add-panel:hover {
+    /* Delikatne ściemnienie obramowania (ZACHOWANE) */
+    border-color: rgba(100, 100, 100, 0.9);
+    opacity: 1; /* Pełna widoczność */
+    box-shadow:
+            0 10px 30px rgba(0, 0, 0, 0.18),
+            inset 0 0 26px rgba(255, 255, 255, 0.28);
+}

@@ -1,0 +1,37 @@
+.drop-cell {
+    height: 16px; /* Ustaw wysokość komórki */
+    min-width: 4px; /* Minimalna szerokość, aby nie zniknęło */
+}
+
+/* Wiersz w Grid */
+.v-grid-cell-content {
+    padding: 0; /* Usuń padding w komórce */
+}
+
+/* Zapewnij, że paski czasu będą wyświetlane w jednej linii (dla kolumny 'Grafik') */
+.v-horizontallayout {
+    align-items: center;
+    padding: 0;
+}
+
+.v-grid-cell-content[part~="header-cell-content"] {
+    padding: 0 !important;
+}
+
+/* Wymuś zerowe marginesy i padding w kontenerze DayScheduleVisualization */
+.schedule-day-visualization {
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex; /* Zapewnia prawidłowy układ VerticalLayout */
+    flex-direction: column;
+}
+
+/* W pliku: ./styles/component/dailyView/schedule-grid.css */
+
+/* Styl aktywowany, gdy przeciągany element jest nad DropTimeBar */
+.schedule-drop-active {
+    /* Nadpisanie domyślnego stylu DropTimeBar */
+    border: 2px solid #00aa00 !important; /* Pogrubiona, zielona ramka */
+    background-color: #e6ffe6 !important; /* Bardzo jasne zielone tło */
+    transition: background-color 0.1s, border 0.1s; /* Płynne przejście */
+}

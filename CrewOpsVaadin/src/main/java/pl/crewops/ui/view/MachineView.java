@@ -61,8 +61,9 @@ public class MachineView extends MainLayout implements BeforeEnterObserver {
     private Tabs getToolbar() {
         Tab listTab = new Tab(getTranslation("machineView.machineList"));
         Tab breakdownTab = new Tab(getTranslation("machineView.breakdowns"));
+        Tab documentationTab = new Tab("Dokumentacja");
 
-        Tabs tabs = new Tabs(listTab, breakdownTab);
+        Tabs tabs = new Tabs(listTab, breakdownTab, documentationTab);
 
         tabs.setSelectedTab(listTab);
 

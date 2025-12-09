@@ -1,0 +1,6 @@
+/* Styling standardowy (jeśli potrzebujesz tła, obramowania dla komponentu) */
+.component-content-border {
+    border: 1px solid #006B70;
+    border-radius: var(--lumo-border-radius-m);
+    padding: var(--lumo-space-m);
+}

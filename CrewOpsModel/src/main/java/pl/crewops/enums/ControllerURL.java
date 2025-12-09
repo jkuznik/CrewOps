@@ -37,6 +37,8 @@ public interface ControllerURL {
     String MESSAGES = "/messages";
     String MESSAGE_ID = "message-id";
     String NOTES = "/daily-notes";
+    String SHIFTS = "/shifts";
+    String SHIFT_ID = "shift-id";
 
     String EMPLOYEES_EID = EMPLOYEES + "/{" + EMPLOYEE_ID + "}";
     String BREAKDOWNS_BID = BREAKDOWNS + "/{" + BREAKDOWN_ID + "}";
@@ -63,6 +65,8 @@ public interface ControllerURL {
     String NOTES_DATE = NOTES + "/{date}";
 
     String DEPARTMENTS_DIDS = DEPARTMENTS + "/collection";
+
+    String SHIFTS_SID = SHIFTS + "/{" + SHIFT_ID + "}";
 
     String EMPLOYEES_EID_PHONE = EMPLOYEES_EID + "/phone";
     String EMPLOYEE_EID_OPTIONS = EMPLOYEES_EID + "/options";

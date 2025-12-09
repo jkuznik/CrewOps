@@ -19,8 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import pl.crewops.enums.DateState;
-import pl.crewops.enums.OvertimeInterval;
-import pl.crewops.enums.OvertimeInterval.OvertimeValue;
+import pl.crewops.enums.TimeSlot;
 import pl.crewops.exceptions.NotAuthenticatedException;
 import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.dailyEntry.DailyEntryDTO;
@@ -39,7 +38,7 @@ public class TimesheetPanel extends PanelCustom {
     private final TimePicker to = new TimePicker();
     private final Span dateToSpan = new Span();
 
-    private final Select<OvertimeInterval> overtime = new Select<>();
+    private final Select<TimeSlot> overtime = new Select<>();
 
     private final Span normalSpan = new Span();
     private final Span overtimeSpan = new Span();
@@ -110,7 +109,7 @@ public class TimesheetPanel extends PanelCustom {
             to.setValue(LocalTime.ofInstant(dailyEntry.endTime(), ZoneId.systemDefault()));
         }
 
-        OvertimeInterval overtimeValue = getOvertimeIntervalByHours(dailyEntry.overTime());
+        TimeSlot overtimeValue = getOvertimeIntervalByHours(dailyEntry.overTime());
         overtime.setValue(overtimeValue);
 
         updateHoursSummary();
@@ -170,13 +169,13 @@ public class TimesheetPanel extends PanelCustom {
     }
 
     public BigDecimal getOvertime() {
-        OvertimeInterval selectedOvertime = overtime.getValue();
+        TimeSlot selectedOvertime = overtime.getValue();
 
-        if (selectedOvertime == null || selectedOvertime == OvertimeInterval.H00_00) {
+        if (selectedOvertime == null || selectedOvertime == TimeSlot.H00_00) {
             return BigDecimal.ZERO;
         }
 
-        if (selectedOvertime == OvertimeInterval.ALL) {
+        if (selectedOvertime == TimeSlot.ALL) {
             long totalMinutes = calculateWorkDurationMinutes();
 
             if (totalMinutes <= 0) {
@@ -186,7 +185,7 @@ public class TimesheetPanel extends PanelCustom {
             return new BigDecimal(totalMinutes).divide(new BigDecimal(60), 2, RoundingMode.HALF_UP);
         }
 
-        OvertimeInterval.OvertimeValue ov = selectedOvertime.getValue();
+        TimeSlot.TimeValue ov = selectedOvertime.getValue();
         long minutes = ov.hours() * 60L + ov.minutes();
 
         return new BigDecimal(minutes).divide(new BigDecimal(60), 2, RoundingMode.HALF_UP);
@@ -206,7 +205,7 @@ public class TimesheetPanel extends PanelCustom {
     private void configureOvertime() {
         overtime.setLabel(getTranslation("timesheetForm.overtime.label"));
         overtime.setItemLabelGenerator(interval -> {
-            if (interval == OvertimeInterval.ALL) {
+            if (interval == TimeSlot.ALL) {
                 return getTranslation("timesheetForm.overtime.allTime");
             } else {
                 return String.format(
@@ -214,27 +213,27 @@ public class TimesheetPanel extends PanelCustom {
                         interval.getValue().hours(), interval.getValue().minutes());
             }
         });
-        overtime.setItems(OvertimeInterval.H00_00);
-        overtime.setValue(OvertimeInterval.H00_00);
+        overtime.setItems(TimeSlot.H00_00);
+        overtime.setValue(TimeSlot.H00_00);
     }
 
-    private OvertimeInterval getOvertimeIntervalByHours(BigDecimal hours) {
+    private TimeSlot getOvertimeIntervalByHours(BigDecimal hours) {
         if (hours == null || hours.compareTo(BigDecimal.ZERO) <= 0) {
-            return OvertimeInterval.H00_00;
+            return TimeSlot.H00_00;
         }
         long totalMinutes = hours.multiply(new BigDecimal(60))
                 .setScale(0, RoundingMode.HALF_UP)
                 .longValue();
 
-        return Arrays.stream(OvertimeInterval.values())
-                .filter(interval -> interval != OvertimeInterval.ALL)
+        return Arrays.stream(TimeSlot.values())
+                .filter(interval -> interval != TimeSlot.ALL)
                 .filter(interval -> {
-                    OvertimeInterval.OvertimeValue ov = interval.getValue();
+                    TimeSlot.TimeValue ov = interval.getValue();
                     long intervalMinutes = ov.hours() * 60L + ov.minutes();
                     return intervalMinutes == totalMinutes;
                 })
                 .findFirst()
-                .orElse(OvertimeInterval.H00_00);
+                .orElse(TimeSlot.H00_00);
     }
 
     private String formatMinutesToHHMM(long totalMinutes) {
@@ -251,14 +250,14 @@ public class TimesheetPanel extends PanelCustom {
 
         long totalDurationMinutes = calculateWorkDurationMinutes();
 
-        OvertimeInterval selectedOvertime = overtime.getValue();
+        TimeSlot selectedOvertime = overtime.getValue();
         long actualOvertimeMinutes = 0;
 
         if (selectedOvertime != null) {
-            if (selectedOvertime == OvertimeInterval.ALL) {
+            if (selectedOvertime == TimeSlot.ALL) {
                 actualOvertimeMinutes = totalDurationMinutes;
             } else {
-                OvertimeValue ov = selectedOvertime.getValue();
+                TimeSlot.TimeValue ov = selectedOvertime.getValue();
                 actualOvertimeMinutes = ov.hours() * 60L + ov.minutes();
             }
         }
@@ -298,21 +297,21 @@ public class TimesheetPanel extends PanelCustom {
     }
 
     private void filterOvertimeOptions(long maxMinutes) {
-        List<OvertimeInterval> filteredItems = Arrays.stream(OvertimeInterval.values())
+        List<TimeSlot> filteredItems = Arrays.stream(TimeSlot.values())
                 .filter(interval -> {
-                    OvertimeValue ov = interval.getValue();
+                    TimeSlot.TimeValue ov = interval.getValue();
                     long intervalMinutes = ov.hours() * 60L + ov.minutes();
                     return intervalMinutes <= maxMinutes;
                 })
                 .collect(Collectors.toList());
 
         if (filteredItems.isEmpty()) {
-            overtime.setItems(OvertimeInterval.H00_00);
+            overtime.setItems(TimeSlot.H00_00);
         } else {
             overtime.setItems(filteredItems);
         }
 
-        overtime.setValue(OvertimeInterval.H00_00);
+        overtime.setValue(TimeSlot.H00_00);
     }
 
     private static VerticalLayout configuredMainContainer() {

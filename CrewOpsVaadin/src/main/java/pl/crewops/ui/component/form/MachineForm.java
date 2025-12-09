@@ -235,10 +235,10 @@ public class MachineForm extends FormLayout {
         serialNumber.setLabel(getTranslation("machineForm.vin"));
         machineType.setLabel(getTranslation("machineForm.availableMachineTypes.label"));
 
-        save.setText(getTranslation("machineForm.save"));
-        update.setText(getTranslation("machineForm.update"));
-        delete.setText(getTranslation("machineForm.delete"));
-        close.setText(getTranslation("machineForm.close"));
+        save.setText(getTranslation("saveButton"));
+        update.setText(getTranslation("updateButton"));
+        delete.setText(getTranslation("deleteButton"));
+        close.setText(getTranslation("closeButton"));
         reportBreakdown.setText(getTranslation("machineForm.reportBreakdown"));
         breakdownsList.setText(getTranslation("machineForm.breakdownsList"));
     }

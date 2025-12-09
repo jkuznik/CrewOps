@@ -1,0 +1,28 @@
+/* Plik: styles/component/schedule/day-visualization.css (FINALNA WERSJA) */
+
+/* --- NOWA KLASA BAZOWA dla przesunięć (ShiftResourceDragBar) --- */
+.shift-base-style {
+    background-color: #3e70d6;
+    color: white;
+    border-radius: 3px;
+    text-align: center;
+}
+
+/* --- Style dla ShiftResourceDropBar --- */
+
+/* Slot jest wypełniony (kolor bazowy Shifta) */
+.slot-style-filled {
+    background-color: #3e70d6 !important;
+    border: none !important;
+}
+
+/* 🔥 USUWAMY: .slot-style-empty
+.slot-style-empty {
+    background-color: #f0f0f0 !important;
+    border: 2px dashed #aaa !important;
+}
+*/
+
+.schedule-shift-row {
+    align-items: stretch;
+}
