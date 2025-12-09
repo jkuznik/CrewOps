@@ -2,7 +2,6 @@ package pl.crewops.security.jwt;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -22,7 +21,7 @@ public class JwtExceptionResolver implements HandlerExceptionResolver {
         try {
             if (ex instanceof ExpiredJwtException) {
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "Token expired");
-            } else if (ex instanceof SignatureException || ex instanceof MalformedJwtException) {
+            } else if (ex instanceof MalformedJwtException) {
                 response.sendError(HttpStatus.FORBIDDEN.value(), "Invalid JWT token");
             } else {
                 response.sendError(HttpStatus.FORBIDDEN.value(), "Authentication error");

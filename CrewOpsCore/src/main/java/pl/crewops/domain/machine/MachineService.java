@@ -1,10 +1,11 @@
 package pl.crewops.domain.machine;
 
-import static pl.crewops.domain.machine.MachineMapper.mapToDTO;
-import static pl.crewops.domain.machine.MachineMapper.mapToEntity;
 import static pl.crewops.util.pagination.PageRequestFactory.createPageRequest;
 
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +29,7 @@ class MachineService implements MachineAPI {
 
     private final MachineRepository machineRepository;
     private final MachineTypeAPI machineTypeAPI;
+    private final MachineMapper mapper;
 
     @Transactional
     public MachineDTO createMachine(CreateMachineDTO createMachineDTO) {
@@ -35,11 +37,11 @@ class MachineService implements MachineAPI {
                 .getMachineTypeByName(createMachineDTO.machineType().name())
                 .orElseGet(() -> machineTypeAPI.create(
                         new CreateMachineTypeDTO(createMachineDTO.machineType().name())));
-        Machine machine = mapToEntity(createMachineDTO);
+        Machine machine = mapper.toEntity(createMachineDTO);
         machine.setMachineType(machineType);
 
         log.info("Create machine: {}", machine);
-        return mapToDTO(machineRepository.save(machine));
+        return mapper.toDTO(machineRepository.save(machine));
     }
 
     @Transactional(readOnly = true)
@@ -49,7 +51,7 @@ class MachineService implements MachineAPI {
         log.info("Get all machines with paginaition. Page: {}, size {} ", page, size);
 
         return machineRepository.findAll(pageRequest).stream()
-                .map(MachineMapper::mapToDTO)
+                .map(mapper::toDTO)
                 .toList();
     }
 
@@ -67,16 +69,14 @@ class MachineService implements MachineAPI {
     @Transactional(readOnly = true)
     public MachineDTO getMachineByRegistrationNumber(String registerNumber) {
         log.info("Get machine by registration number {}", registerNumber);
-        return mapToDTO(
+        return mapper.toDTO(
                 machineRepository.findByRegisterNumber(registerNumber).orElseThrow(NoSuchElementException::new));
     }
 
     @Transactional(readOnly = true)
     public List<MachineDTO> getMachinesIn(Set<UUID> ids) {
         log.info("Get machines in amount {}, each ids: {}", ids.size(), ids);
-        return machineRepository.findAllByIdIn(ids).stream()
-                .map(MachineMapper::mapToDTO)
-                .toList();
+        return machineRepository.findAllByIdIn(ids).stream().map(mapper::toDTO).toList();
     }
 
     @Transactional
@@ -94,7 +94,7 @@ class MachineService implements MachineAPI {
         }
 
         log.info("Update machine {}", machine);
-        return mapToDTO(machineRepository.save(machine));
+        return mapper.toDTO(machineRepository.save(machine));
     }
 
     @Transactional

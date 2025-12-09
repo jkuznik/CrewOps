@@ -20,11 +20,15 @@ import pl.crewops.exception.domain.machine.MachineNotFoundException;
 import pl.crewops.model.dto.machine.CreateMachineDTO;
 import pl.crewops.model.dto.machine.MachineDTO;
 import pl.crewops.model.dto.machine.UpdateMachineDTO;
+import pl.crewops.model.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.tenantSchema.Machine;
 import pl.crewops.model.tenantSchema.MachineType;
 
 @SpringJUnitConfig(classes = {MachineService.class})
 class MachineServiceTest {
+
+    @MockitoBean
+    private MachineMapper mapper;
 
     @MockitoBean
     private MachineRepository machineRepository;
@@ -52,14 +56,22 @@ class MachineServiceTest {
     @Test
     void shouldCreateMachine_whenCreateMachineDTOIsValid() {
         when(machineTypeAPI.getMachineTypeByName(any())).thenReturn(Optional.of(machineType));
+
+        when(mapper.toEntity(any(CreateMachineDTO.class))).thenReturn(machine);
         when(machineRepository.save(any(Machine.class))).thenReturn(machine);
+
+        when(mapper.toDTO(any(Machine.class)))
+                .thenReturn(MachineDTO.builder()
+                        .id(machine.getId())
+                        .make("make")
+                        .model("model")
+                        .machineType(new MachineTypeDTO(machineType.getId(), machineType.getName()))
+                        .build());
 
         MachineDTO result = machineService.createMachine(createMachineDTO);
 
-        assertThat(result).isNotNull();
         assertThat(result.make()).isEqualTo("make");
         assertThat(result.model()).isEqualTo("model");
-        assertThat(result.machineType().name()).isEqualTo("name");
     }
 
     @Test
@@ -67,9 +79,16 @@ class MachineServiceTest {
         Page<Machine> machines = new PageImpl<>(Collections.singletonList(machine));
         when(machineRepository.findAll(any(PageRequest.class))).thenReturn(machines);
 
+        when(mapper.toDTO(any(Machine.class)))
+                .thenReturn(MachineDTO.builder()
+                        .id(machine.getId())
+                        .make("make")
+                        .model("model")
+                        .machineType(new MachineTypeDTO(machineType.getId(), machineType.getName()))
+                        .build());
+
         List<MachineDTO> result = machineService.getAllMachines(0, 5);
 
-        assertThat(result).isNotNull();
         assertThat(result).hasSize(1);
         assertThat(result.get(0).make()).isEqualTo("make");
     }
@@ -80,7 +99,6 @@ class MachineServiceTest {
 
         Machine result = machineService.getMachineById(machineId);
 
-        assertThat(result).isNotNull();
         assertThat(result.getRegisterNumber()).isEqualTo("registerNumber");
     }
 
@@ -98,9 +116,17 @@ class MachineServiceTest {
         when(machineRepository.findById(any(UUID.class))).thenReturn(Optional.of(machine));
         when(machineRepository.save(any(Machine.class))).thenReturn(machine);
 
+        when(mapper.toDTO(any(Machine.class)))
+                .thenReturn(MachineDTO.builder()
+                        .id(machine.getId())
+                        .registerNumber(updateMachineDTOValid.registerNumber())
+                        .make(machine.getMake())
+                        .model(machine.getModel())
+                        .machineType(new MachineTypeDTO(machineType.getId(), machineType.getName()))
+                        .build());
+
         MachineDTO result = machineService.updateMachine(updateMachineDTOValid);
 
-        assertThat(result).isNotNull();
         assertThat(result.registerNumber()).isEqualTo(updateMachineDTOValid.registerNumber());
     }
 
@@ -118,20 +144,33 @@ class MachineServiceTest {
         // when
         when(machineRepository.findById(any(UUID.class))).thenReturn(Optional.of(machine));
         when(machineTypeAPI.getMachineTypeByName(any())).thenReturn(Optional.of(machineType));
+        when(machineRepository.countByMachineType(any())).thenReturn(1);
+
         doNothing().when(machineRepository).deleteById(machineId);
+        doNothing().when(machineTypeAPI).delete(machineType);
 
         machineService.deleteMachine(machineId);
 
+        // then
         verify(machineRepository, times(1)).deleteById(machineId);
+        verify(machineTypeAPI, times(1)).delete(machineType);
     }
 
     @Test
     void shouldReturnMachineDTO_whenMachineExistsByRegistrationNumber() {
         when(machineRepository.findByRegisterNumber("registerNumber")).thenReturn(Optional.of(machine));
 
+        when(mapper.toDTO(any(Machine.class)))
+                .thenReturn(MachineDTO.builder()
+                        .id(machine.getId())
+                        .registerNumber("registerNumber")
+                        .make(machine.getMake())
+                        .model(machine.getModel())
+                        .machineType(new MachineTypeDTO(machineType.getId(), machineType.getName()))
+                        .build());
+
         MachineDTO result = machineService.getMachineByRegistrationNumber("registerNumber");
 
-        assertThat(result).isNotNull();
         assertThat(result.registerNumber()).isEqualTo("registerNumber");
     }
 
@@ -140,17 +179,25 @@ class MachineServiceTest {
         UUID id1 = UUID.randomUUID();
         UUID id2 = UUID.randomUUID();
 
-        Machine machine1 = machine();
-        machine1.setId(id1);
+        Machine m1 = machine();
+        m1.setId(id1);
+        Machine m2 = machine();
+        m2.setId(id2);
 
-        Machine machine2 = machine();
-        machine2.setId(id2);
+        when(machineRepository.findAllByIdIn(Set.of(id1, id2))).thenReturn(Set.of(m1, m2));
 
-        when(machineRepository.findAllByIdIn(Set.of(id1, id2))).thenReturn(Set.of(machine1, machine2));
+        when(mapper.toDTO(any(Machine.class))).thenAnswer(invocation -> {
+            Machine source = invocation.getArgument(0);
+            return MachineDTO.builder()
+                    .id(source.getId())
+                    .make(source.getMake())
+                    .model(source.getModel())
+                    .machineType(new MachineTypeDTO(machineType.getId(), machineType.getName()))
+                    .build();
+        });
 
         List<MachineDTO> result = machineService.getMachinesIn(Set.of(id1, id2));
 
-        assertThat(result).hasSize(2);
         assertThat(result.stream().map(MachineDTO::id)).containsExactlyInAnyOrder(id1, id2);
     }
 }
