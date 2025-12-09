@@ -29,7 +29,7 @@ class DepartmentController {
     @PostMapping(ControllerURL.DEPARTMENTS_DIDS)
     public ResponseEntity<Set<DepartmentDTO>> getDepartmentsByIds(@NotNull Set<UUID> ids) {
         return ResponseEntity.ok(departmentAPI.getDepartmentsIn(ids).stream()
-                .map(DepartmentMapper::mapToDTO)
+                .map(departmentAPI.getMapper()::toDTO)
                 .collect(Collectors.toSet()));
     }
 }

@@ -1,8 +1,5 @@
 package pl.crewops.domain.employee;
 
-import static pl.crewops.domain.employee.EmployeeMapper.mapToDTO;
-import static pl.crewops.domain.employee.EmployeeMapper.mapToEntity;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
@@ -45,14 +42,15 @@ class EmployeeService implements EmployeeAPI {
     private final DepartmentAPI departmentAPI;
     private final QualificationAPI qualificationAPI;
     private final MachineAPI machineAPI;
+    private final EmployeeMapper mapper;
 
     @Transactional
     public EmployeeDTO createEmployee(CreateEmployeeDTO createEmployeeDTO) {
         log.info(TenantContext.getCurrentTenant());
         try {
-            Employee employee = employeeRepository.save(mapToEntity(createEmployeeDTO));
+            Employee employee = employeeRepository.save(mapper.toEntity(createEmployeeDTO));
             log.info("Create employee {}", createEmployeeDTO);
-            return mapToDTO(employee, true);
+            return mapper.toDTO(employee);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
@@ -63,7 +61,7 @@ class EmployeeService implements EmployeeAPI {
     public List<EmployeeDTO> getAllEmployees(int page, int size) {
         log.info("Get all employees with pagination. Page: {}, size: {}", page, size);
         return employeeRepository.findAll(getPageRequest(page, size)).stream()
-                .map(EmployeeMapper::mapToDTO)
+                .map(mapper::toDTO)
                 .toList();
     }
 
@@ -71,21 +69,21 @@ class EmployeeService implements EmployeeAPI {
     public List<EmployeeDTO> getAllActiveEmployees(int page, int size) {
         log.info("Get all active employees. Page: {}, size: {}", page, size);
         return employeeRepository.findAllByActiveIsTrue(getPageRequest(page, size)).stream()
-                .map(EmployeeMapper::mapToDTO)
+                .map(mapper::toDTO)
                 .toList();
     }
 
     @Override
     public List<EmployeeDTO> getAllActiveEmployees() {
         return employeeRepository.findAllByActiveIsTrue().stream()
-                .map(EmployeeMapper::mapToDTO)
+                .map(mapper::toDTO)
                 .toList();
     }
 
     @Override
     public List<EmployeeDTO> getAllActiveEmployeesByDepartment(UUID departmentId) {
         return employeeRepository.findAllByDepartmentIdAndActiveIsTrue(departmentId).stream()
-                .map(EmployeeMapper::mapToDTO)
+                .map(mapper::toDTO)
                 .toList();
     }
 
@@ -96,7 +94,7 @@ class EmployeeService implements EmployeeAPI {
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     public EmployeeDTO getEmployeeDTOById(UUID id) {
-        return mapToDTO(getEmployeeById(id));
+        return mapper.toDTO(getEmployeeById(id));
     }
 
     @Transactional(readOnly = true)
@@ -105,7 +103,7 @@ class EmployeeService implements EmployeeAPI {
         return employeeRepository
                 .findByQualificationIdAndActiveIsTrue(qualificationId, getPageRequest(page, size))
                 .stream()
-                .map(EmployeeMapper::mapToDTO)
+                .map(mapper::toDTO)
                 .toList();
     }
 
@@ -113,7 +111,7 @@ class EmployeeService implements EmployeeAPI {
     public List<EmployeeDTO> getEmployeesByMachines(UUID machineId, int page, int size) {
         log.info("Get employees by machines");
         return employeeRepository.findByMachinesIdAndActiveIsTrue(machineId, getPageRequest(page, size)).stream()
-                .map(EmployeeMapper::mapToDTO)
+                .map(mapper::toDTO)
                 .toList();
     }
 
@@ -151,7 +149,7 @@ class EmployeeService implements EmployeeAPI {
         }
 
         log.info("Update employee {}", updateEmployeeDTO);
-        return mapToDTO(employee);
+        return mapper.toDTO(employee);
     }
 
     @Transactional
@@ -162,7 +160,7 @@ class EmployeeService implements EmployeeAPI {
         employee.setPhoneNumber(null);
 
         log.info("Remove phone number from employee {}", employeeId);
-        return mapToDTO(employee);
+        return mapper.toDTO(employee);
     }
 
     @Transactional
@@ -185,14 +183,14 @@ class EmployeeService implements EmployeeAPI {
         employee.getQualifications().add(qualification);
 
         log.info("Add qualification {} to employee {}", qualificationId, employeeId);
-        return mapToDTO(employee);
+        return mapper.toDTO(employee);
     }
 
     @Transactional
     @Override
     public List<EmployeeQualificationDTO> getAllEmployeeQualificationsWithExpirationTime(UUID employeeId) {
         return employeeQualificationRepository.findAllByEmployeeIdAndExpiredAtIsNotNull(employeeId).stream()
-                .map(EmployeeMapper::mapToEQDTO)
+                .map(mapper::toDTO)
                 .toList();
     }
 
@@ -209,7 +207,7 @@ class EmployeeService implements EmployeeAPI {
         employeeQualification.setExpiredAt(expiredAt);
 
         log.info("Update qualification {} expired at {}", qualificationId, expiredAt);
-        return mapToDTO(
+        return mapper.toDTO(
                 employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException(employeeId)));
     }
 
@@ -234,7 +232,7 @@ class EmployeeService implements EmployeeAPI {
         employee.getMachines().add(machine);
 
         log.info("Add machine {} to employee {}", machineId, employeeId);
-        return mapToDTO(employee);
+        return mapper.toDTO(employee);
     }
 
     @Transactional
@@ -247,7 +245,7 @@ class EmployeeService implements EmployeeAPI {
         employee.getDepartments().add(department);
 
         log.info("Add department {} to employee {}", departmentId, employeeId);
-        return mapToDTO(employee);
+        return mapper.toDTO(employee);
     }
 
     @Transactional

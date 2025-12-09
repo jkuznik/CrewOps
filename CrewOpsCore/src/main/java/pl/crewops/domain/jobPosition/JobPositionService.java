@@ -1,7 +1,5 @@
 package pl.crewops.domain.jobPosition;
 
-import static pl.crewops.domain.jobPosition.JobPositionMapper.mapToDTO;
-
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +23,12 @@ class JobPositionService implements JobPositionAPI {
     private final JobPositionRepository jobPositionRepository;
     private final MachineAPI machineAPI;
     private final QualificationAPI qualificationAPI;
+    private final JobPositionMapper mapper;
 
     @Override
     @Transactional
     public JobPositionDTO createJobPosition(CreateJobPositionDTO createJobPositionDTO) {
-        JobPosition jobPosition = JobPositionMapper.mapToEntity(createJobPositionDTO);
+        JobPosition jobPosition = mapper.toEntity(createJobPositionDTO);
         jobPosition = jobPositionRepository.save(jobPosition);
 
         if (createJobPositionDTO.machineDTO() != null) {
@@ -49,7 +48,7 @@ class JobPositionService implements JobPositionAPI {
             jobPosition.setQualifications(qualifications);
         }
 
-        return mapToDTO(jobPositionRepository.save(jobPosition));
+        return mapper.toDTO(jobPositionRepository.save(jobPosition));
     }
 
     @Override
@@ -68,7 +67,7 @@ class JobPositionService implements JobPositionAPI {
     @Transactional
     public List<JobPositionDTO> getAllJobPositions() {
         List<JobPosition> all = jobPositionRepository.findAll();
-        return all.stream().map(JobPositionMapper::mapToDTO).toList();
+        return all.stream().map(mapper::toDTO).toList();
     }
 
     @Override
@@ -93,7 +92,7 @@ class JobPositionService implements JobPositionAPI {
             });
         }
 
-        return mapToDTO(jobPositionRepository.save(jobPosition));
+        return mapper.toDTO(jobPositionRepository.save(jobPosition));
     }
 
     @Override

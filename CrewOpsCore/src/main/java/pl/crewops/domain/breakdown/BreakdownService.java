@@ -1,7 +1,5 @@
 package pl.crewops.domain.breakdown;
 
-import static pl.crewops.domain.breakdown.BreakdownMapper.toDTO;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +29,7 @@ class BreakdownService {
     private final BreakdownRepository breakdownRepository;
     private final MachineAPI machineAPI;
     private final EmployeeAPI employeeAPI;
+    private final BreakdownMapper mapper;
 
     @Transactional
     public BreakdownDTO createBreakdown(CreateBreakdownDTO createBreakdownDTO) {
@@ -67,7 +66,7 @@ class BreakdownService {
             machineAPI.updateMachine(updateMachine);
         }
 
-        return toDTO(breakdownRepository.save(breakdown));
+        return mapper.toDTO(breakdownRepository.save(breakdown));
     }
 
     @Transactional(readOnly = true)
@@ -77,9 +76,7 @@ class BreakdownService {
 
     @Transactional(readOnly = true)
     public List<BreakdownDTO> getAllBreakdowns() {
-        return breakdownRepository.findAll().stream()
-                .map(BreakdownMapper::toDTO)
-                .collect(Collectors.toList());
+        return breakdownRepository.findAll().stream().map(mapper::toDTO).collect(Collectors.toList());
     }
 
     @Transactional
@@ -95,7 +92,7 @@ class BreakdownService {
             breakdown.setSolved(true);
             breakdown.setRepairedBy(employee);
             breakdown.setSolvedAt(Instant.now());
-            var updatedBreakdown = toDTO(breakdownRepository.save(breakdown));
+            var updatedBreakdown = mapper.toDTO(breakdownRepository.save(breakdown));
 
             if (breakdownRepository
                     .findFirstByMachineAndCriticalIsTrueAndSolvedIsFalse(machine)

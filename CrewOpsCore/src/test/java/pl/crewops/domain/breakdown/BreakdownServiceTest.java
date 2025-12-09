@@ -16,10 +16,11 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.model.dto.breakdown.BreakdownDTO;
+import pl.crewops.model.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.model.dto.breakdown.UpdateBreakdownDTO;
 import pl.crewops.model.tenantSchema.Breakdown;
 
-@SpringJUnitConfig(classes = {BreakdownService.class, BreakdownRepository.class, MachineAPI.class, EmployeeAPI.class})
+@SpringJUnitConfig(classes = {BreakdownService.class})
 class BreakdownServiceTest {
 
     @Autowired
@@ -34,17 +35,25 @@ class BreakdownServiceTest {
     @MockitoBean
     private EmployeeAPI employeeAPI;
 
-    private BreakdownDTO breakdownDTO;
+    @MockitoBean
+    private BreakdownMapper mapper;
 
     @Test
     void createBreakdown_shouldReturnBreakdownDTO_WhenCreateDTOIsValid() {
+        CreateBreakdownDTO command = createBreakdownDTO();
+        Breakdown entity = breakdown();
+
         // when
         when(machineAPI.getMachine(any(UUID.class))).thenReturn(machine());
         when(employeeAPI.getEmployeeById(any(UUID.class))).thenReturn(employee());
-        when(breakdownRepository.save(any(Breakdown.class))).thenReturn(breakdown());
+
+        when(breakdownRepository.save(any(Breakdown.class))).thenReturn(entity);
+
+        // mapper mocks
+        when(mapper.toDTO(any(Breakdown.class))).thenReturn(breakdownDTO());
 
         // then
-        BreakdownDTO result = breakdownService.createBreakdown(createBreakdownDTO());
+        BreakdownDTO result = breakdownService.createBreakdown(command);
 
         assertThat(result).isNotNull();
         assertThat(result.description()).isEqualTo("description");
@@ -52,8 +61,10 @@ class BreakdownServiceTest {
 
     @Test
     void shouldReturnBreakdownEntity_WhenBreakdownExists() {
+        Breakdown entity = breakdown();
+
         // when
-        when(breakdownRepository.findById(any())).thenReturn(Optional.of(breakdown()));
+        when(breakdownRepository.findById(any())).thenReturn(Optional.of(entity));
 
         // then
         Breakdown result = breakdownService.getBreakdown(UUID.randomUUID());
@@ -64,8 +75,12 @@ class BreakdownServiceTest {
 
     @Test
     void shouldReturnListOfBreakdownsDTO_WhenAnyBreakdownExist() {
+        Breakdown entity = breakdown();
+        BreakdownDTO dto = breakdownDTO();
+
         // when
-        when(breakdownRepository.findAll()).thenReturn(List.of(breakdown()));
+        when(breakdownRepository.findAll()).thenReturn(List.of(entity));
+        when(mapper.toDTO(any())).thenReturn(dto);
 
         // then
         List<BreakdownDTO> result = breakdownService.getAllBreakdowns();
@@ -77,11 +92,16 @@ class BreakdownServiceTest {
 
     @Test
     void shouldReturnBreakdownDTO_WhenUpdateDTOIsValid() {
+        Breakdown entity = breakdown();
+        BreakdownDTO dto = breakdownDTO();
+
         // when
-        when(breakdownRepository.findById(any())).thenReturn(Optional.of(breakdown()));
+        when(breakdownRepository.findById(any())).thenReturn(Optional.of(entity));
         when(employeeAPI.getEmployeeById(any(UUID.class))).thenReturn(employee());
         when(machineAPI.getMachine(any())).thenReturn(machine());
-        when(breakdownRepository.save(any(Breakdown.class))).thenReturn(breakdown());
+        when(breakdownRepository.save(any(Breakdown.class))).thenReturn(entity);
+
+        when(mapper.toDTO(any())).thenReturn(dto);
 
         // then
         BreakdownDTO result = breakdownService.updateBreakdown(updateBreakdownDTO());
@@ -93,7 +113,6 @@ class BreakdownServiceTest {
 
     @Test
     void shouldThrowException_WhenUpdateDTOSolvedPropertyIsFalse() {
-        // given
         var updateCommand = UpdateBreakdownDTO.builder().solved(false).build();
 
         // when

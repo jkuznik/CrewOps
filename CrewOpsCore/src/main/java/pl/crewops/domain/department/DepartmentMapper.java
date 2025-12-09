@@ -1,14 +1,11 @@
 package pl.crewops.domain.department;
 
+import org.mapstruct.Mapper;
 import pl.crewops.model.dto.department.DepartmentDTO;
 import pl.crewops.model.tenantSchema.Department;
 
-class DepartmentMapper {
+@Mapper(componentModel = "spring")
+public interface DepartmentMapper {
 
-    static DepartmentDTO mapToDTO(Department department) {
-        return DepartmentDTO.builder()
-                .id(department.getId())
-                .name(department.getName())
-                .build();
-    }
+    DepartmentDTO toDTO(Department entity);
 }

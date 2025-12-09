@@ -15,6 +15,7 @@ import pl.crewops.model.tenantSchema.Department;
 class DepartmentService implements DepartmentAPI {
 
     private final DepartmentRepository departmentRepository;
+    private final DepartmentMapper mapper;
 
     @Override
     public Department getDepartment(UUID id) {
@@ -25,7 +26,7 @@ class DepartmentService implements DepartmentAPI {
     @Transactional
     public List<DepartmentDTO> getDepartments() {
         return departmentRepository.findAllSortedByName().stream()
-                .map(DepartmentMapper::mapToDTO)
+                .map(mapper::toDTO)
                 .toList();
     }
 
@@ -33,5 +34,10 @@ class DepartmentService implements DepartmentAPI {
     @Transactional
     public Set<Department> getDepartmentsIn(Set<UUID> departmentIds) {
         return departmentRepository.findAllByIdIn(departmentIds);
+    }
+
+    @Override
+    public DepartmentMapper getMapper() {
+        return mapper;
     }
 }
