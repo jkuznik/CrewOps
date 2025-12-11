@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import pl.crewops.model.dto.message.CreateMessageDTO;
+import pl.crewops.model.dto.message.MessageDTO;
 import pl.crewops.model.dto.message.RecipientSelection;
 import pl.crewops.model.dto.message.SendMessageCommand;
 import pl.crewops.model.tenantSchema.Message;
@@ -71,6 +72,18 @@ class MessageTestFactory {
         message.setId(messageId);
 
         return message;
+    }
+
+    public static MessageDTO messageDTO() {
+        return MessageDTO.builder()
+                .id(messageId)
+                .title("subject")
+                .description("description")
+                .recipientEmployeeId(recipientEmployeeId)
+                .senderEmployeeId(senderEmployeeId)
+                .createdAt(java.time.Instant.now())
+                .isRead(false)
+                .build();
     }
 
     public static Page<Message> messageSet() {

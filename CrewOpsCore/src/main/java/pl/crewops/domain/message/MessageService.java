@@ -1,8 +1,5 @@
 package pl.crewops.domain.message;
 
-import static pl.crewops.domain.message.MessageMapper.mapToDTO;
-import static pl.crewops.domain.message.MessageMapper.mapToEntity;
-
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -29,12 +26,13 @@ class MessageService implements MessageAPI {
 
     private final MessageRepository messageRepository;
     private final EmployeeAPI employeeAPI;
+    private final MessageMapper mapper;
 
     @Override
     @Transactional
     public MessageDTO createMessage(CreateMessageDTO createMessageDTO) {
-        Message message = messageRepository.save(mapToEntity(createMessageDTO));
-        return mapToDTO(message);
+        Message message = messageRepository.save(mapper.toEntity(createMessageDTO));
+        return mapper.toDTO(message);
     }
 
     @Override
@@ -67,7 +65,7 @@ class MessageService implements MessageAPI {
     @Async
     void sendToAllEmployeesAsync(SendMessageCommand sendMessageCommand, List<EmployeeDTO> allActiveEmployees) {
         List<Message> messages = allActiveEmployees.stream()
-                .map(employeeDTO -> mapToEntity(CreateMessageDTO.builder()
+                .map(employeeDTO -> mapper.toEntity(CreateMessageDTO.builder()
                         .title(sendMessageCommand.subject())
                         .description(sendMessageCommand.description())
                         .recipientEmployeeId(employeeDTO.id())
@@ -81,7 +79,7 @@ class MessageService implements MessageAPI {
     @Async
     void sendToAllByMachine(SendMessageCommand sendMessageCommand, List<EmployeeDTO> employeesByMachine) {
         List<Message> messages = employeesByMachine.stream()
-                .map(employeeDTO -> mapToEntity(CreateMessageDTO.builder()
+                .map(employeeDTO -> mapper.toEntity(CreateMessageDTO.builder()
                         .title(sendMessageCommand.subject())
                         .description(sendMessageCommand.description())
                         .recipientEmployeeId(employeeDTO.id())
@@ -110,9 +108,7 @@ class MessageService implements MessageAPI {
             UUID recipientEmployeeId, int page, int size) {
         Page<Message> allByRecipientEmployeeIdAndRead = messageRepository.findAllByRecipientEmployeeIdAndReadIsFalse(
                 recipientEmployeeId, getPageRequest(page, size));
-        return allByRecipientEmployeeIdAndRead.stream()
-                .map(MessageMapper::mapToDTO)
-                .toList();
+        return allByRecipientEmployeeIdAndRead.stream().map(mapper::toDTO).toList();
     }
 
     @Override
@@ -120,9 +116,7 @@ class MessageService implements MessageAPI {
     public List<MessageDTO> getAllMessagesByRecipientEmployeeId(UUID recipientEmployeeId, int page, int size) {
         Page<Message> allByRecipientEmployeeIdAndRead =
                 messageRepository.findAllByRecipientEmployeeId(recipientEmployeeId, getPageRequest(page, size));
-        return allByRecipientEmployeeIdAndRead.stream()
-                .map(MessageMapper::mapToDTO)
-                .toList();
+        return allByRecipientEmployeeIdAndRead.stream().map(mapper::toDTO).toList();
     }
 
     @Override
@@ -131,7 +125,7 @@ class MessageService implements MessageAPI {
         Message message =
                 messageRepository.findById(messageId).orElseThrow(() -> new MessageNotFoundException(messageId));
         message.setRead(read);
-        return mapToDTO(messageRepository.save(message));
+        return mapper.toDTO(messageRepository.save(message));
     }
 
     private static PageRequest getPageRequest(int page, int size) {

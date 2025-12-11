@@ -35,58 +35,94 @@ class MessageServiceTest {
     @MockitoBean
     private EmployeeAPI employeeAPI;
 
+    @MockitoBean
+    private MessageMapper messageMapper;
+
     private CreateMessageDTO createMessageDTO;
     private Message message;
+    private MessageDTO messageDTO;
     private Page<Message> messageSet;
 
     @BeforeEach
     void setUp() {
         createMessageDTO = createMessageDTO();
         message = message();
+        messageDTO = messageDTO();
         messageSet = messageSet();
-        ;
     }
 
     @Test
     void createMessage_shouldReturnMessageDTO_whenCreateMessageDTOIsValid() {
-        // when
+        // mapper → entity
+        when(messageMapper.toEntity(createMessageDTO)).thenReturn(message);
+
+        // repo → save
         when(messageRepository.save(any())).thenReturn(message);
 
-        // then
+        // mapper → DTO
+        when(messageMapper.toDTO(message)).thenReturn(messageDTO);
+
+        // when
         var result = messageService.createMessage(createMessageDTO);
 
+        // then
         assertThat(result).isNotNull();
         assertThat(result.description()).isEqualTo(message.getDescription());
     }
 
     @Test
     void getAllMessagesByRecipientEmployeeIdAndReadIsFalse_shouldReturnCollectionOfUnreadMessagesDTO() {
-        // when
+        // repo
         when(messageRepository.findAllByRecipientEmployeeIdAndReadIsFalse(any(), any()))
                 .thenReturn(messageSet);
 
-        // then
+        // mapper for each element
+        when(messageMapper.toDTO(any())).thenReturn(messageDTO);
+
+        // when
         List<MessageDTO> result =
                 messageService.getAllMessagesByRecipientEmployeeIdAndReadIsFalse(recipientEmployeeId, 0, 15);
 
+        // then
         assertThat(result).hasSize(2);
-        assertThat("subject").isEqualTo(result.getFirst().title());
+        assertThat(result.get(0).title()).isEqualTo(messageDTO.title());
     }
 
     @Test
     void getAllMessagesByRecipientEmployeeId_shouldReturnCollectionOfMessagesDTO() {
         when(messageRepository.findAllByRecipientEmployeeId(any(), any())).thenReturn(messageSet);
+        when(messageMapper.toDTO(any())).thenReturn(messageDTO);
 
         List<MessageDTO> result = messageService.getAllMessagesByRecipientEmployeeId(recipientEmployeeId, 0, 10);
 
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).title()).isEqualTo("subject");
+        assertThat(result.get(0).title()).isEqualTo(messageDTO.title());
     }
 
     @Test
     void setMessageReadStatus_shouldUpdateReadStatus_whenMessageExists() {
         when(messageRepository.findById(message.getId())).thenReturn(java.util.Optional.of(message));
         when(messageRepository.save(any())).thenReturn(message);
+
+        Message changed = Message.builder()
+                .title(message.getTitle())
+                .description(message.getDescription())
+                .recipientEmployeeId(message.getRecipientEmployeeId())
+                .senderEmployeeId(message.getSenderEmployeeId())
+                .read(true)
+                .build();
+
+        MessageDTO changedDTO = MessageDTO.builder()
+                .id(changed.getId())
+                .title(changed.getTitle())
+                .description(changed.getDescription())
+                .recipientEmployeeId(changed.getRecipientEmployeeId())
+                .senderEmployeeId(changed.getSenderEmployeeId())
+                .isRead(true)
+                .createdAt(changed.getCreatedAt())
+                .build();
+
+        when(messageMapper.toDTO(any())).thenReturn(changedDTO);
 
         MessageDTO result = messageService.setMessageReadStatus(message.getId(), true);
 
@@ -99,14 +135,18 @@ class MessageServiceTest {
         var employees = List.of(
                 EmployeeDTO.builder().id(UUID.randomUUID()).build(),
                 EmployeeDTO.builder().id(UUID.randomUUID()).build());
+
         when(employeeAPI.getAllActiveEmployees()).thenReturn(employees);
+
+        // Mapper must map CreateMessageDTO → Message for each employee
+        when(messageMapper.toEntity(any())).thenReturn(message);
+
         when(messageRepository.saveAll(any())).thenReturn(List.of(message));
 
         var command = sendMessageCommandAll();
 
         messageService.sendMessage(command);
 
-        // verify saveAll called with 2 messages
         verify(messageRepository).saveAll(any());
     }
 
@@ -122,7 +162,9 @@ class MessageServiceTest {
     void sendMessage_shouldSendToEmployeesByMachine_whenRecipientSelectionIsMACHINE() {
         var employees = List.of(
                 EmployeeDTO.builder().firstName("first").lastName("last").build());
+
         when(employeeAPI.getEmployeesByMachines(any(), anyInt(), anyInt())).thenReturn(employees);
+        when(messageMapper.toEntity(any())).thenReturn(message);
         when(messageRepository.saveAll(any())).thenReturn(List.of(message));
 
         var command = sendMessageCommandMachine();
@@ -134,6 +176,7 @@ class MessageServiceTest {
 
     @Test
     void sendMessage_shouldSendToSingleEmployee_whenRecipientSelectionIsEMPLOYEE() {
+        when(messageMapper.toEntity(any())).thenReturn(message);
         when(messageRepository.save(any())).thenReturn(message);
 
         var command = sendMessageCommandEmployee();
