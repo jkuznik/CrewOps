@@ -1,7 +1,5 @@
 package pl.crewops.domain.qualification;
 
-import static pl.crewops.domain.qualification.QualificationMapper.mapToDTO;
-import static pl.crewops.domain.qualification.QualificationMapper.mapToEntity;
 import static pl.crewops.util.pagination.PageRequestFactory.createPageRequest;
 
 import java.util.List;
@@ -25,11 +23,12 @@ import pl.crewops.model.tenantSchema.Qualification;
 class QualificationService implements QualificationAPI {
 
     private final QualificationRepository qualificationRepository;
+    private final QualificationMapper mapper;
 
     @Transactional
     public QualificationDTO createQualification(CreateQualificationDTO createQualificationDTO) {
         log.info("Create qualification: {}", createQualificationDTO);
-        return mapToDTO(qualificationRepository.save(mapToEntity(createQualificationDTO)));
+        return mapper.toDTO(qualificationRepository.save(mapper.toEntity(createQualificationDTO)));
     }
 
     @Transactional(readOnly = true)
@@ -44,7 +43,7 @@ class QualificationService implements QualificationAPI {
     public List<QualificationDTO> getQualificationsIn(Set<UUID> ids) {
         log.info("Get qualifications in: {}", ids);
         return qualificationRepository.findAllByIdIn(ids).stream()
-                .map(QualificationMapper::mapToDTO)
+                .map(mapper::toDTO)
                 .toList();
     }
 
@@ -54,7 +53,7 @@ class QualificationService implements QualificationAPI {
 
         log.info("Get all qualifications with pagination. Page: {}, size: {}", page, size);
         return qualificationRepository.findAll(pageRequest).stream()
-                .map(QualificationMapper::mapToDTO)
+                .map(mapper::toDTO)
                 .toList();
     }
 
@@ -71,7 +70,7 @@ class QualificationService implements QualificationAPI {
         qualification.setDescription(updateQualificationDTO.description());
 
         log.info("Update qualification: {}", qualification);
-        return mapToDTO(qualification);
+        return mapper.toDTO(qualification);
     }
 
     @Transactional

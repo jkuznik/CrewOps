@@ -8,6 +8,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.shared.Registration;
 import pl.crewops.model.QualificationFormModel;
 
@@ -26,7 +27,10 @@ public class QualificationForm extends FormLayout {
 
         localize();
 
+        description.setValueChangeMode(ValueChangeMode.EAGER);
+
         binder.bindInstanceFields(this);
+        binder.setBean(QualificationFormModel.builder().build()); // kluczowe!
 
         add(description, createButtonsLayout());
     }
@@ -82,12 +86,6 @@ public class QualificationForm extends FormLayout {
     }
 
     private void validateAndUpdate() {
-        //        var qualificationFormModel = QualificationFormModel.builder()
-        //                .id(binder.getBean().getId())
-        //                .description(description.getValue())
-        //                .build();
-        //        binder.setBean(qualificationFormModel);
-
         if (binder.isValid()) {
             fireEvent(new UpdateEvent(this, binder.getBean()));
         }

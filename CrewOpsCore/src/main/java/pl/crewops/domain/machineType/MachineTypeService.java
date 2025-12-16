@@ -1,7 +1,5 @@
 package pl.crewops.domain.machineType;
 
-import static pl.crewops.domain.machineType.MachineTypeMapper.mapToEntity;
-
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +14,14 @@ import pl.crewops.model.tenantSchema.MachineType;
 @Slf4j
 @RequiredArgsConstructor
 class MachineTypeService implements MachineTypeAPI {
+
     private final MachineTypeRepository machineTypeRepository;
+    private final MachineTypeMapper mapper;
 
     @Override
     @Transactional
     public MachineType create(CreateMachineTypeDTO createMachineTypeDTO) {
-        return machineTypeRepository.save(mapToEntity(createMachineTypeDTO));
+        return machineTypeRepository.save(mapper.toEntity(createMachineTypeDTO));
     }
 
     @Override
@@ -33,9 +33,7 @@ class MachineTypeService implements MachineTypeAPI {
     @Override
     @Transactional(readOnly = true)
     public List<MachineTypeDTO> getAllMachineTypes() {
-        return machineTypeRepository.findAll().stream()
-                .map(MachineTypeMapper::mapToDTO)
-                .toList();
+        return machineTypeRepository.findAll().stream().map(mapper::toDTO).toList();
     }
 
     @Override

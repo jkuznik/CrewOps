@@ -38,6 +38,7 @@ public class DailyEntry extends AbstractEntity {
 
     private Instant endTime;
 
+    @Builder.Default
     @Column(precision = 7, scale = 4, nullable = false)
     private BigDecimal overtime = BigDecimal.ZERO;
 
@@ -45,6 +46,7 @@ public class DailyEntry extends AbstractEntity {
     @JoinColumn(name = "job_position_id")
     private JobPosition jobPosition;
 
+    @Builder.Default
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "dailyEntry", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DailyEntryAudit> auditEvents = new HashSet<>();
 

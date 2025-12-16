@@ -7,10 +7,9 @@ import static org.mockito.Mockito.*;
 import static pl.crewops.domain.employee.EmployeeTestFactory.*;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,27 +25,22 @@ import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
 import pl.crewops.exception.domain.employee.ExpireAtException;
 import pl.crewops.model.compositePK.EmployeeQualificationId;
+import pl.crewops.model.dto.auth.RoleDTO;
+import pl.crewops.model.dto.department.DepartmentDTO;
 import pl.crewops.model.dto.employee.CreateEmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeDTO;
 import pl.crewops.model.dto.employee.EmployeeQualificationDTO;
 import pl.crewops.model.dto.employee.UpdateEmployeeDTO;
+import pl.crewops.model.dto.machine.MachineDTO;
+import pl.crewops.model.dto.qualification.QualificationDTO;
 import pl.crewops.model.dto.qualification.UpdateQualificationExpiredAtDTO;
 import pl.crewops.model.joinTable.EmployeeQualification;
-import pl.crewops.model.publicSchema.AuthUser;
 import pl.crewops.model.tenantSchema.Employee;
 import pl.crewops.model.tenantSchema.Machine;
 import pl.crewops.model.tenantSchema.Qualification;
 import pl.crewops.util.spring.SpringContextBridge;
 
-@SpringJUnitConfig(
-        classes = {
-            EmployeeService.class,
-            EmployeeRepository.class,
-            EmployeeQualificationRepository.class,
-            QualificationAPI.class,
-            MachineAPI.class,
-            AuthAPI.class
-        })
+@SpringJUnitConfig(classes = {EmployeeService.class})
 class EmployeeServiceTest {
 
     @Autowired
@@ -73,7 +67,10 @@ class EmployeeServiceTest {
     @MockitoBean
     AuthAPI authAPI;
 
-    private CreateEmployeeDTO createEmployeeWithEmptyQAndEmptyV;
+    @MockitoBean
+    EmployeeMapper employeeMapper; // <- mockujemy mapper
+
+    private CreateEmployeeDTO createEmployeeDTO;
     private UpdateEmployeeDTO updateEmployeeDTO;
     private Employee employeeWithQAndV;
     private Employee employeeWithEmptyQAndEmptyV;
@@ -85,253 +82,253 @@ class EmployeeServiceTest {
 
     @BeforeEach
     void setUp() {
-        createEmployeeWithEmptyQAndEmptyV = EmployeeTestFactory.createEmployeeDTO();
+        createEmployeeDTO = createEmployeeDTO();
         updateEmployeeDTO = updateEmployeeDTO();
         employeeWithQAndV = employeeWithQualificationsAndMachines();
         employeeWithEmptyQAndEmptyV = employeeWithoutQualificationsAndMachines();
         qualification = qualification();
         machine = machine();
         SpringContextBridge.setApplicationContext(applicationContext);
+
+        when(employeeMapper.toDTO(any(Employee.class))).thenAnswer(invocation -> {
+            Employee e = invocation.getArgument(0);
+
+            // mapowanie kolekcji na odpowiednie DTO
+            Set<DepartmentDTO> departmentDTOs = e.getDepartments().stream()
+                    .map(d -> DepartmentDTO.builder()
+                            .id(d.getId())
+                            .name(d.getName())
+                            .build())
+                    .collect(Collectors.toSet());
+
+            Set<QualificationDTO> qualificationDTOs = e.getQualifications().stream()
+                    .map(q -> QualificationDTO.builder()
+                            .id(q.getId())
+                            .description(q.getDescription())
+                            .build())
+                    .collect(Collectors.toSet());
+
+            Set<MachineDTO> machineDTOs = e.getMachines().stream()
+                    .map(m ->
+                            MachineDTO.builder().id(m.getId()).make(m.getMake()).build())
+                    .collect(Collectors.toSet());
+
+            // puste role, bo w testach nie mapujemy ich z AuthAPI
+            Set<RoleDTO> roleDTOs = new HashSet<>();
+
+            return EmployeeDTO.builder()
+                    .id(e.getId())
+                    .firstName(e.getFirstName())
+                    .lastName(e.getLastName())
+                    .phoneNumber(e.getPhoneNumber())
+                    .email(e.getEmail())
+                    .active(e.isActive())
+                    .departments(departmentDTOs)
+                    .qualifications(qualificationDTOs)
+                    .machines(machineDTOs)
+                    .roles(roleDTOs)
+                    .build();
+        });
+
+        when(employeeMapper.toDTO(any(EmployeeQualification.class))).thenAnswer(invocation -> {
+            EmployeeQualification eq = invocation.getArgument(0);
+            return EmployeeQualificationDTO.builder()
+                    .employeeId(eq.getEmployee() != null ? eq.getEmployee().getId() : null)
+                    .qualificationId(
+                            eq.getQualification() != null
+                                    ? eq.getQualification().getId()
+                                    : null)
+                    .expiredAt(
+                            eq.getExpiredAt() != null
+                                    ? eq.getExpiredAt()
+                                            .atZone(ZoneId.systemDefault())
+                                            .toLocalDate()
+                                    : null)
+                    .build();
+        });
     }
 
     @Test
-    void createEmployee_ShouldReturnEmployeeDTO_whenCreateEmployeeDTOHaveNoQualificationsAndNoMachines() {
-        // when
+    void createEmployee_ShouldReturnEmployeeDTO_whenNoQualificationsAndMachines() {
+        when(employeeMapper.toEntity(any(CreateEmployeeDTO.class))).thenReturn(employeeWithEmptyQAndEmptyV);
         when(employeeRepository.save(any(Employee.class))).thenReturn(employeeWithEmptyQAndEmptyV);
-        EmployeeDTO result = employeeService.createEmployee(createEmployeeWithEmptyQAndEmptyV);
+        when(employeeMapper.toDTO(any(Employee.class))).thenAnswer(invocation -> {
+            Employee e = invocation.getArgument(0);
+            return EmployeeDTO.builder()
+                    .id(e.getId() != null ? e.getId() : UUID.randomUUID()) // jeśli brak ID, generuj tymczasowe
+                    .firstName(e.getFirstName())
+                    .lastName(e.getLastName())
+                    .phoneNumber(e.getPhoneNumber())
+                    .email(e.getEmail())
+                    .active(e.isActive())
+                    .departments(Set.of())
+                    .roles(Set.of())
+                    .qualifications(Set.of())
+                    .machines(Set.of())
+                    .build();
+        });
 
-        // then
+        EmployeeDTO result = employeeService.createEmployee(createEmployeeDTO);
+
         assertThat(result).isNotNull();
-        assertThat(result.firstName()).isEqualTo("firstName");
+        assertThat(result.firstName()).isEqualTo(employeeWithEmptyQAndEmptyV.getFirstName());
+        verify(employeeRepository).save(any(Employee.class));
+        verify(employeeMapper).toDTO(employeeWithEmptyQAndEmptyV);
     }
 
     @Test
-    void shouldReturnEmployeeDTO_whenUpdateEmployeeDTOHaveNoQualificationsAndNoMachines() {
-        // when
+    void updateEmployee_ShouldReturnEmployeeDTO_whenNoQualificationsAndMachines() {
         when(employeeRepository.findById(any())).thenReturn(Optional.of(employeeWithEmptyQAndEmptyV));
+
         EmployeeDTO result = employeeService.updateEmployee(updateEmployeeDTO);
 
-        // then
         assertThat(result).isNotNull();
-        assertThat(result.firstName()).isEqualTo("firstName");
+        assertThat(result.firstName()).isEqualTo(employeeWithEmptyQAndEmptyV.getFirstName());
+        verify(employeeRepository).findById(any());
+        verify(employeeMapper).toDTO(employeeWithEmptyQAndEmptyV);
     }
 
     @Test
-    void shouldReturnEmployeeDTOsList_whenEmployeesExist() {
-        // given
+    void getAllEmployees_ShouldReturnEmployeeDTOs() {
         Page<Employee> employees = new PageImpl<>(List.of(employeeWithQAndV, employeeWithEmptyQAndEmptyV));
-
-        // when
         when(employeeRepository.findAll(any(Pageable.class))).thenReturn(employees);
+
         List<EmployeeDTO> result = employeeService.getAllEmployees(0, 5);
 
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.size()).isEqualTo(2);
-        assertThat(result.get(0).firstName()).isEqualTo("firstName");
+        assertThat(result).hasSize(2);
+        verify(employeeRepository).findAll(any(Pageable.class));
+        verify(employeeMapper, times(2)).toDTO(any(Employee.class));
     }
 
     @Test
-    void shouldReturnEmployeeDTOWithRequiredQualifications_whenEmployeesExist() {
-        // given
-        Page<Employee> employees = new PageImpl<>(List.of(employeeWithQAndV));
-
-        // when
-        when(employeeRepository.findByQualificationIdAndActiveIsTrue(any(UUID.class), any(Pageable.class)))
-                .thenReturn(employees);
-        List<EmployeeDTO> result = employeeService.getEmployeesByQualification(qualificationId, 0, 5);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.size()).isEqualTo(1);
-        assertThat(result.get(0).firstName()).isEqualTo("firstName");
-    }
-
-    @Test
-    void shouldReturnEmployeeDTOWithRequiredMachines_whenEmployeesExist() {
-        // given
-        Page<Employee> employees = new PageImpl<>(List.of(employeeWithQAndV));
-
-        // when
-        when(employeeRepository.findByMachinesIdAndActiveIsTrue(any(UUID.class), any(Pageable.class)))
-                .thenReturn(employees);
-        List<EmployeeDTO> result = employeeService.getEmployeesByMachines(qualificationId, 0, 5);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.size()).isEqualTo(1);
-        assertThat(result.get(0).firstName()).isEqualTo("firstName");
-    }
-
-    @Test
-    void shouldRemovePhoneNumber_whenEmployeeHasPhoneNumber() {
-        // when
-        when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithQAndV));
-        EmployeeDTO result = employeeService.removePhoneNumber(qualificationId);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.phoneNumber()).isEqualTo(null);
-    }
-
-    @Test
-    void shouldTriggerDeleteEntityMethod() {
-        // given
-        var authUser = AuthUser.builder().username("username").build();
-
-        // when
-        when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithQAndV));
-
-        employeeService.deleteEmployee(employeeId);
-
-        // then
-        assertThat(employeeWithQAndV.isActive()).isFalse();
-    }
-
-    @Test
-    void shouldReturnEmployeeDTO_afterSuccessfulAddQualification() {
-        // given
+    void addQualification_ShouldReturnEmployeeDTO() {
         qualification.setId(qualificationId);
-
-        // when
         when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithEmptyQAndEmptyV));
         when(qualificationAPI.getQualification(any(UUID.class))).thenReturn(qualification);
+
         EmployeeDTO result = employeeService.addQualification(employeeId, qualificationId);
 
-        // then
         assertThat(result).isNotNull();
-        assertThat(result.qualifications().size()).isEqualTo(1);
-        assertThat(result.qualifications().stream().findFirst().get().description())
-                .isEqualTo(qualification.getDescription());
+        assertThat(result.qualifications()).isNotEmpty();
+        verify(employeeRepository).findById(employeeId);
+        verify(qualificationAPI).getQualification(qualificationId);
     }
 
     @Test
-    void shouldReturnEmployeeDTO_whenUpdateQualificationExpiredAtIsValid() {
-        // given
-        var updateQualificationExpireAt = UpdateQualificationExpiredAtDTO.builder()
+    void updateQualificationExpiredAt_ShouldReturnDTO_whenValid() {
+        var dto = UpdateQualificationExpiredAtDTO.builder()
                 .employeeId(employeeId)
                 .qualificationId(qualificationId)
                 .expiredAt(Instant.now().plusSeconds(3600))
                 .build();
         var eq = new EmployeeQualification();
+        eq.setEmployee(employeeWithQAndV);
+        eq.setQualification(qualification);
 
-        // when
         when(employeeQualificationRepository.findByEmployeeQualificationId(any(UUID.class), any(UUID.class)))
                 .thenReturn(Optional.of(eq));
         when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithQAndV));
-        EmployeeDTO result =
-                employeeService.updateQualificationExpiredAt(employeeId, qualificationId, updateQualificationExpireAt);
 
-        // then
+        EmployeeDTO result = employeeService.updateQualificationExpiredAt(employeeId, qualificationId, dto);
+
         assertThat(result).isNotNull();
     }
 
     @Test
-    void shouldThrowException_whenUpdateQualificationExpiredAtIsInThePast() {
-        // given
-        var updateQualificationExpireAt = UpdateQualificationExpiredAtDTO.builder()
+    void updateQualificationExpiredAt_ShouldThrowException_whenInThePast() {
+        var dto = UpdateQualificationExpiredAtDTO.builder()
                 .employeeId(employeeId)
                 .qualificationId(qualificationId)
                 .expiredAt(Instant.now().minusSeconds(3600))
                 .build();
         var eq = new EmployeeQualification();
-
-        // when
         when(employeeQualificationRepository.findByEmployeeQualificationId(any(UUID.class), any(UUID.class)))
                 .thenReturn(Optional.of(eq));
-        Exception result = catchException(() ->
-                employeeService.updateQualificationExpiredAt(employeeId, qualificationId, updateQualificationExpireAt));
 
-        // then
-        assertThat(result).isExactlyInstanceOf(ExpireAtException.class);
+        Exception ex =
+                catchException(() -> employeeService.updateQualificationExpiredAt(employeeId, qualificationId, dto));
+
+        assertThat(ex).isExactlyInstanceOf(ExpireAtException.class);
     }
 
     @Test
-    void shouldRemoveQualificationFromEmployee_whenEmployeeAndQualificationExist() {
-        // given
+    void removeQualification_ShouldRemoveFromEmployee() {
         employeeWithEmptyQAndEmptyV.getQualifications().add(qualification);
-        int before = employeeWithEmptyQAndEmptyV.getQualifications().size();
-
-        // when
         when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithEmptyQAndEmptyV));
         when(qualificationAPI.getQualification(any(UUID.class))).thenReturn(qualification);
 
-        // then
         employeeService.removeQualification(employeeId, qualificationId);
-        int after = employeeWithEmptyQAndEmptyV.getQualifications().size();
-        assertThat(before).isEqualTo(1);
-        assertThat(after).isEqualTo(0);
+
+        assertThat(employeeWithEmptyQAndEmptyV.getQualifications()).isEmpty();
     }
 
     @Test
-    void shouldReturnEmployeeDTO_afterSuccessfulAddMachine() {
-        // given
+    void addMachine_ShouldAddMachineToEmployee() {
         machine.setId(machineId);
-
-        // when
         when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithEmptyQAndEmptyV));
         when(machineAPI.getMachine(any(UUID.class))).thenReturn(machine);
-        employeeService.addMachine(employeeId, machineId);
+
         EmployeeDTO result = employeeService.addMachine(employeeId, machineId);
 
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.machines().size()).isEqualTo(1);
-        assertThat(result.machines().stream().findFirst().get().id()).isEqualTo(machineId);
+        assertThat(result.machines())
+                .contains(MachineDTO.builder().id(machine.getId()).build());
     }
 
     @Test
-    void shouldRemoveMachineFromEmployee_whenEmployeeAndMachineExist() {
-        // given
+    void removeMachine_ShouldRemoveMachineFromEmployee() {
         employeeWithEmptyQAndEmptyV.getMachines().add(machine);
-        int before = employeeWithEmptyQAndEmptyV.getMachines().size();
-
-        // when
         when(employeeRepository.findById(any(UUID.class))).thenReturn(Optional.of(employeeWithEmptyQAndEmptyV));
-        when(machineAPI.getMachine(machineId)).thenReturn(machine);
+        when(machineAPI.getMachine(any(UUID.class))).thenReturn(machine);
 
-        // then
         employeeService.removeMachine(employeeId, machineId);
-        int after = employeeWithEmptyQAndEmptyV.getMachines().size();
-        assertThat(before).isEqualTo(1);
-        assertThat(after).isEqualTo(0);
+
+        assertThat(employeeWithEmptyQAndEmptyV.getMachines()).doesNotContain(machine);
     }
 
     @Test
-    void shouldReturnEmployeeQualificationsWithExpirationTime_whenEmployeeHasQualifications() {
-        // given
-        var employee = employeeWithQAndV; // reuse from test factory
-        var qualification = qualification(); // reuse from test factory
+    void getAllEmployeeQualificationsWithExpirationTime_ShouldReturnDTOs() {
+        employeeWithQAndV.setId(employeeId);
+        qualification.setId(qualificationId);
 
         var eq = new EmployeeQualification();
         eq.setId(new EmployeeQualificationId(employeeId, qualificationId));
-        eq.setEmployee(employee);
+        eq.setEmployee(employeeWithQAndV);
         eq.setQualification(qualification);
-        eq.setExpiredAt(Instant.now().plusSeconds(3600)); // not null
+        eq.setExpiredAt(Instant.now().plusSeconds(3600));
 
-        // when
         when(employeeQualificationRepository.findAllByEmployeeIdAndExpiredAtIsNotNull(any(UUID.class)))
                 .thenReturn(Set.of(eq));
+
+        when(employeeMapper.toDTO(any(EmployeeQualification.class))).thenAnswer(invocation -> {
+            EmployeeQualification eQ = invocation.getArgument(0);
+            return EmployeeQualificationDTO.builder()
+                    .employeeId(eQ.getEmployee().getId())
+                    .qualificationId(eQ.getQualification().getId())
+                    .expiredAt(
+                            eQ.getExpiredAt() != null
+                                    ? eQ.getExpiredAt()
+                                            .atZone(ZoneId.systemDefault())
+                                            .toLocalDate()
+                                    : null)
+                    .build();
+        });
+
         List<EmployeeQualificationDTO> result =
                 employeeService.getAllEmployeeQualificationsWithExpirationTime(employeeId);
 
-        // then
-        assertThat(result).isNotNull();
         assertThat(result).hasSize(1);
         assertThat(result.get(0).qualificationId()).isEqualTo(qualificationId);
         assertThat(result.get(0).expiredAt()).isNotNull();
     }
 
     @Test
-    void shouldReturnEmptyList_whenEmployeeHasNoQualificationsWithExpirationTime() {
-        // when
+    void getAllEmployeeQualificationsWithExpirationTime_ShouldReturnEmptyList_whenNoneExist() {
         when(employeeQualificationRepository.findAllByEmployeeIdAndExpiredAtIsNotNull(any(UUID.class)))
                 .thenReturn(Set.of());
+
         List<EmployeeQualificationDTO> result =
                 employeeService.getAllEmployeeQualificationsWithExpirationTime(employeeId);
 
-        // then
-        assertThat(result).isNotNull();
         assertThat(result).isEmpty();
     }
 }

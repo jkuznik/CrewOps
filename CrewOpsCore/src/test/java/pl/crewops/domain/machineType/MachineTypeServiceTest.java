@@ -17,7 +17,7 @@ import pl.crewops.model.dto.machineType.CreateMachineTypeDTO;
 import pl.crewops.model.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.tenantSchema.MachineType;
 
-@SpringJUnitConfig(classes = {MachineTypeService.class, MachineTypeRepository.class})
+@SpringJUnitConfig(classes = {MachineTypeService.class, MachineTypeRepository.class, MachineTypeMapper.class})
 class MachineTypeServiceTest {
 
     @Autowired
@@ -25,6 +25,9 @@ class MachineTypeServiceTest {
 
     @MockitoBean
     private MachineTypeRepository machineTypeRepository;
+
+    @MockitoBean
+    private MachineTypeMapper machineTypeMapper;
 
     private MachineType machineType;
     private MachineTypeDTO machineTypeDTO;
@@ -68,6 +71,7 @@ class MachineTypeServiceTest {
 
         // when
         when(machineTypeRepository.findAll()).thenReturn(machineTypes);
+        when(machineTypeMapper.toDTO(machineType)).thenReturn(machineTypeDTO);
 
         List<MachineTypeDTO> result = machineTypeService.getAllMachineTypes();
 

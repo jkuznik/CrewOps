@@ -16,4 +16,6 @@ public interface DepartmentAPI {
     List<DepartmentDTO> getDepartments();
 
     Set<Department> getDepartmentsIn(@NotNull Set<UUID> departmentIds);
+
+    DepartmentMapper getMapper();
 }

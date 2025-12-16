@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import pl.crewops.exception.domain.company.NoUniqueCompanyTaxIdException;
-import pl.crewops.exception.multitenancy.TenantNotExistException;
+import pl.crewops.exception.domain.tenant.TenantNotExistException;
 import pl.crewops.model.publicSchema.Tenant;
 
 @SpringJUnitConfig(classes = {TenantService.class, TenantRepository.class})

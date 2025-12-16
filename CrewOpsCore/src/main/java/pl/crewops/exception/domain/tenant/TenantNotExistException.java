@@ -1,4 +1,4 @@
-package pl.crewops.exception.multitenancy;
+package pl.crewops.exception.domain.tenant;
 
 import java.util.UUID;
 

@@ -1,5 +1,6 @@
 package pl.crewops.domain.note;
 
+import jakarta.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -15,6 +16,7 @@ import pl.crewops.model.dto.note.CreateNoteDTO;
 import pl.crewops.model.dto.note.FetchNotesRequest;
 import pl.crewops.model.dto.note.NoteDTO;
 import pl.crewops.model.tenantSchema.Employee;
+import pl.crewops.model.tenantSchema.Note;
 
 @Slf4j
 @Service
@@ -24,23 +26,29 @@ class NoteService implements NoteAPI {
     private final NoteRepository noteRepository;
     private final NoteMapper noteMapper;
     private final EmployeeAPI employeeAPI;
+    private final EntityManager entityManager;
 
     @Override
     @Transactional
     public NoteDTO createDailyNote(CreateNoteDTO createNoteDTO) {
 
-        Employee employeeById = employeeAPI.getEmployeeById(createNoteDTO.reportedByEmployeeId());
+        var employeeById = employeeAPI.getEmployeeById(createNoteDTO.reportedByEmployeeId());
 
         var newDailyNote = noteMapper.toEntity(createNoteDTO, employeeById);
 
-        return noteMapper.toDTO(noteRepository.save(newDailyNote));
+        Note saved = noteRepository.save(newDailyNote);
+
+        entityManager.flush();
+        entityManager.refresh(saved);
+
+        return noteMapper.toDTO(saved);
     }
 
     // todo: simplify this solution (3 query should be 1)
 
     @Override
     @Transactional
-    public List<NoteDTO> getPublicAndPrincipalPrivateNotesByDate(FetchNotesRequest fetchNotesRequest) {
+    public List<NoteDTO> getAllPublicAndUserPrivateNotesByDate(FetchNotesRequest fetchNotesRequest) {
 
         Employee employeeById = employeeAPI.getEmployeeById(fetchNotesRequest.employeeId());
 
@@ -54,15 +62,10 @@ class NoteService implements NoteAPI {
                         .map(noteMapper::toDTO)
                         .toList();
 
-        // 💡 KLUCZOWA ZMIANA: Połączenie list, usunięcie duplikatów i sortowanie
-
-        Comparator<NoteDTO> noteDTOComparator = Comparator.comparing(NoteDTO::createdAt)
-                .reversed(); // Pamiętaj o sortowaniu malejącym, aby najnowsze były na górze
-
         return Stream.of(privateNotes, publicNotes)
                 .flatMap(Collection::stream)
                 .distinct()
-                .sorted(noteDTOComparator)
+                .sorted(Comparator.comparing(NoteDTO::createdAt).reversed())
                 .collect(Collectors.toList());
     }
 }

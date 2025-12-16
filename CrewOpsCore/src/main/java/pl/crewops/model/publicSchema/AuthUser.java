@@ -32,6 +32,7 @@ public class AuthUser extends AbstractEntity {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
+    @Builder.Default
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "auth_user_option",

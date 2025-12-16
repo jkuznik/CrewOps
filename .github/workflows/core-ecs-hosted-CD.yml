@@ -1,293 +1,293 @@
-name: Deploy Core to ECS
-
-on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - 'CrewOpsCore/**'
-      - '.docker/core.dockerfile'
-      - 'settings.gradle.kts'
-      - 'build.gradle.kts'
-      - 'gradle/**'
-      - '.github/workflows/**'
-
-env:
-  AWS_REGION: eu-north-1
-  ECR_REPOSITORY: jkuznik-ecr/crewops-core
-  ECS_SERVICE: crewops-core-service
-  ECS_CLUSTER: crewopc-basic-cluster
-  ECS_TASK_FAMILY: crewops-core
-  CONTAINER_NAME: crewops-core-container
-
-jobs:
-  deploy:
-    name: Deploy Core
-    runs-on: ubuntu-latest
-    environment: production
-
-    env:
-      IMAGE_TAG: ${{ github.sha }}
-      IMAGE_URI: ""
-      TASK_DEF_FILE: crewops-core-latest-task-definition.json
-      UPDATED_TASK_DEF_FILE: updated-task-def.json
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ECS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_ECS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build & Push Docker image
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          echo "👉 Building Docker image..."
-
-          # If IMAGE_TAG is not set, default to 'latest'
-          IMAGE_TAG=${IMAGE_TAG:-latest}
-
-          ./gradlew :CrewOpsCore:bootBuildImage --imageName=$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG
-
-          echo "👉 Pushing Docker image to ECR..."
-          docker push $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG
-
-          IMAGE_URI="$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG"
-          echo "✅ Image pushed: $IMAGE_URI"
-
-          # Save globally
-          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
-      
-
-      - name: Fetch latest ECS task definition
-        id: fetch-task
-        run: |
-          set -euo pipefail
-          FAMILY="${{ env.ECS_TASK_FAMILY }}"
-          echo "👉 Fetching latest task definition for family: $FAMILY"
-
-          LATEST_TASK_DEF_ARN=$(aws ecs list-task-definitions \
-            --family-prefix "$FAMILY" \
-            --sort DESC \
-            --max-items 1 \
-            --query 'taskDefinitionArns[0]' \
-            --output text)
-
-          LATEST_TASK_DEF_ARN=$(echo "$LATEST_TASK_DEF_ARN" | sed 's/None//g' | tr -d '[:space:]')
-
-          if [ -z "$LATEST_TASK_DEF_ARN" ]; then
-            echo "❌ No task definitions found for family $FAMILY"
-            exit 1
-          fi
-
-          echo "✅ Latest task definition ARN: $LATEST_TASK_DEF_ARN"
-
-          LATEST_TASK_DEF=$(basename "$LATEST_TASK_DEF_ARN")
-
-          aws ecs describe-task-definition \
-            --task-definition "$LATEST_TASK_DEF" \
-            --region "${{ env.AWS_REGION }}" \
-            --query "taskDefinition" \
-            --output json > "$TASK_DEF_FILE"
-
-          echo "✅ Task definition saved to $TASK_DEF_FILE"
-
-      - name: Modify ECS task definition with new image
-        id: update-task-def
-        run: |
-          set -euo pipefail
-          echo "👉 Updating task definition to use new image: $IMAGE_URI"
-
-          jq --arg IMAGE "$IMAGE_URI" \
-             --arg NAME "${{ env.CONTAINER_NAME }}" \
-             ' .containerDefinitions |= map(
-                 if .name == $NAME then
-                   .image = $IMAGE
-                 else
-                   .
-                 end
-               )
-             ' "$TASK_DEF_FILE" > "$UPDATED_TASK_DEF_FILE"
-
-          echo "✅ Updated task definition written to $UPDATED_TASK_DEF_FILE"
-
-      - name: Register and deploy ECS task definition
-        id: deploy-ecs
-        run: |
-          set -euo pipefail
-
-          echo "👉 Cleaning task definition file before registration..."
-          CLEAN_TASK_FILE="task-to-register.json"
-
-          jq '{
-            family,
-            taskRoleArn,
-            executionRoleArn,
-            networkMode,
-            containerDefinitions,
-            volumes,
-            placementConstraints,
-            requiresCompatibilities,
-            cpu,
-            memory,
-            runtimePlatform,
-            enableFaultInjection
-          } + (if .pidMode != null then {pidMode: .pidMode} else {} end)
-            + (if .ipcMode != null then {ipcMode: .ipcMode} else {} end)
-            + (if .proxyConfiguration != null then {proxyConfiguration: .proxyConfiguration} else {} end)
-            + (if .inferenceAccelerators != null then {inferenceAccelerators: .inferenceAccelerators} else {} end)
-            + (if .ephemeralStorage != null then {ephemeralStorage: .ephemeralStorage} else {} end)
-          ' "$UPDATED_TASK_DEF_FILE" > "$CLEAN_TASK_FILE"
-
-          echo "✅ Cleaned task definition written to $CLEAN_TASK_FILE"
-
-          echo "👉 Registering new task definition..."
-          REGISTER_OUTPUT=$(aws ecs register-task-definition \
-            --cli-input-json file://"$CLEAN_TASK_FILE" \
-            --region "${{ env.AWS_REGION }}")
-
-          NEW_TASK_DEF_ARN=$(echo "$REGISTER_OUTPUT" | jq -r '.taskDefinition.taskDefinitionArn')
-          echo "✅ New task definition registered: $NEW_TASK_DEF_ARN"
-
-          echo "👉 Updating ECS service to use new task definition..."
-          aws ecs update-service \
-            --cluster "${{ env.ECS_CLUSTER }}" \
-            --service "${{ env.ECS_SERVICE }}" \
-            --task-definition "$NEW_TASK_DEF_ARN" \
-            --force-new-deployment \
-            --region "${{ env.AWS_REGION }}"
-
-          echo "✅ ECS service force deployment triggered successfully!"
-
-          echo "🗑️  Cleaning up temporary files..."
-          rm -f "$CLEAN_TASK_FILE" "$UPDATED_TASK_DEF_FILE" "$TASK_DEF_FILE"
-          echo "✅ Cleanup completed"
-
+#name: Deploy Core to ECS
+#
+#on:
+#  push:
+#    branches: [ "main" ]
+#    paths:
+#      - 'CrewOpsCore/**'
+#      - '.docker/core.dockerfile'
+#      - 'settings.gradle.kts'
+#      - 'build.gradle.kts'
+#      - 'gradle/**'
+#      - '.github/workflows/**'
+#
+#env:
+#  AWS_REGION: eu-north-1
+#  ECR_REPOSITORY: jkuznik-ecr/crewops-core
+#  ECS_SERVICE: crewops-core-service
+#  ECS_CLUSTER: crewopc-basic-cluster
+#  ECS_TASK_FAMILY: crewops-core
+#  CONTAINER_NAME: crewops-core-container
 #
 #jobs:
-#  deploy-core:
-#    runs-on: [self-hosted, linux]
+#  deploy:
+#    name: Deploy Core
+#    runs-on: ubuntu-latest
+#    environment: production
+#
+#    env:
+#      IMAGE_TAG: ${{ github.sha }}
+#      IMAGE_URI: ""
+#      TASK_DEF_FILE: crewops-core-latest-task-definition.json
+#      UPDATED_TASK_DEF_FILE: updated-task-def.json
+#
 #    steps:
-##     this step is an backup in case if my ecr stop working
-##      - name: Pull latest image
-##        run: sudo docker pull jkuznik/crewops-core:latest
+#      - name: Checkout repo
+#        uses: actions/checkout@v4
 #
-#      - name: Authenticate Docker to ECR
+#      - name: Configure AWS credentials
+#        uses: aws-actions/configure-aws-credentials@v2
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ECS_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_ECS_SECRET_ACCESS_KEY }}
+#          aws-region: ${{ env.AWS_REGION }}
+#
+#      - name: Login to Amazon ECR
+#        id: login-ecr
+#        uses: aws-actions/amazon-ecr-login@v1
+#
+#      - name: Build & Push Docker image
+#        id: build-image
 #        env:
-#          AWS_REGION: ${{ secrets.AWS_REGION }}
+#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#          IMAGE_TAG: ${{ github.sha }}
 #        run: |
-#          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-#          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
-#          aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI
+#          set -euo pipefail
+#          echo "👉 Building Docker image..."
 #
-#      - name: Pull latest image from ECR
-#        env:
-#          AWS_REGION: ${{ secrets.AWS_REGION }}
+#          # If IMAGE_TAG is not set, default to 'latest'
+#          IMAGE_TAG=${IMAGE_TAG:-latest}
+#
+#          ./gradlew :CrewOpsCore:bootBuildImage --imageName=$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG
+#
+#          echo "👉 Pushing Docker image to ECR..."
+#          docker push $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG
+#
+#          IMAGE_URI="$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG"
+#          echo "✅ Image pushed: $IMAGE_URI"
+#
+#          # Save globally
+#          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
+#
+#
+#      - name: Fetch latest ECS task definition
+#        id: fetch-task
 #        run: |
-#          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-#          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
-#          sudo -E docker pull $ECR_URI:latest
+#          set -euo pipefail
+#          FAMILY="${{ env.ECS_TASK_FAMILY }}"
+#          echo "👉 Fetching latest task definition for family: $FAMILY"
 #
-#      - name: Remove old container (if exists)
-#        run: sudo docker rm -f core || true
+#          LATEST_TASK_DEF_ARN=$(aws ecs list-task-definitions \
+#            --family-prefix "$FAMILY" \
+#            --sort DESC \
+#            --max-items 1 \
+#            --query 'taskDefinitionArns[0]' \
+#            --output text)
 #
-## rollback db connection to container just change enc RDS_ENDPOINT to db container name
-#      - name: Run new container
-#        env:
-#          AWS_REGION: ${{ secrets.AWS_REGION }}
-#          SPRING_DATASOURCE_URL: jdbc:postgresql://${{ secrets.RDS_ENDPOINT }}:5432/${{ secrets.CREWOPS_POSTGRES_DB }}
-#          SPRING_DATASOURCE_USERNAME: ${{ secrets.CREWOPS_POSTGRES_USER }}
-#          SPRING_DATASOURCE_PASSWORD: ${{ secrets.CREWOPS_POSTGRES_PASSWORD }}
-#          CREWOPS_CLIENT_ID_HASH: ${{ secrets.CREWOPS_CLIENT_ID_HASH }}
-#          CREWOPS_CLIENT_ID_INPUT: ${{ secrets.CREWOPS_CLIENT_ID_INPUT }}
-#          CREW_OPS_TENANT_ID: ${{ secrets.CREW_OPS_TENANT_ID }}
-#          CREW_OPS_TENANT_COMPANY_ID: ${{ secrets.CREW_OPS_TENANT_COMPANY_ID }}
-#          CREW_OPS_TENANT_SCHEMA_NAME: ${{ secrets.CREW_OPS_TENANT_SCHEMA_NAME }}
-#          CREW_OPS_TENANT_ACTIVE: ${{ secrets.CREW_OPS_TENANT_ACTIVE }}
-#          CREW_OPS_AUTH_USER_ROLE_USER_ID: ${{ secrets.CREW_OPS_AUTH_USER_ROLE_USER_ID }}
-#          CREW_OPS_AUTH_USER_ROLE_ROLE_ID: ${{ secrets.CREW_OPS_AUTH_USER_ROLE_ROLE_ID }}
-#          CREW_OPS_AUTH_USER_ID: ${{ secrets.CREW_OPS_AUTH_USER_ID }}
-#          CREW_OPS_AUTH_USER_USERNAME: ${{ secrets.CREW_OPS_AUTH_USER_USERNAME }}
-#          CREW_OPS_AUTH_USER_PASSWORD: ${{ secrets.CREW_OPS_AUTH_USER_PASSWORD }}
-#          CREW_OPS_AUTH_USER_EMPLOYEE_ID: ${{ secrets.CREW_OPS_AUTH_USER_EMPLOYEE_ID }}
-#          CREW_OPS_AUTH_USER_TENANT_ID: ${{ secrets.CREW_OPS_AUTH_USER_TENANT_ID }}
-#          CREW_OPS_ADDRESS_ID: ${{ secrets.CREW_OPS_ADDRESS_ID }}
-#          CREW_OPS_ADDRESS_POSTAL_CODE: ${{ secrets.CREW_OPS_ADDRESS_POSTAL_CODE }}
-#          CREW_OPS_ADDRESS_CITY: ${{ secrets.CREW_OPS_ADDRESS_CITY }}
-#          CREW_OPS_ADDRESS_STREET: ${{ secrets.CREW_OPS_ADDRESS_STREET }}
-#          CREW_OPS_ADDRESS_LOCAL: ${{ secrets.CREW_OPS_ADDRESS_LOCAL }}
-#          CREW_OPS_COMPANY_ID: ${{ secrets.CREW_OPS_COMPANY_ID }}
-#          CREW_OPS_COMPANY_NAME: ${{ secrets.CREW_OPS_COMPANY_NAME }}
-#          CREW_OPS_COMPANY_ADDRESS_ID: ${{ secrets.CREW_OPS_COMPANY_ADDRESS_ID }}
-#          CREW_OPS_COMPANY_EMAIL: ${{ secrets.CREW_OPS_COMPANY_EMAIL }}
-#          CREW_OPS_COMPANY_STATUS: ${{ secrets.CREW_OPS_COMPANY_STATUS }}
-#          CREW_OPS_EMPLOYEE_ID: ${{ secrets.CREW_OPS_EMPLOYEE_ID }}
-#          CREW_OPS_EMPLOYEE_FIRST_NAME: ${{ secrets.CREW_OPS_EMPLOYEE_FIRST_NAME }}
-#          CREW_OPS_EMPLOYEE_LAST_NAME: ${{ secrets.CREW_OPS_EMPLOYEE_LAST_NAME }}
-#          CREW_OPS_EMPLOYEE_BIRTH_DATE: ${{ secrets.CREW_OPS_EMPLOYEE_BIRTH_DATE }}
-#          CREW_OPS_EMPLOYEE_PHONE: ${{ secrets.CREW_OPS_EMPLOYEE_PHONE }}
-#          CREW_OPS_DEPARTMENT_ID: ${{ secrets.CREW_OPS_DEPARTMENT_ID }}
-#          CREW_OPS_DEPARTMENT_NAME: ${{ secrets.CREW_OPS_DEPARTMENT_NAME }}
-#          JWT_CREWOPS: ${{ secrets.JWT_CREWOPS }}
-#          JWT_EXPIRATION_CREWOPS: ${{ secrets.JWT_EXPIRATION_CREWOPS }}
-#          SPRING_PROFILES_ACTIVE: prod
+#          LATEST_TASK_DEF_ARN=$(echo "$LATEST_TASK_DEF_ARN" | sed 's/None//g' | tr -d '[:space:]')
+#
+#          if [ -z "$LATEST_TASK_DEF_ARN" ]; then
+#            echo "❌ No task definitions found for family $FAMILY"
+#            exit 1
+#          fi
+#
+#          echo "✅ Latest task definition ARN: $LATEST_TASK_DEF_ARN"
+#
+#          LATEST_TASK_DEF=$(basename "$LATEST_TASK_DEF_ARN")
+#
+#          aws ecs describe-task-definition \
+#            --task-definition "$LATEST_TASK_DEF" \
+#            --region "${{ env.AWS_REGION }}" \
+#            --query "taskDefinition" \
+#            --output json > "$TASK_DEF_FILE"
+#
+#          echo "✅ Task definition saved to $TASK_DEF_FILE"
+#
+#      - name: Modify ECS task definition with new image
+#        id: update-task-def
 #        run: |
-#          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-#          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
+#          set -euo pipefail
+#          echo "👉 Updating task definition to use new image: $IMAGE_URI"
 #
-#          echo "ECR URI: $ECR_URI"
+#          jq --arg IMAGE "$IMAGE_URI" \
+#             --arg NAME "${{ env.CONTAINER_NAME }}" \
+#             ' .containerDefinitions |= map(
+#                 if .name == $NAME then
+#                   .image = $IMAGE
+#                 else
+#                   .
+#                 end
+#               )
+#             ' "$TASK_DEF_FILE" > "$UPDATED_TASK_DEF_FILE"
 #
-#          sudo docker run -d \
-#            --name core \
-#            --network crewOps \
-#            -e SPRING_DATASOURCE_URL=$SPRING_DATASOURCE_URL \
-#            -e SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME \
-#            -e SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD \
-#            -e CREWOPS_CLIENT_ID_HASH=$CREWOPS_CLIENT_ID_HASH \
-#            -e CREWOPS_CLIENT_ID_INPUT=$CREWOPS_CLIENT_ID_INPUT \
-#            -e JWT_CREWOPS=$JWT_CREWOPS \
-#            -e JWT_EXPIRATION_CREWOPS=$JWT_EXPIRATION_CREWOPS \
-#            -e SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE \
-#            -e CREW_OPS_TENANT_ID=$CREW_OPS_TENANT_ID \
-#            -e CREW_OPS_TENANT_COMPANY_ID=$CREW_OPS_TENANT_COMPANY_ID \
-#            -e CREW_OPS_TENANT_SCHEMA_NAME=$CREW_OPS_TENANT_SCHEMA_NAME \
-#            -e CREW_OPS_TENANT_ACTIVE=$CREW_OPS_TENANT_ACTIVE \
-#            -e CREW_OPS_AUTH_USER_ROLE_USER_ID=$CREW_OPS_AUTH_USER_ROLE_USER_ID \
-#            -e CREW_OPS_AUTH_USER_ROLE_ROLE_ID=$CREW_OPS_AUTH_USER_ROLE_ROLE_ID \
-#            -e CREW_OPS_AUTH_USER_ID=$CREW_OPS_AUTH_USER_ID \
-#            -e CREW_OPS_AUTH_USER_USERNAME=$CREW_OPS_AUTH_USER_USERNAME \
-#            -e CREW_OPS_AUTH_USER_PASSWORD=$CREW_OPS_AUTH_USER_PASSWORD \
-#            -e CREW_OPS_AUTH_USER_EMPLOYEE_ID=$CREW_OPS_AUTH_USER_EMPLOYEE_ID \
-#            -e CREW_OPS_AUTH_USER_TENANT_ID=$CREW_OPS_AUTH_USER_TENANT_ID \
-#            -e CREW_OPS_ADDRESS_ID=$CREW_OPS_ADDRESS_ID \
-#            -e CREW_OPS_ADDRESS_POSTAL_CODE=$CREW_OPS_ADDRESS_POSTAL_CODE \
-#            -e CREW_OPS_ADDRESS_CITY=$CREW_OPS_ADDRESS_CITY \
-#            -e CREW_OPS_ADDRESS_STREET=$CREW_OPS_ADDRESS_STREET \
-#            -e CREW_OPS_ADDRESS_LOCAL=$CREW_OPS_ADDRESS_LOCAL \
-#            -e CREW_OPS_COMPANY_ID=$CREW_OPS_COMPANY_ID \
-#            -e CREW_OPS_COMPANY_NAME=$CREW_OPS_COMPANY_NAME \
-#            -e CREW_OPS_COMPANY_ADDRESS_ID=$CREW_OPS_COMPANY_ADDRESS_ID \
-#            -e CREW_OPS_COMPANY_EMAIL=$CREW_OPS_COMPANY_EMAIL \
-#            -e CREW_OPS_COMPANY_STATUS=$CREW_OPS_COMPANY_STATUS \
-#            -e CREW_OPS_EMPLOYEE_ID=$CREW_OPS_EMPLOYEE_ID \
-#            -e CREW_OPS_EMPLOYEE_FIRST_NAME=$CREW_OPS_EMPLOYEE_FIRST_NAME \
-#            -e CREW_OPS_EMPLOYEE_LAST_NAME=$CREW_OPS_EMPLOYEE_LAST_NAME \
-#            -e CREW_OPS_EMPLOYEE_BIRTH_DATE=$CREW_OPS_EMPLOYEE_BIRTH_DATE \
-#            -e CREW_OPS_EMPLOYEE_PHONE=$CREW_OPS_EMPLOYEE_PHONE \
-#            -e CREW_OPS_DEPARTMENT_ID=$CREW_OPS_DEPARTMENT_ID \
-#            -e CREW_OPS_DEPARTMENT_NAME=$CREW_OPS_DEPARTMENT_NAME \
-#            -e TZ=Europe/Warsaw \
-#            -p 8080:8080 \
-#            --memory=2048m \
-#            $ECR_URI:latest
+#          echo "✅ Updated task definition written to $UPDATED_TASK_DEF_FILE"
+#
+#      - name: Register and deploy ECS task definition
+#        id: deploy-ecs
+#        run: |
+#          set -euo pipefail
+#
+#          echo "👉 Cleaning task definition file before registration..."
+#          CLEAN_TASK_FILE="task-to-register.json"
+#
+#          jq '{
+#            family,
+#            taskRoleArn,
+#            executionRoleArn,
+#            networkMode,
+#            containerDefinitions,
+#            volumes,
+#            placementConstraints,
+#            requiresCompatibilities,
+#            cpu,
+#            memory,
+#            runtimePlatform,
+#            enableFaultInjection
+#          } + (if .pidMode != null then {pidMode: .pidMode} else {} end)
+#            + (if .ipcMode != null then {ipcMode: .ipcMode} else {} end)
+#            + (if .proxyConfiguration != null then {proxyConfiguration: .proxyConfiguration} else {} end)
+#            + (if .inferenceAccelerators != null then {inferenceAccelerators: .inferenceAccelerators} else {} end)
+#            + (if .ephemeralStorage != null then {ephemeralStorage: .ephemeralStorage} else {} end)
+#          ' "$UPDATED_TASK_DEF_FILE" > "$CLEAN_TASK_FILE"
+#
+#          echo "✅ Cleaned task definition written to $CLEAN_TASK_FILE"
+#
+#          echo "👉 Registering new task definition..."
+#          REGISTER_OUTPUT=$(aws ecs register-task-definition \
+#            --cli-input-json file://"$CLEAN_TASK_FILE" \
+#            --region "${{ env.AWS_REGION }}")
+#
+#          NEW_TASK_DEF_ARN=$(echo "$REGISTER_OUTPUT" | jq -r '.taskDefinition.taskDefinitionArn')
+#          echo "✅ New task definition registered: $NEW_TASK_DEF_ARN"
+#
+#          echo "👉 Updating ECS service to use new task definition..."
+#          aws ecs update-service \
+#            --cluster "${{ env.ECS_CLUSTER }}" \
+#            --service "${{ env.ECS_SERVICE }}" \
+#            --task-definition "$NEW_TASK_DEF_ARN" \
+#            --force-new-deployment \
+#            --region "${{ env.AWS_REGION }}"
+#
+#          echo "✅ ECS service force deployment triggered successfully!"
+#
+#          echo "🗑️  Cleaning up temporary files..."
+#          rm -f "$CLEAN_TASK_FILE" "$UPDATED_TASK_DEF_FILE" "$TASK_DEF_FILE"
+#          echo "✅ Cleanup completed"
+#
+##
+##jobs:
+##  deploy-core:
+##    runs-on: [self-hosted, linux]
+##    steps:
+###     this step is an backup in case if my ecr stop working
+###      - name: Pull latest image
+###        run: sudo docker pull jkuznik/crewops-core:latest
+##
+##      - name: Authenticate Docker to ECR
+##        env:
+##          AWS_REGION: ${{ secrets.AWS_REGION }}
+##        run: |
+##          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+##          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
+##          aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI
+##
+##      - name: Pull latest image from ECR
+##        env:
+##          AWS_REGION: ${{ secrets.AWS_REGION }}
+##        run: |
+##          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+##          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
+##          sudo -E docker pull $ECR_URI:latest
+##
+##      - name: Remove old container (if exists)
+##        run: sudo docker rm -f core || true
+##
+### rollback db connection to container just change enc RDS_ENDPOINT to db container name
+##      - name: Run new container
+##        env:
+##          AWS_REGION: ${{ secrets.AWS_REGION }}
+##          SPRING_DATASOURCE_URL: jdbc:postgresql://${{ secrets.RDS_ENDPOINT }}:5432/${{ secrets.CREWOPS_POSTGRES_DB }}
+##          SPRING_DATASOURCE_USERNAME: ${{ secrets.CREWOPS_POSTGRES_USER }}
+##          SPRING_DATASOURCE_PASSWORD: ${{ secrets.CREWOPS_POSTGRES_PASSWORD }}
+##          CREWOPS_CLIENT_ID_HASH: ${{ secrets.CREWOPS_CLIENT_ID_HASH }}
+##          CREWOPS_CLIENT_ID_INPUT: ${{ secrets.CREWOPS_CLIENT_ID_INPUT }}
+##          CREW_OPS_TENANT_ID: ${{ secrets.CREW_OPS_TENANT_ID }}
+##          CREW_OPS_TENANT_COMPANY_ID: ${{ secrets.CREW_OPS_TENANT_COMPANY_ID }}
+##          CREW_OPS_TENANT_SCHEMA_NAME: ${{ secrets.CREW_OPS_TENANT_SCHEMA_NAME }}
+##          CREW_OPS_TENANT_ACTIVE: ${{ secrets.CREW_OPS_TENANT_ACTIVE }}
+##          CREW_OPS_AUTH_USER_ROLE_USER_ID: ${{ secrets.CREW_OPS_AUTH_USER_ROLE_USER_ID }}
+##          CREW_OPS_AUTH_USER_ROLE_ROLE_ID: ${{ secrets.CREW_OPS_AUTH_USER_ROLE_ROLE_ID }}
+##          CREW_OPS_AUTH_USER_ID: ${{ secrets.CREW_OPS_AUTH_USER_ID }}
+##          CREW_OPS_AUTH_USER_USERNAME: ${{ secrets.CREW_OPS_AUTH_USER_USERNAME }}
+##          CREW_OPS_AUTH_USER_PASSWORD: ${{ secrets.CREW_OPS_AUTH_USER_PASSWORD }}
+##          CREW_OPS_AUTH_USER_EMPLOYEE_ID: ${{ secrets.CREW_OPS_AUTH_USER_EMPLOYEE_ID }}
+##          CREW_OPS_AUTH_USER_TENANT_ID: ${{ secrets.CREW_OPS_AUTH_USER_TENANT_ID }}
+##          CREW_OPS_ADDRESS_ID: ${{ secrets.CREW_OPS_ADDRESS_ID }}
+##          CREW_OPS_ADDRESS_POSTAL_CODE: ${{ secrets.CREW_OPS_ADDRESS_POSTAL_CODE }}
+##          CREW_OPS_ADDRESS_CITY: ${{ secrets.CREW_OPS_ADDRESS_CITY }}
+##          CREW_OPS_ADDRESS_STREET: ${{ secrets.CREW_OPS_ADDRESS_STREET }}
+##          CREW_OPS_ADDRESS_LOCAL: ${{ secrets.CREW_OPS_ADDRESS_LOCAL }}
+##          CREW_OPS_COMPANY_ID: ${{ secrets.CREW_OPS_COMPANY_ID }}
+##          CREW_OPS_COMPANY_NAME: ${{ secrets.CREW_OPS_COMPANY_NAME }}
+##          CREW_OPS_COMPANY_ADDRESS_ID: ${{ secrets.CREW_OPS_COMPANY_ADDRESS_ID }}
+##          CREW_OPS_COMPANY_EMAIL: ${{ secrets.CREW_OPS_COMPANY_EMAIL }}
+##          CREW_OPS_COMPANY_STATUS: ${{ secrets.CREW_OPS_COMPANY_STATUS }}
+##          CREW_OPS_EMPLOYEE_ID: ${{ secrets.CREW_OPS_EMPLOYEE_ID }}
+##          CREW_OPS_EMPLOYEE_FIRST_NAME: ${{ secrets.CREW_OPS_EMPLOYEE_FIRST_NAME }}
+##          CREW_OPS_EMPLOYEE_LAST_NAME: ${{ secrets.CREW_OPS_EMPLOYEE_LAST_NAME }}
+##          CREW_OPS_EMPLOYEE_BIRTH_DATE: ${{ secrets.CREW_OPS_EMPLOYEE_BIRTH_DATE }}
+##          CREW_OPS_EMPLOYEE_PHONE: ${{ secrets.CREW_OPS_EMPLOYEE_PHONE }}
+##          CREW_OPS_DEPARTMENT_ID: ${{ secrets.CREW_OPS_DEPARTMENT_ID }}
+##          CREW_OPS_DEPARTMENT_NAME: ${{ secrets.CREW_OPS_DEPARTMENT_NAME }}
+##          JWT_CREWOPS: ${{ secrets.JWT_CREWOPS }}
+##          JWT_EXPIRATION_CREWOPS: ${{ secrets.JWT_EXPIRATION_CREWOPS }}
+##          SPRING_PROFILES_ACTIVE: prod
+##        run: |
+##          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+##          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-core"
+##
+##          echo "ECR URI: $ECR_URI"
+##
+##          sudo docker run -d \
+##            --name core \
+##            --network crewOps \
+##            -e SPRING_DATASOURCE_URL=$SPRING_DATASOURCE_URL \
+##            -e SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME \
+##            -e SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD \
+##            -e CREWOPS_CLIENT_ID_HASH=$CREWOPS_CLIENT_ID_HASH \
+##            -e CREWOPS_CLIENT_ID_INPUT=$CREWOPS_CLIENT_ID_INPUT \
+##            -e JWT_CREWOPS=$JWT_CREWOPS \
+##            -e JWT_EXPIRATION_CREWOPS=$JWT_EXPIRATION_CREWOPS \
+##            -e SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE \
+##            -e CREW_OPS_TENANT_ID=$CREW_OPS_TENANT_ID \
+##            -e CREW_OPS_TENANT_COMPANY_ID=$CREW_OPS_TENANT_COMPANY_ID \
+##            -e CREW_OPS_TENANT_SCHEMA_NAME=$CREW_OPS_TENANT_SCHEMA_NAME \
+##            -e CREW_OPS_TENANT_ACTIVE=$CREW_OPS_TENANT_ACTIVE \
+##            -e CREW_OPS_AUTH_USER_ROLE_USER_ID=$CREW_OPS_AUTH_USER_ROLE_USER_ID \
+##            -e CREW_OPS_AUTH_USER_ROLE_ROLE_ID=$CREW_OPS_AUTH_USER_ROLE_ROLE_ID \
+##            -e CREW_OPS_AUTH_USER_ID=$CREW_OPS_AUTH_USER_ID \
+##            -e CREW_OPS_AUTH_USER_USERNAME=$CREW_OPS_AUTH_USER_USERNAME \
+##            -e CREW_OPS_AUTH_USER_PASSWORD=$CREW_OPS_AUTH_USER_PASSWORD \
+##            -e CREW_OPS_AUTH_USER_EMPLOYEE_ID=$CREW_OPS_AUTH_USER_EMPLOYEE_ID \
+##            -e CREW_OPS_AUTH_USER_TENANT_ID=$CREW_OPS_AUTH_USER_TENANT_ID \
+##            -e CREW_OPS_ADDRESS_ID=$CREW_OPS_ADDRESS_ID \
+##            -e CREW_OPS_ADDRESS_POSTAL_CODE=$CREW_OPS_ADDRESS_POSTAL_CODE \
+##            -e CREW_OPS_ADDRESS_CITY=$CREW_OPS_ADDRESS_CITY \
+##            -e CREW_OPS_ADDRESS_STREET=$CREW_OPS_ADDRESS_STREET \
+##            -e CREW_OPS_ADDRESS_LOCAL=$CREW_OPS_ADDRESS_LOCAL \
+##            -e CREW_OPS_COMPANY_ID=$CREW_OPS_COMPANY_ID \
+##            -e CREW_OPS_COMPANY_NAME=$CREW_OPS_COMPANY_NAME \
+##            -e CREW_OPS_COMPANY_ADDRESS_ID=$CREW_OPS_COMPANY_ADDRESS_ID \
+##            -e CREW_OPS_COMPANY_EMAIL=$CREW_OPS_COMPANY_EMAIL \
+##            -e CREW_OPS_COMPANY_STATUS=$CREW_OPS_COMPANY_STATUS \
+##            -e CREW_OPS_EMPLOYEE_ID=$CREW_OPS_EMPLOYEE_ID \
+##            -e CREW_OPS_EMPLOYEE_FIRST_NAME=$CREW_OPS_EMPLOYEE_FIRST_NAME \
+##            -e CREW_OPS_EMPLOYEE_LAST_NAME=$CREW_OPS_EMPLOYEE_LAST_NAME \
+##            -e CREW_OPS_EMPLOYEE_BIRTH_DATE=$CREW_OPS_EMPLOYEE_BIRTH_DATE \
+##            -e CREW_OPS_EMPLOYEE_PHONE=$CREW_OPS_EMPLOYEE_PHONE \
+##            -e CREW_OPS_DEPARTMENT_ID=$CREW_OPS_DEPARTMENT_ID \
+##            -e CREW_OPS_DEPARTMENT_NAME=$CREW_OPS_DEPARTMENT_NAME \
+##            -e TZ=Europe/Warsaw \
+##            -p 8080:8080 \
+##            --memory=2048m \
+##            $ECR_URI:latest

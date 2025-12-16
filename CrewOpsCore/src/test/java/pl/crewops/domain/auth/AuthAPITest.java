@@ -44,20 +44,4 @@ public class AuthAPITest extends IntegrationTest {
         assertThat(result.active()).isFalse();
         assertThat(after2.isEmpty()).isTrue();
     }
-
-    //    @Test
-    //    void deleteById_shouldDeleteAuthUser_whenAuthUserExists() {
-    //        // given
-    //        var authUser = AuthUser.builder().username("admin").password("admin").build();
-    //        authUser.setId(UUID.fromString("cccccccc-cccc-cccc-cccc-cccccccccccc"));
-    //
-    //        // when
-    //        authAPI.deleteById(authUser.getId());
-    //
-    //        Optional<AuthUser> result = authUserRepository.findById(authUser.getId());
-    //
-    //        // then
-    //        result.ifPresent(resultValue -> log.warn("AuthUser with id {} still exists", resultValue.getId()));
-    //        assertThat(result.isPresent()).isFalse();
-    //    }
 }

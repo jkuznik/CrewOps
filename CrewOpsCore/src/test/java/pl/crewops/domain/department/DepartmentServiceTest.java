@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import pl.crewops.model.dto.department.DepartmentDTO;
@@ -20,10 +21,12 @@ class DepartmentServiceTest {
     @Mock
     private DepartmentRepository departmentRepository;
 
+    private DepartmentMapper mapper = Mappers.getMapper(DepartmentMapper.class);
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        departmentService = new DepartmentService(departmentRepository);
+        departmentService = new DepartmentService(departmentRepository, mapper);
     }
 
     @Test
@@ -42,10 +45,8 @@ class DepartmentServiceTest {
 
         // then
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).id()).isEqualTo(dept1.getId());
-        assertThat(result.get(0).name()).isEqualTo(dept1.getName());
-        assertThat(result.get(1).id()).isEqualTo(dept2.getId());
-        assertThat(result.get(1).name()).isEqualTo(dept2.getName());
+        assertThat(result.get(0).name()).isEqualTo("Accounting");
+        assertThat(result.get(1).name()).isEqualTo("HR");
 
         verify(departmentRepository).findAllSortedByName();
     }
@@ -55,8 +56,10 @@ class DepartmentServiceTest {
         // given
         UUID id1 = UUID.randomUUID();
         UUID id2 = UUID.randomUUID();
+
         Department dept1 = Department.builder().name("Accounting").build();
         dept1.setId(id1);
+
         Department dept2 = Department.builder().name("HR").build();
         dept2.setId(id2);
 

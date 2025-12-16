@@ -28,6 +28,9 @@ class QualificationServiceTest {
     @MockitoBean
     private QualificationRepository qualificationRepository;
 
+    @MockitoBean
+    private QualificationMapper qualificationMapper;
+
     @Autowired
     private QualificationService qualificationService;
 
@@ -45,8 +48,18 @@ class QualificationServiceTest {
 
     @Test
     void shouldReturnQualificationDTO_whenCreatedQualificationDTOIsValid() {
-        // when
+        // given
+        QualificationDTO dto = QualificationDTO.builder()
+                .id(qualification.getId())
+                .description(qualification.getDescription())
+                .employeesAmount(0)
+                .build();
+
+        when(qualificationMapper.toEntity(createQualificationDTO)).thenReturn(qualification);
         when(qualificationRepository.save(any(Qualification.class))).thenReturn(qualification);
+        when(qualificationMapper.toDTO(qualification)).thenReturn(dto);
+
+        // when
         QualificationDTO result = qualificationService.createQualification(createQualificationDTO);
 
         // then
@@ -57,10 +70,17 @@ class QualificationServiceTest {
     @Test
     void shouldReturnQualificationDTOsList_whenQualificationsExist() {
         // given
-        Page<Qualification> qualifications = new PageImpl<>(Collections.singletonList(qualification));
+        Page<Qualification> page = new PageImpl<>(Collections.singletonList(qualification));
+        QualificationDTO dto = QualificationDTO.builder()
+                .id(qualification.getId())
+                .description(qualification.getDescription())
+                .employeesAmount(0)
+                .build();
+
+        when(qualificationRepository.findAll(any(PageRequest.class))).thenReturn(page);
+        when(qualificationMapper.toDTO(any(Qualification.class))).thenReturn(dto);
 
         // when
-        when(qualificationRepository.findAll(any(PageRequest.class))).thenReturn(qualifications);
         List<QualificationDTO> result = qualificationService.getAllQualifications(0, 5);
 
         // then
@@ -71,8 +91,17 @@ class QualificationServiceTest {
 
     @Test
     void shouldReturnQualificationDTO_whenUpdatedQualificationDTOIsValid() {
-        // when
+        // given
+        QualificationDTO dto = QualificationDTO.builder()
+                .id(qualification.getId())
+                .description(qualification.getDescription())
+                .employeesAmount(0)
+                .build();
+
         when(qualificationRepository.findById(any(UUID.class))).thenReturn(Optional.of(qualification));
+        when(qualificationMapper.toDTO(qualification)).thenReturn(dto);
+
+        // when
         QualificationDTO result = qualificationService.updateQualification(updateQualificationDTOWithDescription);
 
         // then
@@ -87,6 +116,6 @@ class QualificationServiceTest {
         qualificationService.deleteQualification(qualificationId);
 
         // then
-        verify(qualificationRepository, times(1)).deleteById(qualificationId);
+        verify(qualificationRepository).deleteById(qualificationId);
     }
 }

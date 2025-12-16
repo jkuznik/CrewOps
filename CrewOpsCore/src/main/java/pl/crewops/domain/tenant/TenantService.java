@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pl.crewops.exception.domain.company.NoUniqueCompanyTaxIdException;
-import pl.crewops.exception.multitenancy.TenantNotExistException;
+import pl.crewops.exception.domain.tenant.TenantNotExistException;
 import pl.crewops.model.publicSchema.Tenant;
 
 @Slf4j

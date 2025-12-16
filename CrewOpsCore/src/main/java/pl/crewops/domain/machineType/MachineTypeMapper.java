@@ -1,16 +1,14 @@
 package pl.crewops.domain.machineType;
 
+import org.mapstruct.Mapper;
 import pl.crewops.model.dto.machineType.CreateMachineTypeDTO;
 import pl.crewops.model.dto.machineType.MachineTypeDTO;
 import pl.crewops.model.tenantSchema.MachineType;
 
-class MachineTypeMapper {
+@Mapper(componentModel = "spring")
+public interface MachineTypeMapper {
 
-    public static MachineType mapToEntity(CreateMachineTypeDTO createMachineTypeDTO) {
-        return MachineType.builder().name(createMachineTypeDTO.name()).build();
-    }
+    MachineType toEntity(CreateMachineTypeDTO dto);
 
-    public static MachineTypeDTO mapToDTO(MachineType machineType) {
-        return MachineTypeDTO.builder().name(machineType.getName()).build();
-    }
+    MachineTypeDTO toDTO(MachineType entity);
 }

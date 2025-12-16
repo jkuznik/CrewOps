@@ -3,8 +3,11 @@ package pl.crewops.domain.breakdown;
 import java.util.Set;
 import java.util.UUID;
 import pl.crewops.model.dto.auth.RoleDTO;
+import pl.crewops.model.dto.breakdown.BreakdownDTO;
 import pl.crewops.model.dto.breakdown.CreateBreakdownDTO;
 import pl.crewops.model.dto.breakdown.UpdateBreakdownDTO;
+import pl.crewops.model.dto.employee.EmployeeDTO;
+import pl.crewops.model.dto.machine.MachineDTO;
 import pl.crewops.model.tenantSchema.*;
 
 class BreakdownTestFactory {
@@ -18,6 +21,24 @@ class BreakdownTestFactory {
                 .machine(machine())
                 .reportedBy(employee())
                 .repairedBy(employee())
+                .description("description")
+                .critical(true)
+                .solved(true)
+                .solvedAt(null)
+                .build();
+    }
+
+    static BreakdownDTO breakdownDTO() {
+        return BreakdownDTO.builder()
+                .machine(MachineDTO.builder().id(machineId).build())
+                .reportedBy(EmployeeDTO.builder()
+                        .firstName(employee().getFirstName())
+                        .lastName(employee().getLastName())
+                        .build())
+                .repairedBy(EmployeeDTO.builder()
+                        .firstName(employee().getFirstName())
+                        .lastName(employee().getLastName())
+                        .build())
                 .description("description")
                 .critical(true)
                 .solved(true)

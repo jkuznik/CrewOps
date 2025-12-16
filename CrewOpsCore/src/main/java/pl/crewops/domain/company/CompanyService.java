@@ -1,8 +1,5 @@
 package pl.crewops.domain.company;
 
-import static pl.crewops.domain.company.CompanyMapper.mapToDTO;
-import static pl.crewops.domain.company.CompanyMapper.mapToEntity;
-
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,16 +22,17 @@ class CompanyService implements CompanyAPI {
 
     private final CompanyRepository companyRepository;
     private final AddressAPI addressAPI;
+    private final CompanyMapper mapper;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public CompanyDTO createCompany(
             CreateAddressDTO createAddressDTO, CreateCompanyDTO createCompanyDTO, UUID companyId) {
         Address address = addressAPI.createAddress(createAddressDTO);
-        var company = mapToEntity(createCompanyDTO);
+        var company = mapper.toEntity(createCompanyDTO);
         company.setId(companyId);
         company.setAddress(address);
-        return mapToDTO(companyRepository.save(company));
+        return mapper.toDTO(companyRepository.save(company));
     }
 
     @Transactional(readOnly = true)
@@ -42,7 +40,7 @@ class CompanyService implements CompanyAPI {
         Company company =
                 companyRepository.findById(companyId).orElseThrow(() -> new CompanyNotFoundException(companyId));
         log.info("Get company by id: {}", companyId);
-        return mapToDTO(company);
+        return mapper.toDTO(company);
     }
 
     @Override
