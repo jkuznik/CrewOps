@@ -12,6 +12,7 @@ import static pl.crewops.domain.note.DailyNoteTestFactory.dailyEntry;
 import static pl.crewops.domain.note.DailyNoteTestFactory.dailyNoteDTO;
 import static pl.crewops.domain.note.DailyNoteTestFactory.employee;
 
+import jakarta.persistence.EntityManager;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ import pl.crewops.model.tenantSchema.DailyEntry;
 import pl.crewops.model.tenantSchema.Employee;
 import pl.crewops.model.tenantSchema.Note;
 
-@SpringJUnitConfig(classes = {NoteService.class})
+@SpringJUnitConfig(classes = {NoteService.class, EntityManager.class})
 class NoteServiceTest {
 
     @Autowired
@@ -43,6 +44,9 @@ class NoteServiceTest {
 
     @MockitoBean
     EmployeeAPI employeeAPI;
+
+    @MockitoBean
+    EntityManager entityManager;
 
     // Stałe ID
     private final UUID DAILY_ENTRY_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
@@ -98,7 +102,6 @@ class NoteServiceTest {
         // Weryfikacja interakcji
         verify(employeeAPI, times(1)).getEmployeeById(EMPLOYEE_ID);
         verify(noteRepository, times(1)).save(noteEntity);
-        // Weryfikacja, czy mapper został wywołany z poprawnymi, resolvowanymi encjami
         verify(noteMapper, times(1)).toEntity(createDtoWithEntry, employee);
         verify(noteMapper, times(1)).toDTO(noteEntity);
     }

@@ -41,9 +41,7 @@ class NoteService implements NoteAPI {
         entityManager.flush();
         entityManager.refresh(saved);
 
-        System.out.println(saved.getCreatedAt() + " O TUTAJ MIALO BYC");
-
-        return noteMapper.toDTO(noteRepository.save(newDailyNote));
+        return noteMapper.toDTO(saved);
     }
 
     // todo: simplify this solution (3 query should be 1)
