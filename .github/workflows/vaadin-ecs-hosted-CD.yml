@@ -1,240 +1,240 @@
-name: Deploy Vaadin to ECS
-
-on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - 'CrewOpsVaadin/**'
-      - '.docker/vaadin.dockerfile'
-      - 'settings.gradle.kts'
-      - 'build.gradle.kts'
-      - 'gradle/**'
-      - '.github/workflows/**'
-
-env:
-  AWS_REGION: eu-north-1
-  ECR_REPOSITORY: jkuznik-ecr/crewops-vaadin
-  ECS_SERVICE: crewops-vaadin-service
-  ECS_CLUSTER: crewopc-basic-cluster
-  ECS_TASK_FAMILY: crewops-vaadin
-  CONTAINER_NAME: crewops-vaadin-container
-
-jobs:
-  deploy:
-    name: Deploy Vaadin
-    runs-on: ubuntu-latest
-    environment: production
-
-    env:
-      IMAGE_TAG: ${{ github.sha }}
-      IMAGE_URI: ""
-      TASK_DEF_FILE: crewops-vaadin-latest-task-definition.json
-      UPDATED_TASK_DEF_FILE: updated-task-def.json
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      # Set up Amazon Corretto 21
-      - name: Set up Java 21 (Amazon Corretto)
-        uses: actions/setup-java@v3
-        with:
-          distribution: corretto
-          java-version: 21
-
-      # Set up Node.js for Vaadin frontend
-      - name: Set up Node.js 20
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      # Cache Gradle
-#      - name: Cache Gradle packages
-#        uses: actions/cache@v3
-#        with:
-#          path: |
-#            ~/.gradle/caches
-#            ~/.gradle/wrapper
-#          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-
-      # Build dependent modules
-      - name: Build without Gradle cache
-        run: ./gradlew clean :CrewOpsModel:build :CrewOpsSecurity:build -Pproduction --no-build-cache
-
-      # Prepare Vaadin frontend in production mode
-      - name: Prepare Vaadin frontend (production)
-        run: ./gradlew clean :CrewOpsVaadin:vaadinBuildFrontend -Pproduction --no-build-cache
-
-      # Configure AWS credentials
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ECS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_ECS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      # Login to Amazon ECR
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      # Build and push Docker image
-      - name: Build & Push Docker image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        run: |
-          set -euo pipefail
-          IMAGE_TAG=${GITHUB_SHA}
-          IMAGE_URI="$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG"
-
-          echo "👉 Building Docker image..."
-          ./gradlew clean :CrewOpsVaadin:bootBuildImage --imageName="$IMAGE_URI" -Pproduction --no-build-cache
-
-          echo "👉 Pushing Docker image to ECR..."
-          docker push "$IMAGE_URI"
-
-          echo "✅ Image pushed: $IMAGE_URI"
-          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
-
-      # Fetch latest ECS task definition
-      - name: Fetch latest ECS task definition
-        id: fetch-task
-        run: |
-          set -euo pipefail
-          FAMILY="${{ env.ECS_TASK_FAMILY }}"
-          echo "👉 Fetching latest task definition for family: $FAMILY"
-
-          LATEST_TASK_DEF_ARN=$(aws ecs list-task-definitions \
-            --family-prefix "$FAMILY" \
-            --sort DESC \
-            --max-items 1 \
-            --query 'taskDefinitionArns[0]' \
-            --output text)
-
-          LATEST_TASK_DEF_ARN=$(echo "$LATEST_TASK_DEF_ARN" | sed 's/None//g' | tr -d '[:space:]')
-
-          if [ -z "$LATEST_TASK_DEF_ARN" ]; then
-            echo "❌ No task definitions found for family $FAMILY"
-            exit 1
-          fi
-
-          LATEST_TASK_DEF=$(basename "$LATEST_TASK_DEF_ARN")
-          aws ecs describe-task-definition \
-            --task-definition "$LATEST_TASK_DEF" \
-            --region "${{ env.AWS_REGION }}" \
-            --query "taskDefinition" \
-            --output json > crewops-vaadin-latest-task-definition.json
-
-          echo "✅ Task definition saved."
-
-      # Update ECS task definition with new image
-      - name: Modify ECS task definition with new image
-        run: |
-          set -euo pipefail
-          jq --arg IMAGE "$IMAGE_URI" \
-             --arg NAME "${{ env.CONTAINER_NAME }}" \
-             '.containerDefinitions |= map(if .name==$NAME then .image=$IMAGE else . end)' \
-             crewops-vaadin-latest-task-definition.json \
-             > updated-vaadin-task-def.json
-          echo "✅ Task definition updated with new image."
-
-      # Register and deploy ECS task definition
-      - name: Register and deploy ECS task definition
-        run: |
-          set -euo pipefail
-          CLEAN_TASK_FILE="task-to-register.json"
-          jq '{
-            family,
-            taskRoleArn,
-            executionRoleArn,
-            networkMode,
-            containerDefinitions,
-            volumes,
-            placementConstraints,
-            requiresCompatibilities,
-            cpu,
-            memory,
-            runtimePlatform
-          } + (if .enableFaultInjection != null then {enableFaultInjection:.enableFaultInjection} else {} end)
-            + (if .pidMode != null then {pidMode:.pidMode} else {} end)
-            + (if .ipcMode != null then {ipcMode:.ipcMode} else {} end)
-            + (if .proxyConfiguration != null then {proxyConfiguration:.proxyConfiguration} else {} end)
-            + (if .inferenceAccelerators != null then {inferenceAccelerators:.inferenceAccelerators} else {} end)
-            + (if .ephemeralStorage != null then {ephemeralStorage:.ephemeralStorage} else {} end)
-          ' updated-vaadin-task-def.json > "$CLEAN_TASK_FILE"
-
-          REGISTER_OUTPUT=$(aws ecs register-task-definition \
-            --cli-input-json file://"$CLEAN_TASK_FILE" \
-            --region "${{ env.AWS_REGION }}")
-
-          NEW_TASK_DEF_ARN=$(echo "$REGISTER_OUTPUT" | jq -r '.taskDefinition.taskDefinitionArn')
-          echo "✅ New task definition registered: $NEW_TASK_DEF_ARN"
-
-          echo "👉 Updating ECS service..."
-          aws ecs update-service \
-            --cluster "${{ env.ECS_CLUSTER }}" \
-            --service "${{ env.ECS_SERVICE }}" \
-            --task-definition "$NEW_TASK_DEF_ARN" \
-            --force-new-deployment \
-            --region "${{ env.AWS_REGION }}"
-
-          echo "✅ ECS service deployment triggered successfully."
-
-          # Cleanup
-          rm -f "$CLEAN_TASK_FILE" updated-vaadin-task-def.json crewops-vaadin-latest-task-definition.json
-          echo "✅ Cleanup done."
-
-#     paste this directly under on: workflow_run: [] types: -completed    based on self-hosted runner
+#name: Deploy Vaadin to ECS
+#
+#on:
+#  push:
+#    branches: [ "main" ]
+#    paths:
+#      - 'CrewOpsVaadin/**'
+#      - '.docker/vaadin.dockerfile'
+#      - 'settings.gradle.kts'
+#      - 'build.gradle.kts'
+#      - 'gradle/**'
+#      - '.github/workflows/**'
+#
+#env:
+#  AWS_REGION: eu-north-1
+#  ECR_REPOSITORY: jkuznik-ecr/crewops-vaadin
+#  ECS_SERVICE: crewops-vaadin-service
+#  ECS_CLUSTER: crewopc-basic-cluster
+#  ECS_TASK_FAMILY: crewops-vaadin
+#  CONTAINER_NAME: crewops-vaadin-container
+#
 #jobs:
-#  deploy-vaadin:
-#    runs-on: [self-hosted, linux]
+#  deploy:
+#    name: Deploy Vaadin
+#    runs-on: ubuntu-latest
+#    environment: production
+#
+#    env:
+#      IMAGE_TAG: ${{ github.sha }}
+#      IMAGE_URI: ""
+#      TASK_DEF_FILE: crewops-vaadin-latest-task-definition.json
+#      UPDATED_TASK_DEF_FILE: updated-task-def.json
+#
 #    steps:
-#      - name: Pull latest Vaadin image
-#        run: sudo docker pull jkuznik/crewops-vaadin:latest
+#      - name: Checkout repo
+#        uses: actions/checkout@v4
 #
-#      - name: Authenticate Docker to ECR
+#      # Set up Amazon Corretto 21
+#      - name: Set up Java 21 (Amazon Corretto)
+#        uses: actions/setup-java@v3
+#        with:
+#          distribution: corretto
+#          java-version: 21
+#
+#      # Set up Node.js for Vaadin frontend
+#      - name: Set up Node.js 20
+#        uses: actions/setup-node@v3
+#        with:
+#          node-version: 20
+#
+#      # Cache Gradle
+##      - name: Cache Gradle packages
+##        uses: actions/cache@v3
+##        with:
+##          path: |
+##            ~/.gradle/caches
+##            ~/.gradle/wrapper
+##          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+#
+#      # Build dependent modules
+#      - name: Build without Gradle cache
+#        run: ./gradlew clean :CrewOpsModel:build :CrewOpsSecurity:build -Pproduction --no-build-cache
+#
+#      # Prepare Vaadin frontend in production mode
+#      - name: Prepare Vaadin frontend (production)
+#        run: ./gradlew clean :CrewOpsVaadin:vaadinBuildFrontend -Pproduction --no-build-cache
+#
+#      # Configure AWS credentials
+#      - name: Configure AWS credentials
+#        uses: aws-actions/configure-aws-credentials@v2
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ECS_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_ECS_SECRET_ACCESS_KEY }}
+#          aws-region: ${{ env.AWS_REGION }}
+#
+#      # Login to Amazon ECR
+#      - name: Login to Amazon ECR
+#        id: login-ecr
+#        uses: aws-actions/amazon-ecr-login@v1
+#
+#      # Build and push Docker image
+#      - name: Build & Push Docker image
 #        env:
-#          AWS_REGION: ${{ secrets.AWS_REGION }}
+#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
 #        run: |
-#          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-#          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-vaadin"
-#          aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI
+#          set -euo pipefail
+#          IMAGE_TAG=${GITHUB_SHA}
+#          IMAGE_URI="$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG"
 #
-#      - name: Pull latest image from ECR
-#        env:
-#          AWS_REGION: ${{ secrets.AWS_REGION }}
+#          echo "👉 Building Docker image..."
+#          ./gradlew clean :CrewOpsVaadin:bootBuildImage --imageName="$IMAGE_URI" -Pproduction --no-build-cache
+#
+#          echo "👉 Pushing Docker image to ECR..."
+#          docker push "$IMAGE_URI"
+#
+#          echo "✅ Image pushed: $IMAGE_URI"
+#          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
+#
+#      # Fetch latest ECS task definition
+#      - name: Fetch latest ECS task definition
+#        id: fetch-task
 #        run: |
-#          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-#          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-vaadin"
-#          sudo -E docker pull $ECR_URI:latest
+#          set -euo pipefail
+#          FAMILY="${{ env.ECS_TASK_FAMILY }}"
+#          echo "👉 Fetching latest task definition for family: $FAMILY"
 #
-#      - name: Remove old Vaadin container
-#        run: sudo docker rm -f CrewOpsVaadin || true
+#          LATEST_TASK_DEF_ARN=$(aws ecs list-task-definitions \
+#            --family-prefix "$FAMILY" \
+#            --sort DESC \
+#            --max-items 1 \
+#            --query 'taskDefinitionArns[0]' \
+#            --output text)
 #
-#      - name: Run new Vaadin container
-#        env:
-#          AWS_REGION: ${{ secrets.AWS_REGION }}
-#          CREWOPS_CLIENT_ID_INPUT: ${{ secrets.CREWOPS_CLIENT_ID_INPUT }}
-#          CREWOPS_CLIENT_ID_HASH: ${{ secrets.CREWOPS_CLIENT_ID_HASH }}
-#          CREWOPS_CORE_URL: ${{ secrets.CREWOPS_CORE_URL }}
-#          CREWOPS_CACHE_URL: ${{ secrets.CREWOPS_CACHE_URL }}
-#          JWT_CREWOPS: ${{ secrets.JWT_CREWOPS }}
-#          JWT_EXPIRATION_CREWOPS: ${{ secrets.JWT_EXPIRATION_CREWOPS }}
+#          LATEST_TASK_DEF_ARN=$(echo "$LATEST_TASK_DEF_ARN" | sed 's/None//g' | tr -d '[:space:]')
+#
+#          if [ -z "$LATEST_TASK_DEF_ARN" ]; then
+#            echo "❌ No task definitions found for family $FAMILY"
+#            exit 1
+#          fi
+#
+#          LATEST_TASK_DEF=$(basename "$LATEST_TASK_DEF_ARN")
+#          aws ecs describe-task-definition \
+#            --task-definition "$LATEST_TASK_DEF" \
+#            --region "${{ env.AWS_REGION }}" \
+#            --query "taskDefinition" \
+#            --output json > crewops-vaadin-latest-task-definition.json
+#
+#          echo "✅ Task definition saved."
+#
+#      # Update ECS task definition with new image
+#      - name: Modify ECS task definition with new image
 #        run: |
-#          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-#          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-vaadin"
+#          set -euo pipefail
+#          jq --arg IMAGE "$IMAGE_URI" \
+#             --arg NAME "${{ env.CONTAINER_NAME }}" \
+#             '.containerDefinitions |= map(if .name==$NAME then .image=$IMAGE else . end)' \
+#             crewops-vaadin-latest-task-definition.json \
+#             > updated-vaadin-task-def.json
+#          echo "✅ Task definition updated with new image."
 #
-#          sudo -E docker run -d \
-#            --name CrewOpsVaadin \
-#            --network crewOps \
-#            --restart always \
-#            -e CREWOPS_CLIENT_ID_INPUT=$CREWOPS_CLIENT_ID_INPUT \
-#            -e CREWOPS_CLIENT_ID_HASH=$CREWOPS_CLIENT_ID_HASH \
-#            -e CREWOPS_CORE_URL=$CREWOPS_CORE_URL \
-#            -e CREWOPS_CACHE_URL=$CREWOPS_CACHE_URL \
-#            -e JWT_CREWOPS=$JWT_CREWOPS \
-#            -e JWT_EXPIRATION_CREWOPS=$JWT_EXPIRATION_CREWOPS \
-#            -e TZ=Europe/Warsaw \
-#            -p 8081:8081 \
-#            --memory=2048m \
-#            $ECR_URI:latest
+#      # Register and deploy ECS task definition
+#      - name: Register and deploy ECS task definition
+#        run: |
+#          set -euo pipefail
+#          CLEAN_TASK_FILE="task-to-register.json"
+#          jq '{
+#            family,
+#            taskRoleArn,
+#            executionRoleArn,
+#            networkMode,
+#            containerDefinitions,
+#            volumes,
+#            placementConstraints,
+#            requiresCompatibilities,
+#            cpu,
+#            memory,
+#            runtimePlatform
+#          } + (if .enableFaultInjection != null then {enableFaultInjection:.enableFaultInjection} else {} end)
+#            + (if .pidMode != null then {pidMode:.pidMode} else {} end)
+#            + (if .ipcMode != null then {ipcMode:.ipcMode} else {} end)
+#            + (if .proxyConfiguration != null then {proxyConfiguration:.proxyConfiguration} else {} end)
+#            + (if .inferenceAccelerators != null then {inferenceAccelerators:.inferenceAccelerators} else {} end)
+#            + (if .ephemeralStorage != null then {ephemeralStorage:.ephemeralStorage} else {} end)
+#          ' updated-vaadin-task-def.json > "$CLEAN_TASK_FILE"
+#
+#          REGISTER_OUTPUT=$(aws ecs register-task-definition \
+#            --cli-input-json file://"$CLEAN_TASK_FILE" \
+#            --region "${{ env.AWS_REGION }}")
+#
+#          NEW_TASK_DEF_ARN=$(echo "$REGISTER_OUTPUT" | jq -r '.taskDefinition.taskDefinitionArn')
+#          echo "✅ New task definition registered: $NEW_TASK_DEF_ARN"
+#
+#          echo "👉 Updating ECS service..."
+#          aws ecs update-service \
+#            --cluster "${{ env.ECS_CLUSTER }}" \
+#            --service "${{ env.ECS_SERVICE }}" \
+#            --task-definition "$NEW_TASK_DEF_ARN" \
+#            --force-new-deployment \
+#            --region "${{ env.AWS_REGION }}"
+#
+#          echo "✅ ECS service deployment triggered successfully."
+#
+#          # Cleanup
+#          rm -f "$CLEAN_TASK_FILE" updated-vaadin-task-def.json crewops-vaadin-latest-task-definition.json
+#          echo "✅ Cleanup done."
+#
+##     paste this directly under on: workflow_run: [] types: -completed    based on self-hosted runner
+##jobs:
+##  deploy-vaadin:
+##    runs-on: [self-hosted, linux]
+##    steps:
+##      - name: Pull latest Vaadin image
+##        run: sudo docker pull jkuznik/crewops-vaadin:latest
+##
+##      - name: Authenticate Docker to ECR
+##        env:
+##          AWS_REGION: ${{ secrets.AWS_REGION }}
+##        run: |
+##          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+##          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-vaadin"
+##          aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI
+##
+##      - name: Pull latest image from ECR
+##        env:
+##          AWS_REGION: ${{ secrets.AWS_REGION }}
+##        run: |
+##          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+##          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-vaadin"
+##          sudo -E docker pull $ECR_URI:latest
+##
+##      - name: Remove old Vaadin container
+##        run: sudo docker rm -f CrewOpsVaadin || true
+##
+##      - name: Run new Vaadin container
+##        env:
+##          AWS_REGION: ${{ secrets.AWS_REGION }}
+##          CREWOPS_CLIENT_ID_INPUT: ${{ secrets.CREWOPS_CLIENT_ID_INPUT }}
+##          CREWOPS_CLIENT_ID_HASH: ${{ secrets.CREWOPS_CLIENT_ID_HASH }}
+##          CREWOPS_CORE_URL: ${{ secrets.CREWOPS_CORE_URL }}
+##          CREWOPS_CACHE_URL: ${{ secrets.CREWOPS_CACHE_URL }}
+##          JWT_CREWOPS: ${{ secrets.JWT_CREWOPS }}
+##          JWT_EXPIRATION_CREWOPS: ${{ secrets.JWT_EXPIRATION_CREWOPS }}
+##        run: |
+##          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+##          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/jkuznik-ecr/crewops-vaadin"
+##
+##          sudo -E docker run -d \
+##            --name CrewOpsVaadin \
+##            --network crewOps \
+##            --restart always \
+##            -e CREWOPS_CLIENT_ID_INPUT=$CREWOPS_CLIENT_ID_INPUT \
+##            -e CREWOPS_CLIENT_ID_HASH=$CREWOPS_CLIENT_ID_HASH \
+##            -e CREWOPS_CORE_URL=$CREWOPS_CORE_URL \
+##            -e CREWOPS_CACHE_URL=$CREWOPS_CACHE_URL \
+##            -e JWT_CREWOPS=$JWT_CREWOPS \
+##            -e JWT_EXPIRATION_CREWOPS=$JWT_EXPIRATION_CREWOPS \
+##            -e TZ=Europe/Warsaw \
+##            -p 8081:8081 \
+##            --memory=2048m \
+##            $ECR_URI:latest
