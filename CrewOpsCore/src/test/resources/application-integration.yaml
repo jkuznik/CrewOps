@@ -17,7 +17,7 @@ spring:
   liquibase:
     enabled: true
     default-schema: public
-    change-log: db/changelog/db.changelog-master.yaml # Upewnij się, że ścieżka jest poprawna
+    change-log: db/changelog/db.changelog-master.yaml
 
     parameters:
       # ADRES

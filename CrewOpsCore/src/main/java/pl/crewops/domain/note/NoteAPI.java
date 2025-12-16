@@ -13,5 +13,5 @@ public interface NoteAPI {
 
     NoteDTO createDailyNote(@NotNull @Valid CreateNoteDTO createNoteDTO);
 
-    List<NoteDTO> getPublicAndPrincipalPrivateNotesByDate(@NotNull FetchNotesRequest fetchNotesRequest);
+    List<NoteDTO> getAllPublicAndUserPrivateNotesByDate(@NotNull FetchNotesRequest fetchNotesRequest);
 }

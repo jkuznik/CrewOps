@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static pl.crewops.domain.note.DailyNoteTestFactory.createDailyNoteDTO;
 import static pl.crewops.domain.note.DailyNoteTestFactory.dailyEntry;
-import static pl.crewops.domain.note.DailyNoteTestFactory.dailyNote;
 import static pl.crewops.domain.note.DailyNoteTestFactory.dailyNoteDTO;
 import static pl.crewops.domain.note.DailyNoteTestFactory.employee;
 
@@ -33,7 +32,6 @@ class NoteServiceTest {
     @Autowired
     NoteService dailyNoteService;
 
-    // Mocki
     @MockitoBean
     NoteRepository noteRepository;
 
@@ -70,8 +68,8 @@ class NoteServiceTest {
         createDtoWithoutEntry = createDailyNoteDTO(null, EMPLOYEE_ID);
 
         // Encje DailyNote (różne dla przypadków)
-        noteEntity = dailyNote(DAILY_NOTE_ID, dailyEntry, employee);
-        noteEntityWithoutEntry = dailyNote(DAILY_NOTE_ID, null, employee);
+        noteEntity = DailyNoteTestFactory.privateDailyNote(DAILY_NOTE_ID, dailyEntry, employee);
+        noteEntityWithoutEntry = DailyNoteTestFactory.privateDailyNote(DAILY_NOTE_ID, null, employee);
 
         dailyNoteResultDTO = dailyNoteDTO(DAILY_NOTE_ID, DAILY_ENTRY_ID, EMPLOYEE_ID);
     }
@@ -108,19 +106,11 @@ class NoteServiceTest {
     @Test
     void createDailyNote_ShouldReturnDailyNoteDTO_whenDailyEntryIdIsNull() {
         // Given
-        // Ustawienie DTO wynikowego na null DailyEntryId dla asercji
         NoteDTO expectedDtoWithoutEntry = dailyNoteDTO(DAILY_NOTE_ID, null, EMPLOYEE_ID);
 
-        // 1. Ustawienie zachowania API (DailyEntryAPI NIE jest wywoływany)
         when(employeeAPI.getEmployeeById(EMPLOYEE_ID)).thenReturn(employee);
-
-        // 2. Mockowanie mapowania z DailyEntry = null
         when(noteMapper.toEntity(eq(createDtoWithoutEntry), eq(employee))).thenReturn(noteEntityWithoutEntry);
-
-        // 3. Mockowanie repozytorium
         when(noteRepository.save(eq(noteEntityWithoutEntry))).thenReturn(noteEntityWithoutEntry);
-
-        // 4. Mockowanie mapowania wynikowego DTO
         when(noteMapper.toDTO(eq(noteEntityWithoutEntry))).thenReturn(expectedDtoWithoutEntry);
 
         // When
@@ -129,11 +119,9 @@ class NoteServiceTest {
         // Then
         assertThat(result).isNotNull();
 
-        // Weryfikacja interakcji
         verify(dailyEntryAPI, never()).getById(any()); // Sprawdzenie, że nie wywołano
         verify(employeeAPI, times(1)).getEmployeeById(EMPLOYEE_ID);
         verify(noteRepository, times(1)).save(noteEntityWithoutEntry);
-        // Weryfikacja, czy mapper został wywołany z 'null' dla DailyEntry
         verify(noteMapper, times(1)).toEntity(eq(createDtoWithoutEntry), eq(employee));
         verify(noteMapper, times(1)).toDTO(noteEntityWithoutEntry);
     }

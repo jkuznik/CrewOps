@@ -1,6 +1,7 @@
 package pl.crewops;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +28,7 @@ import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.domain.machineType.MachineTypeAPI;
 import pl.crewops.domain.message.MessageAPI;
+import pl.crewops.domain.note.NoteAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
 import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
@@ -66,6 +68,9 @@ public abstract class IntegrationTest {
     protected TestRestTemplate restTemplate;
 
     @Autowired
+    protected EntityManager entityManager;
+
+    @Autowired
     private ApplicationContext applicationContext;
 
     @Autowired
@@ -88,6 +93,9 @@ public abstract class IntegrationTest {
 
     @Autowired
     protected MachineTypeAPI machineTypeAPI;
+
+    @Autowired
+    protected NoteAPI noteAPI;
 
     @Autowired
     protected DepartmentAPI departmentAPI;

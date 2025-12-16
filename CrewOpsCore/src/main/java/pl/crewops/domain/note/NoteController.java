@@ -30,6 +30,6 @@ class NoteController {
             @RequestParam("employeeId") UUID employeeId, @RequestParam("date") LocalDate date) {
         var fetchNotesRequest =
                 FetchNotesRequest.builder().employeeId(employeeId).date(date).build();
-        return ResponseEntity.ok(noteAPI.getPublicAndPrincipalPrivateNotesByDate(fetchNotesRequest));
+        return ResponseEntity.ok(noteAPI.getAllPublicAndUserPrivateNotesByDate(fetchNotesRequest));
     }
 }

@@ -9,7 +9,7 @@ public enum DailyEntryAuditType {
     ATTENDANCE_STATUS_CHANGED,
 
     /** Zdarzenie: Dodano nową notatkę, która jest uwagą BHP/Safety. */
-    SAFETY_NOTE_ADDED, // NOWY TYP
+    SAFETY_NOTE_ADDED,
 
     /** Zdarzenie: Uzupełnianie powiązanego raportu. */
     REPORT_STATUS_CHANGED,

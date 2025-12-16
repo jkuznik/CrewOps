@@ -26,3 +26,5 @@ databaseChangeLog:
       file: db/changelog/db.changelog-tenant.yaml
   - include:
       file: db/changelog/001-insert-test-values.yaml
+  - include:
+      file: db/changelog/002-insert-note-test-values.yaml

@@ -217,7 +217,6 @@ class DailyEntryService implements DailyEntryAPI {
             savedEntry.setStatus(DailyEntryStatus.MANUAL_EDITED);
             dailyEntryRepository.save(savedEntry);
 
-            // osobny event audytowy: cofnięcie zatwierdzenia
             JsonNode statusChangePayload = auditDetailsBuilder.createPayload(
                     DailyEntryAuditType.ENTRY_STATUS_CHANGED, oldEntry, savedEntry, command.actionByEmployeeId());
 
@@ -313,13 +312,10 @@ class DailyEntryService implements DailyEntryAPI {
      * @return {@code true} if a sensitive modification occurred, otherwise {@code false}
      */
     boolean sensitiveModification(DailyEntry oldEntry, DailyEntry newEntry) {
-
-        // Check attendance change
         if (!Objects.equals(oldEntry.getAttendance(), newEntry.getAttendance())) {
             return true;
         }
 
-        // Check work time changes
         if (!Objects.equals(oldEntry.getStartTime(), newEntry.getStartTime())) {
             return true;
         }
@@ -330,11 +326,6 @@ class DailyEntryService implements DailyEntryAPI {
             return true;
         }
 
-        // Check overtime changes (handle null and numeric equality properly)
-        // Uwaga: dzięki poprawce 1, wartości w oldEntry i newEntry mają już stałą skalę 4,
-        // co sprawia, że Objects.equals jest wystarczające, jeśli są typu BigDecimal.
-        // Jednak Twoje obecne użycie stripTrailingZeros jest poprawne dla BigDecimals
-        // o różnej skali i zapewnia bezpieczeństwo. Zostawiamy tę logikę.
         if (!Objects.equals(
                 Optional.ofNullable(oldEntry.getOvertime())
                         .map(BigDecimal::stripTrailingZeros)
