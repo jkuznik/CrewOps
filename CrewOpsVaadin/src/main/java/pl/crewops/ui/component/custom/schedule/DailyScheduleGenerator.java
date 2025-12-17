@@ -9,79 +9,37 @@ public class DailyScheduleGenerator extends VerticalLayout {
 
     private final HorizontalLayout shiftsPalette = new HorizontalLayout();
 
-    private final DailyScheduleGrid grid = new DailyScheduleGrid();
+    private final NativeScheduleGrid nativeGrid = new NativeScheduleGrid();
 
     public DailyScheduleGenerator() {
         setSizeFull();
+        setPadding(false);
+        setSpacing(true);
 
-        add(shiftsPalette, grid);
+        shiftsPalette.setWidthFull();
+        shiftsPalette.setMinHeight("60px");
+        shiftsPalette.getStyle().set("padding", "10px");
+        shiftsPalette.getStyle().set("gap", "10px");
+        shiftsPalette.getStyle().set("overflow-x", "auto");
+
+        add(shiftsPalette, nativeGrid);
+
+        ShiftDTO poranna = new ShiftDTO(UUID.randomUUID(), "Zmiana Poranna", null, "#2ecc71");
+        ShiftDTO nocna = new ShiftDTO(UUID.randomUUID(), "Zmiana Nocna", null, "#9b59b6");
+
+        // Dodajemy wizualnie do palety (używając natywnego ShiftPaletteItem z poprzedniej wiadomości)
+        addShiftToPalette(poranna);
+        addShiftToPalette(nocna);
+
+        add(shiftsPalette, nativeGrid);
+
+        nativeGrid.addDay(new ScheduleDay(1));
+        nativeGrid.updateClientSideData();
     }
 
-    public void addShiftResourceDragBar(ShiftDTO shiftDTO) {
-        var dragItem = new ShiftResourceDragBar(new ShiftResource(shiftDTO));
-
-        dragItem.setText(shiftDTO.name());
-
-        String textColor = getTextColorForBackground(shiftDTO.color());
-
-        dragItem.getStyle()
-                .set("padding", "6px")
-                .set("background-color", shiftDTO.color())
-                .set("border-radius", "6px")
-                .set("cursor", "grab")
-                .set("min-width", "50px")
-                .set("justify-content", "center")
-                .set("display", "flex");
-
-        // Ustawiamy kolor bezpośrednio na labelie (z !important)
-        dragItem.setTextColor(textColor);
-
-        dragItem.addDragStartListener(event -> {});
-        dragItem.addDragEndListener(event -> {
-            grid.getGrid().getDataProvider().refreshAll();
-        });
-
-        shiftsPalette.add(dragItem);
-    }
-
-    private String getTextColorForBackground(String hex) {
-        try {
-            int r = Integer.parseInt(hex.substring(1, 3), 16);
-            int g = Integer.parseInt(hex.substring(3, 5), 16);
-            int b = Integer.parseInt(hex.substring(5, 7), 16);
-
-            // luminancja (perceived brightness)
-            double luminance = (0.299 * r + 0.587 * g + 0.114 * b);
-
-            // gdy kolor jasny → czarny tekst
-            return luminance > 130 ? "black" : "white";
-
-        } catch (Exception e) {
-            return "white"; // domyślnie
-        }
-    }
-
-    public void updateShiftResourceDragBar(ShiftDTO shiftDTO) {
-        shiftsPalette
-                .getChildren()
-                .filter(component -> component instanceof ShiftResourceDragBar)
-                .map(component -> (ShiftResourceDragBar) component)
-                .filter(bar -> bar.getResource().getShiftDTO().id().equals(shiftDTO.id()))
-                .findFirst()
-                .ifPresent(shiftResourceDragBar -> {
-                    shiftResourceDragBar.setText(shiftDTO.name());
-                    shiftResourceDragBar.getStyle().set("background-color", shiftDTO.color());
-                    shiftResourceDragBar.setTextColor(getTextColorForBackground(shiftDTO.color()));
-                });
-    }
-
-    public void removeShiftResourceDragBar(UUID shiftId) {
-        shiftsPalette
-                .getChildren()
-                .filter(component -> component instanceof ShiftResourceDragBar)
-                .map(component -> (ShiftResourceDragBar) component)
-                .filter(bar -> bar.getResource().getShiftDTO().id().equals(shiftId))
-                .findFirst()
-                .ifPresent(shiftsPalette::remove);
+    private void addShiftToPalette(ShiftDTO dto) {
+        ShiftPaletteItem item = new ShiftPaletteItem(dto);
+        shiftsPalette.add(item);
+        nativeGrid.registerPaletteTemplate(dto);
     }
 }

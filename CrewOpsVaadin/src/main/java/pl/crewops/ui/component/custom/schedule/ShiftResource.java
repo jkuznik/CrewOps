@@ -1,53 +1,41 @@
 package pl.crewops.ui.component.custom.schedule;
 
-import static pl.crewops.ui.component.custom.schedule.DailyScheduleGrid.INTERVALS_PER_DAY;
-
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
-import pl.crewops.enums.TimeSlot;
 import pl.crewops.model.dto.shift.ShiftDTO;
 
 @Getter
 @Setter
-final class ShiftResource {
+public final class ShiftResource {
     private final ShiftDTO shiftDTO;
-    private TimeSlot startSlot;
-    private int durationInSlots = 84;
+    private int startMinute; // 0 - 1439
+    private int durationMinutes = 480; // Domyślnie 8h (480 min)
 
-    private int beforeMoveStartSlot;
-    private boolean hasCrossMidnightSegment = false; // this is info for original shift resource
-    private boolean isCrossMidnightSegment = false; // this is info for 'next day' visualisation shift
+    private int beforeMoveStartMinute;
+    private boolean hasCrossMidnightSegment = false;
+    private boolean isCrossMidnightSegment = false;
 
     public ShiftResource(ShiftDTO shiftDTO) {
         this.shiftDTO = shiftDTO;
     }
 
-    public boolean hasCrossMidnightSegment() {
-        return hasCrossMidnightSegment;
+    public int getEndMinute() {
+        return startMinute + durationMinutes;
     }
 
-    public int getStartSlotIndex() {
-        return startSlot.getIndex();
-    }
-
-    public int getEndSlotIndex() {
-        return startSlot.getIndex() + durationInSlots;
-    }
-
-    public int getNextDayEndSlotForShift() {
-        int endSlotIndex = getEndSlotIndex();
-        return endSlotIndex - INTERVALS_PER_DAY;
+    public int getNextDayEndMinute() {
+        return getEndMinute() - 1440;
     }
 
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof ShiftResource that)) return false;
-        return Objects.equals(getShiftDTO(), that.getShiftDTO());
+        return Objects.equals(getShiftDTO().id(), that.getShiftDTO().id());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getShiftDTO());
+        return Objects.hashCode(getShiftDTO().id());
     }
 }

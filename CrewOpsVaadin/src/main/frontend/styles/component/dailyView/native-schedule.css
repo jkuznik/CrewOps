@@ -1,0 +1,158 @@
+:host {
+    --hour-width: calc(100% / 24);
+    --slot-color: rgba(0, 0, 0, 0.05);
+    --border-color: #e0e0e0;
+    --header-height: 30px;
+    --row-height: 50px;
+    display: block;
+    width: 100%;
+    font-family: var(--lumo-font-family);
+    min-height: 200px; /* Dodaj to tymczasowo dla testu */
+    background: white;
+}
+
+.schedule-container {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
+    background-color: white;
+    border-radius: 4px;
+    overflow-x: hidden;
+}
+
+/* Wiersz dnia */
+.day-row {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    min-height: var(--row-height);
+}
+
+.day-label {
+    width: 80px;
+    min-width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--lumo-contrast-5pct);
+    border-right: 1px solid var(--border-color);
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.day-content {
+    background-image: linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px);
+    background-size: calc(100% / 24) 100%; /* Linie co godzinę */
+    height: 60px;
+    border: 1px solid #eee;
+    margin: 5px 0;
+}
+
+.shift-bar {
+    transition: transform 0.1s ease;
+}
+
+.shift-bar:hover {
+    filter: brightness(1.1);
+    z-index: 100;
+}
+/* Ścieżka dla zmian (track) */
+.shift-track {
+    position: relative;
+    width: 100%;
+    height: 35px;
+    margin: 5px 0;
+}
+
+.shift-track.empty {
+    height: 20px;
+    opacity: 0.3;
+}
+
+/* Styl paska zmiany */
+.shift-bar {
+    box-sizing: border-box;
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: var(--lumo-box-shadow-xs);
+    transition: box-shadow 0.2s;
+    user-select: none;
+}
+
+.shift-bar:hover {
+    box-shadow: var(--lumo-box-shadow-s);
+    filter: brightness(1.05);
+}
+
+.shift-bar[draggable="true"]:active {
+    cursor: grabbing;
+    opacity: 0.8;
+}
+
+/* Uchwyty do zmiany rozmiaru (Resize Handles) */
+.resize-handle {
+    transition: background-color 0.2s;
+}
+
+.resize-handle:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+.shift-name {
+    padding: 0 10px;
+    font-weight: 500;
+    text-shadow: 0px 1px 2px rgba(0,0,0,0.2);
+    pointer-events: none;
+}
+
+/* Styl dla "cienia" (Cross Midnight) */
+.shift-bar.is-shadow {
+    opacity: 0.7;
+    border-style: dashed;
+    cursor: default;
+}
+
+/* Header Layout */
+.schedule-header {
+    display: flex;
+    height: var(--header-height);
+    background-color: var(--lumo-contrast-10pct);
+    border-bottom: 2px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+
+.header-label-spacer {
+    width: 80px; /* Musi być identyczne jak .day-label */
+    min-width: 80px;
+    border-right: 1px solid var(--border-color);
+}
+
+.header-timeline {
+    flex-grow: 1;
+    display: flex;
+    position: relative;
+}
+
+.hour-marker {
+    flex: 1; /* Każdy marker zajmuje dokładnie 1/24 szerokości */
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.hour-text {
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: var(--lumo-secondary-text-color);
+}
+
+/* Zapewnienie, że linie w day-content i hour-marker się pokrywają */
+.day-content {
+    /* ... poprzednie style ... */
+    background-image: linear-gradient(to right, var(--border-color) 1px, transparent 1px);
+    background-size: var(--hour-width) 100%;
+    background-position: -0.5px 0; /* Korekta o 1px bordera */
+}
