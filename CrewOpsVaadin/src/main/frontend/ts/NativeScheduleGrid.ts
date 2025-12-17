@@ -54,16 +54,14 @@ export class NativeScheduleGrid extends LitElement {
     }
 
     private renderHeader() {
-        const hours: number[] = [];
-        for (let i = 0; i < 24; i++) { hours.push(i); }
-
+        const hours = Array.from({length: 24}, (_, i) => i);
         return html`
-            <div class="schedule-header" style="display: flex; background: #f4f4f4; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 10;">
-                <div class="header-label-spacer" style="width: 80px; min-width: 80px;"></div>
-                <div class="header-timeline" style="flex-grow: 1; display: flex;">
+            <div class="schedule-header">
+                <div class="header-label-spacer"></div>
+                <div class="header-timeline">
                     ${hours.map(hour => html`
-                        <div class="hour-marker" style="flex: 1; border-right: 1px solid #eee; font-size: 10px; padding: 4px;">
-                            ${hour}:00
+                        <div class="hour-marker">
+                            <span class="hour-text">${hour}:00</span>
                         </div>
                     `)}
                 </div>
@@ -73,18 +71,14 @@ export class NativeScheduleGrid extends LitElement {
 
     private renderDay(day: Day) {
         const rows = this.packShiftsIntoRows(day.shifts || []);
-
         return html`
             <div class="day-row"
-                 style="display: flex; border-bottom: 1px solid #eee; min-height: 60px;"
                  @drop=${(e: DragEvent) => this.handleDrop(e, day)}
                  @dragover=${(e: DragEvent) => e.preventDefault()}>
-                <div class="day-label" style="width: 80px; min-width: 80px; display: flex; align-items: center; justify-content: center; font-weight: bold; background: #fafafa; border-right: 1px solid #eee;">
-                    Dzień ${day.dayNumber}
-                </div>
-                <div class="day-content" style="flex-grow: 1; position: relative; background-image: linear-gradient(to right, #f0f0f0 1px, transparent 1px); background-size: ${100/24}%; ">
+                <div class="day-label">Dzień ${day.dayNumber}</div>
+                <div class="day-content">
                     ${rows.map(rowShifts => html`
-                        <div class="shift-track" style="position: relative; height: 35px; width: 100%; margin: 5px 0;">
+                        <div class="shift-track">
                             ${rowShifts.map(shift => this.renderShift(shift))}
                         </div>
                     `)}
@@ -100,20 +94,7 @@ export class NativeScheduleGrid extends LitElement {
         const styles = {
             left: `${left}%`,
             width: `${width}%`,
-            backgroundColor: shift.color || '#3498db',
-            position: 'absolute',
-            height: '30px',
-            borderRadius: '4px',
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            padding: '0 5px',
-            fontSize: '12px',
-            cursor: 'grab',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-            zIndex: '2',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden'
+            backgroundColor: shift.color || '#3498db'
         };
 
         return html`

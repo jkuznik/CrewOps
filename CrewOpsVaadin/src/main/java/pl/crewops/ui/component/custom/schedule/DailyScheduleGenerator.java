@@ -27,13 +27,15 @@ public class DailyScheduleGenerator extends VerticalLayout {
         ShiftDTO poranna = new ShiftDTO(UUID.randomUUID(), "Zmiana Poranna", null, "#2ecc71");
         ShiftDTO nocna = new ShiftDTO(UUID.randomUUID(), "Zmiana Nocna", null, "#9b59b6");
 
-        // Dodajemy wizualnie do palety (używając natywnego ShiftPaletteItem z poprzedniej wiadomości)
         addShiftToPalette(poranna);
         addShiftToPalette(nocna);
 
         add(shiftsPalette, nativeGrid);
 
-        nativeGrid.addDay(new ScheduleDay(1));
+        for (int i = 0; i < 90; i++) {
+
+            nativeGrid.addDay(new ScheduleDay(i + 1));
+        }
         nativeGrid.updateClientSideData();
     }
 
