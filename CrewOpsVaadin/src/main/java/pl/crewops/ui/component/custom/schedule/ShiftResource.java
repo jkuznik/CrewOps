@@ -1,6 +1,7 @@
 package pl.crewops.ui.component.custom.schedule;
 
 import java.util.Objects;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import pl.crewops.model.dto.shift.ShiftDTO;
@@ -9,8 +10,10 @@ import pl.crewops.model.dto.shift.ShiftDTO;
 @Setter
 public final class ShiftResource {
     private final ShiftDTO shiftDTO;
+    private String instanceId = UUID.randomUUID().toString();
+
     private int startMinute; // 0 - 1439
-    private int durationMinutes = 480; // Domyślnie 8h (480 min)
+    private int durationMinutes = 480; // Default 8h (480 min)
 
     private int beforeMoveStartMinute;
     private boolean hasCrossMidnightSegment = false;
@@ -30,12 +33,13 @@ public final class ShiftResource {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (!(o instanceof ShiftResource that)) return false;
-        return Objects.equals(getShiftDTO().id(), that.getShiftDTO().id());
+        return Objects.equals(instanceId, that.instanceId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getShiftDTO().id());
+        return Objects.hash(instanceId);
     }
 }

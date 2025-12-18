@@ -25,6 +25,7 @@ public class NativeScheduleGrid extends Component implements HasSize {
         setSizeFull();
         addListener(ShiftDroppedEvent.class, this::onShiftDropped);
         addListener(ShiftResizedEvent.class, this::onShiftResized);
+        addListener(ShiftDeletedEvent.class, this::onShiftDeleted);
 
         getElement().setProperty("dayLabelText", headerDayCell);
     }
@@ -50,73 +51,62 @@ public class NativeScheduleGrid extends Component implements HasSize {
         int duration = event.getNewDurationMinutes();
 
         if (event.isShadow()) {
-            // Jeśli rozciągamy cień, musimy przeliczyć TOTALNY czas trwania.
-            // Znajdujemy oryginał, żeby wiedzieć kiedy się zaczyna przed północą.
-            ShiftResource original = findShiftById(event.getShiftId());
+            // Teraz szukamy oryginału po TYM SAMYM instanceId, ale z flagą !isCross
+            ShiftResource original = dayList.stream()
+                    .flatMap(d -> d.getShifts().stream())
+                    .filter(s -> s.getInstanceId().equals(event.getShiftId()) && !s.isCrossMidnightSegment())
+                    .findFirst()
+                    .orElse(null);
+
             if (original != null) {
                 int minutesBeforeMidnight = MINUTES_PER_DAY - original.getStartMinute();
-                // Nowy totalny czas = to co przed północą + nowa długość cienia
                 duration = minutesBeforeMidnight + event.getNewDurationMinutes();
             }
         }
 
-        updateShiftState(event.getShiftId(), -1, event.getNewStartMinute(), duration);
+        // Wywołujemy updateShiftState przekazując instanceId
+        updateShiftState(event.getShiftId(), -1, -1, duration);
     }
 
-    private void updateShiftState(String shiftId, int dayNumber, int newStart, int newDuration) {
-        // 1. Próba znalezienia zmiany, która już jest na grafiku
-        ShiftResource shift = findShiftById(shiftId);
+    private void updateShiftState(String idFromClient, int dayNumber, int newStart, int newDuration) {
+        // 1. Sprawdź, czy to istniejąca na grafiku instancja
+        ShiftResource shift = findShiftByInstanceId(idFromClient);
 
-        if (newStart >= 1440) {
-            newStart = 1425;
-        }
-
-        // 2. Jeśli nie znaleziono na grafiku, sprawdź czy to nowa zmiana z palety
         if (shift == null) {
-            ShiftDTO template = findDtoInPalette(shiftId);
-            if (template != null) {
-                // Tworzymy nowy obiekt zasobu
-                shift = new ShiftResource(template);
+            // SCENARIUSZ: To może być nowa zmiana przeciągnięta z palety
+            ShiftDTO template = findDtoInPalette(idFromClient);
+            if (template != null && dayNumber != -1) {
 
-                // Ustawiamy domyślny czas trwania (np. 8h = 480 min), jeśli nie podano innego
-                int duration = (newDuration != -1) ? newDuration : 480;
-                shift.setDurationMinutes(duration);
+                // WALIDACJA: Czy w tym konkretnym dniu jest już zmiana z tego szablonu?
+                boolean existsInDay = getOrCreateDay(dayNumber).getShifts().stream()
+                        .anyMatch(s -> s.getShiftDTO().id().toString().equals(idFromClient));
 
-                // Ustawiamy start (jeśli drop nastąpił na 0, to będzie 0)
-                shift.setStartMinute(Math.max(0, newStart));
-
-                // Dodajemy nową zmianę do wybranego dnia
-                getOrCreateDay(dayNumber).getShifts().add(shift);
+                if (!existsInDay) {
+                    shift = new ShiftResource(template);
+                    shift.setStartMinute(Math.max(0, newStart));
+                    getOrCreateDay(dayNumber).getShifts().add(shift);
+                }
             }
         } else {
-            // 3. Jeśli zmiana już istniała, aktualizujemy jej parametry (przesunięcie/zmiana rozmiaru)
-
-            // Aktualizacja godziny rozpoczęcia
-            if (newStart != -1) {
-                shift.setStartMinute(newStart);
-            }
-
-            // Aktualizacja czasu trwania (resize)
-            if (newDuration != -1) {
-                shift.setDurationMinutes(newDuration);
-            }
-
-            // Jeśli nastąpił drop na inny dzień (zmiana wiersza)
-            if (dayNumber != -1) {
-                moveShiftToDay(shift, dayNumber);
-            }
+            // SCENARIUSZ: Przesuwamy/zmieniamy rozmiar istniejącej instancji
+            if (newStart != -1) shift.setStartMinute(newStart);
+            if (newDuration != -1) shift.setDurationMinutes(newDuration);
+            if (dayNumber != -1) moveShiftToDay(shift, dayNumber);
         }
 
-        // Jeśli po wszystkich próbach nadal nie mamy obiektu, wychodzimy
-        if (shift == null) {
-            return;
+        if (shift != null) {
+            handleMidnightTransition(shift);
+            updateClientSideData();
         }
+    }
 
-        // 4. Obsługa przejścia przez północ (Shadow Shift)
-        handleMidnightTransition(shift);
-
-        // 5. Synchronizacja z frontendem
-        updateClientSideData();
+    // Pomocnicza metoda szukająca po InstanceId
+    private ShiftResource findShiftByInstanceId(String instanceId) {
+        return dayList.stream()
+                .flatMap(d -> d.getShifts().stream())
+                .filter(s -> s.getInstanceId().equals(instanceId))
+                .findFirst()
+                .orElse(null);
     }
 
     private void handleMidnightTransition(ShiftResource shift) {
@@ -151,10 +141,11 @@ public class NativeScheduleGrid extends Component implements HasSize {
 
     private ShiftResource findOrCreateShadowShift(ScheduleDay nextDay, ShiftResource original) {
         return nextDay.getShifts().stream()
-                .filter(s -> s.getShiftDTO().id().equals(original.getShiftDTO().id()) && s.isCrossMidnightSegment())
+                .filter(s -> s.getInstanceId().equals(original.getInstanceId()) && s.isCrossMidnightSegment())
                 .findFirst()
                 .orElseGet(() -> {
                     ShiftResource shadow = new ShiftResource(original.getShiftDTO());
+                    shadow.setInstanceId(original.getInstanceId()); // KOPIUJEMY ID INSTANCJI
                     shadow.setCrossMidnightSegment(true);
                     nextDay.getShifts().add(shadow);
                     return shadow;
@@ -217,12 +208,19 @@ public class NativeScheduleGrid extends Component implements HasSize {
             for (int j = 0; j < shifts.size(); j++) {
                 ShiftResource sr = shifts.get(j);
                 JsonObject sObj = Json.createObject();
-                sObj.put("id", sr.getShiftDTO().id().toString());
+
+                // KLUCZOWA ZMIANA: wysyłamy instanceId zamiast shiftDTO.id()
+                sObj.put("id", sr.getInstanceId());
+
                 sObj.put("name", sr.getShiftDTO().name());
                 sObj.put("color", sr.getShiftDTO().color());
                 sObj.put("startMinute", sr.getStartMinute());
                 sObj.put("duration", sr.getDurationMinutes());
                 sObj.put("isCross", sr.isCrossMidnightSegment());
+
+                // Dodatkowo przesyłamy ID szablonu, żeby przy usuwaniu/walidacji wiedzieć co to za typ
+                sObj.put("templateId", sr.getShiftDTO().id().toString());
+
                 shiftsArray.set(j, sObj);
             }
             dayObj.put("shifts", shiftsArray);
@@ -236,6 +234,15 @@ public class NativeScheduleGrid extends Component implements HasSize {
             dayList.add(day);
             dayList.sort((a, b) -> Integer.compare(a.getDayNumber(), b.getDayNumber()));
         }
+    }
+
+    private void onShiftDeleted(ShiftDeletedEvent event) {
+        String instanceId = event.getShiftId();
+
+        // Usuwamy tylko te obiekty, które mają to samo instanceId (czyli oryginał i jego ewentualny cień)
+        dayList.forEach(day -> day.getShifts().removeIf(s -> s.getInstanceId().equals(instanceId)));
+
+        updateClientSideData();
     }
 
     // Pozwala pobrać listę dni do manipulacji
@@ -317,6 +324,21 @@ public class NativeScheduleGrid extends Component implements HasSize {
 
         public boolean isShadow() {
             return isShadow;
+        }
+    }
+
+    @DomEvent("shift-deleted")
+    public static class ShiftDeletedEvent extends ComponentEvent<NativeScheduleGrid> {
+        private final String shiftId;
+
+        public ShiftDeletedEvent(
+                NativeScheduleGrid source, boolean fromClient, @EventData("event.detail.shiftId") String shiftId) {
+            super(source, fromClient);
+            this.shiftId = shiftId;
+        }
+
+        public String getShiftId() {
+            return shiftId;
         }
     }
 }

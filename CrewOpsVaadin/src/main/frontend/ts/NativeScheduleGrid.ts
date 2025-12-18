@@ -137,11 +137,30 @@ export class NativeScheduleGrid extends LitElement {
 
                 <span class="shift-name">${shift.name}</span>
 
+                ${!shift.isCross ? html`
+                <div class="delete-btn" @click=${(e: MouseEvent) => this.handleDelete(e, shift)}>
+                    ✕
+                </div>
+            ` : ''}
+
                 <div class="resize-handle"
                      @mousedown=${(e: MouseEvent) => this.initResize(e, shift)}>
                 </div>
             </div>
         `;
+    }
+
+    private handleDelete(e: MouseEvent, shift: Shift) {
+        e.stopPropagation(); // Zapobiega interakcji z paskiem pod przyciskiem
+
+        // Opcjonalnie: proste potwierdzenie przeglądarkowe
+        // if (!confirm(`Czy na pewno usunąć zmianę: ${shift.name}?`)) return;
+
+        this.dispatchEvent(new CustomEvent('shift-deleted', {
+            detail: { shiftId: shift.id },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     private initResize(e: MouseEvent, shift: Shift) {
@@ -265,13 +284,14 @@ export class NativeScheduleGrid extends LitElement {
     private handleDrop(e: DragEvent, day: Day) {
         e.preventDefault();
         let shiftId = '';
+        let isFromPalette = false;
 
         try {
-            // Próba odczytu JSON (tak jak miałeś)
             const data = JSON.parse(e.dataTransfer?.getData('application/json') || '{}');
             shiftId = data.id;
+            // Zakładamy, że elementy w palecie mają jakiś znacznik, np. brak startMinute
+            isFromPalette = data.startMinute === undefined;
         } catch (err) {
-            // Backup (tak jak miałeś)
             shiftId = e.dataTransfer?.getData('text') || this.activeDragId || '';
         }
 
@@ -291,13 +311,13 @@ export class NativeScheduleGrid extends LitElement {
                 detail: {
                     shiftId: shiftId,
                     dayNumber: day.dayNumber,
-                    newStartMinute: minute
+                    newStartMinute: minute,
+                    isFromPalette: isFromPalette // Dodajemy tę flagę!
                 },
                 bubbles: true,
                 composed: true
             }));
         }
-
         this.activeDragId = null;
     }
 
