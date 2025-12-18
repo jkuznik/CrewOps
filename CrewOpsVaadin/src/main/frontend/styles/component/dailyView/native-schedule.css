@@ -170,17 +170,18 @@
 
 .schedule-tooltip {
     position: fixed;
-    background: #333;
+    background: #222;
     color: white;
-    padding: 4px 8px;
+    padding: 6px 10px;
     border-radius: 4px;
     font-size: 0.75rem;
-    pointer-events: none; /* Tooltip nie może blokować zdarzeń myszy */
+    pointer-events: none;
     z-index: 10000;
     display: none;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
     border: 1px solid rgba(255,255,255,0.2);
-    transform: translate(-50%, -120%); /* Wyśrodkowanie nad kursorem */
+    transform: translate(-50%, -130%); /* Nad kursorem */
+    font-weight: bold;
 }
 
 .schedule-tooltip.visible {

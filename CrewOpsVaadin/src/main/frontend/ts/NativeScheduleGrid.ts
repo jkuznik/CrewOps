@@ -34,17 +34,17 @@ export class NativeScheduleGrid extends LitElement {
     }
 
     render() {
-        // Logika obronna: jeśli nie ma dni, pokaż chociaż placeholder
         if (!this.days || this.days.length === 0) {
             return html`
                 <div class="schedule-container" style="min-height: 200px; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center;">
                     ${this.renderHeader()}
-                    <div style="margin-top: 50px; color: #999;">Brak danych do wyświetlenia (pusta lista days)</div>
+                    <div style="margin-top: 50px; color: #999;">Brak danych do wyświetlenia</div>
                 </div>
             `;
         }
 
         return html`
+            <div id="schedule-tooltip" class="schedule-tooltip"></div>
             <div class="schedule-container">
                 ${this.renderHeader()}
                 <div class="days-wrapper" style="margin-top: 10px;">
@@ -74,8 +74,18 @@ export class NativeScheduleGrid extends LitElement {
         const rows = this.packShiftsIntoRows(day.shifts || []);
         return html`
             <div class="day-row"
-                 @drop=${(e: DragEvent) => this.handleDrop(e, day)}
-                 @dragover=${(e: DragEvent) => e.preventDefault()}>
+                 @drop=${(e: DragEvent) => { this.hideTooltip(); this.handleDrop(e, day); }}
+                 @dragover=${(e: DragEvent) => {
+                     e.preventDefault();
+                     const container = (e.currentTarget as HTMLElement).querySelector('.day-content') as HTMLElement;
+                     const rect = container.getBoundingClientRect();
+                     const x = e.clientX - rect.left;
+                     const minute = this.snapTo15Minutes((x / rect.width) * 1440);
+                     const h = Math.floor(minute / 60).toString().padStart(2, '0');
+                     const m = (minute % 60).toString().padStart(2, '0');
+                     this.updateTooltip(e, `Start: ${h}:${m}`);
+                 }}
+                 @dragleave=${() => this.hideTooltip()}>
                 <div class="day-label">Dzień ${day.dayNumber}</div>
                 <div class="day-content">
                     ${rows.map(rowShifts => html`
@@ -142,33 +152,46 @@ export class NativeScheduleGrid extends LitElement {
 
         const { shift, startX, startDuration, container } = this.resizeData;
         const rect = container.getBoundingClientRect();
-
         const deltaX = e.clientX - startX;
-        // Przeliczamy ruch myszy na minuty
-        const deltaMinutesRaw = (deltaX / rect.width) * 1440;
-
-        // Snapping: zaokrąglamy różnicę czasu do 15 minut
-        const deltaMinutesSnapped = this.snapTo15Minutes(deltaMinutesRaw);
+        const deltaMinutesSnapped = this.snapTo15Minutes((deltaX / rect.width) * 1440);
 
         let newDuration = Math.max(15, startDuration + deltaMinutesSnapped);
-        const endMinute = shift.startMinute + newDuration;
 
-        const barId = `shift-${shift.id}-${shift.isCross ? 'shadow' : 'main'}`;
-        const bar = document.getElementById(barId);
+        // TOOLTIP: Pokazujemy czas trwania
+        this.updateTooltip(e, `Czas: ${this.formatMinutesToTime(newDuration)}`);
 
-        if (bar) {
-            // Blokada na krawędzi północy (1440 min)
-            if (!shift.isCross && endMinute > 1440) {
-                newDuration = 1440 - shift.startMinute;
+        // Szukamy obu segmentów (main i shadow)
+        const mainBar = document.getElementById(`shift-${shift.id}-main`);
+        const shadowBar = document.getElementById(`shift-${shift.id}-shadow`);
+
+        if (shift.isCross) {
+            // Rozciągamy CIEŃ -> Aktualizujemy wizualnie tylko cień
+            if (shadowBar) shadowBar.style.width = `${(newDuration / 1440) * 100}%`;
+        } else {
+            // Rozciągamy ORYGINAŁ
+            const endMinute = shift.startMinute + newDuration;
+
+            if (endMinute > 1440) {
+                // Przekracza północ wizualnie
+                if (mainBar) mainBar.style.width = `${((1440 - shift.startMinute) / 1440) * 100}%`;
+
+                // Jeśli istnieje element cienia w DOM (już został stworzony przez serwer wcześniej)
+                if (shadowBar) {
+                    const shadowDuration = endMinute - 1440;
+                    shadowBar.style.width = `${(shadowDuration / 1440) * 100}%`;
+                }
+            } else {
+                // Nie przekracza północy
+                if (mainBar) mainBar.style.width = `${(newDuration / 1440) * 100}%`;
+                if (shadowBar) shadowBar.style.width = `0%`;
             }
-            bar.style.width = `${(newDuration / 1440) * 100}%`;
         }
-
         this.resizeData.shift.duration = newDuration;
     }
 
     private stopResize = () => {
         if (!this.resizeData) return;
+        this.hideTooltip();
 
         const { shift } = this.resizeData;
 
@@ -258,6 +281,27 @@ export class NativeScheduleGrid extends LitElement {
     private snapTo15Minutes(minutes: number): number {
         // 15 minut to nasz "krok"
         return Math.round(minutes / 15) * 15;
+    }
+
+    private updateTooltip(e: MouseEvent | DragEvent, text: string) {
+        const tooltip = document.getElementById('schedule-tooltip');
+        if (tooltip) {
+            tooltip.innerText = text;
+            tooltip.style.left = `${e.clientX}px`;
+            tooltip.style.top = `${e.clientY}px`;
+            tooltip.classList.add('visible');
+        }
+    }
+
+    private hideTooltip() {
+        const tooltip = document.getElementById('schedule-tooltip');
+        tooltip?.classList.remove('visible');
+    }
+
+    private formatMinutesToTime(totalMinutes: number): string {
+        const h = Math.floor(totalMinutes / 60);
+        const m = totalMinutes % 60;
+        return m > 0 ? `${h}h ${m}m` : `${h}h`;
     }
 }
 
