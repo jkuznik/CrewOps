@@ -133,8 +133,56 @@
     );
 }
 
+.shift-bar:not(.is-shadow) {
+    max-width: calc(100% - var(--shift-left, 0%)); /* Dynamiczne ograniczenie */
+}
+
 /* Wyłączenie hovera dla cienia, żeby nie sugerować interakcji */
 .shift-bar.is-shadow:hover {
     filter: none;
     transform: none;
+}
+
+/* Uchwyt do rozciągania paska */
+.resize-handle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 10px;
+    height: 100%;
+    cursor: col-resize;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 0 4px 4px 0;
+    transition: background-color 0.2s;
+    z-index: 5;
+}
+
+.resize-handle:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Podczas rozciągania wyłączamy przejścia, żeby nie było opóźnień */
+.shift-bar.resizing {
+    transition: none;
+    z-index: 1000;
+    outline: 2px solid var(--lumo-primary-color);
+}
+
+.schedule-tooltip {
+    position: fixed;
+    background: #333;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    pointer-events: none; /* Tooltip nie może blokować zdarzeń myszy */
+    z-index: 10000;
+    display: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.2);
+    transform: translate(-50%, -120%); /* Wyśrodkowanie nad kursorem */
+}
+
+.schedule-tooltip.visible {
+    display: block;
 }

@@ -44,7 +44,20 @@ public class NativeScheduleGrid extends Component implements HasSize {
     }
 
     private void onShiftResized(ShiftResizedEvent event) {
-        updateShiftState(event.getShiftId(), -1, event.getNewStartMinute(), event.getNewDurationMinutes());
+        int duration = event.getNewDurationMinutes();
+
+        if (event.isShadow()) {
+            // Jeśli rozciągamy cień, musimy przeliczyć TOTALNY czas trwania.
+            // Znajdujemy oryginał, żeby wiedzieć kiedy się zaczyna przed północą.
+            ShiftResource original = findShiftById(event.getShiftId());
+            if (original != null) {
+                int minutesBeforeMidnight = MINUTES_PER_DAY - original.getStartMinute();
+                // Nowy totalny czas = to co przed północą + nowa długość cienia
+                duration = minutesBeforeMidnight + event.getNewDurationMinutes();
+            }
+        }
+
+        updateShiftState(event.getShiftId(), -1, event.getNewStartMinute(), duration);
     }
 
     private void updateShiftState(String shiftId, int dayNumber, int newStart, int newDuration) {
@@ -167,7 +180,8 @@ public class NativeScheduleGrid extends Component implements HasSize {
     private ShiftResource findShiftById(String id) {
         return dayList.stream()
                 .flatMap(d -> d.getShifts().stream())
-                .filter(s -> s.getShiftDTO().id().toString().equals(id))
+                // Filtrujemy po ID oraz upewniamy się, że to NIE JEST segment cienia
+                .filter(s -> s.getShiftDTO().id().toString().equals(id) && !s.isCrossMidnightSegment())
                 .findFirst()
                 .orElse(null);
     }
@@ -266,17 +280,20 @@ public class NativeScheduleGrid extends Component implements HasSize {
         private final String shiftId;
         private final int newStartMinute;
         private final int newDurationMinutes;
+        private final boolean isShadow; // Nowe pole
 
         public ShiftResizedEvent(
                 NativeScheduleGrid source,
                 boolean fromClient,
                 @EventData("event.detail.shiftId") String shiftId,
                 @EventData("event.detail.newStartMinute") int newStartMinute,
-                @EventData("event.detail.newDurationMinutes") int newDurationMinutes) {
+                @EventData("event.detail.newDurationMinutes") int newDurationMinutes,
+                @EventData("event.detail.isShadow") boolean isShadow) { // Odbieramy z JS
             super(source, fromClient);
             this.shiftId = shiftId;
             this.newStartMinute = newStartMinute;
             this.newDurationMinutes = newDurationMinutes;
+            this.isShadow = isShadow;
         }
 
         public String getShiftId() {
@@ -289,6 +306,10 @@ public class NativeScheduleGrid extends Component implements HasSize {
 
         public int getNewDurationMinutes() {
             return newDurationMinutes;
+        }
+
+        public boolean isShadow() {
+            return isShadow;
         }
     }
 }

@@ -26,7 +26,8 @@ export class NativeScheduleGrid extends LitElement {
     days: Day[] = [];
     private activeDragId: string | null = null;
     private isResizing = false;
-    private resizeData?: any;
+
+    private resizeData: { shift: Shift, startX: number, startDuration: number, container: HTMLElement } | null = null;
 
     createRenderRoot() {
         return this; // Light DOM dla łatwiejszego stylowania
@@ -99,13 +100,97 @@ export class NativeScheduleGrid extends LitElement {
 
         return html`
             <div class="shift-bar ${shift.isCross ? 'is-shadow' : ''}"
-                 id="shift-${shift.id}"
+                 id="shift-${shift.id}-${shift.isCross ? 'shadow' : 'main'}"
                  style=${styleMap(styles as any)}
                  draggable="true"
                  @dragstart=${(e: DragEvent) => this.handleDragStart(e, shift)}>
                 <span class="shift-name">${shift.name}</span>
+
+                <div class="resize-handle"
+                     @mousedown=${(e: MouseEvent) => this.initResize(e, shift)}>
+                </div>
             </div>
         `;
+    }
+
+    private initResize(e: MouseEvent, shift: Shift) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const container = (e.currentTarget as HTMLElement).closest('.day-content') as HTMLElement;
+        if (!container) return;
+
+        this.resizeData = {
+            shift,
+            startX: e.clientX,
+            startDuration: shift.duration,
+            container
+        };
+
+        // Dodajemy klasy wizualne
+        const barId = `shift-${shift.id}-${shift.isCross ? 'shadow' : 'main'}`;
+        const bar = document.getElementById(barId);
+        bar?.classList.add('resizing');
+
+        // Rejestrujemy globalne zdarzenia ruchu i upuszczenia
+        window.addEventListener('mousemove', this.doResize);
+        window.addEventListener('mouseup', this.stopResize);
+    }
+
+    private doResize = (e: MouseEvent) => {
+        if (!this.resizeData) return;
+
+        const { shift, startX, startDuration, container } = this.resizeData;
+        const rect = container.getBoundingClientRect();
+
+        const deltaX = e.clientX - startX;
+        // Przeliczamy ruch myszy na minuty
+        const deltaMinutesRaw = (deltaX / rect.width) * 1440;
+
+        // Snapping: zaokrąglamy różnicę czasu do 15 minut
+        const deltaMinutesSnapped = this.snapTo15Minutes(deltaMinutesRaw);
+
+        let newDuration = Math.max(15, startDuration + deltaMinutesSnapped);
+        const endMinute = shift.startMinute + newDuration;
+
+        const barId = `shift-${shift.id}-${shift.isCross ? 'shadow' : 'main'}`;
+        const bar = document.getElementById(barId);
+
+        if (bar) {
+            // Blokada na krawędzi północy (1440 min)
+            if (!shift.isCross && endMinute > 1440) {
+                newDuration = 1440 - shift.startMinute;
+            }
+            bar.style.width = `${(newDuration / 1440) * 100}%`;
+        }
+
+        this.resizeData.shift.duration = newDuration;
+    }
+
+    private stopResize = () => {
+        if (!this.resizeData) return;
+
+        const { shift } = this.resizeData;
+
+        // Czyścimy UI
+        const bar = document.getElementById(`shift-${shift.id}`);
+        bar?.classList.remove('resizing');
+
+        // Wysyłamy event do Javy
+        this.dispatchEvent(new CustomEvent('shift-resized', {
+            detail: {
+                shiftId: shift.id,
+                newStartMinute: shift.isCross ? -1 : shift.startMinute,
+                newDurationMinutes: shift.duration,
+                isShadow: shift.isCross // Nowe pole!
+            },
+            bubbles: true,
+            composed: true
+        }));
+
+        window.removeEventListener('mousemove', this.doResize);
+        window.removeEventListener('mouseup', this.stopResize);
+        this.resizeData = null;
     }
 
     // --- LOGIKA POZOSTAJE BEZ ZMIAN ---
@@ -119,17 +204,23 @@ export class NativeScheduleGrid extends LitElement {
         let shiftId = '';
 
         try {
+            // Próba odczytu JSON (tak jak miałeś)
             const data = JSON.parse(e.dataTransfer?.getData('application/json') || '{}');
             shiftId = data.id;
         } catch (err) {
-            // Backup dla prostego tekstu
+            // Backup (tak jak miałeś)
             shiftId = e.dataTransfer?.getData('text') || this.activeDragId || '';
         }
 
         const container = (e.currentTarget as HTMLElement).querySelector('.day-content') as HTMLElement;
         const rect = container.getBoundingClientRect();
         const x = e.clientX - rect.left;
-        const minute = Math.max(0, Math.min(1439, Math.round((x / rect.width) * 1440)));
+
+        // --- TUTAJ WSTRZYKUJEMY SNAPPING ---
+        const rawMinute = (x / rect.width) * 1440;
+        const snappedMinute = this.snapTo15Minutes(rawMinute);
+        const minute = Math.max(0, Math.min(1439, snappedMinute));
+        // ------------------------------------
 
         if (shiftId) {
             this.dispatchEvent(new CustomEvent('shift-dropped', {
@@ -162,6 +253,11 @@ export class NativeScheduleGrid extends LitElement {
             if (!placed) rows.push([shift]);
         }
         return rows;
+    }
+
+    private snapTo15Minutes(minutes: number): number {
+        // 15 minut to nasz "krok"
+        return Math.round(minutes / 15) * 15;
     }
 }
 
