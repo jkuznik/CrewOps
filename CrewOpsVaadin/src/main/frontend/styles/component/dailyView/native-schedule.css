@@ -36,6 +36,14 @@
     min-width: 80px;
     background: #121212;
     border-right: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .header-timeline {
@@ -45,54 +53,74 @@
 
 .hour-marker {
     flex: 1;
-    border-right: 1px solid rgba(176, 176, 176, 0.1);
+    border-left: 1px solid rgba(176, 176, 176, 0.4);
     position: relative;
     display: flex;
     align-items: flex-end;
-    padding: 0 0 4px 4px;
+    padding: 0 0 4px 2px;
+}
+
+.hour-marker::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    bottom: 0;
+    width: 1px;
+    height: 8px;
+    background: var(--lumo-primary-color);
 }
 
 .hour-text {
+    position: absolute;
+
+    left: 0;
+    bottom: 4px;
+    transform: translateX(-50%);
     font-size: 0.7rem;
-    font-weight: bold;
-    color: var(--text-color);
+    color: #ccc;
+    white-space: nowrap;
 }
 
 /* Day Rows */
 .day-row {
     display: flex;
-    border-bottom: 1px solid var(--border-color);
-    min-height: var(--row-height);
-    background: transparent;
+    /* Zwiększamy z ok. 40px na 60px lub więcej, zależnie od potrzeb */
+    min-height: 60px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1); /* Wyraźna linia separująca */
+    background: #1e1e1e;
+    transition: background-color 0.2s;
 }
 
+.day-row:hover {
+    background-color: #252525; /* Subtelny hover całego wiersza */
+}
+
+/* Etykieta dnia - wyśrodkowanie przy nowej wysokości */
 .day-label {
     width: 80px;
     min-width: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.2);
     border-right: 2px solid var(--border-color);
-    color: white;
-    font-weight: 600;
-    font-size: 0.75rem;
+    background: #1a1a1a;
+    color: #ccc;
+    font-weight: bold;
 }
 
 .day-content {
     flex-grow: 1;
     position: relative;
-    background-image: linear-gradient(to right, rgba(0, 173, 181, 0.1) 1px, transparent 1px);
+    background-image: linear-gradient(to right, rgba(176, 176, 176, 0.25) 1px, transparent 1px);
     background-size: var(--hour-width) 100%;
     padding: 5px 0;
 }
 
 .shift-bar {
     position: absolute;
-    height: 34px;
-    /* Kluczowe: obramowanie nie powiększa paska */
+    height: 40px; /* Zwiększone z 34px */
     box-sizing: border-box;
-    border-radius: 4px;
+    border-radius: 6px;
     color: white;
     display: flex;
     align-items: center;
@@ -112,9 +140,10 @@
 
 .shift-track {
     position: relative;
-    height: 38px;
-    width: 100%;
-    margin-bottom: 2px;
+    height: 44px; /* Zwiększona wysokość ścieżki */
+    margin: 8px 0; /* Odstęp między "piętrami" zmian w tym samym dniu */
+    display: flex;
+    align-items: center;
 }
 
 /* Styl dla "cienia" (część zmiany po północy) */
@@ -123,7 +152,6 @@
     opacity: 0.5;
     border: 2px dashed rgba(255, 255, 255, 0.6); /* Wyraźna przerywana linia */
     box-shadow: none; /* Usuwamy cień, aby segment wyglądał "płasko" */
-    cursor: default; /* Sugerujemy, że tego segmentu się nie przesuwa (przesuwa się oryginał) */
 
     /* Opcjonalnie: subtelne "paski" wewnątrz, żeby od razu było widać, że to shadow */
     background-image: repeating-linear-gradient(

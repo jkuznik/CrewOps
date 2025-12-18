@@ -24,11 +24,32 @@ public class DailyScheduleGenerator extends VerticalLayout {
 
         add(shiftsPalette, nativeGrid);
 
-        ShiftDTO poranna = new ShiftDTO(UUID.randomUUID(), "Zmiana Poranna", null, "#2ecc71");
-        ShiftDTO nocna = new ShiftDTO(UUID.randomUUID(), "Zmiana Nocna", null, "#9b59b6");
+        ShiftDTO poranna = new ShiftDTO(UUID.randomUUID(), "Zmiana Poranna", null, "#2ecc71"); // Szmaragdowy
+        ShiftDTO druga = new ShiftDTO(
+                UUID.randomUUID(),
+                "Zmiana Druga",
+                null,
+                "#3498db"); // Jasnoniebieski (zmieniony kolor dla odróżnienia od nocnej)
+        ShiftDTO nocna = new ShiftDTO(UUID.randomUUID(), "Zmiana Nocna", null, "#9b59b6"); // Fioletowy
+
+        ShiftDTO czwarta = new ShiftDTO(UUID.randomUUID(), "Międzyzmiana", null, "#f1c40f"); // Słoneczny żółty
+        ShiftDTO popoludniowa =
+                new ShiftDTO(UUID.randomUUID(), "Zmiana Popołudniowa", null, "#e67e22"); // Pomarańczowy (Carrot)
+        ShiftDTO techniczna = new ShiftDTO(UUID.randomUUID(), "Przegląd", null, "#e74c3c"); // Czerwony (Alizarin)
+        ShiftDTO biurowa =
+                new ShiftDTO(UUID.randomUUID(), "Administracja", null, "#34495e"); // Ciemny granat (Wet Asphalt)
+        ShiftDTO weekendowa = new ShiftDTO(UUID.randomUUID(), "Weekend", null, "#1abc9c"); // Turkusowy (Turquoise)
+        ShiftDTO shadow = new ShiftDTO(UUID.randomUUID(), "Shadow Shift", null, "#95a5a6"); // Szary (Concrete)
 
         addShiftToPalette(poranna);
+        addShiftToPalette(druga);
+        addShiftToPalette(popoludniowa);
         addShiftToPalette(nocna);
+        addShiftToPalette(czwarta);
+        addShiftToPalette(techniczna);
+        addShiftToPalette(biurowa);
+        addShiftToPalette(weekendowa);
+        addShiftToPalette(shadow);
 
         add(shiftsPalette, nativeGrid);
 

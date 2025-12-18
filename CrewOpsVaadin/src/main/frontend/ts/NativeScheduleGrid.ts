@@ -58,7 +58,7 @@ export class NativeScheduleGrid extends LitElement {
         const hours = Array.from({length: 24}, (_, i) => i);
         return html`
             <div class="schedule-header">
-                <div class="header-label-spacer"></div>
+                <div class="header-label-spacer">Dzień</div>
                 <div class="header-timeline">
                     ${hours.map(hour => html`
                         <div class="hour-marker">
@@ -75,33 +75,32 @@ export class NativeScheduleGrid extends LitElement {
         return html`
             <div class="day-row"
                  @drop=${(e: DragEvent) => { this.hideTooltip(); this.handleDrop(e, day); }}
-            // Wewnątrz metody renderDay, w obsłudze @dragover:
-            @dragover=${(e: DragEvent) => {
-                e.preventDefault();
-                const container = (e.currentTarget as HTMLElement).querySelector('.day-content') as HTMLElement;
-                if (!container) return;
+                 @dragover=${(e: DragEvent) => {
+                     e.preventDefault();
+                     const container = (e.currentTarget as HTMLElement).querySelector('.day-content') as HTMLElement;
+                     if (!container) return;
 
-                const rect = container.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                
-                const rawMinute = (x / rect.width) * 1440;
-                let minute = this.snapTo15Minutes(rawMinute);
-                
-                if (minute < 0) {
-                    minute = 0;
-                }
-                
-                if (minute >= 1440) {
-                    minute = 1425;
-                }
-                
-                const h = Math.floor(minute / 60).toString().padStart(2, '0');
-                const m = (minute % 60).toString().padStart(2, '0');
+                     const rect = container.getBoundingClientRect();
+                     const x = e.clientX - rect.left;
 
-                this.updateTooltip(e, `Start: ${h}:${m}`);
-            }}
+                     const rawMinute = (x / rect.width) * 1440;
+                     let minute = this.snapTo15Minutes(rawMinute);
+
+                     // Zabezpieczenia, które wspólnie wypracowaliśmy
+                     if (minute < 0) minute = 0;
+                     if (minute >= 1440) minute = 1425;
+
+                     const h = Math.floor(minute / 60).toString().padStart(2, '0');
+                     const m = (minute % 60).toString().padStart(2, '0');
+
+                     this.updateTooltip(e, `Start: ${h}:${m}`);
+                 }}
                  @dragleave=${() => this.hideTooltip()}>
-                <div class="day-label">Dzień ${day.dayNumber}</div>
+
+                <div class="day-label" style="font-weight: bold; font-size: 1.1rem;">
+                    ${day.dayNumber}
+                </div>
+
                 <div class="day-content">
                     ${rows.map(rowShifts => html`
                         <div class="shift-track">
