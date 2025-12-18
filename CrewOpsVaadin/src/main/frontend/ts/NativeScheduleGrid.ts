@@ -287,8 +287,11 @@ export class NativeScheduleGrid extends LitElement {
         const tooltip = document.getElementById('schedule-tooltip');
         if (tooltip) {
             tooltip.innerText = text;
+
+            const offset = 25;
+
             tooltip.style.left = `${e.clientX}px`;
-            tooltip.style.top = `${e.clientY}px`;
+            tooltip.style.top = `${e.clientY - offset}px`;
             tooltip.classList.add('visible');
         }
     }
