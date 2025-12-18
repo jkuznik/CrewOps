@@ -32,10 +32,9 @@ public class DailyScheduleGenerator extends VerticalLayout {
 
         add(shiftsPalette, nativeGrid);
 
-        for (int i = 0; i < 90; i++) {
+        nativeGrid.addDay(new ScheduleDay(1));
+        nativeGrid.addDay(new ScheduleDay(2));
 
-            nativeGrid.addDay(new ScheduleDay(i + 1));
-        }
         nativeGrid.updateClientSideData();
     }
 
