@@ -42,7 +42,6 @@
     color: var(--text-color);
     font-size: 0.75rem;
     font-weight: bold;
-    text-transform: uppercase;
     letter-spacing: 1px;
 }
 

@@ -19,11 +19,14 @@ public class NativeScheduleGrid extends Component implements HasSize {
     private static final int MINUTES_PER_DAY = 1440;
 
     private final List<ShiftDTO> paletteTemplates = new ArrayList<>();
+    private final String headerDayCell = getTranslation("nativeScheduleGrid.header.day");
 
     public NativeScheduleGrid() {
         setSizeFull();
         addListener(ShiftDroppedEvent.class, this::onShiftDropped);
         addListener(ShiftResizedEvent.class, this::onShiftResized);
+
+        getElement().setProperty("dayLabelText", headerDayCell);
     }
 
     public void registerPaletteTemplate(ShiftDTO dto) {

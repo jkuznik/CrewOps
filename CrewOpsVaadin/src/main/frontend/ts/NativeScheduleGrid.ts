@@ -19,15 +19,18 @@ export class NativeScheduleGrid extends LitElement {
 
     static properties = {
         days: { type: Array },
-        activeDragId: { state: true }
+        activeDragId: { state: true },
+        dayLabelText: { type: String }
     };
 
     // Inicjalizacja pustą tablicą zapobiega błędom .map()
     days: Day[] = [];
+    dayLabelText: string = 'Day';
     private activeDragId: string | null = null;
     private isResizing = false;
 
     private resizeData: { shift: Shift, startX: number, startDuration: number, container: HTMLElement } | null = null;
+
 
     createRenderRoot() {
         return this; // Light DOM dla łatwiejszego stylowania
@@ -58,7 +61,7 @@ export class NativeScheduleGrid extends LitElement {
         const hours = Array.from({length: 24}, (_, i) => i);
         return html`
             <div class="schedule-header">
-                <div class="header-label-spacer">Dzień</div>
+                <div class="header-label-spacer">${this.dayLabelText}</div>
                 <div class="header-timeline">
                     ${hours.map(hour => html`
                         <div class="hour-marker">
