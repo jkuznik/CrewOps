@@ -116,7 +116,6 @@ export class NativeScheduleGrid extends LitElement {
     private renderShift(shift: Shift) {
         const left = (shift.startMinute / 1440) * 100;
         const width = (shift.duration / 1440) * 100;
-
         const endsAtMidnight = (shift.startMinute + shift.duration) >= 1440;
 
         const styles = {
@@ -125,16 +124,16 @@ export class NativeScheduleGrid extends LitElement {
             backgroundColor: shift.color || '#3498db'
         };
 
+        const isDraggableValue = !shift.isCross ? "true" : "false";
+
         return html`
             <div class="shift-bar ${shift.isCross ? 'is-shadow' : ''} ${endsAtMidnight ? 'ends-at-midnight' : ''}"
                  id="shift-${shift.id}-${shift.isCross ? 'shadow' : 'main'}"
                  style=${styleMap(styles as any)}
-                 draggable="true"
+                 draggable="${isDraggableValue}"
                  @dragstart=${(e: DragEvent) => this.handleDragStart(e, shift)}>
-            
-            <span class="shift-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                ${shift.name}
-            </span>
+
+                <span class="shift-name">${shift.name}</span>
 
                 <div class="resize-handle"
                      @mousedown=${(e: MouseEvent) => this.initResize(e, shift)}>
@@ -175,34 +174,47 @@ export class NativeScheduleGrid extends LitElement {
         const deltaX = e.clientX - startX;
         const deltaMinutesSnapped = this.snapTo15Minutes((deltaX / rect.width) * 1440);
 
+        // 1. Obliczamy nową długość
         let newDuration = Math.max(15, startDuration + deltaMinutesSnapped);
 
-        // TOOLTIP: Pokazujemy czas trwania
+        // 2. TWARDA BLOKADA (Iteracja 1)
+        if (shift.isCross) {
+            // Jeśli to cień, nie może trwać dłużej niż do końca doby (1440 min)
+            if (newDuration > 1440) newDuration = 1440;
+        } else {
+            // Jeśli to oryginał, nie może przekroczyć północy (1440 - start)
+            const maxDuration = 1440 - shift.startMinute;
+            if (newDuration > maxDuration) {
+                newDuration = maxDuration;
+            }
+        }
+
+        // 3. TOOLTIP: Teraz pokaże zawsze poprawną, ograniczoną wartość
         this.updateTooltip(e, `Czas: ${this.formatMinutesToTime(newDuration)}`);
 
-        // Szukamy obu segmentów (main i shadow)
         const mainBar = document.getElementById(`shift-${shift.id}-main`);
         const shadowBar = document.getElementById(`shift-${shift.id}-shadow`);
 
         if (shift.isCross) {
-            // Rozciągamy CIEŃ -> Aktualizujemy wizualnie tylko cień
             if (shadowBar) shadowBar.style.width = `${(newDuration / 1440) * 100}%`;
         } else {
-            // Rozciągamy ORYGINAŁ
             const endMinute = shift.startMinute + newDuration;
 
+            // Poniższa logika endMinute > 1440 w Iteracji 1 nigdy się nie wykona
+            // dzięki blokadzie powyżej, ale zostawiamy ją jako podwaliny pod Iterację 2
             if (endMinute > 1440) {
-                // Przekracza północ wizualnie
                 if (mainBar) mainBar.style.width = `${((1440 - shift.startMinute) / 1440) * 100}%`;
-
-                // Jeśli istnieje element cienia w DOM (już został stworzony przez serwer wcześniej)
                 if (shadowBar) {
                     const shadowDuration = endMinute - 1440;
                     shadowBar.style.width = `${(shadowDuration / 1440) * 100}%`;
                 }
             } else {
-                // Nie przekracza północy
-                if (mainBar) mainBar.style.width = `${(newDuration / 1440) * 100}%`;
+                if (mainBar) {
+                    mainBar.style.width = `${(newDuration / 1440) * 100}%`;
+                    // Dodajemy klasę ostrej krawędzi jeśli dotykamy północy
+                    if (endMinute === 1440) mainBar.classList.add('ends-at-midnight');
+                    else mainBar.classList.remove('ends-at-midnight');
+                }
                 if (shadowBar) shadowBar.style.width = `0%`;
             }
         }
@@ -236,10 +248,16 @@ export class NativeScheduleGrid extends LitElement {
         this.resizeData = null;
     }
 
-    // --- LOGIKA POZOSTAJE BEZ ZMIAN ---
     private handleDragStart(e: DragEvent, shift: Shift) {
+        if (shift.isCross) {
+            e.preventDefault();
+            return;
+        }
+
         this.activeDragId = shift.id;
-        if (e.dataTransfer) { e.dataTransfer.setData('application/json', JSON.stringify(shift)); }
+        if (e.dataTransfer) {
+            e.dataTransfer.setData('application/json', JSON.stringify(shift));
+        }
     }
 
     private handleDrop(e: DragEvent, day: Day) {

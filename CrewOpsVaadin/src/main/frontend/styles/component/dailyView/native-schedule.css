@@ -119,7 +119,8 @@
 
 /* Styl dla "cienia" (część zmiany po północy) */
 .shift-bar.is-shadow {
-    opacity: 0.45; /* Bardziej przezroczysty */
+    cursor: default !important; /* Blokujemy kursor łapki */
+    opacity: 0.5;
     border: 2px dashed rgba(255, 255, 255, 0.6); /* Wyraźna przerywana linia */
     box-shadow: none; /* Usuwamy cień, aby segment wyglądał "płasko" */
     cursor: default; /* Sugerujemy, że tego segmentu się nie przesuwa (przesuwa się oryginał) */
@@ -135,7 +136,7 @@
 }
 
 .shift-bar:not(.is-shadow) {
-    max-width: calc(100% - var(--shift-left, 0%)); /* Dynamiczne ograniczenie */
+    cursor: grab;
 }
 
 /* Wyłączenie hovera dla cienia, żeby nie sugerować interakcji */
