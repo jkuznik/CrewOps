@@ -232,6 +232,40 @@
     display: none;
 }
 
+/* Efekt delikatnego czerwonego podświetlenia */
+.shift-bar.validation-error {
+    outline: 3px solid rgba(255, 0, 0, 0.6);
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+    background-color: #ffcccc !important; /* Jaśniejszy czerwony */
+    transition: all 0.3s ease;
+}
+
+/* Styl dla tooltipa w trybie błędu */
+.schedule-tooltip.error-tooltip {
+    background: #e74c3c;
+    color: white;
+    font-weight: bold;
+    border: 1px solid #c0392b;
+    z-index: 9999;
+}
+
+/* Definicja drżenia - porusza elementem lekko w lewo i prawo */
+@keyframes shake-animation {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+    100% { transform: translateX(0); }
+}
+
+/* Klasa, która uruchamia animację */
+.shift-bar.validation-error-shake {
+    animation: shake-animation 0.4s ease-in-out;
+    /* Dodajemy lekką czerwoną poświatę (glow), która nie zmienia koloru paska */
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5) !important;
+}
+
 .schedule-tooltip {
     position: fixed;
     background: #222;

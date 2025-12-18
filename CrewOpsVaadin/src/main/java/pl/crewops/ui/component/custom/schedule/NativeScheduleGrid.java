@@ -85,8 +85,16 @@ public class NativeScheduleGrid extends Component implements HasSize {
         }
 
         // --- WALIDACJA 11H ---
+
+        // todo: i18n and modify message
         if (isRestPeriodViolated(shift, targetDay, targetStart, targetDuration)) {
-            updateClientSideData(); // Cofa ruch na UI
+            // Przekazujemy instanceId oraz komunikat
+            getElement()
+                    .executeJs(
+                            "this.showValidationError($0, $1)",
+                            idFromClient,
+                            "Wymagana przerwa 11h dla " + shift.getShiftDTO().name());
+            updateClientSideData();
             return;
         }
 

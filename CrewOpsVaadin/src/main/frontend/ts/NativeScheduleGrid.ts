@@ -321,6 +321,37 @@ export class NativeScheduleGrid extends LitElement {
         this.activeDragId = null;
     }
 
+    showValidationError(shiftId: string, message: string) {
+        // 1. Znajdź element po instanceId
+        const bar = this.renderRoot.querySelector(`[id*="${shiftId}"]`) as HTMLElement;
+        if (!bar) return;
+
+        // 2. Dodaj klasę drżenia
+        bar.classList.add('validation-error-shake');
+
+        // Usuń klasę po zakończeniu animacji (0.4s), żeby można było ją wywołać ponownie
+        setTimeout(() => bar.classList.remove('validation-error-shake'), 400);
+
+        // 3. Obsługa tooltipa (korzystamy z Twojej istniejącej logiki)
+        const tooltip = this.renderRoot.querySelector('#schedule-tooltip') as HTMLElement;
+        if (tooltip) {
+            const rect = bar.getBoundingClientRect();
+            tooltip.innerText = message;
+
+            // Wyśrodkowanie dymka nad paskiem
+            tooltip.style.left = `${rect.left + rect.width / 2}px`;
+            tooltip.style.top = `${rect.top - 35}px`;
+
+            // Dodajemy Twoje klasy, które kontrolują widoczność
+            tooltip.classList.add('visible', 'error-tooltip');
+
+            // Ukryj po 5 sekundach
+            setTimeout(() => {
+                tooltip.classList.remove('visible', 'error-tooltip');
+            }, 5000);
+        }
+    }
+
     private packShiftsIntoRows(shifts: Shift[]): Shift[][] {
         const sorted = shifts.slice().sort((a, b) => a.startMinute - b.startMinute);
         const rows: Shift[][] = [];
