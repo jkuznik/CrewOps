@@ -64,6 +64,10 @@ public class NativeScheduleGrid extends Component implements HasSize {
         // 1. Próba znalezienia zmiany, która już jest na grafiku
         ShiftResource shift = findShiftById(shiftId);
 
+        if (newStart >= 1440) {
+            newStart = 1425;
+        }
+
         // 2. Jeśli nie znaleziono na grafiku, sprawdź czy to nowa zmiana z palety
         if (shift == null) {
             ShiftDTO template = findDtoInPalette(shiftId);

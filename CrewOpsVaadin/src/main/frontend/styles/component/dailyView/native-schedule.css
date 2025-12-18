@@ -87,21 +87,22 @@
     padding: 5px 0;
 }
 
-/* Shifts */
 .shift-bar {
     position: absolute;
     height: 34px;
+    /* Kluczowe: obramowanie nie powiększa paska */
+    box-sizing: border-box;
     border-radius: 4px;
     color: white;
     display: flex;
     align-items: center;
     padding: 0 8px;
     font-size: 0.8rem;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
     z-index: 2;
     cursor: grab;
-    transition: filter 0.2s;
+    /* Zapobiega "wystawaniu" uchwytu poza zaokrąglenia */
+    overflow: hidden;
 }
 
 .shift-bar:hover {
@@ -143,22 +144,26 @@
     transform: none;
 }
 
-/* Uchwyt do rozciągania paska */
+.shift-bar.ends-at-midnight {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+}
+
 .resize-handle {
     position: absolute;
     right: 0;
     top: 0;
-    width: 10px;
+    width: 6px;
     height: 100%;
     cursor: col-resize;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 0 4px 4px 0;
-    transition: background-color 0.2s;
+    background-color: rgba(0, 0, 0, 0.15);
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
     z-index: 5;
 }
 
 .resize-handle:hover {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.4);
 }
 
 /* Podczas rozciągania wyłączamy przejścia, żeby nie było opóźnień */

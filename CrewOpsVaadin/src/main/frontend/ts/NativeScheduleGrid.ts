@@ -75,16 +75,31 @@ export class NativeScheduleGrid extends LitElement {
         return html`
             <div class="day-row"
                  @drop=${(e: DragEvent) => { this.hideTooltip(); this.handleDrop(e, day); }}
-                 @dragover=${(e: DragEvent) => {
-                     e.preventDefault();
-                     const container = (e.currentTarget as HTMLElement).querySelector('.day-content') as HTMLElement;
-                     const rect = container.getBoundingClientRect();
-                     const x = e.clientX - rect.left;
-                     const minute = this.snapTo15Minutes((x / rect.width) * 1440);
-                     const h = Math.floor(minute / 60).toString().padStart(2, '0');
-                     const m = (minute % 60).toString().padStart(2, '0');
-                     this.updateTooltip(e, `Start: ${h}:${m}`);
-                 }}
+            // Wewnątrz metody renderDay, w obsłudze @dragover:
+            @dragover=${(e: DragEvent) => {
+                e.preventDefault();
+                const container = (e.currentTarget as HTMLElement).querySelector('.day-content') as HTMLElement;
+                if (!container) return;
+
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                
+                const rawMinute = (x / rect.width) * 1440;
+                let minute = this.snapTo15Minutes(rawMinute);
+                
+                if (minute < 0) {
+                    minute = 0;
+                }
+                
+                if (minute >= 1440) {
+                    minute = 1425;
+                }
+                
+                const h = Math.floor(minute / 60).toString().padStart(2, '0');
+                const m = (minute % 60).toString().padStart(2, '0');
+
+                this.updateTooltip(e, `Start: ${h}:${m}`);
+            }}
                  @dragleave=${() => this.hideTooltip()}>
                 <div class="day-label">Dzień ${day.dayNumber}</div>
                 <div class="day-content">
@@ -102,6 +117,8 @@ export class NativeScheduleGrid extends LitElement {
         const left = (shift.startMinute / 1440) * 100;
         const width = (shift.duration / 1440) * 100;
 
+        const endsAtMidnight = (shift.startMinute + shift.duration) >= 1440;
+
         const styles = {
             left: `${left}%`,
             width: `${width}%`,
@@ -109,12 +126,15 @@ export class NativeScheduleGrid extends LitElement {
         };
 
         return html`
-            <div class="shift-bar ${shift.isCross ? 'is-shadow' : ''}"
+            <div class="shift-bar ${shift.isCross ? 'is-shadow' : ''} ${endsAtMidnight ? 'ends-at-midnight' : ''}"
                  id="shift-${shift.id}-${shift.isCross ? 'shadow' : 'main'}"
                  style=${styleMap(styles as any)}
                  draggable="true"
                  @dragstart=${(e: DragEvent) => this.handleDragStart(e, shift)}>
-                <span class="shift-name">${shift.name}</span>
+            
+            <span class="shift-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${shift.name}
+            </span>
 
                 <div class="resize-handle"
                      @mousedown=${(e: MouseEvent) => this.initResize(e, shift)}>
@@ -239,11 +259,12 @@ export class NativeScheduleGrid extends LitElement {
         const rect = container.getBoundingClientRect();
         const x = e.clientX - rect.left;
 
-        // --- TUTAJ WSTRZYKUJEMY SNAPPING ---
         const rawMinute = (x / rect.width) * 1440;
-        const snappedMinute = this.snapTo15Minutes(rawMinute);
+        let snappedMinute = this.snapTo15Minutes(rawMinute);
+        if (snappedMinute >= 1440) {
+            snappedMinute = 1425;
+        }
         const minute = Math.max(0, Math.min(1439, snappedMinute));
-        // ------------------------------------
 
         if (shiftId) {
             this.dispatchEvent(new CustomEvent('shift-dropped', {
