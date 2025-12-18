@@ -69,35 +69,47 @@ public class NativeScheduleGrid extends Component implements HasSize {
     }
 
     private void updateShiftState(String idFromClient, int dayNumber, int newStart, int newDuration) {
-        // 1. Sprawdź, czy to istniejąca na grafiku instancja
         ShiftResource shift = findShiftByInstanceId(idFromClient);
+        boolean isNew = (shift == null);
 
-        if (shift == null) {
-            // SCENARIUSZ: To może być nowa zmiana przeciągnięta z palety
+        // Wyznaczamy docelowe parametry do testu
+        int targetDay = (dayNumber != -1) ? dayNumber : (shift != null ? getDayNumberForShift(shift) : 0);
+        int targetStart = (newStart != -1) ? newStart : (shift != null ? shift.getStartMinute() : 0);
+        int targetDuration = (newDuration != -1) ? newDuration : (shift != null ? shift.getDurationMinutes() : 480);
+
+        // Jeśli to nowa zmiana z palety, musimy stworzyć tymczasowy obiekt do walidacji
+        if (isNew) {
             ShiftDTO template = findDtoInPalette(idFromClient);
-            if (template != null && dayNumber != -1) {
-
-                // WALIDACJA: Czy w tym konkretnym dniu jest już zmiana z tego szablonu?
-                boolean existsInDay = getOrCreateDay(dayNumber).getShifts().stream()
-                        .anyMatch(s -> s.getShiftDTO().id().toString().equals(idFromClient));
-
-                if (!existsInDay) {
-                    shift = new ShiftResource(template);
-                    shift.setStartMinute(Math.max(0, newStart));
-                    getOrCreateDay(dayNumber).getShifts().add(shift);
-                }
-            }
-        } else {
-            // SCENARIUSZ: Przesuwamy/zmieniamy rozmiar istniejącej instancji
-            if (newStart != -1) shift.setStartMinute(newStart);
-            if (newDuration != -1) shift.setDurationMinutes(newDuration);
-            if (dayNumber != -1) moveShiftToDay(shift, dayNumber);
+            if (template == null) return;
+            shift = new ShiftResource(template);
         }
 
-        if (shift != null) {
-            handleMidnightTransition(shift);
-            updateClientSideData();
+        // --- WALIDACJA 11H ---
+        if (isRestPeriodViolated(shift, targetDay, targetStart, targetDuration)) {
+            updateClientSideData(); // Cofa ruch na UI
+            return;
         }
+
+        // --- JEŚLI OK, APLIKUJEMY ZMIANY ---
+        shift.setStartMinute(targetStart);
+        shift.setDurationMinutes(targetDuration);
+
+        if (isNew) {
+            getOrCreateDay(targetDay).getShifts().add(shift);
+        } else if (dayNumber != -1) {
+            moveShiftToDay(shift, targetDay);
+        }
+
+        handleMidnightTransition(shift);
+        updateClientSideData();
+    }
+
+    private int getDayNumberForShift(ShiftResource shift) {
+        return dayList.stream()
+                .filter(d -> d.getShifts().contains(shift))
+                .map(ScheduleDay::getDayNumber)
+                .findFirst()
+                .orElse(0);
     }
 
     // Pomocnicza metoda szukająca po InstanceId
@@ -150,6 +162,33 @@ public class NativeScheduleGrid extends Component implements HasSize {
                     nextDay.getShifts().add(shadow);
                     return shadow;
                 });
+    }
+
+    private boolean isRestPeriodViolated(ShiftResource shift, int targetDayNum, int targetStart, int targetDuration) {
+        int MIN_REST = 660; // 11h
+        long propStartAbs = (long) targetDayNum * MINUTES_PER_DAY + targetStart;
+        long propEndAbs = propStartAbs + targetDuration;
+
+        for (ScheduleDay day : dayList) {
+            for (ShiftResource other : day.getShifts()) {
+                // Ignorujemy tę samą instancję (oryginał i cienie)
+                if (other.getInstanceId().equals(shift.getInstanceId())) continue;
+
+                // Walidujemy TYLKO jeśli to ten sam zasób (to samo ID z bazy)
+                if (other.getShiftDTO().id().equals(shift.getShiftDTO().id())) {
+                    long otherStartAbs = (long) day.getDayNumber() * MINUTES_PER_DAY + other.getStartMinute();
+                    long otherEndAbs = otherStartAbs + other.getDurationMinutes();
+
+                    // 1. Kolizja (nachodzenie)
+                    if (propStartAbs < otherEndAbs && propEndAbs > otherStartAbs) return true;
+                    // 2. Przerwa przed
+                    if (propStartAbs >= otherEndAbs && (propStartAbs - otherEndAbs) < MIN_REST) return true;
+                    // 3. Przerwa po
+                    if (otherStartAbs >= propEndAbs && (otherStartAbs - propEndAbs) < MIN_REST) return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void removeShadowFromNextDay(int nextDayNumber, ShiftResource original) {
