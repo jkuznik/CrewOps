@@ -348,3 +348,9 @@
     cursor: not-allowed;
     filter: grayscale(1);
 }
+
+.action-btn.duplicate:hover:not(.disabled) {
+    background: rgba(52, 152, 219, 0.2);
+    color: #3498db;
+    border-color: #3498db;
+}

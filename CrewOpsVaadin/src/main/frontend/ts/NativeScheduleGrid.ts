@@ -78,14 +78,14 @@ export class NativeScheduleGrid extends LitElement {
         const shifts = day.shifts || [];
         const rows = this.packShiftsIntoRows(shifts);
 
-        // 1. Logika blokowania DODAJ:
-        // Blokujemy TYLKO jeśli w tym dniu jest zmiana, która ZACZYNA SIĘ tutaj
-        // i wystaje poza północ (start + duration >= 1440).
-        // Shadow shifty w następnym dniu mają startMinute = 0 i duration = reszta, więc nie spełnią tego warunku.
+        // Znajdujemy dane następnego dnia, aby sprawdzić, czy ma oryginalne zmiany
+        const nextDay = this.days.find(d => d.dayNumber === day.dayNumber + 1);
+        const nextDayHasOriginalShifts = nextDay ? nextDay.shifts.some(s => !s.isCross) : false;
+
+        // Blokada DODAJ: jeśli zmiana z tego dnia wystaje na jutro
         const hasOutboundOriginal = shifts.some(s => !s.isCross && (s.startMinute + s.duration >= 1440));
 
-        // 2. Logika blokowania USUŃ:
-        // Zgodnie z Twoim życzeniem: zablokowane, jeśli w dniu jest JAKAKOLWIEK zmiana.
+        // Blokada USUŃ: jeśli dzień nie jest pusty
         const hasAnyShift = shifts.length > 0;
 
         return html`
@@ -95,15 +95,12 @@ export class NativeScheduleGrid extends LitElement {
                      e.preventDefault();
                      const container = (e.currentTarget as HTMLElement).querySelector('.day-content') as HTMLElement;
                      if (!container) return;
-
                      const rect = container.getBoundingClientRect();
                      const x = e.clientX - rect.left;
                      const rawMinute = (x / rect.width) * 1440;
                      let minute = this.snapTo15Minutes(rawMinute);
-
                      if (minute < 0) minute = 0;
                      if (minute >= 1440) minute = 1425;
-
                      const h = Math.floor(minute / 60).toString().padStart(2, '0');
                      const m = (minute % 60).toString().padStart(2, '0');
                      this.updateTooltip(e, `Start: ${h}:${m}`);
@@ -119,8 +116,17 @@ export class NativeScheduleGrid extends LitElement {
                         </div>
                     `)}
                 </div>
-<!--todo i18n or remove messages-->
+
                 <div class="day-actions">
+                    <div class="action-btn duplicate ${nextDayHasOriginalShifts ? 'disabled' : ''}"
+                         title="${nextDayHasOriginalShifts ? 'Następny dzień zawiera już zmiany' : 'Powiel zmiany na następny dzień'}"
+                         @click=${(e: Event) => {
+                             e.stopPropagation();
+                             if (!nextDayHasOriginalShifts) this.dispatchDayAction('duplicate-day', day.dayNumber);
+                         }}>
+                        ⧉
+                    </div>
+
                     <div class="action-btn delete ${hasAnyShift ? 'disabled' : ''}"
                          title="${hasAnyShift ? 'Dzień musi być pusty, aby go usunąć' : 'Usuń dzień'}"
                          @click=${(e: Event) => {

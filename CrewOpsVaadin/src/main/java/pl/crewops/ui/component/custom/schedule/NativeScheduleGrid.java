@@ -7,7 +7,9 @@ import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import pl.crewops.model.dto.shift.ShiftDTO;
 
 @Tag("native-schedule-grid")
@@ -162,26 +164,48 @@ public class NativeScheduleGrid extends Component implements HasSize {
         int targetDayNum = event.getDayNumber();
 
         if ("add-after".equals(event.getAction())) {
-            // 1. Zwiększ numery wszystkich dni powyżej targetDayNum
             dayList.stream()
                     .filter(d -> d.getDayNumber() > targetDayNum)
                     .forEach(d -> d.setDayNumber(d.getDayNumber() + 1));
-
-            // 2. Wstaw nowy dzień zaraz po wybranym
             dayList.add(new ScheduleDay(targetDayNum + 1));
 
         } else if ("delete-day".equals(event.getAction())) {
-            // 1. Usuń wybrany dzień
             dayList.removeIf(d -> d.getDayNumber() == targetDayNum);
-
-            // 2. Zmniejsz numery wszystkich dni, które były po nim
             dayList.stream()
                     .filter(d -> d.getDayNumber() > targetDayNum)
                     .forEach(d -> d.setDayNumber(d.getDayNumber() - 1));
+
+        } else if ("duplicate-day".equals(event.getAction())) {
+            int sourceDayNum = targetDayNum;
+            int targetDayNumNext = sourceDayNum + 1;
+
+            // 1. Pobierz dzień źródłowy
+            ScheduleDay sourceDay = dayList.stream()
+                    .filter(d -> d.getDayNumber() == sourceDayNum)
+                    .findFirst()
+                    .orElse(null);
+
+            if (sourceDay != null && !sourceDay.getShifts().isEmpty()) {
+                // 2. Pobierz lub stwórz dzień docelowy (N+1)
+                ScheduleDay targetDay = getOrCreateDay(targetDayNumNext);
+
+                // 3. Kopiuj zmiany
+                for (ShiftResource sourceShift : sourceDay.getShifts()) {
+                    // Kopiujemy tylko oryginały (segmenty-cienie pomijamy, bo zostaną wygenerowane)
+                    if (!sourceShift.isCrossMidnightSegment()) {
+                        ShiftResource clonedShift = new ShiftResource(sourceShift.getShiftDTO());
+                        clonedShift.setInstanceId(UUID.randomUUID().toString()); // Nowa instancja
+                        clonedShift.setStartMinute(sourceShift.getStartMinute());
+                        clonedShift.setDurationMinutes(sourceShift.getDurationMinutes());
+
+                        targetDay.getShifts().add(clonedShift);
+                        handleMidnightTransition(clonedShift);
+                    }
+                }
+            }
         }
 
-        // Sortowanie i odświeżenie frontendu
-        dayList.sort((a, b) -> Integer.compare(a.getDayNumber(), b.getDayNumber()));
+        dayList.sort(Comparator.comparingInt(ScheduleDay::getDayNumber));
         updateClientSideData();
     }
 
