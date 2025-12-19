@@ -262,7 +262,6 @@
 /* Klasa, która uruchamia animację */
 .shift-bar.validation-error-shake {
     animation: shake-animation 0.4s ease-in-out;
-    /* Dodajemy lekką czerwoną poświatę (glow), która nie zmienia koloru paska */
     box-shadow: 0 0 10px rgba(255, 0, 0, 0.5) !important;
 }
 

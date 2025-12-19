@@ -322,30 +322,39 @@ export class NativeScheduleGrid extends LitElement {
     }
 
     showValidationError(shiftId: string, message: string) {
-        // 1. Znajdź element po instanceId
-        const bar = this.renderRoot.querySelector(`[id*="${shiftId}"]`) as HTMLElement;
-        if (!bar) return;
+        // 1. Szukamy na grafiku (dla istniejących zmian)
+        let targetElement = this.renderRoot.querySelector(`[id*="${shiftId}"]`) as HTMLElement;
 
-        // 2. Dodaj klasę drżenia
-        bar.classList.add('validation-error-shake');
+        // 2. Jeśli nie ma na grafiku, szukamy w palecie (dla nowych zmian)
+        // Zakładam, że Twoje elementy palety mają ID lub klasę zawierającą ID szablonu
+        if (!targetElement) {
+            targetElement = document.querySelector(`[id*="${shiftId}"]`) as HTMLElement;
+        }
 
-        // Usuń klasę po zakończeniu animacji (0.4s), żeby można było ją wywołać ponownie
-        setTimeout(() => bar.classList.remove('validation-error-shake'), 400);
+        // 3. Obsługa drżenia
+        if (targetElement) {
+            targetElement.classList.add('validation-error-shake');
+            setTimeout(() => targetElement.classList.remove('validation-error-shake'), 400);
+        }
 
-        // 3. Obsługa tooltipa (korzystamy z Twojej istniejącej logiki)
+        // 4. Obsługa tooltipa
         const tooltip = this.renderRoot.querySelector('#schedule-tooltip') as HTMLElement;
         if (tooltip) {
-            const rect = bar.getBoundingClientRect();
             tooltip.innerText = message;
-
-            // Wyśrodkowanie dymka nad paskiem
-            tooltip.style.left = `${rect.left + rect.width / 2}px`;
-            tooltip.style.top = `${rect.top - 35}px`;
-
-            // Dodajemy Twoje klasy, które kontrolują widoczność
             tooltip.classList.add('visible', 'error-tooltip');
 
-            // Ukryj po 5 sekundach
+            if (targetElement) {
+                const rect = targetElement.getBoundingClientRect();
+                // Jeśli element jest w palecie, pozycjonujemy go przy nim,
+                // jeśli na grafiku - nad konkretnym dniem.
+                tooltip.style.left = `${rect.left + rect.width / 2}px`;
+                tooltip.style.top = `${rect.top - 35}px`;
+            } else {
+                // Failsafe: jeśli nic nie znaleźliśmy, pokaż na środku ekranu
+                tooltip.style.left = '50%';
+                tooltip.style.top = '20%';
+            }
+
             setTimeout(() => {
                 tooltip.classList.remove('visible', 'error-tooltip');
             }, 5000);
