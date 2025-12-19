@@ -164,10 +164,45 @@ public class NativeScheduleGrid extends Component implements HasSize {
         int targetDayNum = event.getDayNumber();
 
         if ("add-after".equals(event.getAction())) {
+            // 1. Pobierz dzień, po którym dodajemy (Dzień N)
+            ScheduleDay currentDay = dayList.stream()
+                    .filter(d -> d.getDayNumber() == targetDayNum)
+                    .findFirst()
+                    .orElse(null);
+
+            // 2. Najpierw usuwamy stare cienie z dnia N+1, zanim przesuniemy numery dni
+            if (currentDay != null) {
+                for (ShiftResource shift : currentDay.getShifts()) {
+                    if (!shift.isCrossMidnightSegment() && shift.getEndMinute() >= MINUTES_PER_DAY) {
+                        removeShadowFromNextDay(targetDayNum + 1, shift);
+                        // WAŻNE: Nie resetujemy jeszcze hasCrossMidnightSegment,
+                        // bo zaraz stworzymy nowy cień w nowym dniu N+1
+                    }
+                }
+            }
+
+            // 3. Przesuń numery wszystkich dni powyżej targetDayNum o 1
             dayList.stream()
                     .filter(d -> d.getDayNumber() > targetDayNum)
                     .forEach(d -> d.setDayNumber(d.getDayNumber() + 1));
-            dayList.add(new ScheduleDay(targetDayNum + 1));
+
+            // 4. Wstaw nowy, pusty dzień (Nowy Dzień N+1)
+            ScheduleDay newNextDay = new ScheduleDay(targetDayNum + 1);
+            dayList.add(newNextDay);
+
+            // 5. KLUCZOWY KROK: Dla każdej zmiany z Dnia N, która wystaje poza północ,
+            // wygeneruj nowy cień w nowo dodanym Dniu N+1
+            if (currentDay != null) {
+                for (ShiftResource shift : currentDay.getShifts()) {
+                    if (!shift.isCrossMidnightSegment() && shift.getEndMinute() >= MINUTES_PER_DAY) {
+                        // Używamy Twojej istniejącej metody pomocniczej
+                        ShiftResource shadow = findOrCreateShadowShift(newNextDay, shift);
+                        shadow.setStartMinute(0);
+                        shadow.setDurationMinutes(shift.getNextDayEndMinute());
+                        shift.setHasCrossMidnightSegment(true);
+                    }
+                }
+            }
 
         } else if ("delete-day".equals(event.getAction())) {
             dayList.removeIf(d -> d.getDayNumber() == targetDayNum);

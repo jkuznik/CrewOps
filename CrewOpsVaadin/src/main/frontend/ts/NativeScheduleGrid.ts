@@ -78,15 +78,15 @@ export class NativeScheduleGrid extends LitElement {
         const shifts = day.shifts || [];
         const rows = this.packShiftsIntoRows(shifts);
 
-        // Znajdujemy dane następnego dnia, aby sprawdzić, czy ma oryginalne zmiany
+        // Znajdujemy dane następnego dnia, aby sprawdzić, czy ma oryginalne zmiany (dla guzika POWIEL)
         const nextDay = this.days.find(d => d.dayNumber === day.dayNumber + 1);
         const nextDayHasOriginalShifts = nextDay ? nextDay.shifts.some(s => !s.isCross) : false;
 
-        // Blokada DODAJ: jeśli zmiana z tego dnia wystaje na jutro
-        const hasOutboundOriginal = shifts.some(s => !s.isCross && (s.startMinute + s.duration >= 1440));
-
-        // Blokada USUŃ: jeśli dzień nie jest pusty
+        // Blokada USUŃ: jeśli dzień nie jest pusty (shadow lub oryginał)
         const hasAnyShift = shifts.length > 0;
+
+        // UWAGA: Blokada hasOutboundOriginal została usunięta z guzika ADD,
+        // zgodnie z nowym założeniem, że dodawanie dnia jest zawsze możliwe.
 
         return html`
             <div class="day-row"
@@ -136,11 +136,11 @@ export class NativeScheduleGrid extends LitElement {
                         ✕
                     </div>
 
-                    <div class="action-btn add ${hasOutboundOriginal ? 'disabled' : ''}"
-                         title="${hasOutboundOriginal ? 'Nie można dodać dnia pod zmianą przechodzącą przez północ' : 'Dodaj dzień poniżej'}"
+                    <div class="action-btn add"
+                         title="Dodaj dzień poniżej"
                          @click=${(e: Event) => {
                              e.stopPropagation();
-                             if (!hasOutboundOriginal) this.dispatchDayAction('add-after', day.dayNumber);
+                             this.dispatchDayAction('add-after', day.dayNumber);
                          }}>
                         +
                     </div>
