@@ -7,7 +7,7 @@ public enum ShiftPanelColor {
     SUNFLOWER("#F1C40F"),
     ORANGE("#FFA500"),
     ALIZARIN("#E74C3C"),
-    WET_ASPHALT("#34495E"),
+    WETASPHALT("#34495E"),
     TURQUOISE("#1ABC9C"),
     CONCRETE("#95A5A6"),
     WHITE("#FFFFFF"),
