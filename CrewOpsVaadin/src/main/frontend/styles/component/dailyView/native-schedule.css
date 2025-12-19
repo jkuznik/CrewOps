@@ -299,3 +299,52 @@
 .schedule-tooltip.visible {
     display: block;
 }
+
+.day-actions {
+    display: flex;
+    flex-direction: row; /* Guziki obok siebie */
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.action-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+/* Styl dla guzika usuwania */
+.action-btn.delete:hover:not(.disabled) {
+    background: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+    border-color: #e74c3c;
+}
+
+/* Styl dla guzika dodawania */
+.action-btn.add:hover {
+    background: rgba(46, 204, 113, 0.2);
+    color: #2ecc71;
+    border-color: #2ecc71;
+}
+
+/* Styl dla zablokowanego guzika */
+.action-btn.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    filter: grayscale(1);
+}

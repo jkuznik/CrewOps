@@ -75,46 +75,80 @@ export class NativeScheduleGrid extends LitElement {
     }
 
     private renderDay(day: Day) {
-        const rows = this.packShiftsIntoRows(day.shifts || []);
+        const shifts = day.shifts || [];
+        const rows = this.packShiftsIntoRows(shifts);
+
+        // 1. Logika blokowania DODAJ:
+        // Blokujemy TYLKO jeśli w tym dniu jest zmiana, która ZACZYNA SIĘ tutaj
+        // i wystaje poza północ (start + duration >= 1440).
+        // Shadow shifty w następnym dniu mają startMinute = 0 i duration = reszta, więc nie spełnią tego warunku.
+        const hasOutboundOriginal = shifts.some(s => !s.isCross && (s.startMinute + s.duration >= 1440));
+
+        // 2. Logika blokowania USUŃ:
+        // Zgodnie z Twoim życzeniem: zablokowane, jeśli w dniu jest JAKAKOLWIEK zmiana.
+        const hasAnyShift = shifts.length > 0;
+
         return html`
-        <div class="day-row"
-             @drop=${(e: DragEvent) => { this.hideTooltip(); this.handleDrop(e, day); }}
-             @dragover=${(e: DragEvent) => {
-            e.preventDefault();
-            const container = (e.currentTarget as HTMLElement).querySelector('.day-content') as HTMLElement;
-            if (!container) return;
+            <div class="day-row"
+                 @drop=${(e: DragEvent) => { this.hideTooltip(); this.handleDrop(e, day); }}
+                 @dragover=${(e: DragEvent) => {
+                     e.preventDefault();
+                     const container = (e.currentTarget as HTMLElement).querySelector('.day-content') as HTMLElement;
+                     if (!container) return;
 
-            const rect = container.getBoundingClientRect();
-            const x = e.clientX - rect.left;
+                     const rect = container.getBoundingClientRect();
+                     const x = e.clientX - rect.left;
+                     const rawMinute = (x / rect.width) * 1440;
+                     let minute = this.snapTo15Minutes(rawMinute);
 
-            const rawMinute = (x / rect.width) * 1440;
-            let minute = this.snapTo15Minutes(rawMinute);
+                     if (minute < 0) minute = 0;
+                     if (minute >= 1440) minute = 1425;
 
-            if (minute < 0) minute = 0;
-            if (minute >= 1440) minute = 1425;
+                     const h = Math.floor(minute / 60).toString().padStart(2, '0');
+                     const m = (minute % 60).toString().padStart(2, '0');
+                     this.updateTooltip(e, `Start: ${h}:${m}`);
+                 }}
+                 @dragleave=${() => this.hideTooltip()}>
 
-            const h = Math.floor(minute / 60).toString().padStart(2, '0');
-            const m = (minute % 60).toString().padStart(2, '0');
+                <div class="day-label">${day.dayNumber}</div>
 
-            this.updateTooltip(e, `Start: ${h}:${m}`);
-        }}
-             @dragleave=${() => this.hideTooltip()}>
-
-            <div class="day-label" style="font-weight: bold; font-size: 1.1rem;">
-                ${day.dayNumber}
-            </div>
-
-            <div class="day-content">
-                ${rows.map(rowShifts => html`
-                    <div class="shift-track">
-                        ${rowShifts.map(shift => this.renderShift(shift))}
+                <div class="day-content">
+                    ${rows.map(rowShifts => html`
+                        <div class="shift-track">
+                            ${rowShifts.map(shift => this.renderShift(shift))}
+                        </div>
+                    `)}
+                </div>
+<!--todo i18n or remove messages-->
+                <div class="day-actions">
+                    <div class="action-btn delete ${hasAnyShift ? 'disabled' : ''}"
+                         title="${hasAnyShift ? 'Dzień musi być pusty, aby go usunąć' : 'Usuń dzień'}"
+                         @click=${(e: Event) => {
+                             e.stopPropagation();
+                             if (!hasAnyShift) this.dispatchDayAction('delete-day', day.dayNumber);
+                         }}>
+                        ✕
                     </div>
-                `)}
-            </div>
 
-            <div class="day-actions"></div>
-        </div>
-    `;
+                    <div class="action-btn add ${hasOutboundOriginal ? 'disabled' : ''}"
+                         title="${hasOutboundOriginal ? 'Nie można dodać dnia pod zmianą przechodzącą przez północ' : 'Dodaj dzień poniżej'}"
+                         @click=${(e: Event) => {
+                             e.stopPropagation();
+                             if (!hasOutboundOriginal) this.dispatchDayAction('add-after', day.dayNumber);
+                         }}>
+                        +
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    private dispatchDayAction(action: string, dayNumber: number) {
+        this.dispatchEvent(new CustomEvent('day-action', {
+            detail: { action, dayNumber },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     private renderShift(shift: Shift) {

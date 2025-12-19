@@ -26,6 +26,7 @@ public class NativeScheduleGrid extends Component implements HasSize {
         addListener(ShiftDroppedEvent.class, this::onShiftDropped);
         addListener(ShiftResizedEvent.class, this::onShiftResized);
         addListener(ShiftDeletedEvent.class, this::onShiftDeleted);
+        addListener(DayActionEvent.class, this::handleDayAction);
 
         getElement().setProperty("dayLabelText", headerDayCell);
     }
@@ -155,6 +156,33 @@ public class NativeScheduleGrid extends Component implements HasSize {
                 removeShadowFromNextDay(currentDay.getDayNumber() + 1, shift);
             }
         }
+    }
+
+    private void handleDayAction(DayActionEvent event) {
+        int targetDayNum = event.getDayNumber();
+
+        if ("add-after".equals(event.getAction())) {
+            // 1. Zwiększ numery wszystkich dni powyżej targetDayNum
+            dayList.stream()
+                    .filter(d -> d.getDayNumber() > targetDayNum)
+                    .forEach(d -> d.setDayNumber(d.getDayNumber() + 1));
+
+            // 2. Wstaw nowy dzień zaraz po wybranym
+            dayList.add(new ScheduleDay(targetDayNum + 1));
+
+        } else if ("delete-day".equals(event.getAction())) {
+            // 1. Usuń wybrany dzień
+            dayList.removeIf(d -> d.getDayNumber() == targetDayNum);
+
+            // 2. Zmniejsz numery wszystkich dni, które były po nim
+            dayList.stream()
+                    .filter(d -> d.getDayNumber() > targetDayNum)
+                    .forEach(d -> d.setDayNumber(d.getDayNumber() - 1));
+        }
+
+        // Sortowanie i odświeżenie frontendu
+        dayList.sort((a, b) -> Integer.compare(a.getDayNumber(), b.getDayNumber()));
+        updateClientSideData();
     }
 
     // --- METODY POMOCNICZE ---
@@ -386,6 +414,30 @@ public class NativeScheduleGrid extends Component implements HasSize {
 
         public String getShiftId() {
             return shiftId;
+        }
+    }
+
+    @DomEvent("day-action")
+    public static class DayActionEvent extends ComponentEvent<NativeScheduleGrid> {
+        private final String action;
+        private final int dayNumber;
+
+        public DayActionEvent(
+                NativeScheduleGrid source,
+                boolean fromClient,
+                @EventData("event.detail.action") String action,
+                @EventData("event.detail.dayNumber") int dayNumber) {
+            super(source, fromClient);
+            this.action = action;
+            this.dayNumber = dayNumber;
+        }
+
+        public String getAction() {
+            return action;
+        }
+
+        public int getDayNumber() {
+            return dayNumber;
         }
     }
 }
