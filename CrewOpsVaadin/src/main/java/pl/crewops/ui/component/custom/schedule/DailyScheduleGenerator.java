@@ -9,79 +9,88 @@ public class DailyScheduleGenerator extends VerticalLayout {
 
     private final HorizontalLayout shiftsPalette = new HorizontalLayout();
 
-    private final DailyScheduleGrid grid = new DailyScheduleGrid();
+    private final NativeScheduleGrid nativeGrid = new NativeScheduleGrid();
 
     public DailyScheduleGenerator() {
         setSizeFull();
+        setPadding(false);
+        setSpacing(true);
 
-        add(shiftsPalette, grid);
+        shiftsPalette.setWidthFull();
+        shiftsPalette.setMinHeight("60px");
+        shiftsPalette.getStyle().set("padding", "10px");
+        shiftsPalette.getStyle().set("gap", "10px");
+        shiftsPalette.getStyle().set("overflow-x", "auto");
+
+        add(shiftsPalette, nativeGrid);
+
+        ShiftDTO poranna = new ShiftDTO(UUID.randomUUID(), "Zmiana Poranna", null, "#2ecc71"); // Szmaragdowy
+        ShiftDTO druga = new ShiftDTO(
+                UUID.randomUUID(),
+                "Zmiana Druga",
+                null,
+                "#3498db"); // Jasnoniebieski (zmieniony kolor dla odróżnienia od nocnej)
+        ShiftDTO nocna = new ShiftDTO(UUID.randomUUID(), "Zmiana Nocna", null, "#9b59b6"); // Fioletowy
+
+        ShiftDTO czwarta = new ShiftDTO(UUID.randomUUID(), "Międzyzmiana", null, "#f1c40f"); // Słoneczny żółty
+        ShiftDTO popoludniowa =
+                new ShiftDTO(UUID.randomUUID(), "Zmiana Popołudniowa", null, "#e67e22"); // Pomarańczowy (Carrot)
+        ShiftDTO techniczna = new ShiftDTO(UUID.randomUUID(), "Przegląd", null, "#e74c3c"); // Czerwony (Alizarin)
+        ShiftDTO biurowa =
+                new ShiftDTO(UUID.randomUUID(), "Administracja", null, "#34495e"); // Ciemny granat (Wet Asphalt)
+        ShiftDTO weekendowa = new ShiftDTO(UUID.randomUUID(), "Weekend", null, "#1abc9c"); // Turkusowy (Turquoise)
+        ShiftDTO shadow = new ShiftDTO(UUID.randomUUID(), "Shadow Shift", null, "#95a5a6"); // Szary (Concrete)
+
+        //        addShiftToPalette(poranna);
+        //        addShiftToPalette(druga);
+        //        addShiftToPalette(popoludniowa);
+        //        addShiftToPalette(nocna);
+        //        addShiftToPalette(czwarta);
+        //        addShiftToPalette(techniczna);
+        //        addShiftToPalette(biurowa);
+        //        addShiftToPalette(weekendowa);
+        //        addShiftToPalette(shadow);
+
+        add(shiftsPalette, nativeGrid);
+
+        nativeGrid.addDay(new ScheduleDay(1));
+
+        nativeGrid.updateClientSideData();
     }
 
-    public void addShiftResourceDragBar(ShiftDTO shiftDTO) {
-        var dragItem = new ShiftResourceDragBar(new ShiftResource(shiftDTO));
+    public void addShiftToPalette(ShiftDTO dto) {
+        removeShiftFromPalette(dto.id());
 
-        dragItem.setText(shiftDTO.name());
-
-        String textColor = getTextColorForBackground(shiftDTO.color());
-
-        dragItem.getStyle()
-                .set("padding", "6px")
-                .set("background-color", shiftDTO.color())
-                .set("border-radius", "6px")
-                .set("cursor", "grab")
-                .set("min-width", "50px")
-                .set("justify-content", "center")
-                .set("display", "flex");
-
-        // Ustawiamy kolor bezpośrednio na labelie (z !important)
-        dragItem.setTextColor(textColor);
-
-        dragItem.addDragStartListener(event -> {});
-        dragItem.addDragEndListener(event -> {
-            grid.getGrid().getDataProvider().refreshAll();
-        });
-
-        shiftsPalette.add(dragItem);
+        ShiftPaletteItem item = new ShiftPaletteItem(dto);
+        shiftsPalette.add(item);
+        nativeGrid.registerPaletteTemplate(dto);
     }
 
-    private String getTextColorForBackground(String hex) {
-        try {
-            int r = Integer.parseInt(hex.substring(1, 3), 16);
-            int g = Integer.parseInt(hex.substring(3, 5), 16);
-            int b = Integer.parseInt(hex.substring(5, 7), 16);
-
-            // luminancja (perceived brightness)
-            double luminance = (0.299 * r + 0.587 * g + 0.114 * b);
-
-            // gdy kolor jasny → czarny tekst
-            return luminance > 130 ? "black" : "white";
-
-        } catch (Exception e) {
-            return "white"; // domyślnie
-        }
-    }
-
-    public void updateShiftResourceDragBar(ShiftDTO shiftDTO) {
+    public void removeShiftFromPalette(UUID shiftId) {
         shiftsPalette
                 .getChildren()
-                .filter(component -> component instanceof ShiftResourceDragBar)
-                .map(component -> (ShiftResourceDragBar) component)
-                .filter(bar -> bar.getResource().getShiftDTO().id().equals(shiftDTO.id()))
-                .findFirst()
-                .ifPresent(shiftResourceDragBar -> {
-                    shiftResourceDragBar.setText(shiftDTO.name());
-                    shiftResourceDragBar.getStyle().set("background-color", shiftDTO.color());
-                    shiftResourceDragBar.setTextColor(getTextColorForBackground(shiftDTO.color()));
-                });
-    }
-
-    public void removeShiftResourceDragBar(UUID shiftId) {
-        shiftsPalette
-                .getChildren()
-                .filter(component -> component instanceof ShiftResourceDragBar)
-                .map(component -> (ShiftResourceDragBar) component)
-                .filter(bar -> bar.getResource().getShiftDTO().id().equals(shiftId))
+                .filter(ShiftPaletteItem.class::isInstance)
+                .map(ShiftPaletteItem.class::cast)
+                .filter(item -> item.getShiftDTO().id().equals(shiftId))
                 .findFirst()
                 .ifPresent(shiftsPalette::remove);
+
+        nativeGrid.removeShiftsByTemplate(shiftId);
+    }
+
+    public void updateShiftInPalette(ShiftDTO dto) {
+        shiftsPalette
+                .getChildren()
+                .filter(ShiftPaletteItem.class::isInstance)
+                .map(ShiftPaletteItem.class::cast)
+                .filter(item -> item.getShiftDTO().id().equals(dto.id()))
+                .findFirst()
+                .ifPresent(shiftsPalette::remove);
+
+        ShiftPaletteItem newItem = new ShiftPaletteItem(dto);
+        shiftsPalette.add(newItem);
+
+        // 2. Aktualizujemy dane w istniejących zasobach na siatce (bez ich usuwania!)
+        nativeGrid.updateShiftsFromTemplate(dto);
     }
 }

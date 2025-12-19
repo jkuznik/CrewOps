@@ -62,18 +62,6 @@ public class ScheduleConfigurationComponent extends VerticalLayout {
         return bar;
     }
 
-    public void addShiftResourceDragBar(ShiftDTO shiftDTO) {
-        dailyScheduleGenerator.addShiftResourceDragBar(shiftDTO);
-    }
-
-    public void updateShiftResourceDragBar(ShiftDTO shiftDTO) {
-        dailyScheduleGenerator.updateShiftResourceDragBar(shiftDTO);
-    }
-
-    public void removeShiftResourceDragBar(UUID shiftId) {
-        dailyScheduleGenerator.removeShiftResourceDragBar(shiftId);
-    }
-
     private void toggleContentVisibility() {
         isContentVisible = !isContentVisible;
         contentContainer.setVisible(isContentVisible);
@@ -91,5 +79,17 @@ public class ScheduleConfigurationComponent extends VerticalLayout {
                 dailyScheduleGenerator.setVisible(false);
             }
         });
+    }
+
+    public void addShiftResourceDragBar(ShiftDTO dto) {
+        dailyScheduleGenerator.addShiftToPalette(dto);
+    }
+
+    public void removeShiftResourceDragBar(UUID shiftId) {
+        dailyScheduleGenerator.removeShiftFromPalette(shiftId);
+    }
+
+    public void updateShiftResourceDragBar(ShiftDTO dto) {
+        dailyScheduleGenerator.updateShiftInPalette(dto);
     }
 }

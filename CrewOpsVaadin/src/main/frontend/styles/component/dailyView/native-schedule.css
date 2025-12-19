@@ -1,0 +1,356 @@
+:host {
+    --hour-width: calc(100% / 24);
+    --border-color: rgba(176, 176, 176, 0.2);
+    --text-color: #B0B0B0;
+    --header-height: 45px;
+    --row-height: 65px;
+    display: block;
+    width: 100%;
+    font-family: var(--lumo-font-family);
+    background: transparent;
+}
+
+.schedule-container {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
+    background-color: rgba(30, 30, 30, 0.7); /* Półprzezroczyste tło pod gradient */
+    border-radius: 8px;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+}
+
+/* Header & Timeline */
+.schedule-header {
+    display: grid;
+    /* Trzy kolumny: lewa 80px, środek elastyczny, prawa 60px */
+    grid-template-columns: 80px 1fr 60px;
+    height: var(--header-height);
+    background-color: #1e1e1e;
+    border-bottom: 2px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+
+.header-label-spacer {
+    width: 80px;
+    min-width: 80px;
+    background: #121212;
+    border-right: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.header-timeline {
+    flex-grow: 1;
+    display: flex;
+}
+
+.header-timeline, .day-content {
+    width: 100%;
+    min-width: 0;
+}
+
+.header-action-spacer, .day-actions {
+    width: 60px;
+    background: #121212; /* Ciemniejsze tło, identyczne jak w day-label */
+    border-left: 2px solid var(--border-color);
+}
+
+.hour-marker {
+    flex: 1;
+    border-left: 1px solid rgba(176, 176, 176, 0.4);
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 0 4px 2px;
+}
+
+.hour-marker::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    bottom: 0;
+    width: 1px;
+    height: 8px;
+    background: var(--lumo-primary-color);
+}
+
+.hour-text {
+    position: absolute;
+
+    left: 0;
+    bottom: 4px;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: #ccc;
+    white-space: nowrap;
+}
+
+/* Day Rows */
+.day-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 60px;
+    min-height: 60px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    background: #1e1e1e;
+    transition: background-color 0.2s;
+}
+
+.day-row:hover {
+    background-color: #252525; /* Subtelny hover całego wiersza */
+}
+
+/* Etykieta dnia - wyśrodkowanie przy nowej wysokości */
+.day-label {
+    width: 80px;
+    min-width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 2px solid var(--border-color);
+    background: #1a1a1a;
+    color: #ccc;
+    font-weight: bold;
+}
+
+.day-content {
+    flex-grow: 1;
+    position: relative;
+    background-image: linear-gradient(to right, rgba(176, 176, 176, 0.25) 1px, transparent 1px);
+    background-size: var(--hour-width) 100%;
+    padding: 5px 0;
+    overflow: hidden;
+}
+
+.shift-bar {
+    position: absolute;
+    height: 40px; /* Zwiększone z 34px */
+    box-sizing: border-box;
+    border-radius: 6px;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    font-size: 0.8rem;
+    border: 1px solid rgba(255,255,255,0.2);
+    z-index: 2;
+    cursor: grab;
+    /* Zapobiega "wystawaniu" uchwytu poza zaokrąglenia */
+    overflow: hidden;
+}
+
+.shift-bar:hover {
+    filter: brightness(1.2);
+    z-index: 10;
+}
+
+.shift-track {
+    position: relative;
+    height: 44px; /* Zwiększona wysokość ścieżki */
+    margin: 8px 0; /* Odstęp między "piętrami" zmian w tym samym dniu */
+    display: flex;
+    align-items: center;
+}
+
+/* Styl dla "cienia" (część zmiany po północy) */
+.shift-bar.is-shadow {
+    cursor: default !important; /* Blokujemy kursor łapki */
+    opacity: 0.5;
+    border: 2px dashed rgba(255, 255, 255, 0.6); /* Wyraźna przerywana linia */
+    box-shadow: none; /* Usuwamy cień, aby segment wyglądał "płasko" */
+
+    /* Opcjonalnie: subtelne "paski" wewnątrz, żeby od razu było widać, że to shadow */
+    background-image: repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            rgba(0, 0, 0, 0.1) 10px,
+            rgba(0, 0, 0, 0.1) 20px
+    );
+}
+
+.shift-bar:not(.is-shadow) {
+    cursor: grab;
+}
+
+/* Wyłączenie hovera dla cienia, żeby nie sugerować interakcji */
+.shift-bar.is-shadow:hover {
+    filter: none;
+    transform: none;
+}
+
+.shift-bar.ends-at-midnight {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+}
+
+.resize-handle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 6px;
+    height: 100%;
+    cursor: col-resize;
+    background-color: rgba(0, 0, 0, 0.15);
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 5;
+}
+
+.resize-handle:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Podczas rozciągania wyłączamy przejścia, żeby nie było opóźnień */
+.shift-bar.resizing {
+    transition: none;
+    z-index: 1000;
+    outline: 2px solid var(--lumo-primary-color);
+}
+
+.delete-btn {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    width: 16px;
+    height: 16px;
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+    opacity: 0; /* Ukryty domyślnie */
+    transition: opacity 0.2s, background 0.2s;
+    z-index: 10;
+}
+
+.shift-bar:hover .delete-btn {
+    opacity: 1; /* Pokaż przy najechaniu na zmianę */
+}
+
+.delete-btn:hover {
+    background: #e74c3c; /* Czerwony przy najechaniu na sam przycisk */
+}
+
+.is-shadow .delete-btn {
+    display: none;
+}
+
+/* Efekt delikatnego czerwonego podświetlenia */
+.shift-bar.validation-error {
+    outline: 3px solid rgba(255, 0, 0, 0.6);
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+    background-color: #ffcccc !important; /* Jaśniejszy czerwony */
+    transition: all 0.3s ease;
+}
+
+/* Styl dla tooltipa w trybie błędu */
+.schedule-tooltip.error-tooltip {
+    background: #e74c3c;
+    color: white;
+    font-weight: bold;
+    border: 1px solid #c0392b;
+    z-index: 9999;
+}
+
+/* Definicja drżenia - porusza elementem lekko w lewo i prawo */
+@keyframes shake-animation {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+    100% { transform: translateX(0); }
+}
+
+/* Klasa, która uruchamia animację */
+.shift-bar.validation-error-shake {
+    animation: shake-animation 0.4s ease-in-out;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5) !important;
+}
+
+.schedule-tooltip {
+    position: fixed;
+    background: #222;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    pointer-events: none;
+    z-index: 10000;
+    display: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5); /* Mocniejszy cień dla głębi */
+    border: 1px solid rgba(255,255,255,0.3);
+    transform: translate(-50%, -160%);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.schedule-tooltip.visible {
+    display: block;
+}
+
+.day-actions {
+    display: flex;
+    flex-direction: column; /* Zmiana z wiersza na kolumnę */
+    gap: 4px;               /* Odstęp między guzikami */
+    padding: 5px;
+    align-items: center;    /* Centrowanie guzików w kolumnie */
+    justify-content: center;
+    border-left: 1px solid #eee;
+    min-width: 40px;        /* Szerokość kolumny akcji */
+}
+
+.action-btn {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+/* Styl dla guzika usuwania */
+.action-btn.delete:hover:not(.disabled) {
+    background: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+    border-color: #e74c3c;
+}
+
+/* Styl dla guzika dodawania */
+.action-btn.add:hover {
+    background: rgba(46, 204, 113, 0.2);
+    color: #2ecc71;
+    border-color: #2ecc71;
+}
+
+/* Styl dla zablokowanego guzika */
+.action-btn.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    filter: grayscale(1);
+}
+
+.action-btn.duplicate:hover:not(.disabled) {
+    background: rgba(52, 152, 219, 0.2);
+    color: #3498db;
+    border-color: #3498db;
+}
