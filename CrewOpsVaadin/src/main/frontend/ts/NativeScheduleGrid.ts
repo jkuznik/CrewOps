@@ -60,59 +60,61 @@ export class NativeScheduleGrid extends LitElement {
     private renderHeader() {
         const hours = Array.from({length: 24}, (_, i) => i);
         return html`
-            <div class="schedule-header">
-                <div class="header-label-spacer">${this.dayLabelText}</div>
-                <div class="header-timeline">
-                    ${hours.map(hour => html`
-                        <div class="hour-marker">
-                            <span class="hour-text">${hour}:00</span>
-                        </div>
-                    `)}
-                </div>
+        <div class="schedule-header">
+            <div class="header-label-spacer">${this.dayLabelText}</div>
+            <div class="header-timeline">
+                ${hours.map(hour => html`
+                    <div class="hour-marker">
+                        <span class="hour-text">${hour}:00</span>
+                    </div>
+                `)}
             </div>
-        `;
+            <div class="header-action-spacer"></div>
+        </div>
+    `;
     }
 
     private renderDay(day: Day) {
         const rows = this.packShiftsIntoRows(day.shifts || []);
         return html`
-            <div class="day-row"
-                 @drop=${(e: DragEvent) => { this.hideTooltip(); this.handleDrop(e, day); }}
-                 @dragover=${(e: DragEvent) => {
-                     e.preventDefault();
-                     const container = (e.currentTarget as HTMLElement).querySelector('.day-content') as HTMLElement;
-                     if (!container) return;
+        <div class="day-row"
+             @drop=${(e: DragEvent) => { this.hideTooltip(); this.handleDrop(e, day); }}
+             @dragover=${(e: DragEvent) => {
+            e.preventDefault();
+            const container = (e.currentTarget as HTMLElement).querySelector('.day-content') as HTMLElement;
+            if (!container) return;
 
-                     const rect = container.getBoundingClientRect();
-                     const x = e.clientX - rect.left;
+            const rect = container.getBoundingClientRect();
+            const x = e.clientX - rect.left;
 
-                     const rawMinute = (x / rect.width) * 1440;
-                     let minute = this.snapTo15Minutes(rawMinute);
+            const rawMinute = (x / rect.width) * 1440;
+            let minute = this.snapTo15Minutes(rawMinute);
 
-                     // Zabezpieczenia, które wspólnie wypracowaliśmy
-                     if (minute < 0) minute = 0;
-                     if (minute >= 1440) minute = 1425;
+            if (minute < 0) minute = 0;
+            if (minute >= 1440) minute = 1425;
 
-                     const h = Math.floor(minute / 60).toString().padStart(2, '0');
-                     const m = (minute % 60).toString().padStart(2, '0');
+            const h = Math.floor(minute / 60).toString().padStart(2, '0');
+            const m = (minute % 60).toString().padStart(2, '0');
 
-                     this.updateTooltip(e, `Start: ${h}:${m}`);
-                 }}
-                 @dragleave=${() => this.hideTooltip()}>
+            this.updateTooltip(e, `Start: ${h}:${m}`);
+        }}
+             @dragleave=${() => this.hideTooltip()}>
 
-                <div class="day-label" style="font-weight: bold; font-size: 1.1rem;">
-                    ${day.dayNumber}
-                </div>
-
-                <div class="day-content">
-                    ${rows.map(rowShifts => html`
-                        <div class="shift-track">
-                            ${rowShifts.map(shift => this.renderShift(shift))}
-                        </div>
-                    `)}
-                </div>
+            <div class="day-label" style="font-weight: bold; font-size: 1.1rem;">
+                ${day.dayNumber}
             </div>
-        `;
+
+            <div class="day-content">
+                ${rows.map(rowShifts => html`
+                    <div class="shift-track">
+                        ${rowShifts.map(shift => this.renderShift(shift))}
+                    </div>
+                `)}
+            </div>
+
+            <div class="day-actions"></div>
+        </div>
+    `;
     }
 
     private renderShift(shift: Shift) {

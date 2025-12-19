@@ -22,7 +22,9 @@
 
 /* Header & Timeline */
 .schedule-header {
-    display: flex;
+    display: grid;
+    /* Trzy kolumny: lewa 80px, środek elastyczny, prawa 60px */
+    grid-template-columns: 80px 1fr 60px;
     height: var(--header-height);
     background-color: #1e1e1e;
     border-bottom: 2px solid var(--border-color);
@@ -48,6 +50,17 @@
 .header-timeline {
     flex-grow: 1;
     display: flex;
+}
+
+.header-timeline, .day-content {
+    width: 100%;
+    min-width: 0;
+}
+
+.header-action-spacer, .day-actions {
+    width: 60px;
+    background: #121212; /* Ciemniejsze tło, identyczne jak w day-label */
+    border-left: 2px solid var(--border-color);
 }
 
 .hour-marker {
@@ -82,10 +95,10 @@
 
 /* Day Rows */
 .day-row {
-    display: flex;
-    /* Zwiększamy z ok. 40px na 60px lub więcej, zależnie od potrzeb */
+    display: grid;
+    grid-template-columns: 80px 1fr 60px;
     min-height: 60px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1); /* Wyraźna linia separująca */
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
     background: #1e1e1e;
     transition: background-color 0.2s;
 }
@@ -113,6 +126,7 @@
     background-image: linear-gradient(to right, rgba(176, 176, 176, 0.25) 1px, transparent 1px);
     background-size: var(--hour-width) 100%;
     padding: 5px 0;
+    overflow: hidden;
 }
 
 .shift-bar {
