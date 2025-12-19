@@ -116,15 +116,15 @@ export class NativeScheduleGrid extends LitElement {
                         </div>
                     `)}
                 </div>
-
+<!--todo i18n-->
                 <div class="day-actions">
-                    <div class="action-btn duplicate ${nextDayHasOriginalShifts ? 'disabled' : ''}"
-                         title="${nextDayHasOriginalShifts ? 'Następny dzień zawiera już zmiany' : 'Powiel zmiany na następny dzień'}"
+                    <div class="action-btn add"
+                         title="Dodaj dzień poniżej"
                          @click=${(e: Event) => {
                              e.stopPropagation();
-                             if (!nextDayHasOriginalShifts) this.dispatchDayAction('duplicate-day', day.dayNumber);
+                             this.dispatchDayAction('add-after', day.dayNumber);
                          }}>
-                        ⧉
+                        +
                     </div>
 
                     <div class="action-btn delete ${hasAnyShift ? 'disabled' : ''}"
@@ -136,13 +136,13 @@ export class NativeScheduleGrid extends LitElement {
                         ✕
                     </div>
 
-                    <div class="action-btn add"
-                         title="Dodaj dzień poniżej"
+                    <div class="action-btn duplicate ${nextDayHasOriginalShifts ? 'disabled' : ''}"
+                         title="${nextDayHasOriginalShifts ? 'Następny dzień zawiera już zmiany' : 'Powiel zmiany na następny dzień'}"
                          @click=${(e: Event) => {
                              e.stopPropagation();
-                             this.dispatchDayAction('add-after', day.dayNumber);
+                             if (!nextDayHasOriginalShifts) this.dispatchDayAction('duplicate-day', day.dayNumber);
                          }}>
-                        +
+                        ⧉
                     </div>
                 </div>
             </div>

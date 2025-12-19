@@ -41,27 +41,47 @@ public class DailyScheduleGenerator extends VerticalLayout {
         ShiftDTO weekendowa = new ShiftDTO(UUID.randomUUID(), "Weekend", null, "#1abc9c"); // Turkusowy (Turquoise)
         ShiftDTO shadow = new ShiftDTO(UUID.randomUUID(), "Shadow Shift", null, "#95a5a6"); // Szary (Concrete)
 
-        addShiftToPalette(poranna);
-        addShiftToPalette(druga);
-        addShiftToPalette(popoludniowa);
-        addShiftToPalette(nocna);
-        addShiftToPalette(czwarta);
-        addShiftToPalette(techniczna);
-        addShiftToPalette(biurowa);
-        addShiftToPalette(weekendowa);
-        addShiftToPalette(shadow);
+        //        addShiftToPalette(poranna);
+        //        addShiftToPalette(druga);
+        //        addShiftToPalette(popoludniowa);
+        //        addShiftToPalette(nocna);
+        //        addShiftToPalette(czwarta);
+        //        addShiftToPalette(techniczna);
+        //        addShiftToPalette(biurowa);
+        //        addShiftToPalette(weekendowa);
+        //        addShiftToPalette(shadow);
 
         add(shiftsPalette, nativeGrid);
 
         nativeGrid.addDay(new ScheduleDay(1));
-        nativeGrid.addDay(new ScheduleDay(2));
 
         nativeGrid.updateClientSideData();
     }
 
-    private void addShiftToPalette(ShiftDTO dto) {
+    public void addShiftToPalette(ShiftDTO dto) {
+        removeShiftFromPalette(dto.id());
+
         ShiftPaletteItem item = new ShiftPaletteItem(dto);
         shiftsPalette.add(item);
         nativeGrid.registerPaletteTemplate(dto);
+    }
+
+    public void removeShiftFromPalette(UUID shiftId) {
+        shiftsPalette
+                .getChildren()
+                .filter(ShiftPaletteItem.class::isInstance)
+                .map(ShiftPaletteItem.class::cast)
+                .filter(item -> item.getShiftDTO().id().equals(shiftId))
+                .findFirst()
+                .ifPresent(shiftsPalette::remove);
+
+        nativeGrid.removeShiftsByTemplate(shiftId);
+    }
+
+    public void updateShiftInPalette(ShiftDTO dto) {
+        removeShiftFromPalette(dto.id());
+        addShiftToPalette(dto);
+
+        nativeGrid.updateShiftsFromTemplate(dto);
     }
 }

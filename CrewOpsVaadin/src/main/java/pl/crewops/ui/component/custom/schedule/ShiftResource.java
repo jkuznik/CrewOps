@@ -9,7 +9,7 @@ import pl.crewops.model.dto.shift.ShiftDTO;
 @Getter
 @Setter
 public final class ShiftResource {
-    private final ShiftDTO shiftDTO;
+    private ShiftDTO shiftDTO;
     private String instanceId = UUID.randomUUID().toString();
 
     private int startMinute; // 0 - 1439

@@ -379,6 +379,44 @@ public class NativeScheduleGrid extends Component implements HasSize {
         updateClientSideData();
     }
 
+    public void unregisterPaletteTemplate(UUID shiftId) {
+        this.paletteTemplates.removeIf(dto -> dto.id().equals(shiftId));
+    }
+
+    // Opcjonalnie dodaj metodę do czyszczenia wszystkiego przy inicjalizacji
+    public void clearPaletteTemplates() {
+        this.paletteTemplates.clear();
+    }
+
+    public void updateShiftsFromTemplate(ShiftDTO updatedDto) {
+        // 1. Aktualizacja rejestru szablonów (to już pewnie masz)
+        unregisterPaletteTemplate(updatedDto.id());
+        registerPaletteTemplate(updatedDto);
+
+        // 2. Kluczowy krok: Podmiana DTO w istniejących zasobach
+        for (ScheduleDay day : dayList) {
+            for (ShiftResource shift : day.getShifts()) {
+                if (shift.getShiftDTO().id().equals(updatedDto.id())) {
+                    shift.setShiftDTO(updatedDto);
+                }
+            }
+        }
+        updateClientSideData();
+    }
+
+    public void removeShiftsByTemplate(UUID templateId) {
+        // 1. Usuwamy szablon z rejestru
+        unregisterPaletteTemplate(templateId);
+
+        // 2. Usuwamy wszystkie instancje z każdego dnia
+        for (ScheduleDay day : dayList) {
+            day.getShifts().removeIf(shift -> shift.getShiftDTO().id().equals(templateId));
+        }
+
+        // 3. Odświeżamy frontend
+        updateClientSideData();
+    }
+
     // Pozwala pobrać listę dni do manipulacji
     public List<ScheduleDay> getDayList() {
         return dayList;

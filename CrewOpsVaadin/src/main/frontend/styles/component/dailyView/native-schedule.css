@@ -302,25 +302,25 @@
 
 .day-actions {
     display: flex;
-    flex-direction: row; /* Guziki obok siebie */
-    align-items: center;
+    flex-direction: column; /* Zmiana z wiersza na kolumnę */
+    gap: 4px;               /* Odstęp między guzikami */
+    padding: 5px;
+    align-items: center;    /* Centrowanie guzików w kolumnie */
     justify-content: center;
-    gap: 8px;
+    border-left: 1px solid #eee;
+    min-width: 40px;        /* Szerokość kolumny akcji */
 }
 
 .action-btn {
-    width: 22px;
-    height: 22px;
-    border-radius: 4px;
+    width: 35px;
+    height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 14px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    transition: all 0.2s ease;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
 }
 
 .action-btn:hover {

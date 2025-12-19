@@ -39,18 +39,17 @@ public class ScheduleContent extends VerticalLayout {
         shiftConfigurationComponent.setVisible(false);
         scheduleConfigurationComponent.setVisible(false);
 
-        //
-        // shiftConfigurationComponent.getExistedShifts().forEach(scheduleConfigurationComponent::addShiftResourceDragBar);
-        //
-        //        shiftConfigurationComponent.addDisplayExistingShiftListener(event -> {
-        //            scheduleConfigurationComponent.addShiftResourceDragBar(event.getShiftDTO());
-        //        });
-        //        shiftConfigurationComponent.addDeleteShiftListener(event -> {
-        //            scheduleConfigurationComponent.removeShiftResourceDragBar(event.getDeletedShiftId());
-        //        });
-        //        shiftConfigurationComponent.addUpdateShiftListener(event -> {
-        //            scheduleConfigurationComponent.updateShiftResourceDragBar(event.getShiftDTO());
-        //        });
+        shiftConfigurationComponent.getExistedShifts().forEach(scheduleConfigurationComponent::addShiftResourceDragBar);
+
+        shiftConfigurationComponent.addDisplayExistingShiftListener(event -> {
+            scheduleConfigurationComponent.addShiftResourceDragBar(event.getShiftDTO());
+        });
+        shiftConfigurationComponent.addDeleteShiftListener(event -> {
+            scheduleConfigurationComponent.removeShiftResourceDragBar(event.getDeletedShiftId());
+        });
+        shiftConfigurationComponent.addUpdateShiftListener(event -> {
+            scheduleConfigurationComponent.updateShiftResourceDragBar(event.getShiftDTO());
+        });
 
         add(modeSelectorContainer, shiftConfigurationComponent, scheduleConfigurationComponent);
     }

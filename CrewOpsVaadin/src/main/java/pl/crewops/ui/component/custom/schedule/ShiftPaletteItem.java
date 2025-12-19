@@ -1,11 +1,16 @@
 package pl.crewops.ui.component.custom.schedule;
 
 import com.vaadin.flow.component.html.Div;
+import lombok.Getter;
 import pl.crewops.model.dto.shift.ShiftDTO;
 
+@Getter
 public class ShiftPaletteItem extends Div {
 
+    private final ShiftDTO shiftDTO;
+
     public ShiftPaletteItem(ShiftDTO dto) {
+        this.shiftDTO = dto;
         setText(dto.name());
         getStyle().set("background-color", dto.color());
         getStyle().set("padding", "8px 12px");

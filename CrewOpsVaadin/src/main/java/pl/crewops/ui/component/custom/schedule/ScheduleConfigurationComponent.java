@@ -9,7 +9,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import java.util.UUID;
 import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.model.dto.shift.ShiftDTO;
 
 @CssImport("./styles/component/schedule-content-component.css")
 public class ScheduleConfigurationComponent extends VerticalLayout {
@@ -77,5 +79,17 @@ public class ScheduleConfigurationComponent extends VerticalLayout {
                 dailyScheduleGenerator.setVisible(false);
             }
         });
+    }
+
+    public void addShiftResourceDragBar(ShiftDTO dto) {
+        dailyScheduleGenerator.addShiftToPalette(dto);
+    }
+
+    public void removeShiftResourceDragBar(UUID shiftId) {
+        dailyScheduleGenerator.removeShiftFromPalette(shiftId);
+    }
+
+    public void updateShiftResourceDragBar(ShiftDTO dto) {
+        dailyScheduleGenerator.updateShiftInPalette(dto);
     }
 }
