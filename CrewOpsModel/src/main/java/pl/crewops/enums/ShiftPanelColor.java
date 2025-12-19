@@ -1,16 +1,17 @@
 package pl.crewops.enums;
 
 public enum ShiftPanelColor {
-    BLACK("#000000"),
-    WHITE("#FFFFFF"),
-    RED("#FF0000"),
-    GREEN("#00FF00"),
-    BLUE("#0000FF"),
-    YELLOW("#FFFF00"),
-    CYAN("#00FFFF"),
-    MAGENTA("#FF00FF"),
+    EMERALD("#2ECC71"),
+    PETER_RIVER("#3498DB"),
+    AMETHYST("#9B59B6"),
+    SUNFLOWER("#F1C40F"),
     ORANGE("#FFA500"),
-    GRAY("#808080");
+    ALIZARIN("#E74C3C"),
+    WET_ASPHALT("#34495E"),
+    TURQUOISE("#1ABC9C"),
+    CONCRETE("#95A5A6"),
+    WHITE("#FFFFFF"),
+    BLACK("#000000");
 
     private final String hex;
 
@@ -23,7 +24,7 @@ public enum ShiftPanelColor {
     }
 
     public String getTranslationKey() {
-        return "shiftPanelColor." + name().toLowerCase(); // np. color.red, color.green, color.blue
+        return "shiftPanelColor." + name().toLowerCase();
     }
 
     public static ShiftPanelColor fromHex(String hex) {

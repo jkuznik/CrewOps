@@ -79,9 +79,18 @@ public class DailyScheduleGenerator extends VerticalLayout {
     }
 
     public void updateShiftInPalette(ShiftDTO dto) {
-        removeShiftFromPalette(dto.id());
-        addShiftToPalette(dto);
+        shiftsPalette
+                .getChildren()
+                .filter(ShiftPaletteItem.class::isInstance)
+                .map(ShiftPaletteItem.class::cast)
+                .filter(item -> item.getShiftDTO().id().equals(dto.id()))
+                .findFirst()
+                .ifPresent(shiftsPalette::remove);
 
+        ShiftPaletteItem newItem = new ShiftPaletteItem(dto);
+        shiftsPalette.add(newItem);
+
+        // 2. Aktualizujemy dane w istniejących zasobach na siatce (bez ich usuwania!)
         nativeGrid.updateShiftsFromTemplate(dto);
     }
 }
