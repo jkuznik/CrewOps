@@ -30,6 +30,7 @@ import pl.crewops.domain.machineType.MachineTypeAPI;
 import pl.crewops.domain.message.MessageAPI;
 import pl.crewops.domain.note.NoteAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
+import pl.crewops.domain.scheduleTemplate.ScheduleAPI;
 import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.util.multitenancy.LiquibaseSchemaMigrator;
@@ -80,10 +81,7 @@ public abstract class IntegrationTest {
     protected EmployeeAPI employeeAPI;
 
     @Autowired
-    protected QualificationAPI qualificationAPI;
-
-    @Autowired
-    protected TenantAPI tenantAPI;
+    protected DepartmentAPI departmentAPI;
 
     @Autowired
     protected MachineAPI machineAPI;
@@ -98,7 +96,13 @@ public abstract class IntegrationTest {
     protected NoteAPI noteAPI;
 
     @Autowired
-    protected DepartmentAPI departmentAPI;
+    protected TenantAPI tenantAPI;
+
+    @Autowired
+    protected ScheduleAPI scheduleAPI;
+
+    @Autowired
+    protected QualificationAPI qualificationAPI;
 
     @MockitoBean
     protected JavaMailSender mailSender;
