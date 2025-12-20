@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-schedule-template-type
+      author: jkuznik
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            stripComments: false
+            sql: |
+              DO $$
+              BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'schedule_template_type') THEN
+                  CREATE TYPE schedule_template_type AS ENUM ('DAILY', 'WEEKLY');
+                END IF;
+              END;
+              $$;

@@ -70,3 +70,5 @@
         file: db/changelog/create/tenantSchema/023-create-table-shift.yaml
     - include:
         file: db/changelog/create/tenantSchema/024-create-join-table-shift-job-position.yaml
+    - include:
+        file: db/changelog/create/tenantSchema/025-create-schedule-template-structure.yaml

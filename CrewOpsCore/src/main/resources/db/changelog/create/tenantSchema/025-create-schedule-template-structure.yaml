@@ -1,0 +1,70 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-schedule-template-structure
+      author: jkuznik
+      changes:
+        - createTable:
+            tableName: schedule_template
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: version, type: int }
+              - column: { name: created_at, type: timestamp }
+              - column: { name: updated_at, type: timestamp }
+              - column: { name: name, type: varchar(255), constraints: { nullable: false } }
+              - column: { name: type, type: public.schedule_template_type, constraints: { nullable: false } }
+              - column: { name: employee_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: is_private, type: boolean, defaultValueBoolean: true, constraints: { nullable: false } }
+
+        - createTable:
+            tableName: schedule_template_day
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: version, type: int }
+              - column: { name: created_at, type: timestamp }
+              - column: { name: updated_at, type: timestamp }
+              - column: { name: day_index, type: int, constraints: { nullable: false } }
+              - column: { name: schedule_template_id, type: uuid, constraints: { nullable: false } }
+
+        - createTable:
+            tableName: schedule_template_item
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: version, type: int }
+              - column: { name: created_at, type: timestamp }
+              - column: { name: updated_at, type: timestamp }
+              - column: { name: start_minute, type: int, constraints: { nullable: false } }
+              - column: { name: duration_minutes, type: int, constraints: { nullable: false } }
+              - column: { name: shift_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: schedule_template_day_id, type: uuid, constraints: { nullable: false } }
+
+        - addForeignKeyConstraint:
+            baseTableName: schedule_template
+            baseColumnNames: employee_id
+            referencedTableName: employee
+            referencedColumnNames: id
+            constraintName: fk_template_author_id
+            onDelete: RESTRICT
+
+        - addForeignKeyConstraint:
+            baseTableName: schedule_template_day
+            baseColumnNames: schedule_template_id
+            referencedTableName: schedule_template
+            referencedColumnNames: id
+            constraintName: fk_day_template_id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: schedule_template_item
+            baseColumnNames: schedule_template_day_id
+            referencedTableName: schedule_template_day
+            referencedColumnNames: id
+            constraintName: fk_item_day_id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: schedule_template_item
+            baseColumnNames: shift_id
+            referencedTableName: shift
+            referencedColumnNames: id
+            constraintName: fk_item_shift_id
+            onDelete: CASCADE
