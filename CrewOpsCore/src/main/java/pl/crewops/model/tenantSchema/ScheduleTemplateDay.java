@@ -14,11 +14,18 @@ import pl.crewops.model.AbstractEntity;
 @Entity
 public class ScheduleTemplateDay extends AbstractEntity {
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "schedule_template_id", nullable = false)
+    private ScheduleTemplate scheduleTemplate;
+
     @Column(nullable = false)
     private int dayIndex;
 
     @Builder.Default
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "schedule_template_day_id")
+    @OneToMany(
+            mappedBy = "scheduleTemplateDay",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER)
     private List<ScheduleTemplateItem> items = new ArrayList<>();
 }

@@ -11,5 +11,5 @@ public record ScheduleTemplateDTO(
         String name,
         ScheduleTemplateType type,
         UUID authorEmployeeId,
-        boolean isPrivate,
+        boolean privateOwner,
         List<ScheduleTemplateDayDTO> days) {}

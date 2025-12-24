@@ -3,10 +3,7 @@ package pl.crewops.domain.scheduleTemplate;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import pl.crewops.domain.shift.ShiftMapper;
-import pl.crewops.model.dto.scheduleTemplate.CreateScheduleTemplateDTO;
-import pl.crewops.model.dto.scheduleTemplate.ScheduleTemplateDTO;
-import pl.crewops.model.dto.scheduleTemplate.ScheduleTemplateDayDTO;
-import pl.crewops.model.dto.scheduleTemplate.ScheduleTemplateItemDTO;
+import pl.crewops.model.dto.scheduleTemplate.*;
 import pl.crewops.model.tenantSchema.ScheduleTemplate;
 import pl.crewops.model.tenantSchema.ScheduleTemplateDay;
 import pl.crewops.model.tenantSchema.ScheduleTemplateItem;
@@ -28,7 +25,14 @@ public interface ScheduleTemplateMapper {
 
     ScheduleTemplateDayDTO toDto(ScheduleTemplateDay entity);
 
+    @Mapping(target = "scheduleTemplate", ignore = true)
+    ScheduleTemplateDay toEntity(CreateScheduleTemplateDayDTO dto);
+
     // --- ITEM ---
 
     ScheduleTemplateItemDTO toDto(ScheduleTemplateItem entity);
+
+    @Mapping(target = "shift", ignore = true)
+    @Mapping(target = "scheduleTemplateDay", ignore = true)
+    ScheduleTemplateItem toEntity(CreateScheduleTemplateItemDTO dto);
 }

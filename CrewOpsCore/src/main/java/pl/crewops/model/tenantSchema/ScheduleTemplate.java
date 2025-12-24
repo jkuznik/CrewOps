@@ -28,12 +28,12 @@ public class ScheduleTemplate extends AbstractEntity {
     @JoinColumn(name = "employee_id")
     private Employee author;
 
+    @Builder.Default
     @Column(nullable = false)
-    private boolean isPrivate = true;
+    private boolean privateOwner = true;
 
     @Builder.Default
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "schedule_template_id")
+    @OneToMany(mappedBy = "scheduleTemplate", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("dayIndex ASC")
     private List<ScheduleTemplateDay> days = new ArrayList<>();
 }

@@ -84,6 +84,12 @@ class ShiftService implements ShiftAPI {
 
     @Override
     @Transactional
+    public Shift getShiftById(UUID id) {
+        return shiftRepository.findById(id).orElseThrow(() -> new ShiftNotFoundException(id));
+    }
+
+    @Override
+    @Transactional
     public List<ShiftDTO> getAllShifts() {
         List<ShiftDTO> result = new ArrayList<>();
         List<Shift> shifts = shiftRepository.findAll();

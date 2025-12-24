@@ -8,11 +8,14 @@ import org.springframework.validation.annotation.Validated;
 import pl.crewops.model.dto.shift.CreateShiftDTO;
 import pl.crewops.model.dto.shift.ShiftDTO;
 import pl.crewops.model.dto.shift.UpdateShiftDTO;
+import pl.crewops.model.tenantSchema.Shift;
 
 @Validated
 public interface ShiftAPI {
 
     ShiftDTO createShift(@NotNull @Valid CreateShiftDTO createShiftDTO);
+
+    Shift getShiftById(@NotNull UUID id);
 
     List<ShiftDTO> getAllShifts();
 

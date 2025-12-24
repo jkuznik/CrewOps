@@ -6,7 +6,10 @@ import pl.crewops.model.tenantSchema.ScheduleTemplate;
 import pl.crewops.model.tenantSchema.ScheduleTemplateDay;
 import pl.crewops.model.tenantSchema.ScheduleTemplateItem;
 
-interface ScheduleTemplateRepository extends JpaRepository<ScheduleTemplate, UUID> {}
+interface ScheduleTemplateRepository extends JpaRepository<ScheduleTemplate, UUID> {
+
+    ScheduleTemplate findByName(String name);
+}
 
 interface ScheduleTemplateDayRepository extends JpaRepository<ScheduleTemplateDay, UUID> {}
 

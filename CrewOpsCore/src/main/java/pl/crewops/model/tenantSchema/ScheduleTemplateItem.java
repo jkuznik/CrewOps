@@ -12,7 +12,11 @@ import pl.crewops.model.AbstractEntity;
 @Entity
 public class ScheduleTemplateItem extends AbstractEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "schedule_template_day_id", nullable = false)
+    private ScheduleTemplateDay scheduleTemplateDay;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "shift_id", nullable = false)
     private Shift shift;
 

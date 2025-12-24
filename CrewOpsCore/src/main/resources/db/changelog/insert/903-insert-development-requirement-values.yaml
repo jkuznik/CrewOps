@@ -626,3 +626,119 @@ databaseChangeLog:
             where: id = '88888888-dddd-dddd-dddd-dddddddddddd'
             columns:
               - column: { name: machine_type_id, value: '00000000-0000-0000-0000-000000000003' }  # CRANE
+
+  - changeSet:
+      id: 006-insert-shift
+      author: jkuznik
+      changes:
+        - insert:
+            tableName: job_position
+            columns:
+              - column: { name: id, value: "11110000-aaaa-1111-aaaa-111100002222" }
+              - column: { name: version, value: 0 }
+              - column: { name: name, value: "Operator Koparki (EX-01)" }
+              - column: { name: machine_id, value: "44444444-4444-4444-4444-444444444444" } # EXCAVATOR
+              - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
+        - insert:
+            tableName: job_position
+            columns:
+              - column: { name: id, value: "11110000-bbbb-1111-bbbb-111100003333" }
+              - column: { name: version, value: 0 }
+              - column: { name: name, value: "Operator Spycharki (BD-01)" }
+              - column: { name: machine_id, value: "33333333-3333-3333-3333-333333333333" } # BULLDOZER
+              - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
+
+        - insert:
+            tableName: job_position
+            columns:
+              - column: { name: id, value: "11110000-cccc-1111-cccc-111100004444" }
+              - column: { name: version, value: 0 }
+              - column: { name: name, value: "Operator Żurawia (CR-01)" }
+              - column: { name: machine_id, value: "88888888-dddd-dddd-dddd-dddddddddddd" } # CRANE
+              - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
+
+        - insert:
+            tableName: job_position
+            columns:
+              - column: { name: id, value: "11110000-dddd-1111-dddd-111100005555" }
+              - column: { name: version, value: 0 }
+              - column: { name: name, value: "Operator Ładowarki (LD-01)" }
+              - column: { name: machine_id, value: "77777777-cccc-cccc-cccc-cccccccccccc" } # LOADER
+              - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
+
+        - insert:
+            tableName: job_position
+            columns:
+              - column: { name: id, value: "11110000-eeee-1111-eeee-111100006666" }
+              - column: { name: version, value: 0 }
+              - column: { name: name, value: "Konserwator / Mechanik Mobilny" }
+              - column: { name: machine_id, value: null } # General position not tied to one machine
+              - column: { name: created_at, valueComputed: "CURRENT_TIMESTAMP" }
+              - column: { name: updated_at, valueComputed: "CURRENT_TIMESTAMP" }
+  - changeSet:
+      id: 007-insert-standard-shifts
+      author: jkuznik
+      changes:
+        - insert:
+            tableName: shift
+            columns:
+              - column: { name: id, value: "55550000-aaaa-1111-aaaa-000000000001" }
+              - column: { name: name, value: "Day Shift" }
+              - column: { name: color, value: "#F1C40F" } # Gold/Yellow
+              - column: { name: version, value: 0 }
+        - insert:
+            tableName: shift
+            columns:
+              - column: { name: id, value: "55550000-bbbb-1111-bbbb-000000000002" }
+              - column: { name: name, value: "Middle Shift" }
+              - column: { name: color, value: "#FFA500" } # Orange
+              - column: { name: version, value: 0 }
+        - insert:
+            tableName: shift
+            columns:
+              - column: { name: id, value: "55550000-cccc-1111-cccc-000000000003" }
+              - column: { name: name, value: "Night Shift" }
+              - column: { name: color, value: "#000000" } # Dark Slate Blue
+              - column: { name: version, value: 0 }
+
+  - changeSet:
+      id: 008-assign-job-positions-to-shifts
+      author: jkuznik
+      changes:
+        # DAY SHIFT gets the full crew
+        - insert:
+            tableName: shift_job_position
+            columns:
+              - column: { name: shift_id, value: "55550000-aaaa-1111-aaaa-000000000001" }
+              - column: { name: job_position_id, value: "11110000-aaaa-1111-aaaa-111100002222" } # Excavator
+              - column: { name: critical, valueBoolean: true }
+        - insert:
+            tableName: shift_job_position
+            columns:
+              - column: { name: shift_id, value: "55550000-aaaa-1111-aaaa-000000000001" }
+              - column: { name: job_position_id, value: "11110000-cccc-1111-cccc-111100004444" } # Crane
+              - column: { name: critical, valueBoolean: true }
+        - insert:
+            tableName: shift_job_position
+            columns:
+              - column: { name: shift_id, value: "55550000-aaaa-1111-aaaa-000000000001" }
+              - column: { name: job_position_id, value: "11110000-eeee-1111-eeee-111100006666" } # Mechanic
+              - column: { name: critical, valueBoolean: false }
+
+        # NIGHT SHIFT gets limited staff (Only Excavator and Bulldozer)
+        - insert:
+            tableName: shift_job_position
+            columns:
+              - column: { name: shift_id, value: "55550000-cccc-1111-cccc-000000000003" }
+              - column: { name: job_position_id, value: "11110000-aaaa-1111-aaaa-111100002222" } # Excavator
+              - column: { name: critical, valueBoolean: true }
+        - insert:
+            tableName: shift_job_position
+            columns:
+              - column: { name: shift_id, value: "55550000-cccc-1111-cccc-000000000003" }
+              - column: { name: job_position_id, value: "11110000-bbbb-1111-bbbb-111100003333" } # Bulldozer
+              - column: { name: critical, valueBoolean: true }

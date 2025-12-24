@@ -13,7 +13,7 @@ databaseChangeLog:
               - column: { name: name, type: varchar(255), constraints: { nullable: false } }
               - column: { name: type, type: public.schedule_template_type, constraints: { nullable: false } }
               - column: { name: employee_id, type: uuid, constraints: { nullable: false } }
-              - column: { name: is_private, type: boolean, defaultValueBoolean: true, constraints: { nullable: false } }
+              - column: { name: private_owner, type: boolean, defaultValueBoolean: true, constraints: { nullable: false } }
 
         - createTable:
             tableName: schedule_template_day

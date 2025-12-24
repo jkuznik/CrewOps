@@ -12,5 +12,5 @@ public record CreateScheduleTemplateDTO(
         @NotNull @Size(max = 63) String name,
         @NotNull ScheduleTemplateType type,
         @NotNull UUID authorEmployeeId,
-        @NotNull boolean isPrivate,
-        List<ScheduleTemplateDayDTO> days) {}
+        @NotNull boolean privateOwner,
+        List<CreateScheduleTemplateDayDTO> days) {}
