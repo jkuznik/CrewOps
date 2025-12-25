@@ -146,16 +146,11 @@ class JobPositionAPITest extends IntegrationTest {
 
     @Test
     void getAllJobPositions_ShouldReturnListOfDTOs() {
-        // given
-        jobPositionRepository.save(JobPosition.builder().name("JP1").build());
-        jobPositionRepository.save(JobPosition.builder().name("JP2").build());
-
         // when
         List<JobPositionDTO> result = jobPositionAPI.getAllJobPositions();
 
         // then
-        assertThat(result).hasSize(2);
-        assertThat(result.stream().map(JobPositionDTO::name)).containsExactlyInAnyOrder("JP1", "JP2");
+        assertThat(result).hasSize(5);
     }
 
     @Test

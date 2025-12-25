@@ -15,6 +15,9 @@ import pl.crewops.model.tenantSchema.Department;
 class DepartmentAPITest extends IntegrationTest {
 
     @Autowired
+    protected DepartmentAPI departmentAPI;
+
+    @Autowired
     private DepartmentRepository departmentRepository;
 
     @Test

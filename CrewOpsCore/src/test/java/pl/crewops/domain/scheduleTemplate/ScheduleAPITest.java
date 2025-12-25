@@ -11,13 +11,12 @@ import pl.crewops.IntegrationTest;
 import pl.crewops.enums.ScheduleTemplateType;
 import pl.crewops.model.dto.scheduleTemplate.*;
 import pl.crewops.model.dto.shift.ShiftDTO;
-import pl.crewops.model.tenantSchema.ScheduleTemplateDay;
 
 @Transactional
 public class ScheduleAPITest extends IntegrationTest {
 
     @Autowired
-    ScheduleTemplateDayRepository scheduleTemplateDayRepository;
+    protected ScheduleAPI scheduleAPI;
 
     @Test
     void createTemplate_shouldReturnScheduleTemplateDTO_inSuccessCase() {
@@ -50,7 +49,7 @@ public class ScheduleAPITest extends IntegrationTest {
 
         ScheduleTemplateDTO result = scheduleAPI.createTemplate(createScheduleTemplateDTO);
 
-        List<ScheduleTemplateDay> all = scheduleTemplateDayRepository.findAll();
+        List<ScheduleTemplateDTO> all = scheduleAPI.findAll();
         all.forEach(System.out::println);
 
         assertThat(result).isNotNull();

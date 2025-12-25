@@ -24,9 +24,6 @@ import pl.crewops.model.tenantSchema.Employee;
 class EmployeeAPITest extends IntegrationTest {
 
     @Autowired
-    private EmployeeRepository employeeRepository;
-
-    @Autowired
     private DataSource dataSource;
 
     @Test

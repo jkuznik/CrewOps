@@ -2,6 +2,7 @@ package pl.crewops.domain.scheduleTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,8 +54,12 @@ public class ScheduleService implements ScheduleAPI {
 
         scheduleTemplate.setDays(days);
 
-        // todo zrobic  CREATEscheduletemplate DAY DTO i dodać logike tworzenia takich rekordów
-
         return mapper.toDto(templateRepository.save(scheduleTemplate));
+    }
+
+    @Override
+    @Transactional
+    public List<ScheduleTemplateDTO> findAll() {
+        return templateRepository.findAll().stream().map(mapper::toDto).collect(Collectors.toList());
     }
 }

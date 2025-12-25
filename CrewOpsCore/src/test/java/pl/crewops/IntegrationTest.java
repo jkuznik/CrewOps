@@ -1,6 +1,5 @@
 package pl.crewops;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
@@ -9,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -18,19 +16,15 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.transaction.BeforeTransaction;
-import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
-import pl.crewops.domain.auth.AuthAPI;
-import pl.crewops.domain.department.DepartmentAPI;
 import pl.crewops.domain.employee.EmployeeAPI;
 import pl.crewops.domain.machine.MachineAPI;
 import pl.crewops.domain.machineType.MachineTypeAPI;
 import pl.crewops.domain.message.MessageAPI;
 import pl.crewops.domain.note.NoteAPI;
 import pl.crewops.domain.qualification.QualificationAPI;
-import pl.crewops.domain.scheduleTemplate.ScheduleAPI;
 import pl.crewops.domain.tenant.TenantAPI;
 import pl.crewops.infrastructure.multitenancy.TenantContext;
 import pl.crewops.util.multitenancy.LiquibaseSchemaMigrator;
@@ -60,28 +54,13 @@ public abstract class IntegrationTest {
             .withReuse(true);
 
     @Autowired
-    protected MockMvc mockMvc;
-
-    @Autowired
-    protected ObjectMapper objectMapper;
-
-    @Autowired
-    protected TestRestTemplate restTemplate;
-
-    @Autowired
     protected EntityManager entityManager;
 
     @Autowired
     private ApplicationContext applicationContext;
 
     @Autowired
-    protected AuthAPI authAPI;
-
-    @Autowired
     protected EmployeeAPI employeeAPI;
-
-    @Autowired
-    protected DepartmentAPI departmentAPI;
 
     @Autowired
     protected MachineAPI machineAPI;
@@ -97,9 +76,6 @@ public abstract class IntegrationTest {
 
     @Autowired
     protected TenantAPI tenantAPI;
-
-    @Autowired
-    protected ScheduleAPI scheduleAPI;
 
     @Autowired
     protected QualificationAPI qualificationAPI;
