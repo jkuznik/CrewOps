@@ -14,7 +14,7 @@ import pl.crewops.model.tenantSchema.*;
 
 @Service
 @RequiredArgsConstructor
-public class ScheduleService implements ScheduleAPI {
+class ScheduleService implements ScheduleAPI {
 
     private final ScheduleTemplateRepository templateRepository;
     private final ScheduleTemplateDayRepository dayRepository;

@@ -6,10 +6,9 @@ import com.vaadin.flow.component.dependency.JsModule;
 import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import pl.crewops.model.dto.scheduleTemplate.CreateScheduleTemplateDayDTO;
+import pl.crewops.model.dto.scheduleTemplate.CreateScheduleTemplateItemDTO;
 import pl.crewops.model.dto.shift.ShiftDTO;
 
 @Tag("native-schedule-grid")
@@ -415,6 +414,27 @@ public class NativeScheduleGrid extends Component implements HasSize {
 
         // 3. Odświeżamy frontend
         updateClientSideData();
+    }
+
+    public List<CreateScheduleTemplateDayDTO> collectDataFromGrid() {
+        return this.dayList.stream()
+                .filter(day -> {
+                    Optional<ShiftResource> any = day.getShifts().stream()
+                            .filter(shiftResource -> !shiftResource.isCrossMidnightSegment())
+                            .findAny();
+
+                    return any.isPresent();
+                })
+                .map(day -> {
+                    List<CreateScheduleTemplateItemDTO> items = day.getShifts().stream()
+                            .filter(sr -> !sr.isCrossMidnightSegment())
+                            .map(sr -> new CreateScheduleTemplateItemDTO(
+                                    sr.getShiftDTO(), sr.getStartMinute(), sr.getDurationMinutes()))
+                            .toList();
+
+                    return new CreateScheduleTemplateDayDTO(day.getDayNumber(), items);
+                })
+                .toList();
     }
 
     // Pozwala pobrać listę dni do manipulacji

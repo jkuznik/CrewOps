@@ -51,6 +51,8 @@ import pl.crewops.model.dto.registration.CreateCustomerCommand;
 import pl.crewops.model.dto.registration.CreateCustomerResult;
 import pl.crewops.model.dto.registration.PreRegisterResponse;
 import pl.crewops.model.dto.registration.VerifyEmailRequest;
+import pl.crewops.model.dto.scheduleTemplate.CreateScheduleTemplateDTO;
+import pl.crewops.model.dto.scheduleTemplate.ScheduleTemplateDTO;
 import pl.crewops.model.dto.shift.CreateShiftDTO;
 import pl.crewops.model.dto.shift.ShiftDTO;
 import pl.crewops.model.dto.shift.UpdateShiftDTO;
@@ -70,8 +72,9 @@ class CoreService implements CoreAPI {
     private final DomainMessageClient domainMessageClient;
     private final DomainNoteClient domainNoteClient;
     private final DomainOptionClient domainOptionClient;
-    private final DomainQualificationClient deleteQualificationClient;
+    private final DomainQualificationClient domainQualificationClient;
     private final DomainShiftClient domainShiftClient;
+    private final DomainScheduleTemplateClient domainScheduleTemplateClient;
 
     public CoreService(CoreClient coreClient) {
         this.domainAuthClient = new DomainAuthClient(coreClient.getAuthorizationProvider(), coreClient.getCoreClient());
@@ -85,8 +88,9 @@ class CoreService implements CoreAPI {
         this.domainMessageClient = new DomainMessageClient(coreClient.getAuthorizationProvider());
         this.domainNoteClient = new DomainNoteClient(coreClient.getAuthorizationProvider());
         this.domainOptionClient = new DomainOptionClient(coreClient.getAuthorizationProvider());
-        this.deleteQualificationClient = new DomainQualificationClient(coreClient.getAuthorizationProvider());
+        this.domainQualificationClient = new DomainQualificationClient(coreClient.getAuthorizationProvider());
         this.domainShiftClient = new DomainShiftClient(coreClient.getAuthorizationProvider());
+        this.domainScheduleTemplateClient = new DomainScheduleTemplateClient(coreClient.getAuthorizationProvider());
     }
 
     // --- DOMAIN AUTH CLIENT (Rejestracja, Logowanie, Aktualizacje Autoryzacji) ---
@@ -520,19 +524,19 @@ class CoreService implements CoreAPI {
     @Override
     public Optional<QualificationDTO> createQualification(CreateQualificationDTO createQualificationDTO)
             throws NotAuthenticatedException {
-        return Optional.ofNullable(deleteQualificationClient.createQualification(createQualificationDTO));
+        return Optional.ofNullable(domainQualificationClient.createQualification(createQualificationDTO));
     }
 
     @Cacheable(cacheNames = GET_ALL_QUALIFICATIONS, key = "T(pl.crewops.util.CacheResolver).getCurrentCompanyId()")
     @Override
     public List<QualificationDTO> getAllQualifications() throws NotAuthenticatedException {
-        return deleteQualificationClient.getAllQualifications();
+        return domainQualificationClient.getAllQualifications();
     }
 
     @Override
     public List<QualificationDTO> getAllQualificationsWithExpirationTimeByEmployeeId(UUID employeeId)
             throws NotAuthenticatedException {
-        return deleteQualificationClient.getAllQualificationsWithExpirationTimeByEmployeeId(employeeId);
+        return domainQualificationClient.getAllQualificationsWithExpirationTimeByEmployeeId(employeeId);
     }
 
     @Caching(
@@ -548,7 +552,7 @@ class CoreService implements CoreAPI {
     @Override
     public Optional<QualificationDTO> updateQualification(UpdateQualificationDTO updateQualificationDTO)
             throws NotAuthenticatedException {
-        return Optional.ofNullable(deleteQualificationClient.updateQualification(updateQualificationDTO));
+        return Optional.ofNullable(domainQualificationClient.updateQualification(updateQualificationDTO));
     }
 
     @Caching(
@@ -566,7 +570,7 @@ class CoreService implements CoreAPI {
             UpdateQualificationExpiredAtDTO updateQualificationExpiredAtDTO) throws NotAuthenticatedException {
 
         return Optional.ofNullable(
-                deleteQualificationClient.updateQualificationExpireAt(updateQualificationExpiredAtDTO));
+                domainQualificationClient.updateQualificationExpireAt(updateQualificationExpiredAtDTO));
     }
 
     @Caching(
@@ -581,7 +585,13 @@ class CoreService implements CoreAPI {
             })
     @Override
     public void deleteQualification(UUID qualificationId) throws NotAuthenticatedException {
-        deleteQualificationClient.deleteQualification(qualificationId);
+        domainQualificationClient.deleteQualification(qualificationId);
+    }
+
+    @Override
+    public Optional<ScheduleTemplateDTO> createSchedule(CreateScheduleTemplateDTO createScheduleDTO)
+            throws NotAuthenticatedException {
+        return Optional.ofNullable(domainScheduleTemplateClient.createScheduleTemplate(createScheduleDTO));
     }
 
     @Override

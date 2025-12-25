@@ -8,8 +8,8 @@ databaseChangeLog:
             columns:
               - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
               - column: { name: version, type: int }
-              - column: { name: created_at, type: timestamp }
-              - column: { name: updated_at, type: timestamp }
+              - column: { name: created_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
               - column: { name: name, type: varchar(255), constraints: { nullable: false } }
               - column: { name: type, type: public.schedule_template_type, constraints: { nullable: false } }
               - column: { name: employee_id, type: uuid, constraints: { nullable: false } }
@@ -20,8 +20,8 @@ databaseChangeLog:
             columns:
               - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
               - column: { name: version, type: int }
-              - column: { name: created_at, type: timestamp }
-              - column: { name: updated_at, type: timestamp }
+              - column: { name: created_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
               - column: { name: day_index, type: int, constraints: { nullable: false } }
               - column: { name: schedule_template_id, type: uuid, constraints: { nullable: false } }
 
@@ -30,8 +30,8 @@ databaseChangeLog:
             columns:
               - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
               - column: { name: version, type: int }
-              - column: { name: created_at, type: timestamp }
-              - column: { name: updated_at, type: timestamp }
+              - column: { name: created_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamp, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
               - column: { name: start_minute, type: int, constraints: { nullable: false } }
               - column: { name: duration_minutes, type: int, constraints: { nullable: false } }
               - column: { name: shift_id, type: uuid, constraints: { nullable: false } }

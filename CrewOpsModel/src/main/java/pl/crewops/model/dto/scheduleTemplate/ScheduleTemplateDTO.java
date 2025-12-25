@@ -12,4 +12,15 @@ public record ScheduleTemplateDTO(
         ScheduleTemplateType type,
         UUID authorEmployeeId,
         boolean privateOwner,
-        List<ScheduleTemplateDayDTO> days) {}
+        List<ScheduleTemplateDayDTO> days) {
+
+    @Override
+    public String toString() {
+        return "ScheduleTemplateDTO{" + "id="
+                + id + ", name='"
+                + name + '\'' + ", type="
+                + type + ", authorEmployeeId="
+                + authorEmployeeId + ", privateOwner="
+                + privateOwner + '}';
+    }
+}

@@ -45,7 +45,7 @@ public class ScheduleContent extends VerticalLayout {
             scheduleConfigurationComponent.addShiftResourceDragBar(event.getShiftDTO());
         });
         shiftConfigurationComponent.addDeleteShiftListener(event -> {
-            scheduleConfigurationComponent.removeShiftResourceDragBar(event.getDeletedShiftId());
+            scheduleConfigurationComponent.removeShiftFromPalette(event.getDeletedShiftId());
         });
         shiftConfigurationComponent.addUpdateShiftListener(event -> {
             scheduleConfigurationComponent.updateShiftResourceDragBar(event.getShiftDTO());

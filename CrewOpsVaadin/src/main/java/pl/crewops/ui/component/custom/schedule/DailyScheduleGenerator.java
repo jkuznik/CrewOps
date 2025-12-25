@@ -1,28 +1,34 @@
 package pl.crewops.ui.component.custom.schedule;
 
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import java.util.Optional;
 import java.util.UUID;
+import pl.crewops.enums.ScheduleTemplateType;
+import pl.crewops.exceptions.NotAuthenticatedException;
+import pl.crewops.infrastructure.core.CoreAPI;
+import pl.crewops.model.dto.scheduleTemplate.CreateScheduleTemplateDTO;
+import pl.crewops.model.dto.scheduleTemplate.ScheduleTemplateDTO;
 import pl.crewops.model.dto.shift.ShiftDTO;
+import pl.crewops.util.AuthenticationResolver;
+import pl.crewops.util.SpringContextBridge;
 
 public class DailyScheduleGenerator extends VerticalLayout {
 
-    private final HorizontalLayout shiftsPalette = new HorizontalLayout();
+    private final CoreAPI coreAPI;
+    private final AuthenticationResolver authenticationResolver;
 
     private final NativeScheduleGrid nativeGrid = new NativeScheduleGrid();
+    private final Button save = new Button(getTranslation("saveButton"));
 
-    public DailyScheduleGenerator() {
+    public DailyScheduleGenerator(CoreAPI coreAPI) {
+        this.coreAPI = coreAPI;
+        this.authenticationResolver = SpringContextBridge.getBean(AuthenticationResolver.class);
+
         setSizeFull();
         setPadding(false);
         setSpacing(true);
-
-        shiftsPalette.setWidthFull();
-        shiftsPalette.setMinHeight("60px");
-        shiftsPalette.getStyle().set("padding", "10px");
-        shiftsPalette.getStyle().set("gap", "10px");
-        shiftsPalette.getStyle().set("overflow-x", "auto");
-
-        add(shiftsPalette, nativeGrid);
 
         ShiftDTO poranna = new ShiftDTO(UUID.randomUUID(), "Zmiana Poranna", null, "#2ecc71"); // Szmaragdowy
         ShiftDTO druga = new ShiftDTO(
@@ -41,17 +47,9 @@ public class DailyScheduleGenerator extends VerticalLayout {
         ShiftDTO weekendowa = new ShiftDTO(UUID.randomUUID(), "Weekend", null, "#1abc9c"); // Turkusowy (Turquoise)
         ShiftDTO shadow = new ShiftDTO(UUID.randomUUID(), "Shadow Shift", null, "#95a5a6"); // Szary (Concrete)
 
-        //        addShiftToPalette(poranna);
-        //        addShiftToPalette(druga);
-        //        addShiftToPalette(popoludniowa);
-        //        addShiftToPalette(nocna);
-        //        addShiftToPalette(czwarta);
-        //        addShiftToPalette(techniczna);
-        //        addShiftToPalette(biurowa);
-        //        addShiftToPalette(weekendowa);
-        //        addShiftToPalette(shadow);
+        configureButtons();
 
-        add(shiftsPalette, nativeGrid);
+        add(nativeGrid, save);
 
         nativeGrid.addDay(new ScheduleDay(1));
 
@@ -59,38 +57,34 @@ public class DailyScheduleGenerator extends VerticalLayout {
     }
 
     public void addShiftToPalette(ShiftDTO dto) {
-        removeShiftFromPalette(dto.id());
-
-        ShiftPaletteItem item = new ShiftPaletteItem(dto);
-        shiftsPalette.add(item);
         nativeGrid.registerPaletteTemplate(dto);
     }
 
     public void removeShiftFromPalette(UUID shiftId) {
-        shiftsPalette
-                .getChildren()
-                .filter(ShiftPaletteItem.class::isInstance)
-                .map(ShiftPaletteItem.class::cast)
-                .filter(item -> item.getShiftDTO().id().equals(shiftId))
-                .findFirst()
-                .ifPresent(shiftsPalette::remove);
-
         nativeGrid.removeShiftsByTemplate(shiftId);
     }
 
     public void updateShiftInPalette(ShiftDTO dto) {
-        shiftsPalette
-                .getChildren()
-                .filter(ShiftPaletteItem.class::isInstance)
-                .map(ShiftPaletteItem.class::cast)
-                .filter(item -> item.getShiftDTO().id().equals(dto.id()))
-                .findFirst()
-                .ifPresent(shiftsPalette::remove);
-
-        ShiftPaletteItem newItem = new ShiftPaletteItem(dto);
-        shiftsPalette.add(newItem);
-
-        // 2. Aktualizujemy dane w istniejących zasobach na siatce (bez ich usuwania!)
         nativeGrid.updateShiftsFromTemplate(dto);
+    }
+
+    private void configureButtons() {
+        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        save.addClickListener(event -> {
+            CreateScheduleTemplateDTO hardcodedCreateScheduleTemplateDTO = CreateScheduleTemplateDTO.builder()
+                    .name("hardcoded")
+                    .authorEmployeeId(authenticationResolver.getPrincipal().getEmployeeId())
+                    .type(ScheduleTemplateType.DAILY)
+                    .privateOwner(false)
+                    .days(nativeGrid.collectDataFromGrid())
+                    .build();
+
+            try {
+                Optional<ScheduleTemplateDTO> schedule = coreAPI.createSchedule(hardcodedCreateScheduleTemplateDTO);
+                System.out.println(schedule.toString());
+            } catch (NotAuthenticatedException e) {
+                System.out.println(e.getMessage());
+            }
+        });
     }
 }

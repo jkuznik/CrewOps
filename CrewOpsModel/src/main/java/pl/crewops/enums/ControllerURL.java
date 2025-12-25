@@ -37,6 +37,7 @@ public interface ControllerURL {
     String MESSAGES = "/messages";
     String MESSAGE_ID = "message-id";
     String NOTES = "/daily-notes";
+    String SCHEDULE = "/schedule";
     String SHIFTS = "/shifts";
     String SHIFT_ID = "shift-id";
 
