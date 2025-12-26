@@ -27,7 +27,7 @@ public class ScheduleContent extends VerticalLayout {
     /** Individual generator components */
     public ScheduleContent(CoreAPI coreAPI) {
         this.shiftConfigurationComponent = new ShiftConfigurationComponent(coreAPI);
-        this.scheduleConfigurationComponent = new ScheduleConfigurationComponent(coreAPI);
+        this.scheduleConfigurationComponent = new ScheduleConfigurationComponent();
 
         setSizeFull();
         setPadding(true);

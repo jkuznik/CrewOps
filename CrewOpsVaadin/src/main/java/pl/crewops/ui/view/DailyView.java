@@ -15,6 +15,7 @@ import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.ui.component.content.DailyEntryContent;
 import pl.crewops.ui.component.content.ScheduleContent;
 import pl.crewops.ui.component.dialog.dailyEntryDialog.DateSelectorDialog;
+import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.view.layout.MainLayout;
 import pl.crewops.util.AuthenticationResolver;
 
@@ -52,13 +53,13 @@ public final class DailyView extends MainLayout implements BeforeEnterObserver {
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if (authenticationResolver.principalIsAuthenticated()) {
-            //            try {
-            mainContent.removeAll();
-            listeners.forEach(Registration::remove);
-            buildContent();
-            //            } catch (Exception e) {
-            //                new FailNotification(getTranslation("dailyView.failNotification"));
-            //            }
+            try {
+                mainContent.removeAll();
+                listeners.forEach(Registration::remove);
+                buildContent();
+            } catch (Exception e) {
+                new FailNotification(getTranslation("dailyView.failNotification"));
+            }
         } else {
             event.forwardTo(HomeView.class);
             UI.getCurrent().getPage().setLocation("/");

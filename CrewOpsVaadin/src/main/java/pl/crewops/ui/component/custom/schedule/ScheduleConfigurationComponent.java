@@ -10,11 +10,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import java.util.UUID;
-import pl.crewops.infrastructure.core.CoreAPI;
 import pl.crewops.model.dto.shift.ShiftDTO;
 
 @CssImport("./styles/component/schedule-content-component.css")
 public class ScheduleConfigurationComponent extends VerticalLayout {
+
+    private final VerticalLayout contentContainer;
 
     private final Button toggleVisibilityButton = new Button(VaadinIcon.ANGLE_UP.create());
 
@@ -22,26 +23,21 @@ public class ScheduleConfigurationComponent extends VerticalLayout {
     private final Tab weeklySchedule = new Tab(getTranslation("scheduleConfigurationComponent.weeklySchedule"));
     private final Tabs tabs = new Tabs(dailySchedule, weeklySchedule);
 
-    private final HorizontalLayout shiftsPalette = new HorizontalLayout();
+    private final VerticalLayout shiftsPaletteContainer = new VerticalLayout();
+    private final HorizontalLayout shiftsItemsLayout = new HorizontalLayout();
 
     private final DailyScheduleGenerator dailyScheduleGenerator;
 
-    private final VerticalLayout contentContainer;
     private boolean isContentVisible = true;
 
-    public ScheduleConfigurationComponent(CoreAPI coreAPI) {
-        this.dailyScheduleGenerator = new DailyScheduleGenerator(coreAPI);
-        this.contentContainer = new VerticalLayout(tabs, shiftsPalette, dailyScheduleGenerator);
+    public ScheduleConfigurationComponent() {
+        this.dailyScheduleGenerator = new DailyScheduleGenerator();
+        this.contentContainer = new VerticalLayout(tabs, shiftsPaletteContainer, dailyScheduleGenerator);
 
         addClassName("component-content-border");
 
         configureTabs();
-
-        shiftsPalette.setWidthFull();
-        shiftsPalette.setMinHeight("60px");
-        shiftsPalette.getStyle().set("padding", "10px");
-        shiftsPalette.getStyle().set("gap", "10px");
-        shiftsPalette.getStyle().set("overflow-x", "auto");
+        configureShiftsPalette();
 
         setSizeFull();
         add(createToolbar(), contentContainer);
@@ -88,38 +84,65 @@ public class ScheduleConfigurationComponent extends VerticalLayout {
         });
     }
 
+    private void configureShiftsPalette() {
+        shiftsPaletteContainer.setPadding(false);
+        shiftsPaletteContainer.setSpacing(true);
+        shiftsPaletteContainer.getStyle().set("margin-top", "10px");
+
+        // 1. Nagłówek sekcji
+        Span paletteHeader = new Span(getTranslation("scheduleConfigurationComponent.schedulePaletteTitle"));
+        paletteHeader
+                .getStyle()
+                .set("font-size", "var(--lumo-font-size-s)")
+                .set("font-weight", "bold")
+                .set("text-transform", "uppercase")
+                .set("letter-spacing", "1px");
+
+        // 2. Layout na kafelki (stara shiftsPalette)
+        shiftsItemsLayout.setWidthFull();
+        shiftsItemsLayout.setMinHeight("65px");
+        shiftsItemsLayout.setPadding(false);
+        shiftsItemsLayout
+                .getStyle()
+                .set("gap", "12px")
+                .set("overflow-x", "auto")
+                .set("padding-bottom", "5px"); // Miejsce na scrollbar
+
+        shiftsPaletteContainer.add(paletteHeader, shiftsItemsLayout);
+    }
+
     public void addShiftResourceDragBar(ShiftDTO dto) {
         removeShiftFromPalette(dto.id());
 
         ShiftPaletteItem item = new ShiftPaletteItem(dto);
-        shiftsPalette.add(item);
+        shiftsItemsLayout.add(item); // Zmieniono na shiftsItemsLayout
 
         dailyScheduleGenerator.addShiftToPalette(dto);
     }
 
     public void removeShiftFromPalette(UUID shiftId) {
-        shiftsPalette
-                .getChildren()
+        shiftsItemsLayout
+                .getChildren() // Zmieniono na shiftsItemsLayout
                 .filter(ShiftPaletteItem.class::isInstance)
                 .map(ShiftPaletteItem.class::cast)
                 .filter(item -> item.getShiftDTO().id().equals(shiftId))
                 .findFirst()
-                .ifPresent(shiftsPalette::remove);
+                .ifPresent(shiftsItemsLayout::remove);
 
         dailyScheduleGenerator.removeShiftFromPalette(shiftId);
     }
 
     public void updateShiftResourceDragBar(ShiftDTO dto) {
-        shiftsPalette
+        shiftsItemsLayout
                 .getChildren()
                 .filter(ShiftPaletteItem.class::isInstance)
                 .map(ShiftPaletteItem.class::cast)
                 .filter(item -> item.getShiftDTO().id().equals(dto.id()))
                 .findFirst()
-                .ifPresent(shiftsPalette::remove);
+                .ifPresent(shiftsItemsLayout::remove);
 
         ShiftPaletteItem newItem = new ShiftPaletteItem(dto);
-        shiftsPalette.add(newItem);
+        shiftsItemsLayout.add(newItem);
 
         dailyScheduleGenerator.updateShiftInPalette(dto);
     }

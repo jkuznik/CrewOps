@@ -29,6 +29,8 @@ public class NativeScheduleGrid extends Component implements HasSize {
         addListener(ShiftDeletedEvent.class, this::onShiftDeleted);
         addListener(DayActionEvent.class, this::handleDayAction);
 
+        dayList.add(new ScheduleDay(1));
+
         getElement().setProperty("dayLabelText", headerDayCell);
     }
 
@@ -360,13 +362,6 @@ public class NativeScheduleGrid extends Component implements HasSize {
             daysArray.set(i, dayObj);
         }
         getElement().setPropertyJson("days", daysArray);
-    }
-
-    public void addDay(ScheduleDay day) {
-        if (!dayList.contains(day)) {
-            dayList.add(day);
-            dayList.sort((a, b) -> Integer.compare(a.getDayNumber(), b.getDayNumber()));
-        }
     }
 
     private void onShiftDeleted(ShiftDeletedEvent event) {
