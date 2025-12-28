@@ -595,6 +595,11 @@ class CoreService implements CoreAPI {
     }
 
     @Override
+    public List<ScheduleTemplateDTO> getAllTemplates() throws NotAuthenticatedException {
+        return domainScheduleTemplateClient.getAllTemplates();
+    }
+
+    @Override
     public Optional<ShiftDTO> createShift(CreateShiftDTO createShiftDTO) throws NotAuthenticatedException {
         return Optional.ofNullable(domainShiftClient.createShift(createShiftDTO));
     }

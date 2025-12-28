@@ -202,6 +202,8 @@ public interface CoreAPI {
     Optional<ScheduleTemplateDTO> createSchedule(@NotNull @Valid CreateScheduleTemplateDTO createScheduleDTO)
             throws NotAuthenticatedException;
 
+    List<ScheduleTemplateDTO> getAllTemplates() throws NotAuthenticatedException;
+
     // ---- SHIFT ----
 
     Optional<ShiftDTO> createShift(@NotNull @Valid CreateShiftDTO createShiftDTO) throws NotAuthenticatedException;

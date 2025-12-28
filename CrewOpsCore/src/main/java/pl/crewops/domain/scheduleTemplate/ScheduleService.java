@@ -59,6 +59,12 @@ class ScheduleService implements ScheduleAPI {
 
     @Override
     @Transactional
+    public List<ScheduleTemplateDTO> getAllTemplates() {
+        return templateRepository.findAll().stream().map(mapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
     public List<ScheduleTemplateDTO> findAll() {
         return templateRepository.findAll().stream().map(mapper::toDto).collect(Collectors.toList());
     }

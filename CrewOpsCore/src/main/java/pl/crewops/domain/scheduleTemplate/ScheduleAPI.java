@@ -10,5 +10,7 @@ public interface ScheduleAPI {
 
     ScheduleTemplateDTO createTemplate(CreateScheduleTemplateDTO createScheduleTemplateDTO);
 
+    List<ScheduleTemplateDTO> getAllTemplates();
+
     List<ScheduleTemplateDTO> findAll();
 }

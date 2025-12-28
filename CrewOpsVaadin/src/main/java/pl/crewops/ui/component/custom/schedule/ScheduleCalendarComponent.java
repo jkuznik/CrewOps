@@ -37,7 +37,6 @@ class ScheduleCalendarComponent extends VerticalLayout {
         // 2. Nasłuchujemy na moment upuszczenia na kalendarz
         calendar.getElement()
                 .addEventListener("template-dropped", e -> {
-                    // W Vaadinie e.getEventData() zwraca JsonObject, z którego pobieramy detale
                     JsonObject eventDetail = e.getEventData().getObject("event.detail");
 
                     if (eventDetail != null) {
@@ -92,7 +91,7 @@ class ScheduleCalendarComponent extends VerticalLayout {
     private Div createDraggableTemplate(TempTemplate template) {
         Div div = new Div();
         div.setText(template.name());
-        div.addClassName("calendar-template-item"); // Kluczowe dla uniknięcia konfliktów
+        div.addClassName("calendar-template-item");
         div.getStyle().set("background-color", template.color());
         div.getStyle().set("padding", "10px");
         div.getStyle().set("margin-bottom", "5px");
@@ -110,11 +109,9 @@ class ScheduleCalendarComponent extends VerticalLayout {
     }
 
     private void handleTemplateDrop(String startDateStr, TempTemplate template) {
-        // Tutaj logika: obliczamy datę końcową na podstawie ilości dni w szablonie
         LocalDate start = LocalDate.parse(startDateStr.split("T")[0]);
         LocalDate end = start.plusDays(template.daysCount());
 
-        // Dodajemy do kalendarza "blok" reprezentujący wdrożony szablon
         calendar.addEvent(
                 UUID.randomUUID().toString(), template.name(), start.toString(), end.toString(), template.color());
     }
