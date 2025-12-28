@@ -14,11 +14,11 @@ import pl.crewops.ui.component.notification.SuccessNotification;
 import pl.crewops.util.AuthenticationResolver;
 import pl.crewops.util.SpringContextBridge;
 
-public class ScheduleTemplateForm extends FormLayout {
+class ScheduleTemplateForm extends FormLayout {
 
     private final CoreAPI coreAPI;
     private final AuthenticationResolver authenticationResolver;
-    private final NativeScheduleGrid nativeGrid;
+    private final NativeScheduleGrid nativeScheduleGrid;
 
     private final TextField scheduleName = new TextField();
     private final Button save = new Button(getTranslation("saveButton"));
@@ -28,7 +28,7 @@ public class ScheduleTemplateForm extends FormLayout {
     public ScheduleTemplateForm(NativeScheduleGrid nativeScheduleGrid) {
         this.coreAPI = SpringContextBridge.getBean(CoreAPI.class);
         this.authenticationResolver = SpringContextBridge.getBean(AuthenticationResolver.class);
-        this.nativeGrid = nativeScheduleGrid;
+        this.nativeScheduleGrid = nativeScheduleGrid;
 
         configureFields();
         configureBinder();
@@ -64,7 +64,7 @@ public class ScheduleTemplateForm extends FormLayout {
                         .authorEmployeeId(authenticationResolver.getPrincipal().getEmployeeId())
                         .type(ScheduleTemplateType.DAILY)
                         .privateOwner(false)
-                        .days(nativeGrid.collectDataFromGrid())
+                        .days(nativeScheduleGrid.collectDataFromGrid())
                         .build();
 
                 try {

@@ -5,7 +5,7 @@ import lombok.Getter;
 import pl.crewops.model.dto.shift.ShiftDTO;
 
 @Getter
-public class ShiftPaletteItem extends Div {
+class ShiftPaletteItem extends Div {
 
     private final ShiftDTO shiftDTO;
 

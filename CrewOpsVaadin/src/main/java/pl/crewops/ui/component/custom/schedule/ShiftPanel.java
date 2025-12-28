@@ -1,4 +1,4 @@
-package pl.crewops.ui.component.panel;
+package pl.crewops.ui.component.custom.schedule;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
@@ -28,13 +28,12 @@ import pl.crewops.model.dto.shift.UpdateShiftDTO;
 import pl.crewops.ui.component.custom.AddButtonPanel;
 import pl.crewops.ui.component.custom.ComboBoxCustom;
 import pl.crewops.ui.component.custom.PanelCustom;
-import pl.crewops.ui.component.custom.schedule.JobPositionSelector;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.ui.component.notification.InfoNotification;
 import pl.crewops.ui.component.notification.SuccessNotification;
 import pl.crewops.util.SpringContextBridge;
 
-public class ShiftPanel extends PanelCustom {
+class ShiftPanel extends PanelCustom {
 
     private static final String MAX_POSITIONS_HEIGHT = "300px";
     private static final String SELECTOR_HEIGHT = "100px";

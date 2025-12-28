@@ -13,10 +13,10 @@ import pl.crewops.model.dto.shift.ShiftDTO;
 
 @Tag("native-schedule-grid")
 @JsModule("./ts/NativeScheduleGrid.ts")
-@CssImport("./styles/component/dailyView/native-schedule.css")
-public class NativeScheduleGrid extends Component implements HasSize {
+@CssImport("./styles/component/dailyView/native-schedule-grid.css")
+class NativeScheduleGrid extends Component implements HasSize {
 
-    private final List<ScheduleDay> dayList = new ArrayList<>();
+    private final List<ScheduleTemplateDayModel> dayList = new ArrayList<>();
     private static final int MINUTES_PER_DAY = 1440;
 
     private final List<ShiftDTO> paletteTemplates = new ArrayList<>();
@@ -29,7 +29,7 @@ public class NativeScheduleGrid extends Component implements HasSize {
         addListener(ShiftDeletedEvent.class, this::onShiftDeleted);
         addListener(DayActionEvent.class, this::handleDayAction);
 
-        dayList.add(new ScheduleDay(1));
+        dayList.add(new ScheduleTemplateDayModel(1));
 
         getElement().setProperty("dayLabelText", headerDayCell);
     }
@@ -119,7 +119,7 @@ public class NativeScheduleGrid extends Component implements HasSize {
     private int getDayNumberForShift(ShiftResource shift) {
         return dayList.stream()
                 .filter(d -> d.getShifts().contains(shift))
-                .map(ScheduleDay::getDayNumber)
+                .map(ScheduleTemplateDayModel::getDayNumber)
                 .findFirst()
                 .orElse(0);
     }
@@ -137,7 +137,7 @@ public class NativeScheduleGrid extends Component implements HasSize {
         int currentDayIdx = getDayIndex(shift);
         if (currentDayIdx == -1) return;
 
-        ScheduleDay currentDay = dayList.get(currentDayIdx);
+        ScheduleTemplateDayModel currentDay = dayList.get(currentDayIdx);
         int endMinute = shift.getStartMinute() + shift.getDurationMinutes();
 
         if (endMinute > MINUTES_PER_DAY) {
@@ -146,7 +146,7 @@ public class NativeScheduleGrid extends Component implements HasSize {
             int nextDayEndMinute = endMinute - MINUTES_PER_DAY;
 
             // Znajdź lub stwórz następny dzień
-            ScheduleDay nextDay = getOrCreateDay(currentDay.getDayNumber() + 1);
+            ScheduleTemplateDayModel nextDay = getOrCreateDay(currentDay.getDayNumber() + 1);
 
             // Znajdź lub stwórz segment-cień (isCrossMidnightSegment = true)
             ShiftResource shadow = findOrCreateShadowShift(nextDay, shift);
@@ -166,7 +166,7 @@ public class NativeScheduleGrid extends Component implements HasSize {
 
         if ("add-after".equals(event.getAction())) {
             // 1. Pobierz dzień, po którym dodajemy (Dzień N)
-            ScheduleDay currentDay = dayList.stream()
+            ScheduleTemplateDayModel currentDay = dayList.stream()
                     .filter(d -> d.getDayNumber() == targetDayNum)
                     .findFirst()
                     .orElse(null);
@@ -188,7 +188,7 @@ public class NativeScheduleGrid extends Component implements HasSize {
                     .forEach(d -> d.setDayNumber(d.getDayNumber() + 1));
 
             // 4. Wstaw nowy, pusty dzień (Nowy Dzień N+1)
-            ScheduleDay newNextDay = new ScheduleDay(targetDayNum + 1);
+            ScheduleTemplateDayModel newNextDay = new ScheduleTemplateDayModel(targetDayNum + 1);
             dayList.add(newNextDay);
 
             // 5. KLUCZOWY KROK: Dla każdej zmiany z Dnia N, która wystaje poza północ,
@@ -216,14 +216,14 @@ public class NativeScheduleGrid extends Component implements HasSize {
             int targetDayNumNext = sourceDayNum + 1;
 
             // 1. Pobierz dzień źródłowy
-            ScheduleDay sourceDay = dayList.stream()
+            ScheduleTemplateDayModel sourceDay = dayList.stream()
                     .filter(d -> d.getDayNumber() == sourceDayNum)
                     .findFirst()
                     .orElse(null);
 
             if (sourceDay != null && !sourceDay.getShifts().isEmpty()) {
                 // 2. Pobierz lub stwórz dzień docelowy (N+1)
-                ScheduleDay targetDay = getOrCreateDay(targetDayNumNext);
+                ScheduleTemplateDayModel targetDay = getOrCreateDay(targetDayNumNext);
 
                 // 3. Kopiuj zmiany
                 for (ShiftResource sourceShift : sourceDay.getShifts()) {
@@ -241,13 +241,13 @@ public class NativeScheduleGrid extends Component implements HasSize {
             }
         }
 
-        dayList.sort(Comparator.comparingInt(ScheduleDay::getDayNumber));
+        dayList.sort(Comparator.comparingInt(ScheduleTemplateDayModel::getDayNumber));
         updateClientSideData();
     }
 
     // --- METODY POMOCNICZE ---
 
-    private ShiftResource findOrCreateShadowShift(ScheduleDay nextDay, ShiftResource original) {
+    private ShiftResource findOrCreateShadowShift(ScheduleTemplateDayModel nextDay, ShiftResource original) {
         return nextDay.getShifts().stream()
                 .filter(s -> s.getInstanceId().equals(original.getInstanceId()) && s.isCrossMidnightSegment())
                 .findFirst()
@@ -265,7 +265,7 @@ public class NativeScheduleGrid extends Component implements HasSize {
         long propStartAbs = (long) targetDayNum * MINUTES_PER_DAY + targetStart;
         long propEndAbs = propStartAbs + targetDuration;
 
-        for (ScheduleDay day : dayList) {
+        for (ScheduleTemplateDayModel day : dayList) {
             for (ShiftResource other : day.getShifts()) {
                 // Ignorujemy tę samą instancję (oryginał i cienie)
                 if (other.getInstanceId().equals(shift.getInstanceId())) continue;
@@ -298,12 +298,12 @@ public class NativeScheduleGrid extends Component implements HasSize {
                                 && s.isCrossMidnightSegment()));
     }
 
-    private ScheduleDay getOrCreateDay(int dayNumber) {
+    private ScheduleTemplateDayModel getOrCreateDay(int dayNumber) {
         return dayList.stream()
                 .filter(d -> d.getDayNumber() == dayNumber)
                 .findFirst()
                 .orElseGet(() -> {
-                    ScheduleDay newDay = new ScheduleDay(dayNumber);
+                    ScheduleTemplateDayModel newDay = new ScheduleTemplateDayModel(dayNumber);
                     dayList.add(newDay);
                     dayList.sort((a, b) -> Integer.compare(a.getDayNumber(), b.getDayNumber()));
                     return newDay;
@@ -334,7 +334,7 @@ public class NativeScheduleGrid extends Component implements HasSize {
     public void updateClientSideData() {
         JsonArray daysArray = Json.createArray();
         for (int i = 0; i < dayList.size(); i++) {
-            ScheduleDay day = dayList.get(i);
+            ScheduleTemplateDayModel day = dayList.get(i);
             JsonObject dayObj = Json.createObject();
             dayObj.put("dayNumber", day.getDayNumber());
 
@@ -388,7 +388,7 @@ public class NativeScheduleGrid extends Component implements HasSize {
         registerPaletteTemplate(updatedDto);
 
         // 2. Kluczowy krok: Podmiana DTO w istniejących zasobach
-        for (ScheduleDay day : dayList) {
+        for (ScheduleTemplateDayModel day : dayList) {
             for (ShiftResource shift : day.getShifts()) {
                 if (shift.getShiftDTO().id().equals(updatedDto.id())) {
                     shift.setShiftDTO(updatedDto);
@@ -403,7 +403,7 @@ public class NativeScheduleGrid extends Component implements HasSize {
         unregisterPaletteTemplate(templateId);
 
         // 2. Usuwamy wszystkie instancje z każdego dnia
-        for (ScheduleDay day : dayList) {
+        for (ScheduleTemplateDayModel day : dayList) {
             day.getShifts().removeIf(shift -> shift.getShiftDTO().id().equals(templateId));
         }
 
@@ -433,7 +433,7 @@ public class NativeScheduleGrid extends Component implements HasSize {
     }
 
     // Pozwala pobrać listę dni do manipulacji
-    public List<ScheduleDay> getDayList() {
+    public List<ScheduleTemplateDayModel> getDayList() {
         return dayList;
     }
 
@@ -479,7 +479,6 @@ public class NativeScheduleGrid extends Component implements HasSize {
     @DomEvent("shift-resized")
     public static class ShiftResizedEvent extends ComponentEvent<NativeScheduleGrid> {
         private final String shiftId;
-        private final int newStartMinute;
         private final int newDurationMinutes;
         private final boolean isShadow; // Nowe pole
 
@@ -487,22 +486,16 @@ public class NativeScheduleGrid extends Component implements HasSize {
                 NativeScheduleGrid source,
                 boolean fromClient,
                 @EventData("event.detail.shiftId") String shiftId,
-                @EventData("event.detail.newStartMinute") int newStartMinute,
                 @EventData("event.detail.newDurationMinutes") int newDurationMinutes,
-                @EventData("event.detail.isShadow") boolean isShadow) { // Odbieramy z JS
+                @EventData("event.detail.isShadow") boolean isShadow) {
             super(source, fromClient);
             this.shiftId = shiftId;
-            this.newStartMinute = newStartMinute;
             this.newDurationMinutes = newDurationMinutes;
             this.isShadow = isShadow;
         }
 
         public String getShiftId() {
             return shiftId;
-        }
-
-        public int getNewStartMinute() {
-            return newStartMinute;
         }
 
         public int getNewDurationMinutes() {
@@ -529,6 +522,8 @@ public class NativeScheduleGrid extends Component implements HasSize {
         }
     }
 
+    // this event is related to third grid column where buttons are included and action mean one of button action like
+    // add day, remove day or copy-day
     @DomEvent("day-action")
     public static class DayActionEvent extends ComponentEvent<NativeScheduleGrid> {
         private final String action;

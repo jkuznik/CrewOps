@@ -325,6 +325,13 @@ export class NativeScheduleGrid extends LitElement {
 
     private handleDrop(e: DragEvent, day: Day) {
         e.preventDefault();
+
+        const rawData = e.dataTransfer?.getData('application/json');
+        if (!rawData || rawData.includes('"duration":{')) {
+            // Jeśli to dane kalendarza (mają strukturę duration: {days:X}), ignoruj
+            return;
+        }
+
         let shiftId = '';
         let isFromPalette = false;
 

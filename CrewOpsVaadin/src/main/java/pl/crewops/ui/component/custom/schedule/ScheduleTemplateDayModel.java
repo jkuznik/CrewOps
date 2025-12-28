@@ -7,11 +7,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ScheduleDay {
+class ScheduleTemplateDayModel {
     private final List<ShiftResource> shifts = new ArrayList<>();
     private int dayNumber;
 
-    public ScheduleDay(int dayNumber) {
+    public ScheduleTemplateDayModel(int dayNumber) {
         this.dayNumber = dayNumber;
     }
 }

@@ -23,10 +23,10 @@ import pl.crewops.model.dto.jobPosition.JobPositionDTO;
 import pl.crewops.model.dto.shift.ShiftDTO;
 import pl.crewops.ui.component.custom.AddButtonPanel;
 import pl.crewops.ui.component.notification.FailNotification;
-import pl.crewops.ui.component.panel.ShiftPanel;
+import pl.crewops.util.SpringContextBridge;
 
 @CssImport("./styles/component/schedule-content-component.css")
-public class ShiftConfigurationComponent extends VerticalLayout {
+class ScheduleShiftConfigurationComponent extends VerticalLayout {
 
     private final CoreAPI coreAPI;
 
@@ -42,13 +42,14 @@ public class ShiftConfigurationComponent extends VerticalLayout {
     private final FlexLayout panelsLayout = new FlexLayout();
     private final AddButtonPanel addShiftPanelButton = new AddButtonPanel();
 
-    private final VerticalLayout scrollableContainer = new VerticalLayout(panelsLayout);
-    private boolean isContentVisible = false;
-
     private final List<JobPositionDTO> allAvailableJobPositions = new ArrayList<>();
 
-    public ShiftConfigurationComponent(CoreAPI coreAPI) {
-        this.coreAPI = coreAPI;
+    private final VerticalLayout scrollableContainer = new VerticalLayout(panelsLayout);
+
+    private boolean isContentVisible = false;
+
+    public ScheduleShiftConfigurationComponent() {
+        this.coreAPI = SpringContextBridge.getBean(CoreAPI.class);
         try {
             this.allAvailableJobPositions.addAll(coreAPI.getAllJobPositions());
         } catch (NotAuthenticatedException e) {
@@ -242,8 +243,9 @@ public class ShiftConfigurationComponent extends VerticalLayout {
         return bar;
     }
 
-    public abstract class ShiftConfigurationComponentEvents extends ComponentEvent<ShiftConfigurationComponent> {
-        public ShiftConfigurationComponentEvents(ShiftConfigurationComponent source) {
+    public abstract class ShiftConfigurationComponentEvents
+            extends ComponentEvent<ScheduleShiftConfigurationComponent> {
+        public ShiftConfigurationComponentEvents(ScheduleShiftConfigurationComponent source) {
             super(source, false);
         }
     }
@@ -253,7 +255,7 @@ public class ShiftConfigurationComponent extends VerticalLayout {
         @Getter
         private final ShiftDTO shiftDTO;
 
-        public DisplayExistingShiftEvent(ShiftConfigurationComponent source, ShiftDTO shiftDTO) {
+        public DisplayExistingShiftEvent(ScheduleShiftConfigurationComponent source, ShiftDTO shiftDTO) {
             super(source);
             this.shiftDTO = shiftDTO;
         }
@@ -264,7 +266,7 @@ public class ShiftConfigurationComponent extends VerticalLayout {
         @Getter
         private final ShiftDTO shiftDTO;
 
-        public UpdateShiftEvent(ShiftConfigurationComponent source, ShiftDTO shiftDTO) {
+        public UpdateShiftEvent(ScheduleShiftConfigurationComponent source, ShiftDTO shiftDTO) {
             super(source);
             this.shiftDTO = shiftDTO;
         }
@@ -275,7 +277,7 @@ public class ShiftConfigurationComponent extends VerticalLayout {
         @Getter
         private final UUID deletedShiftId;
 
-        public DeleteShiftEvent(ShiftConfigurationComponent source, UUID deletedShiftId) {
+        public DeleteShiftEvent(ScheduleShiftConfigurationComponent source, UUID deletedShiftId) {
             super(source);
             this.deletedShiftId = deletedShiftId;
         }

@@ -20,7 +20,7 @@ import pl.crewops.ui.component.custom.ComboBoxCustom;
 import pl.crewops.ui.component.notification.FailNotification;
 import pl.crewops.util.SpringContextBridge;
 
-public class JobPositionSelector extends VerticalLayout {
+class JobPositionSelector extends VerticalLayout {
 
     private final CoreAPI coreAPI;
     private final Span orderNumberSpan = new Span();

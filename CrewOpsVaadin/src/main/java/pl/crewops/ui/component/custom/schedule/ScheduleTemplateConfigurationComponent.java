@@ -13,11 +13,11 @@ import java.util.UUID;
 import pl.crewops.model.dto.shift.ShiftDTO;
 
 @CssImport("./styles/component/schedule-content-component.css")
-public class ScheduleConfigurationComponent extends VerticalLayout {
+class ScheduleTemplateConfigurationComponent extends VerticalLayout {
 
     private final VerticalLayout contentContainer;
 
-    private final Button toggleVisibilityButton = new Button(VaadinIcon.ANGLE_UP.create());
+    private final Button toggleVisibilityButton = new Button(VaadinIcon.ANGLE_DOWN.create());
 
     private final Tab dailySchedule = new Tab(getTranslation("scheduleConfigurationComponent.dailySchedule"));
     private final Tab weeklySchedule = new Tab(getTranslation("scheduleConfigurationComponent.weeklySchedule"));
@@ -26,18 +26,19 @@ public class ScheduleConfigurationComponent extends VerticalLayout {
     private final VerticalLayout shiftsPaletteContainer = new VerticalLayout();
     private final HorizontalLayout shiftsItemsLayout = new HorizontalLayout();
 
-    private final DailyScheduleGenerator dailyScheduleGenerator;
+    private final DailyGenerator dailyGenerator;
 
-    private boolean isContentVisible = true;
+    private boolean isContentVisible = false;
 
-    public ScheduleConfigurationComponent() {
-        this.dailyScheduleGenerator = new DailyScheduleGenerator();
-        this.contentContainer = new VerticalLayout(tabs, shiftsPaletteContainer, dailyScheduleGenerator);
+    public ScheduleTemplateConfigurationComponent() {
+        this.dailyGenerator = new DailyGenerator();
+        this.contentContainer = new VerticalLayout(tabs, shiftsPaletteContainer, dailyGenerator);
 
         addClassName("component-content-border");
 
         configureTabs();
         configureShiftsPalette();
+        contentContainer.setVisible(isContentVisible);
 
         setSizeFull();
         add(createToolbar(), contentContainer);
@@ -77,9 +78,9 @@ public class ScheduleConfigurationComponent extends VerticalLayout {
         tabs.addSelectedChangeListener(event -> {
             Tab selectedTab = event.getSelectedTab();
             if (selectedTab.equals(dailySchedule)) {
-                dailyScheduleGenerator.setVisible(true);
+                dailyGenerator.setVisible(true);
             } else {
-                dailyScheduleGenerator.setVisible(false);
+                dailyGenerator.setVisible(false);
             }
         });
     }
@@ -117,7 +118,7 @@ public class ScheduleConfigurationComponent extends VerticalLayout {
         ShiftPaletteItem item = new ShiftPaletteItem(dto);
         shiftsItemsLayout.add(item); // Zmieniono na shiftsItemsLayout
 
-        dailyScheduleGenerator.addShiftToPalette(dto);
+        dailyGenerator.addShiftToPalette(dto);
     }
 
     public void removeShiftFromPalette(UUID shiftId) {
@@ -129,7 +130,7 @@ public class ScheduleConfigurationComponent extends VerticalLayout {
                 .findFirst()
                 .ifPresent(shiftsItemsLayout::remove);
 
-        dailyScheduleGenerator.removeShiftFromPalette(shiftId);
+        dailyGenerator.removeShiftFromPalette(shiftId);
     }
 
     public void updateShiftResourceDragBar(ShiftDTO dto) {
@@ -144,6 +145,36 @@ public class ScheduleConfigurationComponent extends VerticalLayout {
         ShiftPaletteItem newItem = new ShiftPaletteItem(dto);
         shiftsItemsLayout.add(newItem);
 
-        dailyScheduleGenerator.updateShiftInPalette(dto);
+        dailyGenerator.updateShiftInPalette(dto);
+    }
+}
+
+class DailyGenerator extends VerticalLayout {
+
+    private final NativeScheduleGrid nativeScheduleGrid = new NativeScheduleGrid();
+
+    private final ScheduleTemplateForm form = new ScheduleTemplateForm(nativeScheduleGrid);
+
+    public DailyGenerator() {
+
+        setSizeFull();
+        setPadding(false);
+        setSpacing(true);
+
+        nativeScheduleGrid.updateClientSideData();
+
+        add(nativeScheduleGrid, form);
+    }
+
+    public void addShiftToPalette(ShiftDTO dto) {
+        nativeScheduleGrid.registerPaletteTemplate(dto);
+    }
+
+    public void removeShiftFromPalette(UUID shiftId) {
+        nativeScheduleGrid.removeShiftsByTemplate(shiftId);
+    }
+
+    public void updateShiftInPalette(ShiftDTO dto) {
+        nativeScheduleGrid.updateShiftsFromTemplate(dto);
     }
 }

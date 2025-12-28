@@ -8,7 +8,7 @@ import pl.crewops.model.dto.shift.ShiftDTO;
 
 @Getter
 @Setter
-public final class ShiftResource {
+final class ShiftResource {
     private ShiftDTO shiftDTO;
     private String instanceId = UUID.randomUUID().toString();
 
