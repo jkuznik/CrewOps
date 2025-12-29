@@ -19,17 +19,18 @@ class Calendar extends Component implements HasSize, HasStyle {
 
     private String createDefaultOptions() {
         return """
-            {
-                "initialView": "dayGridMonth",
-                "editable": true,
-                "droppable": true,
-                "headerToolbar": {
-                    "left": "prev,next today",
-                    "center": "title",
-                    "right": "dayGridMonth,timeGridWeek"
-                }
+        {
+            "initialView": "dayGridMonth",
+            "editable": true,
+            "droppable": true,
+            "firstDay": 1,
+            "headerToolbar": {
+                "left": "prev,next today",
+                "center": "title",
+                "right": "dayGridMonth,timeGridWeek"
             }
-            """;
+        }
+        """;
     }
 
     public void addEvent(String id, String title, String start, String end, String color) {

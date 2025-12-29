@@ -33,10 +33,11 @@ export class ScheduleFullCalendar extends HTMLElement {
         });
 
         this.calendar = new Calendar(el, {
-            plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin], // Musi tu być!
+            plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
             droppable: true,
             initialView: 'dayGridMonth',
             editable: true,
+            firstDay: 1, // Ustawia poniedziałek jako pierwszy dzień tygodnia
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
