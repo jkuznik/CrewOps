@@ -69,6 +69,18 @@ export class ScheduleFullCalendar extends HTMLElement {
                     bubbles: true,
                     composed: true
                 }));
+            },
+
+            dayCellDidMount: (info) => {
+                const day = info.date.getDay(); // 0 = Niedziela, 6 = Sobota
+
+                if (day === 0) {
+                    // Niedziela - wyraźniejszy czerwony (5% krycia)
+                    info.el.style.backgroundColor = 'rgba(255, 0, 0, 0.08)';
+                } else if (day === 6) {
+                    // Sobota - bardzo delikatny szary lub jasnoczerwony (3% krycia)
+                    info.el.style.backgroundColor = 'rgba(255, 0, 0, 0.03)';
+                }
             }
         });
 
