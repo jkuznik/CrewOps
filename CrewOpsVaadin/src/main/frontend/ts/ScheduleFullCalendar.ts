@@ -1,13 +1,22 @@
 import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import allLocales from '@fullcalendar/core/locales-all';
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction';
 
 export class ScheduleFullCalendar extends HTMLElement {
     private calendar: Calendar | null = null;
+    private _locale: string = 'en';
+
+    set locale(value: string) {
+        this._locale = value;
+        if (this.calendar) {
+            this.calendar.setOption('locale', value);
+        }
+    }
 
     connectedCallback() {
-        if (this.calendar) return; // Unikamy podwójnej inicjalizacji
+        if (this.calendar) return;
 
         this.innerHTML = '';
         const calendarEl = document.createElement('div');
@@ -34,10 +43,11 @@ export class ScheduleFullCalendar extends HTMLElement {
 
         this.calendar = new Calendar(el, {
             plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+            locales: allLocales, // Rejestrujemy bazę języków
+            locale: this._locale, // Ustawiamy początkowy język
             droppable: true,
             initialView: 'dayGridMonth',
             editable: true,
-            firstDay: 1,
             headerToolbar: {
                 left: 'prev today',
                 center: 'title',
