@@ -2,13 +2,11 @@ package pl.crewops.ui.component.custom.schedule;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import elemental.json.Json;
 import elemental.json.JsonObject;
 import java.time.LocalDate;
 import java.util.List;
@@ -24,7 +22,6 @@ class ScheduleCalendarComponent extends VerticalLayout {
     private final CoreAPI coreAPI = SpringContextBridge.getBean(CoreAPI.class);
     private final VerticalLayout contentContainer;
 
-    // Zmieniamy na HorizontalLayout, aby kafelki były w rzędzie jak w ShiftPalette
     private final HorizontalLayout templateItemsLayout = new HorizontalLayout();
     private final Button toggleVisibilityButton = new Button(VaadinIcon.ANGLE_DOWN.create());
     private final Calendar calendar = new Calendar();
@@ -35,7 +32,9 @@ class ScheduleCalendarComponent extends VerticalLayout {
         this.contentContainer = new VerticalLayout();
         addClassName("component-content-border");
         setSizeFull();
-        setPadding(true);
+        contentContainer.setHeightFull();
+        contentContainer.setPadding(false);
+        contentContainer.setSpacing(true);
 
         configureTemplatePalette();
         loadTemplatesFromApi();
@@ -57,6 +56,7 @@ class ScheduleCalendarComponent extends VerticalLayout {
 
         contentContainer.setVisible(isContentVisible);
         contentContainer.add(templateItemsLayout, calendar);
+        contentContainer.setFlexGrow(1.0, calendar);
         add(createToolbar(), contentContainer);
     }
 
@@ -87,11 +87,10 @@ class ScheduleCalendarComponent extends VerticalLayout {
         try {
             List<ScheduleTemplateDTO> templates = coreAPI.getAllTemplates();
             templates.forEach(dto -> {
-                // Używamy dedykowanej klasy TemplatePaletteItem
                 templateItemsLayout.add(new TemplatePaletteItem(dto));
             });
         } catch (NotAuthenticatedException e) {
-            // silent catch
+            // todo
         }
     }
 
@@ -128,31 +127,9 @@ class ScheduleCalendarComponent extends VerticalLayout {
         contentContainer.setVisible(isContentVisible);
         toggleVisibilityButton.setIcon(
                 isContentVisible ? VaadinIcon.ANGLE_UP.create() : VaadinIcon.ANGLE_DOWN.create());
-    }
 
-    private Div createDraggableTemplate(ScheduleTemplateDTO dto) {
-        Div div = new Div();
-        div.setText(dto.name());
-        div.addClassName("calendar-template-item");
-
-        String color = "#3498db"; // Domyślny kolor
-
-        div.getStyle().set("background-color", color);
-        div.getStyle().set("padding", "10px");
-        div.getStyle().set("margin-bottom", "5px");
-        div.getStyle().set("border-radius", "4px");
-        div.getStyle().set("cursor", "grab");
-        div.getStyle().set("color", "white"); // Dodane dla czytelności tekstu
-        div.getElement().setAttribute("draggable", "true");
-
-        JsonObject data = Json.createObject();
-        data.put("id", dto.id().toString());
-        data.put("title", dto.name());
-        data.put("duration", Math.max(1, dto.days().size()));
-        data.put("color", color);
-
-        div.getElement().setAttribute("data-template", data.toJson());
-
-        return div;
+        if (isContentVisible) {
+            calendar.forceRender();
+        }
     }
 }

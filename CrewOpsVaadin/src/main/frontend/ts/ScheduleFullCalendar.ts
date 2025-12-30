@@ -87,6 +87,12 @@ export class ScheduleFullCalendar extends HTMLElement {
             });
         }
     }
+
+    updateSize() {
+        if (this.calendar) {
+            this.calendar.updateSize();
+        }
+    }
 }
 
 customElements.define('schedule-full-calendar', ScheduleFullCalendar);

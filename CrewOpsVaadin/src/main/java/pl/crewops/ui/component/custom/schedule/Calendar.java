@@ -30,6 +30,10 @@ class Calendar extends Component implements HasSize, HasStyle {
         getElement().setProperty("locale", currentLocale.getLanguage());
     }
 
+    public void forceRender() {
+        getElement().executeJs("setTimeout(() => { this.updateSize(); }, 50)");
+    }
+
     public void addEvent(String id, String title, String start, String end, String color) {
         getElement().executeJs("this.addEvent($0, $1, $2, $3, $4)", id, title, start, end, color);
     }
