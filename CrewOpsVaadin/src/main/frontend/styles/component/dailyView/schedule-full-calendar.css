@@ -1,8 +1,10 @@
+/* GŁÓWNY KONTENER KOMPONENTU */
 :host {
-    display: block;
+    display: flex;
+    flex-direction: column;
     width: 100%;
+    min-height: 700px;
     height: 100%;
-    background-color: transparent !important; /* Przezroczyste tło */
 }
 
 :host > div {
@@ -10,20 +12,24 @@
     width: 100%;
 }
 
+/* OGÓLNE STYLE KALENDARZA */
 .fc {
-    background-color: transparent !important; /* Przezroczyste tło kalendarza */
+    background-color: transparent !important;
+    flex: 1 1 auto;
     height: 100% !important;
 }
 
-.fc-theme-standard td, .fc-theme-standard th {
+/* SIATKA I RAMKI */
+.fc-theme-standard td,
+.fc-theme-standard th {
     border: 1px solid var(--lumo-contrast-10pct);
 }
 
-/* Jeśli chcesz, aby nagłówki dni również były przezroczyste */
 .fc .fc-scrollgrid {
     background-color: transparent !important;
 }
 
+/* NAGŁÓWEK I PRZYCISKI */
 .fc-toolbar-title {
     font-size: var(--lumo-font-size-l) !important;
     font-weight: 600;
@@ -33,6 +39,11 @@
     background-color: var(--lumo-primary-color) !important;
     border-color: var(--lumo-primary-color) !important;
     text-transform: capitalize;
+    transition: filter 0.2s ease;
+}
+
+.fc-button-primary:hover {
+    filter: brightness(1.1);
 }
 
 .fc-button-primary:disabled {
@@ -40,22 +51,35 @@
     border-color: var(--lumo-contrast-30pct) !important;
 }
 
-/* Styl dla przeciąganych eventów (tzw. mirror) */
-.fc-event-dragging {
-    opacity: 0.7;
-    cursor: grabbing;
+/* --- NOWOŚĆ: INTERAKCJA Z KOMÓRKAMI (HOVER) --- */
+
+/* Kontener dnia */
+.fc-daygrid-day {
+    transition: background-color 0.15s ease;
+    cursor: pointer;
 }
 
-.vaadin-full-calendar {
-    display: block;
-    height: 600px;
-    width: 100%;
+/* Efekt najechania dla zwykłych dni */
+.fc-daygrid-day:hover {
+    background-color: var(--lumo-contrast-5pct) !important;
 }
 
-.div[draggable="true"] {
-    z-index: 10000;
-    position: relative;
+/* Efekt najechania dla weekendów (mieszanie kolorów) */
+.fc-day-sun:hover {
+    background-color: rgba(211, 47, 47, 0.12) !important; /* Mocniejszy czerwony przy najechaniu */
 }
+
+.fc-day-sat:hover {
+    background-color: rgba(211, 47, 47, 0.08) !important;
+}
+
+/* Wyróżnienie numeru dnia przy najechaniu */
+.fc-daygrid-day:hover .fc-daygrid-day-number {
+    color: var(--lumo-primary-color);
+    font-weight: bold;
+}
+
+/* --- WEEKENDY I DZIEŃ DZISIEJSZY --- */
 
 .fc-day-sun {
     background-color: rgba(255, 0, 0, 0.08) !important;
@@ -68,4 +92,34 @@
 .fc-day-sun .fc-col-header-cell-cushion,
 .fc-day-sun .fc-daygrid-day-number {
     color: #d32f2f;
+}
+
+/* Wyróżnienie dzisiejszej daty */
+.fc-day-today {
+    background-color: var(--lumo-primary-color-10pct) !important;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+    background-color: var(--lumo-primary-color);
+    color: var(--lumo-base-color, white) !important;
+    border-radius: 50%;
+    min-width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 4px;
+    font-weight: bold;
+    z-index: 1;
+}
+
+/* DRAG & DROP */
+.fc-event-dragging {
+    opacity: 0.7;
+    cursor: grabbing;
+}
+
+div[draggable="true"] {
+    z-index: 10000;
+    position: relative;
 }

@@ -7,11 +7,23 @@ import interactionPlugin, { Draggable } from '@fullcalendar/interaction';
 export class ScheduleFullCalendar extends HTMLElement {
     private calendar: Calendar | null = null;
     private _locale: string = 'en';
+    private _hidden: boolean = false;
 
     set locale(value: string) {
         this._locale = value;
         if (this.calendar) {
             this.calendar.setOption('locale', value);
+        }
+    }
+
+    set hiddenMode(value: boolean) {
+        this._hidden = value;
+        // Zarządzamy widocznością kontenera wewnętrznego
+        this.style.display = value ? 'none' : 'flex';
+
+        if (!value && this.calendar) {
+            // Automatyczny refresh rozmiaru przy pokazywaniu
+            setTimeout(() => this.calendar?.updateSize(), 50);
         }
     }
 
@@ -43,15 +55,15 @@ export class ScheduleFullCalendar extends HTMLElement {
 
         this.calendar = new Calendar(el, {
             plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-            locales: allLocales, // Rejestrujemy bazę języków
-            locale: this._locale, // Ustawiamy początkowy język
+            locales: allLocales,
+            locale: this._locale,
             droppable: true,
             initialView: 'dayGridMonth',
             editable: true,
             headerToolbar: {
-                left: 'prev today',
-                center: 'title',
-                right: 'next',
+                left: 'title',
+                center: '',
+                right: 'prev today, next',
             },
             dropAccept: '.calendar-template-item',
             dragRevertDuration: 0,
@@ -72,19 +84,27 @@ export class ScheduleFullCalendar extends HTMLElement {
             },
 
             dayCellDidMount: (info) => {
-                const day = info.date.getDay(); // 0 = Niedziela, 6 = Sobota
+                const day = info.date.getDay(); // 0 = Sunday, 6 = Saturday
 
                 if (day === 0) {
-                    // Niedziela - wyraźniejszy czerwony (5% krycia)
                     info.el.style.backgroundColor = 'rgba(255, 0, 0, 0.08)';
                 } else if (day === 6) {
-                    // Sobota - bardzo delikatny szary lub jasnoczerwony (3% krycia)
                     info.el.style.backgroundColor = 'rgba(255, 0, 0, 0.03)';
                 }
+            },
+
+            dateClick: (info) => {
+                this.dispatchEvent(new CustomEvent('date-selected', {
+                    detail: { date: info.dateStr },
+                    bubbles: true,
+                    composed: true
+                }));
             }
         });
 
         this.calendar.render();
+
+        this.style.display = this._hidden ? 'none' : 'flex';
     }
 
     addEvent(id: string, title: string, start: string, end: string, color: string) {

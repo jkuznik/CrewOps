@@ -30,7 +30,7 @@ class ScheduleShiftConfigurationComponent extends VerticalLayout {
 
     private final CoreAPI coreAPI;
 
-    private static final String PANEL_HEIGHT = "600px";
+    private static final String PANEL_HEIGHT = "700px";
     private static final String PANEL_WIDTH = "400px";
 
     private final Button toggleVisibilityButton = new Button(VaadinIcon.ANGLE_DOWN.create());

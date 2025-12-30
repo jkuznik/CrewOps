@@ -40,6 +40,7 @@ class ShiftPanel extends PanelCustom {
 
     private final CoreAPI coreAPI;
 
+    // todo add max length validator and binder to display info (max 63)
     private final TextField name = new TextField();
     private final ColorSelector colorSelector = new ColorSelector();
 
