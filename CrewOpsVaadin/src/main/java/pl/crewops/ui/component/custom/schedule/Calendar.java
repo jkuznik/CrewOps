@@ -15,6 +15,10 @@ class Calendar extends Component implements HasSize, HasStyle {
 
     public Calendar() {
         getElement().setProperty("initialOptions", createDefaultOptions());
+        setSizeFull();
+        addClassName("calendar-full-view");
+
+        getElement().setProperty("initialOptions", createDefaultOptions());
     }
 
     private String createDefaultOptions() {

@@ -37,11 +37,11 @@ export class ScheduleFullCalendar extends HTMLElement {
             droppable: true,
             initialView: 'dayGridMonth',
             editable: true,
-            firstDay: 1, // Ustawia poniedziałek jako pierwszy dzień tygodnia
+            firstDay: 1,
             headerToolbar: {
-                left: 'prev,next today',
+                left: 'prev today',
                 center: 'title',
-                right: 'dayGridMonth,timeGridWeek'
+                right: 'next',
             },
             dropAccept: '.calendar-template-item',
             dragRevertDuration: 0,
