@@ -2,10 +2,11 @@ import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import allLocales from '@fullcalendar/core/locales-all';
-import interactionPlugin, { Draggable } from '@fullcalendar/interaction';
+import interactionPlugin, { Draggable as ExternalDraggable } from '@fullcalendar/interaction';
 
 export class ScheduleFullCalendar extends HTMLElement {
     private calendar: Calendar | null = null;
+    private _draggableInstance: ExternalDraggable | null = null;
     private _locale: string = 'en';
     private _hidden: boolean = false;
 
@@ -18,11 +19,9 @@ export class ScheduleFullCalendar extends HTMLElement {
 
     set hiddenMode(value: boolean) {
         this._hidden = value;
-        // Zarządzamy widocznością kontenera wewnętrznego
         this.style.display = value ? 'none' : 'flex';
 
         if (!value && this.calendar) {
-            // Automatyczny refresh rozmiaru przy pokazywaniu
             setTimeout(() => this.calendar?.updateSize(), 50);
         }
     }
@@ -38,8 +37,22 @@ export class ScheduleFullCalendar extends HTMLElement {
         this.initCalendar(calendarEl);
     }
 
+    disconnectedCallback() {
+        // Sprzątanie instancji Draggable
+        if (this._draggableInstance) {
+            this._draggableInstance.destroy();
+            this._draggableInstance = null;
+        }
+        // Sprzątanie instancji Kalendarza
+        if (this.calendar) {
+            this.calendar.destroy();
+            this.calendar = null;
+        }
+    }
+
     private initCalendar(el: HTMLElement) {
-        new Draggable(document.body, {
+        // Inicjalizacja Draggable z przypisaniem do nowej nazwy zmiennej
+        this._draggableInstance = new ExternalDraggable(document.body, {
             itemSelector: '.calendar-template-item[draggable="true"]',
             eventData: (eventEl) => {
                 const dataRaw = eventEl.getAttribute('data-template');
@@ -68,8 +81,11 @@ export class ScheduleFullCalendar extends HTMLElement {
             dropAccept: '.calendar-template-item',
             dragRevertDuration: 0,
 
-            eventDragStart: () => console.log("Start przeciągania wewnątrz kalendarza"),
             drop: (info) => {
+                if (info.jsEvent) {
+                    info.jsEvent.stopPropagation();
+                }
+
                 const draggedEl = info.draggedEl;
                 const templateData = draggedEl.getAttribute('data-template') || '{}';
 
@@ -78,13 +94,13 @@ export class ScheduleFullCalendar extends HTMLElement {
                         date: info.dateStr,
                         template: JSON.parse(templateData)
                     },
-                    bubbles: true,
+                    bubbles: false,
                     composed: true
                 }));
             },
 
             dayCellDidMount: (info) => {
-                const day = info.date.getDay(); // 0 = Sunday, 6 = Saturday
+                const day = info.date.getDay();
 
                 if (day === 0) {
                     info.el.style.backgroundColor = 'rgba(255, 0, 0, 0.08)';
@@ -96,14 +112,13 @@ export class ScheduleFullCalendar extends HTMLElement {
             dateClick: (info) => {
                 this.dispatchEvent(new CustomEvent('date-selected', {
                     detail: { date: info.dateStr },
-                    bubbles: true,
+                    bubbles: false,
                     composed: true
                 }));
             }
         });
 
         this.calendar.render();
-
         this.style.display = this._hidden ? 'none' : 'flex';
     }
 
@@ -127,4 +142,6 @@ export class ScheduleFullCalendar extends HTMLElement {
     }
 }
 
-customElements.define('schedule-full-calendar', ScheduleFullCalendar);
+if (!customElements.get('schedule-full-calendar')) {
+    customElements.define('schedule-full-calendar', ScheduleFullCalendar);
+}

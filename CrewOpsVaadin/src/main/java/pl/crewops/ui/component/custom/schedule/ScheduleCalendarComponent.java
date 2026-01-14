@@ -39,20 +39,17 @@ class ScheduleCalendarComponent extends VerticalLayout {
         configureTemplatePalette();
         loadTemplatesFromApi();
 
-        calendar.getElement()
-                .addEventListener("template-dropped", e -> {
-                    JsonObject eventDetail = e.getEventData().getObject("event.detail");
-                    if (eventDetail != null) {
-                        String dateStr = eventDetail.getString("date");
-                        JsonObject templateJson = eventDetail.getObject("template");
-                        handleActualTemplateDrop(
-                                dateStr,
-                                templateJson.getString("title"),
-                                (int) templateJson.getNumber("duration"),
-                                templateJson.getString("color"));
-                    }
-                })
-                .addEventData("event.detail");
+        calendar.addTemplateDroppedListener(e -> {
+            JsonObject detail = e.getDetail();
+            String dateStr = detail.getString("date");
+            JsonObject templateJson = detail.getObject("template");
+
+            handleActualTemplateDrop(
+                    dateStr,
+                    templateJson.getString("title"),
+                    (int) templateJson.getNumber("duration"),
+                    templateJson.getString("color"));
+        });
 
         contentContainer.setVisible(isContentVisible);
         contentContainer.add(templateItemsLayout, calendar);

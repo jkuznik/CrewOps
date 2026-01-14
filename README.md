@@ -50,3 +50,4 @@ Both the backend and frontend are based on the Java ecosystem, enabling seamless
 https://devsmith.eu
 
 ### ~~Note: Currently, only the Vaadin (frontend) module is live and available. This is due to cost limitations associated with hosting a full AWS infrastructure required to run the entire application stack.~~
+# Abakus

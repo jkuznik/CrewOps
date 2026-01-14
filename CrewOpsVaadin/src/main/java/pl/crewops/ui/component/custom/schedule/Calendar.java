@@ -5,6 +5,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.shared.Registration;
+import elemental.json.JsonObject;
 import java.time.LocalDate;
 import java.util.Locale;
 import lombok.Getter;
@@ -29,6 +30,34 @@ public class Calendar extends Component implements HasSize, HasStyle {
                     }
                 })
                 .addEventData("event.detail.date");
+
+        getElement()
+                .addEventListener("template-dropped", event -> {
+                    JsonObject detail = event.getEventData().getObject("event.detail");
+                    if (detail != null) {
+                        fireEvent(new TemplateDroppedEvent(this, true, detail));
+                    }
+                })
+                .addEventData("event.detail");
+    }
+
+    // Klasa zdarzenia dla dropu
+    @DomEvent("template-dropped")
+    public static class TemplateDroppedEvent extends ComponentEvent<Calendar> {
+        private final JsonObject detail;
+
+        public TemplateDroppedEvent(Calendar source, boolean fromClient, @EventData("event.detail") JsonObject detail) {
+            super(source, fromClient);
+            this.detail = detail;
+        }
+
+        public JsonObject getDetail() {
+            return detail;
+        }
+    }
+
+    public Registration addTemplateDroppedListener(ComponentEventListener<TemplateDroppedEvent> listener) {
+        return addListener(TemplateDroppedEvent.class, listener);
     }
 
     @Override
